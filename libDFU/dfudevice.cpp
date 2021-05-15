@@ -24,29 +24,24 @@ bool DFUDevice::endTransaction()
     return res;
 }
 
+bool DFUDevice::abort()
+{
+    const auto res = controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_ABORT, 0, 0, QByteArray());
+
+    if(!res) {
+        qCritical() << dbgLabel << "Unable to issue abort request";
+    }
+
+    return res;
+}
+
 bool DFUDevice::clearStatus()
 {
-    Status status;
-    bool res;
+    const auto res = controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_CLRSTATUS, 0, 0, QByteArray());
 
-    auto attemptsLeft = 10;
-
-    do {
-        res = controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_CLRSTATUS, 0, 0, QByteArray());
-
-        if(!res) {
-            qCritical() << dbgLabel << "Unable to clear device status";
-            break;
-
-        } else if(!attemptsLeft--) {
-            qCritical() << dbgLabel << "Exceeded attempt count to clear device status";
-            return false;
-
-        } else {}
-
-        status = getStatus();
-
-    } while(status.state != Status::DFU_IDLE);
+    if(!res) {
+        qCritical() << dbgLabel << "Unable to clear device status";
+    }
 
     return res;
 }
@@ -79,15 +74,16 @@ DFUDevice::Status DFUDevice::getStatus()
 bool DFUDevice::download(QIODevice &file, uint32_t addr)
 {
     Q_UNUSED(file)
+    Q_UNUSED(addr)
 
-    if(!clearStatus()) {
-        return false;
-    }
+//    if(!clearStatus()) {
+//        return false;
+//    }
 
-    if(!setAddressPointer(addr)) {
-        qCritical() << dbgLabel << "Failed to set address pointer";
-        return false;
-    }
+//    if(!setAddressPointer(addr)) {
+//        qCritical() << dbgLabel << "Failed to set address pointer";
+//        return false;
+//    }
 
     // !!! Warning! This code doesn't work properly -- it bricks devices!
     // (but it means it does at least SOMETHING) :D
@@ -128,16 +124,16 @@ bool DFUDevice::download(QIODevice &file, uint32_t addr)
 
 bool DFUDevice::upload(QIODevice &file, uint32_t addr, size_t len)
 {
-    if(!clearStatus()) {
-        return false;
+    const auto status = getStatus();
+
+    if(status.error != Status::OK) {
+        clearStatus();
+    } else if(status.state != Status::DFU_IDLE) {
+        abort();
     }
 
-    if(!setAddressPointer(addr)) {
+    if(!(setAddressPointer(addr) && abort())) {
         qCritical() << dbgLabel << "Failed to set address pointer";
-        return false;
-    }
-
-    if(!clearStatus()) {
         return false;
     }
 

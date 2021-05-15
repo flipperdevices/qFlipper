@@ -62,6 +62,7 @@ public:
         DFU_UPLOAD,
         DFU_GETSTATUS,
         DFU_CLRSTATUS,
+        DFU_GETSTATE,
         DFU_ABORT
     };
 
@@ -69,6 +70,8 @@ public:
 
     bool beginTransaction(int alt = 0);
     bool endTransaction();
+
+    bool abort();
 
     bool clearStatus();
     Status getStatus();
