@@ -67,14 +67,17 @@ public:
 
     DFUDevice(const USBDeviceInfo &info, QObject *parent = nullptr);
 
-    bool beginTransaction();
+    bool beginTransaction(int alt = 0);
     bool endTransaction();
 
     bool clearStatus();
     Status getStatus();
 
-    bool download(QIODevice &file, int alt = 0);
-    bool upload(QIODevice &file, int alt = 0);
+    bool download(QIODevice &file, uint32_t addr);
+    bool upload(QIODevice &file, uint32_t addr, size_t len);
+
+private:
+    bool setAddressPointer(uint32_t addr);
 };
 
 

@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QThread>
+#include <QtEndian>
 #include <QByteArray>
 
 static constexpr const char *dbgLabel = "DFUDevice:";
@@ -10,8 +11,9 @@ DFUDevice::DFUDevice(const USBDeviceInfo &info, QObject *parent):
     USBDevice(info, parent)
 {}
 
-bool DFUDevice::beginTransaction()
+bool DFUDevice::beginTransaction(int alt)
 {
+    Q_UNUSED(alt)
     return open() && claimInterface(0);
 }
 
@@ -30,7 +32,7 @@ bool DFUDevice::clearStatus()
     auto attemptsLeft = 10;
 
     do {
-        res = controlTransfer(0x21, DFU_CLRSTATUS, 0, 0, QByteArray());
+        res = controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_CLRSTATUS, 0, 0, QByteArray());
 
         if(!res) {
             qCritical() << dbgLabel << "Unable to clear device status";
@@ -54,7 +56,7 @@ DFUDevice::Status DFUDevice::getStatus()
     Status ret;
 
     const auto STATUS_LENGTH = 6;
-    const auto buf = controlTransfer(0xa1, DFU_GETSTATUS, 0, 0, STATUS_LENGTH);
+    const auto buf = controlTransfer(ENDPOINT_IN | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_GETSTATUS, 0, 0, STATUS_LENGTH);
 
     if(buf.size() != STATUS_LENGTH) {
         qCritical() << dbgLabel << "Unable to get device status";
@@ -74,24 +76,23 @@ DFUDevice::Status DFUDevice::getStatus()
 }
 
 // NOTE: The following code is purely for testing purposes
-bool DFUDevice::download(QIODevice &file, int alt)
+bool DFUDevice::download(QIODevice &file, uint32_t addr)
 {
     Q_UNUSED(file)
-    Q_UNUSED(alt)
 
     if(!clearStatus()) {
         return false;
     }
 
-    const auto status = getStatus();
-
-    qDebug() << "Error code:" << status.error;
-    qDebug() << "State:" << status.state;
+    if(!setAddressPointer(addr)) {
+        qCritical() << dbgLabel << "Failed to set address pointer";
+        return false;
+    }
 
     // !!! Warning! This code doesn't work properly -- it bricks devices!
     // (but it means it does at least SOMETHING) :D
 
-//    uint16_t transaction = 0;
+//    uint16_t transaction = 2;
 
 //    while(!file.atEnd()) {
 //        auto buf = file.read(128);
@@ -125,10 +126,55 @@ bool DFUDevice::download(QIODevice &file, int alt)
     return true;
 }
 
-bool DFUDevice::upload(QIODevice &file, int alt)
+bool DFUDevice::upload(QIODevice &file, uint32_t addr, size_t len)
 {
-    Q_UNUSED(file)
-    Q_UNUSED(alt)
+    if(!clearStatus()) {
+        return false;
+    }
 
-    return false;
+    if(!setAddressPointer(addr)) {
+        qCritical() << dbgLabel << "Failed to set address pointer";
+        return false;
+    }
+
+    if(!clearStatus()) {
+        return false;
+    }
+
+    uint16_t transaction = 2;
+
+    for(size_t totalSize = 0; totalSize < len; ) {
+        const auto BUFSIZE = 256;
+        const auto buf = controlTransfer(ENDPOINT_IN | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_UPLOAD, transaction++, 0, BUFSIZE);
+
+        if(buf.size() != BUFSIZE) {
+            qCritical() << dbgLabel << "Unable to perform upload control transfer";
+            return false;
+        }
+
+        totalSize += file.write(buf);
+
+        qDebug() << dbgLabel << "Bytes uploaded:" << totalSize;
+    }
+
+    return true;
+}
+
+bool DFUDevice::setAddressPointer(uint32_t addr)
+{
+    const auto requestData = QByteArray(1, 0x21) + QByteArray::fromRawData((char*)&addr, sizeof(uint32_t));
+
+    if(!controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_DNLOAD, 0, 0, requestData)) {
+        return false;
+    }
+
+    Status status;
+
+    do {
+        status = getStatus();
+        QThread::msleep(status.timeout);
+
+    } while(status.state == Status::DFU_DNBUSY);
+
+    return true;
 }

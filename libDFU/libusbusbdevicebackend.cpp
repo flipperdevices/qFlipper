@@ -56,7 +56,7 @@ bool LibusbUSBDeviceBackend::findDevice(const USBDeviceLocation &loc)
         libusb_device_descriptor desc;
 
         if(const auto err = libusb_get_device_descriptor(dev, &desc)) {
-            qCritical() << "libusb backend: Failed to get device descriptor:" << libusb_error_name(err);
+            qCritical() << dbgLabel << "Failed to get device descriptor:" << libusb_error_name(err);
             continue;
         }
 
@@ -122,9 +122,9 @@ bool LibusbUSBDeviceBackend::controlTransfer(uint8_t requestType, uint8_t reques
                      value, index, buf.isEmpty() ? NULL : (unsigned char*)(buf.data()), buf.size(), m_pdata->timeout);
 
     if(res < 0) {
-        qCritical() << dbgLabel << "Failed to perform control transfer [OUT]:" << libusb_error_name(res);
+        qCritical() << dbgLabel << "(OUT): Failed to perform control transfer" << libusb_error_name(res);
     } else if(res != buf.size()) {
-        qCritical() << dbgLabel << "Failed to transfer all data [OUT]";
+        qCritical() << dbgLabel << "(OUT): Failed to transfer all data";
     } else {}
 
     return res == buf.size();
@@ -139,11 +139,11 @@ QByteArray LibusbUSBDeviceBackend::controlTransfer(uint8_t requestType, uint8_t 
 
     if(res < 0) {
         buf.clear();
-        qCritical() << dbgLabel << "Failed to perform control transfer [IN]:" << libusb_error_name(res);
+        qCritical() << dbgLabel << "(IN): Failed to perform control transfer:" << libusb_error_name(res);
 
     } else if(res != length) {
         buf.resize(res);
-        qCritical() << dbgLabel << "Failed to transfer all data [IN]";
+        qCritical() << dbgLabel << "(IN): Failed to transfer all data";
     } else {}
 
     return buf;
