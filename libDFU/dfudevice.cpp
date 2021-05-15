@@ -10,13 +10,41 @@ DFUDevice::DFUDevice(const USBDeviceInfo &info, QObject *parent):
     USBDevice(info, parent)
 {}
 
+bool DFUDevice::beginTransaction()
+{
+    return open() && claimInterface(0);
+}
+
+bool DFUDevice::endTransaction()
+{
+    const auto res = releaseInterface(0);
+    close();
+    return res;
+}
+
 bool DFUDevice::clearStatus()
 {
-    const auto res = controlTransfer(0x21, 4, 0, 0, QByteArray());
+    Status status;
+    bool res;
 
-    if(!res) {
-        qCritical() << dbgLabel << "Unable to clear device status";
-    }
+    auto attemptsLeft = 10;
+
+    do {
+        res = controlTransfer(0x21, DFU_CLRSTATUS, 0, 0, QByteArray());
+
+        if(!res) {
+            qCritical() << dbgLabel << "Unable to clear device status";
+            break;
+
+        } else if(!attemptsLeft--) {
+            qCritical() << dbgLabel << "Exceeded attempt count to clear device status";
+            return false;
+
+        } else {}
+
+        status = getStatus();
+
+    } while(status.state != Status::DFU_IDLE);
 
     return res;
 }
@@ -26,20 +54,21 @@ DFUDevice::Status DFUDevice::getStatus()
     Status ret;
 
     const auto STATUS_LENGTH = 6;
-    const auto buf = controlTransfer(0xa1, 3, 0, 0, STATUS_LENGTH);
+    const auto buf = controlTransfer(0xa1, DFU_GETSTATUS, 0, 0, STATUS_LENGTH);
 
     if(buf.size() != STATUS_LENGTH) {
         qCritical() << dbgLabel << "Unable to get device status";
         return ret;
     }
 
-    ret.status = buf[0];
-    ret.state = buf[4];
-    ret.istring = buf[5];
+    ret.error = (Status::Error)buf[0];
+    ret.state = (Status::State)buf[4];
 
     ret.timeout = ((uint32_t)buf[3] << 16) |
                   ((uint32_t)buf[2] << 8)  |
                   ((uint32_t)buf[1]);
+
+    ret.istring = buf[5];
 
     return ret;
 }
@@ -50,12 +79,13 @@ bool DFUDevice::download(QIODevice &file, int alt)
     Q_UNUSED(file)
     Q_UNUSED(alt)
 
-    claimInterface(0);
+    if(!clearStatus()) {
+        return false;
+    }
 
     const auto status = getStatus();
 
-    qDebug() << "Status:" << status.status;
-    qDebug() << "Poll Timeout:" << status.timeout;
+    qDebug() << "Error code:" << status.error;
     qDebug() << "State:" << status.state;
 
     // !!! Warning! This code doesn't work properly -- it bricks devices!
@@ -92,7 +122,13 @@ bool DFUDevice::download(QIODevice &file, int alt)
 
 //    controlTransfer(0x21, 1, transaction, 0, QByteArray());
 
-    releaseInterface(0);
-
     return true;
+}
+
+bool DFUDevice::upload(QIODevice &file, int alt)
+{
+    Q_UNUSED(file)
+    Q_UNUSED(alt)
+
+    return false;
 }

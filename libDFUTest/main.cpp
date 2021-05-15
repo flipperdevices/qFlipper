@@ -34,7 +34,6 @@ int main(int argc, char *argv[])
         }
     };
 
-
     const auto devices = USBDeviceInfo::availableDevices(matches);
 
     if(devices.isEmpty()) {
@@ -60,9 +59,13 @@ int main(int argc, char *argv[])
 
     DFUDevice dev(devices.first());
 
-    dev.open();
+    if(!dev.beginTransaction()) {
+        return -1;
+    }
+
     dev.download(test);
-    dev.close();
+
+    dev.endTransaction();
 
     return a.exec();
 }
