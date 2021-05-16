@@ -14,6 +14,7 @@ SOURCES += \
 
 HEADERS += \
     abstractusbdevicebackend.h \
+    descriptors.h \
     dfudevice.h \
     libusbusbdevicebackend.h \
     usbdevice.h \
