@@ -71,13 +71,13 @@ public:
     bool beginTransaction(int alt = 0);
     bool endTransaction();
 
-    bool abort();
+    bool abortToIdle();
 
     bool clearStatus();
     Status getStatus();
 
     bool download(QIODevice &file, uint32_t addr);
-    bool upload(QIODevice &file, uint32_t addr, size_t len);
+    bool upload(QIODevice &file, uint32_t addr, size_t maxSize);
 
 private:
     bool setAddressPointer(uint32_t addr);

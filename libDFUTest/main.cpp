@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     }
 
 //    dev.download(downloadTest, 0x08000000);
-    dev.upload(uploadTest, 0x08000010, 5760);
+    dev.upload(uploadTest, 0x08000000, 138240);
 
     dev.endTransaction();
 

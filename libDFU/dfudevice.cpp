@@ -24,12 +24,20 @@ bool DFUDevice::endTransaction()
     return res;
 }
 
-bool DFUDevice::abort()
+bool DFUDevice::abortToIdle()
 {
-    const auto res = controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_ABORT, 0, 0, QByteArray());
+    if(!controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_ABORT, 0, 0, QByteArray())) {
+        qCritical() << dbgLabel << "Unable to issue abort request";
+        return false;
+    }
+
+    const auto status = getStatus();
+    const auto res = (status.error == Status::OK) && (status.state == Status::DFU_IDLE);
 
     if(!res) {
-        qCritical() << dbgLabel << "Unable to issue abort request";
+        qCritical() << dbgLabel << "Unable to reset device to idle state";
+    } else {
+        QThread::msleep(status.timeout);
     }
 
     return res;
@@ -37,13 +45,7 @@ bool DFUDevice::abort()
 
 bool DFUDevice::clearStatus()
 {
-    const auto res = controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_CLRSTATUS, 0, 0, QByteArray());
-
-    if(!res) {
-        qCritical() << dbgLabel << "Unable to clear device status";
-    }
-
-    return res;
+    return controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_CLRSTATUS, 0, 0, QByteArray());
 }
 
 DFUDevice::Status DFUDevice::getStatus()
@@ -122,35 +124,55 @@ bool DFUDevice::download(QIODevice &file, uint32_t addr)
     return true;
 }
 
-bool DFUDevice::upload(QIODevice &file, uint32_t addr, size_t len)
+bool DFUDevice::upload(QIODevice &file, uint32_t addr, size_t maxSize)
 {
     const auto status = getStatus();
 
     if(status.error != Status::OK) {
-        clearStatus();
+        qInfo() << dbgLabel << "Device is in error state, resetting...";
+
+        if(!clearStatus()) {
+            qCritical() << dbgLabel << "Failed to clear device status";
+            return false;
+        }
+
     } else if(status.state != Status::DFU_IDLE) {
-        abort();
+        qInfo() << dbgLabel << "Device is not idle, resetting...";
+
+        if(!abortToIdle()) {
+            qCritical() << dbgLabel << "Failed to abort to idle";
+            return false;
+        }
     }
 
-    if(!(setAddressPointer(addr) && abort())) {
+    if(!(setAddressPointer(addr) && abortToIdle())) {
         qCritical() << dbgLabel << "Failed to set address pointer";
         return false;
     }
 
     uint16_t transaction = 2;
 
-    for(size_t totalSize = 0; totalSize < len; ) {
-        const auto BUFSIZE = 256;
-        const auto buf = controlTransfer(ENDPOINT_IN | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_UPLOAD, transaction++, 0, BUFSIZE);
+    for(size_t totalSize = 0; totalSize < maxSize; ) {
+        const auto MAX_BUF_SIZE = 2048; // TODO: Determine this size from configuration descriptor
 
-        if(buf.size() != BUFSIZE) {
+        const auto transactionSize = qMin<size_t>(MAX_BUF_SIZE, maxSize - totalSize);
+        const auto buf = controlTransfer(ENDPOINT_IN | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_UPLOAD, transaction++, 0, transactionSize);
+
+        if((size_t)buf.size() != transactionSize) {
             qCritical() << dbgLabel << "Unable to perform upload control transfer";
             return false;
         }
 
-        totalSize += file.write(buf);
+        const auto bytesWritten = file.write(buf);
 
-        qDebug() << dbgLabel << "Bytes uploaded:" << totalSize;
+        if(bytesWritten < 0) {
+            qCritical() << dbgLabel << "Failed to write to output device";
+            return false;
+        }
+
+        totalSize += bytesWritten;
+
+        qDebug() << dbgLabel << "Bytes uploaded:" << totalSize << totalSize * 100 / maxSize << "%";
     }
 
     return true;
@@ -168,7 +190,12 @@ bool DFUDevice::setAddressPointer(uint32_t addr)
 
     do {
         status = getStatus();
-        QThread::msleep(status.timeout);
+
+        if(status.error == Status::OK) {
+            QThread::msleep(status.timeout);
+        } else {
+            return false;
+        }
 
     } while(status.state == Status::DFU_DNBUSY);
 
