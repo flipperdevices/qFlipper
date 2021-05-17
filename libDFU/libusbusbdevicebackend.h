@@ -16,6 +16,8 @@ public:
 
     bool findDevice(const USBDeviceLocation &loc) override;
 
+    QByteArray getExtraInterfaceDescriptor() override;
+
     bool openDevice() override;
     void closeDevice() override;
 

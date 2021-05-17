@@ -9,9 +9,6 @@ struct LibusbUSBDeviceBackend::BackendData {
     libusb_device *device;
     libusb_device_handle *handle;
 
-    libusb_device_descriptor deviceDescriptor;
-    libusb_config_descriptor configDescriptor;
-
     unsigned int timeout = 1000;
 };
 
@@ -41,6 +38,7 @@ bool LibusbUSBDeviceBackend::init()
 
 void LibusbUSBDeviceBackend::exit()
 {
+    // TODO: Check for open devices?
     if(m_pdata->context) {
         libusb_exit(m_pdata->context);
     }
@@ -48,6 +46,8 @@ void LibusbUSBDeviceBackend::exit()
 
 bool LibusbUSBDeviceBackend::findDevice(const USBDeviceLocation &loc)
 {
+    bool res = false;
+
     libusb_device **list;
     const auto numDevs = libusb_get_device_list(m_pdata->context, &list);
 
@@ -65,16 +65,48 @@ bool LibusbUSBDeviceBackend::findDevice(const USBDeviceLocation &loc)
         const auto busOK = (loc.busNumber == libusb_get_bus_number(dev));
         const auto addrOK = (loc.address == libusb_get_device_address(dev));
 
-        if(vendorOK && productOK && busOK && addrOK) {
-            m_pdata->device = libusb_ref_device(dev);
-            m_pdata->deviceDescriptor = desc;
+        res = vendorOK && productOK && busOK && addrOK;
 
-            return true;
+        if(res) {
+            m_pdata->device = libusb_ref_device(dev);
+            break;
         }
     }
 
     libusb_free_device_list(list, 1);
-    return false;
+    return res;
+}
+
+QByteArray LibusbUSBDeviceBackend::getExtraInterfaceDescriptor()
+{
+    QByteArray ret;
+    libusb_config_descriptor *cfg;
+
+    if(const auto err = libusb_get_config_descriptor(m_pdata->device, 0, &cfg)) {
+        qCritical() << dbgLabel << "Failed to get configuration descriptor";
+        return ret;
+    }
+
+    const auto intf = *(cfg->interface);
+
+    for(auto i = 0; i < intf.num_altsetting; ++i) {
+        const auto altintf = intf.altsetting[i];
+
+        // TODO: These are DFU-specific values that should not be here.
+        // The code must be refactored to be more general.
+
+        const auto DFU_DESCRIPTOR_LENGTH = 9;
+        const auto DFU_DESCRIPTOR_TYPE = 0x21;
+
+        if((altintf.extra_length == DFU_DESCRIPTOR_LENGTH) && (altintf.extra[1] == DFU_DESCRIPTOR_TYPE)) {
+            ret.append((const char*)(altintf.extra), altintf.extra_length);
+            break;
+        }
+    }
+
+    libusb_free_config_descriptor(cfg);
+
+    return ret;
 }
 
 bool LibusbUSBDeviceBackend::openDevice()
@@ -124,7 +156,7 @@ bool LibusbUSBDeviceBackend::controlTransfer(uint8_t requestType, uint8_t reques
     if(res < 0) {
         qCritical() << dbgLabel << "(OUT): Failed to perform control transfer" << libusb_error_name(res);
     } else if(res != buf.size()) {
-        qCritical() << dbgLabel << "(OUT): Failed to transfer all data";
+        qInfo() << dbgLabel << "(OUT): Requested and transferred data size differ";
     } else {}
 
     return res == buf.size();
@@ -143,7 +175,7 @@ QByteArray LibusbUSBDeviceBackend::controlTransfer(uint8_t requestType, uint8_t 
 
     } else if(res != length) {
         buf.resize(res);
-        qCritical() << dbgLabel << "(IN): Failed to transfer all data";
+        qInfo() << dbgLabel << "(IN): Requested and transferred data size differ";
     } else {}
 
     return buf;

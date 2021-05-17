@@ -18,6 +18,8 @@ public:
 
     virtual bool findDevice(const USBDeviceLocation &loc) = 0;
 
+    virtual QByteArray getExtraInterfaceDescriptor() = 0;
+
     virtual bool openDevice() = 0;
     virtual void closeDevice() = 0;
 

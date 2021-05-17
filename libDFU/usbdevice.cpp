@@ -60,3 +60,8 @@ QByteArray USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint
 {
     return m_backend->controlTransfer(requestType, request, value, index, length);
 }
+
+QByteArray USBDevice::extraInterfaceDescriptor()
+{
+    return m_backend->getExtraInterfaceDescriptor();
+}

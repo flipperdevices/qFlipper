@@ -9,7 +9,7 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    QFile downloadTest("full.bin"), uploadTest("upload.bin");
+    QFile downloadTest("download.bin"), uploadTest("upload.bin");
 
     if(!downloadTest.open(QIODevice::ReadOnly)) {
         qCritical() << "Can't open file for reading";
@@ -68,8 +68,8 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-//    dev.download(downloadTest, 0x08000000);
-    dev.upload(uploadTest, 0x08000000, 138240);
+    dev.download(downloadTest, 0x08000000);
+    //dev.upload(uploadTest, 0x08000000, 132352);
 
     dev.endTransaction();
 
@@ -77,5 +77,4 @@ int main(int argc, char *argv[])
     uploadTest.close();
 
     return a.exec();
-
 }

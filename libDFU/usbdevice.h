@@ -17,6 +17,35 @@
  * of the first interface of the first configuration.
 */
 
+/*
+ * TODO: Refactor this mess into something more logical.
+ *
+ * Suggested structure:
+ * class USBInterfaceAltSetting {
+ *      controlTransfer()....
+ * }
+ * class USBInterface {
+ *      getAlternateSettings() ...
+ *      QList<USBInterfaceAltSetting> ...
+ * }
+ * class USBConfiguration {
+ *      getInterfaces() ...
+ *      QList<USBInterface> ...
+ * }
+ *
+ * class USBDevice {
+ *      open(), close(), ...
+ *      getConfigurations() ...
+ *      QList<USBConfiguration> ...
+ *
+ *      Backend backend ...
+ * }
+ *
+ * All this functionality is not needed right now, but might come in handy in the future.
+ * Plus, it looks much better.
+ *
+ */
+
 class AbstractUSBDeviceBackend;
 
 class USBDevice : public QObject
@@ -40,7 +69,7 @@ public:
         RECIPIENT_DEVICE = 0x00,
         RECIPIENT_INTERFACE = 0x01,
         RECIPIENT_ENDPOINT = 0x02,
-        RECIPIETN_OTHER = 0x03
+        RECIPIENT_OTHER = 0x03
     };
 
     USBDevice(const USBDeviceInfo &info, QObject *parent = nullptr);
@@ -56,6 +85,9 @@ public:
 
     bool controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, const QByteArray &data);
     QByteArray controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, uint16_t length);
+
+    // Should not be here in the end. For now it just passes the information from backend.
+    QByteArray extraInterfaceDescriptor();
 
 signals:
 
