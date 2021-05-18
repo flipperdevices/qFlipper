@@ -4,8 +4,14 @@
 #include <QThread>
 #include <QByteArray>
 
+#include "dfumemorylayout.h"
+
 // Don't forget!
 // TODO: replace if() error check blocks with a macro/function
+// NB: Exceptions maybe?
+
+#define REQUEST_OUT (ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE)
+#define REQUEST_IN (ENDPOINT_IN | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE)
 
 static constexpr const char *dbgLabel = "DFUDevice:";
 
@@ -28,9 +34,6 @@ bool DFUDevice::endTransaction()
 
 bool DFUDevice::erase(uint32_t addr, size_t maxSize)
 {
-    // NOTE: This code only erases the first page.
-    // TODO: Get and utilise flash memory layout.
-
     Q_UNUSED(maxSize)
 
     if(!prepare()) {
@@ -38,26 +41,17 @@ bool DFUDevice::erase(uint32_t addr, size_t maxSize)
         return false;
     }
 
-    const auto buf = QByteArray(1, 0x41) + QByteArray((const char*)&addr, sizeof(uint32_t));
+    const auto layout = DFUMemoryLayout::fromStringDescriptor(stringInterfaceDescriptor());
+    const auto pageAddresses = layout.pageAddresses(addr, addr + maxSize);
 
-    if(!controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_DNLOAD, 0, 0, buf)) {
-        qCritical() << dbgLabel << "Failed to perform DFU_DNLOAD transfer";
-        return false;
-    }
-
-    StatusType status;
-
-    do {
-        status = getStatus();
-
-        if(status.bStatus != StatusType::OK) {
-            qCritical() << dbgLabel << "An error has occured during erase phase";
+    for(const auto pageAddress: pageAddresses) {
+        if(!erasePage(pageAddress)) {
+            qCritical() << dbgLabel << "Failed to erase page";
             return false;
-        } else{
-            QThread::msleep(status.bwPollTimeout);
         }
 
-    } while(status.bState == StatusType::DFU_DNBUSY);
+        qInfo() << dbgLabel << "Erasing memory:" << (pageAddress - addr) * 100 / maxSize  << "%";
+    }
 
     qInfo() << dbgLabel << "Erase done.";
 
@@ -98,7 +92,7 @@ bool DFUDevice::download(QIODevice &file, uint32_t addr)
     for(size_t totalSize = 0, transaction = 2; !file.atEnd(); ++transaction) {
         const auto buf = file.read(maxTransferSize);
 
-        if(!controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_DNLOAD, transaction, 0, buf)) {
+        if(!controlTransfer(REQUEST_OUT, DFU_DNLOAD, transaction, 0, buf)) {
             qCritical() << dbgLabel << "Failed to perform DFU_DNLOAD transfer";
             return false;
         }
@@ -119,24 +113,6 @@ bool DFUDevice::download(QIODevice &file, uint32_t addr)
 
         qDebug() << dbgLabel << "Bytes downloaded:" << totalSize << totalSize * 100 / file.size() << "%";
     }
-
-    if(!controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_DNLOAD, 0, 0, QByteArray())) {
-        qCritical() << dbgLabel << "Failed to perform final DFU_DNLOAD transfer";
-        return false;
-    }
-
-    do {
-        status = getStatus();
-
-        if(status.bStatus != StatusType::OK) {
-            qCritical() << dbgLabel << "An error has occured during manifestation phase";
-            return false;
-
-        } else {
-            QThread::msleep(status.bwPollTimeout);
-        }
-
-    } while(status.bState != StatusType::DFU_MANIFEST);
 
     qInfo() << dbgLabel << "Download has finished.";
 
@@ -168,7 +144,7 @@ bool DFUDevice::upload(QIODevice &file, uint32_t addr, size_t maxSize)
     for(size_t totalSize = 0, transaction = 2; totalSize < maxSize; ++transaction) {
 
         const auto transferSize = qMin<size_t>(maxTransferSize, maxSize - totalSize);
-        const auto buf = controlTransfer(ENDPOINT_IN | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_UPLOAD, transaction, 0, transferSize);
+        const auto buf = controlTransfer(REQUEST_IN, DFU_UPLOAD, transaction, 0, transferSize);
 
         const auto bytesWritten = file.write(buf);
 
@@ -194,11 +170,23 @@ bool DFUDevice::upload(QIODevice &file, uint32_t addr, size_t maxSize)
     return true;
 }
 
+bool DFUDevice::leave()
+{
+    if(!controlTransfer(REQUEST_OUT, DFU_DNLOAD, 0, 0, QByteArray())) {
+        qCritical() << dbgLabel << "Failed to perform final DFU_DNLOAD transfer";
+        return false;
+    }
+
+    getStatus(); // It will return an error on WB55 anyway
+
+    return true;
+}
+
 bool DFUDevice::setAddressPointer(uint32_t addr)
 {
     const auto requestData = QByteArray(1, 0x21) + QByteArray::fromRawData((char*)&addr, sizeof(uint32_t));
 
-    if(!controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_DNLOAD, 0, 0, requestData)) {
+    if(!controlTransfer(REQUEST_OUT, DFU_DNLOAD, 0, 0, requestData)) {
         return false;
     }
 
@@ -218,9 +206,35 @@ bool DFUDevice::setAddressPointer(uint32_t addr)
     return true;
 }
 
+bool DFUDevice::erasePage(uint32_t addr)
+{
+    const auto buf = QByteArray(1, 0x41) + QByteArray((const char*)&addr, sizeof(uint32_t));
+
+    if(!controlTransfer(REQUEST_OUT, DFU_DNLOAD, 0, 0, buf)) {
+        qCritical() << dbgLabel << "Failed to perform DFU_DNLOAD transfer";
+        return false;
+    }
+
+    StatusType status;
+
+    do {
+        status = getStatus();
+
+        if(status.bStatus != StatusType::OK) {
+            qCritical() << dbgLabel << "An error has occured during erase phase";
+            return false;
+        } else{
+            QThread::msleep(status.bwPollTimeout);
+        }
+
+    } while(status.bState == StatusType::DFU_DNBUSY);
+
+    return true;
+}
+
 bool DFUDevice::abort()
 {
-    if(!controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_ABORT, 0, 0, QByteArray())) {
+    if(!controlTransfer(REQUEST_OUT, DFU_ABORT, 0, 0, QByteArray())) {
         qCritical() << dbgLabel << "Unable to issue abort request";
         return false;
     }
@@ -239,7 +253,7 @@ bool DFUDevice::abort()
 
 bool DFUDevice::clearStatus()
 {
-    return controlTransfer(ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_CLRSTATUS, 0, 0, QByteArray());
+    return controlTransfer(REQUEST_OUT, DFU_CLRSTATUS, 0, 0, QByteArray());
 }
 
 DFUDevice::StatusType DFUDevice::getStatus()
@@ -247,7 +261,7 @@ DFUDevice::StatusType DFUDevice::getStatus()
     StatusType ret;
 
     const auto STATUS_LENGTH = 6;
-    const auto buf = controlTransfer(ENDPOINT_IN | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE, DFU_GETSTATUS, 0, 0, STATUS_LENGTH);
+    const auto buf = controlTransfer(REQUEST_IN, DFU_GETSTATUS, 0, 0, STATUS_LENGTH);
 
     if(buf.size() != STATUS_LENGTH) {
         qCritical() << dbgLabel << "Unable to get device status";

@@ -76,6 +76,7 @@ public:
     bool erase(uint32_t addr, size_t maxSize);
     bool download(QIODevice &file, uint32_t addr);
     bool upload(QIODevice &file, uint32_t addr, size_t maxSize);
+    bool leave();
 
 private:
     bool abort();
@@ -85,6 +86,7 @@ private:
 
     bool prepare();
     bool setAddressPointer(uint32_t addr);
+    bool erasePage(uint32_t addr);
 };
 
 

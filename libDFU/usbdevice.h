@@ -88,12 +88,16 @@ public:
 
     // Should not be here in the end. For now it just passes the information from backend.
     QByteArray extraInterfaceDescriptor();
+    QByteArray stringInterfaceDescriptor();
 
-signals:
+protected:
+    int currentInterface() const; // 0nly one interface should be claimed at a time
 
 private:
     USBDeviceLocation m_location;
     AbstractUSBDeviceBackend *m_backend;
+
+    int m_currentInterface = -1;
 };
 
 #endif // USBDEVICE_H

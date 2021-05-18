@@ -5,11 +5,11 @@
 #include <libusb.h>
 
 struct LibusbUSBDeviceBackend::BackendData {
-    libusb_context *context;
-    libusb_device *device;
-    libusb_device_handle *handle;
+    libusb_context *context = nullptr;
+    libusb_device *device = nullptr;
+    libusb_device_handle *handle = nullptr;
 
-    unsigned int timeout = 1000;
+    unsigned int timeout = 10000;
 };
 
 static constexpr const char* dbgLabel = "libusb backend:";
@@ -107,6 +107,34 @@ QByteArray LibusbUSBDeviceBackend::getExtraInterfaceDescriptor()
     libusb_free_config_descriptor(cfg);
 
     return ret;
+}
+
+QByteArray LibusbUSBDeviceBackend::getStringInterfaceDescriptor(int interfaceNum)
+{
+    libusb_config_descriptor *cfg;
+
+    if(const auto err = libusb_get_config_descriptor(m_pdata->device, 0, &cfg)) {
+        qCritical() << dbgLabel << "Failed to get configuration descriptor";
+        return QByteArray();
+    }
+
+    const auto BUF_SIZE = 254;
+    QByteArray buf(BUF_SIZE, 0);
+
+
+    const auto intf = *(cfg->interface);
+    const auto res = libusb_get_string_descriptor_ascii(m_pdata->handle, intf.altsetting[interfaceNum].iInterface, (unsigned char*)buf.data(), BUF_SIZE);
+
+    if(res < 0) {
+        qCritical() << dbgLabel << "Failed to get string descriptor:" << libusb_error_name(res);
+        buf.clear();
+    } else {
+        buf.resize(res);
+    }
+
+    libusb_free_config_descriptor(cfg);
+
+    return buf;
 }
 
 bool LibusbUSBDeviceBackend::openDevice()
