@@ -43,14 +43,17 @@ void USBDevice::reenumerate()
 
 bool USBDevice::claimInterface(int interfaceNum)
 {
-    m_currentInterface = interfaceNum;
     return m_backend->claimInterface(interfaceNum);
 }
 
 bool USBDevice::releaseInterface(int interfaceNum)
 {
-    m_currentInterface = -1;
     return m_backend->releaseInterface(interfaceNum);
+}
+
+bool USBDevice::setInterfaceAltSetting(int interfaceNum, uint8_t alt)
+{
+    return m_backend->setInterfaceAltSetting(interfaceNum, alt);
 }
 
 bool USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, const QByteArray &data)
@@ -68,7 +71,7 @@ QByteArray USBDevice::extraInterfaceDescriptor()
     return m_backend->getExtraInterfaceDescriptor();
 }
 
-QByteArray USBDevice::stringInterfaceDescriptor()
+QByteArray USBDevice::stringInterfaceDescriptor(int interfaceNum)
 {
-    return m_backend->getStringInterfaceDescriptor(m_currentInterface);
+    return m_backend->getStringInterfaceDescriptor(interfaceNum);
 }

@@ -25,6 +25,8 @@ public:
     bool claimInterface(int interfaceNum) override;
     bool releaseInterface(int interfaceNum) override;
 
+    bool setInterfaceAltSetting(int interfaceNum, uint8_t alt) override;
+
     bool controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, const QByteArray &buf) override;
     QByteArray controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, uint16_t length) override;
 

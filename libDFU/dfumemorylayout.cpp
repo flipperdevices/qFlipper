@@ -4,8 +4,6 @@
 
 #include "macros.h"
 
-static constexpr const char *dbgLabel = "DFUMemoryLayout:";
-
 // TODO: Try optimising it
 DFUMemoryLayout DFUMemoryLayout::fromStringDescriptor(const QByteArray &desc)
 {
@@ -14,7 +12,7 @@ DFUMemoryLayout DFUMemoryLayout::fromStringDescriptor(const QByteArray &desc)
     const auto fields = desc.split('/');
 
     if(fields.size() != 3) {
-        DEBUG_CRITICAL("bad descriptor syntax");
+        error_msg("bad descriptor syntax");
         return ret;
     }
 
@@ -27,7 +25,7 @@ DFUMemoryLayout DFUMemoryLayout::fromStringDescriptor(const QByteArray &desc)
         const auto bankFields = bank.split('*');
 
         if(bankFields.size() != 2) {
-            DEBUG_CRITICAL("bad page bank syntax");
+            error_msg("bad page bank syntax");
             return ret;
         }
 
@@ -67,7 +65,7 @@ const QList<uint32_t> DFUMemoryLayout::pageAddresses(uint32_t start, uint32_t en
     QList<uint32_t> ret;
 
     if((start < m_address) || (start > end)) {
-        DEBUG_CRITICAL("address error");
+        error_msg("address error");
         return ret;
     }
 

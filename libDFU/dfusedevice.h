@@ -5,10 +5,11 @@
 #include <QMetaEnum>
 
 #include "usbdevice.h"
+#include "dfusefile.h"
 
 // NOTE: This class should reveal about USB internals as little as possible.
 // TODO: Separate STM32 protocol and standard protocol into respective classes.
-class DFUDevice : public USBDevice
+class DfuseDevice : public USBDevice
 {
     Q_OBJECT
 
@@ -68,14 +69,15 @@ class DFUDevice : public USBDevice
     };
 
 public:
-    DFUDevice(const USBDeviceInfo &info, QObject *parent = nullptr);
+    DfuseDevice(const USBDeviceInfo &info, QObject *parent = nullptr);
 
-    bool beginTransaction(uint8_t alt = 0);
+    bool beginTransaction();
     bool endTransaction();
 
     bool erase(uint32_t addr, size_t maxSize);
-    bool download(QIODevice &file, uint32_t addr);
-    bool upload(QIODevice &file, uint32_t addr, size_t maxSize);
+    bool download(DfuseFile &file);
+    bool download(QIODevice &file, uint32_t addr, uint8_t alt = 0);
+    bool upload(QIODevice &file, uint32_t addr, size_t maxSize, uint8_t alt = 0);
     bool leave();
 
 private:

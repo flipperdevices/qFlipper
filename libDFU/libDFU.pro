@@ -7,8 +7,9 @@ CONFIG += c++11
 
 SOURCES += \
     abstractusbdevicebackend.cpp \
-    dfudevice.cpp \
     dfumemorylayout.cpp \
+    dfusedevice.cpp \
+    dfusefile.cpp \
     libusbusbdevicebackend.cpp \
     usbdevice.cpp \
     usbdeviceinfo.cpp
@@ -16,8 +17,9 @@ SOURCES += \
 HEADERS += \
     abstractusbdevicebackend.h \
     descriptors.h \
-    dfudevice.h \
     dfumemorylayout.h \
+    dfusedevice.h \
+    dfusefile.h \
     libusbusbdevicebackend.h \
     macros.h \
     usbdevice.h \

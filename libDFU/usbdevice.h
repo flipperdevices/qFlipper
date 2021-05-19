@@ -82,22 +82,18 @@ public:
 
     bool claimInterface(int interfaceNum);
     bool releaseInterface(int interfaceNum);
+    bool setInterfaceAltSetting(int interfaceNum, uint8_t alt);
 
     bool controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, const QByteArray &data);
     QByteArray controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, uint16_t length);
 
     // Should not be here in the end. For now it just passes the information from backend.
     QByteArray extraInterfaceDescriptor();
-    QByteArray stringInterfaceDescriptor();
-
-protected:
-    int currentInterface() const; // 0nly one interface should be claimed at a time
+    QByteArray stringInterfaceDescriptor(int interfaceNum);
 
 private:
     USBDeviceLocation m_location;
     AbstractUSBDeviceBackend *m_backend;
-
-    int m_currentInterface = -1;
 };
 
 #endif // USBDEVICE_H

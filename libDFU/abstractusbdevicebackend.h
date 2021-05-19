@@ -27,6 +27,8 @@ public:
     virtual bool claimInterface(int interfaceNum) = 0;
     virtual bool releaseInterface(int interfaceNum) = 0;
 
+    virtual bool setInterfaceAltSetting(int interfaceNum, uint8_t alt) = 0;
+
     virtual bool controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, const QByteArray &data) = 0;
     virtual QByteArray controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, uint16_t length) = 0;
 };

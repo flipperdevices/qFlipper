@@ -4,12 +4,12 @@
 #include <QFile>
 
 #include "usbdeviceinfo.h"
-#include "dfudevice.h"
+#include "dfusedevice.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    QFile downloadTest("bootloader.bin"), uploadTest("upload.bin");
+    QFile downloadTest("full.bin"), uploadTest("upload.bin"), dfuTest("full.dfu");
 
     if(!downloadTest.open(QIODevice::ReadOnly)) {
         qCritical() << "Can't open file for reading";
@@ -20,6 +20,12 @@ int main(int argc, char *argv[])
         qCritical() << "Can't open file for writing";
         return -1;
     }
+
+    if(!dfuTest.open(QIODevice::ReadOnly)) {
+        qCritical() << "Can't open file for reading";
+        return -1;
+    }
+
 
     static const USBDeviceInfo::MatchList matches = {
         {
@@ -62,19 +68,23 @@ int main(int argc, char *argv[])
         }
     }
 
-    DFUDevice dev(devices.first());
+    DfuseDevice dev(devices.first());
 
     if(!dev.beginTransaction()) {
         return -1;
     }
 
-    dev.download(downloadTest, 0x08000000);
-    dev.upload(uploadTest, 0x08000000, downloadTest.size());
+    DfuseFile fw(dfuTest);
+
+    dev.download(fw);
+    //dev.download(downloadTest, 0x08000000);
+    //dev.upload(uploadTest, 0x08000000, downloadTest.size());
 
     dev.endTransaction();
 
     downloadTest.close();
     uploadTest.close();
+    dfuTest.close();
 
     return a.exec();
 }

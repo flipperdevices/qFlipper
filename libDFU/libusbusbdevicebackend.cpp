@@ -1,8 +1,9 @@
 #include "libusbusbdevicebackend.h"
 
 #include <QDebug>
-
 #include <libusb.h>
+
+#include "macros.h"
 
 struct LibusbUSBDeviceBackend::BackendData {
     libusb_context *context = nullptr;
@@ -87,7 +88,7 @@ QByteArray LibusbUSBDeviceBackend::getExtraInterfaceDescriptor()
         return ret;
     }
 
-    const auto intf = *(cfg->interface);
+    const auto intf = *(cfg->interface); //Using interface 0 for now
 
     for(auto i = 0; i < intf.num_altsetting; ++i) {
         const auto altintf = intf.altsetting[i];
@@ -156,24 +157,23 @@ void LibusbUSBDeviceBackend::closeDevice()
 
 bool LibusbUSBDeviceBackend::claimInterface(int interfaceNum)
 {
-    const auto err = libusb_claim_interface(m_pdata->handle, interfaceNum);
-
-    if(err) {
-        qCritical() << dbgLabel << "Failed to claim interface";
-    }
-
-    return !err;
+    const auto err = !libusb_claim_interface(m_pdata->handle, interfaceNum);
+    check_continue(err, "Failed to claim interface");
+    return err;
 }
 
 bool LibusbUSBDeviceBackend::releaseInterface(int interfaceNum)
 {
-    const auto err = libusb_release_interface(m_pdata->handle, interfaceNum);
+    const auto err = !libusb_release_interface(m_pdata->handle, interfaceNum);
+    check_continue(err, "Failed to release interface");
+    return err;
+}
 
-    if(err) {
-        qCritical() << dbgLabel << "Failed to release interface";
-    }
-
-    return !err;
+bool LibusbUSBDeviceBackend::setInterfaceAltSetting(int interfaceNum, uint8_t alt)
+{
+    const auto err = !libusb_set_interface_alt_setting(m_pdata->handle, interfaceNum, alt);
+    check_continue(err, "Failed to set alternate setting");
+    return err;
 }
 
 bool LibusbUSBDeviceBackend::controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, const QByteArray &buf)
