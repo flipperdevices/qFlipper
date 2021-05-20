@@ -6,7 +6,9 @@ CONFIG -= app_bundle
 SOURCES += \
         main.cpp
 
-unix: LIBS += -L$$OUT_PWD/../libDFU/ -lusb-1.0 -llibDFU
+include(../Flipartner_common.pri)
+
+unix: LIBS += -L$$OUT_PWD/../libDFU/ -llibDFU
 
 INCLUDEPATH += $$PWD/../libDFU
 DEPENDPATH += $$PWD/../libDFU

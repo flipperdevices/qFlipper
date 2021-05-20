@@ -68,9 +68,10 @@ int main(int argc, char *argv[])
         }
     }
 
-    DfuseDevice dev(devices.first());
+    DfuseDevice dev(devices.first()), dev2(devices.first());
 
     if(!dev.beginTransaction()) {
+        qCritical() << "Failed to initiate transaction";
         return -1;
     }
 

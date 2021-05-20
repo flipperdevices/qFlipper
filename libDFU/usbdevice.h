@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "usbdeviceinfo.h"
+#include "usbbackend.h"
 
 /*
  * Assumptions made:
@@ -46,8 +47,6 @@
  *
  */
 
-class AbstractUSBDeviceBackend;
-
 class USBDevice : public QObject
 {
     Q_OBJECT
@@ -78,8 +77,6 @@ public:
     bool open();
     void close();
 
-    void reenumerate();
-
     bool claimInterface(int interfaceNum);
     bool releaseInterface(int interfaceNum);
     bool setInterfaceAltSetting(int interfaceNum, uint8_t alt);
@@ -87,13 +84,15 @@ public:
     bool controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, const QByteArray &data);
     QByteArray controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, uint16_t length);
 
-    // Should not be here in the end. For now it just passes the information from backend.
+    // TODO: Refactor this part first
     QByteArray extraInterfaceDescriptor();
     QByteArray stringInterfaceDescriptor(int interfaceNum);
 
 private:
+    static USBBackend &backend();
+
     USBDeviceLocation m_location;
-    AbstractUSBDeviceBackend *m_backend;
+    USBBackend::DeviceHandle *m_handle = nullptr;
 };
 
 #endif // USBDEVICE_H

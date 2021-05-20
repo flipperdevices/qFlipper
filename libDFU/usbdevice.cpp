@@ -1,77 +1,71 @@
 #include "usbdevice.h"
 
+#include <exception>
 #include <QDebug>
-
-// TODO: Surround in conditional compilation (and adapt project file)
-#include "libusbusbdevicebackend.h"
-
-static constexpr const char *dbgLabel = "USBDevice:";
 
 USBDevice::USBDevice(const USBDeviceInfo &info, QObject *parent):
     QObject(parent),
-    m_location(info.data()),
-    m_backend(new LibusbUSBDeviceBackend(this))
+    m_location(info.data())
 {
-    if(!m_backend->init()) {
-        qCritical() << dbgLabel << "Failed to initialise USB backend";
-        return;
-    }
-
-    if(!m_backend->findDevice(m_location)) {
-        qCritical() << dbgLabel << "Failed to find specified device";
+    if(!backend().findDevice(&m_handle, m_location)) {
+        qCritical() << "Failed to find specified device";
         return;
     }
 }
 
 USBDevice::~USBDevice()
-{}
+{
+    close();
+    backend().unrefDevice(m_handle);
+}
 
 bool USBDevice::open()
 {
-    return m_backend->openDevice();
+    return backend().openDevice(m_handle);
 }
 
 void USBDevice::close()
 {
-    m_backend->closeDevice();
-}
-
-void USBDevice::reenumerate()
-{
-// TODO: Not implemented
+    backend().closeDevice(m_handle);
 }
 
 bool USBDevice::claimInterface(int interfaceNum)
 {
-    return m_backend->claimInterface(interfaceNum);
+    return backend().claimInterface(m_handle, interfaceNum);
 }
 
 bool USBDevice::releaseInterface(int interfaceNum)
 {
-    return m_backend->releaseInterface(interfaceNum);
+    return backend().releaseInterface(m_handle, interfaceNum);
 }
 
 bool USBDevice::setInterfaceAltSetting(int interfaceNum, uint8_t alt)
 {
-    return m_backend->setInterfaceAltSetting(interfaceNum, alt);
+    return backend().setInterfaceAltSetting(m_handle, interfaceNum, alt);
 }
 
 bool USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, const QByteArray &data)
 {
-    return m_backend->controlTransfer(requestType, request, value, index, data);
+    return backend().controlTransfer(m_handle, requestType, request, value, index, data);
 }
 
 QByteArray USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, uint16_t length)
 {
-    return m_backend->controlTransfer(requestType, request, value, index, length);
+    return backend().controlTransfer(m_handle, requestType, request, value, index, length);
 }
 
 QByteArray USBDevice::extraInterfaceDescriptor()
 {
-    return m_backend->getExtraInterfaceDescriptor();
+    return backend().getExtraInterfaceDescriptor(m_handle);
 }
 
 QByteArray USBDevice::stringInterfaceDescriptor(int interfaceNum)
 {
-    return m_backend->getStringInterfaceDescriptor(interfaceNum);
+    return backend().getStringInterfaceDescriptor(m_handle, interfaceNum);
+}
+
+USBBackend &USBDevice::backend()
+{
+    static USBBackend backendInstance;
+    return backendInstance;
 }

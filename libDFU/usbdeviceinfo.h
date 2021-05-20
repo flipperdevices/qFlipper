@@ -4,11 +4,6 @@
 #include <QList>
 #include <QVector>
 
-// TODO: Refactor to use USB backend abstraction
-
-struct libusb_device;
-struct libusb_device_descriptor;
-
 #include "usbdevicelocation.h"
 
 class USBDeviceInfo
@@ -45,7 +40,6 @@ public:
     const USBDeviceLocation &data() const;
 
 private:
-    static USBDeviceLocation tryMatchDevice(struct libusb_device *dev, struct libusb_device_descriptor &desc, const MatchList &matches);
     USBDeviceLocation m_data;
 };
 
