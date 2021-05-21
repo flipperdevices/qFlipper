@@ -3,8 +3,8 @@
 
 #include <QObject>
 
-#include "usbdeviceinfo.h"
 #include "usbbackend.h"
+#include "usbdeviceparams.h"
 
 /*
  * Assumptions made:
@@ -71,7 +71,7 @@ public:
         RECIPIENT_OTHER = 0x03
     };
 
-    USBDevice(const USBDeviceInfo &info, QObject *parent = nullptr);
+    USBDevice(const USBDeviceParams &info, QObject *parent = nullptr);
     virtual ~USBDevice();
 
     bool open();
@@ -88,10 +88,9 @@ public:
     QByteArray extraInterfaceDescriptor();
     QByteArray stringInterfaceDescriptor(int interfaceNum);
 
-private:
     static USBBackend &backend();
 
-    USBDeviceLocation m_location;
+private:
     USBBackend::DeviceHandle *m_handle = nullptr;
 };
 

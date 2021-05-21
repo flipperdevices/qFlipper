@@ -9,8 +9,7 @@ SOURCES += \
     dfumemorylayout.cpp \
     dfusedevice.cpp \
     dfusefile.cpp \
-    usbdevice.cpp \
-    usbdeviceinfo.cpp
+    usbdevice.cpp
 
 HEADERS += \
     descriptors.h \
@@ -20,8 +19,7 @@ HEADERS += \
     macros.h \
     usbbackend.h \
     usbdevice.h \
-    usbdeviceinfo.h \
-    usbdevicelocation.h
+    usbdeviceparams.h
 
 include(../Flipartner_common.pri)
 

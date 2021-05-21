@@ -69,7 +69,7 @@ class DfuseDevice : public USBDevice
     };
 
 public:
-    DfuseDevice(const USBDeviceInfo &info, QObject *parent = nullptr);
+    DfuseDevice(const USBDeviceParams &info, QObject *parent = nullptr);
 
     bool beginTransaction();
     bool endTransaction();

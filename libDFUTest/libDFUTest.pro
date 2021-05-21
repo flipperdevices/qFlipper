@@ -8,9 +8,11 @@ SOURCES += \
 
 include(../Flipartner_common.pri)
 
-unix: LIBS += -L$$OUT_PWD/../libDFU/ -llibDFU
+unix: {
+    LIBS += -L$$OUT_PWD/../libDFU/ -llibDFU
+    PRE_TARGETDEPS += $$OUT_PWD/../libDFU/liblibDFU.a
+}
 
 INCLUDEPATH += $$PWD/../libDFU
 DEPENDPATH += $$PWD/../libDFU
 
-unix: PRE_TARGETDEPS += $$OUT_PWD/../libDFU/liblibDFU.a

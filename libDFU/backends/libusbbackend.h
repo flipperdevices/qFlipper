@@ -1,24 +1,29 @@
 #ifndef LIBUSBBACKEND_H
 #define LIBUSBBACKEND_H
 
+#include <QObject>
 #include <QByteArray>
 
-#include "usbdevicelocation.h"
+#include "usbdeviceparams.h"
 
-class USBBackend
+class USBBackend : public QObject
 {
+    Q_OBJECT
+
 public:
     struct DeviceHandle;
 
-    using DeviceList = QList<USBDeviceLocation>;
+    using DeviceList = QList<USBDeviceParams>;
 
-    USBBackend();
+    USBBackend(QObject *parent = nullptr);
     ~USBBackend();
 
-    static DeviceList listDevices();
+    static bool getExtraDeviceInfo(USBDeviceParams &params);
 
-    bool findDevice(DeviceHandle **handle, const USBDeviceLocation &loc);
+    bool findDevice(DeviceHandle **handle, const USBDeviceParams &params);
     void unrefDevice(DeviceHandle *handle);
+
+    bool registerHotplugEvent(const DeviceList &paramsList);
 
     QByteArray getExtraInterfaceDescriptor(DeviceHandle *handle);
     QByteArray getStringInterfaceDescriptor(DeviceHandle *handle, int interfaceNum);
@@ -34,7 +39,13 @@ public:
     bool controlTransfer(DeviceHandle *handle, uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, const QByteArray &buf);
     QByteArray controlTransfer(DeviceHandle *handle, uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, uint16_t length);
 
+signals:
+    void devicePluggedIn(USBDeviceParams);
+    void deviceUnplugged(USBDeviceParams);
+
 private:
+    void timerEvent(QTimerEvent *e) override;
+
     static unsigned int m_timeout;
 };
 

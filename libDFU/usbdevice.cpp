@@ -3,11 +3,10 @@
 #include <exception>
 #include <QDebug>
 
-USBDevice::USBDevice(const USBDeviceInfo &info, QObject *parent):
-    QObject(parent),
-    m_location(info.data())
+USBDevice::USBDevice(const USBDeviceParams &info, QObject *parent):
+    QObject(parent)
 {
-    if(!backend().findDevice(&m_handle, m_location)) {
+    if(!backend().findDevice(&m_handle, info)) {
         qCritical() << "Failed to find specified device";
         return;
     }

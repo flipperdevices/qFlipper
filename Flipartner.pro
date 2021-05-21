@@ -1,7 +1,10 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
+    FlipartnerGui \
     libDFU \
-    libDFUTest
+    #libDFUTest \
+    libFlipartner
 
-libDFUTest.depends = libDFU
+#libDFUTest.depends = libDFU
+FlipartnerGui.depends = libDFU libFlipartner
