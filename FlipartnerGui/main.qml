@@ -10,7 +10,7 @@ Window {
     width: 800
     height: 480
     visible: true
-    title: qsTr("Hello World")
+    title: qsTr("Flipartner")
     color: "black"
 
 //    FileDialog {
@@ -30,7 +30,7 @@ Window {
 
     ListView {
         id: deviceList
-        model: flipperDetector.devices
+        model: flipperList
         anchors.fill: parent
 
         anchors.leftMargin: 100
@@ -42,9 +42,18 @@ Window {
 
         delegate: FlipperListDelegate {
             onFlashRequested: {
-                console.log(serialNumber)
 //                fileDialog.open()
+                firmwareUpdater.requestLocalFlash(serialNumber, "f5_full.dfu")
             }
+        }
+
+        Text {
+            id: noDevicesLabel
+            text: qsTr("No devices connected")
+            anchors.centerIn: parent
+            color: "#444"
+            font.pointSize: 24
+            visible: flipperList.empty
         }
     }
 

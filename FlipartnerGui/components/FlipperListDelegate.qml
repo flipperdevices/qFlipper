@@ -1,12 +1,7 @@
 import QtQuick 2.0
 
 Rectangle {
-    property string model: modelData.model
-    property string name: modelData.name
-    property string version: modelData.version
-    property string serialNumber: modelData.serialNumber
-
-    signal flashRequested(var serialNumber)
+    signal flashRequested(serialNumber: string)
 
     id: item
     width: parent.width
@@ -18,7 +13,7 @@ Rectangle {
 
     Text {
         id: modelLabel
-        text: item.model
+        text: model
         color: "darkgray"
         font.pointSize: 8
         anchors.verticalCenter: parent.verticalCenter
@@ -39,27 +34,25 @@ Rectangle {
         anchors.leftMargin: 10
 
         Text {
-            text: item.name
+            text: name
             color: "black"
-            font.pointSize: 14
+            font.pointSize: 12
             font.bold: true
             anchors.centerIn: parent
         }
     }
 
-    CoolButton {
+    StyledButton {
         id: flashButton
         text: "Flash"
         anchors.right: parent.right
         anchors.rightMargin: 25
         anchors.verticalCenter: parent.verticalCenter
-
-        onClicked: flashRequested(parent.serialNumber)
     }
 
     Text {
         id: versionLabel
-        text: "version " + item.version
+        text: "version " + version
         font.pointSize: 8
 
         anchors.left: nameLabel.right
@@ -67,5 +60,10 @@ Rectangle {
         anchors.leftMargin: 10
 
         color: "darkgray"
+    }
+
+    Connections {
+        target: flashButton
+        function onClicked() { flashRequested(serial) }
     }
 }

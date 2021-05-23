@@ -1,4 +1,5 @@
 QT -= gui
+QT += serialport
 
 TEMPLATE = lib
 CONFIG += staticlib
@@ -10,13 +11,15 @@ include(../Flipartner_common.pri)
 SOURCES += \
     firmwareupdater.cpp \
     flipartnerbackend.cpp \
-    flipperdetector.cpp
+    flipperdetector.cpp \
+    flipperlistmodel.cpp
 
 HEADERS += \
     firmwareupdater.h \
     flipartnerbackend.h \
     flipperdetector.h \
-    flipperinfo.h
+    flipperinfo.h \
+    flipperlistmodel.h
 
 unix: {
     LIBS += -L$$OUT_PWD/../libDFU/ -llibDFU

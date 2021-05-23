@@ -242,10 +242,12 @@ static int libusbHotplugCallback(struct libusb_context *ctx, struct libusb_devic
     libusb_device_descriptor desc;
     check_return_val(!libusb_get_device_descriptor(dev, &desc),"Failed to get device descriptor", 0);
 
-    USBDeviceParams params;
-    params.vendorID = desc.idVendor;
-    params.productID = desc.idProduct;
-    params.uniqueID = dev;
+    const USBDeviceParams params = {
+        desc.idVendor,
+        desc.idProduct,
+        "", "", "",
+        dev
+    };
 
     if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED) {
         emit backendInstance->devicePluggedIn(params);
