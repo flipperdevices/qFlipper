@@ -51,17 +51,29 @@ void FlipperListModel::insertDevice(const FlipperInfo &info)
 
 void FlipperListModel::removeDevice(const FlipperInfo &info)
 {
-    const auto index = m_data.indexOf(info);
+    const auto idx = m_data.indexOf(info);
 
-    if(index < 0) {
+    if(idx < 0) {
         return;
     }
 
-    beginRemoveRows(QModelIndex(), index, index);
-    m_data.remove(index);
+    beginRemoveRows(QModelIndex(), idx, idx);
+    m_data.remove(idx);
     endRemoveRows();
 
     emit contentChanged(isEmpty());
+}
+
+void FlipperListModel::updateDevice(const FlipperInfo &info)
+{
+    const auto idx = m_data.indexOf(info);
+
+    if(idx < 0) {
+        return;
+    }
+
+    m_data.replace(idx, info);
+    emit dataChanged(index(idx), index(idx));
 }
 
 void FlipperListModel::requestDevice(const QString &serialNumber) const

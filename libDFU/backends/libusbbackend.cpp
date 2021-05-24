@@ -32,12 +32,10 @@ USBBackend::~USBBackend()
     libusb_exit(nullptr);
 }
 
-// TODO: rename and repurpose this function
-bool USBBackend::findDevice(DeviceHandle **handle, const USBDeviceParams &params)
+void USBBackend::initDevice(DeviceHandle **handle, const USBDeviceParams &params)
 {
     *handle = new DeviceHandle;
     (*handle)->libusbDevice = (libusb_device*)params.uniqueID;
-    return true;
 }
 
 void USBBackend::unrefDevice(DeviceHandle *handle)
@@ -131,7 +129,6 @@ bool USBBackend::openDevice(DeviceHandle *handle)
 
 void USBBackend::closeDevice(DeviceHandle *handle)
 {
-    // TODO: check if the device is open?
     libusb_close(handle->libusbDeviceHandle);
 }
 
@@ -246,7 +243,7 @@ static int libusbHotplugCallback(struct libusb_context *ctx, struct libusb_devic
         desc.idVendor,
         desc.idProduct,
         "", "", "",
-        dev
+        libusb_ref_device(dev)
     };
 
     if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED) {

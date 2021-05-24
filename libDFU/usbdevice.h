@@ -92,6 +92,7 @@ public:
 
 private:
     USBBackend::DeviceHandle *m_handle = nullptr;
+    bool m_isOpen = false;
 };
 
 #endif // USBDEVICE_H

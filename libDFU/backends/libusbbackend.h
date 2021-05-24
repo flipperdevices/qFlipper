@@ -20,7 +20,7 @@ public:
 
     static bool getExtraDeviceInfo(USBDeviceParams &params);
 
-    bool findDevice(DeviceHandle **handle, const USBDeviceParams &params);
+    void initDevice(DeviceHandle **handle, const USBDeviceParams &params);
     void unrefDevice(DeviceHandle *handle);
 
     bool registerHotplugEvent(const DeviceList &paramsList);

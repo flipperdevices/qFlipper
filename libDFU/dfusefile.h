@@ -45,7 +45,7 @@ public:
         QList<Element> elements;
     };
 
-    DfuseFile(QIODevice &file);
+    DfuseFile(QIODevice *file);
 
     bool isValid() const;
 
@@ -54,13 +54,13 @@ public:
     QList<Image> &images();
 
 private:
-    bool readPrefix(QIODevice &file);
-    bool readSuffix(QIODevice &file);
-    bool readImage(QIODevice &file);
-    void readElement(QIODevice &file);
-    bool checkCRC(QIODevice &file);
+    bool readPrefix(QIODevice *file);
+    bool readSuffix(QIODevice *file);
+    bool readImage(QIODevice *file);
+    void readElement(QIODevice *file);
+    bool checkCRC(QIODevice *file);
 
-    static uint32_t generateCRC(QIODevice &file);
+    static uint32_t generateCRC(QIODevice *file);
 
     bool m_isValid;
     Prefix m_prefix;

@@ -37,6 +37,7 @@ public slots:
 
 private slots:
     void processQueue();
+    void onDownloadFinished();
 
 private:
     void downloadFirmware(const FlipperInfo &info, QIODevice *file);

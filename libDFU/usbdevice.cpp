@@ -6,26 +6,35 @@
 USBDevice::USBDevice(const USBDeviceParams &info, QObject *parent):
     QObject(parent)
 {
-    if(!backend().findDevice(&m_handle, info)) {
-        qCritical() << "Failed to find specified device";
-        return;
-    }
+    backend().initDevice(&m_handle, info);
 }
 
 USBDevice::~USBDevice()
 {
-    close();
+    if(m_isOpen) {
+        close();
+    }
+
     backend().unrefDevice(m_handle);
 }
 
 bool USBDevice::open()
 {
-    return backend().openDevice(m_handle);
+    if(!m_isOpen) {
+        m_isOpen = backend().openDevice(m_handle);
+    }
+
+    return m_isOpen;
 }
 
 void USBDevice::close()
 {
+    if(!m_isOpen) {
+        return;
+    }
+
     backend().closeDevice(m_handle);
+    m_isOpen = false;
 }
 
 bool USBDevice::claimInterface(int interfaceNum)

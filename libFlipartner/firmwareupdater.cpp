@@ -2,8 +2,12 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QThreadPool>
 #include <QSerialPort>
 #include <QSerialPortInfo>
+
+#include "serialhelper.h"
+#include "firmwaredownloadtask.h"
 
 FirmwareUpdater::FirmwareUpdater(QObject *parent):
     QObject(parent),
@@ -31,6 +35,7 @@ void FirmwareUpdater::onDeviceConnected(const FlipperInfo &info)
         return;
     }
 
+    m_state = State::ExecuteRequest;
     downloadFirmware(info, m_currentRequest.file);
 }
 
@@ -42,6 +47,7 @@ void FirmwareUpdater::onDeviceFound(const FlipperInfo &info)
 
     // Determine if the device is in DFU mode
     if(info.params.productID == 0xdf11) {
+        m_state = State::ExecuteRequest;
         downloadFirmware(info, m_currentRequest.file);
     } else {
         // If the device is not in DFU mode, reset it and wait for DFU in onDeviceConnected()
@@ -62,28 +68,40 @@ void FirmwareUpdater::processQueue()
     emit deviceInfoRequested(m_currentRequest.serialNumber);
 }
 
+void FirmwareUpdater::onDownloadFinished()
+{
+    qDebug() << "Download finished!";
+    processQueue();
+}
+
 void FirmwareUpdater::downloadFirmware(const FlipperInfo &info, QIODevice *file)
 {
     qDebug() << "Downloading firmware..." << info.params.serialNumber;
+    auto *task = new FirmwareDownloadTask(info, file);
+
+    connect(task, &FirmwareDownloadTask::finished, this, &FirmwareUpdater::onDownloadFinished);
+
+    QThreadPool::globalInstance()->start(task);
 }
 
 void FirmwareUpdater::resetToDFU(const FlipperInfo &info)
 {
-    const auto portInfos = QSerialPortInfo::availablePorts();
-    for(const auto &portInfo : portInfos) {
-        if(info.params.serialNumber == portInfo.serialNumber()) {
-            QSerialPort port(portInfo);
+    const auto portInfo = SerialHelper::findSerialPort(info);
 
-            if(port.open(QIODevice::ReadWrite)) {
-                port.write("dfu\r");
-                port.flush();
-                port.close();
-
-            } else {
-                qCritical() << "Failed to open serial port" << portInfo.portName();
-            }
-
-            break;
-        }
+    if(portInfo.isNull()) {
+        // TODO: Error handling - we might not find the port
     }
+
+    QSerialPort port(portInfo);
+
+    if(port.open(QIODevice::ReadWrite)) {
+        port.write("dfu\r");
+        port.flush();
+        port.close();
+
+    } else {
+        // TODO: Error handling
+        qCritical() << "Failed to open serial port" << portInfo.portName();
+    }
+
 }

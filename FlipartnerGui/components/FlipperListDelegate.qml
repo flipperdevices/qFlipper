@@ -44,7 +44,7 @@ Rectangle {
 
     StyledButton {
         id: flashButton
-        text: "Flash"
+        text: qsTr("Update")
         anchors.right: parent.right
         anchors.rightMargin: 25
         anchors.verticalCenter: parent.verticalCenter
@@ -52,7 +52,7 @@ Rectangle {
 
     Text {
         id: versionLabel
-        text: "version " + version
+        text: qsTr("version ") + version
         font.pointSize: 8
 
         anchors.left: nameLabel.right

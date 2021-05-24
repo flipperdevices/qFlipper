@@ -75,10 +75,14 @@ public:
     bool endTransaction();
 
     bool erase(uint32_t addr, size_t maxSize);
-    bool download(DfuseFile &file);
-    bool download(QIODevice &file, uint32_t addr, uint8_t alt = 0);
-    bool upload(QIODevice &file, uint32_t addr, size_t maxSize, uint8_t alt = 0);
+    bool download(DfuseFile *file);
+    bool download(QIODevice *file, uint32_t addr, uint8_t alt = 0);
+    bool upload(QIODevice *file, uint32_t addr, size_t maxSize, uint8_t alt = 0);
     bool leave();
+
+signals:
+    void progressChanged(int);
+    void statusChanged(const QString);
 
 private:
     bool abort();

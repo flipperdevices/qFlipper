@@ -1,11 +1,12 @@
 #include "flipperdetector.h"
 
 #include <QDebug>
-#include <QThread>
-#include <QtConcurrent/QtConcurrentRun>
+#include <QThreadPool>
 
 #include "usbdeviceparams.h"
 #include "usbdevice.h"
+
+#include "flipperinfotask.h"
 
 FlipperDetector::FlipperDetector(QObject *parent):
     QObject(parent)
@@ -39,20 +40,28 @@ FlipperDetector::FlipperDetector(QObject *parent):
 
 void FlipperDetector::onDevicePluggedIn(USBDeviceParams params)
 {
+    // TODO: Error handling
     USBBackend::getExtraDeviceInfo(params);
 
-    emit flipperDetected({
+    const FlipperInfo info {
         "Flipper Zero",
-        "N@m3_42",
+        "N/A",
+        "N/A",
         "N/A",
         params
-    });
+    };
+
+    emit flipperDetected(info);
+
+    auto *infoTask = new FlipperInfoTask(info);
+    connect(infoTask, &FlipperInfoTask::finished, this, &FlipperDetector::flipperUpdated);
+    QThreadPool::globalInstance()->start(infoTask);
 }
 
 void FlipperDetector::onDeviceUnplugged(USBDeviceParams params)
 {
     emit flipperDisconnected({
-        "", "", "",
+        "", "", "", "",
         params
     });
 }

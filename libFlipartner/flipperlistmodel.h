@@ -34,7 +34,7 @@ signals:
 public slots:
     void insertDevice(const FlipperInfo &info);
     void removeDevice(const FlipperInfo &info);
-//    void updateDevice(const FlipperInfo &info);
+    void updateDevice(const FlipperInfo &info);
 
     void requestDevice(const QString &serialNumber) const;
 
