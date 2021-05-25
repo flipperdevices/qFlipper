@@ -70,7 +70,7 @@ Item {
         anchors.rightMargin: 25
         anchors.verticalCenter: parent.verticalCenter
         enabled: text === qsTr("Update")
-//        suggested: true
+        suggested: true
     }
 
     Text {
