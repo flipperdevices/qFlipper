@@ -14,7 +14,7 @@ Item {
 
     id: item
     width: parent.width
-    height: 80
+    height: 85
 
     StyledProgressBar {
         id: progressBar
@@ -25,7 +25,7 @@ Item {
 
     Rectangle {
         id: frame
-        radius: 4
+        radius: 6
         anchors.fill: parent
         color: "transparent"
         border.color: "white"
@@ -36,17 +36,17 @@ Item {
         id: modelLabel
         text: model
         color: "darkgray"
-        font.pointSize: 8
+        font.pointSize: 10
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
-        anchors.leftMargin: 10
+        anchors.leftMargin: 15
     }
 
     Rectangle {
         id: nameLabel
         color: (name === "DFU Mode") ? "#0345ff" : "darkorange"
         width: 100
-        height: 40
+        height: 30
 
         radius: height/2
 
@@ -69,12 +69,14 @@ Item {
         anchors.right: parent.right
         anchors.rightMargin: 25
         anchors.verticalCenter: parent.verticalCenter
+        enabled: text === qsTr("Update")
+//        suggested: true
     }
 
     Text {
         id: versionLabel
         text: qsTr("version ") + version
-        font.pointSize: 8
+        font.pointSize: 10
 
         anchors.left: nameLabel.right
         anchors.verticalCenter: parent.verticalCenter
