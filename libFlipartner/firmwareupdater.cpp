@@ -14,13 +14,15 @@ FirmwareUpdater::FirmwareUpdater(QObject *parent):
     m_state(State::Ready)
 {}
 
-void FirmwareUpdater::requestLocalFlash(const QString &serialNumber, const QString &filePath)
+void FirmwareUpdater::requestLocalUpdate(const FlipperInfo &info, const QString &filePath)
 {
-    // Enqueue the request
     Request req = {
-        serialNumber,
+        info,
         new QFile(filePath) // TODO: free the memory
     };
+
+    req.info.status.message = tr("Pending");
+    emit deviceStatusChanged(req.info);
 
     m_requestQueue.enqueue(req);
 
@@ -35,25 +37,12 @@ void FirmwareUpdater::onDeviceConnected(const FlipperInfo &info)
         return;
     }
 
+    m_currentRequest.info = info;
+    m_currentRequest.info.status.message = tr("Preparing");
+    emit deviceStatusChanged(m_currentRequest.info);
+
     m_state = State::ExecuteRequest;
     downloadFirmware(info, m_currentRequest.file);
-}
-
-void FirmwareUpdater::onDeviceFound(const FlipperInfo &info)
-{
-    if(m_state != State::WaitingForInfo) {
-        return;
-    }
-
-    // Determine if the device is in DFU mode
-    if(info.params.productID == 0xdf11) {
-        m_state = State::ExecuteRequest;
-        downloadFirmware(info, m_currentRequest.file);
-    } else {
-        // If the device is not in DFU mode, reset it and wait for DFU in onDeviceConnected()
-        m_state = State::WaitingForDFU;
-        resetToDFU(info);
-    }
 }
 
 void FirmwareUpdater::processQueue()
@@ -63,23 +52,24 @@ void FirmwareUpdater::processQueue()
         return;
     }
 
-    m_state = State::WaitingForInfo;
     m_currentRequest = m_requestQueue.dequeue();
-    emit deviceInfoRequested(m_currentRequest.serialNumber);
-}
 
-void FirmwareUpdater::onDownloadFinished()
-{
-    qDebug() << "Download finished!";
-    processQueue();
+    if(m_currentRequest.info.isDFU()) {
+        m_state = State::ExecuteRequest;
+        downloadFirmware(m_currentRequest.info, m_currentRequest.file);
+    } else {
+        // If the device is not in DFU mode, reset it and wait for DFU in onDeviceConnected()
+        m_state = State::WaitingForDFU;
+        resetToDFU(m_currentRequest.info);
+    }
 }
 
 void FirmwareUpdater::downloadFirmware(const FlipperInfo &info, QIODevice *file)
 {
-    qDebug() << "Downloading firmware..." << info.params.serialNumber;
     auto *task = new FirmwareDownloadTask(info, file);
 
-    connect(task, &FirmwareDownloadTask::finished, this, &FirmwareUpdater::onDownloadFinished);
+    connect(task, &FirmwareDownloadTask::statusChanged, this, &FirmwareUpdater::deviceStatusChanged);
+    connect(task, &FirmwareDownloadTask::finished, this, &FirmwareUpdater::processQueue);
 
     QThreadPool::globalInstance()->start(task);
 }
@@ -90,6 +80,7 @@ void FirmwareUpdater::resetToDFU(const FlipperInfo &info)
 
     if(portInfo.isNull()) {
         // TODO: Error handling - we might not find the port
+        return;
     }
 
     QSerialPort port(portInfo);

@@ -41,9 +41,9 @@ Window {
         spacing: 6
 
         delegate: FlipperListDelegate {
-            onFlashRequested: {
+            onUpdateRequested: {
 //                fileDialog.open()
-                firmwareUpdater.requestLocalFlash(serialNumber, "f5_full.dfu")
+                firmwareUpdater.requestLocalUpdate(flipperInfo, "f5_full.dfu")
             }
         }
 

@@ -2,31 +2,40 @@
 #define FLIPPERINFO_H
 
 #include <QMetaType>
+
 #include "usbdeviceparams.h"
 
 struct FlipperInfo
 {
-//    FlipperInfo() = default;
-//    FlipperInfo(const USBDeviceParams &params): params(params) {}
-//    FlipperInfo(const QString &model, const QString &name, const QString &version):
-//        model(model), name(name), version(version), params() {}
-//    FlipperInfo(const QString &model, const QString &name, const QString &version, const USBDeviceParams &params):
-//        model(model), name(name), version(version), params(params) {}
+    struct Status
+    {
+        double progress = 0;
+        QString message = "Update";
+    };
+
+    FlipperInfo() = default;
+    FlipperInfo(const USBDeviceParams &params):
+        model("Flipper Zero"), name("N/A"), target("N/A"),
+        version("N/A"), params(params), status() {}
 
     QString model;
     QString name;
     QString target;
     QString version;
 
-    // TODO: get this out of here
     USBDeviceParams params;
+    Status status;
 
     bool operator ==(const FlipperInfo &other) const {
         return params.uniqueID == other.params.uniqueID;
     }
 
+    bool operator !=(const FlipperInfo &other) const {
+        return params.uniqueID != other.params.uniqueID;
+    }
+
     bool isDFU() const {
-        return params.vendorID == 0xdf11;
+        return params.productID == 0xdf11;
     }
 };
 

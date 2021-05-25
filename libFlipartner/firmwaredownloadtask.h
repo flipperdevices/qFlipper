@@ -19,18 +19,14 @@ public:
 
 signals:
     void finished();
-    void progressChanged(int);
-    void statusChanged(const QString);
+    void statusChanged(const FlipperInfo &info);
 
 private slots:
-    void onProgressChanged(int progress);
+    void onProgressChanged(const int operation, const double progress);
 
 private:
     FlipperInfo m_info;
     QIODevice *m_file;
-
-    int m_prevProgress;
-    int m_currentProgress;
 };
 
 #endif // FIRMWAREDOWNLOADTASK_H

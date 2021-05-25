@@ -3,5 +3,6 @@
         <file>main.qml</file>
         <file>components/StyledButton.qml</file>
         <file>components/FlipperListDelegate.qml</file>
+        <file>components/StyledProgressBar.qml</file>
     </qresource>
 </RCC>

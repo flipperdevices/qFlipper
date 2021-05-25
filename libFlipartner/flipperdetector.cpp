@@ -43,14 +43,7 @@ void FlipperDetector::onDevicePluggedIn(USBDeviceParams params)
     // TODO: Error handling
     USBBackend::getExtraDeviceInfo(params);
 
-    const FlipperInfo info {
-        "Flipper Zero",
-        "N/A",
-        "N/A",
-        "N/A",
-        params
-    };
-
+    const FlipperInfo info(params);
     emit flipperDetected(info);
 
     auto *infoTask = new FlipperInfoTask(info);
@@ -60,8 +53,5 @@ void FlipperDetector::onDevicePluggedIn(USBDeviceParams params)
 
 void FlipperDetector::onDeviceUnplugged(USBDeviceParams params)
 {
-    emit flipperDisconnected({
-        "", "", "", "",
-        params
-    });
+    emit flipperDisconnected(params);
 }

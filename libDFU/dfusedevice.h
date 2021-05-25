@@ -69,6 +69,12 @@ class DfuseDevice : public USBDevice
     };
 
 public:
+    enum Operation {
+        Erase,
+        Download,
+        Upload
+    };
+
     DfuseDevice(const USBDeviceParams &info, QObject *parent = nullptr);
 
     bool beginTransaction();
@@ -81,8 +87,7 @@ public:
     bool leave();
 
 signals:
-    void progressChanged(int);
-    void statusChanged(const QString);
+    void progressChanged(const int, const double);
 
 private:
     bool abort();

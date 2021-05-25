@@ -8,9 +8,8 @@ FlipartnerBackend::FlipartnerBackend()
     QObject::connect(&detector, &FlipperDetector::flipperDisconnected, &mainList, &FlipperListModel::removeDevice);
     QObject::connect(&detector, &FlipperDetector::flipperUpdated, &mainList, &FlipperListModel::updateDevice);
 
-    QObject::connect(&updater, &FirmwareUpdater::deviceInfoRequested, &mainList, &FlipperListModel::requestDevice);
+    QObject::connect(&updater, &FirmwareUpdater::deviceStatusChanged, &mainList, &FlipperListModel::updateDeviceStatus);
 
-    QObject::connect(&mainList, &FlipperListModel::deviceFound, &updater, &FirmwareUpdater::onDeviceFound);
     QObject::connect(&detector, &FlipperDetector::flipperDetected, &updater, &FirmwareUpdater::onDeviceConnected);
 }
 

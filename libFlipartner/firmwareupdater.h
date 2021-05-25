@@ -14,13 +14,12 @@ class FirmwareUpdater : public QObject
 
     enum class State {
         Ready,
-        WaitingForInfo,
         WaitingForDFU,
         ExecuteRequest
     };
 
     struct Request {
-        QString serialNumber;
+        FlipperInfo info;
         QIODevice *file;
     };
 
@@ -28,16 +27,14 @@ public:
     FirmwareUpdater(QObject *parent = nullptr);
 
 signals:
-    void deviceInfoRequested(const QString &serialNumber);
+    void deviceStatusChanged(const FlipperInfo &info);
 
 public slots:
-    void requestLocalFlash(const QString &serialNumber, const QString &filePath);
+    void requestLocalUpdate(const FlipperInfo &info, const QString &filePath);
     void onDeviceConnected(const FlipperInfo &info);
-    void onDeviceFound(const FlipperInfo &info);
 
 private slots:
     void processQueue();
-    void onDownloadFinished();
 
 private:
     void downloadFirmware(const FlipperInfo &info, QIODevice *file);

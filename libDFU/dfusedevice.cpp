@@ -29,7 +29,6 @@ bool DfuseDevice::endTransaction()
 
 bool DfuseDevice::erase(uint32_t addr, size_t maxSize)
 {
-    emit statusChanged(tr("Erasing ..."));
     check_return_bool(prepare(), "Failed to prepare the device");
 
     const auto layout = DFUMemoryLayout::fromStringDescriptor(stringInterfaceDescriptor(0));
@@ -37,14 +36,13 @@ bool DfuseDevice::erase(uint32_t addr, size_t maxSize)
 
     for(const auto pageAddress: pageAddresses) {
         check_return_bool(erasePage(pageAddress), "Failed to erase page");
-        const auto progress = (pageAddress - addr) * 100 / maxSize;
-        emit progressChanged(progress);
+        const auto progress = (pageAddress - addr) * 100.0 / maxSize;
+        emit progressChanged(Operation::Erase, progress);
 
         info_msg(QString("Erasing memory: %1%").arg(progress));
     }
 
     info_msg("Erase done.");
-    emit statusChanged(tr("Erase finished"));
 
     return true;
 }
@@ -74,8 +72,6 @@ bool DfuseDevice::download(DfuseFile *file)
 
 bool DfuseDevice::download(QIODevice *file, uint32_t addr, uint8_t alt)
 {
-    emit statusChanged(tr("Downloading ..."));
-
     check_return_bool(setInterfaceAltSetting(0, alt), "Failed to set interface alternate setting");
     check_return_bool(prepare(), "Failed to prepare the device");
     check_return_bool(setAddressPointer(addr), "Failed to set address pointer");
@@ -103,13 +99,12 @@ bool DfuseDevice::download(QIODevice *file, uint32_t addr, uint8_t alt)
 
         totalSize += buf.size();
 
-        const auto progress = totalSize * 100 / file->size();
-        emit progressChanged(progress);
+        const auto progress = totalSize * 100.0 / file->size();
+        emit progressChanged(Operation::Download, progress);
 
         info_msg(QString("Bytes downloaded: %1 %2%").arg(totalSize).arg(progress));
     }
 
-    emit statusChanged(tr("Download finished"));
     info_msg("Download has finished.");
 
     return true;
@@ -117,8 +112,6 @@ bool DfuseDevice::download(QIODevice *file, uint32_t addr, uint8_t alt)
 
 bool DfuseDevice::upload(QIODevice *file, uint32_t addr, size_t maxSize, uint8_t alt)
 {
-    emit statusChanged(tr("Uploading ..."));
-
     check_return_bool(setInterfaceAltSetting(0, alt), "Failed to set interface alternate setting");
     check_return_bool(prepare() && abort(), "Failed to prepare the device");
     check_return_bool(setAddressPointer(addr), "Failed to set address pointer");
@@ -142,8 +135,8 @@ bool DfuseDevice::upload(QIODevice *file, uint32_t addr, size_t maxSize, uint8_t
 
         totalSize += bytesWritten;
 
-        const auto progress = totalSize * 100 / maxSize;
-        emit progressChanged(progress);
+        const auto progress = totalSize * 100.0 / maxSize;
+        emit progressChanged(Operation::Upload, progress);
         info_msg(QString("Bytes uploaded: %1 %2%").arg(totalSize).arg(progress));
 
         // TODO: Better error checks
@@ -154,7 +147,6 @@ bool DfuseDevice::upload(QIODevice *file, uint32_t addr, size_t maxSize, uint8_t
         }
     }
 
-    emit statusChanged(tr("Upload finished"));
     info_msg("Upload has finished.");
 
     return true;

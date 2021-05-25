@@ -13,10 +13,12 @@ class FlipperListModel : public QAbstractListModel
 
 public:
     enum Roles {
-        ModelRole = Qt::UserRole + 1,
+        InfoRole = Qt::UserRole + 1,
+        ModelRole,
         NameRole,
         VersionRole,
-        SerialRole
+        ProgressRole,
+        StatusMessageRole
     };
 
     FlipperListModel(QObject *parent = nullptr);
@@ -35,11 +37,12 @@ public slots:
     void insertDevice(const FlipperInfo &info);
     void removeDevice(const FlipperInfo &info);
     void updateDevice(const FlipperInfo &info);
+    void updateDeviceStatus(const FlipperInfo &info);
 
     void requestDevice(const QString &serialNumber) const;
 
 private:
-    QVector<FlipperInfo> m_data;
+    QVector<FlipperInfo> m_infos;
 };
 
 #endif // FLIPPERLISTMODEL_H

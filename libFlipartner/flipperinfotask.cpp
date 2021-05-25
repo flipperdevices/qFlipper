@@ -64,7 +64,8 @@ void FlipperInfoTask::getInfoNormalMode()
 
 void FlipperInfoTask::getInfoDFUMode()
 {
-// Not implemented yet
+    // Not implemented yet
+    m_info.name = "DFU Mode";
 }
 
 void FlipperInfoTask::parseHWInfo(const QByteArray &buf)

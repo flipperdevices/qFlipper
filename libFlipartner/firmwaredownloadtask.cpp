@@ -7,7 +7,7 @@
 #include "dfusefile.h"
 
 FirmwareDownloadTask::FirmwareDownloadTask(const FlipperInfo &info, QIODevice *file):
-    m_info(info), m_file(file), m_prevProgress(-1), m_currentProgress(0)
+    m_info(info), m_file(file)
 {}
 
 FirmwareDownloadTask::~FirmwareDownloadTask()
@@ -22,24 +22,25 @@ void FirmwareDownloadTask::run()
     DfuseDevice dev(m_info.params);
 
     connect(&dev, &DfuseDevice::progressChanged, this, &FirmwareDownloadTask::onProgressChanged);
-    connect(&dev, &DfuseDevice::statusChanged, this, &FirmwareDownloadTask::statusChanged);
+
+    m_info.status.message = "Updating";
+    emit statusChanged(m_info);
 
     dev.beginTransaction();
     dev.download(&fw);
+    dev.leave();
     dev.endTransaction();
 
     m_file->close();
+
+    m_info.status.message = "Finished";
+    emit statusChanged(m_info);
+
     emit finished();
 }
 
-void FirmwareDownloadTask::onProgressChanged(int progress)
+void FirmwareDownloadTask::onProgressChanged(const int operation, const double progress)
 {
-    if(m_prevProgress == progress) {
-        return;
-    }
-
-    m_prevProgress = progress;
-    m_currentProgress = progress / 2 + ((m_currentProgress < 49) ? 0 : 50); // Calculate total progress
-
-    emit progressChanged(m_currentProgress);
+    m_info.status.progress = progress / 2.0 + (operation == DfuseDevice::Download ? 50 : 0);
+    emit statusChanged(m_info);
 }
