@@ -3,7 +3,7 @@ import QtQuick.Controls 2.12
 
 Item {
     signal updateRequested(flipperInfo: var)
-    signal extraOptionsRequested()
+    signal localUpdateRequested(flipperInfo: var)
 
     required property var info
     required property string name
@@ -85,9 +85,25 @@ Item {
         color: "darkgray"
     }
 
+    Menu {
+        id: actionMenu
+        x: updateButton.x
+        y: updateButton.y + updateButton.height + 4
+
+        MenuItem {
+            text: qsTr("Other versions...")
+            onTriggered: console.log("Not implemented yet!")
+        }
+
+        MenuItem {
+            text: qsTr("Update from local file...")
+            onTriggered: localUpdateRequested(info)
+        }
+    }
+
     Connections {
         target: updateButton
         function onClicked() { updateRequested(info) }
-        function onPressAndHold() { extraOptionsRequested() }
+        function onPressAndHold() { actionMenu.open(); }
     }
 }

@@ -4,5 +4,6 @@
         <file>components/StyledButton.qml</file>
         <file>components/FlipperListDelegate.qml</file>
         <file>components/StyledProgressBar.qml</file>
+        <file>components/StyledConfirmationDialog.qml</file>
     </qresource>
 </RCC>

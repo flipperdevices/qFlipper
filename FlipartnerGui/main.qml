@@ -2,7 +2,6 @@ import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls 2.12
-import QtQuick.Controls.Styles 1.4
 
 import "./components"
 
@@ -13,20 +12,30 @@ Window {
     title: qsTr("Flipartner")
     color: "black"
 
-//    FileDialog {
-//        id: fileDialog
-//        title: qsTr("Please choose a file")
-//        folder: shortcuts.home
+    property var selectedDevice
 
-//        onAccepted: {
-//            console.log("You chose: " + fileDialog.fileUrls)
-//        }
-//        onRejected: {
-//            console.log("Canceled")
-//        }
+    StyledConfirmationDialog {
+        id: updateConfirmationDialog
+        width: deviceList.width + 2
+        height: deviceList.height + 2
+        title: qsTr("Update to version fw-0.19.0?");
+        subtitle: qsTr("Fetching updates from the server is not implemented yet");
+    }
 
-//        Component.onCompleted: visible = false
-//    }
+    StyledConfirmationDialog {
+        id: fileConfirmationDialog
+        width: deviceList.width + 2
+        height: deviceList.height + 2
+        title: qsTr("Install update from local file?");
+        subtitle: qsTr("Warning: this operation may brick your device");
+    }
+
+    FileDialog {
+        id: fileDialog
+        title: qsTr("Please choose a file")
+        folder: shortcuts.home
+        nameFilters: ["Firmware files (*.dfu)", "All files (*)"]
+    }
 
     ListView {
         id: deviceList
@@ -42,8 +51,13 @@ Window {
 
         delegate: FlipperListDelegate {
             onUpdateRequested: {
-//                fileDialog.open()
-                firmwareUpdater.requestLocalUpdate(flipperInfo, "f5_full.dfu")
+                selectedDevice = flipperInfo;
+                updateConfirmationDialog.open();
+            }
+
+            onLocalUpdateRequested: {
+                selectedDevice = flipperInfo;
+                fileDialog.open();
             }
         }
 
@@ -84,5 +98,19 @@ Window {
         anchors.bottomMargin: 20
         color: "#333"
         font.capitalization: Font.AllUppercase
+    }
+
+    Connections {
+        target: fileDialog
+        function onAccepted() {
+            fileConfirmationDialog.open();
+        }
+    }
+
+    Connections {
+        target: fileConfirmationDialog
+        function onAccepted() {
+            firmwareUpdater.requestLocalUpdate(selectedDevice, fileDialog.fileUrl);
+        }
     }
 }

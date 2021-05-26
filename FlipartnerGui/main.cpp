@@ -1,4 +1,4 @@
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 
 #include <QLocale>
@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
@@ -38,26 +38,12 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("flipperDetector", &backend.detector);
     engine.rootContext()->setContextProperty("firmwareUpdater", &backend.updater);
 
-//    backend.mainList.insertDevice({
-//        "Flipper Zero",
-//        "8uzz3r66",
-//        "0.16.0-3",
-//        {}
-//    });
-
-//    backend.mainList.insertDevice({
-//        "Flipper Zero",
-//        "Ch1rp78",
-//        "0.15.0-1",
-//        {}
-//    });
-
     const QUrl url(QStringLiteral("qrc:/main.qml"));
 
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [url](QObject *obj, const QUrl &objUrl) {
-        if (!obj && url == objUrl)
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated, &app, [url](QObject *obj, const QUrl &objUrl) {
+        if (!obj && url == objUrl) {
             QCoreApplication::exit(-1);
+        }
     }, Qt::QueuedConnection);
 
     engine.load(url);

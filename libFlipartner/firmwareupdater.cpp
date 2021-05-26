@@ -1,5 +1,6 @@
 #include "firmwareupdater.h"
 
+#include <QUrl>
 #include <QDebug>
 #include <QFile>
 #include <QThreadPool>
@@ -18,7 +19,7 @@ void FirmwareUpdater::requestLocalUpdate(const FlipperInfo &info, const QString 
 {
     Request req = {
         info,
-        new QFile(filePath) // TODO: free the memory
+        new QFile(QUrl(filePath).toLocalFile())
     };
 
     req.info.status.message = tr("Pending");
@@ -58,7 +59,6 @@ void FirmwareUpdater::processQueue()
         m_state = State::ExecuteRequest;
         downloadFirmware(m_currentRequest.info, m_currentRequest.file);
     } else {
-        // If the device is not in DFU mode, reset it and wait for DFU in onDeviceConnected()
         m_state = State::WaitingForDFU;
         resetToDFU(m_currentRequest.info);
     }
@@ -70,6 +70,7 @@ void FirmwareUpdater::downloadFirmware(const FlipperInfo &info, QIODevice *file)
 
     connect(task, &FirmwareDownloadTask::statusChanged, this, &FirmwareUpdater::deviceStatusChanged);
     connect(task, &FirmwareDownloadTask::finished, this, &FirmwareUpdater::processQueue);
+    connect(task, &FirmwareDownloadTask::finished, file, &QObject::deleteLater);
 
     QThreadPool::globalInstance()->start(task);
 }

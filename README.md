@@ -13,12 +13,14 @@ make
 ```
 
 ## Run:
-Put a firmware file named `f5_full.dfu` in the `FlipartnerGui` directory and then run 
 ```sh
 ./FlipartnerGui/FlipartnerGui
 ```
+or just launch the file above from your favourite file manager.
+
+## Usage:
+Click and hold the `Update` button until a menu appears. In the menu, select `Update from local file...`, pick the firmware file, then click `Yes`.
 
 ## Limitations:
 * Fetching updates from remote server is not yet implemented
-* Selecting local files is not yet implemented (see above)
 * Some run-time errors are not handled correctly
