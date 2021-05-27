@@ -14,8 +14,6 @@ USBDevice::~USBDevice()
     if(m_isOpen) {
         close();
     }
-
-    backend().unrefDevice(m_handle);
 }
 
 bool USBDevice::open()

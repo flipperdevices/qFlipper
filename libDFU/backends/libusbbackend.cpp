@@ -243,7 +243,7 @@ static int libusbHotplugCallback(struct libusb_context *ctx, struct libusb_devic
         desc.idVendor,
         desc.idProduct,
         "", "", "",
-        libusb_ref_device(dev)
+        dev
     };
 
     if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED) {

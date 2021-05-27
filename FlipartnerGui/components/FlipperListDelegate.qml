@@ -11,6 +11,7 @@ Item {
     required property string version
     required property string message
     required property real progress
+    required property bool dfumode
 
     id: item
     width: parent.width
@@ -44,7 +45,7 @@ Item {
 
     Rectangle {
         id: nameLabel
-        color: (name === "DFU Mode") ? "#0345ff" : "darkorange"
+        color: dfumode ? "#0345ff" : "darkorange"
         width: 100
         height: 30
 

@@ -18,7 +18,8 @@ public:
         NameRole,
         VersionRole,
         ProgressRole,
-        StatusMessageRole
+        StatusMessageRole,
+        DFUModeRole
     };
 
     FlipperListModel(QObject *parent = nullptr);

@@ -1,10 +1,13 @@
 #include "flipperinfotask.h"
 
 #include <QDebug>
+#include <QBuffer>
+#include <QByteArray>
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QThread>
 
+#include "dfusedevice.h"
 #include "serialhelper.h"
 
 FlipperInfoTask::FlipperInfoTask(const FlipperInfo &info):
@@ -64,8 +67,18 @@ void FlipperInfoTask::getInfoNormalMode()
 
 void FlipperInfoTask::getInfoDFUMode()
 {
-    // Not implemented yet
-    m_info.name = "DFU Mode";
+    QByteArray name;
+    QBuffer nameBuf(&name);
+    DfuseDevice dev(m_info.params);
+
+    nameBuf.open(QIODevice::WriteOnly);
+
+    dev.beginTransaction();
+    dev.upload(&nameBuf, uint32_t(0x1fff7008UL), 8, 2);
+    dev.endTransaction();
+
+    nameBuf.close();
+    m_info.name = name;
 }
 
 void FlipperInfoTask::parseHWInfo(const QByteArray &buf)

@@ -115,6 +115,7 @@ bool DfuseDevice::upload(QIODevice *file, uint32_t addr, size_t maxSize, uint8_t
     check_return_bool(setInterfaceAltSetting(0, alt), "Failed to set interface alternate setting");
     check_return_bool(prepare() && abort(), "Failed to prepare the device");
     check_return_bool(setAddressPointer(addr), "Failed to set address pointer");
+    abort();
 
     const auto extra = extraInterfaceDescriptor();
 

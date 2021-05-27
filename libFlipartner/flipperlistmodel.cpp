@@ -26,6 +26,7 @@ QVariant FlipperListModel::data(const QModelIndex &index, int role) const
         case VersionRole: return item.version;
         case ProgressRole: return item.status.progress;
         case StatusMessageRole: return item.status.message;
+        case DFUModeRole: return item.isDFU();
         default: return QVariant();
     }
 }
@@ -38,7 +39,8 @@ QHash<int, QByteArray> FlipperListModel::roleNames() const
         {NameRole, "name"},
         {VersionRole, "version"},
         {ProgressRole, "progress"},
-        {StatusMessageRole, "message"}
+        {StatusMessageRole, "message"},
+        {DFUModeRole, "dfumode"}
     };
 
     return roles;
