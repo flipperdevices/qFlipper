@@ -15,7 +15,9 @@ SOURCES += \
     flipperdetector.cpp \
     flipperinfotask.cpp \
     flipperlistmodel.cpp \
-    serialhelper.cpp
+    flipperupdates.cpp \
+    serialhelper.cpp \
+    updateslistmodel.cpp
 
 HEADERS += \
     firmwaredownloadtask.h \
@@ -25,7 +27,9 @@ HEADERS += \
     flipperinfo.h \
     flipperinfotask.h \
     flipperlistmodel.h \
-    serialhelper.h
+    flipperupdates.h \
+    serialhelper.h \
+    updateslistmodel.h
 
 unix: {
     LIBS += -L$$OUT_PWD/../libDFU/ -llibDFU

@@ -5,5 +5,7 @@
         <file>components/FlipperListDelegate.qml</file>
         <file>components/StyledProgressBar.qml</file>
         <file>components/StyledConfirmationDialog.qml</file>
+        <file>screens/VersionListScreen.qml</file>
+        <file>components/VersionListDelegate.qml</file>
     </qresource>
 </RCC>

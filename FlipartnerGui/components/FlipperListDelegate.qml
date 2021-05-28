@@ -4,6 +4,7 @@ import QtQuick.Controls 2.12
 Item {
     signal updateRequested(flipperInfo: var)
     signal localUpdateRequested(flipperInfo: var)
+    signal versionListRequested(flipperInfo: var)
 
     required property var info
     required property string name
@@ -71,7 +72,7 @@ Item {
         anchors.rightMargin: 25
         anchors.verticalCenter: parent.verticalCenter
         enabled: text === qsTr("Update")
-        suggested: true
+        suggested: !dfumode
     }
 
     Text {
@@ -93,7 +94,7 @@ Item {
 
         MenuItem {
             text: qsTr("Other versions...")
-            onTriggered: console.log("Not implemented yet!")
+            onTriggered: versionListRequested(info)
         }
 
         MenuItem {

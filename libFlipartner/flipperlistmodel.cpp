@@ -82,7 +82,7 @@ void FlipperListModel::updateDevice(const FlipperInfo &info)
     newInfo.status = m_infos.at(idx).status;
 
     m_infos.replace(idx, newInfo);
-    emit dataChanged(index(idx), index(idx), {ModelRole, NameRole, VersionRole});
+    emit dataChanged(index(idx), index(idx), {InfoRole, ModelRole, NameRole, VersionRole});
 }
 
 void FlipperListModel::updateDeviceStatus(const FlipperInfo &info)
@@ -94,7 +94,7 @@ void FlipperListModel::updateDeviceStatus(const FlipperInfo &info)
     }
 
     m_infos[idx].status = info.status;
-    emit dataChanged(index(idx), index(idx), {ProgressRole, StatusMessageRole});
+    emit dataChanged(index(idx), index(idx), {ProgressRole, StatusMessageRole, DFUModeRole});
 }
 
 void FlipperListModel::requestDevice(const QString &serialNumber) const

@@ -67,24 +67,30 @@ void FlipperInfoTask::getInfoNormalMode()
 
 void FlipperInfoTask::getInfoDFUMode()
 {
-    QByteArray name;
-    QBuffer nameBuf(&name);
+    // TODO: Error handling
+    const uint32_t FLIPPER_OTP_ADDRESS = 0x1fff7000UL;
+    const size_t FLIPPER_OTP_SIZE = 16, FLIPPER_TARGET_OFFSET = 1, FLIPPER_NAME_OFFSET = 8;
+    const int FLIPPER_OTP_ALT_NUM = 2;
+
+    QByteArray otpData;
+    QBuffer otpDataBuf(&otpData);
     DfuseDevice dev(m_info.params);
 
-    nameBuf.open(QIODevice::WriteOnly);
+    otpDataBuf.open(QIODevice::WriteOnly);
 
     dev.beginTransaction();
-    dev.upload(&nameBuf, uint32_t(0x1fff7008UL), 8, 2);
+    dev.upload(&otpDataBuf, FLIPPER_OTP_ADDRESS, FLIPPER_OTP_SIZE, FLIPPER_OTP_ALT_NUM);
     dev.endTransaction();
 
-    nameBuf.close();
-    m_info.name = name;
+    otpDataBuf.close();
+    m_info.target = QString("f%1").arg((uint8_t)otpData.at(FLIPPER_TARGET_OFFSET));
+    m_info.name = otpData.right(FLIPPER_NAME_OFFSET);
 }
 
 void FlipperInfoTask::parseHWInfo(const QByteArray &buf)
 {
     m_info.name = getValue(buf, "Name:");
-    m_info.target = getValue(buf, "HW version:").mid(2, 2);
+    m_info.target = getValue(buf, "HW version:").mid(2, 2).toLower();
 }
 
 void FlipperInfoTask::parseVersion(const QByteArray &buf)
