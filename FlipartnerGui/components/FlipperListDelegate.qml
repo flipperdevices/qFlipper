@@ -6,14 +6,6 @@ Item {
     signal localUpdateRequested(flipperInfo: var)
     signal versionListRequested(flipperInfo: var)
 
-    required property var info
-    required property string name
-    required property string model
-    required property string version
-    required property string message
-    required property real progress
-    required property bool dfumode
-
     id: item
     width: parent.width
     height: 85
@@ -22,7 +14,7 @@ Item {
         id: progressBar
         anchors.fill: parent
         anchors.margins: frame.border.width
-        value: progress
+//        value: progress
     }
 
     Rectangle {
@@ -36,7 +28,7 @@ Item {
 
     Text {
         id: modelLabel
-        text: model
+        text: display.model
         color: "darkgray"
         font.pointSize: 10
         anchors.verticalCenter: parent.verticalCenter
@@ -46,7 +38,7 @@ Item {
 
     Rectangle {
         id: nameLabel
-        color: dfumode ? "#0345ff" : "darkorange"
+        color: display.isDFU ? "#0345ff" : "darkorange"
         width: 100
         height: 30
 
@@ -57,7 +49,7 @@ Item {
         anchors.leftMargin: 10
 
         Text {
-            text: name
+            text: display.name
             color: "black"
             font.pointSize: 12
             font.bold: true
@@ -67,17 +59,17 @@ Item {
 
     StyledButton {
         id: updateButton
-        text: message
+//        text: message
         anchors.right: parent.right
         anchors.rightMargin: 25
         anchors.verticalCenter: parent.verticalCenter
         enabled: text === qsTr("Update")
-        suggested: !dfumode
+        suggested: !display.isDFU
     }
 
     Text {
         id: versionLabel
-        text: qsTr("version ") + version
+        text: qsTr("version ") + display.version
         font.pointSize: 10
 
         anchors.left: nameLabel.right
@@ -94,18 +86,18 @@ Item {
 
         MenuItem {
             text: qsTr("Other versions...")
-            onTriggered: versionListRequested(info)
+//            onTriggered: versionListRequested(info)
         }
 
         MenuItem {
             text: qsTr("Update from local file...")
-            onTriggered: localUpdateRequested(info)
+//            onTriggered: localUpdateRequested(info)
         }
     }
 
-    Connections {
-        target: updateButton
-        function onClicked() { updateRequested(info) }
-        function onPressAndHold() { actionMenu.open(); }
-    }
+//    Connections {
+//        target: updateButton
+//        function onClicked() { updateRequested(info) }
+//        function onPressAndHold() { actionMenu.open(); }
+//    }
 }

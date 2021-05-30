@@ -21,16 +21,16 @@ Popup {
 
         ComboBox {
             id: channelSelector
-            model: firmwareUpdates.channels
+//            model: firmwareUpdates.channels
 
             onActivated: {
-                firmwareUpdates.channel = channelSelector.textAt(index);
+//                firmwareUpdates.channel = channelSelector.textAt(index);
             }
         }
 
         ListView {
             id: versionList
-            model: firmwareUpdates
+//            model: firmwareUpdates
 
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -55,6 +55,6 @@ Popup {
     }
 
     onOpened: {
-        channelSelector.currentIndex = channelSelector.find(firmwareUpdates.channel, Qt.MatchFixedString);
+//        channelSelector.currentIndex = channelSelector.find(firmwareUpdates.channel, Qt.MatchFixedString);
     }
 }

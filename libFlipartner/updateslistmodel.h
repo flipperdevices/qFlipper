@@ -14,7 +14,7 @@ class UpdatesListModel : public QAbstractListModel
     Q_PROPERTY(QString channel READ channel WRITE setChannel NOTIFY channelChanged)
     Q_PROPERTY(QString target READ target WRITE setTarget NOTIFY targetChanged)
     Q_PROPERTY(QStringList channels READ channels NOTIFY channelsChanged)
-    Q_PROPERTY(FlipperInfo targetDevice WRITE setTargetDevice)
+//    Q_PROPERTY(FlipperInfo targetDevice WRITE setTargetDevice)
 
 public:
     enum Role {

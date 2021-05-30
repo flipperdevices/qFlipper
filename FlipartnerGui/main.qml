@@ -48,7 +48,7 @@ Window {
 
     ListView {
         id: deviceList
-        model: flipperList
+        model: registry
         anchors.fill: parent
 
         anchors.leftMargin: 100
@@ -65,36 +65,36 @@ Window {
             }
 
             onVersionListRequested: {
-                firmwareUpdates.targetDevice = flipperInfo;
-                versionScreen.open();
+//                firmwareUpdates.targetDevice = flipperInfo;
+//                versionScreen.open();
             }
 
             onLocalUpdateRequested: {
-                const onFileDialogClosed = function() {
-                    fileDialog.rejected.disconnect(onFileDialogClosed);
-                    fileDialog.accepted.disconnect(onFileDialogAccepted);
-                }
+//                const onFileDialogClosed = function() {
+//                    fileDialog.rejected.disconnect(onFileDialogClosed);
+//                    fileDialog.accepted.disconnect(onFileDialogAccepted);
+//                }
 
-                const onFileDialogAccepted = function() {
-                    onFileDialogClosed();
+//                const onFileDialogAccepted = function() {
+//                    onFileDialogClosed();
 
-                    const onConfirmDialogAccepted = function() {
-                        firmwareUpdater.requestLocalUpdate(flipperInfo, fileDialog.fileUrl);
-                    };
+//                    const onConfirmDialogAccepted = function() {
+//                        firmwareUpdater.requestLocalUpdate(flipperInfo, fileDialog.fileUrl);
+//                    };
 
-                    const onConfirmDialogClosed = function() {
-                        fileConfirmationDialog.accepted.disconnect(onConfirmDialogAccepted);
-                        fileConfirmationDialog.closed.disconnect(onConfirmDialogClosed);
-                    }
+//                    const onConfirmDialogClosed = function() {
+//                        fileConfirmationDialog.accepted.disconnect(onConfirmDialogAccepted);
+//                        fileConfirmationDialog.closed.disconnect(onConfirmDialogClosed);
+//                    }
 
-                    fileConfirmationDialog.accepted.connect(onConfirmDialogAccepted);
-                    fileConfirmationDialog.closed.connect(onConfirmDialogClosed);
-                    fileConfirmationDialog.open();
-                };
+//                    fileConfirmationDialog.accepted.connect(onConfirmDialogAccepted);
+//                    fileConfirmationDialog.closed.connect(onConfirmDialogClosed);
+//                    fileConfirmationDialog.open();
+//                };
 
-                fileDialog.accepted.connect(onFileDialogAccepted);
-                fileDialog.rejected.connect(onFileDialogClosed);
-                fileDialog.open();
+//                fileDialog.accepted.connect(onFileDialogAccepted);
+//                fileDialog.rejected.connect(onFileDialogClosed);
+//                fileDialog.open();
             }
         }
 
@@ -104,7 +104,7 @@ Window {
             anchors.centerIn: parent
             color: "#444"
             font.pointSize: 24
-            visible: flipperList.empty
+            visible: deviceList.count === 0
         }
     }
 

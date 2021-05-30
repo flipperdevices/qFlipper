@@ -9,8 +9,6 @@
 #include <QDebug>
 #include <QFile>
 
-#include <QTimer>
-
 #include "flipartnerbackend.h"
 
 int main(int argc, char *argv[])
@@ -37,20 +35,21 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    engine.rootContext()->setContextProperty("flipperList", &backend.mainList);
-    engine.rootContext()->setContextProperty("flipperDetector", &backend.detector);
-    engine.rootContext()->setContextProperty("firmwareUpdater", &backend.updater);
-    engine.rootContext()->setContextProperty("firmwareUpdates", &backend.updates);
+    engine.rootContext()->setContextProperty("registry", &backend.registry);
+//    engine.rootContext()->setContextProperty("flipperList", &backend.mainList);
+//    engine.rootContext()->setContextProperty("flipperDetector", &backend.detector);
+//    engine.rootContext()->setContextProperty("firmwareUpdater", &backend.updater);
+//    engine.rootContext()->setContextProperty("firmwareUpdates", &backend.updates);
 
-    QTimer::singleShot(0, &app, [&backend]() {
-        QFile file("updates.json");
-        if(!file.open(QIODevice::ReadOnly)) {
-            qDebug() << "Failed to open json file";
-        }
+//    QTimer::singleShot(0, &app, [&backend]() {
+//        QFile file("updates.json");
+//        if(!file.open(QIODevice::ReadOnly)) {
+//            qDebug() << "Failed to open json file";
+//        }
 
-        backend.updates.fillFromJson(file.readAll());
-        file.close();
-    });
+//        backend.updates.fillFromJson(file.readAll());
+//        file.close();
+//    });
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
 

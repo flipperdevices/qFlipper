@@ -16,6 +16,9 @@ SOURCES += \
     flipperinfotask.cpp \
     flipperlistmodel.cpp \
     flipperupdates.cpp \
+    flipperzero.cpp \
+    informationfetcher.cpp \
+    registry.cpp \
     serialhelper.cpp \
     updateslistmodel.cpp
 
@@ -28,6 +31,9 @@ HEADERS += \
     flipperinfotask.h \
     flipperlistmodel.h \
     flipperupdates.h \
+    flipperzero.h \
+    informationfetcher.h \
+    registry.h \
     serialhelper.h \
     updateslistmodel.h
 
