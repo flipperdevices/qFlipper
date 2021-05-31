@@ -5,9 +5,9 @@ import QtQuick.Layouts 1.12
 Rectangle {
     id: element
 
-//    required property string version
-//    required property string timestamp
-//    required property var file
+    required property string version
+    required property string timestamp
+    required property var file
 
     signal installRequested(file: var)
 
@@ -25,7 +25,7 @@ Rectangle {
 
         Text {
             id: versionText
-//            text: version
+            text: version
 
             color: "white"
             font.capitalization: Font.AllUppercase
@@ -38,7 +38,7 @@ Rectangle {
 
         Text {
             id: timestampText
-//            text: timestamp
+            text: timestamp
 
             color: "darkgray"
             font.capitalization: Font.AllUppercase
@@ -59,7 +59,7 @@ Rectangle {
                 suggested: true
 
                 onClicked: {
-//                    installRequested(file);
+                    installRequested(file);
                 }
             }
 

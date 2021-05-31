@@ -48,7 +48,7 @@ Window {
 
     ListView {
         id: deviceList
-        model: registry
+        model: deviceRegistry
         anchors.fill: parent
 
         anchors.leftMargin: 100
@@ -65,36 +65,36 @@ Window {
             }
 
             onVersionListRequested: {
-//                firmwareUpdates.targetDevice = flipperInfo;
-//                versionScreen.open();
+                updateRegistry.target = device.target
+                versionScreen.open();
             }
 
             onLocalUpdateRequested: {
-//                const onFileDialogClosed = function() {
-//                    fileDialog.rejected.disconnect(onFileDialogClosed);
-//                    fileDialog.accepted.disconnect(onFileDialogAccepted);
-//                }
+                const onFileDialogClosed = function() {
+                    fileDialog.rejected.disconnect(onFileDialogClosed);
+                    fileDialog.accepted.disconnect(onFileDialogAccepted);
+                }
 
-//                const onFileDialogAccepted = function() {
-//                    onFileDialogClosed();
+                const onFileDialogAccepted = function() {
+                    onFileDialogClosed();
 
-//                    const onConfirmDialogAccepted = function() {
-//                        firmwareUpdater.requestLocalUpdate(flipperInfo, fileDialog.fileUrl);
-//                    };
+                    const onConfirmDialogAccepted = function() {
+                        downloader.downloadLocalFile(device, fileDialog.fileUrl);
+                    };
 
-//                    const onConfirmDialogClosed = function() {
-//                        fileConfirmationDialog.accepted.disconnect(onConfirmDialogAccepted);
-//                        fileConfirmationDialog.closed.disconnect(onConfirmDialogClosed);
-//                    }
+                    const onConfirmDialogClosed = function() {
+                        fileConfirmationDialog.accepted.disconnect(onConfirmDialogAccepted);
+                        fileConfirmationDialog.closed.disconnect(onConfirmDialogClosed);
+                    }
 
-//                    fileConfirmationDialog.accepted.connect(onConfirmDialogAccepted);
-//                    fileConfirmationDialog.closed.connect(onConfirmDialogClosed);
-//                    fileConfirmationDialog.open();
-//                };
+                    fileConfirmationDialog.accepted.connect(onConfirmDialogAccepted);
+                    fileConfirmationDialog.closed.connect(onConfirmDialogClosed);
+                    fileConfirmationDialog.open();
+                };
 
-//                fileDialog.accepted.connect(onFileDialogAccepted);
-//                fileDialog.rejected.connect(onFileDialogClosed);
-//                fileDialog.open();
+                fileDialog.accepted.connect(onFileDialogAccepted);
+                fileDialog.rejected.connect(onFileDialogClosed);
+                fileDialog.open();
             }
         }
 

@@ -7,7 +7,8 @@
 #include <QByteArray>
 #include <QJsonValue>
 
-namespace FlipperUpdates {
+namespace Flipper {
+namespace Updates {
 
 struct FileInfo
 {
@@ -43,9 +44,10 @@ struct ChannelInfo
 };
 
 }
+}
 
-Q_DECLARE_METATYPE(FlipperUpdates::FileInfo)
-Q_DECLARE_METATYPE(FlipperUpdates::VersionInfo)
-Q_DECLARE_METATYPE(FlipperUpdates::ChannelInfo)
+Q_DECLARE_METATYPE(Flipper::Updates::FileInfo)
+Q_DECLARE_METATYPE(Flipper::Updates::VersionInfo)
+Q_DECLARE_METATYPE(Flipper::Updates::ChannelInfo)
 
 #endif // FLIPPERUPDATES_H

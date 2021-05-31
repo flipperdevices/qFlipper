@@ -1,4 +1,4 @@
-#include "updateslistmodel.h"
+#include "updateregistry.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -7,14 +7,16 @@
 
 #include "macros.h"
 
-UpdatesListModel::UpdatesListModel(QObject *parent):
+using namespace Flipper;
+
+UpdateRegistry::UpdateRegistry(QObject *parent):
     QAbstractListModel(parent)
 {}
 
-UpdatesListModel::~UpdatesListModel()
+UpdateRegistry::~UpdateRegistry()
 {}
 
-int UpdatesListModel::rowCount(const QModelIndex &parent) const
+int UpdateRegistry::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
 
@@ -25,7 +27,7 @@ int UpdatesListModel::rowCount(const QModelIndex &parent) const
     return m_channels[m_currentChannel].versions.size();
 }
 
-QVariant UpdatesListModel::data(const QModelIndex &index, int role) const
+QVariant UpdateRegistry::data(const QModelIndex &index, int role) const
 {
     const auto row = index.row();
     const auto &channel = m_channels[m_currentChannel];
@@ -40,7 +42,7 @@ QVariant UpdatesListModel::data(const QModelIndex &index, int role) const
         return version.changelog;
     } else if(role == FileRole) {
         const auto it = std::find_if(version.files.cbegin(), version.files.cend(),
-            [this](const FlipperUpdates::FileInfo &arg) {
+            [this](const Updates::FileInfo &arg) {
                 return (arg.type == "full_dfu") && (m_currentTarget == arg.target);
             });
 
@@ -50,7 +52,7 @@ QVariant UpdatesListModel::data(const QModelIndex &index, int role) const
     }
 }
 
-QHash<int, QByteArray> UpdatesListModel::roleNames() const
+QHash<int, QByteArray> UpdateRegistry::roleNames() const
 {
     static QHash<int, QByteArray> roles {
         {VersionRole, "version"},
@@ -62,17 +64,17 @@ QHash<int, QByteArray> UpdatesListModel::roleNames() const
     return roles;
 }
 
-const QStringList UpdatesListModel::channels() const
+const QStringList UpdateRegistry::channels() const
 {
     return m_channels.keys();
 }
 
-const QString &UpdatesListModel::channel() const
+const QString &UpdateRegistry::channel() const
 {
     return m_currentChannel;
 }
 
-void UpdatesListModel::setChannel(const QString &name)
+void UpdateRegistry::setChannel(const QString &name)
 {
     if(name == m_currentChannel) {
         return;
@@ -85,12 +87,12 @@ void UpdatesListModel::setChannel(const QString &name)
     emit channelChanged(m_currentChannel);
 }
 
-const QString &UpdatesListModel::target() const
+const QString &UpdateRegistry::target() const
 {
     return m_currentTarget;
 }
 
-void UpdatesListModel::setTarget(const QString &name)
+void UpdateRegistry::setTarget(const QString &name)
 {
     if(name == m_currentTarget) {
         return;
@@ -103,12 +105,7 @@ void UpdatesListModel::setTarget(const QString &name)
     emit targetChanged(m_currentTarget);
 }
 
-void UpdatesListModel::setTargetDevice(const FlipperInfo &info)
-{
-    setTarget(info.target);
-}
-
-bool UpdatesListModel::fillFromJson(const QByteArray &text)
+bool UpdateRegistry::fillFromJson(const QByteArray &text)
 {
     const auto doc = QJsonDocument::fromJson(text);
 
@@ -125,7 +122,7 @@ bool UpdatesListModel::fillFromJson(const QByteArray &text)
     try {
 
         for(const auto &val : arr) {
-            const FlipperUpdates::ChannelInfo info(val);
+            const Updates::ChannelInfo info(val);
             m_channels.insert(info.id, info);
             emit channelsChanged(channels());
         }

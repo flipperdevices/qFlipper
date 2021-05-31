@@ -9,33 +9,21 @@ CONFIG += c++11
 include(../Flipartner_common.pri)
 
 SOURCES += \
-    firmwaredownloadtask.cpp \
-    firmwareupdater.cpp \
+    deviceregistry.cpp \
+    firmwaredownloader.cpp \
     flipartnerbackend.cpp \
-    flipperdetector.cpp \
-    flipperinfotask.cpp \
-    flipperlistmodel.cpp \
     flipperupdates.cpp \
     flipperzero.cpp \
-    informationfetcher.cpp \
-    registry.cpp \
-    serialhelper.cpp \
-    updateslistmodel.cpp
+    updateregistry.cpp
 
 HEADERS += \
-    firmwaredownloadtask.h \
-    firmwareupdater.h \
+    deviceregistry.h \
+    firmwaredownloader.h \
     flipartnerbackend.h \
-    flipperdetector.h \
-    flipperinfo.h \
-    flipperinfotask.h \
-    flipperlistmodel.h \
     flipperupdates.h \
     flipperzero.h \
-    informationfetcher.h \
-    registry.h \
     serialhelper.h \
-    updateslistmodel.h
+    updateregistry.h
 
 unix: {
     LIBS += -L$$OUT_PWD/../libDFU/ -llibDFU

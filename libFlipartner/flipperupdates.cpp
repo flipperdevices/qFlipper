@@ -5,7 +5,9 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-FlipperUpdates::FileInfo::FileInfo(const QJsonValue &val)
+using namespace Flipper::Updates;
+
+FileInfo::FileInfo(const QJsonValue &val)
 {
     if(!val.isObject()) {
         throw std::runtime_error("Expected FileInfo to be an object");
@@ -25,7 +27,7 @@ FlipperUpdates::FileInfo::FileInfo(const QJsonValue &val)
     sha512 = json["sha512"].toString().toLocal8Bit();
 }
 
-FlipperUpdates::VersionInfo::VersionInfo(const QJsonValue &val)
+VersionInfo::VersionInfo(const QJsonValue &val)
 {
     if(!val.isObject()) {
         throw std::runtime_error("Expected VersionInfo to be an object");
@@ -51,7 +53,7 @@ FlipperUpdates::VersionInfo::VersionInfo(const QJsonValue &val)
     }
 }
 
-FlipperUpdates::ChannelInfo::ChannelInfo(const QJsonValue &val)
+ChannelInfo::ChannelInfo(const QJsonValue &val)
 {
     if(!val.isObject()) {
         throw std::runtime_error("Expected ChannelInfo to be an object");

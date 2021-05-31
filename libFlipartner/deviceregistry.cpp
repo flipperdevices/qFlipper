@@ -1,16 +1,16 @@
-#include "registry.h"
+#include "deviceregistry.h"
 
 #include "flipperzero.h"
 #include "usbdevice.h"
 
 using namespace Flipper;
 
-Registry::Registry(QObject *parent):
+DeviceRegistry::DeviceRegistry(QObject *parent):
     QAbstractListModel(parent)
 {
     // Queued connection in order to isolate from backend callback context
-    connect(&USBDevice::backend(), &USBBackend::devicePluggedIn, this, &Registry::insertDevice, Qt::QueuedConnection);
-    connect(&USBDevice::backend(), &USBBackend::deviceUnplugged, this, &Registry::removeDevice, Qt::QueuedConnection);
+    connect(&USBDevice::backend(), &USBBackend::devicePluggedIn, this, &DeviceRegistry::insertDevice, Qt::QueuedConnection);
+    connect(&USBDevice::backend(), &USBBackend::deviceUnplugged, this, &DeviceRegistry::removeDevice, Qt::QueuedConnection);
 
     const USBBackend::DeviceList params = {
         {
@@ -35,25 +35,40 @@ Registry::Registry(QObject *parent):
     USBDevice::backend().registerHotplugEvent(params);
 }
 
-int Registry::rowCount(const QModelIndex &parent) const
+int DeviceRegistry::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return m_data.size();
 }
 
-QVariant Registry::data(const QModelIndex &index, int role) const
+QVariant DeviceRegistry::data(const QModelIndex &index, int role) const
 {
-    return (role == Qt::DisplayRole) ? QVariant::fromValue(m_data.at(index.row())) : QVariant();
+    return (role == DeviceRole) ? QVariant::fromValue(m_data.at(index.row())) : QVariant();
 }
 
-void Registry::insertDevice(const USBDeviceParams parameters)
+QHash<int, QByteArray> DeviceRegistry::roleNames() const
 {
+    return {
+        { DeviceRole, "device" }
+    };
+}
+
+void DeviceRegistry::insertDevice(USBDeviceParams parameters)
+{
+    if(!USBDevice::backend().getExtraDeviceInfo(parameters)) {
+        return;
+    }
+
+    auto *device = new Flipper::Zero(parameters, this);
+
     beginInsertRows(QModelIndex(), m_data.size(), m_data.size());
-    m_data.append(new Flipper::Zero(parameters, this));
+    m_data.append(device);
     endInsertRows();
+
+    emit deviceConnected(device);
 }
 
-void Registry::removeDevice(const USBDeviceParams parameters)
+void DeviceRegistry::removeDevice(USBDeviceParams parameters)
 {
     const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::Zero *dev) {
         return dev->uniqueID() == parameters.uniqueID;

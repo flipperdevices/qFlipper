@@ -2,9 +2,9 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 
 Item {
-    signal updateRequested(flipperInfo: var)
-    signal localUpdateRequested(flipperInfo: var)
-    signal versionListRequested(flipperInfo: var)
+    signal updateRequested(device: var)
+    signal localUpdateRequested(device: var)
+    signal versionListRequested(device: var)
 
     id: item
     width: parent.width
@@ -14,7 +14,7 @@ Item {
         id: progressBar
         anchors.fill: parent
         anchors.margins: frame.border.width
-//        value: progress
+        value: device.progress
     }
 
     Rectangle {
@@ -28,7 +28,7 @@ Item {
 
     Text {
         id: modelLabel
-        text: display.model
+        text: device.model
         color: "darkgray"
         font.pointSize: 10
         anchors.verticalCenter: parent.verticalCenter
@@ -38,7 +38,7 @@ Item {
 
     Rectangle {
         id: nameLabel
-        color: display.isDFU ? "#0345ff" : "darkorange"
+        color: device.isDFU ? "#0345ff" : "darkorange"
         width: 100
         height: 30
 
@@ -49,7 +49,7 @@ Item {
         anchors.leftMargin: 10
 
         Text {
-            text: display.name
+            text: device.name
             color: "black"
             font.pointSize: 12
             font.bold: true
@@ -59,17 +59,22 @@ Item {
 
     StyledButton {
         id: updateButton
-//        text: message
+        text: device.statusMessage
+
         anchors.right: parent.right
         anchors.rightMargin: 25
         anchors.verticalCenter: parent.verticalCenter
+
         enabled: text === qsTr("Update")
-        suggested: !display.isDFU
+        suggested: !device.isDFU
+
+        onClicked: updateRequested(device)
+        onPressAndHold: actionMenu.open()
     }
 
     Text {
         id: versionLabel
-        text: qsTr("version ") + display.version
+        text: qsTr("version ") + device.version
         font.pointSize: 10
 
         anchors.left: nameLabel.right
@@ -86,12 +91,12 @@ Item {
 
         MenuItem {
             text: qsTr("Other versions...")
-//            onTriggered: versionListRequested(info)
+            onTriggered: versionListRequested(device)
         }
 
         MenuItem {
             text: qsTr("Update from local file...")
-//            onTriggered: localUpdateRequested(info)
+            onTriggered: localUpdateRequested(device)
         }
     }
 

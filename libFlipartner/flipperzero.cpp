@@ -2,31 +2,74 @@
 
 #include <QDebug>
 #include <QBuffer>
+#include <QIODevice>
 #include <QSerialPort>
-
-#include "informationfetcher.h"
+#include <QtConcurrent/QtConcurrentRun>
 
 #include "serialhelper.h"
 #include "dfusedevice.h"
+#include "dfusefile.h"
 #include "macros.h"
+
+static const auto STARTUP_MESSAGE = QObject::tr("Probing");
+static const auto UPDATE_MESSAGE = QObject::tr("Update");
 
 using namespace Flipper;
 
 Zero::Zero(const USBDeviceParams &parameters, QObject *parent):
     QObject(parent),
-    m_parameters(parameters),
-    m_name("N/A"), m_target("N/A"), m_version("N/A")
-{
-    if(!USBDevice::backend().getExtraDeviceInfo(m_parameters)) {
-        setName("ERROR");
-        return;
-    }
 
+    m_parameters(parameters),
+
+    m_name("N/A"),
+    m_target("N/A"),
+    m_version("N/A"),
+    m_statusMessage(STARTUP_MESSAGE),
+    m_progress(0)
+{
     if(isDFU()) {
-        fetchInfoDFUMode();
+        QtConcurrent::run(this, &Flipper::Zero::fetchInfoDFUMode);
     } else {
-        fetchInfoNormalMode();
+        QtConcurrent::run(this, &Flipper::Zero::fetchInfoNormalMode);
     }
+}
+
+bool Zero::detach()
+{
+    const auto portInfo = SerialHelper::findSerialPort(m_parameters.serialNumber);
+    check_return_bool(!portInfo.isNull(), "Could not find serial port");
+
+    QSerialPort port(portInfo);
+
+    check_return_bool(port.open(QIODevice::WriteOnly), "Failed to open serial port");
+    check_return_bool((port.write("dfu\r") >= 0) && port.flush(), "Failed to write to serial port");
+
+    port.close();
+    return true;
+}
+
+bool Zero::download(QIODevice *file)
+{
+    check_return_bool(file->open(QIODevice::ReadOnly), "Failed to open firmware file");
+
+    setStatusMessage(tr("Updating"));
+
+    DfuseFile fw(file);
+    DfuseDevice dev(m_parameters);
+
+    connect(&dev, &DfuseDevice::progressChanged, this, [=](int operation, double progress) {
+        setProgress(progress / 2.0 + (operation == DfuseDevice::Download ? 50 : 0));
+    });
+
+    const auto success = dev.beginTransaction() && dev.download(&fw) &&
+                         dev.leave() && dev.endTransaction();
+
+    check_continue(success, "Failed to download the firmware");
+
+    file->close();
+    setStatusMessage(success ? tr("Finished") : tr("Error"));
+
+    return success;
 }
 
 const QString &Zero::name() const
@@ -48,6 +91,16 @@ const QString &Zero::target() const
 const QString &Zero::version() const
 {
     return m_version;
+}
+
+const QString &Zero::statusMessage() const
+{
+    return m_statusMessage;
+}
+
+double Zero::progress() const
+{
+    return m_progress;
 }
 
 bool Zero::isDFU() const
@@ -76,6 +129,20 @@ void Zero::setVersion(const QString &version)
     }
 }
 
+void Zero::setStatusMessage(const QString &message)
+{
+    if(m_statusMessage != message) {
+        emit statusMessageChanged(m_statusMessage = message);
+    }
+}
+
+void Zero::setProgress(double progress)
+{
+    if(m_progress != progress) {
+        emit progressChanged(m_progress = progress);
+    }
+}
+
 void *Zero::uniqueID() const
 {
     return m_parameters.uniqueID;
@@ -87,6 +154,7 @@ void Zero::fetchInfoNormalMode()
 
     if(portInfo.isNull()) {
         // TODO: Error handling
+        setStatusMessage(tr("Error"));
         error_msg("Port not found");
         return;
     }
@@ -94,11 +162,12 @@ void Zero::fetchInfoNormalMode()
     QSerialPort port(portInfo);
     if(!port.open(QIODevice::ReadWrite)) {
         // TODO: Error handling
-        error_msg("Failed to open port")
+        setStatusMessage(tr("Error"));
+        error_msg("Failed to open port");
         return;
     }
 
-    static const auto getValue = [](const QByteArray &buf, const QByteArray &tok) -> QByteArray {
+    static const auto getValue = [](const QByteArray &buf, const QByteArray &tok) {
         const auto start = buf.indexOf(tok) + tok.size();
         const auto end = buf.indexOf('\n', start);
         return buf.mid(start, end - start).trimmed();
@@ -133,6 +202,7 @@ void Zero::fetchInfoNormalMode()
     setVersion(getValue(buf, "Version:"));
 
     port.close();
+    setStatusMessage(UPDATE_MESSAGE);
 }
 
 void Zero::fetchInfoDFUMode()
@@ -156,4 +226,8 @@ void Zero::fetchInfoDFUMode()
 
     setName(otpData.right(FLIPPER_NAME_OFFSET));
     setTarget(QString("f%1").arg((uint8_t)otpData.at(FLIPPER_TARGET_OFFSET)));
+
+    if(m_statusMessage == STARTUP_MESSAGE) {
+        setStatusMessage(UPDATE_MESSAGE);
+    }
 }

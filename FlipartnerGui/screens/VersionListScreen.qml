@@ -21,16 +21,16 @@ Popup {
 
         ComboBox {
             id: channelSelector
-//            model: firmwareUpdates.channels
+            model: updateRegistry.channels
 
             onActivated: {
-//                firmwareUpdates.channel = channelSelector.textAt(index);
+                updateRegistry.channel = channelSelector.textAt(index);
             }
         }
 
         ListView {
             id: versionList
-//            model: firmwareUpdates
+            model: updateRegistry
 
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -51,10 +51,19 @@ Popup {
                 active: true
                 policy: ScrollBar.AlwaysOn
             }
+
+            Text {
+                id: noUpdatesLabel
+                text: qsTr("Updates not found")
+                anchors.centerIn: parent
+                color: "#444"
+                font.pointSize: 24
+                visible: versionList.count === 0
+            }
         }
     }
 
     onOpened: {
-//        channelSelector.currentIndex = channelSelector.find(firmwareUpdates.channel, Qt.MatchFixedString);
+        channelSelector.currentIndex = channelSelector.find(updateRegistry.channel, Qt.MatchFixedString);
     }
 }

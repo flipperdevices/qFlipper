@@ -6,15 +6,15 @@
 #include <QAbstractListModel>
 
 #include "flipperupdates.h"
-#include "flipperinfo.h"
 
-class UpdatesListModel : public QAbstractListModel
+namespace Flipper {
+
+class UpdateRegistry : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(QString channel READ channel WRITE setChannel NOTIFY channelChanged)
     Q_PROPERTY(QString target READ target WRITE setTarget NOTIFY targetChanged)
     Q_PROPERTY(QStringList channels READ channels NOTIFY channelsChanged)
-//    Q_PROPERTY(FlipperInfo targetDevice WRITE setTargetDevice)
 
 public:
     enum Role {
@@ -24,8 +24,8 @@ public:
         FileRole
     };
 
-    UpdatesListModel(QObject *parent = nullptr);
-    ~UpdatesListModel();
+    UpdateRegistry(QObject *parent = nullptr);
+    ~UpdateRegistry();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -39,8 +39,6 @@ public:
     const QString &target() const;
     void setTarget(const QString &name);
 
-    void setTargetDevice(const FlipperInfo &info);
-
     bool fillFromJson(const QByteArray &text);
 
 signals:
@@ -49,9 +47,11 @@ signals:
     void targetChanged(const QString&);
 
 private:
-    QMap<QString, FlipperUpdates::ChannelInfo> m_channels;
+    QMap<QString, Updates::ChannelInfo> m_channels;
     QString m_currentChannel;
     QString m_currentTarget;
 };
+
+}
 
 #endif // UPDATESLISTMODEL_H
