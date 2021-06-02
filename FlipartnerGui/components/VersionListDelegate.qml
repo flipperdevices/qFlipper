@@ -7,9 +7,11 @@ Rectangle {
 
     required property string version
     required property string timestamp
+    required property string changelog
     required property var file
 
     signal installRequested(file: var)
+    signal changelogRequested(title: string, text: string)
 
     height: 80
     width: parent.width
@@ -66,6 +68,10 @@ Rectangle {
             StyledButton {
                 id: changelogButton
                 text: qsTr("Changelog")
+
+                onClicked: {
+                    changelogRequested(version, changelog)
+                }
             }
         }
     }

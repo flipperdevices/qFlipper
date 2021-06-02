@@ -21,8 +21,7 @@ Window {
         width: deviceList.width + 2
         height: deviceList.height + 2
 
-        title: qsTr("Update to version fw-0.19.0?");
-        subtitle: qsTr("Fetching updates from the server is not implemented yet");
+        subtitle: qsTr("Fetching updates from the server is not implemented yet")
     }
 
     StyledConfirmationDialog {
@@ -31,8 +30,8 @@ Window {
         width: deviceList.width + 2
         height: deviceList.height + 2
 
-        title: qsTr("Install update from local file?");
-        subtitle: qsTr("Warning: this operation may brick your device");
+        title: qsTr("Install update from local file?")
+        subtitle: qsTr("Warning: this operation may brick your device")
     }
 
     FileDialog {
@@ -42,8 +41,8 @@ Window {
         nameFilters: ["Firmware files (*.dfu)", "All files (*)"]
     }
 
-    VersionListScreen {
-        id: versionScreen
+    VersionListDialog {
+        id: versionDialog
     }
 
     ListView {
@@ -61,12 +60,41 @@ Window {
 
         delegate: FlipperListDelegate {
             onUpdateRequested: {
+                updateConfirmationDialog.title = qsTr("Update to version ") + updateRegistry.latestVersion(device.target) + "?";
+
+                const onUpdateDialogClosed = function() {
+                    updateConfirmationDialog.closed.disconnect(onUpdateDialogClosed);
+                    updateConfirmationDialog.accepted.disconnect(onUpdateDialogAccepted);
+                }
+
+                const onUpdateDialogAccepted = function() {
+                    onUpdateDialogClosed();
+                    downloader.downloadRemoteFile(device, updateRegistry.latestFirmware(device.target));
+                }
+
+                updateConfirmationDialog.closed.connect(onUpdateDialogClosed);
+                updateConfirmationDialog.accepted.connect(onUpdateDialogAccepted);
+
                 updateConfirmationDialog.open();
             }
 
             onVersionListRequested: {
                 updateRegistry.target = device.target
-                versionScreen.open();
+
+                const onVersionDialogClosed = function() {
+                    versionDialog.closed.disconnect(onVersionDialogClosed);
+                    versionDialog.accepted.disconnect(onVersionDialogAccepted);
+                }
+
+                const onVersionDialogAccepted = function() {
+                    onVersionDialogClosed();
+
+                    downloader.downloadRemoteFile(device, versionDialog.fileInfo);
+                }
+
+                versionDialog.accepted.connect(onVersionDialogAccepted);
+                versionDialog.closed.connect(onVersionDialogClosed);
+                versionDialog.open();
             }
 
             onLocalUpdateRequested: {

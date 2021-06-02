@@ -4,11 +4,13 @@
 #include <QObject>
 #include <QQueue>
 
+#include "flipperupdates.h"
+
 class QIODevice;
+
 namespace Flipper {
 
 class Zero;
-
 class FirmwareDownloader : public QObject
 {
     Q_OBJECT
@@ -29,7 +31,7 @@ public:
 
 public slots:
     void downloadLocalFile(Flipper::Zero *device, const QString &filePath);
-//    void downloadRemoteFile(Flipper::Zero *device);
+    void downloadRemoteFile(Flipper::Zero *device, const Updates::FileInfo &fileInfo);
 
     void onDeviceConnected(Flipper::Zero *device);
 
@@ -37,6 +39,7 @@ private slots:
     void processQueue();
 
 private:
+    void enqueueRequest(const Request &req);
     void processCurrentRequest();
 
     State m_state;

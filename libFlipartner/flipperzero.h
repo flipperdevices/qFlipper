@@ -57,6 +57,8 @@ private:
     void fetchInfoNormalMode();
     void fetchInfoDFUMode();
 
+    // TODO: move this into USBDevice
+    // And create a member instance of DFuseDevice
     USBDeviceParams m_parameters;
 
     QString m_name;

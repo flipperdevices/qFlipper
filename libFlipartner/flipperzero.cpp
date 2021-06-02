@@ -13,6 +13,7 @@
 
 static const auto STARTUP_MESSAGE = QObject::tr("Probing");
 static const auto UPDATE_MESSAGE = QObject::tr("Update");
+static const auto ERROR_MESSAGE = QObject::tr("Error");
 
 using namespace Flipper;
 
@@ -51,6 +52,7 @@ bool Zero::detach()
 bool Zero::download(QIODevice *file)
 {
     check_return_bool(file->open(QIODevice::ReadOnly), "Failed to open firmware file");
+    check_return_bool(file->bytesAvailable(), "This %^@*$ empty! YEET!");
 
     setStatusMessage(tr("Updating"));
 
@@ -67,7 +69,6 @@ bool Zero::download(QIODevice *file)
     check_continue(success, "Failed to download the firmware");
 
     file->close();
-    setStatusMessage(success ? tr("Finished") : tr("Error"));
 
     return success;
 }
@@ -154,7 +155,7 @@ void Zero::fetchInfoNormalMode()
 
     if(portInfo.isNull()) {
         // TODO: Error handling
-        setStatusMessage(tr("Error"));
+        setStatusMessage(ERROR_MESSAGE);
         error_msg("Port not found");
         return;
     }
@@ -162,7 +163,7 @@ void Zero::fetchInfoNormalMode()
     QSerialPort port(portInfo);
     if(!port.open(QIODevice::ReadWrite)) {
         // TODO: Error handling
-        setStatusMessage(tr("Error"));
+        setStatusMessage(ERROR_MESSAGE);
         error_msg("Failed to open port");
         return;
     }

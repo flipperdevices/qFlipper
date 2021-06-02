@@ -1,5 +1,5 @@
 QT -= gui
-QT += serialport
+QT += serialport network
 
 TEMPLATE = lib
 CONFIG += staticlib
@@ -14,6 +14,7 @@ SOURCES += \
     flipartnerbackend.cpp \
     flipperupdates.cpp \
     flipperzero.cpp \
+    remotefilefetcher.cpp \
     updateregistry.cpp
 
 HEADERS += \
@@ -22,6 +23,7 @@ HEADERS += \
     flipartnerbackend.h \
     flipperupdates.h \
     flipperzero.h \
+    remotefilefetcher.h \
     serialhelper.h \
     updateregistry.h
 

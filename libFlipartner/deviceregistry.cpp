@@ -8,11 +8,11 @@ using namespace Flipper;
 DeviceRegistry::DeviceRegistry(QObject *parent):
     QAbstractListModel(parent)
 {
-    // Queued connection in order to isolate from backend callback context
-    connect(&USBDevice::backend(), &USBBackend::devicePluggedIn, this, &DeviceRegistry::insertDevice, Qt::QueuedConnection);
-    connect(&USBDevice::backend(), &USBBackend::deviceUnplugged, this, &DeviceRegistry::removeDevice, Qt::QueuedConnection);
+    connect(USBDevice::detector(), &USBDEviceDetector::devicePluggedIn, this, &DeviceRegistry::insertDevice);
+    connect(USBDevice::detector(), &USBDEviceDetector::deviceUnplugged, this, &DeviceRegistry::removeDevice);
 
-    const USBBackend::DeviceList params = {
+    USBDevice::detector()->registerHotplugEvent({
+        // Flipper Zero in DFU mode
         {
             0x0483,
             0xdf11,
@@ -22,6 +22,7 @@ DeviceRegistry::DeviceRegistry(QObject *parent):
             nullptr
         },
 
+        // Flipper Zero in VCP mode
         {
             0x0483,
             0x5740,
@@ -30,9 +31,7 @@ DeviceRegistry::DeviceRegistry(QObject *parent):
             "",
             nullptr
         }
-    };
-
-    USBDevice::backend().registerHotplugEvent(params);
+    });
 }
 
 int DeviceRegistry::rowCount(const QModelIndex &parent) const
@@ -53,12 +52,8 @@ QHash<int, QByteArray> DeviceRegistry::roleNames() const
     };
 }
 
-void DeviceRegistry::insertDevice(USBDeviceParams parameters)
+void DeviceRegistry::insertDevice(const USBDeviceParams &parameters)
 {
-    if(!USBDevice::backend().getExtraDeviceInfo(parameters)) {
-        return;
-    }
-
     auto *device = new Flipper::Zero(parameters, this);
 
     beginInsertRows(QModelIndex(), m_data.size(), m_data.size());
@@ -68,7 +63,7 @@ void DeviceRegistry::insertDevice(USBDeviceParams parameters)
     emit deviceConnected(device);
 }
 
-void DeviceRegistry::removeDevice(USBDeviceParams parameters)
+void DeviceRegistry::removeDevice(const USBDeviceParams &parameters)
 {
     const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::Zero *dev) {
         return dev->uniqueID() == parameters.uniqueID;
@@ -78,9 +73,7 @@ void DeviceRegistry::removeDevice(USBDeviceParams parameters)
         const auto idx = std::distance(m_data.begin(), it);
 
         beginRemoveRows(QModelIndex(), idx, idx);
-        m_data.erase(it);
+        m_data.takeAt(idx)->deleteLater();
         endRemoveRows();
-
-        (*it)->deleteLater();
     }
 }

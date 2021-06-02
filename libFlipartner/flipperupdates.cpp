@@ -53,6 +53,21 @@ VersionInfo::VersionInfo(const QJsonValue &val)
     }
 }
 
+int VersionInfo::indexOf(const QString &target, const QString &type) const
+{
+    const auto it = std::find_if(files.cbegin(), files.cend(),
+        [=](const Updates::FileInfo &arg) {
+            return (arg.type == type) && (target == arg.target);
+        });
+
+    const auto index = std::distance(files.cbegin(), it);
+    if(index < files.size()) {
+        return index;
+    } else {
+        return -1;
+    }
+}
+
 ChannelInfo::ChannelInfo(const QJsonValue &val)
 {
     if(!val.isObject()) {
@@ -77,4 +92,9 @@ ChannelInfo::ChannelInfo(const QJsonValue &val)
     for(const auto &version : versionArray) {
         versions.append(version);
     }
+
+    // Json data is not guaranteed to be sorted?
+    std::sort(versions.begin(), versions.end(), [](const VersionInfo &a, const VersionInfo &b) {
+        return a.version > b.version;
+    });
 }

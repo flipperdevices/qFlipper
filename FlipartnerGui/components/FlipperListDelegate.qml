@@ -66,7 +66,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
 
         enabled: text === qsTr("Update")
-        suggested: !device.isDFU
+        suggested: (!device.isDFU) && (updateRegistry.latestVersion(device.target) > device.version)
 
         onClicked: updateRequested(device)
         onPressAndHold: actionMenu.open()
@@ -99,10 +99,4 @@ Item {
             onTriggered: localUpdateRequested(device)
         }
     }
-
-//    Connections {
-//        target: updateButton
-//        function onClicked() { updateRequested(info) }
-//        function onPressAndHold() { actionMenu.open(); }
-//    }
 }

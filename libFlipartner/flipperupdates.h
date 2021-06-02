@@ -26,6 +26,8 @@ struct VersionInfo
     VersionInfo() = default;
     VersionInfo(const QJsonValue &val);
 
+    int indexOf(const QString &target, const QString &type) const;
+
     QString version;
     QString changelog;
     time_t timestamp;

@@ -6,12 +6,25 @@
 #include <QDateTime>
 
 #include "macros.h"
+#include "remotefilefetcher.h"
 
 using namespace Flipper;
 
 UpdateRegistry::UpdateRegistry(QObject *parent):
     QAbstractListModel(parent)
-{}
+{
+    auto *fetcher = new RemoteFileFetcher(this);
+
+    fetcher->connect(fetcher, &RemoteFileFetcher::finished, this, [=](const QByteArray &data) {
+        if(!data.isEmpty()) {
+            fillFromJson(data);
+        }
+
+        fetcher->deleteLater();
+    });
+
+    fetcher->fetch("https://update.flipperzero.one/directory.json");
+}
 
 UpdateRegistry::~UpdateRegistry()
 {}
@@ -33,7 +46,6 @@ QVariant UpdateRegistry::data(const QModelIndex &index, int role) const
     const auto &channel = m_channels[m_currentChannel];
     const auto &version = channel.versions.at(row);
 
-        qDebug() << m_currentChannel << m_currentTarget;
     if(role == VersionRole) {
         return version.version;
     } else if(role == TimestampRole) {
@@ -41,12 +53,8 @@ QVariant UpdateRegistry::data(const QModelIndex &index, int role) const
     } else if(role == ChangelogRole) {
         return version.changelog;
     } else if(role == FileRole) {
-        const auto it = std::find_if(version.files.cbegin(), version.files.cend(),
-            [this](const Updates::FileInfo &arg) {
-                return (arg.type == "full_dfu") && (m_currentTarget == arg.target);
-            });
-
-        return (it != version.files.cend()) ? QVariant::fromValue(*it) : QVariant();
+        const auto index = version.indexOf(m_currentTarget, "full_dfu");
+        return index < 0 ? QVariant() : QVariant::fromValue(version.files.at(index));
     } else {
         return QVariant();
     }
@@ -74,6 +82,11 @@ const QString &UpdateRegistry::channel() const
     return m_currentChannel;
 }
 
+const QString UpdateRegistry::channelDescription() const
+{
+    return m_channels[m_currentChannel].description;
+}
+
 void UpdateRegistry::setChannel(const QString &name)
 {
     if(name == m_currentChannel) {
@@ -85,11 +98,36 @@ void UpdateRegistry::setChannel(const QString &name)
     endResetModel();
 
     emit channelChanged(m_currentChannel);
+    emit channelDescriptionChanged(channelDescription());
 }
 
 const QString &UpdateRegistry::target() const
 {
     return m_currentTarget;
+}
+
+const QString UpdateRegistry::latestVersion(const QString &target) const
+{
+    for(const auto &version: m_channels["release"].versions) {
+        const auto index = version.indexOf(target, "full_dfu");
+        if(index >= 0) {
+            return version.version;
+        }
+    }
+
+    return "N/A";
+}
+
+Updates::FileInfo UpdateRegistry::latestFirmware(const QString &target) const
+{
+    for(const auto &version: m_channels["release"].versions) {
+        const auto index = version.indexOf(target, "full_dfu");
+        if(index >= 0) {
+            return version.files.at(index);
+        }
+    }
+
+    return Updates::FileInfo();
 }
 
 void UpdateRegistry::setTarget(const QString &name)
