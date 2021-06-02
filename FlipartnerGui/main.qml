@@ -4,30 +4,34 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Controls 2.12
 
 import "./components"
+import "./screens"
 
 Window {
+    id: root
+
     width: 800
     height: 480
     visible: true
     title: qsTr("Flipartner")
     color: "black"
 
-    property var selectedDevice
-
     StyledConfirmationDialog {
         id: updateConfirmationDialog
+
         width: deviceList.width + 2
         height: deviceList.height + 2
-        title: qsTr("Update to version fw-0.19.0?");
-        subtitle: qsTr("Fetching updates from the server is not implemented yet");
+
+        subtitle: qsTr("Fetching updates from the server is not implemented yet")
     }
 
     StyledConfirmationDialog {
         id: fileConfirmationDialog
+
         width: deviceList.width + 2
         height: deviceList.height + 2
-        title: qsTr("Install update from local file?");
-        subtitle: qsTr("Warning: this operation may brick your device");
+
+        title: qsTr("Install update from local file?")
+        subtitle: qsTr("Warning: this operation may brick your device")
     }
 
     FileDialog {
@@ -37,9 +41,13 @@ Window {
         nameFilters: ["Firmware files (*.dfu)", "All files (*)"]
     }
 
+    VersionListDialog {
+        id: versionDialog
+    }
+
     ListView {
         id: deviceList
-        model: flipperList
+        model: deviceRegistry
         anchors.fill: parent
 
         anchors.leftMargin: 100
@@ -48,15 +56,72 @@ Window {
         anchors.bottomMargin: parent.height/4
 
         spacing: 6
+        clip: true
 
         delegate: FlipperListDelegate {
             onUpdateRequested: {
-                selectedDevice = flipperInfo;
+                updateConfirmationDialog.title = qsTr("Update to version ") + updateRegistry.latestVersion(device.target) + "?";
+
+                const onUpdateDialogClosed = function() {
+                    updateConfirmationDialog.closed.disconnect(onUpdateDialogClosed);
+                    updateConfirmationDialog.accepted.disconnect(onUpdateDialogAccepted);
+                }
+
+                const onUpdateDialogAccepted = function() {
+                    onUpdateDialogClosed();
+                    downloader.downloadRemoteFile(device, updateRegistry.latestFirmware(device.target));
+                }
+
+                updateConfirmationDialog.closed.connect(onUpdateDialogClosed);
+                updateConfirmationDialog.accepted.connect(onUpdateDialogAccepted);
+
                 updateConfirmationDialog.open();
             }
 
+            onVersionListRequested: {
+                updateRegistry.target = device.target
+
+                const onVersionDialogClosed = function() {
+                    versionDialog.closed.disconnect(onVersionDialogClosed);
+                    versionDialog.accepted.disconnect(onVersionDialogAccepted);
+                }
+
+                const onVersionDialogAccepted = function() {
+                    onVersionDialogClosed();
+
+                    downloader.downloadRemoteFile(device, versionDialog.fileInfo);
+                }
+
+                versionDialog.accepted.connect(onVersionDialogAccepted);
+                versionDialog.closed.connect(onVersionDialogClosed);
+                versionDialog.open();
+            }
+
             onLocalUpdateRequested: {
-                selectedDevice = flipperInfo;
+                const onFileDialogClosed = function() {
+                    fileDialog.rejected.disconnect(onFileDialogClosed);
+                    fileDialog.accepted.disconnect(onFileDialogAccepted);
+                }
+
+                const onFileDialogAccepted = function() {
+                    onFileDialogClosed();
+
+                    const onConfirmDialogAccepted = function() {
+                        downloader.downloadLocalFile(device, fileDialog.fileUrl);
+                    };
+
+                    const onConfirmDialogClosed = function() {
+                        fileConfirmationDialog.accepted.disconnect(onConfirmDialogAccepted);
+                        fileConfirmationDialog.closed.disconnect(onConfirmDialogClosed);
+                    }
+
+                    fileConfirmationDialog.accepted.connect(onConfirmDialogAccepted);
+                    fileConfirmationDialog.closed.connect(onConfirmDialogClosed);
+                    fileConfirmationDialog.open();
+                };
+
+                fileDialog.accepted.connect(onFileDialogAccepted);
+                fileDialog.rejected.connect(onFileDialogClosed);
                 fileDialog.open();
             }
         }
@@ -67,7 +132,7 @@ Window {
             anchors.centerIn: parent
             color: "#444"
             font.pointSize: 24
-            visible: flipperList.empty
+            visible: deviceList.count === 0
         }
     }
 
@@ -98,19 +163,5 @@ Window {
         anchors.bottomMargin: 20
         color: "#333"
         font.capitalization: Font.AllUppercase
-    }
-
-    Connections {
-        target: fileDialog
-        function onAccepted() {
-            fileConfirmationDialog.open();
-        }
-    }
-
-    Connections {
-        target: fileConfirmationDialog
-        function onAccepted() {
-            firmwareUpdater.requestLocalUpdate(selectedDevice, fileDialog.fileUrl);
-        }
     }
 }

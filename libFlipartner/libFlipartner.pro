@@ -1,5 +1,5 @@
 QT -= gui
-QT += serialport
+QT += serialport network
 
 TEMPLATE = lib
 CONFIG += staticlib
@@ -9,23 +9,23 @@ CONFIG += c++11
 include(../Flipartner_common.pri)
 
 SOURCES += \
-    firmwaredownloadtask.cpp \
-    firmwareupdater.cpp \
+    deviceregistry.cpp \
+    firmwaredownloader.cpp \
     flipartnerbackend.cpp \
-    flipperdetector.cpp \
-    flipperinfotask.cpp \
-    flipperlistmodel.cpp \
-    serialhelper.cpp
+    flipperupdates.cpp \
+    flipperzero.cpp \
+    remotefilefetcher.cpp \
+    updateregistry.cpp
 
 HEADERS += \
-    firmwaredownloadtask.h \
-    firmwareupdater.h \
+    deviceregistry.h \
+    firmwaredownloader.h \
     flipartnerbackend.h \
-    flipperdetector.h \
-    flipperinfo.h \
-    flipperinfotask.h \
-    flipperlistmodel.h \
-    serialhelper.h
+    flipperupdates.h \
+    flipperzero.h \
+    remotefilefetcher.h \
+    serialhelper.h \
+    updateregistry.h
 
 unix: {
     LIBS += -L$$OUT_PWD/../libDFU/ -llibDFU

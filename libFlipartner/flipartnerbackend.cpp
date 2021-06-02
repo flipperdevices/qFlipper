@@ -1,16 +1,14 @@
 #include "flipartnerbackend.h"
 
+#include "flipperzero.h"
+
+using namespace Flipper;
+
 FlipartnerBackend::FlipartnerBackend()
 {
-    qRegisterMetaType<FlipperInfo>("FlipperInfo");
+    qRegisterMetaType<Updates::FileInfo>("Updates::FileInfo");
 
-    QObject::connect(&detector, &FlipperDetector::flipperDetected, &mainList, &FlipperListModel::insertDevice);
-    QObject::connect(&detector, &FlipperDetector::flipperDisconnected, &mainList, &FlipperListModel::removeDevice);
-    QObject::connect(&detector, &FlipperDetector::flipperUpdated, &mainList, &FlipperListModel::updateDevice);
-
-    QObject::connect(&updater, &FirmwareUpdater::deviceStatusChanged, &mainList, &FlipperListModel::updateDeviceStatus);
-
-    QObject::connect(&detector, &FlipperDetector::flipperDetected, &updater, &FirmwareUpdater::onDeviceConnected);
+    QObject::connect(&deviceRegistry, &DeviceRegistry::deviceConnected, &downloader, &FirmwareDownloader::onDeviceConnected);
 }
 
 FlipartnerBackend::~FlipartnerBackend()

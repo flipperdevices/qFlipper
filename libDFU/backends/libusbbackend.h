@@ -13,17 +13,15 @@ class USBBackend : public QObject
 public:
     struct DeviceHandle;
 
-    using DeviceList = QList<USBDeviceParams>;
-
     USBBackend(QObject *parent = nullptr);
     ~USBBackend();
 
-    static bool getExtraDeviceInfo(USBDeviceParams &params);
+    static USBDeviceParams getExtraDeviceInfo(const USBDeviceParams &params);
 
     void initDevice(DeviceHandle **handle, const USBDeviceParams &params);
     void unrefDevice(DeviceHandle *handle);
 
-    bool registerHotplugEvent(const DeviceList &paramsList);
+    bool registerHotplugEvent(const QList<USBDeviceParams> &paramsList);
 
     QByteArray getExtraInterfaceDescriptor(DeviceHandle *handle);
     QByteArray getStringInterfaceDescriptor(DeviceHandle *handle, int interfaceNum);
@@ -40,8 +38,8 @@ public:
     QByteArray controlTransfer(DeviceHandle *handle, uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, uint16_t length);
 
 signals:
-    void devicePluggedIn(USBDeviceParams);
-    void deviceUnplugged(USBDeviceParams);
+    void devicePluggedIn(const USBDeviceParams&);
+    void deviceUnplugged(const USBDeviceParams&);
 
 private:
     void timerEvent(QTimerEvent *e) override;

@@ -1,6 +1,7 @@
 #include "libusbbackend.h"
 
 #include <QDebug>
+#include <QTimer>
 
 #include <exception>
 #include <libusb.h>
@@ -43,7 +44,7 @@ void USBBackend::unrefDevice(DeviceHandle *handle)
     libusb_unref_device(handle->libusbDevice);
 }
 
-bool USBBackend::registerHotplugEvent(const DeviceList &paramsList)
+bool USBBackend::registerHotplugEvent(const QList<USBDeviceParams> &paramsList)
 {
     check_return_bool(libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG),"Sorry, systems without hotplug support are not implemented yet");
 
@@ -195,38 +196,39 @@ void USBBackend::timerEvent(QTimerEvent *e)
 
 unsigned int USBBackend::m_timeout = 10000;
 
-bool USBBackend::getExtraDeviceInfo(USBDeviceParams &params)
+USBDeviceParams USBBackend::getExtraDeviceInfo(const USBDeviceParams &params)
 {
     auto *dev = (libusb_device*)params.uniqueID;
 
     libusb_device_descriptor desc;
-    check_return_bool(!libusb_get_device_descriptor(dev, &desc),"Failed to get device descriptor");
+    check_return_val(!libusb_get_device_descriptor(dev, &desc),"Failed to get device descriptor", params);
 
     struct libusb_device_handle *handle;
-    check_return_bool(!libusb_open(dev, &handle), "Failed to open device");
+    check_return_val(!libusb_open(dev, &handle), "Failed to open device", params);
 
+    USBDeviceParams newparams = params;
     unsigned char buf[0xff];
 
     if(libusb_get_string_descriptor_ascii(handle, desc.iManufacturer, buf, sizeof(buf)) < 0) {
         error_msg("Failed to get manufacturer string descriptor");
     } else {
-        params.manufacturer = QString::fromLocal8Bit((const char*)buf);
+        newparams.manufacturer = QString::fromLocal8Bit((const char*)buf);
     }
 
     if(libusb_get_string_descriptor_ascii(handle, desc.iProduct, buf, sizeof(buf)) < 0) {
         error_msg("Failed to get product string descriptor");
     } else {
-        params.productDescription = QString::fromLocal8Bit((const char*)buf);
+        newparams.productDescription = QString::fromLocal8Bit((const char*)buf);
     }
 
     if(libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, buf, sizeof(buf)) < 0) {
         error_msg("Failed to get device serial number");
     } else {
-        params.serialNumber = QString::fromLocal8Bit((const char*)buf);
+        newparams.serialNumber = QString::fromLocal8Bit((const char*)buf);
     }
 
     libusb_close(handle);
-    return true;
+    return newparams;
 }
 
 static int libusbHotplugCallback(struct libusb_context *ctx, struct libusb_device *dev,
@@ -247,7 +249,13 @@ static int libusbHotplugCallback(struct libusb_context *ctx, struct libusb_devic
     };
 
     if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED) {
-        emit backendInstance->devicePluggedIn(params);
+        // Get string descriptors asynchronously
+        QTimer::singleShot(0, backendInstance, [=]() {
+            const auto newParameters = backendInstance->getExtraDeviceInfo(params);
+            // TODO: check for manufacturer and product
+            emit backendInstance->devicePluggedIn(newParameters);
+        });
+
     } else if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT) {
         emit backendInstance->deviceUnplugged(params);
     } else {

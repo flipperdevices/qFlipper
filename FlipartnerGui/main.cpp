@@ -7,6 +7,9 @@
 
 #include <QThread>
 #include <QDebug>
+#include <QFile>
+
+#include <QTimer>
 
 #include "flipartnerbackend.h"
 
@@ -34,9 +37,19 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    engine.rootContext()->setContextProperty("flipperList", &backend.mainList);
-    engine.rootContext()->setContextProperty("flipperDetector", &backend.detector);
-    engine.rootContext()->setContextProperty("firmwareUpdater", &backend.updater);
+    engine.rootContext()->setContextProperty("deviceRegistry", &backend.deviceRegistry);
+    engine.rootContext()->setContextProperty("updateRegistry", &backend.updateRegistry);
+    engine.rootContext()->setContextProperty("downloader", &backend.downloader);
+
+//    QTimer::singleShot(0, &app, [&backend]() {
+//        QFile file("updates.json");
+//        if(!file.open(QIODevice::ReadOnly)) {
+//            qDebug() << "Failed to open json file";
+//        }
+
+//        backend.updateRegistry.fillFromJson(file.readAll());
+//        file.close();
+//    });
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
 

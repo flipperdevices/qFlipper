@@ -1,12 +1,13 @@
 #include "usbdevice.h"
 
-#include <exception>
-#include <QDebug>
+#include <QMutex>
 
-USBDevice::USBDevice(const USBDeviceParams &info, QObject *parent):
+#include "usbbackend.h"
+
+USBDevice::USBDevice(const USBDeviceParams &parameters, QObject *parent):
     QObject(parent)
 {
-    backend().initDevice(&m_handle, info);
+    backend().initDevice(&m_handle, parameters);
 }
 
 USBDevice::~USBDevice()
@@ -18,6 +19,8 @@ USBDevice::~USBDevice()
 
 bool USBDevice::open()
 {
+    backendMutex().lock();
+
     if(!m_isOpen) {
         m_isOpen = backend().openDevice(m_handle);
     }
@@ -32,6 +35,8 @@ void USBDevice::close()
     }
 
     backend().closeDevice(m_handle);
+    backendMutex().unlock();
+
     m_isOpen = false;
 }
 
@@ -70,8 +75,32 @@ QByteArray USBDevice::stringInterfaceDescriptor(int interfaceNum)
     return backend().getStringInterfaceDescriptor(m_handle, interfaceNum);
 }
 
+USBDEviceDetector *USBDevice::detector()
+{
+    static USBDEviceDetector detector;
+    return &detector;
+}
+
 USBBackend &USBDevice::backend()
 {
     static USBBackend backendInstance;
     return backendInstance;
+}
+
+QMutex &USBDevice::backendMutex()
+{
+    static QMutex mutex;
+    return mutex;
+}
+
+USBDEviceDetector::USBDEviceDetector(QObject *parent):
+    QObject(parent)
+{
+    connect(&USBDevice::backend(), &USBBackend::devicePluggedIn, this, &USBDEviceDetector::devicePluggedIn);
+    connect(&USBDevice::backend(), &USBBackend::deviceUnplugged, this, &USBDEviceDetector::deviceUnplugged);
+}
+
+void USBDEviceDetector::registerHotplugEvent(const QList<USBDeviceParams> &paramList)
+{
+    USBDevice::backend().registerHotplugEvent(paramList);
 }

@@ -1,18 +1,18 @@
 #ifndef FLIPARTNERBACKEND_H
 #define FLIPARTNERBACKEND_H
 
-#include "flipperlistmodel.h"
-#include "flipperdetector.h"
-#include "firmwareupdater.h"
+#include "deviceregistry.h"
+#include "updateregistry.h"
+#include "firmwaredownloader.h"
 
 struct FlipartnerBackend
 {
     FlipartnerBackend();
     ~FlipartnerBackend();
 
-    FlipperListModel mainList;
-    FlipperDetector detector;
-    FirmwareUpdater updater;
+    Flipper::DeviceRegistry deviceRegistry;
+    Flipper::UpdateRegistry updateRegistry;
+    Flipper::FirmwareDownloader downloader;
 };
 
 #endif // FLIPARTNERBACKEND_H
