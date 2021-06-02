@@ -21,7 +21,7 @@ Window {
         width: deviceList.width + 2
         height: deviceList.height + 2
 
-        subtitle: qsTr("Fetching updates from the server is not implemented yet")
+        subtitle: qsTr("This will install the latest firmware on your device.")
     }
 
     StyledConfirmationDialog {
@@ -31,7 +31,7 @@ Window {
         height: deviceList.height + 2
 
         title: qsTr("Install update from local file?")
-        subtitle: qsTr("Warning: this operation may brick your device")
+        subtitle: qsTr("Warning: this operation may brick your device.")
     }
 
     FileDialog {

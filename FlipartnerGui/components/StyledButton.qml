@@ -5,6 +5,7 @@ Button {
     id: control
 
     property bool suggested: false
+    property bool dangerous: false
 
     background: Rectangle {
         id: buttonBg
@@ -60,6 +61,22 @@ Button {
             PropertyChanges {
                 target: buttonText
                 color: "black"
+            }
+        },
+
+        State {
+            name: "dangerous"
+            when: control.dangerous
+            PropertyChanges {
+                target: buttonBg
+                color: "#700"
+                border.width: 1
+                border.color: "#B00"
+            }
+
+            PropertyChanges {
+                target: buttonText
+                color: "white"
             }
         },
 

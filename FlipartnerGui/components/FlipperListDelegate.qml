@@ -66,6 +66,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
 
         enabled: text === qsTr("Update")
+        dangerous: text === qsTr("Error")
         suggested: (!device.isDFU) && (updateRegistry.latestVersion(device.target) > device.version)
 
         onClicked: updateRequested(device)
