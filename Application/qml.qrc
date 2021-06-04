@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>components/StyledButton.qml</file>
+        <file>components/FlipperListDelegate.qml</file>
+        <file>components/StyledProgressBar.qml</file>
+        <file>components/StyledConfirmationDialog.qml</file>
+        <file>screens/VersionListDialog.qml</file>
+        <file>components/VersionListDelegate.qml</file>
+        <file>components/StyledChangelogDialog.qml</file>
+    </qresource>
+</RCC>
