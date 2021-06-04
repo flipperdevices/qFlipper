@@ -1,26 +1,23 @@
 # Flipartner
 Flipper companion application (desktop)
 
-## Prerequisites:
-* Qt >= 5.12
-* libusb >= 1.0.16
-
 ## Build:
+### Linux:
 ```sh
-mkdir build && cd build
-qmake ../Flipartner.pro
-make
+docker-compose exec dev ./build_linux.sh
 ```
 
 ## Run:
 ```sh
-./FlipartnerGui/FlipartnerGui
+./build/flipartner-x86_64.AppImage
 ```
 or just launch the file above from your favourite file manager.
 
 ## Usage:
-Click and hold the `Update` button until a menu appears. In the menu, select `Update from local file...`, pick the firmware file, then click `Yes`.
+- Press `Update` to install the latest available version. It will be brightly coloured if there is an actual update.
+- Long press `Update` to get the menu.
+- Select `Other versions...` to get a list of all available firmware versions. There, you may install any of them you like.
+- Select `Update from local file...` if you wish to install a *.dfu file you downloaded yourself.
 
 ## Limitations:
-* Fetching updates from remote server is not yet implemented
 * Some run-time errors are not handled correctly
