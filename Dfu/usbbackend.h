@@ -4,7 +4,7 @@
 #ifdef USB_BACKEND_LIBUSB
 #include "backends/libusbbackend.h"
 #else
-#error "Only libusb backend is implemented right now"
+#error "No USB backend confugured"
 #endif
 
 #endif // USBBACKEND_H

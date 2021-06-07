@@ -23,10 +23,9 @@ HEADERS += \
 
 include(../Flipartner_common.pri)
 
-unix: {
-    SOURCES += \
-        backends/libusbbackend.cpp
-
-    HEADERS += \
-        backends/libusbbackend.h
+contains(DEFINES, USB_BACKEND_LIBUSB) {
+    SOURCES += backends/libusbbackend.cpp
+    HEADERS += backends/libusbbackend.h
+} else {
+    error("No USB backend configured")
 }

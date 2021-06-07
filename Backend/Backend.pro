@@ -27,7 +27,7 @@ HEADERS += \
     serialhelper.h \
     updateregistry.h
 
-unix: {
+unix|win32-g++: {
     LIBS += -L$$OUT_PWD/../Dfu/ -lDfu
     PRE_TARGETDEPS += $$OUT_PWD/../Dfu/libDfu.a
 }

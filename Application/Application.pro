@@ -22,9 +22,7 @@ QML_IMPORT_PATH =
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =
 
-include(../Flipartner_common.pri)
-
-unix: {
+unix|win32-g++ {
     LIBS += \
         -L$$OUT_PWD/../Backend/ -lBackend \
         -L$$OUT_PWD/../Dfu/ -lDfu
@@ -33,6 +31,8 @@ unix: {
         $$OUT_PWD/../Backend/libBackend.a \
         $$OUT_PWD/../Dfu/libDfu.a
 }
+
+include(../Flipartner_common.pri)
 
 INCLUDEPATH += \
     $$PWD/../Dfu \
