@@ -6,6 +6,10 @@
 
 #include "usbdeviceparams.h"
 
+// TODO This innocent line hides a big mess to counter missing hotplug support on Windows
+// Refactor the watcher code to be more general.
+class DeviceWatcher;
+
 class USBBackend : public QObject
 {
     Q_OBJECT
@@ -43,6 +47,8 @@ signals:
 
 private:
     void timerEvent(QTimerEvent *e) override;
+
+    DeviceWatcher *m_watcher;
 
     static unsigned int m_timeout;
 };

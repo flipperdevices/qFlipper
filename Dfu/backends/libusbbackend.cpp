@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QTimer>
+#include <QList>
 
 #include <exception>
 #include <libusb.h>
@@ -16,6 +17,25 @@ struct USBBackend::DeviceHandle {
     libusb_device_handle *libusbDeviceHandle = nullptr;
 };
 
+class DeviceWatcher {
+    struct List {
+        libusb_device **head = nullptr;
+        ssize_t size = 0;
+    };
+
+public:
+    DeviceWatcher(const QList <USBDeviceParams> &wanted, USBBackend *backend);
+    QList <libusb_device*> devicesArrived(const List &curList);
+    QList <libusb_device*> devicesLeft(const List &curList);
+
+    void update();
+
+private:
+    QList <USBDeviceParams> m_wanted;
+    USBBackend *m_backend;
+    List m_prevList;
+};
+
 static constexpr const char* dbgLabel = "libusb backend:";
 
 USBBackend::USBBackend(QObject *parent):
@@ -24,8 +44,6 @@ USBBackend::USBBackend(QObject *parent):
     if(libusb_init(nullptr)) {
         throw std::runtime_error("Failed to initialise libusb");
     }
-
-    startTimer(100);
 }
 
 USBBackend::~USBBackend()
@@ -46,15 +64,19 @@ void USBBackend::unrefDevice(DeviceHandle *handle)
 
 bool USBBackend::registerHotplugEvent(const QList<USBDeviceParams> &paramsList)
 {
-    check_return_bool(libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG),"Sorry, systems without hotplug support are not implemented yet");
+    if(!libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG)) {
+        info_msg("No hotplug support, falling back to dumb polling");
+        m_watcher = new DeviceWatcher(paramsList, this);
 
-    for(const auto &params : paramsList) {
-        const auto err = libusb_hotplug_register_callback(nullptr, libusb_hotplug_event(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED | LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT), LIBUSB_HOTPLUG_ENUMERATE,
-                                        params.vendorID, params.productID, LIBUSB_HOTPLUG_MATCH_ANY, libusbHotplugCallback, this, nullptr);
-        check_return_bool(!err, "Failed to register hotplug callback");
+    } else {
+        for(const auto &params : paramsList) {
+            const auto err = libusb_hotplug_register_callback(nullptr, libusb_hotplug_event(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED | LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT), LIBUSB_HOTPLUG_ENUMERATE,
+                                            params.vendorID, params.productID, LIBUSB_HOTPLUG_MATCH_ANY, libusbHotplugCallback, this, nullptr);
+            check_return_bool(!err, "Failed to register hotplug callback");
+        }
     }
 
-    return true;
+    return startTimer(100);
 }
 
 QByteArray USBBackend::getExtraInterfaceDescriptor(DeviceHandle *handle)
@@ -190,8 +212,13 @@ QByteArray USBBackend::controlTransfer(DeviceHandle *handle, uint8_t requestType
 void USBBackend::timerEvent(QTimerEvent *e)
 {
     QObject::timerEvent(e);
-    struct timeval timeout = {0, 10000};
-    libusb_handle_events_timeout_completed(nullptr, &timeout, nullptr);
+
+    if(libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG)) {
+        struct timeval timeout = {0, 10000};
+        libusb_handle_events_timeout_completed(nullptr, &timeout, nullptr);
+    } else {
+        m_watcher->update();
+    }
 }
 
 unsigned int USBBackend::m_timeout = 10000;
@@ -263,4 +290,113 @@ static int libusbHotplugCallback(struct libusb_context *ctx, struct libusb_devic
     }
 
     return 0;
+}
+
+DeviceWatcher::DeviceWatcher(const QList <USBDeviceParams> &wanted, USBBackend *backend):
+    m_wanted(wanted),
+    m_backend(backend)
+{}
+
+QList <libusb_device*> DeviceWatcher::devicesArrived(const List &curList)
+{
+    // What is in curList that is not in the m_prevList?
+    QList <libusb_device*> ret;
+
+    for(auto i = 0; i < curList.size; ++i) {
+        auto *devToCheck = curList.head[i];
+        auto found = false;
+
+        for(auto j = 0; j < m_prevList.size; ++j) {
+            if((found = (m_prevList.head[j] == devToCheck))) break;
+        }
+
+        if(!found) {
+            ret.append(devToCheck);
+        }
+    }
+
+    return ret;
+}
+
+QList <libusb_device*> DeviceWatcher::devicesLeft(const List &curList)
+{
+    // What is in m_prevList that is not in the m_curList?
+    QList <libusb_device*> ret;
+
+    for(auto i = 0; i < m_prevList.size; ++i) {
+        auto *devToCheck = m_prevList.head[i];
+        auto found = false;
+
+        for(auto j = 0; j < curList.size; ++j) {
+            if((found = (curList.head[j] == devToCheck))) break;
+        }
+
+        if(!found) {
+            ret.append(devToCheck);
+        }
+    }
+
+    return ret;
+}
+
+void DeviceWatcher::update()
+{
+    List curList;
+
+    curList.size = libusb_get_device_list(nullptr, &curList.head);
+
+    const auto arrived = devicesArrived(curList);
+    const auto left = devicesLeft(curList);
+
+    for(auto *dev : arrived) {
+        // if it is in the hotplug wanted list
+        libusb_device_descriptor desc;
+        libusb_get_device_descriptor(dev, &desc);
+
+        auto it = std::find_if(m_wanted.cbegin(), m_wanted.cend(), [&desc](const USBDeviceParams &p) {
+            return p.vendorID == (desc.idVendor) && (p.productID == desc.idProduct);
+        });
+
+        if(it != m_wanted.cend()) {
+            const USBDeviceParams params = {
+                desc.idVendor,
+                desc.idProduct,
+                "", "", "",
+                dev
+            };
+
+            QTimer::singleShot(0, m_backend, [=]() {
+                const auto newParameters = m_backend->getExtraDeviceInfo(params);
+                // TODO: check for manufacturer and product
+                emit m_backend->devicePluggedIn(newParameters);
+            });
+        }
+    }
+
+    for(auto *dev : left) {
+        // if it is in the hotplug wanted list
+        libusb_device_descriptor desc;
+        libusb_get_device_descriptor(dev, &desc);
+
+        auto it = std::find_if(m_wanted.cbegin(), m_wanted.cend(), [&desc](const USBDeviceParams &p) {
+            return p.vendorID == (desc.idVendor) && (p.productID == desc.idProduct);
+        });
+
+        if(it != m_wanted.cend()) {
+            const USBDeviceParams params = {
+                desc.idVendor,
+                desc.idProduct,
+                "", "", "",
+                dev
+            };
+
+            emit m_backend->deviceUnplugged(params);
+        }
+    }
+
+    if(m_prevList.head) {
+        libusb_free_device_list(m_prevList.head, 0);
+    }
+
+    m_prevList = curList;
 }
