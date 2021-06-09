@@ -15,8 +15,6 @@ struct USBBackend::DeviceHandle {
     libusb_device_handle *libusbDeviceHandle = nullptr;
 };
 
-static constexpr const char* dbgLabel = "libusb backend:";
-
 USBBackend::USBBackend(QObject *parent):
     QObject(parent),
     m_detector(new USBDeviceDetector(this))
@@ -58,10 +56,7 @@ QByteArray USBBackend::getExtraInterfaceDescriptor(DeviceHandle *handle)
     QByteArray ret;
     libusb_config_descriptor *cfg;
 
-    if(const auto err = libusb_get_config_descriptor(handle->libusbDevice, 0, &cfg)) {
-        qCritical() << dbgLabel << "Failed to get configuration descriptor";
-        return ret;
-    }
+    check_return_val(!libusb_get_config_descriptor(handle->libusbDevice, 0, &cfg), "Failed to get configuration descriptor", ret);
 
     const auto intf = *(cfg->interface); //Using interface 0 for now
 
@@ -89,10 +84,7 @@ QByteArray USBBackend::getStringInterfaceDescriptor(DeviceHandle *handle, int in
 {
     libusb_config_descriptor *cfg;
 
-    if(const auto err = libusb_get_config_descriptor(handle->libusbDevice, 0, &cfg)) {
-        qCritical() << dbgLabel << "Failed to get configuration descriptor";
-        return QByteArray();
-    }
+    check_return_val(!libusb_get_config_descriptor(handle->libusbDevice, 0, &cfg), "Failed to get configuration descriptor", QByteArray());
 
     const auto BUF_SIZE = 254;
     QByteArray buf(BUF_SIZE, 0);
@@ -102,7 +94,7 @@ QByteArray USBBackend::getStringInterfaceDescriptor(DeviceHandle *handle, int in
     const auto res = libusb_get_string_descriptor_ascii(handle->libusbDeviceHandle, intf.altsetting[interfaceNum].iInterface, (unsigned char*)buf.data(), BUF_SIZE);
 
     if(res < 0) {
-        qCritical() << dbgLabel << "Failed to get string descriptor:" << libusb_error_name(res);
+        error_msg(QString("Failed to get string descriptor: %1").arg(libusb_error_name(res)));
         buf.clear();
     } else {
         buf.resize(res);
@@ -116,10 +108,7 @@ QByteArray USBBackend::getStringInterfaceDescriptor(DeviceHandle *handle, int in
 bool USBBackend::openDevice(DeviceHandle *handle)
 {
     const auto err = libusb_open(handle->libusbDevice, &(handle->libusbDeviceHandle));
-
-    if(err) {
-        qCritical() << dbgLabel << "Unable to open device:" << libusb_error_name(err);
-    }
+    check_continue(!err, QString("Unable to open device: %1").arg(libusb_error_name(err)));
 
     return !err;
 }
@@ -131,23 +120,23 @@ void USBBackend::closeDevice(DeviceHandle *handle)
 
 bool USBBackend::claimInterface(DeviceHandle *handle, int interfaceNum)
 {
-    const auto err = !libusb_claim_interface(handle->libusbDeviceHandle, interfaceNum);
-    check_continue(err, "Failed to claim interface");
-    return err;
+    const auto err = libusb_claim_interface(handle->libusbDeviceHandle, interfaceNum);
+    check_continue(!err, QString("Failed to claim interface: %1").arg(libusb_error_name(err)));
+    return !err;
 }
 
 bool USBBackend::releaseInterface(DeviceHandle *handle, int interfaceNum)
 {
-    const auto err = !libusb_release_interface(handle->libusbDeviceHandle, interfaceNum);
-    check_continue(err, "Failed to release interface");
-    return err;
+    const auto err = libusb_release_interface(handle->libusbDeviceHandle, interfaceNum);
+    check_continue(!err, QString("Failed to release interface: %1").arg(libusb_error_name(err)));
+    return !err;
 }
 
 bool USBBackend::setInterfaceAltSetting(DeviceHandle *handle, int interfaceNum, uint8_t alt)
 {
-    const auto err = !libusb_set_interface_alt_setting(handle->libusbDeviceHandle, interfaceNum, alt);
-    check_continue(err, "Failed to set alternate setting");
-    return err;
+    const auto err = libusb_set_interface_alt_setting(handle->libusbDeviceHandle, interfaceNum, alt);
+    check_continue(!err, QString("Failed to set alternate setting: %1").arg(libusb_error_name(err)));
+    return !err;
 }
 
 bool USBBackend::controlTransfer(DeviceHandle *handle, uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, const QByteArray &buf)
@@ -156,9 +145,9 @@ bool USBBackend::controlTransfer(DeviceHandle *handle, uint8_t requestType, uint
                      value, index, buf.isEmpty() ? NULL : (unsigned char*)(buf.data()), buf.size(), m_timeout);
 
     if(res < 0) {
-        qCritical() << dbgLabel << "(OUT): Failed to perform control transfer" << libusb_error_name(res);
+        error_msg(QString("Failed to perform control transfer: %1").arg(libusb_error_name(res)));
     } else if(res != buf.size()) {
-        qInfo() << dbgLabel << "(OUT): Requested and transferred data size differ";
+        info_msg("Requested and transferred data size differ");
     } else {}
 
     return res == buf.size();
@@ -173,11 +162,10 @@ QByteArray USBBackend::controlTransfer(DeviceHandle *handle, uint8_t requestType
 
     if(res < 0) {
         buf.clear();
-        qCritical() << dbgLabel << "(IN): Failed to perform control transfer:" << libusb_error_name(res);
-
+        error_msg(QString("Failed to perform control transfer: %1").arg(libusb_error_name(res)));
     } else if(res != length) {
         buf.resize(res);
-        qInfo() << dbgLabel << "(IN): Requested and transferred data size differ";
+        info_msg("Requested and transferred data size differ");
     } else {}
 
     return buf;
