@@ -8,10 +8,10 @@ using namespace Flipper;
 DeviceRegistry::DeviceRegistry(QObject *parent):
     QAbstractListModel(parent)
 {
-    connect(USBBackend::instance()->detector(), &USBDeviceDetector::devicePluggedIn, this, &DeviceRegistry::insertDevice);
-    connect(USBBackend::instance()->detector(), &USBDeviceDetector::deviceUnplugged, this, &DeviceRegistry::removeDevice);
+    connect(USBDeviceDetector::instance(), &USBDeviceDetector::devicePluggedIn, this, &DeviceRegistry::insertDevice);
+    connect(USBDeviceDetector::instance(), &USBDeviceDetector::deviceUnplugged, this, &DeviceRegistry::removeDevice);
 
-    USBBackend::instance()->detector()->setWantedDevices({
+    USBDeviceDetector::instance()->setWantedDevices({
         // Flipper Zero in DFU mode
         {
             0x0483,
@@ -47,12 +47,10 @@ QVariant DeviceRegistry::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> DeviceRegistry::roleNames() const
 {
-    return {
-        { DeviceRole, "device" }
-    };
+    return { { DeviceRole, "device" } };
 }
 
-void DeviceRegistry::insertDevice(const USBDeviceParams &parameters)
+void DeviceRegistry::insertDevice(const USBDeviceInfo &parameters)
 {
     auto *device = new Flipper::Zero(parameters, this);
 
@@ -63,7 +61,7 @@ void DeviceRegistry::insertDevice(const USBDeviceParams &parameters)
     emit deviceConnected(device);
 }
 
-void DeviceRegistry::removeDevice(const USBDeviceParams &parameters)
+void DeviceRegistry::removeDevice(const USBDeviceInfo &parameters)
 {
     const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::Zero *dev) {
         return dev->uniqueID() == parameters.uniqueID;

@@ -17,7 +17,7 @@ static const auto ERROR_MESSAGE = QObject::tr("Error");
 
 using namespace Flipper;
 
-Zero::Zero(const USBDeviceParams &parameters, QObject *parent):
+Zero::Zero(const USBDeviceInfo &parameters, QObject *parent):
     QObject(parent),
 
     m_parameters(parameters),

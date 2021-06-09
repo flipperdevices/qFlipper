@@ -1,10 +1,10 @@
-#ifndef USBDEVICEINFODATA_H
-#define USBDEVICEINFODATA_H
+#ifndef USBDEVICEINFO_H
+#define USBDEVICEINFO_H
 
 #include <QString>
 #include <QMetaType>
 
-struct USBDeviceParams {
+struct USBDeviceInfo {
     uint16_t vendorID;
     uint16_t productID;
 
@@ -16,6 +16,6 @@ struct USBDeviceParams {
     void *uniqueID;
 };
 
-Q_DECLARE_METATYPE(USBDeviceParams)
+Q_DECLARE_METATYPE(USBDeviceInfo)
 
-#endif // USBDEVICEINFODATA_H
+#endif // USBDEVICEINFO_H

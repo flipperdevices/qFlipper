@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "usbdeviceparams.h"
+#include "usbdeviceinfo.h"
 
 class QIODevice;
 
@@ -22,7 +22,7 @@ class Zero : public QObject
     Q_PROPERTY(bool isDFU READ isDFU NOTIFY isDFUChanged)
 
 public:
-    Zero(const USBDeviceParams &parameters, QObject *parent = nullptr);
+    Zero(const USBDeviceInfo &parameters, QObject *parent = nullptr);
 
     bool detach();
     bool download(QIODevice *file);
@@ -59,7 +59,7 @@ private:
 
     // TODO: move this into USBDevice
     // And create a member instance of DFuseDevice
-    USBDeviceParams m_parameters;
+    USBDeviceInfo m_parameters;
 
     QString m_name;
     QString m_target;

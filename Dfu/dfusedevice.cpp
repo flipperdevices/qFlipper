@@ -11,7 +11,7 @@
 #define REQUEST_OUT (ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE)
 #define REQUEST_IN (ENDPOINT_IN | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE)
 
-DfuseDevice::DfuseDevice(const USBDeviceParams &info, QObject *parent):
+DfuseDevice::DfuseDevice(const USBDeviceInfo &info, QObject *parent):
     USBDevice(info, parent)
 {}
 

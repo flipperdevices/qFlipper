@@ -1,5 +1,4 @@
-#include "libusbdevicedetector.h"
-#include "libusbbackend.h"
+#include "usbdevicedetector.h"
 
 #include <QTimer>
 #include <QTimerEvent>
@@ -8,6 +7,7 @@
 
 #include "macros.h"
 
+static USBDeviceInfo getDeviceInfo(const USBDeviceInfo &info);
 static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
 
 /* Temporary (hopefully) hacks for Windows begin */
@@ -19,19 +19,18 @@ class DeviceWatcher {
     };
 
 public:
-    DeviceWatcher(const QList <USBDeviceParams> &wanted);
+    DeviceWatcher(const QList <USBDeviceInfo> &wanted);
     QList <libusb_device*> devicesArrived(const List &curList);
     QList <libusb_device*> devicesLeft(const List &curList);
 
     void update();
 
 private:
-    QList <USBDeviceParams> m_wanted;
-    USBBackend *m_backend;
+    QList <USBDeviceInfo> m_wanted;
     List m_prevList;
 };
 
-DeviceWatcher::DeviceWatcher(const QList <USBDeviceParams> &wanted):
+DeviceWatcher::DeviceWatcher(const QList <USBDeviceInfo> &wanted):
     m_wanted(wanted)
 {}
 
@@ -91,23 +90,12 @@ void DeviceWatcher::update()
         libusb_device_descriptor desc;
         libusb_get_device_descriptor(dev, &desc);
 
-        auto it = std::find_if(m_wanted.cbegin(), m_wanted.cend(), [&desc](const USBDeviceParams &p) {
+        auto it = std::find_if(m_wanted.cbegin(), m_wanted.cend(), [&desc](const USBDeviceInfo &p) {
             return p.vendorID == (desc.idVendor) && (p.productID == desc.idProduct);
         });
 
         if(it != m_wanted.cend()) {
-            const USBDeviceParams params = {
-                desc.idVendor,
-                desc.idProduct,
-                "", "", "",
-                dev
-            };
-
-            QTimer::singleShot(0, m_backend, [=]() {
-                const auto newParameters = m_backend->getExtraDeviceInfo(params);
-                // TODO: check for manufacturer and product
-                emit USBBackend::instance()->detector()->devicePluggedIn(newParameters);
-            });
+            libusbHotplugCallback(nullptr, dev, LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED, nullptr);
         }
     }
 
@@ -116,19 +104,12 @@ void DeviceWatcher::update()
         libusb_device_descriptor desc;
         libusb_get_device_descriptor(dev, &desc);
 
-        auto it = std::find_if(m_wanted.cbegin(), m_wanted.cend(), [&desc](const USBDeviceParams &p) {
+        auto it = std::find_if(m_wanted.cbegin(), m_wanted.cend(), [&desc](const USBDeviceInfo &p) {
             return p.vendorID == (desc.idVendor) && (p.productID == desc.idProduct);
         });
 
         if(it != m_wanted.cend()) {
-            const USBDeviceParams params = {
-                desc.idVendor,
-                desc.idProduct,
-                "", "", "",
-                dev
-            };
-
-            emit USBBackend::instance()->detector()->deviceUnplugged(params);
+            libusbHotplugCallback(nullptr, dev, LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT, nullptr);
         }
     }
 
@@ -143,9 +124,22 @@ void DeviceWatcher::update()
 
 USBDeviceDetector::USBDeviceDetector(QObject *parent):
     QObject(parent)
-{}
+{
+    libusb_init(nullptr);
+}
 
-bool USBDeviceDetector::setWantedDevices(const QList<USBDeviceParams> &wantedList)
+USBDeviceDetector::~USBDeviceDetector()
+{
+    libusb_exit(nullptr);
+}
+
+USBDeviceDetector *USBDeviceDetector::instance()
+{
+    static USBDeviceDetector instance;
+    return &instance;
+}
+
+bool USBDeviceDetector::setWantedDevices(const QList<USBDeviceInfo> &wantedList)
 {
     if(!libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG)) {
         info_msg("No hotplug support, falling back to dumb polling");
@@ -176,15 +170,51 @@ void USBDeviceDetector::timerEvent(QTimerEvent *e)
     }
 }
 
+static USBDeviceInfo getDeviceInfo(const USBDeviceInfo &info)
+{
+    auto *dev = (libusb_device*)info.uniqueID;
+
+    libusb_device_descriptor desc;
+    check_return_val(!libusb_get_device_descriptor(dev, &desc),"Failed to get device descriptor", info);
+
+    struct libusb_device_handle *handle;
+    check_return_val(!libusb_open(dev, &handle), "Failed to open device", info);
+
+    USBDeviceInfo newinfo = info;
+    unsigned char buf[0xff];
+
+    if(libusb_get_string_descriptor_ascii(handle, desc.iManufacturer, buf, sizeof(buf)) < 0) {
+        error_msg("Failed to get manufacturer string descriptor");
+    } else {
+        newinfo.manufacturer = QString::fromLocal8Bit((const char*)buf);
+    }
+
+    if(libusb_get_string_descriptor_ascii(handle, desc.iProduct, buf, sizeof(buf)) < 0) {
+        error_msg("Failed to get product string descriptor");
+    } else {
+        newinfo.productDescription = QString::fromLocal8Bit((const char*)buf);
+    }
+
+    if(libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, buf, sizeof(buf)) < 0) {
+        error_msg("Failed to get device serial number");
+    } else {
+        newinfo.serialNumber = QString::fromLocal8Bit((const char*)buf);
+    }
+
+    libusb_close(handle);
+    return newinfo;
+}
+
 static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data) {
     Q_UNUSED(ctx)
+    Q_UNUSED(user_data)
 
-    auto *detector = static_cast<USBDeviceDetector*>(user_data);
+    auto *detector = USBDeviceDetector::instance();
 
     libusb_device_descriptor desc;
     check_return_val(!libusb_get_device_descriptor(dev, &desc),"Failed to get device descriptor", 0);
 
-    const USBDeviceParams params = {
+    const USBDeviceInfo info = {
         desc.idVendor,
         desc.idProduct,
         "", "", "",
@@ -194,13 +224,11 @@ static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb
     if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED) {
         // Get string descriptors out of callback context
         QTimer::singleShot(0, detector, [=]() {
-            const auto newParameters = USBBackend::instance()->getExtraDeviceInfo(params);
-            // TODO: check for manufacturer and product
-            emit detector->devicePluggedIn(newParameters);
+            emit detector->devicePluggedIn(getDeviceInfo(info));
         });
 
     } else if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT) {
-        emit detector->deviceUnplugged(params);
+        emit detector->deviceUnplugged(info);
     } else {
         info_msg("Unhandled libusb event");
     }

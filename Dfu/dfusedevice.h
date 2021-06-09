@@ -9,6 +9,7 @@
 
 // NOTE: This class should reveal about USB internals as little as possible.
 // TODO: Separate STM32 protocol and standard protocol into respective classes.
+
 class DfuseDevice : public USBDevice
 {
     Q_OBJECT
@@ -75,7 +76,7 @@ public:
         Upload
     };
 
-    DfuseDevice(const USBDeviceParams &info, QObject *parent = nullptr);
+    DfuseDevice(const USBDeviceInfo &info, QObject *parent = nullptr);
 
     bool beginTransaction();
     bool endTransaction();
