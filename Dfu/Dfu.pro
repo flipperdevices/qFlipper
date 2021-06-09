@@ -6,12 +6,14 @@ CONFIG += staticlib
 CONFIG += c++11
 
 SOURCES += \
+    backends/libusbdevicedetector.cpp \
     dfumemorylayout.cpp \
     dfusedevice.cpp \
     dfusefile.cpp \
     usbdevice.cpp
 
 HEADERS += \
+    backends/libusbdevicedetector.h \
     descriptors.h \
     dfumemorylayout.h \
     dfusedevice.h \

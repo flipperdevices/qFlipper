@@ -6,10 +6,7 @@
 
 #include "usbdeviceparams.h"
 
-// TODO This innocent line hides a big mess to counter missing hotplug support on Windows
-// Refactor the watcher code to be more general.
-class DeviceWatcher;
-
+class USBDeviceDetector;
 class USBBackend : public QObject
 {
     Q_OBJECT
@@ -20,15 +17,12 @@ public:
     USBBackend(QObject *parent = nullptr);
     ~USBBackend();
 
-    static USBDeviceParams getExtraDeviceInfo(const USBDeviceParams &params);
+    static USBBackend *instance();
+    USBDeviceDetector *detector();
 
     void initDevice(DeviceHandle **handle, const USBDeviceParams &params);
+    // TODO: needed?
     void unrefDevice(DeviceHandle *handle);
-
-    bool registerHotplugEvent(const QList<USBDeviceParams> &paramsList);
-
-    QByteArray getExtraInterfaceDescriptor(DeviceHandle *handle);
-    QByteArray getStringInterfaceDescriptor(DeviceHandle *handle, int interfaceNum);
 
     bool openDevice(DeviceHandle *handle);
     void closeDevice(DeviceHandle *handle);
@@ -41,16 +35,16 @@ public:
     bool controlTransfer(DeviceHandle *handle, uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, const QByteArray &buf);
     QByteArray controlTransfer(DeviceHandle *handle, uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, uint16_t length);
 
-signals:
-    void devicePluggedIn(const USBDeviceParams&);
-    void deviceUnplugged(const USBDeviceParams&);
+    // TODO: these methods are ugly, do something about them
+    QByteArray getExtraInterfaceDescriptor(DeviceHandle *handle);
+    QByteArray getStringInterfaceDescriptor(DeviceHandle *handle, int interfaceNum);
+
+    // TODO: move this method in USBDevice? (add getStringDescriptor function instead)
+    static USBDeviceParams getExtraDeviceInfo(const USBDeviceParams &params);
 
 private:
-    void timerEvent(QTimerEvent *e) override;
-
-    DeviceWatcher *m_watcher;
-
-    static unsigned int m_timeout;
+    USBDeviceDetector *m_detector;
+    unsigned int m_timeout = 1000;
 };
 
 #endif // LIBUSBBACKEND_H

@@ -49,24 +49,9 @@
 
 class QMutex;
 
-class USBDEviceDetector : public QObject
-{
-    Q_OBJECT
-
-public:
-    USBDEviceDetector(QObject *parent = nullptr);
-    void registerHotplugEvent(const QList<USBDeviceParams> &paramList);
-
-signals:
-    void devicePluggedIn(const USBDeviceParams&);
-    void deviceUnplugged(const USBDeviceParams&);
-};
-
 class USBDevice : public QObject
 {
     Q_OBJECT
-
-    friend class USBDEviceDetector;
 
 public:
     enum EndpointDirection {
@@ -105,11 +90,8 @@ public:
     QByteArray extraInterfaceDescriptor();
     QByteArray stringInterfaceDescriptor(int interfaceNum);
 
-    static USBDEviceDetector *detector();
-
 private:
-    static USBBackend &backend();
-    static QMutex &backendMutex();
+    static QMutex *backendMutex();
 
     USBBackend::DeviceHandle *m_handle = nullptr;
     bool m_isOpen = false;

@@ -8,10 +8,10 @@ using namespace Flipper;
 DeviceRegistry::DeviceRegistry(QObject *parent):
     QAbstractListModel(parent)
 {
-    connect(USBDevice::detector(), &USBDEviceDetector::devicePluggedIn, this, &DeviceRegistry::insertDevice);
-    connect(USBDevice::detector(), &USBDEviceDetector::deviceUnplugged, this, &DeviceRegistry::removeDevice);
+    connect(USBBackend::instance()->detector(), &USBDeviceDetector::devicePluggedIn, this, &DeviceRegistry::insertDevice);
+    connect(USBBackend::instance()->detector(), &USBDeviceDetector::deviceUnplugged, this, &DeviceRegistry::removeDevice);
 
-    USBDevice::detector()->registerHotplugEvent({
+    USBBackend::instance()->detector()->setWantedDevices({
         // Flipper Zero in DFU mode
         {
             0x0483,
