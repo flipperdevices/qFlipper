@@ -29,8 +29,8 @@ signals:
     void deviceConnected(Flipper::Zero*);
 
 public slots:
-    void insertDevice(const USBDeviceInfo &parameters);
-    void removeDevice(const USBDeviceInfo &parameters);
+    void insertDevice(const USBDeviceInfo &info);
+    void removeDevice(const USBDeviceInfo &info);
 
 private:
     QVector<Flipper::Zero*> m_data;

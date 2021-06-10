@@ -8,7 +8,8 @@ include(../Flipartner_common.pri)
 SOURCES += \
     dfumemorylayout.cpp \
     dfusedevice.cpp \
-    dfusefile.cpp
+    dfusefile.cpp \
+    usbdeviceinfo.cpp
 
 HEADERS += \
     dfumemorylayout.h \

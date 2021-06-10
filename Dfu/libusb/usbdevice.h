@@ -18,12 +18,13 @@
 */
 
 class QMutex;
+// TODO: Multithreading improvements
 
 class USBDevice : public QObject
 {
     Q_OBJECT
 
-    struct BackendData;
+    struct USBDevicePrivate;
 
 public:
     enum EndpointDirection {
@@ -63,9 +64,8 @@ public:
     QByteArray stringInterfaceDescriptor(int interfaceNum);
 
 private:
-    BackendData *m_backendData = nullptr;
+    USBDevicePrivate *m_p = nullptr;
     unsigned long m_timeout = 1000;
-    bool m_isOpen = false;
 };
 
 #endif // LIBUSBDEVICE_H

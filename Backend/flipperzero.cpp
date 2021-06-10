@@ -20,7 +20,7 @@ using namespace Flipper;
 Zero::Zero(const USBDeviceInfo &parameters, QObject *parent):
     QObject(parent),
 
-    m_parameters(parameters),
+    m_info(parameters),
 
     m_name("N/A"),
     m_target("N/A"),
@@ -37,7 +37,7 @@ Zero::Zero(const USBDeviceInfo &parameters, QObject *parent):
 
 bool Zero::detach()
 {
-    const auto portInfo = SerialHelper::findSerialPort(m_parameters.serialNumber);
+    const auto portInfo = SerialHelper::findSerialPort(m_info.serialNumber());
     check_return_bool(!portInfo.isNull(), "Could not find serial port");
 
     QSerialPort port(portInfo);
@@ -57,7 +57,7 @@ bool Zero::download(QIODevice *file)
     setStatusMessage(tr("Updating"));
 
     DfuseFile fw(file);
-    DfuseDevice dev(m_parameters);
+    DfuseDevice dev(m_info);
 
     connect(&dev, &DfuseDevice::progressChanged, this, [=](int operation, double progress) {
         setProgress(progress / 2.0 + (operation == DfuseDevice::Download ? 50 : 0));
@@ -104,9 +104,14 @@ double Zero::progress() const
     return m_progress;
 }
 
+const USBDeviceInfo &Zero::info() const
+{
+    return m_info;
+}
+
 bool Zero::isDFU() const
 {
-    return m_parameters.productID == 0xdf11;
+    return m_info.productID() == 0xdf11;
 }
 
 void Zero::setName(const QString &name)
@@ -144,14 +149,9 @@ void Zero::setProgress(double progress)
     }
 }
 
-void *Zero::uniqueID() const
-{
-    return m_parameters.uniqueID;
-}
-
 void Zero::fetchInfoNormalMode()
 {
-    const auto portInfo = SerialHelper::findSerialPort(m_parameters.serialNumber);
+    const auto portInfo = SerialHelper::findSerialPort(m_info.serialNumber());
 
     if(portInfo.isNull()) {
         // TODO: Error handling
@@ -215,7 +215,7 @@ void Zero::fetchInfoDFUMode()
 
     QByteArray otpData;
     QBuffer otpDataBuf(&otpData);
-    DfuseDevice dev(m_parameters);
+    DfuseDevice dev(m_info);
 
     otpDataBuf.open(QIODevice::WriteOnly);
 

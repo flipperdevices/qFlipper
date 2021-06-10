@@ -90,8 +90,8 @@ void DeviceWatcher::update()
         libusb_device_descriptor desc;
         libusb_get_device_descriptor(dev, &desc);
 
-        auto it = std::find_if(m_wanted.cbegin(), m_wanted.cend(), [&desc](const USBDeviceInfo &p) {
-            return p.vendorID == (desc.idVendor) && (p.productID == desc.idProduct);
+        auto it = std::find_if(m_wanted.cbegin(), m_wanted.cend(), [&desc](const USBDeviceInfo &info) {
+            return info.vendorID() == (desc.idVendor) && (info.productID() == desc.idProduct);
         });
 
         if(it != m_wanted.cend()) {
@@ -104,8 +104,8 @@ void DeviceWatcher::update()
         libusb_device_descriptor desc;
         libusb_get_device_descriptor(dev, &desc);
 
-        auto it = std::find_if(m_wanted.cbegin(), m_wanted.cend(), [&desc](const USBDeviceInfo &p) {
-            return p.vendorID == (desc.idVendor) && (p.productID == desc.idProduct);
+        auto it = std::find_if(m_wanted.cbegin(), m_wanted.cend(), [&desc](const USBDeviceInfo &info) {
+            return info.vendorID() == (desc.idVendor) && (info.productID() == desc.idProduct);
         });
 
         if(it != m_wanted.cend()) {
@@ -146,10 +146,10 @@ bool USBDeviceDetector::setWantedDevices(const QList<USBDeviceInfo> &wantedList)
         m_watcher = new DeviceWatcher(wantedList);
 
     } else {
-        for(const auto &params : wantedList) {
+        for(const auto &info : wantedList) {
             const auto events = libusb_hotplug_event(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED | LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT);
-            const auto err = libusb_hotplug_register_callback(nullptr, events, LIBUSB_HOTPLUG_ENUMERATE, params.vendorID,
-                                                              params.productID, LIBUSB_HOTPLUG_MATCH_ANY, libusbHotplugCallback, this, nullptr);
+            const auto err = libusb_hotplug_register_callback(nullptr, events, LIBUSB_HOTPLUG_ENUMERATE, info .vendorID(),
+                                                              info .productID(), LIBUSB_HOTPLUG_MATCH_ANY, libusbHotplugCallback, this, nullptr);
 
             check_return_bool(!err, "Failed to register hotplug callback");
         }
@@ -172,7 +172,7 @@ void USBDeviceDetector::timerEvent(QTimerEvent *e)
 
 static USBDeviceInfo getDeviceInfo(const USBDeviceInfo &info)
 {
-    auto *dev = (libusb_device*)info.uniqueID;
+    auto *dev = (libusb_device*)info.backendData();
 
     libusb_device_descriptor desc;
     check_return_val(!libusb_get_device_descriptor(dev, &desc),"Failed to get device descriptor", info);
@@ -186,19 +186,19 @@ static USBDeviceInfo getDeviceInfo(const USBDeviceInfo &info)
     if(libusb_get_string_descriptor_ascii(handle, desc.iManufacturer, buf, sizeof(buf)) < 0) {
         error_msg("Failed to get manufacturer string descriptor");
     } else {
-        newinfo.manufacturer = QString::fromLocal8Bit((const char*)buf);
+        newinfo.setManufacturer(QString::fromLocal8Bit((const char*)buf));
     }
 
     if(libusb_get_string_descriptor_ascii(handle, desc.iProduct, buf, sizeof(buf)) < 0) {
         error_msg("Failed to get product string descriptor");
     } else {
-        newinfo.productDescription = QString::fromLocal8Bit((const char*)buf);
+        newinfo.setProductDescription(QString::fromLocal8Bit((const char*)buf));
     }
 
     if(libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, buf, sizeof(buf)) < 0) {
         error_msg("Failed to get device serial number");
     } else {
-        newinfo.serialNumber = QString::fromLocal8Bit((const char*)buf);
+        newinfo.setSerialNumber(QString::fromLocal8Bit((const char*)buf));
     }
 
     libusb_close(handle);
@@ -214,12 +214,7 @@ static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb
     libusb_device_descriptor desc;
     check_return_val(!libusb_get_device_descriptor(dev, &desc),"Failed to get device descriptor", 0);
 
-    const USBDeviceInfo info = {
-        desc.idVendor,
-        desc.idProduct,
-        "", "", "",
-        dev
-    };
+    const auto info = USBDeviceInfo(desc.idVendor, desc.idProduct).withBackendData(dev);
 
     if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED) {
         // Get string descriptors out of callback context
