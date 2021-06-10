@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "usbdeviceparams.h"
+#include "usbdeviceinfo.h"
 
 class QIODevice;
 
@@ -22,7 +22,7 @@ class Zero : public QObject
     Q_PROPERTY(bool isDFU READ isDFU NOTIFY isDFUChanged)
 
 public:
-    Zero(const USBDeviceParams &parameters, QObject *parent = nullptr);
+    Zero(const USBDeviceInfo &parameters, QObject *parent = nullptr);
 
     bool detach();
     bool download(QIODevice *file);
@@ -34,6 +34,8 @@ public:
     const QString &statusMessage() const;
     double progress() const;
 
+    const USBDeviceInfo &info() const;
+
     bool isDFU() const;
 
     void setName(const QString &name);
@@ -41,8 +43,6 @@ public:
     void setVersion(const QString &version);
     void setStatusMessage(const QString &message);
     void setProgress(double progress);
-
-    void *uniqueID() const;
 
 signals:
     void nameChanged(const QString&);
@@ -57,9 +57,7 @@ private:
     void fetchInfoNormalMode();
     void fetchInfoDFUMode();
 
-    // TODO: move this into USBDevice
-    // And create a member instance of DFuseDevice
-    USBDeviceParams m_parameters;
+    USBDeviceInfo m_info;
 
     QString m_name;
     QString m_target;

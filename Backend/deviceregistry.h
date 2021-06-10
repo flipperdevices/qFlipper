@@ -4,7 +4,7 @@
 #include <QAbstractListModel>
 #include <QVector>
 
-#include "usbdeviceparams.h"
+#include "usbdeviceinfo.h"
 
 namespace Flipper {
 
@@ -29,8 +29,8 @@ signals:
     void deviceConnected(Flipper::Zero*);
 
 public slots:
-    void insertDevice(const USBDeviceParams &parameters);
-    void removeDevice(const USBDeviceParams &parameters);
+    void insertDevice(const USBDeviceInfo &info);
+    void removeDevice(const USBDeviceInfo &info);
 
 private:
     QVector<Flipper::Zero*> m_data;

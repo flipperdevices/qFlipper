@@ -8,29 +8,16 @@ using namespace Flipper;
 DeviceRegistry::DeviceRegistry(QObject *parent):
     QAbstractListModel(parent)
 {
-    connect(USBDevice::detector(), &USBDEviceDetector::devicePluggedIn, this, &DeviceRegistry::insertDevice);
-    connect(USBDevice::detector(), &USBDEviceDetector::deviceUnplugged, this, &DeviceRegistry::removeDevice);
+    connect(USBDeviceDetector::instance(), &USBDeviceDetector::devicePluggedIn, this, &DeviceRegistry::insertDevice);
+    connect(USBDeviceDetector::instance(), &USBDeviceDetector::deviceUnplugged, this, &DeviceRegistry::removeDevice);
 
-    USBDevice::detector()->registerHotplugEvent({
+    USBDeviceDetector::instance()->setWantedDevices({
         // Flipper Zero in DFU mode
-        {
-            0x0483,
-            0xdf11,
-            "",
-            "",
-            "",
-            nullptr
-        },
-
+        USBDeviceInfo(0x0483, 0xdf11),
         // Flipper Zero in VCP mode
-        {
-            0x0483,
-            0x5740,
-            "Flipper Devices Inc.",
-            "Flipper Control Virtual ComPort",
-            "",
-            nullptr
-        }
+        USBDeviceInfo(0x483, 0x5740)
+            .withManufacturer("Flipper Devices Inc.")
+            .withProductDescription("Flipper Control Virtual ComPort")
     });
 }
 
@@ -47,14 +34,12 @@ QVariant DeviceRegistry::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> DeviceRegistry::roleNames() const
 {
-    return {
-        { DeviceRole, "device" }
-    };
+    return { { DeviceRole, "device" } };
 }
 
-void DeviceRegistry::insertDevice(const USBDeviceParams &parameters)
+void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 {
-    auto *device = new Flipper::Zero(parameters, this);
+    auto *device = new Flipper::Zero(info, this);
 
     beginInsertRows(QModelIndex(), m_data.size(), m_data.size());
     m_data.append(device);
@@ -63,10 +48,10 @@ void DeviceRegistry::insertDevice(const USBDeviceParams &parameters)
     emit deviceConnected(device);
 }
 
-void DeviceRegistry::removeDevice(const USBDeviceParams &parameters)
+void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
 {
     const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::Zero *dev) {
-        return dev->uniqueID() == parameters.uniqueID;
+        return dev->info().backendData() == info.backendData();
     });
 
     if(it != m_data.end()) {
