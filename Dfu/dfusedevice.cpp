@@ -11,6 +11,9 @@
 #define REQUEST_OUT (ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE)
 #define REQUEST_IN (ENDPOINT_IN | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE)
 
+#define DFU_DESCRIPTOR_LENGTH 9
+#define DFU_DESCRIPTOR_TYPE 0x21
+
 DfuseDevice::DfuseDevice(const USBDeviceInfo &info, QObject *parent):
     USBDevice(info, parent)
 {}
@@ -76,9 +79,8 @@ bool DfuseDevice::download(QIODevice *file, uint32_t addr, uint8_t alt)
     check_return_bool(prepare(), "Failed to prepare the device");
     check_return_bool(setAddressPointer(addr), "Failed to set address pointer");
 
-    const auto extra = extraInterfaceDescriptor();
-
-    check_return_bool(extra.size() >= 9, "No functional DFU descriptor");
+    const auto extra = extraInterfaceDescriptor(0, DFU_DESCRIPTOR_TYPE, DFU_DESCRIPTOR_LENGTH);
+    check_return_bool(extra.size() >= DFU_DESCRIPTOR_LENGTH, "No functional DFU descriptor");
 
     const auto maxTransferSize = *((uint16_t*)(extra.data() + 5));
     info_msg(QString("Device reported transfer size: %1").arg(maxTransferSize));
@@ -117,9 +119,8 @@ bool DfuseDevice::upload(QIODevice *file, uint32_t addr, size_t maxSize, uint8_t
     check_return_bool(setAddressPointer(addr), "Failed to set address pointer");
     abort();
 
-    const auto extra = extraInterfaceDescriptor();
-
-    check_return_bool(extra.size() >= 9, "No functional DFU descriptor");
+    const auto extra = extraInterfaceDescriptor(0, DFU_DESCRIPTOR_TYPE, DFU_DESCRIPTOR_LENGTH);
+    check_return_bool(extra.size() >= DFU_DESCRIPTOR_LENGTH, "No functional DFU descriptor");
 
     const auto maxTransferSize = *((uint16_t*)(extra.data() + 5));
 

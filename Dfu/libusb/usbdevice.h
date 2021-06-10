@@ -5,18 +5,6 @@
 
 #include "usbdeviceinfo.h"
 
-/*
- * Assumptions made:
- * 1) Single device descriptor (as per DFU protocol specification)
- * 2) Single configuration descriptor (see above)
- * 3) Single interface descriptor (see above)
- * 4) Multiple alternate configurations
- * 5) For now, only control transfers are supported
- *
- * Therefore, this class only provides access to alternate configurations
- * of the first interface of the first configuration.
-*/
-
 class QMutex;
 // TODO: Multithreading improvements
 
@@ -59,8 +47,7 @@ public:
     bool controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, const QByteArray &data);
     QByteArray controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, uint16_t length);
 
-    // Move these 2 methods into DfuseDevice
-    QByteArray extraInterfaceDescriptor();
+    QByteArray extraInterfaceDescriptor(int interfaceNum, uint8_t type, int length);
     QByteArray stringInterfaceDescriptor(int interfaceNum);
 
 private:

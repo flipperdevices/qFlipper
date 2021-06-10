@@ -99,25 +99,18 @@ QByteArray USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint
     return buf;
 }
 
-QByteArray USBDevice::extraInterfaceDescriptor()
+QByteArray USBDevice::extraInterfaceDescriptor(int interfaceNum, uint8_t type, int length)
 {
     QByteArray ret;
     libusb_config_descriptor *cfg;
 
     check_return_val(!libusb_get_config_descriptor(m_p->libusbDevice, 0, &cfg), "Failed to get configuration descriptor", ret);
 
-    const auto intf = *(cfg->interface); //Using interface 0 for now
+    const auto intf = cfg->interface[interfaceNum];
 
     for(auto i = 0; i < intf.num_altsetting; ++i) {
         const auto altintf = intf.altsetting[i];
-
-        // TODO: These are DFU-specific values that should not be here.
-        // The code must be refactored to be more general.
-
-        const auto DFU_DESCRIPTOR_LENGTH = 9;
-        const auto DFU_DESCRIPTOR_TYPE = 0x21;
-
-        if((altintf.extra_length == DFU_DESCRIPTOR_LENGTH) && (altintf.extra[1] == DFU_DESCRIPTOR_TYPE)) {
+        if((altintf.extra_length == length) && (altintf.extra[1] == type)) {
             ret.append((const char*)(altintf.extra), altintf.extra_length);
             break;
         }
