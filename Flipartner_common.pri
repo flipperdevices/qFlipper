@@ -5,13 +5,7 @@ unix:!macx {
 
 } else:win32-g++ {
     CONFIG -= debug_and_release
-
-    contains(DEFINES, USB_BACKEND_LIBUSB) {
-        INCLUDEPATH += $$LIBUSB_DIR/include
-        LIBS += -L$$LIBUSB_DIR/lib -lusb-1.0
-    } else {
-        error("No USB backend specified. Current options are: USB_BACKEND_LIBUSB")
-    }
+    DEFINES += USB_BACKEND_WIN32
 
 } else {
     error("Unsupported OS or compiler")
