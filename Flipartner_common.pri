@@ -12,7 +12,11 @@ unix:!macx {
     } else {
         error("No USB backend specified. Current options are: USB_BACKEND_LIBUSB")
     }
-
+} else:macx {
+    DEFINES += USB_BACKEND_LIBUSB
+    PKG_CONFIG = /usr/local/bin/pkg-config
+    CONFIG += link_pkgconfig
+    PKGCONFIG += libusb-1.0
 } else {
     error("Unsupported OS or compiler")
 }
