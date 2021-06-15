@@ -5,6 +5,8 @@
 
 #include "usbdeviceinfo.h"
 
+class USBDeviceDetectorWorker;
+
 class USBDeviceDetector : public QObject
 {
     Q_OBJECT
@@ -14,6 +16,7 @@ class USBDeviceDetector : public QObject
 
 public:
     static USBDeviceDetector *instance();
+
     bool setWantedDevices(const QList <USBDeviceInfo> &wantedList);
 
 signals:
@@ -21,7 +24,7 @@ signals:
     void deviceUnplugged(const USBDeviceInfo&);
 
 private:
-    void timerEvent(QTimerEvent *e) override;
+    USBDeviceDetectorWorker *m_worker;
 };
 
 #endif // WIN32DEVICEDETECTOR_H

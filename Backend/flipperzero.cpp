@@ -31,7 +31,7 @@ Zero::Zero(const USBDeviceInfo &parameters, QObject *parent):
     if(isDFU()) {
         QtConcurrent::run(this, &Flipper::Zero::fetchInfoDFUMode);
     } else {
-        QtConcurrent::run(this, &Flipper::Zero::fetchInfoNormalMode);
+        QtConcurrent::run(this, &Flipper::Zero::fetchInfoVCPMode);
     }
 }
 
@@ -149,7 +149,7 @@ void Zero::setProgress(double progress)
     }
 }
 
-void Zero::fetchInfoNormalMode()
+void Zero::fetchInfoVCPMode()
 {
     const auto portInfo = SerialHelper::findSerialPort(m_info.serialNumber());
 
@@ -225,8 +225,10 @@ void Zero::fetchInfoDFUMode()
 
     otpDataBuf.close();
 
-    setName(otpData.right(FLIPPER_NAME_OFFSET));
-    setTarget(QString("f%1").arg((uint8_t)otpData.at(FLIPPER_TARGET_OFFSET)));
+    if(!otpData.isEmpty()) {
+        setName(otpData.right(FLIPPER_NAME_OFFSET));
+        setTarget(QString("f%1").arg((uint8_t)otpData.at(FLIPPER_TARGET_OFFSET)));
+    }
 
     if(m_statusMessage == STARTUP_MESSAGE) {
         setStatusMessage(UPDATE_MESSAGE);

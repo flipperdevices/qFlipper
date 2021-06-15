@@ -1,18 +1,18 @@
 #include "usbdevicedetector.h"
 
 #include <QTimer>
-#include <QTimerEvent>
+#include <QThread>
 
+#include "usbdevicedetector_p.h"
 #include "macros.h"
 
 USBDeviceDetector::USBDeviceDetector(QObject *parent):
-    QObject(parent)
-{
-}
+    QObject(parent),
+    m_worker(nullptr)
+{}
 
 USBDeviceDetector::~USBDeviceDetector()
-{
-}
+{}
 
 USBDeviceDetector *USBDeviceDetector::instance()
 {
@@ -22,13 +22,16 @@ USBDeviceDetector *USBDeviceDetector::instance()
 
 bool USBDeviceDetector::setWantedDevices(const QList<USBDeviceInfo> &wantedList)
 {
-}
+    if(m_worker) {
+        disconnect(m_worker, &USBDeviceDetectorWorker::devicePluggedIn, this, &USBDeviceDetector::devicePluggedIn);
+        disconnect(m_worker, &USBDeviceDetectorWorker::deviceUnplugged, this, &USBDeviceDetector::deviceUnplugged);
 
-void USBDeviceDetector::timerEvent(QTimerEvent *e)
-{
-    e->accept();
-}
+        m_worker->deleteLater();
+    }
 
-static USBDeviceInfo getDeviceInfo(const USBDeviceInfo &info)
-{
+    m_worker = new USBDeviceDetectorWorker(wantedList, this);
+    connect(m_worker, &USBDeviceDetectorWorker::devicePluggedIn, this, &USBDeviceDetector::devicePluggedIn);
+    connect(m_worker, &USBDeviceDetectorWorker::deviceUnplugged, this, &USBDeviceDetector::deviceUnplugged);
+
+    return true;
 }

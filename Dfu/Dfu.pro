@@ -28,10 +28,12 @@ contains(DEFINES, USB_BACKEND_LIBUSB) {
 
 } else:contains(DEFINES, USB_BACKEND_WIN32) {
     SOURCES += win32/usbdevice.cpp \
-               win32/usbdevicedetector.cpp
+               win32/usbdevicedetector.cpp \
+               win32/usbdevicedetector_p.cpp
 
     HEADERS += win32/usbdevice.h \
-               win32/usbdevicedetector.h
+               win32/usbdevicedetector.h \
+               win32/usbdevicedetector_p.h
 } else {
     error("No USB backend configured")
 }

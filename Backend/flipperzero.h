@@ -54,7 +54,7 @@ signals:
     void isDFUChanged(bool);
 
 private:
-    void fetchInfoNormalMode();
+    void fetchInfoVCPMode();
     void fetchInfoDFUMode();
 
     USBDeviceInfo m_info;

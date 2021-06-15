@@ -6,6 +6,7 @@ unix:!macx {
 } else:win32-g++ {
     CONFIG -= debug_and_release
     DEFINES += USB_BACKEND_WIN32
+    LIBS += -lsetupapi -lwinusb
 
 } else {
     error("Unsupported OS or compiler")
