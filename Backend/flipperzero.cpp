@@ -177,7 +177,7 @@ void Zero::fetchInfoNormalMode()
     port.write("hw_info\r");
     port.flush();
 
-    ssize_t bytesAvailable;
+    qint64 bytesAvailable;
     QByteArray buf;
 
     do {
