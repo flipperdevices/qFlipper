@@ -3,6 +3,7 @@
 set -e
 set -x
 
+PROJECT_DIR=`pwd`
 PROJECT="Flipartner"
 BUILD_DIRECTORY="build_mac"
 
@@ -16,7 +17,7 @@ cd "$BUILD_DIRECTORY"
 
 qmake -spec macx-clang CONFIG+=release CONFIG+=x86_64 -o Makefile ../$PROJECT.pro
 make -j9 > /dev/null
-macdeployqt $PROJECT.app -verbose=1
+macdeployqt $PROJECT.app -qmldir=$PROJECT_DIR/Application -verbose=1
 
 FAILED_LIBS_COUNT=`otool -L $PROJECT.app/Contents/Frameworks/*.dylib | grep /usr/local -c || true`
 
