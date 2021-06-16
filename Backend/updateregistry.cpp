@@ -1,5 +1,7 @@
 #include "updateregistry.h"
 
+#include <stdexcept>
+
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>

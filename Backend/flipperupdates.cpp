@@ -1,6 +1,6 @@
 #include "flipperupdates.h"
 
-#include <exception>
+#include <stdexcept>
 
 #include <QJsonObject>
 #include <QJsonArray>

@@ -168,6 +168,8 @@ void Zero::fetchInfoVCPMode()
         return;
     }
 
+    port.setDataTerminalReady(true);
+
     static const auto getValue = [](const QByteArray &buf, const QByteArray &tok) {
         const auto start = buf.indexOf(tok) + tok.size();
         const auto end = buf.indexOf('\n', start);
@@ -177,7 +179,7 @@ void Zero::fetchInfoVCPMode()
     port.write("hw_info\r");
     port.flush();
 
-    ssize_t bytesAvailable;
+    qint64 bytesAvailable;
     QByteArray buf;
 
     do {
