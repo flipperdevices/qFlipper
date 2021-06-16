@@ -24,7 +24,6 @@ private:
 
     void processDevicesArrived(const QList <USBDeviceInfo> &available);
     void processDevicesLeft(const QList <USBDeviceInfo> &available);
-    void cleanupDeviceList(const QList <USBDeviceInfo> &available);
 
     static USBDeviceInfo parseInstanceID(const char *buf);
 

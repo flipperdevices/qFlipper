@@ -2,6 +2,7 @@
 #define USBDEVICEINFO_H
 
 #include <QString>
+#include <QVariant>
 #include <QMetaType>
 
 class USBDeviceInfo {
@@ -10,6 +11,7 @@ public:
     USBDeviceInfo(uint16_t vendorID, uint16_t productID);
 
     USBDeviceInfo withBackendData(void *backendData) const;
+    USBDeviceInfo withBackendData(const QVariant &backendData) const;
     USBDeviceInfo withSerialNumber(const QString &serialNumber) const;
     USBDeviceInfo withManufacturer(const QString &manufacturer) const;
     USBDeviceInfo withProductDescription(const QString &productDescription) const;
@@ -21,7 +23,7 @@ public:
     const QString &productDescription() const;
     const QString &serialNumber() const;
 
-    void *backendData() const;
+    const QVariant &backendData() const;
 
     void setManufacturer(const QString &manufacturer);
     void setProductDescription(const QString &productDescription);
@@ -35,7 +37,7 @@ private:
     QString m_productDescription;
     QString m_serialNumber;
 
-    void *m_backendData;
+    QVariant m_backendData;
 };
 
 Q_DECLARE_METATYPE(USBDeviceInfo)

@@ -5,9 +5,6 @@
 
 #include "usbdeviceinfo.h"
 
-class QMutex;
-// TODO: Multithreading improvements
-
 class USBDevice : public QObject
 {
     Q_OBJECT

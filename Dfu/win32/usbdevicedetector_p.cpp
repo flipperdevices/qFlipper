@@ -21,7 +21,6 @@ void USBDeviceDetectorWorker::timerEvent(QTimerEvent *e)
     const auto available = availableDevices();
     processDevicesArrived(available);
     processDevicesLeft(available);
-    cleanupDeviceList(available);
 }
 
 QList <USBDeviceInfo> USBDeviceDetectorWorker::availableDevices() const
@@ -71,8 +70,7 @@ QList <USBDeviceInfo> USBDeviceDetectorWorker::availableDevices() const
 
             if(result == TRUE) {
                 const auto newInfo = parseInstanceID(buf);
-                // Allocating additional memory via strdup
-                ret.append(newInfo.withBackendData(strdup(detailData->DevicePath)));
+                ret.append(newInfo.withBackendData(QByteArray(detailData->DevicePath)));
             }
 
             LocalFree(detailData);
@@ -90,7 +88,7 @@ void USBDeviceDetectorWorker::processDevicesArrived(const QList<USBDeviceInfo> &
 {
     for(const auto &info : available) {
         const auto it = std::find_if(m_current.cbegin(), m_current.cend(), [&](const USBDeviceInfo &arg) {
-            return !strcmp((char*)arg.backendData(), (char*)info.backendData());
+            return arg.backendData() == info.backendData();
         });
 
         if(it == m_current.cend()) {
@@ -104,31 +102,16 @@ void USBDeviceDetectorWorker::processDevicesLeft(const QList<USBDeviceInfo> &ava
 {
     for(auto currentIt = m_current.begin(); currentIt != m_current.end();) {
         const auto availableIt = std::find_if(available.cbegin(), available.cend(), [&](const USBDeviceInfo &arg) {
-            return !strcmp((char*)arg.backendData(), (char*)currentIt->backendData());
+            return arg.backendData() == currentIt->backendData();
         });
 
         if(availableIt == available.cend()) {
             const auto info = *currentIt;
-
             emit deviceUnplugged(info);
-
-            free(info.backendData());
             currentIt = m_current.erase(currentIt);
+
         } else {
             ++currentIt;
-        }
-    }
-}
-
-void USBDeviceDetectorWorker::cleanupDeviceList(const QList<USBDeviceInfo> &available)
-{
-    for(const auto &info : available) {
-        const auto it = std::find_if(m_current.cbegin(), m_current.cend(), [&](const USBDeviceInfo &arg) {
-            return info.backendData() == arg.backendData();
-        });
-
-        if(it == m_current.cend()) {
-             free(info.backendData());
         }
     }
 }
@@ -138,6 +121,6 @@ USBDeviceInfo USBDeviceDetectorWorker::parseInstanceID(const char *buf)
     unsigned int vid, pid;
     char serialbuf[1024];
 
-    sscanf(buf, "USB\\VID_%04X&PID_%04X\\%s", &vid, &pid, serialbuf);
+    sscanf_s(buf, "USB\\VID_%04X&PID_%04X\\%s", &vid, &pid, serialbuf, (unsigned int)strlen(buf));
     return USBDeviceInfo(vid, pid).withSerialNumber(serialbuf);
 }

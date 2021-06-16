@@ -1,11 +1,16 @@
 #include "usbdevice.h"
 
-#include <QMutex>
+#include <windows.h>
+#include <setupapi.h>
+#include <winusb.h>
 
 #include "macros.h"
 
 struct USBDevice::USBDevicePrivate
 {
+    QByteArray filePath;
+    HANDLE fileHandle = nullptr;
+    WINUSB_INTERFACE_HANDLE deviceHandle = nullptr;
 };
 
 USBDevice::USBDevice(const USBDeviceInfo &info, QObject *parent):
