@@ -2,6 +2,7 @@
 #define FLIPPERZERO_H
 
 #include <QObject>
+#include <QMutex>
 
 #include "usbdeviceinfo.h"
 
@@ -54,10 +55,11 @@ signals:
     void isDFUChanged(bool);
 
 private:
-    void fetchInfoNormalMode();
+    void fetchInfoVCPMode();
     void fetchInfoDFUMode();
 
     USBDeviceInfo m_info;
+    QMutex m_deviceMutex;
 
     QString m_name;
     QString m_target;

@@ -4,6 +4,7 @@
 #include <QBuffer>
 #include <QIODevice>
 #include <QSerialPort>
+#include <QMutexLocker>
 #include <QtConcurrent/QtConcurrentRun>
 
 #include "serialhelper.h"
@@ -16,8 +17,7 @@ static const auto UPDATE_MESSAGE = QObject::tr("Update");
 static const auto ERROR_MESSAGE = QObject::tr("Error");
 
 using namespace Flipper;
-
-Zero::Zero(const USBDeviceInfo &parameters, QObject *parent):
+ Zero::Zero(const USBDeviceInfo &parameters, QObject *parent):
     QObject(parent),
 
     m_info(parameters),
@@ -31,12 +31,14 @@ Zero::Zero(const USBDeviceInfo &parameters, QObject *parent):
     if(isDFU()) {
         QtConcurrent::run(this, &Flipper::Zero::fetchInfoDFUMode);
     } else {
-        QtConcurrent::run(this, &Flipper::Zero::fetchInfoNormalMode);
+        QtConcurrent::run(this, &Flipper::Zero::fetchInfoVCPMode);
     }
 }
 
 bool Zero::detach()
 {
+    QMutexLocker locker(&m_deviceMutex);
+
     const auto portInfo = SerialHelper::findSerialPort(m_info.serialNumber());
     check_return_bool(!portInfo.isNull(), "Could not find serial port");
 
@@ -51,6 +53,8 @@ bool Zero::detach()
 
 bool Zero::download(QIODevice *file)
 {
+    QMutexLocker locker(&m_deviceMutex);
+
     check_return_bool(file->open(QIODevice::ReadOnly), "Failed to open firmware file");
     check_return_bool(file->bytesAvailable(), "This %^@*$ empty! YEET!");
 
@@ -149,7 +153,7 @@ void Zero::setProgress(double progress)
     }
 }
 
-void Zero::fetchInfoNormalMode()
+void Zero::fetchInfoVCPMode()
 {
     const auto portInfo = SerialHelper::findSerialPort(m_info.serialNumber());
 
@@ -208,6 +212,8 @@ void Zero::fetchInfoNormalMode()
 
 void Zero::fetchInfoDFUMode()
 {
+    QMutexLocker locker(&m_deviceMutex);
+
     // TODO: Error handling
     const uint32_t FLIPPER_OTP_ADDRESS = 0x1fff7000UL;
     const size_t FLIPPER_OTP_SIZE = 16, FLIPPER_TARGET_OFFSET = 1, FLIPPER_NAME_OFFSET = 8;
