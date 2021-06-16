@@ -172,7 +172,7 @@ void USBDeviceDetector::timerEvent(QTimerEvent *e)
 
 static USBDeviceInfo getDeviceInfo(const USBDeviceInfo &info)
 {
-    auto *dev = (libusb_device*)info.backendData();
+    auto *dev = (libusb_device*)info.backendData().value<void*>();
 
     libusb_device_descriptor desc;
     check_return_val(!libusb_get_device_descriptor(dev, &desc),"Failed to get device descriptor", info);
@@ -214,7 +214,7 @@ static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb
     libusb_device_descriptor desc;
     check_return_val(!libusb_get_device_descriptor(dev, &desc),"Failed to get device descriptor", 0);
 
-    const auto info = USBDeviceInfo(desc.idVendor, desc.idProduct).withBackendData(dev);
+    const auto info = USBDeviceInfo(desc.idVendor, desc.idProduct).withBackendData(QVariant::fromValue((void*)dev));
 
     if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED) {
         // Get string descriptors out of callback context

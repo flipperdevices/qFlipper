@@ -1,7 +1,5 @@
 #include "usbdevice.h"
 
-#include <QMutex>
-
 #include <libusb.h>
 
 #include "macros.h"
@@ -15,7 +13,7 @@ USBDevice::USBDevice(const USBDeviceInfo &info, QObject *parent):
     QObject(parent),
     m_p(new USBDevicePrivate)
 {
-    m_p->libusbDevice = (libusb_device*)info.backendData();
+    m_p->libusbDevice = (libusb_device*)info.backendData().value<void*>();
 }
 
 USBDevice::~USBDevice()
