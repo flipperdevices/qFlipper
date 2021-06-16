@@ -2,11 +2,10 @@
 
 USBDeviceInfo::USBDeviceInfo(uint16_t vendorID, uint16_t productID):
     m_vendorID(vendorID),
-    m_productID(productID),
-    m_backendData(nullptr)
+    m_productID(productID)
 {}
 
-USBDeviceInfo USBDeviceInfo::withBackendData(void *backendData) const
+USBDeviceInfo USBDeviceInfo::withBackendData(const QVariant &backendData) const
 {
     auto ret = *this;
     ret.m_backendData = backendData;
@@ -59,7 +58,7 @@ const QString &USBDeviceInfo::serialNumber() const
     return m_serialNumber;
 }
 
-void *USBDeviceInfo::backendData() const
+const QVariant &USBDeviceInfo::backendData() const
 {
     return m_backendData;
 }
