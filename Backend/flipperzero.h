@@ -2,6 +2,7 @@
 #define FLIPPERZERO_H
 
 #include <QObject>
+#include <QMutex>
 
 #include "usbdeviceinfo.h"
 
@@ -58,6 +59,7 @@ private:
     void fetchInfoDFUMode();
 
     USBDeviceInfo m_info;
+    QMutex m_deviceMutex;
 
     QString m_name;
     QString m_target;
