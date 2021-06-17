@@ -48,8 +48,10 @@ public:
     QByteArray stringInterfaceDescriptor(int interfaceNum);
 
 private:
-    USBDevicePrivate *m_p = nullptr;
+    bool m_isOpen = false;
     unsigned long m_timeout = 1000;
+
+    USBDevicePrivate *m_p;
 };
 
 #endif // WIN32USBDEVICE_H
