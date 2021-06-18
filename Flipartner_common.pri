@@ -7,7 +7,7 @@ unix:!macx {
     CONFIG -= debug_and_release
     DEFINES += USB_BACKEND_WIN32
 	
-        !win32-g++: LIBS +=  -lSetupApi -lWinusb
+        !win32-g++: LIBS +=  -lSetupApi -lWinusb -lUser32
 	else: LIBS += -lsetupapi -lwinusb
 
 } else:macx {
