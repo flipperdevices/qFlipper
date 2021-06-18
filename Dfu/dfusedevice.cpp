@@ -1,6 +1,5 @@
 #include "dfusedevice.h"
 
-#include <QDebug>
 #include <QThread>
 #include <QBuffer>
 #include <QByteArray>
@@ -8,8 +7,8 @@
 #include "macros.h"
 #include "dfumemorylayout.h"
 
-#define REQUEST_OUT (ENDPOINT_OUT | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE)
-#define REQUEST_IN (ENDPOINT_IN | REQUEST_TYPE_CLASS | RECIPIENT_INTERFACE)
+#define REQUEST_OUT (USBRequest::ENDPOINT_OUT | USBRequest::REQUEST_TYPE_CLASS | USBRequest::RECIPIENT_INTERFACE)
+#define REQUEST_IN (USBRequest::ENDPOINT_IN | USBRequest::REQUEST_TYPE_CLASS | USBRequest::RECIPIENT_INTERFACE)
 
 #define DFU_DESCRIPTOR_LENGTH 9
 #define DFU_DESCRIPTOR_TYPE 0x21
