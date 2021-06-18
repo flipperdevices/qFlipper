@@ -67,7 +67,10 @@ const QList<uint32_t> DFUMemoryLayout::pageAddresses(uint32_t start, uint32_t en
     if((start < m_address) || (start > end)) {
         error_msg("address error");
         return ret;
-    }
+    } else if(m_pageBanks.isEmpty()) {
+        error_msg("page banks empty");
+        return ret;
+    } else {}
 
     ret.append(start);
 

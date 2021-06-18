@@ -5,16 +5,10 @@ unix:!macx {
 
 } else:win32 {
     CONFIG -= debug_and_release
-
-    contains(DEFINES, USB_BACKEND_LIBUSB) {
-        INCLUDEPATH += $$LIBUSB_DIR/include
-
-        !win32-g++: LIBS += -L$$LIBUSB_DIR/lib -llibusb-1.0
-        else: LIBS += -L$$LIBUSB_DIR/lib -lusb-1.0
-
-    } else {
-        error("No USB backend specified. Current options are: USB_BACKEND_LIBUSB")
-    }
+    DEFINES += USB_BACKEND_WIN32
+	
+        !win32-g++: LIBS +=  -lSetupApi -lWinusb -lUser32
+	else: LIBS += -lsetupapi -lwinusb
 
 } else:macx {
     DEFINES += USB_BACKEND_LIBUSB

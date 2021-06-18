@@ -37,6 +37,8 @@ bool DfuseDevice::erase(uint32_t addr, size_t maxSize)
     const auto layout = DFUMemoryLayout::fromStringDescriptor(stringInterfaceDescriptor(0));
     const auto pageAddresses = layout.pageAddresses(addr, addr + maxSize);
 
+    check_return_bool(!pageAddresses.isEmpty(), "Address list is empty");
+
     for(const auto pageAddress: pageAddresses) {
         check_return_bool(erasePage(pageAddress), "Failed to erase page");
         const auto progress = (pageAddress - addr) * 100.0 / maxSize;

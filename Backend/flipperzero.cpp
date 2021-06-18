@@ -227,14 +227,18 @@ void Zero::fetchInfoDFUMode()
 
     otpDataBuf.open(QIODevice::WriteOnly);
 
-    dev.beginTransaction();
-    dev.upload(&otpDataBuf, FLIPPER_OTP_ADDRESS, FLIPPER_OTP_SIZE, FLIPPER_OTP_ALT_NUM);
-    dev.endTransaction();
+    const auto success = dev.beginTransaction() &&
+                         dev.upload(&otpDataBuf, FLIPPER_OTP_ADDRESS, FLIPPER_OTP_SIZE, FLIPPER_OTP_ALT_NUM) &&
+                         dev.endTransaction();
 
     otpDataBuf.close();
 
-    setName(otpData.right(FLIPPER_NAME_OFFSET));
-    setTarget(QString("f%1").arg((uint8_t)otpData.at(FLIPPER_TARGET_OFFSET)));
+    check_return_void(success, "Failed to read OTP data");
+
+    if(!otpData.isEmpty()) {
+        setName(otpData.right(FLIPPER_NAME_OFFSET));
+        setTarget(QString("f%1").arg((uint8_t)otpData.at(FLIPPER_TARGET_OFFSET)));
+    }
 
     if(m_statusMessage == STARTUP_MESSAGE) {
         setStatusMessage(UPDATE_MESSAGE);
