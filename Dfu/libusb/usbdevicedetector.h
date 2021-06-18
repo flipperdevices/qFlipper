@@ -5,7 +5,6 @@
 
 #include "usbdeviceinfo.h"
 
-class DeviceWatcher;
 class USBDeviceDetector : public QObject
 {
     Q_OBJECT
@@ -23,7 +22,6 @@ signals:
 
 private:
     void timerEvent(QTimerEvent *e) override;
-    DeviceWatcher *m_watcher;
 };
 
 #endif // LIBUSBDEVICEDETECTOR_H
