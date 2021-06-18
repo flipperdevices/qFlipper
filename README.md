@@ -3,6 +3,17 @@
 Flipper companion application (desktop)
 
 ## Build:
+### Windows:
+
+Build requirements:
+- MS Visual Studio 2017 or newer
+- Qt (MSVC build) >= 5.12.0
+- Internet connection (to download OpenSSL files)
+
+Edit `build_windows.bat` to adjust to your build environment and then run:
+```cmd
+build_windows.bat
+```
 
 ### Linux:
 
@@ -30,6 +41,7 @@ Resulting image can be found in: `build_mac/Flipartner.dmg`
 
 ## Run:
 
+### Linux:
 ```sh
 ./build/flipartner-x86_64.AppImage
 ```
