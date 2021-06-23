@@ -3,7 +3,7 @@
 set ARCH_BITS=64
 
 set MSVC_VERSION=2019
-set MSVC_DIR="C:\Program Files (x86)\Microsoft Visual Studio\"%MSVC_VERSION%
+set MSVC_DIR="%programfiles(x86)%\Microsoft Visual Studio\"%MSVC_VERSION%
 
 rem Import build environment
 call %MSVC_DIR%\"Community\VC\Auxiliary\Build\"vcvars%ARCH_BITS%.bat
@@ -28,35 +28,43 @@ set OPENSSL_VERSION=1.1.1k
 set OPENSSL_FILE_NAME=openssl-%OPENSSL_VERSION%-win%ARCH_BITS%.zip
 set OPENSSL_URL=http://wiki.overbyte.eu/arch/%OPENSSL_FILE_NAME%
 
+set NSIS="%programfiles(x86)%\NSIS\makensis.exe"
+set ZADIC_EXE="%PROJECT_DIR%"\..\zadic.exe
+
 if exist %BUILD_DIR% (rmdir /S /Q %BUILD_DIR%)
 
+rem Build the application
 mkdir %BUILD_DIR%
 cd %BUILD_DIR%
 
-rem Compile application
 %QMAKE% %PROJECT_DIR%\%TARGET%.pro -spec win32-msvc "CONFIG+=qtquickcompiler"
 %JOM% qmake_all
 %JOM%
 
 rem Deploy the application
 mkdir %DIST_DIR%
-move /Y %TARGET%.exe %DIST_DIR%
+copy /Y %TARGET%.exe %DIST_DIR%
 cd %DIST_DIR%
 
-%WINDEPLOYQT% --qmldir %QML_DIR% %TARGET%.exe
+%WINDEPLOYQT% --release --qmldir %QML_DIR% %TARGET%.exe
 
 rem Download OpenSSL binaries - temporary solution
 curl  %OPENSSL_URL% -o %OPENSSL_FILE_NAME%
 tar -xf %OPENSSL_FILE_NAME% *.dll
 del /Q %OPENSSL_FILE_NAME%
 
-tar -a -cf %BUILD_DIR%\%TARGET%.zip *
+rem Copy Zadic binary - also temporary solution?
+copy /Y %ZADIC_EXE% .
 
-rmdir /S /Q %BUILD_DIR%\%TARGET%
+rem Make the zip archive as well
+tar -a -cf %BUILD_DIR%\%TARGET%-%ARCH_BITS%bit.zip *
 
+rem Make the installer
 cd %PROJECT_DIR%
+%NSIS% /DNAME=%TARGET% /DARCH_BITS=%ARCH_BITS% installer_windows.nsi
 
-cls
+rem cls
 echo on
-@echo The resulting file is %BUILD_DIR%\%TARGET%.zip.
+@echo The resulting installer is %BUILD_DIR%\%TARGET%Setup-%ARCH_BITS%bit.exe.
+@echo Finished. Press any key to close this window.
 @timeout 10 > NUL
