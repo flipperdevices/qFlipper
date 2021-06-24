@@ -1,3 +1,4 @@
+import QtQml 2.12
 import QtQuick 2.12
 import QtQuick.Window 2.12
 
@@ -17,21 +18,14 @@ Window {
         id: mainLoader
         anchors.fill: parent
         source: "qrc:/screens/homescreen.qml"
+    }
 
-        Connections {
-            target: mainLoader.item
+    Connections {
+        target: mainLoader.item
+        ignoreUnknownSignals: true
 
-            function onVersionsRequested(device) {
-                mainLoader.setSource("qrc:/screens/versionscreen.qml", {device: device});
-            }
-
-            function onHomeRequested() {
-                mainLoader.setSource("qrc:/screens/homescreen.qml");
-            }
-
-            function onStreamRequested(device) {
-                mainLoader.setSource("qrc:/screens/streamscreen.qml", {device: device})
-            }
-        }
+        onHomeRequested: mainLoader.setSource("qrc:/screens/homescreen.qml");
+        onVersionsRequested: mainLoader.setSource("qrc:/screens/versionscreen.qml", {device: device});
+        onStreamRequested: mainLoader.setSource("qrc:/screens/streamscreen.qml", {device: device})
     }
 }

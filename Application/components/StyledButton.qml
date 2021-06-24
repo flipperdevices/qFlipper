@@ -10,6 +10,7 @@ Button {
 
     icon.width: 16
     icon.height: 16
+    icon.color: "white"
 
     background: Rectangle {
         id: buttonBg
