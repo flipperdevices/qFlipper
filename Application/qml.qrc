@@ -8,5 +8,6 @@
         <file>screens/VersionListDialog.qml</file>
         <file>components/VersionListDelegate.qml</file>
         <file>components/StyledChangelogDialog.qml</file>
+        <file>assets/menu.svg</file>
     </qresource>
 </RCC>
