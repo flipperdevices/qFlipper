@@ -10,6 +10,7 @@
 #include <QFile>
 
 #include "flipartnerbackend.h"
+#include "screencanvas.h"
 
 int main(int argc, char *argv[])
 {
@@ -30,6 +31,8 @@ int main(int argc, char *argv[])
             break;
         }
     }
+
+    qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
 
     FlipartnerBackend backend;
 

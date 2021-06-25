@@ -26,7 +26,8 @@ using namespace Flipper;
     m_target("N/A"),
     m_version("N/A"),
     m_statusMessage(STARTUP_MESSAGE),
-    m_progress(0)
+    m_progress(0),
+    m_isScreenStreamingEnabled(false)
 {
     if(isDFU()) {
         QtConcurrent::run(this, &Flipper::Zero::fetchInfoDFUMode);
@@ -153,6 +154,32 @@ void Zero::setProgress(double progress)
     }
 }
 
+void Zero::enableScreenStream(bool enable)
+{
+    if(enable == m_isScreenStreamingEnabled) {
+        return;
+    }
+
+    info_msg(QString("Screen streaming enabled: %1").arg(enable));
+
+    m_isScreenStreamingEnabled = enable;
+    emit isScreenStreamChanged(enable);
+
+    if(enable) {
+        QtConcurrent::run(this, &Flipper::Zero::screenStreamFunc);
+    }
+}
+
+bool Zero::isScreenStreamEnabled() const
+{
+    return m_isScreenStreamingEnabled;
+}
+
+const QByteArray &Zero::screenData() const
+{
+    return m_screenData;
+}
+
 void Zero::fetchInfoVCPMode()
 {
     const auto portInfo = SerialHelper::findSerialPort(m_info.serialNumber());
@@ -243,4 +270,65 @@ void Zero::fetchInfoDFUMode()
     if(m_statusMessage == STARTUP_MESSAGE) {
         setStatusMessage(UPDATE_MESSAGE);
     }
+}
+
+void Zero::screenStreamFunc()
+{
+    const auto portInfo = SerialHelper::findSerialPort(m_info.serialNumber());
+
+    if(portInfo.isNull()) {
+        // TODO: Error handling
+        setStatusMessage(ERROR_MESSAGE);
+        error_msg("Port not found");
+        return;
+    }
+
+    QSerialPort port(portInfo);
+    if(!port.open(QIODevice::ReadWrite)) {
+        // TODO: Error handling
+        setStatusMessage(ERROR_MESSAGE);
+        error_msg("Failed to open port");
+        return;
+    }
+
+    port.setDataTerminalReady(true);
+    port.write("screen_stream\r");
+
+    QByteArray buf;
+    bool found = false;
+
+    const auto header = QByteArray::fromHex("F0E1D2C3");
+
+    while(m_isScreenStreamingEnabled) {
+        if(!found) {
+            qint64 bytesAvailable;
+
+            do {
+                bytesAvailable = port.bytesAvailable();
+                port.waitForReadyRead(15);
+            } while(bytesAvailable != port.bytesAvailable());
+
+            buf += port.readAll();
+
+            const int pos = buf.indexOf(header);
+            if(pos >= 0) {
+                buf = buf.right(buf.size() - pos - header.size());
+                found = true;
+            } else {
+                buf = buf.right(4);
+            }
+
+        } else {
+            if(buf.size() >= 1024) {
+                m_screenData = buf.left(1024);
+                buf = buf.right(buf.size() - 1024);
+                found = false;
+
+                emit screenDataChanged(m_screenData);
+            }
+        }
+    }
+
+    port.write("\0");
+    port.close();
 }

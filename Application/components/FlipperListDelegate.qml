@@ -119,6 +119,7 @@ Item {
         MenuItem {
             text: qsTr("Screen Streaming...")
             onTriggered: screenStreamRequested(device)
+            enabled: !device.isDFU
         }
 
         MenuSeparator {}
