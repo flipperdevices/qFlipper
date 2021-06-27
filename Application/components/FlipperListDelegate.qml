@@ -69,6 +69,8 @@ Item {
         anchors.rightMargin: 25
         anchors.verticalCenter: parent.verticalCenter
 
+        enabled: updateButton.enabled
+
         onClicked: actionMenu.open()
     }
 

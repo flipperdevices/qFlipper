@@ -50,11 +50,17 @@ using namespace Flipper;
 
 bool Zero::detach()
 {
-    check_return_bool(m_port->open(QIODevice::WriteOnly), "Failed to open serial port");
-    check_return_bool((m_port->write("dfu\r") >= 0) && m_port->flush(), "Failed to write to serial port");
+    const auto success = m_port->open(QIODevice::WriteOnly) && m_port->setDataTerminalReady(true) &&
+                        (m_port->write("\rdfu\r") >= 0) && m_port->flush();
+
+    if(!success) {
+        error_msg("Failed to reset device to DFU mode");
+        setStatusMessage(ERROR_MESSAGE);
+    }
 
     m_port->close();
-    return true;
+
+    return success;
 }
 
 bool Zero::download(QIODevice *file)
