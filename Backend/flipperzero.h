@@ -1,16 +1,17 @@
 #ifndef FLIPPERZERO_H
 #define FLIPPERZERO_H
 
-#include <QByteArray>
 #include <QObject>
 #include <QMutex>
 
 #include "usbdeviceinfo.h"
 
 class QIODevice;
+class QSerialPort;
 
 namespace Flipper {
 
+class ZeroRemote;
 class Zero : public QObject
 {
     Q_OBJECT
@@ -22,9 +23,7 @@ class Zero : public QObject
     Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusMessageChanged)
     Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
     Q_PROPERTY(bool isDFU READ isDFU NOTIFY isDFUChanged)
-
-    Q_PROPERTY(bool screenStream READ isScreenStreamEnabled WRITE enableScreenStream NOTIFY isScreenStreamChanged)
-    Q_PROPERTY(QByteArray screenData READ screenData NOTIFY screenDataChanged)
+    Q_PROPERTY(Flipper::ZeroRemote* remote READ remote CONSTANT)
 
 public:
     Zero(const USBDeviceInfo &parameters, QObject *parent = nullptr);
@@ -43,16 +42,13 @@ public:
 
     bool isDFU() const;
 
+    ZeroRemote *remote() const;
+
     void setName(const QString &name);
     void setTarget(const QString &target);
     void setVersion(const QString &version);
     void setStatusMessage(const QString &message);
     void setProgress(double progress);
-
-    void enableScreenStream(bool enable);
-    bool isScreenStreamEnabled() const;
-
-    const QByteArray &screenData() const;
 
 signals:
     void nameChanged(const QString&);
@@ -62,15 +58,10 @@ signals:
     void progressChanged(double);
 
     void isDFUChanged(bool);
-    void isScreenStreamChanged(bool);
-
-    void screenDataChanged(const QByteArray&);
 
 private:
     void fetchInfoVCPMode();
     void fetchInfoDFUMode();
-
-    void screenStreamFunc();
 
     USBDeviceInfo m_info;
     QMutex m_deviceMutex;
@@ -81,9 +72,9 @@ private:
     QString m_statusMessage;
 
     double m_progress;
-    bool m_isScreenStreamingEnabled;
 
-    QByteArray m_screenData;
+    QSerialPort *m_port;
+    ZeroRemote *m_remote;
 };
 
 }

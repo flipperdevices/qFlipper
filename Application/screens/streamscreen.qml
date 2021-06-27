@@ -1,6 +1,7 @@
 import QtQml 2.12
 import QtQuick 2.12
 import QtQuick.Layouts 1.12
+import QtQuick.Dialogs 1.2
 
 import QFlipper 1.0
 
@@ -13,44 +14,63 @@ Item {
     property var device
     signal homeRequested()
 
-    ColumnLayout {
+    FileDialog {
+        id: fileDialog
+        title: qsTr("Please choose a file")
+        folder: shortcuts.home
+        selectExisting: false
+        nameFilters: ["PNG images (*.png)", "JPEG images (*.jpg)"]
+
+        onAccepted: {
+            screenCanvas.saveImage(fileUrl);
+        }
+    }
+
+    GridLayout {
         anchors.fill: parent
         anchors.margins: 16
-        spacing: 16
+        columns: 2
 
-        Rectangle {
-            radius: 4
-            color: "transparent"
-            border.width: 1
-            border.color: "#2E2E2E"
+        ScreenCanvas {
+            id: screenCanvas
+            visible: true
 
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            ScreenCanvas {
-                id: screenCanvas
-                visible: true
-                anchors.fill: parent
-                data: device.screenData
-            }
+            canvasWidth: device.remote.screenWidth
+            canvasHeight: device.remote.screenHeight
+
+            data: device.remote.screenData
+        }
+
+        StyledKeypad {
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+        }
+
+        Item {
+            Layout.fillWidth: true
         }
 
         RowLayout {
             spacing: 20
+            Layout.alignment: Qt.AlignRight
 
             StyledButton {
                 id: saveButton
                 text: qsTr("Save Image")
-                Layout.fillWidth: true
+
+                onClicked: {
+                    fileDialog.open();
+                }
             }
 
             StyledButton {
                 id: backButton
-                text: qsTr("Back")
-                Layout.fillWidth: true
+                text: qsTr("Close")
 
                 onClicked: {
-                    device.screenStream = false;
+                    device.remote.enabled = false;
                     screen.homeRequested();
                 }
             }
@@ -58,6 +78,6 @@ Item {
     }
 
     Component.onCompleted: {
-        device.screenStream = true;
+        device.remote.enabled = true;
     }
 }

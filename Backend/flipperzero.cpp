@@ -7,6 +7,7 @@
 #include <QMutexLocker>
 #include <QtConcurrent/QtConcurrentRun>
 
+#include "flipperzeroremote.h"
 #include "serialhelper.h"
 #include "dfusedevice.h"
 #include "dfusefile.h"
@@ -27,28 +28,32 @@ using namespace Flipper;
     m_version("N/A"),
     m_statusMessage(STARTUP_MESSAGE),
     m_progress(0),
-    m_isScreenStreamingEnabled(false)
+    m_port(nullptr),
+    m_remote(nullptr)
 {
     if(isDFU()) {
-        QtConcurrent::run(this, &Flipper::Zero::fetchInfoDFUMode);
+        fetchInfoDFUMode();
     } else {
-        QtConcurrent::run(this, &Flipper::Zero::fetchInfoVCPMode);
+        const auto info = SerialHelper::findSerialPort(parameters.serialNumber());
+
+        if(info.isNull()) {
+            setStatusMessage(ERROR_MESSAGE);
+            return;
+        }
+
+        m_port = new QSerialPort(info, this);
+        m_remote = new ZeroRemote(m_port, this);
+
+        fetchInfoVCPMode();
     }
 }
 
 bool Zero::detach()
 {
-    QMutexLocker locker(&m_deviceMutex);
+    check_return_bool(m_port->open(QIODevice::WriteOnly), "Failed to open serial port");
+    check_return_bool((m_port->write("dfu\r") >= 0) && m_port->flush(), "Failed to write to serial port");
 
-    const auto portInfo = SerialHelper::findSerialPort(m_info.serialNumber());
-    check_return_bool(!portInfo.isNull(), "Could not find serial port");
-
-    QSerialPort port(portInfo);
-
-    check_return_bool(port.open(QIODevice::WriteOnly), "Failed to open serial port");
-    check_return_bool((port.write("dfu\r") >= 0) && port.flush(), "Failed to write to serial port");
-
-    port.close();
+    m_port->close();
     return true;
 }
 
@@ -119,6 +124,11 @@ bool Zero::isDFU() const
     return m_info.productID() == 0xdf11;
 }
 
+ZeroRemote *Zero::remote() const
+{
+    return m_remote;
+}
+
 void Zero::setName(const QString &name)
 {
     if(m_name != name) {
@@ -154,52 +164,15 @@ void Zero::setProgress(double progress)
     }
 }
 
-void Zero::enableScreenStream(bool enable)
-{
-    if(enable == m_isScreenStreamingEnabled) {
-        return;
-    }
-
-    info_msg(QString("Screen streaming enabled: %1").arg(enable));
-
-    m_isScreenStreamingEnabled = enable;
-    emit isScreenStreamChanged(enable);
-
-    if(enable) {
-        QtConcurrent::run(this, &Flipper::Zero::screenStreamFunc);
-    }
-}
-
-bool Zero::isScreenStreamEnabled() const
-{
-    return m_isScreenStreamingEnabled;
-}
-
-const QByteArray &Zero::screenData() const
-{
-    return m_screenData;
-}
-
+// Since we're not using threads anymore, rework it with signal-slot friendly approach
 void Zero::fetchInfoVCPMode()
 {
-    const auto portInfo = SerialHelper::findSerialPort(m_info.serialNumber());
-
-    if(portInfo.isNull()) {
-        // TODO: Error handling
-        setStatusMessage(ERROR_MESSAGE);
-        error_msg("Port not found");
-        return;
-    }
-
-    QSerialPort port(portInfo);
-    if(!port.open(QIODevice::ReadWrite)) {
+    if(!m_port->open(QIODevice::ReadWrite)) {
         // TODO: Error handling
         setStatusMessage(ERROR_MESSAGE);
         error_msg("Failed to open port");
         return;
     }
-
-    port.setDataTerminalReady(true);
 
     static const auto getValue = [](const QByteArray &buf, const QByteArray &tok) {
         const auto start = buf.indexOf(tok) + tok.size();
@@ -207,35 +180,36 @@ void Zero::fetchInfoVCPMode()
         return buf.mid(start, end - start).trimmed();
     };
 
-    port.write("hw_info\r");
-    port.flush();
+    m_port->setDataTerminalReady(true);
+    m_port->write("\rhw_info\r");
+    m_port->flush();
 
     qint64 bytesAvailable;
     QByteArray buf;
 
     do {
-        bytesAvailable = port.bytesAvailable();
-        port.waitForReadyRead(50);
-    } while(bytesAvailable != port.bytesAvailable());
+        bytesAvailable = m_port->bytesAvailable();
+        m_port->waitForReadyRead(50);
+    } while(bytesAvailable != m_port->bytesAvailable());
 
-    buf = port.readAll();
+    buf = m_port->readAll();
 
     setName(getValue(buf, "Name: "));
     setTarget(getValue(buf, "HW version:").mid(2, 2).toLower());
 
-    port.write("version\r");
-    port.flush();
+    m_port->write("version\r");
+    m_port->flush();
 
     do {
-        bytesAvailable = port.bytesAvailable();
-        port.waitForReadyRead(50);
-    } while(bytesAvailable != port.bytesAvailable());
+        bytesAvailable = m_port->bytesAvailable();
+        m_port->waitForReadyRead(50);
+    } while(bytesAvailable != m_port->bytesAvailable());
 
-    buf = port.readAll();
+    buf = m_port->readAll();
 
     setVersion(getValue(buf, "Version:"));
 
-    port.close();
+    m_port->close();
     setStatusMessage(UPDATE_MESSAGE);
 }
 
@@ -270,65 +244,4 @@ void Zero::fetchInfoDFUMode()
     if(m_statusMessage == STARTUP_MESSAGE) {
         setStatusMessage(UPDATE_MESSAGE);
     }
-}
-
-void Zero::screenStreamFunc()
-{
-    const auto portInfo = SerialHelper::findSerialPort(m_info.serialNumber());
-
-    if(portInfo.isNull()) {
-        // TODO: Error handling
-        setStatusMessage(ERROR_MESSAGE);
-        error_msg("Port not found");
-        return;
-    }
-
-    QSerialPort port(portInfo);
-    if(!port.open(QIODevice::ReadWrite)) {
-        // TODO: Error handling
-        setStatusMessage(ERROR_MESSAGE);
-        error_msg("Failed to open port");
-        return;
-    }
-
-    port.setDataTerminalReady(true);
-    port.write("screen_stream\r");
-
-    QByteArray buf;
-    bool found = false;
-
-    const auto header = QByteArray::fromHex("F0E1D2C3");
-
-    while(m_isScreenStreamingEnabled) {
-        if(!found) {
-            qint64 bytesAvailable;
-
-            do {
-                bytesAvailable = port.bytesAvailable();
-                port.waitForReadyRead(15);
-            } while(bytesAvailable != port.bytesAvailable());
-
-            buf += port.readAll();
-
-            const int pos = buf.indexOf(header);
-            if(pos >= 0) {
-                buf = buf.right(buf.size() - pos - header.size());
-                found = true;
-            } else {
-                buf = buf.right(4);
-            }
-
-        } else {
-            if(buf.size() >= 1024) {
-                m_screenData = buf.left(1024);
-                buf = buf.right(buf.size() - 1024);
-                found = false;
-
-                emit screenDataChanged(m_screenData);
-            }
-        }
-    }
-
-    port.write("\0");
-    port.close();
 }
