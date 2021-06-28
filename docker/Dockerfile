@@ -1,6 +1,11 @@
-FROM ubuntu:20.04
+FROM ubuntu:18.04
 
 RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    software-properties-common
+
+RUN add-apt-repository ppa:beineri/opt-qt-5.12.9-bionic && \
+    apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
     wget \
     file \
@@ -9,17 +14,13 @@ RUN apt-get update && \
     libusb-1.0-0-dev \
     ca-certificates \
     build-essential \
-    qttools5-dev-tools \
-    qt5-default \
-    qtdeclarative5-dev \
-    libqt5serialport5-dev \
-    qml-module-qtquick2 \
-    qml-module-qtquick-extras \
-    qml-module-qtquick-controls \
-    qml-module-qtquick-controls2 \
-    qml-module-qtquick-dialogs \
-    qml-module-qtquick-layouts \
-    qml-module-qtquick-window2 \
+    qt512tools \
+    qt512base \
+    qt5123d \
+    qt512serialport \
+    qt512declarative \
+    qt512quickcontrols \
+    qt512quickcontrols2 \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O linuxdeploy \
@@ -27,6 +28,8 @@ RUN wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous
 
 RUN wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -O linuxdeploy-plugin-qt \
     && chmod +x linuxdeploy-plugin-qt && ln -s "${PWD}/linuxdeploy-plugin-qt" /usr/bin/linuxdeploy-plugin-qt
+
+RUN ln -s /usr/lib/x86_64-linux-gnu/libGL.so.1 /usr/lib/x86_64-linux-gnu/libGL.so
 
 COPY init.sh /init.sh
 
