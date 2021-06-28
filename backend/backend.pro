@@ -6,25 +6,25 @@ CONFIG += staticlib
 
 CONFIG += c++11
 
-include(../flipartner_common.pri)
+include(../qflipper_common.pri)
 
 SOURCES += \
     deviceregistry.cpp \
     firmwaredownloader.cpp \
-    flipartnerbackend.cpp \
     flipperupdates.cpp \
     flipperzero.cpp \
     flipperzeroremote.cpp \
+    qflipperbackend.cpp \
     remotefilefetcher.cpp \
     updateregistry.cpp
 
 HEADERS += \
     deviceregistry.h \
     firmwaredownloader.h \
-    flipartnerbackend.h \
     flipperupdates.h \
     flipperzero.h \
     flipperzeroremote.h \
+    qflipperbackend.h \
     remotefilefetcher.h \
     serialhelper.h \
     updateregistry.h

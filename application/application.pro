@@ -40,7 +40,7 @@ win32:!win32-g++ {
         $$OUT_PWD/../dfu/libdfu.a
 }
 
-include(../flipartner_common.pri)
+include(../qflipper_common.pri)
 
 INCLUDEPATH += \
     $$PWD/../dfu \

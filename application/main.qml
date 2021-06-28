@@ -7,7 +7,7 @@ import "./screens"
 
 Window {
     id: root
-    title: qsTr("Flipartner")
+    title: Qt.application.name
 
     width: 800
     height: 480

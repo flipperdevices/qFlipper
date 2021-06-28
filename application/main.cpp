@@ -6,11 +6,7 @@
 #include <QTranslator>
 #include <QQmlContext>
 
-#include <QThread>
-#include <QDebug>
-#include <QFile>
-
-#include "flipartnerbackend.h"
+#include "qflipperbackend.h"
 #include "screencanvas.h"
 
 int main(int argc, char *argv[])
@@ -31,15 +27,14 @@ int main(int argc, char *argv[])
         }
     }
 
-    qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
-
-    FlipartnerBackend backend;
-
+    QFlipperBackend backend;
     QQmlApplicationEngine engine;
 
     engine.rootContext()->setContextProperty("deviceRegistry", &backend.deviceRegistry);
     engine.rootContext()->setContextProperty("updateRegistry", &backend.updateRegistry);
     engine.rootContext()->setContextProperty("downloader", &backend.downloader);
+
+    qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
 
@@ -51,9 +46,6 @@ int main(int argc, char *argv[])
 
     QQuickStyle::setStyle("Universal");
     engine.load(url);
-
-    qDebug() << "Main thread started with id" << QThread::currentThreadId();
-
 
     return app.exec();
 }

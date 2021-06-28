@@ -17,7 +17,7 @@ set QMAKE=%QT_BIN_DIR%\qmake.exe
 set WINDEPLOYQT=%QT_BIN_DIR%\windeployqt.exe
 set JOM=%QT_DIR%\Tools\QtCreator\bin\jom.exe
 
-set TARGET=Flipartner
+set TARGET=qflipper
 
 set PROJECT_DIR=%cd%
 set BUILD_DIR=%PROJECT_DIR%\build

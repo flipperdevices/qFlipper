@@ -1,18 +1,18 @@
-#ifndef FLIPARTNERBACKEND_H
-#define FLIPARTNERBACKEND_H
+#ifndef QFLIPPERBACKEND_H
+#define QFLIPPERBACKEND_H
 
 #include "deviceregistry.h"
 #include "updateregistry.h"
 #include "firmwaredownloader.h"
 
-struct FlipartnerBackend
+struct QFlipperBackend
 {
-    FlipartnerBackend();
-    ~FlipartnerBackend();
+    QFlipperBackend();
+    ~QFlipperBackend();
 
     Flipper::DeviceRegistry deviceRegistry;
     Flipper::UpdateRegistry updateRegistry;
     Flipper::FirmwareDownloader downloader;
 };
 
-#endif // FLIPARTNERBACKEND_H
+#endif // QFLIPPERBACKEND_H
