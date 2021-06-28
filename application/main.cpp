@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
 #endif
 
     QApplication app(argc, argv);
+    app.setApplicationName("qFlipper");
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();

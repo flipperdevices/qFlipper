@@ -1,4 +1,4 @@
-# Flipartner
+# qFlipper
 
 Flipper companion application (desktop)
 
@@ -37,13 +37,13 @@ Building, signing and creating package:
 
 	./build_mac.sh
 
-Resulting image can be found in: `build_mac/Flipartner.dmg`
+Resulting image can be found in: `build_mac/qflipper.dmg`
 
 ## Run:
 
 ### Linux:
 ```sh
-./build/flipartner-x86_64.AppImage
+./build/qflipper-x86_64.AppImage
 ```
 
 or just launch the file above from your favourite file manager.

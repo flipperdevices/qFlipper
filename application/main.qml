@@ -7,7 +7,7 @@ import "./screens"
 
 Window {
     id: root
-    title: Qt.application.name
+    title: Qt.application.displayName
 
     width: 800
     height: 480
