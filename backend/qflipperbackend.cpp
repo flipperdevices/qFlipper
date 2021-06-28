@@ -1,11 +1,11 @@
-#include "flipartnerbackend.h"
+#include "qflipperbackend.h"
 
 #include "flipperzero.h"
 #include "flipperzeroremote.h"
 
 using namespace Flipper;
 
-FlipartnerBackend::FlipartnerBackend()
+QFlipperBackend::QFlipperBackend()
 {
     qRegisterMetaType<Updates::FileInfo>("Updates::FileInfo");
     qRegisterMetaType<Flipper::ZeroRemote*>("Flipper::ZeroRemote*");
@@ -13,5 +13,5 @@ FlipartnerBackend::FlipartnerBackend()
     QObject::connect(&deviceRegistry, &DeviceRegistry::deviceConnected, &downloader, &FirmwareDownloader::onDeviceConnected);
 }
 
-FlipartnerBackend::~FlipartnerBackend()
+QFlipperBackend::~QFlipperBackend()
 {}

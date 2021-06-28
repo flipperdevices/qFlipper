@@ -65,7 +65,7 @@ bool USBDeviceDetector::registerAtom()
     wc.hCursor = nullptr;
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
     wc.lpszMenuName = nullptr;
-    wc.lpszClassName = "flipartner";
+    wc.lpszClassName = "qflipper";
     wc.hIconSm = nullptr;
 
     m_p->hotplugWindowAtom = RegisterClassExA(&wc);
@@ -75,7 +75,7 @@ bool USBDeviceDetector::registerAtom()
 
 bool USBDeviceDetector::createHotplugWindow()
 {
-    m_p->hotplugWindowHandle = CreateWindowExA(WS_EX_CLIENTEDGE, "flipartner", "flipartner", WS_EX_OVERLAPPEDWINDOW,
+    m_p->hotplugWindowHandle = CreateWindowExA(WS_EX_CLIENTEDGE, "qflipper", "qflipper", WS_EX_OVERLAPPEDWINDOW,
                                       100, 100, 200, 200, nullptr, nullptr, m_p->appInstsance, nullptr);
 
     const auto success = (m_p->hotplugWindowHandle != INVALID_HANDLE_VALUE);

@@ -1,6 +1,6 @@
 Unicode true
 
-!define /ifndef NAME "Flipartner"
+!define /ifndef NAME "qflipper"
 !define /ifndef ARCH_BITS 64
 !define ZADIC_EXE "$INSTDIR\zadic.exe"
 

@@ -1,6 +1,6 @@
 QT += quick serialport widgets quickcontrols2
 
-TARGET = flipartner
+TARGET = qflipper
 DESTDIR = ..
 
 CONFIG += c++11
@@ -12,7 +12,7 @@ SOURCES += \
 RESOURCES += qml.qrc
 
 TRANSLATIONS += \
-    Application_en_US.ts
+    translations/en_US.ts
 
 CONFIG += lrelease
 CONFIG += embed_translations
@@ -25,30 +25,32 @@ QML_DESIGNER_IMPORT_PATH =
 
 unix|win32 {
     LIBS += \
-        -L$$OUT_PWD/../Backend/ -lBackend \
-        -L$$OUT_PWD/../Dfu/ -lDfu
+        -L$$OUT_PWD/../backend/ -lbackend \
+        -L$$OUT_PWD/../dfu/ -ldfu
 }
 
 win32:!win32-g++ {
     PRE_TARGETDEPS += \
-        $$OUT_PWD/../Backend/Backend.lib \
-        $$OUT_PWD/../Dfu/Dfu.lib
+        $$OUT_PWD/../backend/backend.lib \
+        $$OUT_PWD/../dfu/dfu.lib
 
 } else:unix|win32-g++ {
     PRE_TARGETDEPS += \
-        $$OUT_PWD/../Backend/libBackend.a \
-        $$OUT_PWD/../Dfu/libDfu.a
+        $$OUT_PWD/../backend/libbackend.a \
+        $$OUT_PWD/../dfu/libdfu.a
 }
 
-include(../Flipartner_common.pri)
+include(../qflipper_common.pri)
 
 INCLUDEPATH += \
-    $$PWD/../Dfu \
-    $$PWD/../Backend
+    $$PWD/../dfu \
+    $$PWD/../backend
 
 DEPENDPATH += \
-    $$PWD/../Dfu \
-    $$PWD/../Backend
+    $$PWD/../dfu \
+    $$PWD/../backend
 
 HEADERS += \
     screencanvas.h
+
+DISTFILES +=

@@ -122,7 +122,7 @@ Item {
         anchors.bottom: deviceList.top
         anchors.bottomMargin: 40
         anchors.horizontalCenter: deviceList.horizontalCenter
-        text: "Flipartner"
+        text: Qt.application.displayName
         font.pointSize: 24
         font.capitalization: Font.AllUppercase
         color: "white"
