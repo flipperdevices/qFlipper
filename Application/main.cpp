@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
+#include <QtQuickControls2/QQuickStyle>
 
 #include <QLocale>
 #include <QTranslator>
@@ -50,9 +51,11 @@ int main(int argc, char *argv[])
         }
     }, Qt::QueuedConnection);
 
+    QQuickStyle::setStyle("Universal");
     engine.load(url);
 
     qDebug() << "Main thread started with id" << QThread::currentThreadId();
+
 
     return app.exec();
 }

@@ -1,4 +1,4 @@
-QT += quick serialport widgets
+QT += quick serialport widgets quickcontrols2
 
 TARGET = flipartner
 DESTDIR = ..

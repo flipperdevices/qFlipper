@@ -1,6 +1,7 @@
 import QtQml 2.12
 import QtQuick 2.12
 import QtQuick.Window 2.12
+import QtQuick.Controls.Universal 2.12
 
 import "./screens"
 
@@ -13,6 +14,7 @@ Window {
     visible: true
 
     color: "black"
+    Universal.theme: "Dark"
 
     Loader {
         id: mainLoader
