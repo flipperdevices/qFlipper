@@ -3,7 +3,7 @@ QT -= gui
 TEMPLATE = lib
 CONFIG += staticlib c++11
 
-include(../Flipartner_common.pri)
+include(../flipartner_common.pri)
 
 SOURCES += \
     dfumemorylayout.cpp \
