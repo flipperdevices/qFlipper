@@ -1,5 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Controls.impl 2.12
 
 Button {
     id: control
@@ -7,10 +8,14 @@ Button {
     property bool suggested: false
     property bool dangerous: false
 
+    icon.width: 16
+    icon.height: 16
+    icon.color: "white"
+
     background: Rectangle {
         id: buttonBg
         color: "#222"
-        border.color: "white"
+        border.color: "#2E2E2E"
         border.width: 1
 
         implicitWidth: 100
@@ -20,13 +25,13 @@ Button {
 
     }
 
-    contentItem: Text {
+    contentItem: IconLabel {
         id: buttonText
         text: parent.text
         color: "white"
 
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
+        icon: control.icon
+        display: control.display
 
         font.capitalization: Font.AllUppercase
         font.bold: true
@@ -45,6 +50,11 @@ Button {
             PropertyChanges {
                 target: buttonText
                 color: "black"
+            }
+
+            PropertyChanges {
+                target: control
+                icon.color: "black"
             }
         },
 

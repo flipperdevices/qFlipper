@@ -1,4 +1,4 @@
-QT += quick serialport widgets
+QT += quick serialport widgets quickcontrols2
 
 TARGET = flipartner
 DESTDIR = ..
@@ -6,7 +6,8 @@ DESTDIR = ..
 CONFIG += c++11
 
 SOURCES += \
-        main.cpp
+        main.cpp \
+        screencanvas.cpp
 
 RESOURCES += qml.qrc
 
@@ -48,3 +49,6 @@ INCLUDEPATH += \
 DEPENDPATH += \
     $$PWD/../Dfu \
     $$PWD/../Backend
+
+HEADERS += \
+    screencanvas.h

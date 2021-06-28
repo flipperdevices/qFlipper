@@ -7,6 +7,7 @@
 #include <QMutexLocker>
 #include <QtConcurrent/QtConcurrentRun>
 
+#include "flipperzeroremote.h"
 #include "serialhelper.h"
 #include "dfusedevice.h"
 #include "dfusefile.h"
@@ -26,29 +27,40 @@ using namespace Flipper;
     m_target("N/A"),
     m_version("N/A"),
     m_statusMessage(STARTUP_MESSAGE),
-    m_progress(0)
+    m_progress(0),
+    m_port(nullptr),
+    m_remote(nullptr)
 {
     if(isDFU()) {
-        QtConcurrent::run(this, &Flipper::Zero::fetchInfoDFUMode);
+        fetchInfoDFUMode();
     } else {
-        QtConcurrent::run(this, &Flipper::Zero::fetchInfoVCPMode);
+        const auto info = SerialHelper::findSerialPort(parameters.serialNumber());
+
+        if(info.isNull()) {
+            setStatusMessage(ERROR_MESSAGE);
+            return;
+        }
+
+        m_port = new QSerialPort(info, this);
+        m_remote = new ZeroRemote(m_port, this);
+
+        fetchInfoVCPMode();
     }
 }
 
 bool Zero::detach()
 {
-    QMutexLocker locker(&m_deviceMutex);
+    const auto success = m_port->open(QIODevice::WriteOnly) && m_port->setDataTerminalReady(true) &&
+                        (m_port->write("\rdfu\r") >= 0) && m_port->flush();
 
-    const auto portInfo = SerialHelper::findSerialPort(m_info.serialNumber());
-    check_return_bool(!portInfo.isNull(), "Could not find serial port");
+    if(!success) {
+        error_msg("Failed to reset device to DFU mode");
+        setStatusMessage(ERROR_MESSAGE);
+    }
 
-    QSerialPort port(portInfo);
+    m_port->close();
 
-    check_return_bool(port.open(QIODevice::WriteOnly), "Failed to open serial port");
-    check_return_bool((port.write("dfu\r") >= 0) && port.flush(), "Failed to write to serial port");
-
-    port.close();
-    return true;
+    return success;
 }
 
 bool Zero::download(QIODevice *file)
@@ -118,6 +130,11 @@ bool Zero::isDFU() const
     return m_info.productID() == 0xdf11;
 }
 
+ZeroRemote *Zero::remote() const
+{
+    return m_remote;
+}
+
 void Zero::setName(const QString &name)
 {
     if(m_name != name) {
@@ -153,26 +170,15 @@ void Zero::setProgress(double progress)
     }
 }
 
+// Since we're not using threads anymore, rework it with signal-slot friendly approach
 void Zero::fetchInfoVCPMode()
 {
-    const auto portInfo = SerialHelper::findSerialPort(m_info.serialNumber());
-
-    if(portInfo.isNull()) {
-        // TODO: Error handling
-        setStatusMessage(ERROR_MESSAGE);
-        error_msg("Port not found");
-        return;
-    }
-
-    QSerialPort port(portInfo);
-    if(!port.open(QIODevice::ReadWrite)) {
+    if(!m_port->open(QIODevice::ReadWrite)) {
         // TODO: Error handling
         setStatusMessage(ERROR_MESSAGE);
         error_msg("Failed to open port");
         return;
     }
-
-    port.setDataTerminalReady(true);
 
     static const auto getValue = [](const QByteArray &buf, const QByteArray &tok) {
         const auto start = buf.indexOf(tok) + tok.size();
@@ -180,35 +186,36 @@ void Zero::fetchInfoVCPMode()
         return buf.mid(start, end - start).trimmed();
     };
 
-    port.write("hw_info\r");
-    port.flush();
+    m_port->setDataTerminalReady(true);
+    m_port->write("\rhw_info\r");
+    m_port->flush();
 
     qint64 bytesAvailable;
     QByteArray buf;
 
     do {
-        bytesAvailable = port.bytesAvailable();
-        port.waitForReadyRead(50);
-    } while(bytesAvailable != port.bytesAvailable());
+        bytesAvailable = m_port->bytesAvailable();
+        m_port->waitForReadyRead(50);
+    } while(bytesAvailable != m_port->bytesAvailable());
 
-    buf = port.readAll();
+    buf = m_port->readAll();
 
     setName(getValue(buf, "Name: "));
     setTarget(getValue(buf, "HW version:").mid(2, 2).toLower());
 
-    port.write("version\r");
-    port.flush();
+    m_port->write("version\r");
+    m_port->flush();
 
     do {
-        bytesAvailable = port.bytesAvailable();
-        port.waitForReadyRead(50);
-    } while(bytesAvailable != port.bytesAvailable());
+        bytesAvailable = m_port->bytesAvailable();
+        m_port->waitForReadyRead(50);
+    } while(bytesAvailable != m_port->bytesAvailable());
 
-    buf = port.readAll();
+    buf = m_port->readAll();
 
     setVersion(getValue(buf, "Version:"));
 
-    port.close();
+    m_port->close();
     setStatusMessage(UPDATE_MESSAGE);
 }
 

@@ -17,10 +17,6 @@ Dialog {
 
         width: parent.width
         height: parent.height
-
-        border.color: "white"
-        border.width: 1
-        radius: 4
     }
 
     header: RowLayout {

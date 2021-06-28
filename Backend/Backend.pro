@@ -14,6 +14,7 @@ SOURCES += \
     flipartnerbackend.cpp \
     flipperupdates.cpp \
     flipperzero.cpp \
+    flipperzeroremote.cpp \
     remotefilefetcher.cpp \
     updateregistry.cpp
 
@@ -23,6 +24,7 @@ HEADERS += \
     flipartnerbackend.h \
     flipperupdates.h \
     flipperzero.h \
+    flipperzeroremote.h \
     remotefilefetcher.h \
     serialhelper.h \
     updateregistry.h
