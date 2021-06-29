@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 TARGET='qflipper'
 BUILDDIR='build'
 
