@@ -25,7 +25,8 @@ jobs:
       - name: Build application in docker
         uses: ./.github/actions/docker
         with:
-          run: build_linux.sh
+          run: ls -la .        
+          # run: build_linux.sh
           # options: --privileged
         
       - name: Publish application
