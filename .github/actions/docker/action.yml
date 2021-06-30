@@ -9,4 +9,3 @@ runs:
   image: '../../../docker/Dockerfile'
   args:
     - ${{ inputs.run }}
-  options: --privileged

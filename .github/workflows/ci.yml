@@ -23,10 +23,12 @@ jobs:
         uses: ./.github/actions/docker
 
       - name: Build application in docker
-        uses: ./.github/actions/docker
-        with:
-          run: ./build_linux.sh
-          # options: --privileged
+        run: docker build -t flipp ./docker/ && docker run -it --rm --privileged -v $(pwd):/project flipp /project/build_linux.sh
+
+      # - name: Build application in docker
+      #   uses: ./.github/actions/docker
+      #   with:
+      #     run: ./build_linux.sh
         
       - name: Publish application
         uses: actions/upload-artifact@v2
