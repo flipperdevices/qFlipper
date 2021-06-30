@@ -1,0 +1,39 @@
+name: 'CI'
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup workspace
+        uses: AutoModality/action-clean@v1
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+        with:
+          key: docker-cache-${{ hashFiles('docker/**') }}-{hash}
+          restore-keys: docker-cache-${{ hashFiles('docker/**') }}-
+      - name: Build docker image
+        uses: ./.github/actions/docker
+
+      - name: Build bootloader in docker
+        uses: ./.github/actions/docker
+        with:
+          run: /project/build_linux.sh
+          options: --privileged
+        
+
+      - name: Publish application
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts
+          path: |
+            ./build/qflipper-x86_64.AppImage 
+          if-no-files-found: error
+          retention-days: 7
