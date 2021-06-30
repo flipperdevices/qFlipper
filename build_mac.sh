@@ -4,7 +4,7 @@ set -e
 set -x
 
 PROJECT_DIR=`pwd`
-PROJECT="Flipartner"
+PROJECT="qflipper"
 BUILD_DIRECTORY="build_mac"
 
 if [[ -d "$BUILD_DIRECTORY" ]]

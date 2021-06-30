@@ -7,9 +7,11 @@
 #include "usbdeviceinfo.h"
 
 class QIODevice;
+class QSerialPort;
 
 namespace Flipper {
 
+class ZeroRemote;
 class Zero : public QObject
 {
     Q_OBJECT
@@ -21,6 +23,7 @@ class Zero : public QObject
     Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusMessageChanged)
     Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
     Q_PROPERTY(bool isDFU READ isDFU NOTIFY isDFUChanged)
+    Q_PROPERTY(Flipper::ZeroRemote* remote READ remote CONSTANT)
 
 public:
     Zero(const USBDeviceInfo &parameters, QObject *parent = nullptr);
@@ -38,6 +41,8 @@ public:
     const USBDeviceInfo &info() const;
 
     bool isDFU() const;
+
+    ZeroRemote *remote() const;
 
     void setName(const QString &name);
     void setTarget(const QString &target);
@@ -67,6 +72,9 @@ private:
     QString m_statusMessage;
 
     double m_progress;
+
+    QSerialPort *m_port;
+    ZeroRemote *m_remote;
 };
 
 }

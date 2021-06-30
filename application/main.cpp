@@ -1,15 +1,13 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
+#include <QtQuickControls2/QQuickStyle>
 
 #include <QLocale>
 #include <QTranslator>
 #include <QQmlContext>
 
-#include <QThread>
-#include <QDebug>
-#include <QFile>
-
-#include "flipartnerbackend.h"
+#include "qflipperbackend.h"
+#include "screencanvas.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,26 +16,26 @@ int main(int argc, char *argv[])
 #endif
 
     QApplication app(argc, argv);
+    app.setApplicationName("qFlipper");
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
 
     for (const QString &locale : uiLanguages) {
-        const QString baseName = "Application_" + QLocale(locale).name();
-
-        if (translator.load(":/i18n/" + baseName)) {
+        if (translator.load(":/i18n/" + QLocale(locale).name())) {
             app.installTranslator(&translator);
             break;
         }
     }
 
-    FlipartnerBackend backend;
-
+    QFlipperBackend backend;
     QQmlApplicationEngine engine;
 
     engine.rootContext()->setContextProperty("deviceRegistry", &backend.deviceRegistry);
     engine.rootContext()->setContextProperty("updateRegistry", &backend.updateRegistry);
     engine.rootContext()->setContextProperty("downloader", &backend.downloader);
+
+    qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
 
@@ -47,9 +45,8 @@ int main(int argc, char *argv[])
         }
     }, Qt::QueuedConnection);
 
+    QQuickStyle::setStyle("Universal");
     engine.load(url);
-
-    qDebug() << "Main thread started with id" << QThread::currentThreadId();
 
     return app.exec();
 }

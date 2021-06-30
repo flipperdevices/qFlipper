@@ -1,19 +1,15 @@
 import QtQuick 2.12
-import QtQuick.Window 2.12
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls 2.12
 
-import "./components"
-import "./screens"
+import "../components"
 
-Window {
-    id: root
+Item {
+    id: screen
+    anchors.fill: parent
 
-    width: 800
-    height: 480
-    visible: true
-    title: qsTr("Flipartner")
-    color: "black"
+    signal versionsRequested(var device)
+    signal streamRequested(var device)
 
     StyledConfirmationDialog {
         id: updateConfirmationDialog
@@ -39,10 +35,6 @@ Window {
         title: qsTr("Please choose a file")
         folder: shortcuts.home
         nameFilters: ["Firmware files (*.dfu)", "All files (*)"]
-    }
-
-    VersionListDialog {
-        id: versionDialog
     }
 
     ListView {
@@ -79,21 +71,11 @@ Window {
             }
 
             onVersionListRequested: {
-                updateRegistry.target = device.target
+                screen.versionsRequested(device)
+            }
 
-                const onVersionDialogRejected = function() {
-                    versionDialog.rejected.disconnect(onVersionDialogRejected);
-                    versionDialog.accepted.disconnect(onVersionDialogAccepted);
-                }
-
-                const onVersionDialogAccepted = function() {
-                    onVersionDialogRejected();
-                    downloader.downloadRemoteFile(device, versionDialog.fileInfo);
-                }
-
-                versionDialog.accepted.connect(onVersionDialogAccepted);
-                versionDialog.rejected.connect(onVersionDialogRejected);
-                versionDialog.open();
+            onScreenStreamRequested: {
+                screen.streamRequested(device)
             }
 
             onLocalUpdateRequested: {
@@ -140,7 +122,7 @@ Window {
         anchors.bottom: deviceList.top
         anchors.bottomMargin: 40
         anchors.horizontalCenter: deviceList.horizontalCenter
-        text: "Flipartner"
+        text: Qt.application.displayName
         font.pointSize: 24
         font.capitalization: Font.AllUppercase
         color: "white"

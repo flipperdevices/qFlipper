@@ -17,6 +17,7 @@ RUN add-apt-repository ppa:beineri/opt-qt-5.12.9-bionic && \
     qt512tools \
     qt512base \
     qt5123d \
+    qt512svg \
     qt512serialport \
     qt512declarative \
     qt512quickcontrols \

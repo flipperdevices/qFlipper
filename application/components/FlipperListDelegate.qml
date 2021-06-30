@@ -5,6 +5,7 @@ Item {
     signal updateRequested(var device)
     signal localUpdateRequested(var device)
     signal versionListRequested(var device)
+    signal screenStreamRequested(var device)
 
     id: item
     width: parent.width
@@ -58,11 +59,27 @@ Item {
     }
 
     StyledButton {
-        id: updateButton
-        text: device.statusMessage
+        id: menuButton
+        width: height
+
+        icon.source: "qrc:/assets/menu.svg"
+        display: AbstractButton.IconOnly
 
         anchors.right: parent.right
         anchors.rightMargin: 25
+        anchors.verticalCenter: parent.verticalCenter
+
+        enabled: updateButton.enabled
+
+        onClicked: actionMenu.open()
+    }
+
+    StyledButton {
+        id: updateButton
+        text: device.statusMessage
+
+        anchors.right: menuButton.left
+        anchors.rightMargin: 10
         anchors.verticalCenter: parent.verticalCenter
 
         enabled: text === qsTr("Update")
@@ -70,7 +87,6 @@ Item {
         suggested: (!device.isDFU) && (updateRegistry.latestVersion(device.target) > device.version)
 
         onClicked: updateRequested(device)
-        onPressAndHold: actionMenu.open()
     }
 
     Text {
@@ -87,8 +103,8 @@ Item {
 
     Menu {
         id: actionMenu
-        x: updateButton.x
-        y: updateButton.y + updateButton.height + 4
+        x: menuButton.x + menuButton.width - width
+        y: menuButton.y + menuButton.height + 4
 
         MenuItem {
             text: qsTr("Other versions...")
@@ -98,6 +114,24 @@ Item {
         MenuItem {
             text: qsTr("Update from local file...")
             onTriggered: localUpdateRequested(device)
+        }
+
+        MenuSeparator {}
+
+        MenuItem {
+            text: qsTr("Screen Streaming...")
+            onTriggered: screenStreamRequested(device)
+            enabled: !device.isDFU
+        }
+
+        MenuSeparator {}
+
+        MenuItem {
+            text: qsTr("Update FUS (Expert)...")
+        }
+
+        MenuItem {
+            text: qsTr("Update Radio (Expert)...")
         }
     }
 }
