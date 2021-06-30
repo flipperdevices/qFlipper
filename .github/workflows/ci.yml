@@ -22,13 +22,12 @@ jobs:
       - name: Build docker image
         uses: ./.github/actions/docker
 
-      - name: Build bootloader in docker
+      - name: Build application in docker
         uses: ./.github/actions/docker
         with:
-          run: /project/build_linux.sh
-          options: --privileged
+          run: build_linux.sh
+          # options: --privileged
         
-
       - name: Publish application
         uses: actions/upload-artifact@v2
         with:
