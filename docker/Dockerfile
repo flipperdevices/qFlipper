@@ -33,8 +33,8 @@ RUN wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/
 RUN ln -s /usr/lib/x86_64-linux-gnu/libGL.so.1 /usr/lib/x86_64-linux-gnu/libGL.so
 
 ENV QT_BASE_DIR=/opt/qt512
-ENV QTDIR=$QT_BASE_DIR
-ENV QMAKE=$QT_BASE_DIR/bin/qmake
+
+ENV PATH="${QT_BASE_DIR}/bin:${PATH}"
 
 COPY init.sh /init.sh
 
