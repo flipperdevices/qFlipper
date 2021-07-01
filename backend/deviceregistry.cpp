@@ -1,6 +1,6 @@
 #include "deviceregistry.h"
 
-#include "flipperzero.h"
+#include "flipperzero/flipperzero.h"
 #include "usbdevice.h"
 
 using namespace Flipper;
@@ -39,7 +39,7 @@ QHash<int, QByteArray> DeviceRegistry::roleNames() const
 
 void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 {
-    auto *device = new Flipper::Zero(info, this);
+    auto *device = new Flipper::FlipperZero(info, this);
 
     beginInsertRows(QModelIndex(), m_data.size(), m_data.size());
     m_data.append(device);
@@ -50,7 +50,7 @@ void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 
 void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
 {
-    const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::Zero *dev) {
+    const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::FlipperZero *dev) {
         return dev->info().backendData() == info.backendData();
     });
 

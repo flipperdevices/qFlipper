@@ -10,7 +10,7 @@ class QIODevice;
 
 namespace Flipper {
 
-class Zero;
+class FlipperZero;
 class FirmwareDownloader : public QObject
 {
     Q_OBJECT
@@ -22,7 +22,7 @@ class FirmwareDownloader : public QObject
     };
 
     struct Request {
-        Flipper::Zero *device;
+        Flipper::FlipperZero *device;
         QIODevice *file;
     };
 
@@ -30,10 +30,10 @@ public:
     FirmwareDownloader(QObject *parent = nullptr);
 
 public slots:
-    void downloadLocalFile(Flipper::Zero *device, const QString &filePath);
-    void downloadRemoteFile(Flipper::Zero *device, const Updates::FileInfo &fileInfo);
+    void downloadLocalFile(Flipper::FlipperZero *device, const QString &filePath);
+    void downloadRemoteFile(Flipper::FlipperZero *device, const Updates::FileInfo &fileInfo);
 
-    void onDeviceConnected(Flipper::Zero *device);
+    void onDeviceConnected(Flipper::FlipperZero *device);
 
 private slots:
     void processQueue();

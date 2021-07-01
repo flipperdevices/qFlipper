@@ -9,7 +9,7 @@
 
 #include <QDebug>
 
-#include "flipperzero.h"
+#include "flipperzero/flipperzero.h"
 #include "remotefilefetcher.h"
 
 using namespace Flipper;
@@ -19,7 +19,7 @@ FirmwareDownloader::FirmwareDownloader(QObject *parent):
     m_state(State::Ready)
 {}
 
-void FirmwareDownloader::downloadLocalFile(Zero *device, const QString &filePath)
+void FirmwareDownloader::downloadLocalFile(FlipperZero *device, const QString &filePath)
 {
     const auto localUrl = QUrl(filePath).toLocalFile();
     auto *file = new QFile(localUrl, this);
@@ -27,7 +27,7 @@ void FirmwareDownloader::downloadLocalFile(Zero *device, const QString &filePath
     enqueueRequest({device, file});
 }
 
-void FirmwareDownloader::downloadRemoteFile(Zero *device, const Updates::FileInfo &fileInfo)
+void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Updates::FileInfo &fileInfo)
 {
     // TODO: Local cache on hard disk?
     auto *fetcher = new RemoteFileFetcher(this);
@@ -49,7 +49,7 @@ void FirmwareDownloader::downloadRemoteFile(Zero *device, const Updates::FileInf
     fetcher->fetch(fileInfo);
 }
 
-void FirmwareDownloader::onDeviceConnected(Zero *device)
+void FirmwareDownloader::onDeviceConnected(FlipperZero *device)
 {
     if(m_state != State::WaitingForDFU) {
         return;
@@ -103,5 +103,5 @@ void FirmwareDownloader::processCurrentRequest()
         device->setStatusMessage(watcher->result() ? tr("Finished") : tr("Error"));
     });
 
-    watcher->setFuture(QtConcurrent::run(m_currentRequest.device, &Flipper::Zero::download, m_currentRequest.file));
+    watcher->setFuture(QtConcurrent::run(m_currentRequest.device, &Flipper::FlipperZero::downloadFirmware, m_currentRequest.file));
 }

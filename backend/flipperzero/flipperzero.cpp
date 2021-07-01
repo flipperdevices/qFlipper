@@ -7,18 +7,23 @@
 #include <QMutexLocker>
 #include <QtConcurrent/QtConcurrentRun>
 
-#include "flipperzeroremote.h"
+#include "remotecontroller.h"
 #include "serialhelper.h"
 #include "dfusedevice.h"
+#include "factoryinfo.h"
 #include "dfusefile.h"
 #include "macros.h"
 
+#include "device/stm32wb55.h"
+
+// I will sort this out, I promise!
 static const auto STARTUP_MESSAGE = QObject::tr("Probing");
 static const auto UPDATE_MESSAGE = QObject::tr("Update");
 static const auto ERROR_MESSAGE = QObject::tr("Error");
 
 using namespace Flipper;
- Zero::Zero(const USBDeviceInfo &parameters, QObject *parent):
+
+FlipperZero::FlipperZero(const USBDeviceInfo &parameters, QObject *parent):
     QObject(parent),
 
     m_info(parameters),
@@ -42,13 +47,13 @@ using namespace Flipper;
         }
 
         m_port = new QSerialPort(info, this);
-        m_remote = new ZeroRemote(m_port, this);
+        m_remote = new Zero::RemoteController(m_port, this);
 
         fetchInfoVCPMode();
     }
 }
 
-bool Zero::detach()
+bool FlipperZero::detach()
 {
     const auto success = m_port->open(QIODevice::WriteOnly) && m_port->setDataTerminalReady(true) &&
                         (m_port->write("\rdfu\r") >= 0) && m_port->flush();
@@ -63,7 +68,25 @@ bool Zero::detach()
     return success;
 }
 
-bool Zero::download(QIODevice *file)
+bool FlipperZero::setBootMode(BootMode mode)
+{
+    STM32WB55::STM32WB55 device(m_info);
+
+    check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
+    auto ob = device.optionBytes();
+
+    check_return_bool(ob.isValid(), "Failed to read option bytes");
+
+    ob.setNBoot0(mode == BootMode::Normal);
+    ob.setNSwBoot0(mode == BootMode::Normal);
+
+    check_return_bool(device.setOptionBytes(ob), "Failed to set option bytes");
+    // The device is going to reset itself here, not bothering to end the transaction
+
+    return true;
+}
+
+bool FlipperZero::downloadFirmware(QIODevice *file)
 {
     QMutexLocker locker(&m_deviceMutex);
 
@@ -89,81 +112,81 @@ bool Zero::download(QIODevice *file)
     return success;
 }
 
-const QString &Zero::name() const
+const QString &FlipperZero::name() const
 {
     return m_name;
 }
 
-const QString &Zero::model() const
+const QString &FlipperZero::model() const
 {
     static const QString m = "Flipper Zero";
     return m;
 }
 
-const QString &Zero::target() const
+const QString &FlipperZero::target() const
 {
     return m_target;
 }
 
-const QString &Zero::version() const
+const QString &FlipperZero::version() const
 {
     return m_version;
 }
 
-const QString &Zero::statusMessage() const
+const QString &FlipperZero::statusMessage() const
 {
     return m_statusMessage;
 }
 
-double Zero::progress() const
+double FlipperZero::progress() const
 {
     return m_progress;
 }
 
-const USBDeviceInfo &Zero::info() const
+const USBDeviceInfo &FlipperZero::info() const
 {
     return m_info;
 }
 
-bool Zero::isDFU() const
+bool FlipperZero::isDFU() const
 {
     return m_info.productID() == 0xdf11;
 }
 
-ZeroRemote *Zero::remote() const
+Flipper::Zero::RemoteController *FlipperZero::remote() const
 {
     return m_remote;
 }
 
-void Zero::setName(const QString &name)
+void FlipperZero::setName(const QString &name)
 {
     if(m_name != name) {
         emit nameChanged(m_name = name);
     }
 }
 
-void Zero::setTarget(const QString &target)
+void FlipperZero::setTarget(const QString &target)
 {
     if(m_target != target) {
         emit targetChanged(m_target = target);
     }
 }
 
-void Zero::setVersion(const QString &version)
+void FlipperZero::setVersion(const QString &version)
 {
     if(m_version != version) {
         emit versionChanged(m_version = version);
     }
 }
 
-void Zero::setStatusMessage(const QString &message)
+void FlipperZero::setStatusMessage(const QString &message)
 {
     if(m_statusMessage != message) {
         emit statusMessageChanged(m_statusMessage = message);
     }
 }
 
-void Zero::setProgress(double progress)
+void FlipperZero::setProgress(double progress)
 {
     if(m_progress != progress) {
         emit progressChanged(m_progress = progress);
@@ -171,7 +194,7 @@ void Zero::setProgress(double progress)
 }
 
 // Since we're not using threads anymore, rework it with signal-slot friendly approach
-void Zero::fetchInfoVCPMode()
+void FlipperZero::fetchInfoVCPMode()
 {
     if(!m_port->open(QIODevice::ReadWrite)) {
         // TODO: Error handling
@@ -219,35 +242,38 @@ void Zero::fetchInfoVCPMode()
     setStatusMessage(UPDATE_MESSAGE);
 }
 
-void Zero::fetchInfoDFUMode()
+void FlipperZero::fetchInfoDFUMode()
 {
-    QMutexLocker locker(&m_deviceMutex);
+    STM32WB55::STM32WB55 device(m_info);
 
-    // TODO: Error handling
-    const uint32_t FLIPPER_OTP_ADDRESS = 0x1fff7000UL;
-    const size_t FLIPPER_OTP_SIZE = 16, FLIPPER_TARGET_OFFSET = 1, FLIPPER_NAME_OFFSET = 8;
-    const int FLIPPER_OTP_ALT_NUM = 2;
+    check_return_void(device.beginTransaction(), "Failed to initiate transaction");
+    const Flipper::Zero::FactoryInfo info(device.otpData(Flipper::Zero::FactoryInfo::size()));
 
-    QByteArray otpData;
-    QBuffer otpDataBuf(&otpData);
-    DfuseDevice dev(m_info);
-
-    otpDataBuf.open(QIODevice::WriteOnly);
-
-    const auto success = dev.beginTransaction() &&
-                         dev.upload(&otpDataBuf, FLIPPER_OTP_ADDRESS, FLIPPER_OTP_SIZE, FLIPPER_OTP_ALT_NUM) &&
-                         dev.endTransaction();
-
-    otpDataBuf.close();
-
-    check_return_void(success, "Failed to read OTP data");
-
-    if(!otpData.isEmpty()) {
-        setName(otpData.right(FLIPPER_NAME_OFFSET));
-        setTarget(QString("f%1").arg((uint8_t)otpData.at(FLIPPER_TARGET_OFFSET)));
+    if(info.isValid()) {
+        setTarget(QString("f%1").arg(info.target()));
+        setName(info.name());
     }
 
     if(m_statusMessage == STARTUP_MESSAGE) {
-        setStatusMessage(UPDATE_MESSAGE);
+        setStatusMessage(info.isValid() ? UPDATE_MESSAGE : ERROR_MESSAGE);
     }
+
+//    auto opt = device.optionBytes();
+
+//    qDebug() << "Before:"
+//             << "nBOOT0:" << opt.nBoot0()
+//             << "nBOOT1:" << opt.nBoot1()
+//             << "nSWBOOT0:" << opt.nSwBoot0();
+
+//    opt.setNBoot0(false);
+//    opt.setNSwBoot0(false);
+
+//    qDebug() << "After:"
+//             << "nBOOT0:" << opt.nBoot0()
+//             << "nBOOT1:" << opt.nBoot1()
+//             << "nSWBOOT0:" << opt.nSwBoot0();
+
+//    device.setOptionBytes(opt);
+
+    check_return_void(device.endTransaction(), "Failed to end transaction");
 }

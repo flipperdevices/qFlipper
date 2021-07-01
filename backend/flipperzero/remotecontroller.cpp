@@ -1,34 +1,35 @@
-#include "flipperzeroremote.h"
+#include "remotecontroller.h"
 
 #include <QSerialPort>
 
 #include "macros.h"
 
 namespace Flipper {
+namespace Zero {
 
-ZeroRemote::ZeroRemote(QSerialPort *port, QObject *parent):
+RemoteController::RemoteController(QSerialPort *port, QObject *parent):
     QObject(parent),
     m_port(port),
     m_isEnabled(false),
     m_isHeaderFound(false)
 {}
 
-ZeroRemote::~ZeroRemote()
+RemoteController::~RemoteController()
 {
     setEnabled(false);
 }
 
-const QByteArray &ZeroRemote::screenData() const
+const QByteArray &RemoteController::screenData() const
 {
     return m_screenData;
 }
 
-bool ZeroRemote::isEnabled() const
+bool RemoteController::isEnabled() const
 {
     return m_isEnabled;
 }
 
-void ZeroRemote::setEnabled(bool enabled)
+void RemoteController::setEnabled(bool enabled)
 {
     if (m_isEnabled == enabled) {
         return;
@@ -45,17 +46,17 @@ void ZeroRemote::setEnabled(bool enabled)
     emit enabledChanged();
 }
 
-int ZeroRemote::screenWidth()
+int RemoteController::screenWidth()
 {
     return 128;
 }
 
-int ZeroRemote::screenHeight()
+int RemoteController::screenHeight()
 {
     return 64;
 }
 
-void ZeroRemote::onPortReadyRead()
+void RemoteController::onPortReadyRead()
 {
     static const auto header = QByteArray::fromHex("F0E1D2C3");
 
@@ -82,18 +83,18 @@ void ZeroRemote::onPortReadyRead()
     }
 }
 
-void ZeroRemote::onPortErrorOccured()
+void RemoteController::onPortErrorOccured()
 {
     setEnabled(false);
 }
 
-bool ZeroRemote::openPort()
+bool RemoteController::openPort()
 {
     const auto success = m_port->open(QIODevice::ReadWrite);
 
     if(success) {
-        connect(m_port, &QSerialPort::readyRead, this, &ZeroRemote::onPortReadyRead);
-        connect(m_port, &QSerialPort::errorOccurred, this, &ZeroRemote::onPortErrorOccured);
+        connect(m_port, &QSerialPort::readyRead, this, &RemoteController::onPortReadyRead);
+        connect(m_port, &QSerialPort::errorOccurred, this, &RemoteController::onPortErrorOccured);
 
         m_port->setDataTerminalReady(true);
         m_port->write("\rscreen_stream\r");
@@ -102,14 +103,15 @@ bool ZeroRemote::openPort()
     return success;
 }
 
-void ZeroRemote::closePort()
+void RemoteController::closePort()
 {
-    disconnect(m_port, &QSerialPort::readyRead, this, &ZeroRemote::onPortReadyRead);
-    disconnect(m_port, &QSerialPort::errorOccurred, this, &ZeroRemote::onPortErrorOccured);
+    disconnect(m_port, &QSerialPort::readyRead, this, &RemoteController::onPortReadyRead);
+    disconnect(m_port, &QSerialPort::errorOccurred, this, &RemoteController::onPortErrorOccured);
 
     m_port->write("\0");
     m_port->clear();
     m_port->close();
 }
 
+} // namespace Zero
 } // namespace Flipper

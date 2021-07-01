@@ -11,8 +11,11 @@ class QSerialPort;
 
 namespace Flipper {
 
-class ZeroRemote;
-class Zero : public QObject
+namespace Zero {
+    class RemoteController;
+}
+
+class FlipperZero : public QObject
 {
     Q_OBJECT
 
@@ -23,26 +26,36 @@ class Zero : public QObject
     Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusMessageChanged)
     Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
     Q_PROPERTY(bool isDFU READ isDFU NOTIFY isDFUChanged)
-    Q_PROPERTY(Flipper::ZeroRemote* remote READ remote CONSTANT)
+    Q_PROPERTY(Flipper::Zero::RemoteController* remote READ remote CONSTANT)
 
 public:
-    Zero(const USBDeviceInfo &parameters, QObject *parent = nullptr);
+    enum class BootMode {
+        Normal,
+        DFUOnly
+    };
+
+    FlipperZero(const USBDeviceInfo &parameters, QObject *parent = nullptr);
 
     bool detach();
-    bool download(QIODevice *file);
+    bool setBootMode(BootMode mode);
+
+    bool downloadFirmware(QIODevice *file);
+    bool downloadFUS(QIODevice *file);
+    bool downloadRadioStack(QIODevice *file);
 
     const QString &name() const;
     const QString &model() const;
     const QString &target() const;
     const QString &version() const;
     const QString &statusMessage() const;
+
     double progress() const;
 
     const USBDeviceInfo &info() const;
 
     bool isDFU() const;
 
-    ZeroRemote *remote() const;
+    Flipper::Zero::RemoteController *remote() const;
 
     void setName(const QString &name);
     void setTarget(const QString &target);
@@ -74,7 +87,7 @@ private:
     double m_progress;
 
     QSerialPort *m_port;
-    ZeroRemote *m_remote;
+    Flipper::Zero::RemoteController *m_remote;
 };
 
 }

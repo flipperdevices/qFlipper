@@ -7,8 +7,9 @@
 class QSerialPort;
 
 namespace Flipper {
+namespace Zero {
 
-class ZeroRemote : public QObject
+class RemoteController : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QByteArray screenData READ screenData NOTIFY screenDataChanged)
@@ -17,8 +18,8 @@ class ZeroRemote : public QObject
     Q_PROPERTY(int screenHeight READ screenHeight CONSTANT)
 
 public:
-    ZeroRemote(QSerialPort *port, QObject *parent = nullptr);
-    ~ZeroRemote();
+    RemoteController(QSerialPort *port, QObject *parent = nullptr);
+    ~RemoteController();
 
     const QByteArray &screenData() const;
 
@@ -48,6 +49,7 @@ private:
     bool m_isHeaderFound;
 };
 
+} // namespace Zero
 } // namespace Flipper
 
 #endif // FLIPPER_ZEROREMOTE_H
