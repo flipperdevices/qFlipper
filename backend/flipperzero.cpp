@@ -180,40 +180,39 @@ void Zero::fetchInfoVCPMode()
         return;
     }
 
-    static const auto getValue = [](const QByteArray &buf, const QByteArray &tok) {
-        const auto start = buf.indexOf(tok) + tok.size();
-        const auto end = buf.indexOf('\n', start);
-        return buf.mid(start, end - start).trimmed();
+    static const auto getValue = [](const QByteArray &line) {
+        const auto fields = line.split(':');
+
+        if(fields.size() != 2) {
+            return QByteArray();
+        }
+
+        return fields.last().trimmed();
     };
 
     m_port->setDataTerminalReady(true);
-    m_port->write("\rhw_info\r");
+    m_port->write("\rdevice_info\r");
     m_port->flush();
 
     qint64 bytesAvailable;
-    QByteArray buf;
 
     do {
         bytesAvailable = m_port->bytesAvailable();
         m_port->waitForReadyRead(50);
     } while(bytesAvailable != m_port->bytesAvailable());
 
-    buf = m_port->readAll();
-
-    setName(getValue(buf, "Name: "));
-    setTarget(getValue(buf, "HW version:").mid(2, 2).toLower());
-
-    m_port->write("version\r");
-    m_port->flush();
-
     do {
-        bytesAvailable = m_port->bytesAvailable();
-        m_port->waitForReadyRead(50);
-    } while(bytesAvailable != m_port->bytesAvailable());
+        const auto line = m_port->readLine();
 
-    buf = m_port->readAll();
+        if(line.startsWith("hardware_name")) {
+            setName(getValue(line));
+        } else if(line.startsWith("hardware_target")) {
+            setTarget("f" + getValue(line));
+        } else if(line.startsWith("firmware_version")) {
+            setVersion(getValue(line));
+        } else {}
 
-    setVersion(getValue(buf, "Version:"));
+    } while(m_port->canReadLine());
 
     m_port->close();
     setStatusMessage(UPDATE_MESSAGE);
@@ -244,7 +243,7 @@ void Zero::fetchInfoDFUMode()
 
     if(!otpData.isEmpty()) {
         setName(otpData.right(FLIPPER_NAME_OFFSET));
-        setTarget(QString("f%1").arg((uint8_t)otpData.at(FLIPPER_TARGET_OFFSET)));
+        setTarget("f" + QString::number(otpData.at(FLIPPER_TARGET_OFFSET)));
     }
 
     if(m_statusMessage == STARTUP_MESSAGE) {
