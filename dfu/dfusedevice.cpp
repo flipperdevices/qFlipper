@@ -157,6 +157,7 @@ bool DfuseDevice::upload(QIODevice *file, uint32_t addr, size_t maxSize, uint8_t
 
 bool DfuseDevice::leave()
 {
+    setAddressPointer(0x080FFFFFUL);
     check_return_bool(controlTransfer(REQUEST_OUT, DFU_DNLOAD, 0, 0, QByteArray()), "Failed to perform final DFU_DNLOAD transfer");
     info_msg("Please ignore the next error, say hello to ST Microelectronics");
     getStatus(); // It will return an error on WB55 anyway
