@@ -48,17 +48,24 @@ Item {
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
         }
 
-        Item {
-            Layout.fillWidth: true
-        }
-
         RowLayout {
-            spacing: 20
-            Layout.alignment: Qt.AlignRight
+            spacing: 16
+            Layout.columnSpan: 2
+
+            StyledButton {
+                id: clipButton
+                text: qsTr("Copy to Clipboard")
+                Layout.fillWidth: true
+
+                onClicked: {
+                    screenCanvas.copyToClipboard();
+                }
+            }
 
             StyledButton {
                 id: saveButton
-                text: qsTr("Save Image")
+                text: qsTr("Save to File")
+                Layout.fillWidth: true
 
                 onClicked: {
                     fileDialog.open();
@@ -68,6 +75,7 @@ Item {
             StyledButton {
                 id: backButton
                 text: qsTr("Close")
+                Layout.fillWidth: true
 
                 onClicked: {
                     device.remote.enabled = false;
