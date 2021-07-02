@@ -91,7 +91,7 @@ bool FlipperZero::downloadFirmware(QIODevice *file)
     QMutexLocker locker(&m_deviceMutex);
 
     check_return_bool(file->open(QIODevice::ReadOnly), "Failed to open firmware file");
-    check_return_bool(file->bytesAvailable(), "This %^@*$ empty! YEET!");
+    check_return_bool(file->bytesAvailable(), "The firmware file is empty");
 
     setStatusMessage(tr("Updating"));
 
@@ -203,40 +203,39 @@ void FlipperZero::fetchInfoVCPMode()
         return;
     }
 
-    static const auto getValue = [](const QByteArray &buf, const QByteArray &tok) {
-        const auto start = buf.indexOf(tok) + tok.size();
-        const auto end = buf.indexOf('\n', start);
-        return buf.mid(start, end - start).trimmed();
+    static const auto getValue = [](const QByteArray &line) {
+        const auto fields = line.split(':');
+
+        if(fields.size() != 2) {
+            return QByteArray();
+        }
+
+        return fields.last().trimmed();
     };
 
     m_port->setDataTerminalReady(true);
-    m_port->write("\rhw_info\r");
+    m_port->write("\rdevice_info\r");
     m_port->flush();
 
     qint64 bytesAvailable;
-    QByteArray buf;
 
     do {
         bytesAvailable = m_port->bytesAvailable();
         m_port->waitForReadyRead(50);
     } while(bytesAvailable != m_port->bytesAvailable());
 
-    buf = m_port->readAll();
-
-    setName(getValue(buf, "Name: "));
-    setTarget(getValue(buf, "HW version:").mid(2, 2).toLower());
-
-    m_port->write("version\r");
-    m_port->flush();
-
     do {
-        bytesAvailable = m_port->bytesAvailable();
-        m_port->waitForReadyRead(50);
-    } while(bytesAvailable != m_port->bytesAvailable());
+        const auto line = m_port->readLine();
 
-    buf = m_port->readAll();
+        if(line.startsWith("hardware_name")) {
+            setName(getValue(line));
+        } else if(line.startsWith("hardware_target")) {
+            setTarget("f" + getValue(line));
+        } else if(line.startsWith("firmware_version")) {
+            setVersion(getValue(line));
+        } else {}
 
-    setVersion(getValue(buf, "Version:"));
+    } while(m_port->canReadLine());
 
     m_port->close();
     setStatusMessage(UPDATE_MESSAGE);
@@ -268,10 +267,17 @@ void FlipperZero::fetchInfoDFUMode()
 //    opt.setNBoot0(false);
 //    opt.setNSwBoot0(false);
 
+<<<<<<< HEAD:backend/flipperzero/flipperzero.cpp
 //    qDebug() << "After:"
 //             << "nBOOT0:" << opt.nBoot0()
 //             << "nBOOT1:" << opt.nBoot1()
 //             << "nSWBOOT0:" << opt.nSwBoot0();
+=======
+    if(!otpData.isEmpty()) {
+        setName(otpData.right(FLIPPER_NAME_OFFSET));
+        setTarget("f" + QString::number(otpData.at(FLIPPER_TARGET_OFFSET)));
+    }
+>>>>>>> master:backend/flipperzero.cpp
 
 //    device.setOptionBytes(opt);
 

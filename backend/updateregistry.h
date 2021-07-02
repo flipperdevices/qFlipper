@@ -53,6 +53,7 @@ signals:
     void channelChanged(const QString&);
     void channelDescriptionChanged(const QString &);
     void targetChanged(const QString&);
+    void latestVersionChanged();
 
 private:
     QMap<QString, Updates::ChannelInfo> m_channels;

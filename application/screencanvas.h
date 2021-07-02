@@ -34,6 +34,7 @@ public:
 
 public slots:
     void saveImage(const QUrl &url);
+    void copyToClipboard();
 
 signals:
     void canvasWidthChanged();

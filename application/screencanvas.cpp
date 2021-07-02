@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <QPainter>
+#include <QClipboard>
+#include <QGuiApplication>
 
 #include "macros.h"
 
@@ -111,6 +113,11 @@ qreal ScreenCanvas::renderHeight() const
 void ScreenCanvas::saveImage(const QUrl &url)
 {
     check_return_void(m_canvas.save(url.toLocalFile()), "Failed to save image");
+}
+
+void ScreenCanvas::copyToClipboard()
+{
+    qGuiApp->clipboard()->setImage(m_canvas);
 }
 
 void ScreenCanvas::setRenderWidth(qreal w)
