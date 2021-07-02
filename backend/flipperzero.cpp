@@ -68,7 +68,7 @@ bool Zero::download(QIODevice *file)
     QMutexLocker locker(&m_deviceMutex);
 
     check_return_bool(file->open(QIODevice::ReadOnly), "Failed to open firmware file");
-    check_return_bool(file->bytesAvailable(), "This %^@*$ empty! YEET!");
+    check_return_bool(file->bytesAvailable(), "The firmware file is empty");
 
     setStatusMessage(tr("Updating"));
 

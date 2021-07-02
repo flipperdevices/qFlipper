@@ -19,6 +19,7 @@ UpdateRegistry::UpdateRegistry(QObject *parent):
 
     fetcher->connect(fetcher, &RemoteFileFetcher::finished, this, [=](const QByteArray &data) {
         if(!data.isEmpty()) {
+            info_msg("Fetched update list from server");
             fillFromJson(data);
         }
 
