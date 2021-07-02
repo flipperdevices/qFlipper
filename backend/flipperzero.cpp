@@ -12,6 +12,7 @@
 #include "dfusedevice.h"
 #include "dfusefile.h"
 #include "macros.h"
+#include <QThread>
 
 static const auto STARTUP_MESSAGE = QObject::tr("Probing");
 static const auto UPDATE_MESSAGE = QObject::tr("Update");
@@ -34,7 +35,15 @@ using namespace Flipper;
     if(isDFU()) {
         fetchInfoDFUMode();
     } else {
-        const auto info = SerialHelper::findSerialPort(parameters.serialNumber());
+        QSerialPortInfo info;
+        uint32_t toolate_count = 200;
+        while (--toolate_count) {
+            info = SerialHelper::findSerialPort(parameters.serialNumber());
+            QThread::usleep(50);
+            if(!info.isNull()) {
+                break;
+            }
+        }
 
         if(info.isNull()) {
             setStatusMessage(ERROR_MESSAGE);
