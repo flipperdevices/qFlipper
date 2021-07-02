@@ -84,7 +84,6 @@ Item {
 
         enabled: text === qsTr("Update")
         dangerous: text === qsTr("Error")
-        suggested: (!device.isDFU) && (updateRegistry.latestVersion(device.target) > device.version)
 
         onClicked: updateRequested(device)
     }
@@ -133,5 +132,11 @@ Item {
         MenuItem {
             text: qsTr("Update Radio (Expert)...")
         }
+    }
+
+    Component.onCompleted: {
+        updateRegistry.latestVersionChanged.connect(function() {
+            updateButton.suggested = (!device.isDFU) && (updateRegistry.latestVersion(device.target) > device.version);
+        })
     }
 }

@@ -174,6 +174,8 @@ bool UpdateRegistry::fillFromJson(const QByteArray &text)
 
     if(m_channels.contains("release")) {
         setChannel("release");
+        emit latestVersionChanged();
+
     } else if(!m_channels.isEmpty()) {
         setChannel(m_channels.first().id);
     }
