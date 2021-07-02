@@ -1,6 +1,8 @@
 QT += quick serialport widgets quickcontrols2
 
 TARGET = qflipper
+VERSION = 0.1
+DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 DESTDIR = ..
 
 CONFIG += c++11
