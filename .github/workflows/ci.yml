@@ -43,7 +43,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build application
-        run: build_mac.sh
+        run: ./build_mac.sh
 
       - name: Publish application
         uses: actions/upload-artifact@v2
