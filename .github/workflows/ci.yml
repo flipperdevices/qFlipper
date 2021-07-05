@@ -28,7 +28,6 @@ jobs:
       - name: Publish application
         uses: actions/upload-artifact@v2
         with:
-          name: artifacts
           path: |
             ./build/qflipper-x86_64.AppImage
           if-no-files-found: error
@@ -48,7 +47,6 @@ jobs:
       - name: Publish application
         uses: actions/upload-artifact@v2
         with:
-          name: artifacts
           path: |
             ./build_mac/qflipper.dmg
           if-no-files-found: error
@@ -68,7 +66,6 @@ jobs:
       - name: Publish application
         uses: actions/upload-artifact@v2
         with:
-          name: artifacts
           path: |
             ./build/qflipperSetup-64bit.exe
           if-no-files-found: error
