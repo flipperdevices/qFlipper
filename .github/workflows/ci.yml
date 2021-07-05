@@ -37,9 +37,6 @@ jobs:
   build_mac:
     runs-on: [self-hosted, X64, macOS]
     steps:
-      - name: Cleanup workspace
-        uses: AutoModality/action-clean@v1
-
       - name: Checkout code
         uses: actions/checkout@v2
         with:
@@ -60,9 +57,6 @@ jobs:
   build_windows:
     runs-on: [self-hosted, X64, Windows]
     steps:
-      - name: Cleanup workspace
-        uses: AutoModality/action-clean@v1
-
       - name: Checkout code
         uses: actions/checkout@v2
         with:
@@ -79,4 +73,3 @@ jobs:
             ./build/qflipperSetup-64bit.exe
           if-no-files-found: error
           retention-days: 7
-
