@@ -3,7 +3,7 @@ name: 'CI'
 on: push
 
 jobs:
-  build:
+  build_linux:
     runs-on: ubuntu-latest
     steps:
       - name: Cleanup workspace
@@ -24,17 +24,58 @@ jobs:
 
       - name: Build application in docker
         run: docker build -t flipp ./docker/ && docker run --rm --privileged -v $(pwd):/project flipp /project/build_linux.sh
-
-      # - name: Build application in docker
-      #   uses: ./.github/actions/docker
-      #   with:
-      #     run: ./build_linux.sh
         
       - name: Publish application
         uses: actions/upload-artifact@v2
         with:
           name: artifacts
           path: |
-            ./build/qflipper-x86_64.AppImage 
+            ./build/qflipper-x86_64.AppImage
+          if-no-files-found: error
+          retention-days: 7
+
+  build_mac:
+    runs-on: [self-hosted, X64, macOS]
+    steps:
+      - name: Cleanup workspace
+        uses: AutoModality/action-clean@v1
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Build application
+        run: build_mac.sh
+
+      - name: Publish application
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts
+          path: |
+            ./qflipper.dmg
+          if-no-files-found: error
+          retention-days: 7
+
+  build_windows:
+    runs-on: [self-hosted, X64, Windows]
+    steps:
+      - name: Cleanup workspace
+        uses: AutoModality/action-clean@v1
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Build application
+        run: build_windows.bat
+
+      - name: Publish application
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts
+          path: |
+            ./build/qflipperSetup-64bit.exe
           if-no-files-found: error
           retention-days: 7
