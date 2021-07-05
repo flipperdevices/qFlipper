@@ -1,6 +1,8 @@
-QT += quick serialport widgets quickcontrols2
+QT += quick serialport widgets quickcontrols2 svg
 
 TARGET = qflipper
+VERSION = 0.1
+DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 DESTDIR = ..
 
 CONFIG += c++11

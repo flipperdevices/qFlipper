@@ -138,11 +138,11 @@ Item {
     }
 
     Text {
-        text: "a cool bottom line"
+        text: Qt.application.name + " Version " + Qt.application.version
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 20
-        color: "#333"
+        color: "#555"
         font.capitalization: Font.AllUppercase
     }
 }
