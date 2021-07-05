@@ -50,7 +50,7 @@ jobs:
         with:
           name: artifacts
           path: |
-            ./qflipper.dmg
+            ./build_mac/qflipper.dmg
           if-no-files-found: error
           retention-days: 7
 
