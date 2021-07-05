@@ -79,3 +79,4 @@ jobs:
             ./build/qflipperSetup-64bit.exe
           if-no-files-found: error
           retention-days: 7
+
