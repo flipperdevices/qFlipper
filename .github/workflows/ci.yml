@@ -70,6 +70,6 @@ jobs:
         with:
           name: qflipperSetup-64bit.exe
           path: |
-            ./build/qflipperSetup-64bit.exe
+            .\build\qflipperSetup-64bit.exe
           if-no-files-found: error
           retention-days: 7
