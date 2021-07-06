@@ -9,8 +9,6 @@ QFlipperBackend::QFlipperBackend()
 {
     qRegisterMetaType<Updates::FileInfo>("Updates::FileInfo");
     qRegisterMetaType<Flipper::Zero::RemoteController*>("Flipper::Zero::RemoteController*");
-
-    QObject::connect(&deviceRegistry, &DeviceRegistry::deviceConnected, &downloader, &FirmwareDownloader::onDeviceConnected);
 }
 
 QFlipperBackend::~QFlipperBackend()

@@ -5,6 +5,7 @@
 #include <QQueue>
 
 #include "flipperupdates.h"
+#include "firmwareoperation.h"
 
 class QIODevice;
 
@@ -17,13 +18,7 @@ class FirmwareDownloader : public QObject
 
     enum class State {
         Ready,
-        WaitingForDFU,
-        ExecuteRequest
-    };
-
-    struct Request {
-        Flipper::FlipperZero *device;
-        QIODevice *file;
+        Running
     };
 
 public:
@@ -33,18 +28,14 @@ public slots:
     void downloadLocalFile(Flipper::FlipperZero *device, const QString &filePath);
     void downloadRemoteFile(Flipper::FlipperZero *device, const Updates::FileInfo &fileInfo);
 
-    void onDeviceConnected(Flipper::FlipperZero *device);
-
 private slots:
     void processQueue();
 
 private:
-    void enqueueRequest(const Request &req);
-    void processCurrentRequest();
+    void enqueueOperation(FirmwareOperation *op);
 
     State m_state;
-    Request m_currentRequest;
-    QQueue<Request> m_requestQueue;
+    QQueue<FirmwareOperation*> m_operationQueue;
 };
 
 }

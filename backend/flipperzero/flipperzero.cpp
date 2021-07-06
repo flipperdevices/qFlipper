@@ -20,37 +20,95 @@
 static const auto STARTUP_MESSAGE = QObject::tr("Probing");
 static const auto UPDATE_MESSAGE = QObject::tr("Update");
 static const auto ERROR_MESSAGE = QObject::tr("Error");
+static const auto DONE_MESSAGE = QObject::tr("Done");
 
 using namespace Flipper;
 
-FlipperZero::FlipperZero(const USBDeviceInfo &parameters, QObject *parent):
+FlipperZero::FlipperZero(const USBDeviceInfo &info, QObject *parent):
     QObject(parent),
 
-    m_info(parameters),
+    m_isPersistent(false),
+    m_isConnected(true),
 
     m_name("N/A"),
     m_target("N/A"),
     m_version("N/A"),
     m_statusMessage(STARTUP_MESSAGE),
     m_progress(0),
+
     m_port(nullptr),
     m_remote(nullptr)
 {
-    if(isDFU()) {
-        fetchInfoDFUMode();
-    } else {
-        const auto info = SerialHelper::findSerialPort(parameters.serialNumber());
+    setDeviceInfo(info);
+}
 
-        if(info.isNull()) {
+void FlipperZero::setDeviceInfo(const USBDeviceInfo &info)
+{
+    setProgress(0);
+
+    m_info = info;
+
+    if(isDFU()) {
+        if(m_port && m_remote) {
+            m_port->deleteLater();
+            m_remote->deleteLater();
+
+            m_port = nullptr;
+            m_remote = nullptr;
+        }
+
+        fetchInfoDFUMode();
+
+    } else {
+        const auto portInfo = SerialHelper::findSerialPort(info.serialNumber());
+
+        if(portInfo.isNull()) {
             setStatusMessage(ERROR_MESSAGE);
             return;
         }
 
-        m_port = new QSerialPort(info, this);
+        if(m_port && m_remote) {
+            m_port->deleteLater();
+            m_remote->deleteLater();
+        }
+
+        m_port = new QSerialPort(portInfo, this);
         m_remote = new Zero::RemoteController(m_port, this);
 
         fetchInfoVCPMode();
     }
+
+    emit isDFUChanged();
+
+    m_isConnected = true;
+}
+
+void FlipperZero::setPersistent(bool set)
+{
+    if(set == m_isPersistent) {
+        return;
+    }
+
+    m_isPersistent = set;
+}
+
+void FlipperZero::setConnected(bool set)
+{
+    if(set == m_isConnected) {
+        return;
+    }
+
+    m_isConnected = set;
+}
+
+bool FlipperZero::isPersistent() const
+{
+    return m_isPersistent;
+}
+
+bool FlipperZero::isConnected() const
+{
+    return m_isConnected;
 }
 
 bool FlipperZero::detach()
@@ -61,6 +119,8 @@ bool FlipperZero::detach()
     if(!success) {
         error_msg("Failed to reset device to DFU mode");
         setStatusMessage(ERROR_MESSAGE);
+    } else {
+        setConnected(false);
     }
 
     m_port->close();
@@ -108,6 +168,9 @@ bool FlipperZero::downloadFirmware(QIODevice *file)
     check_continue(success, "Failed to download the firmware");
 
     file->close();
+
+    setStatusMessage(success ? DONE_MESSAGE : ERROR_MESSAGE);
+    setConnected(!success);
 
     return success;
 }
@@ -188,7 +251,7 @@ void FlipperZero::setStatusMessage(const QString &message)
 
 void FlipperZero::setProgress(double progress)
 {
-    if(m_progress != progress) {
+    if(!qFuzzyCompare(m_progress, progress)) {
         emit progressChanged(m_progress = progress);
     }
 }
@@ -247,6 +310,7 @@ void FlipperZero::fetchInfoDFUMode()
 
     check_return_void(device.beginTransaction(), "Failed to initiate transaction");
     const Flipper::Zero::FactoryInfo info(device.otpData(Flipper::Zero::FactoryInfo::size()));
+    check_return_void(device.endTransaction(), "Failed to end transaction");
 
     if(info.isValid()) {
         setTarget(QString("f%1").arg(info.target()));
@@ -256,30 +320,4 @@ void FlipperZero::fetchInfoDFUMode()
     if(m_statusMessage == STARTUP_MESSAGE) {
         setStatusMessage(info.isValid() ? UPDATE_MESSAGE : ERROR_MESSAGE);
     }
-
-//    auto opt = device.optionBytes();
-
-//    qDebug() << "Before:"
-//             << "nBOOT0:" << opt.nBoot0()
-//             << "nBOOT1:" << opt.nBoot1()
-//             << "nSWBOOT0:" << opt.nSwBoot0();
-
-//    opt.setNBoot0(false);
-//    opt.setNSwBoot0(false);
-
-<<<<<<< HEAD:backend/flipperzero/flipperzero.cpp
-//    qDebug() << "After:"
-//             << "nBOOT0:" << opt.nBoot0()
-//             << "nBOOT1:" << opt.nBoot1()
-//             << "nSWBOOT0:" << opt.nSwBoot0();
-=======
-    if(!otpData.isEmpty()) {
-        setName(otpData.right(FLIPPER_NAME_OFFSET));
-        setTarget("f" + QString::number(otpData.at(FLIPPER_TARGET_OFFSET)));
-    }
->>>>>>> master:backend/flipperzero.cpp
-
-//    device.setOptionBytes(opt);
-
-    check_return_void(device.endTransaction(), "Failed to end transaction");
 }

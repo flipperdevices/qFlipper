@@ -7,10 +7,11 @@
 #include <QSerialPortInfo>
 #include <QtConcurrent/QtConcurrentRun>
 
-#include <QDebug>
-
 #include "flipperzero/flipperzero.h"
+#include "flipperzero/firmwareoperations.h"
+
 #include "remotefilefetcher.h"
+#include "macros.h"
 
 using namespace Flipper;
 
@@ -24,7 +25,7 @@ void FirmwareDownloader::downloadLocalFile(FlipperZero *device, const QString &f
     const auto localUrl = QUrl(filePath).toLocalFile();
     auto *file = new QFile(localUrl, this);
 
-    enqueueRequest({device, file});
+    enqueueOperation(new Flipper::Zero::FirmwareDownloadOperation(device, file));
 }
 
 void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Updates::FileInfo &fileInfo)
@@ -40,7 +41,7 @@ void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Updates::
         buf->seek(0);
         buf->close();
 
-        enqueueRequest({device, buf});
+        enqueueOperation(new Flipper::Zero::FirmwareDownloadOperation(device, buf));
 
         fetcher->deleteLater();
     });
@@ -49,59 +50,35 @@ void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Updates::
     fetcher->fetch(fileInfo);
 }
 
-void FirmwareDownloader::onDeviceConnected(FlipperZero *device)
-{
-    if(m_state != State::WaitingForDFU) {
-        return;
-    }
-
-    m_currentRequest.device = device;
-    processCurrentRequest();
-}
-
 void FirmwareDownloader::processQueue()
 {
-    if(m_requestQueue.isEmpty()) {
+    if(m_operationQueue.isEmpty()) {
         m_state = State::Ready;
         return;
     }
 
-    m_currentRequest = m_requestQueue.dequeue();
+    m_state = State::Running;
 
-    if(m_currentRequest.device->isDFU()) {
-        processCurrentRequest();
-    } else {
-        m_state = State::WaitingForDFU;
-        m_currentRequest.device->detach();
-    }
+    auto *currentOperation = m_operationQueue.dequeue();
+    auto *watcher = new QFutureWatcher<bool>(this);
+
+    connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
+        info_msg(QString("Operation '%1' finished with status: %2").arg(currentOperation->name(), watcher->result() ? "success" : "failure"));
+
+        delete currentOperation;
+        processQueue();
+
+        watcher->deleteLater();
+    });
+
+    watcher->setFuture(QtConcurrent::run(currentOperation, &FirmwareOperation::execute));
 }
 
-void FirmwareDownloader::enqueueRequest(const Request &req)
+void FirmwareDownloader::enqueueOperation(FirmwareOperation *op)
 {
-    req.device->setStatusMessage(tr("Pending"));
-
-    m_requestQueue.enqueue(req);
+    m_operationQueue.enqueue(op);
 
     if(m_state == State::Ready) {
         processQueue();
     }
-}
-
-void FirmwareDownloader::processCurrentRequest()
-{
-    m_state = State::ExecuteRequest;
-
-    auto *device = m_currentRequest.device;
-    device->setStatusMessage(tr("Preparing"));
-
-    auto *watcher = new QFutureWatcher<bool>(this);
-
-    connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
-    connect(watcher, &QFutureWatcherBase::finished, m_currentRequest.file, &QObject::deleteLater);
-    connect(watcher, &QFutureWatcherBase::finished, this, &FirmwareDownloader::processQueue);
-    connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
-        device->setStatusMessage(watcher->result() ? tr("Finished") : tr("Error"));
-    });
-
-    watcher->setFuture(QtConcurrent::run(m_currentRequest.device, &Flipper::FlipperZero::downloadFirmware, m_currentRequest.file));
 }

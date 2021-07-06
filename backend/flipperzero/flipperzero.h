@@ -34,7 +34,14 @@ public:
         DFUOnly
     };
 
-    FlipperZero(const USBDeviceInfo &parameters, QObject *parent = nullptr);
+    FlipperZero(const USBDeviceInfo &info, QObject *parent = nullptr);
+
+    void setDeviceInfo(const USBDeviceInfo &info);
+    void setPersistent(bool set);
+    void setConnected(bool set);
+
+    bool isPersistent() const;
+    bool isConnected() const;
 
     bool detach();
     bool setBootMode(BootMode mode);
@@ -70,11 +77,14 @@ signals:
     void statusMessageChanged(const QString&);
     void progressChanged(double);
 
-    void isDFUChanged(bool);
+    void isDFUChanged();
 
 private:
     void fetchInfoVCPMode();
     void fetchInfoDFUMode();
+
+    bool m_isPersistent;
+    bool m_isConnected;
 
     USBDeviceInfo m_info;
     QMutex m_deviceMutex;
@@ -87,7 +97,7 @@ private:
     double m_progress;
 
     QSerialPort *m_port;
-    Flipper::Zero::RemoteController *m_remote;
+    Zero::RemoteController *m_remote;
 };
 
 }
