@@ -68,8 +68,8 @@ jobs:
       - name: Publish application
         uses: actions/upload-artifact@v2
         with:
-          name: qflipperSetup-64bit.exe
+          name: qFlipperSetup-64bit.exe
           path: |
-            .\build\qflipperSetup-64bit.exe
+            .\build\qFlipperSetup-64bit.exe
           if-no-files-found: error
           retention-days: 7
