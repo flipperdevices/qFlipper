@@ -3,8 +3,7 @@
 
 #include <QObject>
 #include <QByteArray>
-
-class QSerialPort;
+#include <QSerialPortInfo>
 
 namespace Flipper {
 namespace Zero {
@@ -18,7 +17,7 @@ class RemoteController : public QObject
     Q_PROPERTY(int screenHeight READ screenHeight CONSTANT)
 
 public:
-    RemoteController(QSerialPort *port, QObject *parent = nullptr);
+    RemoteController(const QSerialPortInfo &portInfo, QObject *parent = nullptr);
     ~RemoteController();
 
     const QByteArray &screenData() const;

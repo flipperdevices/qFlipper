@@ -7,9 +7,9 @@
 namespace Flipper {
 namespace Zero {
 
-RemoteController::RemoteController(QSerialPort *port, QObject *parent):
+RemoteController::RemoteController(const QSerialPortInfo &portInfo, QObject *parent):
     QObject(parent),
-    m_port(port),
+    m_port(new QSerialPort(portInfo, this)),
     m_isEnabled(false),
     m_isHeaderFound(false)
 {}

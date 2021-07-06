@@ -36,7 +36,6 @@ FlipperZero::FlipperZero(const USBDeviceInfo &info, QObject *parent):
     m_statusMessage(STARTUP_MESSAGE),
     m_progress(0),
 
-    m_port(nullptr),
     m_remote(nullptr)
 {
     setDeviceInfo(info);
@@ -49,11 +48,8 @@ void FlipperZero::setDeviceInfo(const USBDeviceInfo &info)
     m_info = info;
 
     if(isDFU()) {
-        if(m_port && m_remote) {
-            m_port->deleteLater();
+        if(m_remote) {
             m_remote->deleteLater();
-
-            m_port = nullptr;
             m_remote = nullptr;
         }
 
@@ -67,13 +63,11 @@ void FlipperZero::setDeviceInfo(const USBDeviceInfo &info)
             return;
         }
 
-        if(m_port && m_remote) {
-            m_port->deleteLater();
+        if(m_remote) {
             m_remote->deleteLater();
         }
 
-        m_port = new QSerialPort(portInfo, this);
-        m_remote = new Zero::RemoteController(m_port, this);
+        m_remote = new Zero::RemoteController(portInfo, this);
 
         fetchInfoVCPMode();
     }
@@ -113,8 +107,10 @@ bool FlipperZero::isConnected() const
 
 bool FlipperZero::detach()
 {
-    const auto success = m_port->open(QIODevice::WriteOnly) && m_port->setDataTerminalReady(true) &&
-                        (m_port->write("\rdfu\r") >= 0) && m_port->flush();
+    QSerialPort port(SerialHelper::findSerialPort(m_info.serialNumber()));
+
+    const auto success = port.open(QIODevice::WriteOnly) && port.setDataTerminalReady(true) &&
+                        (port.write("\rdfu\r") >= 0) && port.flush();
 
     if(!success) {
         error_msg("Failed to reset device to DFU mode");
@@ -123,7 +119,7 @@ bool FlipperZero::detach()
         setConnected(false);
     }
 
-    m_port->close();
+    port.close();
 
     return success;
 }
@@ -256,10 +252,11 @@ void FlipperZero::setProgress(double progress)
     }
 }
 
-// Since we're not using threads anymore, rework it with signal-slot friendly approach
 void FlipperZero::fetchInfoVCPMode()
 {
-    if(!m_port->open(QIODevice::ReadWrite)) {
+    QSerialPort port(SerialHelper::findSerialPort(m_info.serialNumber()));
+
+    if(!port.open(QIODevice::ReadWrite)) {
         // TODO: Error handling
         setStatusMessage(ERROR_MESSAGE);
         error_msg("Failed to open port");
@@ -276,19 +273,19 @@ void FlipperZero::fetchInfoVCPMode()
         return fields.last().trimmed();
     };
 
-    m_port->setDataTerminalReady(true);
-    m_port->write("\rdevice_info\r");
-    m_port->flush();
+    port.setDataTerminalReady(true);
+    port.write("\rdevice_info\r");
+    port.flush();
 
     qint64 bytesAvailable;
 
     do {
-        bytesAvailable = m_port->bytesAvailable();
-        m_port->waitForReadyRead(50);
-    } while(bytesAvailable != m_port->bytesAvailable());
+        bytesAvailable = port.bytesAvailable();
+        port.waitForReadyRead(50);
+    } while(bytesAvailable != port.bytesAvailable());
 
     do {
-        const auto line = m_port->readLine();
+        const auto line = port.readLine();
 
         if(line.startsWith("hardware_name")) {
             setName(getValue(line));
@@ -298,9 +295,9 @@ void FlipperZero::fetchInfoVCPMode()
             setVersion(getValue(line));
         } else {}
 
-    } while(m_port->canReadLine());
+    } while(port.canReadLine());
 
-    m_port->close();
+    port.close();
     setStatusMessage(UPDATE_MESSAGE);
 }
 

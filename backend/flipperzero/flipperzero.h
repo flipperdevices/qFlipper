@@ -96,7 +96,6 @@ private:
 
     double m_progress;
 
-    QSerialPort *m_port;
     Zero::RemoteController *m_remote;
 };
 
