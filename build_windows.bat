@@ -62,3 +62,7 @@ tar -a -cf %BUILD_DIR%\%TARGET%-%ARCH_BITS%bit.zip *
 rem Make the installer
 cd %PROJECT_DIR%
 %NSIS% /DNAME=%TARGET% /DARCH_BITS=%ARCH_BITS% installer_windows.nsi
+
+rem cls
+echo on
+@echo The resulting installer is %BUILD_DIR%\%TARGET%Setup-%ARCH_BITS%bit.exe.
