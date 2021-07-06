@@ -9,15 +9,15 @@ rem Import build environment
 call %MSVC_DIR%\"Community\VC\Auxiliary\Build\"vcvars%ARCH_BITS%.bat
 
 set QT_DIR=C:\Qt
-set QT_VERSION=5.12.11
-set QT_COMPILER=msvc2017_%ARCH_BITS%
+set QT_VERSION=5.15.2
+set QT_COMPILER=msvc2019_%ARCH_BITS%
 set QT_BIN_DIR=%QT_DIR%\%QT_VERSION%\%QT_COMPILER%\bin
 
 set QMAKE=%QT_BIN_DIR%\qmake.exe
 set WINDEPLOYQT=%QT_BIN_DIR%\windeployqt.exe
 set JOM=%QT_DIR%\Tools\QtCreator\bin\jom.exe
 
-set TARGET=qflipper
+set TARGET=qFlipper
 
 set PROJECT_DIR=%cd%
 set BUILD_DIR=%PROJECT_DIR%\build
@@ -29,7 +29,7 @@ set OPENSSL_FILE_NAME=openssl-%OPENSSL_VERSION%-win%ARCH_BITS%.zip
 set OPENSSL_URL=http://wiki.overbyte.eu/arch/%OPENSSL_FILE_NAME%
 
 set NSIS="%programfiles(x86)%\NSIS\makensis.exe"
-set ZADIC_EXE="%PROJECT_DIR%"\..\zadic.exe
+set ZADIC_EXE="%PROJECT_DIR%"\bin\zadic.exe
 
 if exist %BUILD_DIR% (rmdir /S /Q %BUILD_DIR%)
 
