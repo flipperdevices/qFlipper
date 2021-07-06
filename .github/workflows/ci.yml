@@ -63,7 +63,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build application
-        run: build_windows.bat
+        run: .\build_windows.bat
 
       - name: Publish application
         uses: actions/upload-artifact@v2
