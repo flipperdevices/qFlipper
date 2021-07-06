@@ -5,7 +5,7 @@
 #include <QQueue>
 
 #include "flipperupdates.h"
-#include "firmwareoperation.h"
+#include "abstractfirmwareoperation.h"
 
 class QIODevice;
 
@@ -28,14 +28,17 @@ public slots:
     void downloadLocalFile(Flipper::FlipperZero *device, const QString &filePath);
     void downloadRemoteFile(Flipper::FlipperZero *device, const Updates::FileInfo &fileInfo);
 
+    void downloadLocalFUS(Flipper::FlipperZero *device, const QString &filePath);
+    void downloadLocalRadioStack(Flipper::FlipperZero *device, const QString &filePath);
+
 private slots:
     void processQueue();
 
 private:
-    void enqueueOperation(FirmwareOperation *op);
+    void enqueueOperation(AbstractFirmwareOperation *op);
 
     State m_state;
-    QQueue<FirmwareOperation*> m_operationQueue;
+    QQueue<AbstractFirmwareOperation*> m_operationQueue;
 };
 
 }

@@ -1,13 +1,16 @@
 #include "firmwareoperations.h"
-#include "flipperzero/flipperzero.h"
 
+#include <QTime>
+#include <QThread>
+
+#include "flipperzero/flipperzero.h"
 #include "macros.h"
 
 namespace Flipper {
 namespace Zero {
 
 FirmwareDownloadOperation::FirmwareDownloadOperation(FlipperZero *device, QIODevice *file):
-    m_device(device),
+    FirmwareOperation(device),
     m_file(file)
 {
     m_device->setStatusMessage(QObject::tr("Pending"));
@@ -39,10 +42,18 @@ bool FirmwareDownloadOperation::execute()
     return true;
 }
 
-void FirmwareDownloadOperation::waitForReconnect()
+FirmwareOperation::FirmwareOperation(FlipperZero *device):
+    m_device(device)
+{}
+
+void FirmwareOperation::waitForReconnect(int timeoutMS)
 {
     //TODO: Implement better syncronisation
-    while(!m_device->isConnected()) {}
+
+    const auto now = QTime::currentTime();
+    while(!m_device->isConnected() || (now.msecsTo(QTime::currentTime()) >= timeoutMS)) {
+        QThread::msleep(100);
+    }
 }
 
 }

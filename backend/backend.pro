@@ -21,9 +21,9 @@ SOURCES += \
     updateregistry.cpp
 
 HEADERS += \
+    abstractfirmwareoperation.h \
     deviceregistry.h \
     firmwaredownloader.h \
-    firmwareoperation.h \
     flipperupdates.h \
     flipperzero/factoryinfo.h \
     flipperzero/firmwareoperations.h \

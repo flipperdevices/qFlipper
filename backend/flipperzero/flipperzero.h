@@ -47,8 +47,8 @@ public:
     bool setBootMode(BootMode mode);
 
     bool downloadFirmware(QIODevice *file);
-    bool downloadFUS(QIODevice *file);
-    bool downloadRadioStack(QIODevice *file);
+    bool downloadFUS(QIODevice *file, uint32_t addr);
+    bool downloadRadioStack(QIODevice *file, uint32_t addr);
 
     const QString &name() const;
     const QString &model() const;

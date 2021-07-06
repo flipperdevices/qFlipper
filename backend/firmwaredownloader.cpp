@@ -50,6 +50,22 @@ void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Updates::
     fetcher->fetch(fileInfo);
 }
 
+void FirmwareDownloader::downloadLocalFUS(FlipperZero *device, const QString &filePath)
+{
+    Q_UNUSED(device)
+    Q_UNUSED(filePath)
+}
+
+void FirmwareDownloader::downloadLocalRadioStack(FlipperZero *device, const QString &filePath)
+{
+    Q_UNUSED(device)
+
+    const auto localUrl = QUrl(filePath).toLocalFile();
+//    auto *file = new QFile(localUrl, this);
+
+    info_msg(localUrl);
+}
+
 void FirmwareDownloader::processQueue()
 {
     if(m_operationQueue.isEmpty()) {
@@ -71,10 +87,10 @@ void FirmwareDownloader::processQueue()
         watcher->deleteLater();
     });
 
-    watcher->setFuture(QtConcurrent::run(currentOperation, &FirmwareOperation::execute));
+    watcher->setFuture(QtConcurrent::run(currentOperation, &AbstractFirmwareOperation::execute));
 }
 
-void FirmwareDownloader::enqueueOperation(FirmwareOperation *op)
+void FirmwareDownloader::enqueueOperation(AbstractFirmwareOperation *op)
 {
     m_operationQueue.enqueue(op);
 
