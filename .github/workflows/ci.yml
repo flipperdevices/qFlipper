@@ -65,6 +65,12 @@ jobs:
       - name: Build application
         run: .\build_windows.bat
 
+      - name: dir .
+        run: dir .
+
+      - name: dir build
+        run: dir build
+
       - name: Publish application
         uses: actions/upload-artifact@v2
         with:
