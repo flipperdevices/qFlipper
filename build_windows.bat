@@ -29,7 +29,7 @@ set OPENSSL_FILE_NAME=openssl-%OPENSSL_VERSION%-win%ARCH_BITS%.zip
 set OPENSSL_URL=http://wiki.overbyte.eu/arch/%OPENSSL_FILE_NAME%
 
 set NSIS="%programfiles(x86)%\NSIS\makensis.exe"
-set ZADIC_EXE="%PROJECT_DIR%"\bin\zadic.exe
+set ZADIC_EXE="C:\bin-deps\zadic.exe"
 
 if exist %BUILD_DIR% (rmdir /S /Q %BUILD_DIR%)
 
@@ -63,6 +63,5 @@ rem Make the installer
 cd %PROJECT_DIR%
 %NSIS% /DNAME=%TARGET% /DARCH_BITS=%ARCH_BITS% installer_windows.nsi
 
-rem cls
-echo on
-@echo The resulting installer is %BUILD_DIR%\%TARGET%Setup-%ARCH_BITS%bit.exe.
+echo The resulting installer is %BUILD_DIR%\%TARGET%Setup-%ARCH_BITS%bit.exe.
+echo Finished.
