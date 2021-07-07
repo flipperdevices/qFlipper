@@ -126,6 +126,8 @@ bool FlipperZero::detach()
 
 bool FlipperZero::setBootMode(BootMode mode)
 {
+    QMutexLocker locker(&m_deviceMutex);
+
     STM32WB55::STM32WB55 device(m_info);
 
     check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
@@ -136,9 +138,26 @@ bool FlipperZero::setBootMode(BootMode mode)
     ob.setNBoot0(mode == BootMode::Normal);
     ob.setNSwBoot0(mode == BootMode::Normal);
 
-    check_return_bool(device.setOptionBytes(ob), "Failed to set option bytes");
-    // The device is going to reset itself here, not bothering to end the transaction
+    const auto success = device.setOptionBytes(ob);
+    check_return_bool(success, "Failed to set option bytes");
 
+    setConnected(false);
+    return true;
+}
+
+bool FlipperZero::startFUS()
+{
+    QMutexLocker locker(&m_deviceMutex);
+
+    info_msg("Starting FUS...");
+    return true;
+}
+
+bool FlipperZero::startWirelessStack()
+{
+    QMutexLocker locker(&m_deviceMutex);
+
+    info_msg("Starting Wireless Stack...");
     return true;
 }
 
@@ -169,6 +188,17 @@ bool FlipperZero::downloadFirmware(QIODevice *file)
     setConnected(!success);
 
     return success;
+}
+
+bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
+{
+    Q_UNUSED(file);
+    Q_UNUSED(addr);
+    QMutexLocker locker(&m_deviceMutex);
+
+    info_msg("Downloading wireless stack...");
+
+    return true;
 }
 
 const QString &FlipperZero::name() const
@@ -303,10 +333,12 @@ void FlipperZero::fetchInfoVCPMode()
 
 void FlipperZero::fetchInfoDFUMode()
 {
+    QMutexLocker locker(&m_deviceMutex);
+
     STM32WB55::STM32WB55 device(m_info);
 
     check_return_void(device.beginTransaction(), "Failed to initiate transaction");
-    const Flipper::Zero::FactoryInfo info(device.otpData(Flipper::Zero::FactoryInfo::size()));
+    const Flipper::Zero::FactoryInfo info(device.OTPData(Flipper::Zero::FactoryInfo::size()));
     check_return_void(device.endTransaction(), "Failed to end transaction");
 
     if(info.isValid()) {

@@ -116,7 +116,7 @@ Item {
 
             onLocalRadioUpdateRequested: {
                 fileDialog.openWithConfirmation(function () {
-                    downloader.downloadLocalRadioStack(device, fileDialog.fileUrl);
+                    downloader.downloadLocalWirelessStack(device, fileDialog.fileUrl);
                 });
             }
         }

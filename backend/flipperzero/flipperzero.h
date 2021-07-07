@@ -45,10 +45,12 @@ public:
 
     bool detach();
     bool setBootMode(BootMode mode);
+    bool startFUS();
+    bool startWirelessStack();
 
     bool downloadFirmware(QIODevice *file);
     bool downloadFUS(QIODevice *file, uint32_t addr);
-    bool downloadRadioStack(QIODevice *file, uint32_t addr);
+    bool downloadWirelessStack(QIODevice *file, uint32_t addr);
 
     const QString &name() const;
     const QString &model() const;

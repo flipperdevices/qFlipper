@@ -56,14 +56,12 @@ void FirmwareDownloader::downloadLocalFUS(FlipperZero *device, const QString &fi
     Q_UNUSED(filePath)
 }
 
-void FirmwareDownloader::downloadLocalRadioStack(FlipperZero *device, const QString &filePath)
+void FirmwareDownloader::downloadLocalWirelessStack(FlipperZero *device, const QString &filePath)
 {
-    Q_UNUSED(device)
-
     const auto localUrl = QUrl(filePath).toLocalFile();
-//    auto *file = new QFile(localUrl, this);
+    auto *file = new QFile(localUrl, this);
 
-    info_msg(localUrl);
+    enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file, 0x080CB000));
 }
 
 void FirmwareDownloader::processQueue()

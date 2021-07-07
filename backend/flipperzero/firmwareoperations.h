@@ -34,18 +34,18 @@ private:
     QIODevice *m_file;
 };
 
-class RadioStackUpdateOperation : public FirmwareOperation
+class WirelessStackDownloadOperation : public FirmwareOperation
 {
 public:
-    RadioStackUpdateOperation(FlipperZero *device, QIODevice *file, uint32_t addr);
-    ~RadioStackUpdateOperation();
+    WirelessStackDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t addr);
+    ~WirelessStackDownloadOperation();
 
     const QString name() const override;
     bool execute() override;
 
 private:
     QIODevice *m_file;
-    uint32_t targetAddress;
+    uint32_t m_targetAddress;
 };
 
 }

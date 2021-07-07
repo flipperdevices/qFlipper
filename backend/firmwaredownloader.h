@@ -29,7 +29,7 @@ public slots:
     void downloadRemoteFile(Flipper::FlipperZero *device, const Updates::FileInfo &fileInfo);
 
     void downloadLocalFUS(Flipper::FlipperZero *device, const QString &filePath);
-    void downloadLocalRadioStack(Flipper::FlipperZero *device, const QString &filePath);
+    void downloadLocalWirelessStack(Flipper::FlipperZero *device, const QString &filePath);
 
 private slots:
     void processQueue();

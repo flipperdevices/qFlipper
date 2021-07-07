@@ -9,6 +9,9 @@
 
 #define OPTION_BYTES_ADDR 0x1FFF8000UL
 
+#define FUS_STATUS_ADDR 0xFFFF0054UL
+#define FUS_STATUS_SIZE 2
+
 namespace STM32WB55 {
 
 STM32WB55::STM32WB55(const USBDeviceInfo &info, QObject *parent):
@@ -47,7 +50,7 @@ bool STM32WB55::setOptionBytes(const OptionBytes &ob)
     return true;
 }
 
-QByteArray STM32WB55::otpData(qint64 len)
+QByteArray STM32WB55::OTPData(qint64 len)
 {
     len = qMin<qint64>(len, OTP_MAX_SIZE);
 
@@ -59,6 +62,19 @@ QByteArray STM32WB55::otpData(qint64 len)
 
     check_return_val(success && (buf.bytesAvailable() == len), "Failed to read option bytes", QByteArray());
     return buf.data();
+}
+
+STM32WB55::FUSStatusType STM32WB55::FUSStatus()
+{
+    QBuffer buf;
+    check_return_val(buf.open(QIODevice::WriteOnly), "Failed to create buffer", FUSStatusType());
+
+    upload(&buf, FUS_STATUS_ADDR, FUS_STATUS_SIZE, (uint8_t)Partition::Flash);
+    buf.close();
+
+    check_return_val(buf.bytesAvailable() == FUS_STATUS_SIZE, "Failed to read FUS status", FUSStatusType());
+
+    return FUSStatusType(buf.data().at(0), buf.data().at(1));
 }
 
 }

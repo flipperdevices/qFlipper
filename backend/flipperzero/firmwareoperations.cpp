@@ -9,6 +9,20 @@
 namespace Flipper {
 namespace Zero {
 
+FirmwareOperation::FirmwareOperation(FlipperZero *device):
+    m_device(device)
+{}
+
+void FirmwareOperation::waitForReconnect(int timeoutMS)
+{
+    //TODO: Implement better syncronisation
+
+    const auto now = QTime::currentTime();
+    while(!m_device->isConnected() || (now.msecsTo(QTime::currentTime()) >= timeoutMS)) {
+        QThread::msleep(100);
+    }
+}
+
 FirmwareDownloadOperation::FirmwareDownloadOperation(FlipperZero *device, QIODevice *file):
     FirmwareOperation(device),
     m_file(file)
@@ -42,18 +56,48 @@ bool FirmwareDownloadOperation::execute()
     return true;
 }
 
-FirmwareOperation::FirmwareOperation(FlipperZero *device):
-    m_device(device)
+WirelessStackDownloadOperation::WirelessStackDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t addr):
+    FirmwareOperation(device),
+    m_file(file),
+    m_targetAddress(addr)
 {}
 
-void FirmwareOperation::waitForReconnect(int timeoutMS)
+WirelessStackDownloadOperation::~WirelessStackDownloadOperation()
 {
-    //TODO: Implement better syncronisation
+    m_file->deleteLater();
+}
 
-    const auto now = QTime::currentTime();
-    while(!m_device->isConnected() || (now.msecsTo(QTime::currentTime()) >= timeoutMS)) {
-        QThread::msleep(100);
+const QString WirelessStackDownloadOperation::name() const
+{
+    return QString("Radio Stack Download to %1 %2").arg(m_device->model(), m_device->name());
+}
+
+bool WirelessStackDownloadOperation::execute()
+{
+    m_device->setPersistent(true);
+
+    if(!m_device->isDFU()) {
+        check_return_bool(m_device->detach(), "Failed to detach device");
+        waitForReconnect();
     }
+
+    check_return_bool(m_device->setBootMode(FlipperZero::BootMode::DFUOnly), "Failed to set device into DFU-only boot mode");
+    waitForReconnect();
+
+    check_return_bool(m_device->startFUS(), "Failed to start FUS");
+    waitForReconnect();
+
+    check_return_bool(m_device->downloadWirelessStack(m_file, m_targetAddress), "Failed to download wireless stack image");
+    waitForReconnect();
+
+    check_return_bool(m_device->startWirelessStack(), "Failed to start wireless stack");
+    waitForReconnect();
+
+    check_return_bool(m_device->setBootMode(FlipperZero::BootMode::Normal), "Failed to set device into Normal boot mode");
+    waitForReconnect();
+
+    m_device->setPersistent(false);
+    return true;
 }
 
 }
