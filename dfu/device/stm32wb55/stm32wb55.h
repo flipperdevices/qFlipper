@@ -16,13 +16,14 @@ public:
         OTP
     };
 
-    struct FUSStatusType {
-        enum State {
+    struct FUSState {
+        enum Status {
             Idle = 0x00,
             FWUpgradeOngoing = 0x10,
             FUSUpgradeOngoing = 0x20,
             ServiceOngoing = 0x30,
-            ErrorOccured = 0xFF
+            ErrorOccured = 0xFF,
+            Invalid = 0x0BADF00D
         };
 
         enum Error {
@@ -42,13 +43,13 @@ public:
             Unknown = 0xFF
         };
 
-        FUSStatusType() = default;
-        FUSStatusType(int s, int e):
-            state(s),
+        FUSState() = default;
+        FUSState(int s, int e):
+            status(s),
             error(e)
         {}
 
-        int state = ErrorOccured;
+        int status = Invalid;
         int error = Unknown;
     };
 
@@ -59,9 +60,10 @@ public:
 
     QByteArray OTPData(qint64 len);
 
-    FUSStatusType FUSStatus();
-    bool startFUS();
-    bool startRadioStack();
+    FUSState FUSGetState();
+    bool FUSFwDelete();
+    bool FUSFwUpgrade();
+    bool FUSStartWirelessStack();
 };
 
 }

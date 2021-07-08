@@ -74,6 +74,25 @@ bool DfuseDevice::download(DfuseFile *file)
     return true;
 }
 
+bool DfuseDevice::download(const QByteArray &data)
+{
+    check_return_bool(setInterfaceAltSetting(0, 0), "Failed to set interface alternate setting");
+    check_return_bool(prepare(), "Failed to prepare the device");
+
+    check_return_bool(controlTransfer(REQUEST_OUT, DFU_DNLOAD, 0, 0, data), "Failed to perform raw download request");
+
+    StatusType status;
+
+    do {
+        status = getStatus();
+        check_return_bool(status.bStatus == StatusType::OK, "Failed to raw download a buffer");
+        QThread::msleep(status.bwPollTimeout);
+
+    } while(status.bState == StatusType::DFU_DNBUSY);
+
+    return true;
+}
+
 bool DfuseDevice::download(QIODevice *file, uint32_t addr, uint8_t alt)
 {
     check_return_bool(setInterfaceAltSetting(0, alt), "Failed to set interface alternate setting");
@@ -159,8 +178,10 @@ bool DfuseDevice::leave()
 {
     setAddressPointer(0x080FFFFFUL);
     check_return_bool(controlTransfer(REQUEST_OUT, DFU_DNLOAD, 0, 0, QByteArray()), "Failed to perform final DFU_DNLOAD transfer");
-    info_msg("Please ignore the next error, say hello to ST Microelectronics");
+
+    begin_ignore_block();
     getStatus(); // It will return an error on WB55 anyway
+    end_ignore_block();
 
     return true;
 }

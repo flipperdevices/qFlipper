@@ -38,8 +38,9 @@ bool STM32WB55::setOptionBytes(const OptionBytes &ob)
     const auto success = (buf.write(ob.data()) == OptionBytes::size()) && buf.reset();
 
     if(success) {
-        info_msg("Please ignore the following error message, it is normal");
+        begin_ignore_block();
         download(&buf, OPTION_BYTES_ADDR, (uint8_t)Partition::OptionBytes);
+        end_ignore_block();
 
     } else {
         error_msg("Failed to fill buffer");
@@ -64,17 +65,38 @@ QByteArray STM32WB55::OTPData(qint64 len)
     return buf.data();
 }
 
-STM32WB55::FUSStatusType STM32WB55::FUSStatus()
+STM32WB55::FUSState STM32WB55::FUSGetState()
 {
     QBuffer buf;
-    check_return_val(buf.open(QIODevice::WriteOnly), "Failed to create buffer", FUSStatusType());
+    check_return_val(buf.open(QIODevice::WriteOnly), "Failed to create buffer", FUSState());
 
     upload(&buf, FUS_STATUS_ADDR, FUS_STATUS_SIZE, (uint8_t)Partition::Flash);
     buf.close();
 
-    check_return_val(buf.bytesAvailable() == FUS_STATUS_SIZE, "Failed to read FUS status", FUSStatusType());
+    check_return_val(buf.bytesAvailable() == FUS_STATUS_SIZE, "Failed to read FUS status", FUSState());
 
-    return FUSStatusType(buf.data().at(0), buf.data().at(1));
+    return FUSState(buf.data().at(0), buf.data().at(1));
+}
+
+bool STM32WB55::FUSFwDelete()
+{
+    const QByteArray data(1, 0x52);
+    check_return_bool(download(data), "Failed to initiate wireless firmware removal");
+    return true;
+}
+
+bool STM32WB55::FUSFwUpgrade()
+{
+    const QByteArray data(1, 0x54);
+    check_return_bool(download(data), "Failed to initiate wireless firmware upgrade");
+    return true;
+}
+
+bool STM32WB55::FUSStartWirelessStack()
+{
+    const QByteArray data(1, 0x5A);
+    check_return_bool(download(data), "Failed to start wireless stack");
+    return true;
 }
 
 }

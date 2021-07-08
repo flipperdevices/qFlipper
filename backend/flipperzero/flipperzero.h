@@ -45,8 +45,14 @@ public:
 
     bool detach();
     bool setBootMode(BootMode mode);
+    bool waitForReconnect(int timeoutMs = 10000);
+
+    bool isFUSRunning();
+    bool notFUSRunning();
+
     bool startFUS();
     bool startWirelessStack();
+    bool eraseWirelessStack();
 
     bool downloadFirmware(QIODevice *file);
     bool downloadFUS(QIODevice *file, uint32_t addr);

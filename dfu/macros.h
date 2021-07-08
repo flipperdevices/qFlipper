@@ -35,4 +35,10 @@
 #define debug_msg(msg) \
     qDebug() << Q_FUNC_INFO << ":" << msg;
 
+#define begin_ignore_block() \
+    qInfo() << "\nvvv ATTENTION: Ignore errors below until matching closing message. vvv\n";
+
+#define end_ignore_block() \
+    qInfo() << "\n^^^ ATTENTION: Ignore errors above until matching opening message. ^^^\n";
+
 #endif // MACROS_H

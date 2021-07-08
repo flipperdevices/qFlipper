@@ -10,18 +10,7 @@ class FlipperZero;
 
 namespace Zero {
 
-class FirmwareOperation : public AbstractFirmwareOperation
-{
-public:
-    FirmwareOperation(FlipperZero *device);
-    virtual ~FirmwareOperation() {};
-
-protected:
-    void waitForReconnect(int timeoutMS = 10000);
-    FlipperZero *m_device;
-};
-
-class FirmwareDownloadOperation : public FirmwareOperation
+class FirmwareDownloadOperation : public AbstractFirmwareOperation
 {
 public:
     FirmwareDownloadOperation(FlipperZero *device, QIODevice *file);
@@ -31,10 +20,11 @@ public:
     bool execute() override;
 
 private:
+    FlipperZero *m_device;
     QIODevice *m_file;
 };
 
-class WirelessStackDownloadOperation : public FirmwareOperation
+class WirelessStackDownloadOperation : public AbstractFirmwareOperation
 {
 public:
     WirelessStackDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t addr);
@@ -44,6 +34,7 @@ public:
     bool execute() override;
 
 private:
+    FlipperZero *m_device;
     QIODevice *m_file;
     uint32_t m_targetAddress;
 };
