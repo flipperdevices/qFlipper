@@ -107,8 +107,9 @@ bool FlipperZero::isConnected() const
 
 bool FlipperZero::detach()
 {
-    QSerialPort port(SerialHelper::findSerialPort(m_info.serialNumber()));
+    info_msg("Rebooting device in DFU mode...");
 
+    QSerialPort port(SerialHelper::findSerialPort(m_info.serialNumber()));
     const auto success = port.open(QIODevice::WriteOnly) && port.setDataTerminalReady(true) &&
                         (port.write("\rdfu\r") >= 0) && port.flush();
     port.close();
@@ -118,11 +119,13 @@ bool FlipperZero::detach()
         setStatusMessage(ERROR_MESSAGE);
     }
 
-    return success && waitForReconnect();
+    return success && waitForReboot();
 }
 
 bool FlipperZero::setBootMode(BootMode mode)
 {
+    info_msg(QString("Setting device to %1 boot mode...").arg(mode == BootMode::Normal ? "NORMAL" : "DFU ONLY"));
+
     QMutexLocker locker(&m_deviceMutex);
 
     STM32WB55::STM32WB55 device(m_info);
@@ -140,66 +143,72 @@ bool FlipperZero::setBootMode(BootMode mode)
 
     locker.unlock();
 
-    return waitForReconnect();
+    return waitForReboot();
 }
 
-bool FlipperZero::waitForReconnect(int timeoutMs)
+bool FlipperZero::waitForReboot(int timeoutMs)
 {
     //TODO: Implement better syncronisation
-    setConnected(false);
+    info_msg("Waiting for device to REBOOT...");
 
-    const auto now = QTime::currentTime();
-    while(!isConnected() || (now.msecsTo(QTime::currentTime()) >= timeoutMs)) {
+    if(!m_isConnected) {
+        info_msg("Device has already REBOOTED, doing nothing.");
+        return true;
+    }
+
+    auto now = QTime::currentTime();
+    while(m_isConnected || (now.msecsTo(QTime::currentTime()) >= timeoutMs)) {
         QThread::msleep(100);
     }
 
-    return isConnected();
+    check_return_bool(!m_isConnected, "Reboot TIMEOUT exceeded.");
+
+    now = QTime::currentTime();
+    while(!m_isConnected || (now.msecsTo(QTime::currentTime()) >= timeoutMs)) {
+        QThread::msleep(100);
+    }
+
+    check_return_bool(m_isConnected, "Reconnect TIMEOUT exceeded.");
+    return true;
 }
 
 bool FlipperZero::isFUSRunning()
 {
+    info_msg("Checking if FUS is RUNNING...");
+
     QMutexLocker locker(&m_deviceMutex);
 
     STM32WB55::STM32WB55 device(m_info);
     check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
 
     auto state = device.FUSGetState();
-    const auto isFUSRunning = (state.status == STM32WB55::STM32WB55::FUSState::Idle) &&
-                              (state.error == STM32WB55::STM32WB55::FUSState::NoError);
+    const auto running = (state.status == STM32WB55::STM32WB55::FUSState::Idle) &&
+                         (state.error == STM32WB55::STM32WB55::FUSState::NoError);
     check_return_bool(device.endTransaction(), "Failed to end transaction");
+    info_msg(running ? "FUS is RUNNING" : "FUS is NOT running");
 
-    return isFUSRunning;
-}
-
-bool FlipperZero::notFUSRunning()
-{
-    QMutexLocker locker(&m_deviceMutex);
-
-    STM32WB55::STM32WB55 device(m_info);
-    check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
-
-    auto state = device.FUSGetState();
-    const auto notFUSRunning = (state.status == STM32WB55::STM32WB55::FUSState::ErrorOccured) &&
-                               (state.error == STM32WB55::STM32WB55::FUSState::NotRunning);
-    check_return_bool(device.endTransaction(), "Failed to end transaction");
-
-    return notFUSRunning;
+    return running;
 }
 
 bool FlipperZero::startFUS()
 {
+    info_msg("Attempting to start FUS...");
+
     QMutexLocker locker(&m_deviceMutex);
 
     STM32WB55::STM32WB55 device(m_info);
     check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
 
     auto state = device.FUSGetState();
-    const auto isFUSRunning = (state.status == STM32WB55::STM32WB55::FUSState::Idle) &&
-                              (state.error == STM32WB55::STM32WB55::FUSState::NoError);
-    if(isFUSRunning) {
+    const auto running = (state.status == STM32WB55::STM32WB55::FUSState::Idle) &&
+                         (state.error == STM32WB55::STM32WB55::FUSState::NoError);
+    if(running) {
+        info_msg("FUS is already RUNNING, doing nothing...");
         check_return_bool(device.endTransaction(), "Failed to end transaction");
         return true;
     }
+
+    info_msg(QString("FUS appears not to be running with STATUS: %1 and ERROR CODE: %2.").arg(state.status).arg(state.error));
 
     // Send a second GET_STATE to actually start FUS
     begin_ignore_block();
@@ -208,13 +217,13 @@ bool FlipperZero::startFUS()
 
     check_return_bool(device.endTransaction(), "Failed to end transaction");
 
-    const auto isFUSMaybeStarted = (state.status == STM32WB55::STM32WB55::FUSState::Invalid);
-    check_return_bool(isFUSMaybeStarted, QString("Unexpected FUS state: status: %1 error: %2").arg(state.status).arg(state.error));
+    const auto maybeStarted = (state.status == STM32WB55::STM32WB55::FUSState::Invalid);
+    check_return_bool(maybeStarted, QString("Unexpected FUS state: status: %1 error: %2").arg(state.status).arg(state.error));
 
     // At this point, there is no way to know whether FUS has actually started, but things are looking as expected.
     locker.unlock();
 
-    return waitForReconnect();
+    return waitForReboot();
 }
 
 bool FlipperZero::startWirelessStack()
@@ -227,16 +236,42 @@ bool FlipperZero::startWirelessStack()
 
     locker.unlock();
 
-    return waitForReconnect();
+    return waitForReboot();
 }
 
 bool FlipperZero::eraseWirelessStack()
 {
+    info_msg("Attempting to erase WIRELESS STACK...");
+
     QMutexLocker locker(&m_deviceMutex);
 
     STM32WB55::STM32WB55 device(m_info);
     const auto success = device.beginTransaction() && device.FUSFwDelete() && device.endTransaction();
-    check_return_bool(success, "Failed to erase wireless stack");
+    check_return_bool(success, "Failed to initiate wireless stack erase");
+
+    locker.unlock();
+
+    check_return_bool(waitForReboot(), "Device should have rebooted");
+
+//    STM32WB55::STM32WB55::FUSState FUSState;
+
+//    qDebug() << "=========================+++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!+==========================";
+
+//    do {
+//        locker.unlock();
+//        waitForReconnect();
+//        locker.relock();
+//        STM32WB55::STM32WB55 device(m_info);
+
+//        FUSState = device.FUSGetState();
+
+//        qDebug() << "FUS status:" << FUSState.status << "FUS ERROR:" << FUSState.error;
+//        QThread::msleep(1000);
+
+
+//    } while(FUSState.status != STM32WB55::STM32WB55::FUSState::Idle && FUSState.error != STM32WB55::STM32WB55::FUSState::NoError);
+
+//    qDebug() << "=========================+++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!+==========================";
 
     return true;
 }
@@ -267,7 +302,7 @@ bool FlipperZero::downloadFirmware(QIODevice *file)
 
     locker.unlock();
 
-    return waitForReconnect();
+    return waitForReboot();
 }
 
 bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
@@ -364,6 +399,8 @@ void FlipperZero::setProgress(double progress)
 
 void FlipperZero::fetchInfoVCPMode()
 {
+    info_msg("Fetching device info in VCP MODE...");
+
     QSerialPort port(SerialHelper::findSerialPort(m_info.serialNumber()));
 
     if(!port.open(QIODevice::ReadWrite)) {
@@ -413,8 +450,9 @@ void FlipperZero::fetchInfoVCPMode()
 
 void FlipperZero::fetchInfoDFUMode()
 {
-    QMutexLocker locker(&m_deviceMutex);
+    info_msg("Fetching device info in DFU MODE...");
 
+    QMutexLocker locker(&m_deviceMutex);
     STM32WB55::STM32WB55 device(m_info);
 
     check_return_void(device.beginTransaction(), "Failed to initiate transaction");

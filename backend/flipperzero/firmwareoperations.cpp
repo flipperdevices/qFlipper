@@ -66,9 +66,9 @@ bool WirelessStackDownloadOperation::execute()
 
     check_return_bool(m_device->setBootMode(FlipperZero::BootMode::DFUOnly), "Failed to set device into DFU-only boot mode");
     check_return_bool(m_device->startFUS(), "Failed to start FUS");
-//    check_return_bool(m_device->isFUSRunning(), "FUS seemed to start, but isn't running anyway");
+    check_return_bool(m_device->isFUSRunning(), "FUS seemed to start, but isn't running anyway");
 
-//    check_return_bool(m_device->eraseWirelessStack(), "Failed to begin erasing existing wireless stack");
+    check_return_bool(m_device->eraseWirelessStack(), "Failed to erase existing wireless stack");
 
 //    while(!m_device->notFUSRunning()) {
 //        info_msg("Waiting for wireless stack erase...");
@@ -76,10 +76,8 @@ bool WirelessStackDownloadOperation::execute()
 //    }
 
 //    check_return_bool(m_device->downloadWirelessStack(m_file, m_targetAddress), "Failed to download wireless stack image");
-//    waitForReconnect();
 
 //    check_return_bool(m_device->startWirelessStack(), "Failed to start wireless stack");
-//    waitForReconnect();
 
     check_return_bool(m_device->setBootMode(FlipperZero::BootMode::Normal), "Failed to set device into Normal boot mode");
 

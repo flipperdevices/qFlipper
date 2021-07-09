@@ -45,10 +45,9 @@ public:
 
     bool detach();
     bool setBootMode(BootMode mode);
-    bool waitForReconnect(int timeoutMs = 10000);
+    bool waitForReboot(int timeoutMs = 10000);
 
     bool isFUSRunning();
-    bool notFUSRunning();
 
     bool startFUS();
     bool startWirelessStack();
