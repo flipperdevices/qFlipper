@@ -214,8 +214,8 @@ bool FlipperZero::startFUS()
 
     check_return_bool(device.endTransaction(), "Failed to end transaction");
 
-    const auto maybeStarted = (state.status == STM32WB55::STM32WB55::FUSState::Invalid);
-    check_return_bool(maybeStarted, QString("Unexpected FUS state: status: %1 error: %2").arg(state.status).arg(state.error));
+//    const auto maybeStarted = (state.status == STM32WB55::STM32WB55::FUSState::Invalid);
+//    check_return_bool(maybeStarted, QString("Unexpected FUS state: status: %1 error: %2").arg(state.status).arg(state.error));
 
     // At this point, there is no way to know whether FUS has actually started, but things are looking as expected.
     locker.unlock();
@@ -246,34 +246,25 @@ bool FlipperZero::eraseWirelessStack()
     const auto success = device.beginTransaction() && device.FUSFwDelete() && device.endTransaction();
     check_return_bool(success, "Failed to initiate wireless stack erase");
 
-//    locker.unlock();
-
-//    check_return_bool(waitForReboot(), "Device should have rebooted");
-
-//    STM32WB55::STM32WB55::FUSState FUSState;
-
-//    qDebug() << "=========================+++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!+==========================";
+    bool done = false;
 
     do {
         locker.unlock();
-
-        if(!waitForReboot()) {
-            info_msg("Device is not rebooting itself anymore");
-            break;
-        }
-
+        check_return_bool(waitForReboot(), "Lost connection to the device");
         locker.relock();
-//        STM32WB55::STM32WB55 device(m_info);
 
-//        FUSState = device.FUSGetState();
+        STM32WB55::STM32WB55 device(m_info);
 
-//        qDebug() << "FUS status:" << FUSState.status << "FUS ERROR:" << FUSState.error;
-//        QThread::msleep(1000);
+        check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
+        const auto state = device.FUSGetState();
+        check_return_bool(device.endTransaction(), "Failed to end transaction");
 
-    } while(true);
-//    } while(FUSState.status != STM32WB55::STM32WB55::FUSState::Idle && FUSState.error != STM32WB55::STM32WB55::FUSState::NoError);
+        info_msg(QString("Current device state is: status: %1 error: %2").arg(state.status).arg(state.error));
+        done = (state.error == STM32WB55::STM32WB55::FUSState::NoError) ||
+               (state.error == STM32WB55::STM32WB55::FUSState::ImageNotFound);
 
-//    qDebug() << "=========================+++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!+==========================";
+    } while(!done);
+
     return true;
 }
 
@@ -308,11 +299,50 @@ bool FlipperZero::downloadFirmware(QIODevice *file)
 
 bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
 {
-    Q_UNUSED(file);
-    Q_UNUSED(addr);
+    info_msg("Downloading WIRELESS STACK...");
+
     QMutexLocker locker(&m_deviceMutex);
 
-    info_msg("Downloading wireless stack...");
+    check_return_bool(file->open(QIODevice::ReadOnly), "Failed to open firmware file");
+    check_return_bool(file->bytesAvailable(), "The firmware file is empty");
+
+    STM32WB55::STM32WB55 device(m_info);
+    const auto success = device.beginTransaction() && device.erase(addr, file->bytesAvailable()) &&
+                         device.download(file, addr, 0) && device.endTransaction();
+    locker.unlock();
+
+    file->close();
+
+    check_return_bool(success, "Failed to download wireless stack image.");
+
+    info_msg("Sending FW_UPGRADE command...");
+
+    {
+        STM32WB55::STM32WB55 device(m_info);
+
+        locker.relock();
+
+        const auto success = device.beginTransaction() && device.FUSFwUpgrade() && device.endTransaction();
+        check_return_bool(success, "Ehhhhh x2");
+
+        locker.unlock();
+    }
+
+    info_msg("WAITING for FW_UPGRADE to finish...");
+
+    while(waitForReboot(20000)) {
+        STM32WB55::STM32WB55 device(m_info);
+
+        locker.relock();
+
+        device.beginTransaction();
+        const auto state = device.FUSGetState();
+        device.endTransaction();
+
+        locker.unlock();
+
+        info_msg(QString(" ==== FUS STATE: %1 %2").arg(state.status).arg(state.error));
+    }
 
     return true;
 }

@@ -81,14 +81,14 @@ STM32WB55::FUSState STM32WB55::FUSGetState()
 bool STM32WB55::FUSFwDelete()
 {
     const QByteArray data(1, 0x52);
-    check_return_bool(download(data), "Failed to initiate wireless firmware removal");
+    check_return_bool(download(data), "Failed to send FW_DELETE command");
     return true;
 }
 
 bool STM32WB55::FUSFwUpgrade()
 {
-    const QByteArray data(1, 0x54);
-    check_return_bool(download(data), "Failed to initiate wireless firmware upgrade");
+    const QByteArray data(1, 0x53);
+    check_return_bool(download(data), "Failed to send FW_UPGRADE command");
     return true;
 }
 
