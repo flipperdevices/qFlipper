@@ -152,18 +152,20 @@ bool FlipperZero::waitForReboot(int timeoutMs)
     info_msg("Waiting for device to REBOOT...");
 
     auto now = QTime::currentTime();
-    while(m_isConnected || (now.msecsTo(QTime::currentTime()) >= timeoutMs)) {
+    while(m_isConnected && (now.msecsTo(QTime::currentTime()) < timeoutMs)) {
         QThread::msleep(100);
     }
 
     check_return_bool(!m_isConnected, "Reboot TIMEOUT exceeded.");
+    info_msg("Device has successfully DISCONNECTED, waiting for it to reconnect...");
 
     now = QTime::currentTime();
-    while(!m_isConnected || (now.msecsTo(QTime::currentTime()) >= timeoutMs)) {
+    while(!m_isConnected && (now.msecsTo(QTime::currentTime()) < timeoutMs)) {
         QThread::msleep(100);
     }
 
     check_return_bool(m_isConnected, "Reconnect TIMEOUT exceeded.");
+    info_msg("Device has SUCCESSFULLY rebooted.")
     return true;
 }
 
@@ -244,18 +246,23 @@ bool FlipperZero::eraseWirelessStack()
     const auto success = device.beginTransaction() && device.FUSFwDelete() && device.endTransaction();
     check_return_bool(success, "Failed to initiate wireless stack erase");
 
-    locker.unlock();
+//    locker.unlock();
 
-    check_return_bool(waitForReboot(), "Device should have rebooted");
+//    check_return_bool(waitForReboot(), "Device should have rebooted");
 
 //    STM32WB55::STM32WB55::FUSState FUSState;
 
 //    qDebug() << "=========================+++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!+==========================";
 
-//    do {
-//        locker.unlock();
-//        waitForReconnect();
-//        locker.relock();
+    do {
+        locker.unlock();
+
+        if(!waitForReboot()) {
+            info_msg("Device is not rebooting itself anymore");
+            break;
+        }
+
+        locker.relock();
 //        STM32WB55::STM32WB55 device(m_info);
 
 //        FUSState = device.FUSGetState();
@@ -263,11 +270,10 @@ bool FlipperZero::eraseWirelessStack()
 //        qDebug() << "FUS status:" << FUSState.status << "FUS ERROR:" << FUSState.error;
 //        QThread::msleep(1000);
 
-
+    } while(true);
 //    } while(FUSState.status != STM32WB55::STM32WB55::FUSState::Idle && FUSState.error != STM32WB55::STM32WB55::FUSState::NoError);
 
 //    qDebug() << "=========================+++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!+==========================";
-
     return true;
 }
 
