@@ -151,11 +151,6 @@ bool FlipperZero::waitForReboot(int timeoutMs)
     //TODO: Implement better syncronisation
     info_msg("Waiting for device to REBOOT...");
 
-    if(!m_isConnected) {
-        info_msg("Device has already REBOOTED, doing nothing.");
-        return true;
-    }
-
     auto now = QTime::currentTime();
     while(m_isConnected || (now.msecsTo(QTime::currentTime()) >= timeoutMs)) {
         QThread::msleep(100);
