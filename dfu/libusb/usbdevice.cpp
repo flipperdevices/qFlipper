@@ -119,7 +119,7 @@ QByteArray USBDevice::extraInterfaceDescriptor(int interfaceNum, uint8_t type, i
     return ret;
 }
 
-QByteArray USBDevice::stringInterfaceDescriptor(int interfaceNum)
+QByteArray USBDevice::stringInterfaceDescriptor(uint8_t alt)
 {
     libusb_config_descriptor *cfg;
 
@@ -130,7 +130,7 @@ QByteArray USBDevice::stringInterfaceDescriptor(int interfaceNum)
 
 
     const auto intf = *(cfg->interface);
-    const auto res = libusb_get_string_descriptor_ascii(m_p->libusbDeviceHandle, intf.altsetting[interfaceNum].iInterface, (unsigned char*)buf.data(), BUF_SIZE);
+    const auto res = libusb_get_string_descriptor_ascii(m_p->libusbDeviceHandle, intf.altsetting[alt].iInterface, (unsigned char*)buf.data(), BUF_SIZE);
 
     if(res < 0) {
         error_msg(QString("Failed to get string descriptor: %1").arg(libusb_error_name(res)));

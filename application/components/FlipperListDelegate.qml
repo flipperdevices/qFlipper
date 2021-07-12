@@ -4,6 +4,8 @@ import QtQuick.Controls 2.12
 Item {
     signal updateRequested(var device)
     signal localUpdateRequested(var device)
+    signal localRadioUpdateRequested(var device)
+
     signal versionListRequested(var device)
     signal screenStreamRequested(var device)
 
@@ -131,6 +133,7 @@ Item {
 
         MenuItem {
             text: qsTr("Update Radio (Expert)...")
+            onTriggered: localRadioUpdateRequested(device)
         }
     }
 

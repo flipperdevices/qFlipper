@@ -1,6 +1,6 @@
 #include "deviceregistry.h"
 
-#include "flipperzero.h"
+#include "flipperzero/flipperzero.h"
 #include "usbdevice.h"
 
 using namespace Flipper;
@@ -39,26 +39,43 @@ QHash<int, QByteArray> DeviceRegistry::roleNames() const
 
 void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 {
-    auto *device = new Flipper::Zero(info, this);
+    auto *newDevice = new Flipper::FlipperZero(info, this);
 
-    beginInsertRows(QModelIndex(), m_data.size(), m_data.size());
-    m_data.append(device);
-    endInsertRows();
+    const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::FlipperZero *dev) {
+        return newDevice->name() == dev->name();
+    });
 
-    emit deviceConnected(device);
+    if(it != m_data.end()) {
+        // Preserving the old instance
+        (*it)->setDeviceInfo(info);
+        newDevice->deleteLater();
+
+    } else {
+        beginInsertRows(QModelIndex(), m_data.size(), m_data.size());
+        m_data.append(newDevice);
+        endInsertRows();
+
+        emit deviceConnected(newDevice);
+    }
 }
 
 void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
 {
-    const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::Zero *dev) {
+    const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::FlipperZero *dev) {
         return dev->info().backendData() == info.backendData();
     });
 
     if(it != m_data.end()) {
         const auto idx = std::distance(m_data.begin(), it);
+        auto *device = m_data.at(idx);
 
-        beginRemoveRows(QModelIndex(), idx, idx);
-        m_data.takeAt(idx)->deleteLater();
-        endRemoveRows();
+        if(!device->isPersistent()) {
+            beginRemoveRows(QModelIndex(), idx, idx);
+            m_data.takeAt(idx)->deleteLater();
+            endRemoveRows();
+
+        } else {
+            device->setConnected(false);
+        }
     }
 }

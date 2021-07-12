@@ -35,6 +35,36 @@ Item {
         title: qsTr("Please choose a file")
         folder: shortcuts.home
         nameFilters: ["Firmware files (*.dfu)", "All files (*)"]
+
+        function openWithConfirmation(onAcceptedFunc) {
+            const onFileDialogRejected = function() {
+                fileDialog.rejected.disconnect(onFileDialogRejected);
+                fileDialog.accepted.disconnect(onFileDialogAccepted);
+            }
+
+            const onFileDialogAccepted = function() {
+                onFileDialogRejected();
+
+                const onConfirmDialogRejected = function() {
+                    fileConfirmationDialog.accepted.disconnect(onConfirmDialogAccepted);
+                    fileConfirmationDialog.rejected.disconnect(onConfirmDialogRejected);
+                }
+
+                const onConfirmDialogAccepted = function() {
+                    onConfirmDialogRejected();
+                    onAcceptedFunc();
+                };
+
+                fileConfirmationDialog.accepted.connect(onConfirmDialogAccepted);
+                fileConfirmationDialog.rejected.connect(onConfirmDialogRejected);
+                fileConfirmationDialog.open();
+
+            }
+
+            fileDialog.accepted.connect(onFileDialogAccepted);
+            fileDialog.rejected.connect(onFileDialogRejected);
+            fileDialog.open();
+        }
     }
 
     ListView {
@@ -79,31 +109,15 @@ Item {
             }
 
             onLocalUpdateRequested: {
-                const onFileDialogRejected = function() {
-                    fileDialog.rejected.disconnect(onFileDialogRejected);
-                    fileDialog.accepted.disconnect(onFileDialogAccepted);
-                }
+                fileDialog.openWithConfirmation(function () {
+                    downloader.downloadLocalFile(device, fileDialog.fileUrl);
+                });
+            }
 
-                const onFileDialogAccepted = function() {
-                    onFileDialogRejected();
-
-                    const onConfirmDialogAccepted = function() {
-                        downloader.downloadLocalFile(device, fileDialog.fileUrl);
-                    };
-
-                    const onConfirmDialogRejected = function() {
-                        fileConfirmationDialog.accepted.disconnect(onConfirmDialogAccepted);
-                        fileConfirmationDialog.rejected.disconnect(onConfirmDialogRejected);
-                    }
-
-                    fileConfirmationDialog.accepted.connect(onConfirmDialogAccepted);
-                    fileConfirmationDialog.rejected.connect(onConfirmDialogRejected);
-                    fileConfirmationDialog.open();
-                };
-
-                fileDialog.accepted.connect(onFileDialogAccepted);
-                fileDialog.rejected.connect(onFileDialogRejected);
-                fileDialog.open();
+            onLocalRadioUpdateRequested: {
+                fileDialog.openWithConfirmation(function () {
+                    downloader.downloadLocalWirelessStack(device, fileDialog.fileUrl);
+                });
             }
         }
 

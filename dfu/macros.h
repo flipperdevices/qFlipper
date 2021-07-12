@@ -27,12 +27,18 @@
     }
 
 #define error_msg(msg) \
-    qCritical() << Q_FUNC_INFO << ":" << msg;
+    qCritical() << Q_FUNC_INFO << ":" << (msg);
 
 #define info_msg(msg) \
-    qInfo() << Q_FUNC_INFO << ":" << msg;
+    qInfo() << Q_FUNC_INFO << ":" << (msg);
 
 #define debug_msg(msg) \
-    qDebug() << Q_FUNC_INFO << ":" << msg;
+    qDebug() << Q_FUNC_INFO << ":" << (msg);
+
+#define begin_ignore_block() \
+    qInfo() << "\nvvv ATTENTION: Ignore errors below until matching closing message. vvv\n";
+
+#define end_ignore_block() \
+    qInfo() << "\n^^^ ATTENTION: Ignore errors above until matching opening message. ^^^\n";
 
 #endif // MACROS_H

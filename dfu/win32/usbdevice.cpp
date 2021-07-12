@@ -158,20 +158,14 @@ QByteArray USBDevice::extraInterfaceDescriptor(int interfaceNum, uint8_t type, i
     return ret;
 }
 
-QByteArray USBDevice::stringInterfaceDescriptor(int interfaceNum)
+QByteArray USBDevice::stringInterfaceDescriptor(uint8_t alt)
 {
-    Q_UNUSED(interfaceNum);
-
     QByteArray ret;
-
-    UCHAR alt;
-    auto success = WinUsb_GetCurrentAlternateSetting(m_p->deviceHandle, &alt);
-    check_return_val(success == TRUE, "Failed to get alternate setting number", ret);
 
     USB_INTERFACE_DESCRIPTOR ifd;
     ifd.bDescriptorType = USB_INTERFACE_DESCRIPTOR_TYPE;
 
-    success = WinUsb_QueryInterfaceSettings(m_p->deviceHandle, alt, &ifd);
+    auto success = WinUsb_QueryInterfaceSettings(m_p->deviceHandle, alt, &ifd);
     check_return_val(success == TRUE, "Failed to get interface descriptor", ret);
 
     const auto BUF_SIZE = 1024;

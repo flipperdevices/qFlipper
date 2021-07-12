@@ -11,8 +11,11 @@ class QSerialPort;
 
 namespace Flipper {
 
-class ZeroRemote;
-class Zero : public QObject
+namespace Zero {
+    class RemoteController;
+}
+
+class FlipperZero : public QObject
 {
     Q_OBJECT
 
@@ -23,26 +26,51 @@ class Zero : public QObject
     Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusMessageChanged)
     Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
     Q_PROPERTY(bool isDFU READ isDFU NOTIFY isDFUChanged)
-    Q_PROPERTY(Flipper::ZeroRemote* remote READ remote CONSTANT)
+    Q_PROPERTY(Flipper::Zero::RemoteController* remote READ remote CONSTANT)
 
 public:
-    Zero(const USBDeviceInfo &parameters, QObject *parent = nullptr);
+    enum class BootMode {
+        Normal,
+        DFUOnly
+    };
+
+    FlipperZero(const USBDeviceInfo &info, QObject *parent = nullptr);
+
+    void setDeviceInfo(const USBDeviceInfo &info);
+    void setPersistent(bool set);
+    void setConnected(bool set);
+
+    bool isPersistent() const;
+    bool isConnected() const;
 
     bool detach();
-    bool download(QIODevice *file);
+    bool setBootMode(BootMode mode);
+    bool waitForReboot(int timeoutMs = 10000);
+
+    bool isFUSRunning();
+
+    bool startFUS();
+    bool startWirelessStack();
+    bool eraseWirelessStack();
+
+    bool downloadFirmware(QIODevice *file);
+    bool downloadFUS(QIODevice *file, uint32_t addr);
+    bool downloadWirelessStack(QIODevice *file, uint32_t addr = 0);
+    bool upgradeWirelessStack();
 
     const QString &name() const;
     const QString &model() const;
     const QString &target() const;
     const QString &version() const;
     const QString &statusMessage() const;
+
     double progress() const;
 
     const USBDeviceInfo &info() const;
 
     bool isDFU() const;
 
-    ZeroRemote *remote() const;
+    Flipper::Zero::RemoteController *remote() const;
 
     void setName(const QString &name);
     void setTarget(const QString &target);
@@ -57,11 +85,14 @@ signals:
     void statusMessageChanged(const QString&);
     void progressChanged(double);
 
-    void isDFUChanged(bool);
+    void isDFUChanged();
 
 private:
     void fetchInfoVCPMode();
     void fetchInfoDFUMode();
+
+    bool m_isPersistent;
+    bool m_isConnected;
 
     USBDeviceInfo m_info;
     QMutex m_deviceMutex;
@@ -73,8 +104,7 @@ private:
 
     double m_progress;
 
-    QSerialPort *m_port;
-    ZeroRemote *m_remote;
+    Zero::RemoteController *m_remote;
 };
 
 }

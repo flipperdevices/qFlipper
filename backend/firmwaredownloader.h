@@ -5,46 +5,40 @@
 #include <QQueue>
 
 #include "flipperupdates.h"
+#include "abstractfirmwareoperation.h"
 
 class QIODevice;
 
 namespace Flipper {
 
-class Zero;
+class FlipperZero;
 class FirmwareDownloader : public QObject
 {
     Q_OBJECT
 
     enum class State {
         Ready,
-        WaitingForDFU,
-        ExecuteRequest
-    };
-
-    struct Request {
-        Flipper::Zero *device;
-        QIODevice *file;
+        Running
     };
 
 public:
     FirmwareDownloader(QObject *parent = nullptr);
 
 public slots:
-    void downloadLocalFile(Flipper::Zero *device, const QString &filePath);
-    void downloadRemoteFile(Flipper::Zero *device, const Updates::FileInfo &fileInfo);
+    void downloadLocalFile(Flipper::FlipperZero *device, const QString &filePath);
+    void downloadRemoteFile(Flipper::FlipperZero *device, const Updates::FileInfo &fileInfo);
 
-    void onDeviceConnected(Flipper::Zero *device);
+    void downloadLocalFUS(Flipper::FlipperZero *device, const QString &filePath);
+    void downloadLocalWirelessStack(Flipper::FlipperZero *device, const QString &filePath);
 
 private slots:
     void processQueue();
 
 private:
-    void enqueueRequest(const Request &req);
-    void processCurrentRequest();
+    void enqueueOperation(AbstractFirmwareOperation *op);
 
     State m_state;
-    Request m_currentRequest;
-    QQueue<Request> m_requestQueue;
+    QQueue<AbstractFirmwareOperation*> m_operationQueue;
 };
 
 }

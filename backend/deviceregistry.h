@@ -8,7 +8,7 @@
 
 namespace Flipper {
 
-class Zero;
+class FlipperZero;
 
 class DeviceRegistry : public QAbstractListModel
 {
@@ -26,14 +26,14 @@ public:
     };
 
 signals:
-    void deviceConnected(Flipper::Zero*);
+    void deviceConnected(Flipper::FlipperZero*);
 
 public slots:
     void insertDevice(const USBDeviceInfo &info);
     void removeDevice(const USBDeviceInfo &info);
 
 private:
-    QVector<Flipper::Zero*> m_data;
+    QVector<Flipper::FlipperZero*> m_data;
 };
 
 }
