@@ -95,7 +95,7 @@ jobs:
           name: qFlipperSetup-64bit.exe
       - uses: actions/download-artifact@v2
         with:
-          name: ./build_mac/qflipper.dmg
+          name: qflipper.dmg
       - name: Display structure of downloaded files
         run: ls -R
       - name: Upload application
