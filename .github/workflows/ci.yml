@@ -82,6 +82,7 @@ jobs:
           name: qFlipperSetup-64bit.exe
           path: |
             .\build\qFlipperSetup-64bit.exe
+            .\build\qFlipper-64bit.zip
           if-no-files-found: error
           retention-days: 7
 
@@ -98,7 +99,7 @@ jobs:
           name: qflipper.dmg
 
       - name: Generate files list
-        run: ls qflipper.dmg qFlipperSetup-64bit.exe  > uploadlist.txt
+        run: ls qflipper.dmg qFlipperSetup-64bit.exe qFlipper-64bit.zip > uploadlist.txt
 
       - name: Upload applications
         uses: burnett01/rsync-deployments@4.1
