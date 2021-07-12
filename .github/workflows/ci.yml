@@ -65,17 +65,6 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload application
-        uses: burnett01/rsync-deployments@4.1
-        with:
-          switches: -cvzr
-          path: ./build_mac/qflipper.dmg
-          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/"
-          remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
-          remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
-          remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
-          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
-
   build_windows:
     runs-on: [self-hosted, X64, Windows]
     steps:
@@ -96,11 +85,24 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  upload_mac_windows:
+    name: Upload apps for Windows and MacOS
+    needs: [build_windows, build_mac]
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: qFlipperSetup-64bit.exe
+      - uses: actions/download-artifact@v2
+        with:
+          name: ./build_mac/qflipper.dmg
+      - name: Display structure of downloaded files
+        run: ls -R
       - name: Upload application
         uses: burnett01/rsync-deployments@4.1
         with:
           switches: -cvzr
-          path: .\build\qFlipperSetup-64bit.exe
+          path: ./qFlipperSetup-64bit.exe
           remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
           remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
