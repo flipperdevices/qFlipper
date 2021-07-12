@@ -5,6 +5,7 @@ Item {
     signal updateRequested(var device)
     signal localUpdateRequested(var device)
     signal localRadioUpdateRequested(var device)
+    signal localFUSUpdateRequested(var device)
 
     signal versionListRequested(var device)
     signal screenStreamRequested(var device)
@@ -129,6 +130,7 @@ Item {
 
         MenuItem {
             text: qsTr("Update FUS (Expert)...")
+            onTriggered: localFUSUpdateRequested(device)
         }
 
         MenuItem {

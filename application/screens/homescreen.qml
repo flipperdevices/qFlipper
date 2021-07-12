@@ -120,6 +120,12 @@ Item {
                     downloader.downloadLocalWirelessStack(device, fileDialog.fileUrl);
                 });
             }
+
+            onLocalFUSUpdateRequested: {
+                fileDialog.openWithConfirmation(["FUS firmware files (*.bin)", "All files (*)"], function () {
+                    downloader.downloadLocalFUS(device, fileDialog.fileUrl);
+                });
+            }
         }
 
         Text {

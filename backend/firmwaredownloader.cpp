@@ -52,8 +52,10 @@ void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Updates::
 
 void FirmwareDownloader::downloadLocalFUS(FlipperZero *device, const QString &filePath)
 {
-    Q_UNUSED(device)
-    Q_UNUSED(filePath)
+    const auto localUrl = QUrl(filePath).toLocalFile();
+    auto *file = new QFile(localUrl, this);
+
+    enqueueOperation(new Flipper::Zero::FUSDownloadOperation(device, file, 0x0800FFFF));
 }
 
 void FirmwareDownloader::downloadLocalWirelessStack(FlipperZero *device, const QString &filePath)

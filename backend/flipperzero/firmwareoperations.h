@@ -1,5 +1,4 @@
-#ifndef FIRMWAREOPERATIONS_H
-#define FIRMWAREOPERATIONS_H
+#pragma once
 
 #include "abstractfirmwareoperation.h"
 
@@ -27,8 +26,23 @@ private:
 class WirelessStackDownloadOperation : public AbstractFirmwareOperation
 {
 public:
-    WirelessStackDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t addr = 0);
+    WirelessStackDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t targetAddress = 0);
     ~WirelessStackDownloadOperation();
+
+    const QString name() const override;
+    bool execute() override;
+
+private:
+    FlipperZero *m_device;
+    QIODevice *m_file;
+    uint32_t m_targetAddress;
+};
+
+class FUSDownloadOperation : public AbstractFirmwareOperation
+{
+public:
+    FUSDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t targetAddress);
+    ~FUSDownloadOperation();
 
     const QString name() const override;
     bool execute() override;
@@ -41,5 +55,3 @@ private:
 
 }
 }
-
-#endif // FIRMWAREOPERATIONS_H
