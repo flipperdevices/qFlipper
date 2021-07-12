@@ -27,7 +27,7 @@ private:
 class WirelessStackDownloadOperation : public AbstractFirmwareOperation
 {
 public:
-    WirelessStackDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t addr);
+    WirelessStackDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t addr = 0);
     ~WirelessStackDownloadOperation();
 
     const QString name() const override;

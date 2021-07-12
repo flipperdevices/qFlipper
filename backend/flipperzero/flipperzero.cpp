@@ -24,6 +24,11 @@ static const auto DONE_MESSAGE = QObject::tr("Done");
 
 using namespace Flipper;
 
+/* ----------------------------------------------------------------------------------------------------------------------------------
+ * FUS operations are based on the info from AN5185
+ * https://www.st.com/resource/en/application_note/dm00513965-st-firmware-upgrade-services-for-stm32wb-series-stmicroelectronics.pdf
+ * ---------------------------------------------------------------------------------------------------------------------------------- */
+
 FlipperZero::FlipperZero(const USBDeviceInfo &info, QObject *parent):
     QObject(parent),
 
@@ -307,42 +312,51 @@ bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
     check_return_bool(file->bytesAvailable(), "The firmware file is empty");
 
     STM32WB55::STM32WB55 device(m_info);
-    const auto success = device.beginTransaction() && device.erase(addr, file->bytesAvailable()) &&
-                         device.download(file, addr, 0) && device.endTransaction();
-    locker.unlock();
+    check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
 
-    file->close();
+    if(!addr) {
+        const auto ob = device.optionBytes();
+        check_return_bool(ob.isValid(), "Failed to get option bytes");
 
-    check_return_bool(success, "Failed to download wireless stack image.");
+        const auto origin = device.partitionOrigin((uint8_t)STM32WB55::STM32WB55::Partition::Flash);
+        const auto pageSize = (uint32_t)0x1000; // TODO: do not hardcode page size
+        addr = (origin + (pageSize * ob.SFSA()) - file->bytesAvailable()) & (~(pageSize - 1));
 
-    info_msg("Sending FW_UPGRADE command...");
+        info_msg(QString("SFSA value is 0x%1").arg(QString::number(ob.SFSA(), 16)));
+        info_msg(QString("Target address for wireless stack is 0x%1").arg(QString::number(addr, 16)));
 
-    {
-        STM32WB55::STM32WB55 device(m_info);
-
-        locker.relock();
-
-        const auto success = device.beginTransaction() && device.FUSFwUpgrade() && device.endTransaction();
-        check_return_bool(success, "Ehhhhh x2");
-
-        locker.unlock();
+    } else {
+        info_msg(QString("Target address for wireless stack is OVERRIDDEN to 0x%1").arg(QString::number(addr, 16)));
     }
+
+    const auto success = device.erase(addr, file->bytesAvailable()) &&
+                         device.download(file, addr, 0) && device.endTransaction();
+    file->close();
+    check_return_bool(success, "Failed to download wireless stack image");
+
+    return true;
+}
+
+bool FlipperZero::upgradeWirelessStack()
+{
+    info_msg("Sending FW_UPGRADE command...");
+    QMutexLocker locker(&m_deviceMutex);
+
+    STM32WB55::STM32WB55 device(m_info);
+
+    const auto success = device.beginTransaction() && device.FUSFwUpgrade() && device.endTransaction();
+    check_return_bool(success, "Failed to send FW_UPGRADE command");
+
+    locker.unlock();
 
     info_msg("WAITING for FW_UPGRADE to finish...");
 
-    while(waitForReboot(20000)) {
-        STM32WB55::STM32WB55 device(m_info);
-
-        locker.relock();
-
-        device.beginTransaction();
-        const auto state = device.FUSGetState();
-        device.endTransaction();
-
-        locker.unlock();
-
-        info_msg(QString(" ==== FUS STATE: %1 %2").arg(state.status).arg(state.error));
+    while(waitForReboot()) {
+        // Wait for the device to stop rebooting itself...
     }
+
+    info_msg("No more reboots detected. Firmware upgrade seems to have finished");
+    check_return_bool(!isFUSRunning(), "Unexpected FUS behaviour: FUS is running, while it should not");
 
     return true;
 }

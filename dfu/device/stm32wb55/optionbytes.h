@@ -22,6 +22,8 @@ public:
     bool nBoot1() const;
     bool nSwBoot0() const;
 
+    uint8_t SFSA() const;
+
     void setNBoot0(bool set);
     void setNBoot1(bool set);
     void setNSwBoot0(bool set);
@@ -29,6 +31,8 @@ public:
 private:
     bool getBit(size_t addr, size_t pos) const;
     void setBit(size_t addr, size_t pos, bool set);
+
+    uint8_t getByte(size_t addr, size_t pos) const;
 
     QByteArray m_data;
     bool m_isValid;

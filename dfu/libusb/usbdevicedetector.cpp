@@ -6,6 +6,9 @@
 
 #include "macros.h"
 
+// Magic delay (probably helps with Wireless and FUS updates)
+#define MAGIC_DELAY_MS 250
+
 static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
 
 USBDeviceDetector::USBDeviceDetector(QObject *parent):
@@ -96,7 +99,7 @@ static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb
 
     if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED) {
         // Get string descriptors out of callback context
-        QTimer::singleShot(0, detector, [=]() {
+        QTimer::singleShot(MAGIC_DELAY_MS, detector, [=]() {
             emit detector->devicePluggedIn(getDeviceInfo(info));
         });
 

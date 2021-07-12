@@ -29,6 +29,13 @@ bool DfuseDevice::endTransaction()
     return res;
 }
 
+uint32_t DfuseDevice::partitionOrigin(uint8_t alt)
+{
+    const auto desc = stringInterfaceDescriptor(alt);
+    const auto layout = DFUMemoryLayout::fromStringDescriptor(desc);
+    return layout.address();
+}
+
 bool DfuseDevice::erase(uint32_t addr, size_t maxSize)
 {
     check_return_bool(prepare(), "Failed to prepare the device");

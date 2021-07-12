@@ -55,7 +55,8 @@ public:
 
     bool downloadFirmware(QIODevice *file);
     bool downloadFUS(QIODevice *file, uint32_t addr);
-    bool downloadWirelessStack(QIODevice *file, uint32_t addr);
+    bool downloadWirelessStack(QIODevice *file, uint32_t addr = 0);
+    bool upgradeWirelessStack();
 
     const QString &name() const;
     const QString &model() const;

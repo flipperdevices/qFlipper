@@ -61,7 +61,7 @@ void FirmwareDownloader::downloadLocalWirelessStack(FlipperZero *device, const Q
     const auto localUrl = QUrl(filePath).toLocalFile();
     auto *file = new QFile(localUrl, this);
 
-    enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file, 0x080CA000));
+    enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file));
 }
 
 void FirmwareDownloader::processQueue()
@@ -77,7 +77,7 @@ void FirmwareDownloader::processQueue()
     auto *watcher = new QFutureWatcher<bool>(this);
 
     connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
-        info_msg(QString("Operation '%1' finished with status: %2").arg(currentOperation->name(), watcher->result() ? "success" : "failure"));
+        info_msg(QString("Operation '%1' finished with status: %2").arg(currentOperation->name(), watcher->result() ? "SUCCESS" : "FAILURE"));
 
         delete currentOperation;
         processQueue();

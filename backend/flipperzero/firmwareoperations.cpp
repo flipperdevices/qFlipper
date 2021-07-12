@@ -69,9 +69,7 @@ bool WirelessStackDownloadOperation::execute()
     check_return_bool(m_device->isFUSRunning(), "FUS seemed to start, but isn't running anyway");
     check_return_bool(m_device->eraseWirelessStack(), "Failed to erase existing wireless stack");
     check_return_bool(m_device->downloadWirelessStack(m_file, m_targetAddress), "Failed to download wireless stack image");
-
-//    check_return_bool(m_device->startWirelessStack(), "Failed to start wireless stack");
-
+    check_return_bool(m_device->upgradeWirelessStack(), "Failed to upgrade wireless stack");
     check_return_bool(m_device->setBootMode(FlipperZero::BootMode::Normal), "Failed to set device into Normal boot mode");
 
     m_device->setPersistent(false);

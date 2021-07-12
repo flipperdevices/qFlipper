@@ -81,6 +81,8 @@ public:
     bool beginTransaction();
     bool endTransaction();
 
+    uint32_t partitionOrigin(uint8_t alt = 0);
+
     bool erase(uint32_t addr, size_t maxSize);
     bool download(DfuseFile *file);
     bool download(QIODevice *file, uint32_t addr, uint8_t alt = 0);
