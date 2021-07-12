@@ -36,7 +36,7 @@ Item {
         folder: shortcuts.home
         nameFilters: ["Firmware files (*.dfu)", "All files (*)"]
 
-        function openWithConfirmation(onAcceptedFunc) {
+        function openWithConfirmation(nameFilters, onAcceptedFunc) {
             const onFileDialogRejected = function() {
                 fileDialog.rejected.disconnect(onFileDialogRejected);
                 fileDialog.accepted.disconnect(onFileDialogAccepted);
@@ -63,6 +63,7 @@ Item {
 
             fileDialog.accepted.connect(onFileDialogAccepted);
             fileDialog.rejected.connect(onFileDialogRejected);
+            fileDialog.setNameFilters(nameFilters);
             fileDialog.open();
         }
     }
@@ -109,13 +110,13 @@ Item {
             }
 
             onLocalUpdateRequested: {
-                fileDialog.openWithConfirmation(function () {
+                fileDialog.openWithConfirmation(["Firmware files (*.dfu)", "All files (*)"], function () {
                     downloader.downloadLocalFile(device, fileDialog.fileUrl);
                 });
             }
 
             onLocalRadioUpdateRequested: {
-                fileDialog.openWithConfirmation(function () {
+                fileDialog.openWithConfirmation(["Radio firmware files (*.bin)", "All files (*)"], function () {
                     downloader.downloadLocalWirelessStack(device, fileDialog.fileUrl);
                 });
             }
