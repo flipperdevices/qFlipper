@@ -31,7 +31,9 @@ bool DfuseDevice::endTransaction()
 
 uint32_t DfuseDevice::partitionOrigin(uint8_t alt)
 {
-    const auto desc = stringInterfaceDescriptor(alt);
+    check_return_bool(setInterfaceAltSetting(0, alt), "Failed to set interface alternate setting");
+
+    const auto desc = stringInterfaceDescriptor(0);
     const auto layout = DFUMemoryLayout::fromStringDescriptor(desc);
     return layout.address();
 }
