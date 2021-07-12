@@ -1,5 +1,7 @@
 Unicode true
 
+SetCompressor /solid /final lzma
+
 !define /ifndef NAME "qFlipper"
 !define /ifndef ARCH_BITS 64
 !define ZADIC_EXE "$INSTDIR\zadic.exe"
