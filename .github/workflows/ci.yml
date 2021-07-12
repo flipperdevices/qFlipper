@@ -96,13 +96,14 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: qflipper.dmg
-      - name: Display structure of downloaded files
-        run: ls -R
-      - name: Upload application
+
+      - name: Generate files list
+        run: ls qflipper.dmg qFlipperSetup-64bit.exe  > uploadlist.txt
+
+      - name: Upload applications
         uses: burnett01/rsync-deployments@4.1
         with:
-          switches: -cvzr
-          path: ./qFlipperSetup-64bit.exe
+          switches: -cvzr --files-from=uploadlist.txt
           remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
           remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
