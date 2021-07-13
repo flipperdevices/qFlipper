@@ -1,0 +1,116 @@
+name: 'CI'
+
+on: push
+
+jobs:
+  build_linux:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Cleanup workspace
+        uses: AutoModality/action-clean@v1
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+        with:
+          key: docker-cache-${{ hashFiles('docker/**') }}-{hash}
+          restore-keys: docker-cache-${{ hashFiles('docker/**') }}-
+      - name: Build docker image
+        uses: ./.github/actions/docker
+
+      - name: Build application in docker
+        run: docker build -t flipp ./docker/ && docker run --rm --privileged -v $(pwd):/project flipp /project/build_linux.sh
+        
+      - name: Publish application
+        uses: actions/upload-artifact@v2
+        with:
+          name: qflipper-x86_64.AppImage
+          path: |
+            ./build/qflipper-x86_64.AppImage
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload application
+        uses: burnett01/rsync-deployments@4.1
+        with:
+          switches: -cvzr
+          path: ./build/qflipper-x86_64.AppImage
+          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/"
+          remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
+          remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
+          remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
+          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
+
+  build_mac:
+    runs-on: [self-hosted, X64, macOS]
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Build application
+        run: ./build_mac.sh
+
+      - name: Publish application
+        uses: actions/upload-artifact@v2
+        with:
+          name: qflipper.dmg
+          path: |
+            ./build_mac/qflipper.dmg
+          if-no-files-found: error
+          retention-days: 7
+
+  build_windows:
+    runs-on: [self-hosted, X64, Windows]
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Build application
+        run: .\build_windows.bat
+
+      - name: Publish application
+        uses: actions/upload-artifact@v2
+        with:
+          name: qFlipperSetup-64bit.exe
+          path: |
+            .\build\qFlipperSetup-64bit.exe
+            .\build\qFlipper-64bit.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  upload_mac_windows:
+    name: Upload apps for Windows and MacOS
+    needs: [build_windows, build_mac]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: qFlipperSetup-64bit.exe
+      - uses: actions/download-artifact@v2
+        with:
+          name: qflipper.dmg
+
+      - name: Generate files list
+        run: ls qflipper.dmg qFlipperSetup-64bit.exe qFlipper-64bit.zip > uploadlist.txt
+
+      - name: Upload applications
+        uses: burnett01/rsync-deployments@4.1
+        with:
+          switches: -cvzr --files-from=uploadlist.txt
+          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/"
+          remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
+          remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
+          remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
+          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
