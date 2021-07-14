@@ -2,8 +2,9 @@
 
 #include "dfusedevice.h"
 #include "optionbytes.h"
+#include "fusstate.h"
 
-namespace STM32WB55 {
+namespace STM32 {
 
 class STM32WB55 : public DfuseDevice
 {
@@ -16,53 +17,14 @@ public:
         OTP
     };
 
-    struct FUSState {
-        enum Status {
-            Idle = 0x00,
-            FWUpgradeOngoing = 0x10,
-            FUSUpgradeOngoing = 0x20,
-            ServiceOngoing = 0x30,
-            ErrorOccured = 0xFF,
-            Invalid = 0x0BADF00D
-        };
-
-        enum Error {
-            NoError = 0x00,
-            ImageNotFound,
-            ImageCorrupt,
-            ImageNotAuthentic,
-            NotEnoughSpace,
-            UserAbort,
-            EraseError,
-            WriteError,
-            STTagNotFound,
-            CustomTagNotFound,
-            AuthKeyLocked,
-            RollBackError = 0x11,
-            NotRunning = 0xFE,
-            Unknown = 0xFF
-        };
-
-        FUSState() = default;
-        FUSState(Status s, Error e):
-            status(s),
-            error(e)
-        {}
-
-        bool isValid() const { return status != Invalid; }
-
-        Status status = Invalid;
-        Error error = Unknown;
-    };
-
     STM32WB55(const USBDeviceInfo &info, QObject *parent = nullptr);
 
-    OptionBytes optionBytes();
-    bool setOptionBytes(const OptionBytes &ob);
+    WB55::OptionBytes optionBytes();
+    bool setOptionBytes(const WB55::OptionBytes &ob);
 
     QByteArray OTPData(qint64 len);
 
-    FUSState FUSGetState();
+    WB55::FUSState FUSGetState();
     bool FUSFwDelete();
     bool FUSFwUpgrade();
     bool FUSStartWirelessStack();

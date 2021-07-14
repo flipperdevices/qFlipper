@@ -3,7 +3,8 @@
 #include <QString>
 #include <QByteArray>
 
-namespace STM32WB55 {
+namespace STM32 {
+namespace WB55 {
 
 class OptionBytes
 {
@@ -38,4 +39,5 @@ private:
     bool m_isValid;
 };
 
+}
 }

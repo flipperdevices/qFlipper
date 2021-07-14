@@ -76,5 +76,4 @@ bool WirelessStackDownloadOperation::execute()
     return true;
 }
 
-}
-}
+}}

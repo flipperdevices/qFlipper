@@ -22,12 +22,16 @@ static const auto UPDATE_MESSAGE = QObject::tr("Update");
 static const auto ERROR_MESSAGE = QObject::tr("Error");
 static const auto DONE_MESSAGE = QObject::tr("Done");
 
-using namespace Flipper;
-
 /* ----------------------------------------------------------------------------------------------------------------------------------
  * FUS operations are based on the info from AN5185
  * https://www.st.com/resource/en/application_note/dm00513965-st-firmware-upgrade-services-for-stm32wb-series-stmicroelectronics.pdf
  * ---------------------------------------------------------------------------------------------------------------------------------- */
+
+namespace Flipper {
+
+using namespace Zero;
+using namespace STM32;
+using namespace WB55;
 
 FlipperZero::FlipperZero(const USBDeviceInfo &info, QObject *parent):
     QObject(parent),
@@ -133,7 +137,7 @@ bool FlipperZero::setBootMode(BootMode mode)
 
     QMutexLocker locker(&m_deviceMutex);
 
-    STM32WB55::STM32WB55 device(m_info);
+    STM32WB55 device(m_info);
 
     check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
     auto ob = device.optionBytes();
@@ -180,12 +184,12 @@ bool FlipperZero::isFUSRunning()
 
     QMutexLocker locker(&m_deviceMutex);
 
-    STM32WB55::STM32WB55 device(m_info);
+    STM32WB55 device(m_info);
     check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
 
     auto state = device.FUSGetState();
-    const auto running = (state.status == STM32WB55::STM32WB55::FUSState::Idle) &&
-                         (state.error == STM32WB55::STM32WB55::FUSState::NoError);
+    const auto running = (state.status() == FUSState::Idle) &&
+                         (state.error() == FUSState::NoError);
     check_return_bool(device.endTransaction(), "Failed to end transaction");
     info_msg(running ? "FUS is RUNNING" : "FUS is NOT running");
 
@@ -198,19 +202,19 @@ bool FlipperZero::startFUS()
 
     QMutexLocker locker(&m_deviceMutex);
 
-    STM32WB55::STM32WB55 device(m_info);
+    STM32WB55 device(m_info);
     check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
 
     auto state = device.FUSGetState();
-    const auto running = (state.status == STM32WB55::STM32WB55::FUSState::Idle) &&
-                         (state.error == STM32WB55::STM32WB55::FUSState::NoError);
+    const auto running = (state.status() == FUSState::Idle) &&
+                         (state.error() == FUSState::NoError);
     if(running) {
         info_msg("FUS is already RUNNING, doing nothing...");
         check_return_bool(device.endTransaction(), "Failed to end transaction");
         return true;
     }
 
-    info_msg(QString("FUS appears not to be running with STATUS: %1 and ERROR CODE: %2.").arg(state.status).arg(state.error));
+    info_msg(QString("FUS appears not to be running with STATUS: %1 and ERROR CODE: %2.").arg(state.status()).arg(state.error()));
 
     // Send a second GET_STATE to actually start FUS
     begin_ignore_block();
@@ -228,7 +232,7 @@ bool FlipperZero::startWirelessStack()
 {
     QMutexLocker locker(&m_deviceMutex);
 
-    STM32WB55::STM32WB55 device(m_info);
+    STM32WB55 device(m_info);
     const auto success = device.beginTransaction() && device.FUSStartWirelessStack();
     check_return_bool(success, "Failed to start wireless stack");
 
@@ -243,7 +247,7 @@ bool FlipperZero::eraseWirelessStack()
 
     QMutexLocker locker(&m_deviceMutex);
 
-    STM32WB55::STM32WB55 device(m_info);
+    STM32WB55 device(m_info);
     const auto success = device.beginTransaction() && device.FUSFwDelete() && device.endTransaction();
     check_return_bool(success, "Failed to initiate wireless stack erase");
 
@@ -254,15 +258,15 @@ bool FlipperZero::eraseWirelessStack()
         check_return_bool(waitForReboot(), "Lost connection to the device");
         locker.relock();
 
-        STM32WB55::STM32WB55 device(m_info);
+        STM32WB55 device(m_info);
 
         check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
         const auto state = device.FUSGetState();
         check_return_bool(device.endTransaction(), "Failed to end transaction");
 
-        info_msg(QString("Current device state is: status: %1 error: %2").arg(state.status).arg(state.error));
-        done = (state.error == STM32WB55::STM32WB55::FUSState::NoError) ||
-               (state.error == STM32WB55::STM32WB55::FUSState::ImageNotFound);
+        info_msg(QString("Current device state is: status: %1 error: %2").arg(state.status()).arg(state.error()));
+        done = (state.error() == FUSState::NoError) ||
+               (state.error() == FUSState::ImageNotFound);
 
     } while(!done);
 
@@ -307,14 +311,14 @@ bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
     check_return_bool(file->open(QIODevice::ReadOnly), "Failed to open firmware file");
     check_return_bool(file->bytesAvailable(), "The firmware file is empty");
 
-    STM32WB55::STM32WB55 device(m_info);
+    STM32WB55 device(m_info);
     check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
 
     if(!addr) {
         const auto ob = device.optionBytes();
         check_return_bool(ob.isValid(), "Failed to get option bytes");
 
-        const auto origin = device.partitionOrigin((uint8_t)STM32WB55::STM32WB55::Partition::Flash);
+        const auto origin = device.partitionOrigin((uint8_t)STM32WB55::Partition::Flash);
         const auto pageSize = (uint32_t)0x1000; // TODO: do not hardcode page size
         addr = (origin + (pageSize * ob.SFSA()) - file->bytesAvailable()) & (~(pageSize - 1));
 
@@ -338,7 +342,7 @@ bool FlipperZero::upgradeWirelessStack()
     info_msg("Sending FW_UPGRADE command...");
     QMutexLocker locker(&m_deviceMutex);
 
-    STM32WB55::STM32WB55 device(m_info);
+    STM32WB55 device(m_info);
 
     const auto success = device.beginTransaction() && device.FUSFwUpgrade() && device.endTransaction();
     check_return_bool(success, "Failed to send FW_UPGRADE command");
@@ -351,7 +355,7 @@ bool FlipperZero::upgradeWirelessStack()
     for(;;) {
 
         locker.relock();
-        STM32WB55::STM32WB55 device(m_info);
+        STM32WB55 device(m_info);
 
         if(device.beginTransaction()) {
             // Status loop - Polls device status for completion
@@ -362,10 +366,10 @@ bool FlipperZero::upgradeWirelessStack()
                     break;
                 }
 
-                info_msg(QString("Current FUS state: status %1 error %2").arg(state.status).arg(state.error));
+                info_msg(QString("Current FUS state: status %1 error %2").arg(state.status()).arg(state.error()));
 
-                const auto done = state.error == STM32WB55::STM32WB55::FUSState::NotRunning ||
-                                  state.status == STM32WB55::STM32WB55::FUSState::Idle;
+                const auto done = state.error() == FUSState::NotRunning ||
+                                  state.status() == FUSState::Idle;
                 if(done) {
                     check_return_bool(device.endTransaction(), "Failed to end transaction");
                     info_msg("Firmware upgrade COMPLETE.");
@@ -527,10 +531,10 @@ void FlipperZero::fetchInfoDFUMode()
     info_msg("Fetching device info in DFU MODE...");
 
     QMutexLocker locker(&m_deviceMutex);
-    STM32WB55::STM32WB55 device(m_info);
+    STM32WB55 device(m_info);
 
     check_return_void(device.beginTransaction(), "Failed to initiate transaction");
-    const Flipper::Zero::FactoryInfo info(device.OTPData(Flipper::Zero::FactoryInfo::size()));
+    const FactoryInfo info(device.OTPData(FactoryInfo::size()));
     check_return_void(device.endTransaction(), "Failed to end transaction");
 
     if(info.isValid()) {
@@ -541,4 +545,6 @@ void FlipperZero::fetchInfoDFUMode()
     if(m_statusMessage == STARTUP_MESSAGE) {
         setStatusMessage(info.isValid() ? UPDATE_MESSAGE : ERROR_MESSAGE);
     }
+}
+
 }

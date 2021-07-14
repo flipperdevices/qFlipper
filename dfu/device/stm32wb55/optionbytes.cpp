@@ -15,7 +15,8 @@
 #define SFSA_ADDR 0x70
 #define SFSA_POS 0
 
-namespace STM32WB55 {
+namespace STM32 {
+namespace WB55 {
 
 OptionBytes::OptionBytes():
     m_data(OPTION_BYTES_SIZE, 0),
@@ -127,4 +128,5 @@ uint8_t OptionBytes::getByte(size_t addr, size_t pos) const
     return byte;
 }
 
+}
 }

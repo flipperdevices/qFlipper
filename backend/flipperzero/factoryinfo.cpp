@@ -57,5 +57,4 @@ time_t FactoryInfo::date() const
     return m_date;
 }
 
-}
-}
+}}

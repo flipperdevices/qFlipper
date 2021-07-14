@@ -12,7 +12,9 @@
 #define FUS_STATUS_ADDR 0xFFFF0054UL
 #define FUS_STATUS_SIZE 2
 
-namespace STM32WB55 {
+namespace STM32 {
+
+using namespace WB55;
 
 STM32WB55::STM32WB55(const USBDeviceInfo &info, QObject *parent):
     DfuseDevice(info, parent)
@@ -65,7 +67,7 @@ QByteArray STM32WB55::OTPData(qint64 len)
     return buf.data();
 }
 
-STM32WB55::FUSState STM32WB55::FUSGetState()
+FUSState STM32WB55::FUSGetState()
 {
     QBuffer buf;
     check_return_val(buf.open(QIODevice::WriteOnly), "Failed to create buffer", FUSState());
