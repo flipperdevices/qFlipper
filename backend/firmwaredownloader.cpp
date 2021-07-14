@@ -55,7 +55,7 @@ void FirmwareDownloader::downloadLocalFUS(FlipperZero *device, const QString &fi
     const auto localUrl = QUrl(filePath).toLocalFile();
     auto *file = new QFile(localUrl, this);
 
-    enqueueOperation(new Flipper::Zero::FUSDownloadOperation(device, file, 0x080EC000));
+    enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file, 0x080EC000));
 }
 
 void FirmwareDownloader::downloadLocalWirelessStack(FlipperZero *device, const QString &filePath)

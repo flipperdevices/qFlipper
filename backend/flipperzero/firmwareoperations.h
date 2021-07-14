@@ -38,20 +38,5 @@ private:
     uint32_t m_targetAddress;
 };
 
-class FUSDownloadOperation : public AbstractFirmwareOperation
-{
-public:
-    FUSDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t targetAddress);
-    ~FUSDownloadOperation();
-
-    const QString name() const override;
-    bool execute() override;
-
-private:
-    FlipperZero *m_device;
-    QIODevice *m_file;
-    uint32_t m_targetAddress;
-};
-
 }
 }

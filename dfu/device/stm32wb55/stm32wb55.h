@@ -44,13 +44,15 @@ public:
         };
 
         FUSState() = default;
-        FUSState(int s, int e):
+        FUSState(Status s, Error e):
             status(s),
             error(e)
         {}
 
-        int status = Invalid;
-        int error = Unknown;
+        bool isValid() const { return status != Invalid; }
+
+        Status status = Invalid;
+        Error error = Unknown;
     };
 
     STM32WB55(const USBDeviceInfo &info, QObject *parent = nullptr);

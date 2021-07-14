@@ -219,12 +219,8 @@ bool FlipperZero::startFUS()
 
     check_return_bool(device.endTransaction(), "Failed to end transaction");
 
-//    const auto maybeStarted = (state.status == STM32WB55::STM32WB55::FUSState::Invalid);
-//    check_return_bool(maybeStarted, QString("Unexpected FUS state: status: %1 error: %2").arg(state.status).arg(state.error));
-
     // At this point, there is no way to know whether FUS has actually started, but things are looking as expected.
     locker.unlock();
-
     return waitForReboot();
 }
 
@@ -326,7 +322,7 @@ bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
         info_msg(QString("Target address for wireless stack is 0x%1").arg(QString::number(addr, 16)));
 
     } else {
-        info_msg(QString("Target address for wireless stack is OVERRIDDEN to 0x%1").arg(QString::number(addr, 16)));
+        info_msg(QString("Target address for wireless stack image is OVERRIDDEN to 0x%1").arg(QString::number(addr, 16)));
     }
 
     const auto success = device.erase(addr, file->bytesAvailable()) &&
@@ -351,14 +347,47 @@ bool FlipperZero::upgradeWirelessStack()
 
     info_msg("WAITING for FW_UPGRADE to finish...");
 
-    while(waitForReboot()) {
-        // Wait for the device to stop rebooting itself...
+    // Reboot loop - handles multiple device reboots
+    for(;;) {
+
+        locker.relock();
+        STM32WB55::STM32WB55 device(m_info);
+
+        if(device.beginTransaction()) {
+            // Status loop - Polls device status for completion
+            for(;;) {
+                const auto state = device.FUSGetState();
+                if(!state.isValid()) {
+                    info_msg("Device seems to have REBOOTED itself, waiting...");
+                    break;
+                }
+
+                info_msg(QString("Current FUS state: status %1 error %2").arg(state.status).arg(state.error));
+
+                const auto done = state.error == STM32WB55::STM32WB55::FUSState::NotRunning ||
+                                  state.status == STM32WB55::STM32WB55::FUSState::Idle;
+                if(done) {
+                    check_return_bool(device.endTransaction(), "Failed to end transaction");
+                    info_msg("Firmware upgrade COMPLETE.");
+                    return true;
+                }
+
+                QThread::msleep(1000);
+            }
+
+        } else {
+           info_msg("Device seems to have REBOOTED itself, waiting...");
+        }
+
+        locker.unlock();
+
+        if(!waitForReboot()) {
+            error_msg("Failed to upgrade device firmware: Reboot TIMEOUT");
+            break;
+        }
     }
 
-    info_msg("No more reboots detected. Firmware upgrade seems to have finished");
-    check_return_bool(!isFUSRunning(), "Unexpected FUS behaviour: FUS is running, while it should not");
-
-    return true;
+    return false;
 }
 
 const QString &FlipperZero::name() const

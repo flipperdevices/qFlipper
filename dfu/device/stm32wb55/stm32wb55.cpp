@@ -75,7 +75,9 @@ STM32WB55::FUSState STM32WB55::FUSGetState()
 
     check_return_val(buf.bytesAvailable() == FUS_STATUS_SIZE, "Failed to read FUS status", FUSState());
 
-    return FUSState(buf.data().at(0), buf.data().at(1));
+    // Casting to unsigned char to prevent sign extension
+    return FUSState(static_cast<FUSState::Status>((unsigned char)buf.data().at(0)),
+                    static_cast<FUSState::Error>((unsigned char)buf.data().at(1)));
 }
 
 bool STM32WB55::FUSFwDelete()
