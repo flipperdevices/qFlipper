@@ -13,7 +13,7 @@ FirmwareDownloadOperation::FirmwareDownloadOperation(FlipperZero *device, QIODev
     m_device(device),
     m_file(file)
 {
-    m_device->setStatusMessage(QObject::tr("Pending"));
+    m_device->setStatusMessage(QObject::tr("Firmware download pending..."));
 }
 
 FirmwareDownloadOperation::~FirmwareDownloadOperation()
@@ -44,7 +44,9 @@ WirelessStackDownloadOperation::WirelessStackDownloadOperation(FlipperZero *devi
     m_device(device),
     m_file(file),
     m_targetAddress(targetAddress)
-{}
+{
+    m_device->setStatusMessage(QObject::tr("Wireless stack download pending..."));
+}
 
 WirelessStackDownloadOperation::~WirelessStackDownloadOperation()
 {

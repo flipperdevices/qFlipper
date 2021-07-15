@@ -1,12 +1,14 @@
 #pragma once
 
+#include <QString>
+
 namespace STM32 {
 namespace WB55 {
 
 class FUSState {
 public:
 
-    enum Status {
+    enum Status : uint32_t {
         Idle = 0x00,
         FWUpgradeOngoing = 0x10,
         FUSUpgradeOngoing = 0x20,
@@ -15,7 +17,7 @@ public:
         Invalid = 0x0BADF00D
     };
 
-    enum Error {
+    enum Error : uint32_t {
         NoError = 0x00,
         ImageNotFound,
         ImageCorrupt,
@@ -33,14 +35,14 @@ public:
     };
 
     FUSState() = default;
-    FUSState(Status s, Error e):
-        m_status(s),
-        m_error(e)
-    {}
+    FUSState(Status s, Error e);
 
     Status status() const;
     Error error() const;
     bool isValid() const;
+
+    const QString statusString() const;
+    const QString errorString() const;
 
 private:
     Status m_status = Invalid;

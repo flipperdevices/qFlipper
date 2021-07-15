@@ -46,7 +46,7 @@ void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Updates::
         fetcher->deleteLater();
     });
 
-    device->setStatusMessage(tr("Fetching"));
+    device->setStatusMessage(tr("Fetching the update file..."));
     fetcher->fetch(fileInfo);
 }
 
