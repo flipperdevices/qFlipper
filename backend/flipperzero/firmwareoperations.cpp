@@ -78,4 +78,22 @@ bool WirelessStackDownloadOperation::execute()
     return true;
 }
 
+FixOptionBytesOperation::FixOptionBytesOperation(FlipperZero *device):
+    m_device(device)
+{}
+
+const QString FixOptionBytesOperation::name() const
+{
+    return QString("Fix Option Bytes for %1 %2").arg(m_device->model(), m_device->name());
+}
+
+bool FixOptionBytesOperation::execute()
+{
+    m_device->setPersistent(true);
+    check_return_bool(m_device->startWirelessStack(), "Failed to start wireless stack");
+    check_return_bool(m_device->setBootMode(FlipperZero::BootMode::Normal), "Failed to set device into Normal boot mode");
+    m_device->setPersistent(false);
+    return true;
+}
+
 }}

@@ -88,6 +88,7 @@ void FlipperZero::setDeviceInfo(const USBDeviceInfo &info)
 
     setProgress(0);
     setConnected(true);
+    setError(QString(), false);
 }
 
 void FlipperZero::setPersistent(bool set)
@@ -305,7 +306,7 @@ bool FlipperZero::startWirelessStack()
     QMutexLocker locker(&m_deviceMutex);
 
     STM32WB55 device(m_info);
-    const auto success = device.beginTransaction() && device.FUSStartWirelessStack();
+    const auto success = device.beginTransaction() && device.FUSStartWirelessStack() &&device.endTransaction();
     check_return_bool(success, "Failed to start wireless stack");
 
     locker.unlock();

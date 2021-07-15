@@ -66,6 +66,11 @@ void FirmwareDownloader::downloadLocalWirelessStack(FlipperZero *device, const Q
     enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file));
 }
 
+void FirmwareDownloader::makeBootable(FlipperZero *device)
+{
+    enqueueOperation(new Flipper::Zero::FixOptionBytesOperation(device));
+}
+
 void FirmwareDownloader::processQueue()
 {
     if(m_operationQueue.isEmpty()) {

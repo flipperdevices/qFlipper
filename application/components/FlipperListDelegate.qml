@@ -7,7 +7,7 @@ Item {
     signal localRadioUpdateRequested(var device)
     signal localFUSUpdateRequested(var device)
 
-    signal fixOptionBytesRequested(var device)
+    signal fixBootRequested(var device)
 
     signal versionListRequested(var device)
     signal screenStreamRequested(var device)
@@ -164,8 +164,8 @@ Item {
             }
 
             MenuItem {
-                text: qsTr("Fix Option Bytes")
-                onTriggered: fixOptionBytesRequested(device)
+                text: qsTr("Fix boot issues")
+                onTriggered: fixBootRequested(device)
                 enabled: device.isDFU
             }
         }
