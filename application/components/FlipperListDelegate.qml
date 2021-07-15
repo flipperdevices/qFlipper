@@ -83,7 +83,7 @@ Item {
         id: updateButton
         text: device.isDFU ? qsTr("Repair") : qsTr("Update")
         suggested: !device.isDFU
-        visible: device.isDFU && !device.isPersistent
+        visible: device.isDFU && !device.isPersistent && !device.isError
 
         anchors.right: menuButton.left
         anchors.rightMargin: 10

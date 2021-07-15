@@ -59,7 +59,7 @@ public:
 
     bool startFUS();
     bool startWirelessStack();
-    bool eraseWirelessStack();
+    bool deleteWirelessStack();
 
     bool downloadFirmware(QIODevice *file);
     bool downloadFUS(QIODevice *file, uint32_t addr);

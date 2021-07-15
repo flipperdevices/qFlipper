@@ -18,6 +18,12 @@
 
 #define ARBITRARY_NUMBER 66 // Execute order Sixty-Six!
 
+#define try_run(condition, errorMsg) \
+    if(!(condition)) { \
+        errorFeedback(errorMsg); \
+        return false; \
+    }
+
 /* ----------------------------------------------------------------------------------------------------------------------------------
  * FUS operations are based on the info from AN5185
  * https://www.st.com/resource/en/application_note/dm00513965-st-firmware-upgrade-services-for-stm32wb-series-stmicroelectronics.pdf
@@ -135,7 +141,7 @@ bool FlipperZero::isError() const
 
 bool FlipperZero::detach()
 {
-    statusFeedback("Rebooting device in DFU mode...");
+    statusFeedback("Switching device to DFU mode...");
 
     QSerialPort port(SerialHelper::findSerialPort(m_info.serialNumber()));
     const auto success = port.open(QIODevice::WriteOnly) && port.setDataTerminalReady(true) &&
@@ -143,10 +149,11 @@ bool FlipperZero::detach()
     port.close();
 
     if(!success) {
-        errorFeedback("Failed to reset device to DFU mode");
+        errorFeedback("Can't detach the device: Failed to reset in DFU mode");
+        return false;
     }
 
-    return success && waitForReboot();
+    return waitForReboot();
 }
 
 bool FlipperZero::setBootMode(BootMode mode)
@@ -154,19 +161,29 @@ bool FlipperZero::setBootMode(BootMode mode)
     info_msg(QString("Setting device to %1 boot mode...").arg(mode == BootMode::Normal ? "NORMAL" : "DFU ONLY"));
 
     QMutexLocker locker(&m_deviceMutex);
-
     STM32WB55 device(m_info);
 
-    check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
+    if(!device.beginTransaction()) {
+        errorFeedback("Can't set boot mode: Failed to initiate transaction.");
+        return false;
+    }
+
     auto ob = device.optionBytes();
 
-    check_return_bool(ob.isValid(), "Failed to read option bytes");
+    if(!ob.isValid()) {
+        errorFeedback("Can't set boot mode: Failed to read option bytes.");
+        return false;
+    }
 
     ob.setNBoot0(mode == BootMode::Normal);
     ob.setNSwBoot0(mode == BootMode::Normal);
 
-    const auto success = device.setOptionBytes(ob) && device.endTransaction();
-    check_return_bool(success, "Failed to set option bytes");
+    if(!device.setOptionBytes(ob)) {
+        errorFeedback("Cant' set boot mode: Failed to set option bytes");
+        return false;
+    }
+
+    check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
 
     locker.unlock();
 
@@ -176,15 +193,13 @@ bool FlipperZero::setBootMode(BootMode mode)
 bool FlipperZero::waitForReboot(int timeoutMs)
 {
     //TODO: Implement better syncronisation
-    statusFeedback("Rebooting the device...");
-
     auto now = QTime::currentTime();
     while(m_isConnected && (now.msecsTo(QTime::currentTime()) < timeoutMs)) {
         QThread::msleep(100);
     }
 
     if(m_isConnected) {
-        errorFeedback("Reboot timeout exceeded.");
+        errorFeedback("Failed to reboot the device: Reboot timeout exceeded.");
         return false;
     }
 
@@ -198,7 +213,7 @@ bool FlipperZero::waitForReboot(int timeoutMs)
     if(m_isConnected) {
         info_msg("Device has SUCCESSFULLY rebooted.")
     } else {
-        errorFeedback("Reconnect timeout exceeded.");
+        errorFeedback("Failed to reboot the device: Reconnect timeout exceeded.");
     }
 
     return m_isConnected;
@@ -206,49 +221,80 @@ bool FlipperZero::waitForReboot(int timeoutMs)
 
 bool FlipperZero::isFUSRunning()
 {
-    info_msg("Checking if FUS is RUNNING...");
+    info_msg("Checking whether FUS is RUNNING...");
 
     QMutexLocker locker(&m_deviceMutex);
-
     STM32WB55 device(m_info);
-    check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
+
+    if(!device.beginTransaction()) {
+        errorFeedback("Can't check FUS status: Failed to initiate transaction.");
+        return false;
+    }
 
     auto state = device.FUSGetState();
+    if(!state.isValid()) {
+        errorFeedback("Can't check FUS status: Failed to get FUS status.");
+        return false;
+    }
+
     const auto running = (state.status() == FUSState::Idle) &&
                          (state.error() == FUSState::NoError);
-    check_return_bool(device.endTransaction(), "Failed to end transaction");
-    info_msg(running ? "FUS is RUNNING" : "FUS is NOT running");
+
+    if(!device.endTransaction()) {
+        errorFeedback("Can't check FUS status: Failed to end transaction.");
+        return false;
+    }
+
+    if(running) {
+        statusFeedback("FUS has been successfully started.");
+    } else {
+        info_msg(QString("FUS is NOT running: %1, %2").arg(state.statusString(), state.errorString()));
+    }
 
     return running;
 }
 
 bool FlipperZero::startFUS()
 {
-    info_msg("Attempting to start FUS...");
+//    info_msg("Attempting to start FUS...");
+    statusFeedback("Starting firmware upgrade service (FUS)...");
 
     QMutexLocker locker(&m_deviceMutex);
-
     STM32WB55 device(m_info);
-    check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
+
+    if(!device.beginTransaction()) {
+        errorFeedback("Can't start FUS: Failed to initiate transaction.");
+        return false;
+    }
 
     auto state = device.FUSGetState();
-    const auto running = (state.status() == FUSState::Idle) &&
-                         (state.error() == FUSState::NoError);
+
+    if(!state.isValid()) {
+        errorFeedback("Can't start FUS: Failed to get FUS status.");
+        return false;
+    }
+
+    const auto running = (state.status() == FUSState::Idle) && (state.error() == FUSState::NoError);
+
     if(running) {
         info_msg("FUS is already RUNNING, doing nothing...");
-        check_return_bool(device.endTransaction(), "Failed to end transaction");
+
+        if(!device.endTransaction()) {
+            errorFeedback("Can't start FUS: Failed to end transaction.");
+            return false;
+        }
+
         return true;
     }
 
-    info_msg(QString("FUS appears not to be running: %1, %2.").arg(state.statusString(), state.errorString()));
+    info_msg(QString("FUS appears NOT to be running: %1, %2.").arg(state.statusString(), state.errorString()));
 
     // Send a second GET_STATE to actually start FUS
     begin_ignore_block();
     state = device.FUSGetState();
     end_ignore_block();
 
-    check_return_bool(device.endTransaction(), "Failed to end transaction");
-
+    check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
     // At this point, there is no way to know whether FUS has actually started, but things are looking as expected.
     locker.unlock();
     return waitForReboot();
@@ -267,27 +313,32 @@ bool FlipperZero::startWirelessStack()
     return waitForReboot();
 }
 
-bool FlipperZero::eraseWirelessStack()
+bool FlipperZero::deleteWirelessStack()
 {
-    info_msg("Attempting to erase WIRELESS STACK...");
+    info_msg("Attempting to delete COPROCESSOR firmware...");
 
     QMutexLocker locker(&m_deviceMutex);
-
     STM32WB55 device(m_info);
+
     const auto success = device.beginTransaction() && device.FUSFwDelete() && device.endTransaction();
-    check_return_bool(success, "Failed to initiate wireless stack erase");
+
+    if(!success) {
+        errorFeedback("Can't install coprocessor firmware: Failed to initiate firmware removal.");
+        return false;
+    }
 
     locker.unlock();
 
     // Reboot loop - handles multiple device reboots
     for(;;) {
-        QMutexLocker locker(&m_deviceMutex);
         STM32WB55 device(m_info);
 
         // Status loop - Polls device status for completion
         for(;;) {
-            if(!device.beginTransaction()) {
-                info_msg("Device seems to have REBOOTED itself, waiting... 1");
+            QMutexLocker locker(&m_deviceMutex);
+
+            if(!isConnected() || !device.beginTransaction()) {
+                info_msg("Device seems to have REBOOTED itself BEFORE getting state, waiting...");
                 break;
             }
 
@@ -297,23 +348,24 @@ bool FlipperZero::eraseWirelessStack()
                 break;
             }
 
-            info_msg(QString("Current FUS state: %1, %2").arg(state.statusString(), state.errorString()));
+            check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
 
-            const auto done = (state.status() == FUSState::Idle) && (state.error() == FUSState::NoError);
-
-            if(done) {
-                check_return_bool(device.endTransaction(), "Failed to end transaction");
-                info_msg("Wireless stack erase COMPLETE.");
+            if(state.status() == FUSState::Idle) {
+                statusFeedback("Deleted the old coprocessor firmware.");
                 return true;
-            }
+
+            } else if(state.status() == FUSState::ErrorOccured) {
+                errorFeedback("Can't delete coprocessor firmware: An error has occured during the operation.");
+                info_msg(QString("Current FUS state: %1, %2").arg(state.statusString(), state.errorString()));
+                return false;
+
+            } else {}
 
             QThread::msleep(1000);
         }
 
-        locker.unlock();
-
         if(!waitForReboot()) {
-            error_msg("Failed to erase wireless stack: Reboot TIMEOUT");
+            errorFeedback("Can't delete coprocessor firmware: Device reboot timeout.");
             break;
         }
     }
@@ -327,11 +379,11 @@ bool FlipperZero::downloadFirmware(QIODevice *file)
     QMutexLocker locker(&m_deviceMutex);
 
     if(!file->open(QIODevice::ReadOnly)) {
-        errorFeedback("Failed to open the file.");
+        errorFeedback("Can't download firmware: Failed to open the file.");
         return false;
 
     } else if(file->bytesAvailable() <= 0) {
-        errorFeedback("The file is empty.");
+        errorFeedback("Can't download firmware: The file is empty.");
         return false;
 
     } else {
@@ -351,8 +403,10 @@ bool FlipperZero::downloadFirmware(QIODevice *file)
                          dev.leave() && dev.endTransaction();
     locker.unlock();
 
-    if(!success) {
-        errorFeedback("Failed to download the firmware.");
+    if(success) {
+        statusFeedback("Booting the device up...");
+    } else {
+        errorFeedback("Can't download firmware: An error has occured during the operation.");
     }
 
     return success && waitForReboot();
@@ -360,42 +414,65 @@ bool FlipperZero::downloadFirmware(QIODevice *file)
 
 bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
 {
-    info_msg("Downloading WIRELESS STACK...");
+    info_msg("Attempting to download COPROCESSOR firmware image...");
+
+    if(!file->open(QIODevice::ReadOnly)) {
+        errorFeedback("Can't download coprocessor firmware image: Failed to open file.");
+        return false;
+
+    } else if(!file->bytesAvailable()) {
+        errorFeedback("Can't download coprocessor firmware image: File is empty.");
+        return false;
+
+    } else {
+        statusFeedback("Downloading coprocessor firmware image...");
+    }
 
     QMutexLocker locker(&m_deviceMutex);
-
-    check_return_bool(file->open(QIODevice::ReadOnly), "Failed to open firmware file");
-    check_return_bool(file->bytesAvailable(), "The firmware file is empty");
-
     STM32WB55 device(m_info);
 
-    check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
+    if(!device.beginTransaction()) {
+        errorFeedback("Can't download coprocessor firmware image: Failed to initiate transaction.");
+        return false;
+    }
 
     if(!addr) {
         const auto ob = device.optionBytes();
-        check_return_bool(ob.isValid(), "Failed to get option bytes");
+
+        if(!ob.isValid()) {
+            errorFeedback("Can't download coprocessor firmware image: Failed to read Option Bytes.");
+            return false;
+        }
 
         const auto origin = device.partitionOrigin((uint8_t)STM32WB55::Partition::Flash);
         const auto pageSize = (uint32_t)0x1000; // TODO: do not hardcode page size
+
         addr = (origin + (pageSize * ob.SFSA()) - file->bytesAvailable()) & (~(pageSize - 1));
 
         info_msg(QString("SFSA value is 0x%1").arg(QString::number(ob.SFSA(), 16)));
         info_msg(QString("Target address for wireless stack is 0x%1").arg(QString::number(addr, 16)));
 
     } else {
-        info_msg(QString("Target address for wireless stack image is OVERRIDDEN to 0x%1").arg(QString::number(addr, 16)));
+        info_msg(QString("Target address for wireless stack image has been OVERRIDDEN to 0x%1").arg(QString::number(addr, 16)));
     }
 
     connect(&device, &DfuseDevice::progressChanged, this, [=](int operation, double progress) {
         setProgress(progress / 2.0 + (operation == DfuseDevice::Download ? 50 : 0));
     });
 
-    const auto success = device.erase(addr, file->bytesAvailable()) &&
-                         device.download(file, addr, 0) && device.endTransaction();
+    bool success;
+
+    if(!(success = device.erase(addr, file->bytesAvailable()))) {
+        errorFeedback("Can't download coprocessor firmware image: Failed to erase the internal memory.");
+    } else if(!(success = device.download(file, addr, 0))) {
+        errorFeedback("Can't download coprocessor firmware image: Failed to write the internal memory.");
+    } else if(!(success = device.endTransaction())) {
+        errorFeedback("Can't download coprocessor firmware image: Failed to end transaction.");
+    } else {}
+
     file->close();
 
-    check_return_bool(success, "Failed to download wireless stack image");
-    return true;
+    return success;
 }
 
 bool FlipperZero::upgradeWirelessStack()
@@ -406,7 +483,11 @@ bool FlipperZero::upgradeWirelessStack()
     STM32WB55 device(m_info);
 
     const auto success = device.beginTransaction() && device.FUSFwUpgrade() && device.endTransaction();
-    check_return_bool(success, "Failed to send FW_UPGRADE command");
+
+    if(!success) {
+        errorFeedback("Can't install coprocessor firmware: Failed to initiate installation.");
+        return false;
+    }
 
     locker.unlock();
 
@@ -414,39 +495,51 @@ bool FlipperZero::upgradeWirelessStack()
 
     // Reboot loop - handles multiple device reboots
     for(;;) {
-        QMutexLocker locker(&m_deviceMutex);
         STM32WB55 device(m_info);
 
         // Status loop - Polls device status for completion
         for(;;) {
-            if(!device.beginTransaction()) {
-                info_msg("Device seems to have REBOOTED itself, waiting... 1");
+            QMutexLocker locker(&m_deviceMutex);
+
+            if(!isConnected() || !device.beginTransaction()) {
+                info_msg("Device seems to have REBOOTED itself BEFORE getting state, waiting...");
                 break;
             }
 
             const auto state = device.FUSGetState();
             if(!state.isValid()) {
-                info_msg("Device seems to have REBOOTED itself, waiting... 2");
+                info_msg("Device seems to have REBOOTED itself WHILE getting state, waiting...");
                 break;
             }
 
-            info_msg(QString("Current FUS state: %1, %2").arg(state.statusString(), state.errorString()));
+            check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
 
-            const auto done = state.error() == FUSState::NotRunning ||
-                              state.status() == FUSState::Idle;
-            if(done) {
-                check_return_bool(device.endTransaction(), "Failed to end transaction");
-                info_msg("Firmware upgrade COMPLETE.");
+            if(state.status() == FUSState::ErrorOccured) {
+                const auto done = (state.error() == FUSState::NotRunning);
+                if(done) {
+                    statusFeedback("Wireless stack installation complete.");
+                } else {
+                    errorFeedback("Failed to install coprocessor firmware.");
+                    error_msg(QString("Current FUS state: %1, %2").arg(state.statusString(), state.errorString()));
+                }
+
+                return done;
+
+            } else if(state.status() == FUSState::Idle) {
+                statusFeedback("FUS installation complete.");
                 return true;
-            }
+
+            } else if(state.status() == FUSState::FWUpgradeOngoing) {
+                statusFeedback("Installing Wireless stack update, please wait...");
+            } else if(state.status() == FUSState::FUSUpgradeOngoing) {
+                statusFeedback("Installing FUS update, please wait...");
+            } else {}
 
             QThread::msleep(1000);
         }
 
-        locker.unlock();
-
         if(!waitForReboot()) {
-            error_msg("Failed to upgrade device firmware: Reboot TIMEOUT");
+            errorFeedback("Can't install coprocessor firmware: Device reboot timeout.");
             break;
         }
     }
@@ -628,6 +721,7 @@ void FlipperZero::errorFeedback(const char *msg)
 {
     error_msg(msg);
     setError(tr("ERROR: ") + tr(msg));
+    setPersistent(false);
 }
 
 }
