@@ -10,7 +10,7 @@ Button {
 
     icon.width: 16
     icon.height: 16
-    icon.color: "white"
+    icon.color: control.enabled ? "white" : "#555"
 
     background: Rectangle {
         id: buttonBg

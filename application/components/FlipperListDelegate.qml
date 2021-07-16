@@ -27,8 +27,8 @@ Item {
         id: frame
         radius: 6
         anchors.fill: parent
-        color: "transparent"
-        border.color: "white"
+        color: device.isError ? "#3a0000" : "transparent"
+        border.color: device.isError ? "#d32a34" : "white"
         border.width: 1
     }
 
@@ -44,7 +44,7 @@ Item {
 
     Rectangle {
         id: nameLabel
-        color: device.isDFU ? "#0345ff" : "darkorange"
+        color: device.isError ? "#d32a34" : (device.isDFU ? "#0345ff" : "darkorange")
         width: 100
         height: 30
 
@@ -74,16 +74,15 @@ Item {
         anchors.rightMargin: 25
         anchors.verticalCenter: parent.verticalCenter
 
-        enabled: !device.isPersistent
+        enabled: !device.isPersistent && !device.isError
 
         onClicked: actionMenu.open()
     }
 
     StyledButton {
         id: updateButton
-        text: device.isDFU ? qsTr("Repair") : qsTr("Update")
-        suggested: !device.isDFU
-        visible: device.isDFU && !device.isPersistent && !device.isError
+        text: device.isDFU ? qsTr("Repair") : qsTr("Reinstall")
+        visible: !device.isPersistent && !device.isError
 
         anchors.right: menuButton.left
         anchors.rightMargin: 10
@@ -109,10 +108,9 @@ Item {
         id: messageLabel
         text: device.statusMessage
         visible: device.isPersistent || device.isError
-        color: device.isError ? "darkorange" : "darkgray"
+        color: device.isError ? "#ddd" : "white"
 
         font.pointSize: 10
-        font.bold: true
 
         anchors.left: nameLabel.right
         anchors.right: menuButton.left
@@ -123,6 +121,9 @@ Item {
 
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap
+
+        linkColor: "darkorange"
+        onLinkActivated: Qt.openUrlExternally(link)
     }
 
     Menu {

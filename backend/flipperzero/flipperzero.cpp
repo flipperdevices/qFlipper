@@ -16,7 +16,7 @@
 
 #include "device/stm32wb55.h"
 
-#define ARBITRARY_NUMBER 66 // Execute order Sixty-Six!
+#define ARBITRARY_NUMBER 800
 
 #define try_run(condition, errorMsg) \
     if(!(condition)) { \
@@ -56,6 +56,11 @@ void FlipperZero::setDeviceInfo(const USBDeviceInfo &info)
 {
     m_info = info;
 
+    setProgress(0);
+    setError(QString(), false);
+
+    emit isDFUChanged();
+
     if(isDFU()) {
         if(m_remote) {
             m_remote->deleteLater();
@@ -84,11 +89,7 @@ void FlipperZero::setDeviceInfo(const USBDeviceInfo &info)
         fetchInfoVCPMode();
     }
 
-    emit isDFUChanged();
-
-    setProgress(0);
     setConnected(true);
-    setError(QString(), false);
 }
 
 void FlipperZero::setPersistent(bool set)
@@ -142,7 +143,7 @@ bool FlipperZero::isError() const
 
 bool FlipperZero::detach()
 {
-    statusFeedback("Switching device to DFU mode...");
+    statusFeedback("Switching device to <b>DFU</b> mode...");
 
     QSerialPort port(SerialHelper::findSerialPort(m_info.serialNumber()));
     const auto success = port.open(QIODevice::WriteOnly) && port.setDataTerminalReady(true) &&
@@ -159,7 +160,7 @@ bool FlipperZero::detach()
 
 bool FlipperZero::setBootMode(BootMode mode)
 {
-    const auto msg = (mode == BootMode::Normal) ? "Booting the device up..." : "Setting device to DFU boot mode...";
+    const auto msg = (mode == BootMode::Normal) ? "Booting the device up..." : "Setting device to <b>DFU boot</b> mode...";
     statusFeedback(msg);
 
     QMutexLocker locker(&m_deviceMutex);
@@ -654,7 +655,7 @@ void FlipperZero::fetchInfoVCPMode()
     QSerialPort port(SerialHelper::findSerialPort(m_info.serialNumber()));
 
     if(!port.open(QIODevice::ReadWrite)) {
-        errorFeedback("Failed to open serial port.\nIs there a CLI session open?");
+        errorFeedback("Failed to opet serial port.<br/>Is there a <a href=\"https://flipperzero.one/\"><b>CLI session</b></a> open?");
         return;
     }
 
@@ -681,7 +682,7 @@ void FlipperZero::fetchInfoVCPMode()
 
     // A hack for Linux systems which seem to allow opening a serial port twice.
     if(bytesAvailable < ARBITRARY_NUMBER) {
-        errorFeedback("Failed to read from serial port.\nIs there a CLI session open?");
+        errorFeedback("Failed to read from serial port.<br/>Is there a <a href=\"https://flipperzero.one/\"><b>CLI session</b></a> open?");
         return;
     }
 
@@ -735,7 +736,7 @@ void FlipperZero::statusFeedback(const char *msg)
 void FlipperZero::errorFeedback(const char *msg)
 {
     error_msg(msg);
-    setError(tr("ERROR: ") + tr(msg));
+    setError(tr("<b>ERROR:</b> ") + tr(msg));
 }
 
 }
