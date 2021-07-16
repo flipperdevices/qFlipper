@@ -42,6 +42,7 @@ class FixOptionBytesOperation : public AbstractFirmwareOperation
 {
 public:
     FixOptionBytesOperation(FlipperZero *device);
+    ~FixOptionBytesOperation();
 
     const QString name() const override;
     bool execute() override;

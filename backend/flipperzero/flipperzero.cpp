@@ -159,7 +159,8 @@ bool FlipperZero::detach()
 
 bool FlipperZero::setBootMode(BootMode mode)
 {
-    info_msg(QString("Setting device to %1 boot mode...").arg(mode == BootMode::Normal ? "NORMAL" : "DFU ONLY"));
+    const auto msg = (mode == BootMode::Normal) ? "Booting the device up..." : "Setting device to DFU boot mode...";
+    statusFeedback(msg);
 
     QMutexLocker locker(&m_deviceMutex);
     STM32WB55 device(m_info);
@@ -304,7 +305,7 @@ bool FlipperZero::startFUS()
 // TODO: check status to see if the wireless stack is present at all
 bool FlipperZero::startWirelessStack()
 {
-    statusFeedback("Attempting to start the wireless stack...");
+    statusFeedback("Attempting to start the Wireless Stack...");
 
     QMutexLocker locker(&m_deviceMutex);
     STM32WB55 device(m_info);
@@ -332,7 +333,7 @@ bool FlipperZero::startWirelessStack()
 
 bool FlipperZero::deleteWirelessStack()
 {
-    info_msg("Attempting to delete CO-PROCESSOR firmware...");
+    statusFeedback("Deleting old co-processor firmware...");
 
     QMutexLocker locker(&m_deviceMutex);
     STM32WB55 device(m_info);
@@ -340,7 +341,7 @@ bool FlipperZero::deleteWirelessStack()
     const auto success = device.beginTransaction() && device.FUSFwDelete() && device.endTransaction();
 
     if(!success) {
-        errorFeedback("Can't install co-processor firmware: Failed to initiate firmware removal.");
+        errorFeedback("Can't delete old co-processor firmware: Failed to initiate firmware removal.");
         return false;
     }
 
@@ -372,7 +373,7 @@ bool FlipperZero::deleteWirelessStack()
                 return true;
 
             } else if(state.status() == FUSState::ErrorOccured) {
-                errorFeedback("Can't delete co-processor firmware: An error has occured during the operation.");
+                errorFeedback("Can't delete old co-processor firmware: An error has occured during the operation.");
                 info_msg(QString("Current FUS state: %1, %2").arg(state.statusString(), state.errorString()));
                 return false;
 
@@ -382,7 +383,7 @@ bool FlipperZero::deleteWirelessStack()
         }
 
         if(!waitForReboot()) {
-            errorFeedback("Can't delete co-processor firmware: Device reboot timeout.");
+            errorFeedback("Can't delete old co-processor firmware: Device reboot timeout.");
             break;
         }
     }
@@ -416,8 +417,8 @@ bool FlipperZero::downloadFirmware(QIODevice *file)
         setProgress(progress / 2.0 + (operation == DfuseDevice::Download ? 50 : 0));
     });
 
-    const auto success = dev.beginTransaction() && dev.download(&fw) &&
-                         dev.leave() && dev.endTransaction();
+    const auto success = dev.beginTransaction() && dev.download(&fw) && dev.leave();
+    check_continue(dev.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
     locker.unlock();
 
     if(success) {
@@ -467,10 +468,10 @@ bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
         addr = (origin + (pageSize * ob.SFSA()) - file->bytesAvailable()) & (~(pageSize - 1));
 
         info_msg(QString("SFSA value is 0x%1").arg(QString::number(ob.SFSA(), 16)));
-        info_msg(QString("Target address for wireless stack is 0x%1").arg(QString::number(addr, 16)));
+        info_msg(QString("Target address for co-processor firmware image is 0x%1").arg(QString::number(addr, 16)));
 
     } else {
-        info_msg(QString("Target address for wireless stack image has been OVERRIDDEN to 0x%1").arg(QString::number(addr, 16)));
+        info_msg(QString("Target address for co-processor firmware image has been OVERRIDDEN to 0x%1").arg(QString::number(addr, 16)));
     }
 
     connect(&device, &DfuseDevice::progressChanged, this, [=](int operation, double progress) {
@@ -499,7 +500,8 @@ bool FlipperZero::upgradeWirelessStack()
     QMutexLocker locker(&m_deviceMutex);
     STM32WB55 device(m_info);
 
-    const auto success = device.beginTransaction() && device.FUSFwUpgrade() && device.endTransaction();
+    const auto success = device.beginTransaction() && device.FUSFwUpgrade();
+    check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
 
     if(!success) {
         errorFeedback("Can't install co-processor firmware: Failed to initiate installation.");
@@ -734,7 +736,6 @@ void FlipperZero::errorFeedback(const char *msg)
 {
     error_msg(msg);
     setError(tr("ERROR: ") + tr(msg));
-    setPersistent(false);
 }
 
 }
