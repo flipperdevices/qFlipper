@@ -126,6 +126,10 @@ Item {
                     downloader.downloadLocalFUS(device, fileDialog.fileUrl);
                 });
             }
+
+            onFixBootRequested: {
+                downloader.makeBootable(device);
+            }
         }
 
         Text {

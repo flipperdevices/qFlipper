@@ -24,8 +24,14 @@ class FlipperZero : public QObject
     Q_PROPERTY(QString target READ target NOTIFY targetChanged)
     Q_PROPERTY(QString version READ version NOTIFY versionChanged)
     Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusMessageChanged)
+
     Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
+
     Q_PROPERTY(bool isDFU READ isDFU NOTIFY isDFUChanged)
+    Q_PROPERTY(bool isPersistent READ isPersistent NOTIFY isPersistentChanged)
+    Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
+    Q_PROPERTY(bool isError READ isError NOTIFY isErrorChanged)
+
     Q_PROPERTY(Flipper::Zero::RemoteController* remote READ remote CONSTANT)
 
 public:
@@ -39,9 +45,11 @@ public:
     void setDeviceInfo(const USBDeviceInfo &info);
     void setPersistent(bool set);
     void setConnected(bool set);
+    void setError(const QString &msg = QString(), bool set = true);
 
     bool isPersistent() const;
     bool isConnected() const;
+    bool isError() const;
 
     bool detach();
     bool setBootMode(BootMode mode);
@@ -51,7 +59,7 @@ public:
 
     bool startFUS();
     bool startWirelessStack();
-    bool eraseWirelessStack();
+    bool deleteWirelessStack();
 
     bool downloadFirmware(QIODevice *file);
     bool downloadFUS(QIODevice *file, uint32_t addr);
@@ -86,13 +94,20 @@ signals:
     void progressChanged(double);
 
     void isDFUChanged();
+    void isPersistentChanged();
+    void isConnectedChanged();
+    void isErrorChanged();
 
 private:
     void fetchInfoVCPMode();
     void fetchInfoDFUMode();
 
+    void statusFeedback(const char *msg);
+    void errorFeedback(const char *msg);
+
     bool m_isPersistent;
     bool m_isConnected;
+    bool m_isError;
 
     USBDeviceInfo m_info;
     QMutex m_deviceMutex;

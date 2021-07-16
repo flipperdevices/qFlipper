@@ -7,6 +7,8 @@ Item {
     signal localRadioUpdateRequested(var device)
     signal localFUSUpdateRequested(var device)
 
+    signal fixBootRequested(var device)
+
     signal versionListRequested(var device)
     signal screenStreamRequested(var device)
 
@@ -25,8 +27,8 @@ Item {
         id: frame
         radius: 6
         anchors.fill: parent
-        color: "transparent"
-        border.color: "white"
+        color: device.isError ? "#3a0000" : "transparent"
+        border.color: device.isError ? "#d32a34" : "white"
         border.width: 1
     }
 
@@ -42,7 +44,7 @@ Item {
 
     Rectangle {
         id: nameLabel
-        color: device.isDFU ? "#0345ff" : "darkorange"
+        color: device.isError ? "#d32a34" : (device.isDFU ? "#0345ff" : "darkorange")
         width: 100
         height: 30
 
@@ -72,27 +74,26 @@ Item {
         anchors.rightMargin: 25
         anchors.verticalCenter: parent.verticalCenter
 
-        enabled: updateButton.enabled
+        enabled: !device.isPersistent && !device.isError
 
         onClicked: actionMenu.open()
     }
 
     StyledButton {
         id: updateButton
-        text: device.statusMessage
+        text: device.isDFU ? qsTr("Repair") : qsTr("Reinstall")
+        visible: !device.isPersistent && !device.isError
 
         anchors.right: menuButton.left
         anchors.rightMargin: 10
         anchors.verticalCenter: parent.verticalCenter
-
-        enabled: text === qsTr("Update")
-        dangerous: text === qsTr("Error")
 
         onClicked: updateRequested(device)
     }
 
     Text {
         id: versionLabel
+        visible: !messageLabel.visible && !device.isDFU
         text: qsTr("version ") + device.version
         font.pointSize: 10
 
@@ -101,6 +102,28 @@ Item {
         anchors.leftMargin: 10
 
         color: "darkgray"
+    }
+
+    Text {
+        id: messageLabel
+        text: device.statusMessage
+        visible: device.isPersistent || device.isError
+        color: device.isError ? "#ddd" : "white"
+
+        font.pointSize: 10
+
+        anchors.left: nameLabel.right
+        anchors.right: menuButton.left
+        anchors.verticalCenter: parent.verticalCenter
+
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+
+        horizontalAlignment: Text.AlignHCenter
+        wrapMode: Text.WordWrap
+
+        linkColor: "darkorange"
+        onLinkActivated: Qt.openUrlExternally(link)
     }
 
     Menu {
@@ -128,20 +151,30 @@ Item {
 
         MenuSeparator {}
 
-        MenuItem {
-            text: qsTr("Update FUS (Expert)...")
-            onTriggered: localFUSUpdateRequested(device)
-        }
+        Menu {
+            title: qsTr("Expert options")
 
-        MenuItem {
-            text: qsTr("Update Radio (Expert)...")
-            onTriggered: localRadioUpdateRequested(device)
+            MenuItem {
+                text: qsTr("Update Wireless stack...")
+                onTriggered: localRadioUpdateRequested(device)
+            }
+
+            MenuItem {
+                text: qsTr("Update FUS...")
+                onTriggered: localFUSUpdateRequested(device)
+            }
+
+            MenuItem {
+                text: qsTr("Fix boot issues")
+                onTriggered: fixBootRequested(device)
+                enabled: device.isDFU
+            }
         }
     }
 
-    Component.onCompleted: {
-        updateRegistry.latestVersionChanged.connect(function() {
-            updateButton.suggested = (!device.isDFU) && (updateRegistry.latestVersion(device.target) > device.version);
-        })
-    }
+//    Component.onCompleted: {
+//        updateRegistry.latestVersionChanged.connect(function() {
+//            updateButton.visible = device.isDFU || (updateRegistry.latestVersion(device.target) > device.version);
+//        })
+//    }
 }

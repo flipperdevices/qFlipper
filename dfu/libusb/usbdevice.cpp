@@ -1,8 +1,12 @@
 #include "usbdevice.h"
 
 #include <libusb.h>
+#include <QThread>
 
 #include "macros.h"
+
+#define RETRY_COUNT 25
+#define RETRY_INTERVAL_MS 50
 
 struct USBDevice::USBDevicePrivate {
     libusb_device *libusbDevice = nullptr;
@@ -47,7 +51,13 @@ void USBDevice::close()
 
 bool USBDevice::claimInterface(int interfaceNum)
 {
-    const auto err = libusb_claim_interface(m_p->libusbDeviceHandle, interfaceNum);
+    int retryCount = RETRY_COUNT, err;
+
+    do {
+        if(!(err = libusb_claim_interface(m_p->libusbDeviceHandle, interfaceNum))) { break; }
+        QThread::msleep(RETRY_INTERVAL_MS);
+    } while(--retryCount);
+
     check_continue(!err, QString("Failed to claim interface: %1").arg(libusb_error_name(err)));
     return !err;
 }
@@ -61,15 +71,26 @@ bool USBDevice::releaseInterface(int interfaceNum)
 
 bool USBDevice::setInterfaceAltSetting(int interfaceNum, uint8_t alt)
 {
-    const auto err = libusb_set_interface_alt_setting(m_p->libusbDeviceHandle, interfaceNum, alt);
+    int retryCount = RETRY_COUNT, err;
+
+    do {
+        if(!(err = libusb_set_interface_alt_setting(m_p->libusbDeviceHandle, interfaceNum, alt))) { break; }
+        QThread::msleep(RETRY_INTERVAL_MS);
+    } while(--retryCount);
+
     check_continue(!err, QString("Failed to set alternate setting: %1").arg(libusb_error_name(err)));
     return !err;
 }
 
 bool USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, const QByteArray &buf)
 {
-    const auto res = libusb_control_transfer(m_p->libusbDeviceHandle, requestType, request,
-                     value, index, buf.isEmpty() ? NULL : (unsigned char*)(buf.data()), buf.size(), m_timeout);
+    int retryCount = RETRY_COUNT, res;
+
+    do {
+        auto *data = buf.isEmpty() ? nullptr : (unsigned char*)(buf.data());
+        if((res = libusb_control_transfer(m_p->libusbDeviceHandle, requestType, request, value, index, data, buf.size(), m_timeout)) >= 0) { break; }
+        QThread::msleep(RETRY_INTERVAL_MS);
+    } while(--retryCount);
 
     if(res < 0) {
         error_msg(QString("Failed to perform control transfer: %1").arg(libusb_error_name(res)));
@@ -83,9 +104,13 @@ bool USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint16_t v
 QByteArray USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, uint16_t length)
 {
     QByteArray buf(length, 0);
+    int retryCount = RETRY_COUNT, res;
 
-    const auto res = libusb_control_transfer(m_p->libusbDeviceHandle, requestType, request,
-                                             value, index, (unsigned char*)(buf.data()), length, m_timeout);
+    do {
+        if((res = libusb_control_transfer(m_p->libusbDeviceHandle, requestType, request, value, index, (unsigned char*)(buf.data()), length, m_timeout)) >= 0) { break; }
+        QThread::msleep(RETRY_INTERVAL_MS);
+    } while ((res < 0) && --retryCount);
+
     if(res < 0) {
         buf.clear();
         error_msg(QString("Failed to perform control transfer: %1").arg(libusb_error_name(res)));

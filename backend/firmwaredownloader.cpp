@@ -46,7 +46,7 @@ void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Updates::
         fetcher->deleteLater();
     });
 
-    device->setStatusMessage(tr("Fetching"));
+    device->setStatusMessage(tr("Fetching the update file..."));
     fetcher->fetch(fileInfo);
 }
 
@@ -64,6 +64,11 @@ void FirmwareDownloader::downloadLocalWirelessStack(FlipperZero *device, const Q
     auto *file = new QFile(localUrl, this);
 
     enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file));
+}
+
+void FirmwareDownloader::makeBootable(FlipperZero *device)
+{
+    enqueueOperation(new Flipper::Zero::FixOptionBytesOperation(device));
 }
 
 void FirmwareDownloader::processQueue()

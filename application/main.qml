@@ -13,6 +13,9 @@ Window {
     height: 480
     visible: true
 
+    minimumWidth: 800
+    minimumHeight: 480
+
     color: "black"
     Universal.theme: "Dark"
 

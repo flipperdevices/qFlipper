@@ -38,5 +38,18 @@ private:
     uint32_t m_targetAddress;
 };
 
+class FixOptionBytesOperation : public AbstractFirmwareOperation
+{
+public:
+    FixOptionBytesOperation(FlipperZero *device);
+    ~FixOptionBytesOperation();
+
+    const QString name() const override;
+    bool execute() override;
+
+private:
+    FlipperZero *m_device;
+};
+
 }
 }
