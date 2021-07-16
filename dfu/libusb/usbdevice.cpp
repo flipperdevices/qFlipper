@@ -5,7 +5,7 @@
 
 #include "macros.h"
 
-#define RETRY_COUNT 25
+#define RETRY_COUNT 5
 #define RETRY_INTERVAL_MS 50
 
 struct USBDevice::USBDevicePrivate {
