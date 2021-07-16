@@ -50,11 +50,7 @@ or just launch the file above from your favourite file manager.
 
 ## Usage:
 
-- Press `Update` to install the latest available version. It will be brightly coloured if there is an actual update.
-- Long press `Update` to get the menu.
-- Select `Other versions...` to get a list of all available firmware versions. There, you may install any of them you like.
-- Select `Update from local file...` if you wish to install a `*.dfu` file you downloaded yourself.
-
+Please take a look at the new [qFlipper wiki](https://github.com/Flipper-Zero/qFlipper/wiki)!
 
 ## Limitations:
 
