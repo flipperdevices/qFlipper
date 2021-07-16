@@ -5,7 +5,12 @@
 #include <winusb.h>
 #include <usbspec.h>
 
+#include <QThread>
+
 #include "macros.h"
+
+#define RETRY_COUNT 5
+#define RETRY_INTERVAL_MS 50
 
 struct USBDevice::USBDevicePrivate
 {
@@ -74,7 +79,14 @@ bool USBDevice::setInterfaceAltSetting(int interfaceNum, uint8_t alt)
 {
     Q_UNUSED(interfaceNum);
 
-    const auto success = WinUsb_SetCurrentAlternateSetting(m_p->deviceHandle, alt);
+    int retryCount = RETRY_COUNT;
+    BOOL success;
+
+    do {
+        if((success = WinUsb_SetCurrentAlternateSetting(m_p->deviceHandle, alt)) == TRUE) { break; }
+        QThread::msleep(RETRY_INTERVAL_MS);
+    } while(--retryCount);
+
     check_return_bool(success == TRUE, "Failed to set alternate settiing");
     return true;
 }
@@ -82,6 +94,9 @@ bool USBDevice::setInterfaceAltSetting(int interfaceNum, uint8_t alt)
 bool USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint16_t value, uint16_t index, const QByteArray &buf)
 {
     Q_UNUSED(requestType)
+
+    int retryCount = RETRY_COUNT;
+    BOOL success;
 
     ULONG size;
     WINUSB_SETUP_PACKET sp;
@@ -92,7 +107,10 @@ bool USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint16_t v
     sp.Index = index;
     sp.Length = buf.size();
 
-    const auto success = WinUsb_ControlTransfer(m_p->deviceHandle, sp, (unsigned char*)buf.data(), buf.size(), &size, nullptr);
+    do {
+        if((success = WinUsb_ControlTransfer(m_p->deviceHandle, sp, (unsigned char*)buf.data(), buf.size(), &size, nullptr)) == TRUE) { break; }
+        QThread::msleep(RETRY_INTERVAL_MS);
+    } while(--retryCount);
 
     check_return_bool(success == TRUE, "Failed to perform control transfer");
     check_return_bool(size == buf.size(), "Requested and transferred data size differ");
@@ -104,6 +122,9 @@ QByteArray USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint
 {
     Q_UNUSED(requestType)
 
+    int retryCount = RETRY_COUNT;
+    BOOL success;
+
     ULONG size;
     WINUSB_SETUP_PACKET sp;
 
@@ -114,7 +135,10 @@ QByteArray USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint
     sp.Length = length;
 
     QByteArray buf(length, 0);
-    const auto success = WinUsb_ControlTransfer(m_p->deviceHandle, sp, (unsigned char*)buf.data(), length, &size, nullptr);
+    do {
+        if((success = WinUsb_ControlTransfer(m_p->deviceHandle, sp, (unsigned char*)buf.data(), length, &size, nullptr)) == TRUE) { break; }
+        QThread::msleep(RETRY_INTERVAL_MS);
+    } while(--retryCount);
 
     check_return_val(success == TRUE, "Failed to perform control transfer", QByteArray());
     if(success == FALSE) {
