@@ -24,9 +24,7 @@ set BUILD_DIR=%PROJECT_DIR%\build
 set QML_DIR=%PROJECT_DIR%\Application
 set DIST_DIR=%BUILD_DIR%\%TARGET%
 
-set OPENSSL_VERSION=1.1.1k
-set OPENSSL_FILE_NAME=openssl-%OPENSSL_VERSION%-win%ARCH_BITS%.zip
-set OPENSSL_URL=http://wiki.overbyte.eu/arch/%OPENSSL_FILE_NAME%
+set OPENSSL_PATH=%QT_DIR%\Tools\OpenSSL\Win_x%ARCH_BITS%\bin
 
 set NSIS="%programfiles(x86)%\NSIS\makensis.exe"
 set ZADIC_EXE="C:\bin-deps\zadic.exe"
@@ -48,10 +46,8 @@ cd %DIST_DIR%
 
 %WINDEPLOYQT% --release --qmldir %QML_DIR% %TARGET%.exe
 
-rem Download OpenSSL binaries - temporary solution
-curl  %OPENSSL_URL% -o %OPENSSL_FILE_NAME%
-tar -xf %OPENSSL_FILE_NAME% *.dll
-del /Q %OPENSSL_FILE_NAME%
+rem Copy OpenSSL binaries
+copy /Y %OPENSSL_PATH%\*.dll .
 
 rem Copy Zadic binary - also temporary solution?
 copy /Y %ZADIC_EXE% .
