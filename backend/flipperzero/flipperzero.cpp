@@ -301,22 +301,38 @@ bool FlipperZero::startFUS()
     return waitForReboot();
 }
 
+// TODO: check status to see if the wireless stack is present at all
 bool FlipperZero::startWirelessStack()
 {
+    statusFeedback("Attempting to start the wireless stack...");
+
     QMutexLocker locker(&m_deviceMutex);
-
     STM32WB55 device(m_info);
-    const auto success = device.beginTransaction() && device.FUSStartWirelessStack() &&device.endTransaction();
-    check_return_bool(success, "Failed to start wireless stack");
 
-    locker.unlock();
+    auto success = device.beginTransaction() && device.FUSStartWirelessStack();// &&device.endTransaction();
 
-    return waitForReboot();
+    if(!success) {
+        errorFeedback("Failed to start wireless stack");
+        return false;
+    }
+
+    const auto state = device.FUSGetState();
+    check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
+
+    if(state.isValid()) {
+        info_msg(QString("Current FUS state: %1, %2").arg(state.statusString(), state.errorString()));
+        return true;
+    } else {
+        locker.unlock();
+        return waitForReboot();
+    }
+
+    return false;
 }
 
 bool FlipperZero::deleteWirelessStack()
 {
-    info_msg("Attempting to delete COPROCESSOR firmware...");
+    info_msg("Attempting to delete CO-PROCESSOR firmware...");
 
     QMutexLocker locker(&m_deviceMutex);
     STM32WB55 device(m_info);
@@ -324,7 +340,7 @@ bool FlipperZero::deleteWirelessStack()
     const auto success = device.beginTransaction() && device.FUSFwDelete() && device.endTransaction();
 
     if(!success) {
-        errorFeedback("Can't install coprocessor firmware: Failed to initiate firmware removal.");
+        errorFeedback("Can't install co-processor firmware: Failed to initiate firmware removal.");
         return false;
     }
 
@@ -352,11 +368,11 @@ bool FlipperZero::deleteWirelessStack()
             check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
 
             if(state.status() == FUSState::Idle) {
-                statusFeedback("Deleted the old coprocessor firmware.");
+                statusFeedback("Deleted the old co-processor firmware.");
                 return true;
 
             } else if(state.status() == FUSState::ErrorOccured) {
-                errorFeedback("Can't delete coprocessor firmware: An error has occured during the operation.");
+                errorFeedback("Can't delete co-processor firmware: An error has occured during the operation.");
                 info_msg(QString("Current FUS state: %1, %2").arg(state.statusString(), state.errorString()));
                 return false;
 
@@ -366,7 +382,7 @@ bool FlipperZero::deleteWirelessStack()
         }
 
         if(!waitForReboot()) {
-            errorFeedback("Can't delete coprocessor firmware: Device reboot timeout.");
+            errorFeedback("Can't delete co-processor firmware: Device reboot timeout.");
             break;
         }
     }
@@ -415,25 +431,25 @@ bool FlipperZero::downloadFirmware(QIODevice *file)
 
 bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
 {
-    info_msg("Attempting to download COPROCESSOR firmware image...");
+    info_msg("Attempting to download CO-PROCESSOR firmware image...");
 
     if(!file->open(QIODevice::ReadOnly)) {
-        errorFeedback("Can't download coprocessor firmware image: Failed to open file.");
+        errorFeedback("Can't download co-processor firmware image: Failed to open file.");
         return false;
 
     } else if(!file->bytesAvailable()) {
-        errorFeedback("Can't download coprocessor firmware image: File is empty.");
+        errorFeedback("Can't download co-processor firmware image: File is empty.");
         return false;
 
     } else {
-        statusFeedback("Downloading coprocessor firmware image...");
+        statusFeedback("Downloading co-processor firmware image...");
     }
 
     QMutexLocker locker(&m_deviceMutex);
     STM32WB55 device(m_info);
 
     if(!device.beginTransaction()) {
-        errorFeedback("Can't download coprocessor firmware image: Failed to initiate transaction.");
+        errorFeedback("Can't download co-processor firmware image: Failed to initiate transaction.");
         return false;
     }
 
@@ -441,7 +457,7 @@ bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
         const auto ob = device.optionBytes();
 
         if(!ob.isValid()) {
-            errorFeedback("Can't download coprocessor firmware image: Failed to read Option Bytes.");
+            errorFeedback("Can't download co-processor firmware image: Failed to read Option Bytes.");
             return false;
         }
 
@@ -464,11 +480,11 @@ bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
     bool success;
 
     if(!(success = device.erase(addr, file->bytesAvailable()))) {
-        errorFeedback("Can't download coprocessor firmware image: Failed to erase the internal memory.");
+        errorFeedback("Can't download co-processor firmware image: Failed to erase the internal memory.");
     } else if(!(success = device.download(file, addr, 0))) {
-        errorFeedback("Can't download coprocessor firmware image: Failed to write the internal memory.");
+        errorFeedback("Can't download co-processor firmware image: Failed to write the internal memory.");
     } else if(!(success = device.endTransaction())) {
-        errorFeedback("Can't download coprocessor firmware image: Failed to end transaction.");
+        errorFeedback("Can't download co-processor firmware image: Failed to end transaction.");
     } else {}
 
     file->close();
@@ -486,7 +502,7 @@ bool FlipperZero::upgradeWirelessStack()
     const auto success = device.beginTransaction() && device.FUSFwUpgrade() && device.endTransaction();
 
     if(!success) {
-        errorFeedback("Can't install coprocessor firmware: Failed to initiate installation.");
+        errorFeedback("Can't install co-processor firmware: Failed to initiate installation.");
         return false;
     }
 
@@ -520,7 +536,7 @@ bool FlipperZero::upgradeWirelessStack()
                 if(done) {
                     statusFeedback("Wireless stack installation complete.");
                 } else {
-                    errorFeedback("Failed to install coprocessor firmware.");
+                    errorFeedback("Failed to install co-processor firmware.");
                     error_msg(QString("Current FUS state: %1, %2").arg(state.statusString(), state.errorString()));
                 }
 
@@ -540,7 +556,7 @@ bool FlipperZero::upgradeWirelessStack()
         }
 
         if(!waitForReboot()) {
-            errorFeedback("Can't install coprocessor firmware: Device reboot timeout.");
+            errorFeedback("Can't install co-processor firmware: Device reboot timeout.");
             break;
         }
     }
@@ -636,9 +652,7 @@ void FlipperZero::fetchInfoVCPMode()
     QSerialPort port(SerialHelper::findSerialPort(m_info.serialNumber()));
 
     if(!port.open(QIODevice::ReadWrite)) {
-        const auto msg = "Failed to open serial port.";
-        error_msg(msg + port.errorString());
-        setError(tr(msg));
+        errorFeedback("Failed to open serial port.\nIs there a CLI session open?");
         return;
     }
 
@@ -665,9 +679,7 @@ void FlipperZero::fetchInfoVCPMode()
 
     // A hack for Linux systems which seem to allow opening a serial port twice.
     if(bytesAvailable < ARBITRARY_NUMBER) {
-        const auto msg = "Failed to read from serial port.";
-        error_msg(msg);
-        setError(tr(msg)); // TODO: Ask user to check if other apps are using the port (e.g. CLI)
+        errorFeedback("Failed to read from serial port.\nIs there a CLI session open?");
         return;
     }
 
@@ -707,7 +719,7 @@ void FlipperZero::fetchInfoDFUMode()
         error_msg(msg);
 
         if(!isPersistent()) {
-            setError(tr(msg));
+            errorFeedback(msg);
         }
     }
 }
