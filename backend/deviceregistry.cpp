@@ -2,6 +2,7 @@
 
 #include "flipperzero/flipperzero.h"
 #include "usbdevice.h"
+#include "macros.h"
 
 using namespace Flipper;
 
@@ -40,6 +41,11 @@ QHash<int, QByteArray> DeviceRegistry::roleNames() const
 void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 {
     auto *newDevice = new Flipper::FlipperZero(info, this);
+
+    if(newDevice->isError()) {
+        error_msg("A new device has been detected, but it has an error, skipping...");
+        return;
+    }
 
     const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::FlipperZero *dev) {
         return newDevice->name() == dev->name();

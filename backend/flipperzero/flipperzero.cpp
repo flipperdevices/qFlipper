@@ -655,7 +655,7 @@ void FlipperZero::fetchInfoVCPMode()
     QSerialPort port(SerialHelper::findSerialPort(m_info.serialNumber()));
 
     if(!port.open(QIODevice::ReadWrite)) {
-        errorFeedback("Failed to opet serial port.<br/>Is there a <a href=\"https://flipperzero.one/\"><b>CLI session</b></a> open?");
+        errorFeedback("Failed to open serial port.<br/>Is there a <a href=\"https://flipperzero.one/\"><b>CLI session</b></a> open?");
         return;
     }
 
