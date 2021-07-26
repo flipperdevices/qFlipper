@@ -31,7 +31,7 @@ jobs:
         with:
           name: qFlipper-x86_64.AppImage
           path: |
-            ./build/qflipper-x86_64.AppImage
+            ./build/qFlipper-x86_64.AppImage
           if-no-files-found: error
           retention-days: 7
 
