@@ -37,13 +37,13 @@ Building, signing and creating package:
 
 	./build_mac.sh
 
-Resulting image can be found in: `build_mac/qflipper.dmg`
+Resulting image can be found in: `build_mac/qFlipper.dmg`
 
 ## Run:
 
 ### Linux:
 ```sh
-./build/qflipper-x86_64.AppImage
+./build/qFlipper-x86_64.AppImage
 ```
 
 or just launch the file above from your favourite file manager.
