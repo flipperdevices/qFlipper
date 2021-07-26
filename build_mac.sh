@@ -44,8 +44,8 @@ create-dmg \
     --window-pos 200 120 \
     --window-size 600 400 \
     --icon-size 100 \
-    --icon "$PROJECT.app" 120 150 \
+    --icon "$PROJECT.app" 125 150 \
     --hide-extension "$PROJECT.app" \
-    --app-drop-link 490 150 \
+    --app-drop-link 485 150 \
     "$PROJECT.dmg" \
     "disk_image/"
