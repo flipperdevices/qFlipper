@@ -39,7 +39,7 @@ jobs:
         uses: burnett01/rsync-deployments@4.1
         with:
           switches: -cvzr
-          path: ./build/qflipper-x86_64.AppImage
+          path: ./build/qFlipper-x86_64.AppImage
           remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
           remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
