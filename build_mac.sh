@@ -42,7 +42,7 @@ create-dmg \
     --volicon "../assets/$PROJECT.icns" \
     --background "../assets/qFlipper_disk_background.png" \
     --window-pos 200 120 \
-    --window-size 610 400 \
+    --window-size 600 400 \
     --icon-size 100 \
     --icon "$PROJECT.app" 110 150 \
     --hide-extension "$PROJECT.app" \
