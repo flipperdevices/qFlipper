@@ -9,27 +9,52 @@ namespace Zero {
 class FactoryInfo
 {
 public:
+    enum class Color {
+        Unknown = 0x00,
+        Black,
+        White
+    };
+
+    enum class Region {
+        Unknown = 0x00,
+        Europe,
+        USA
+    };
+
     FactoryInfo(const QByteArray &data);
 
     static qint64 size();
 
     bool isValid() const;
 
+    uint8_t format() const;
     uint8_t version() const;
     uint8_t target() const;
     uint8_t body() const;
     uint8_t connect() const;
     time_t date() const;
+
     const QString &name() const;
 
+    Color color() const;
+    Region region() const;
+
 private:
+    void parseV0(const QByteArray &data);
+    void parseV1(const QByteArray &data);
+
     bool m_isValid;
+
+    uint8_t m_format;
     uint8_t m_version;
     uint8_t m_target;
     uint8_t m_body;
     uint8_t m_connect;
     time_t m_date;
     QString m_name;
+
+    Color m_color;
+    Region m_region;
 };
 
 }
