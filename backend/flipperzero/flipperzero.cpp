@@ -655,7 +655,7 @@ void FlipperZero::fetchInfoVCPMode()
     QSerialPort port(SerialHelper::findSerialPort(m_info.serialNumber()));
 
     if(!port.open(QIODevice::ReadWrite)) {
-        errorFeedback("Failed to opet serial port.<br/>Is there a <a href=\"https://flipperzero.one/\"><b>CLI session</b></a> open?");
+        errorFeedback("Failed to open serial port.<br/>Is there a <a href=\"https://flipperzero.one/\"><b>CLI session</b></a> open?");
         return;
     }
 
@@ -700,6 +700,18 @@ void FlipperZero::fetchInfoVCPMode()
     } while(port.canReadLine());
 
     port.close();
+
+    // TODO: move all the fields (name, etc) into a separate class?
+    if(m_name == "N/A") {
+        const auto msg = "Failed to get device name. The OTP area may be unprogrammed.";
+
+        if(!isPersistent()) {
+            errorFeedback(msg);
+        } else {
+            setError();
+            error_msg(msg);
+        }
+    }
 }
 
 void FlipperZero::fetchInfoDFUMode()
@@ -719,10 +731,12 @@ void FlipperZero::fetchInfoDFUMode()
 
     } else {
         const auto msg = "Failed to get device information.";
-        error_msg(msg);
 
         if(!isPersistent()) {
             errorFeedback(msg);
+        } else {
+            setError();
+            error_msg(msg);
         }
     }
 }
