@@ -11,6 +11,7 @@ unix:!macx {
 	else: LIBS += -lsetupapi -lwinusb
 
 } else:macx {
+    ICON = ../assets/qFlipper.icns
     DEFINES += USB_BACKEND_LIBUSB
     PKG_CONFIG = /usr/local/bin/pkg-config
     CONFIG += link_pkgconfig

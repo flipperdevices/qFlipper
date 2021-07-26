@@ -1,6 +1,6 @@
 QT += quick serialport widgets quickcontrols2 svg
 
-TARGET = qflipper
+TARGET = qFlipper
 VERSION = 0.1
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 DESTDIR = ..

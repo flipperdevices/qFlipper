@@ -4,7 +4,7 @@ set -e
 set -x
 
 PROJECT_DIR=`pwd`
-PROJECT="qflipper"
+PROJECT="qFlipper"
 BUILD_DIRECTORY="build_mac"
 
 if [[ -d "$BUILD_DIRECTORY" ]]
@@ -36,6 +36,17 @@ fi
 
 # build DMG
 mkdir disk_image
-ln -s /Applications disk_image/Applications
 mv $PROJECT.app disk_image
-hdiutil create -volname $PROJECT -srcfolder disk_image -ov -format UDZO $PROJECT.dmg
+create-dmg \
+    --volname "$PROJECT" \
+    --volicon "../assets/$PROJECT.icns" \
+    --background "../assets/qFlipper_disk_background.png" \
+    --window-pos 200 120 \
+    --window-size 600 400 \
+    --icon-size 100 \
+    --eula ../LICENSE \
+    --icon "$PROJECT.app" 110 150 \
+    --hide-extension "$PROJECT.app" \
+    --app-drop-link 500 150 \
+    "$PROJECT.dmg" \
+    "disk_image/"
