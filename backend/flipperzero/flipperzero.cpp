@@ -198,7 +198,7 @@ bool FlipperZero::waitForReboot(int timeoutMs)
     //TODO: Implement better syncronisation
     auto now = QTime::currentTime();
     while(m_isConnected && (now.msecsTo(QTime::currentTime()) < timeoutMs)) {
-        QThread::msleep(100);
+        QThread::usleep(1000);
     }
 
     if(m_isConnected) {
@@ -210,7 +210,7 @@ bool FlipperZero::waitForReboot(int timeoutMs)
 
     now = QTime::currentTime();
     while(!m_isConnected && (now.msecsTo(QTime::currentTime()) < timeoutMs)) {
-        QThread::msleep(100);
+        QThread::usleep(1000);
     }
 
     if(m_isConnected) {
