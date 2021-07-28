@@ -677,7 +677,7 @@ void FlipperZero::fetchInfoVCPMode()
 
     do {
         bytesAvailable = port.bytesAvailable();
-        port.waitForReadyRead(50);
+        port.waitForReadyRead(250);
     } while(bytesAvailable != port.bytesAvailable());
 
     // A hack for Linux systems which seem to allow opening a serial port twice.
