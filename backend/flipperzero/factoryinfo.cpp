@@ -10,6 +10,40 @@
 namespace Flipper {
 namespace Zero {
 
+#pragma pack(push,1)
+
+struct OTPV0 {
+    const uint8_t version;
+    const uint8_t target;
+    const uint8_t body;
+    const uint8_t connect;
+    const uint32_t timestamp;
+
+    const char name[FACTORYINFO_NAME_SIZE];
+};
+
+struct OTPV1 {
+    const uint16_t magic;
+    const uint8_t format;
+    const uint8_t reserved1;
+    const uint32_t timestamp;
+
+    const uint8_t version;
+    const uint8_t target;
+    const uint8_t body;
+    const uint8_t connect;
+    const uint8_t color;
+    const uint8_t region;
+    const uint16_t reserved2;
+
+    const char name[FACTORYINFO_NAME_SIZE];
+};
+
+#pragma pack(pop)
+
+static_assert(sizeof(OTPV0) == 16, "Check struct packing for OTPV0");
+static_assert(sizeof(OTPV1) == 24, "Check struct packing for OTPV1");
+
 FactoryInfo::FactoryInfo(const QByteArray &data):
     m_isValid(false),
     m_format(0),
@@ -81,27 +115,41 @@ FactoryInfo::Region FactoryInfo::region() const
     return m_region;
 }
 
+size_t FactoryInfo::strnLen(const char *str, size_t maxlen)
+{
+    for(size_t i = 0; i < maxlen; ++i) {
+        if(!str[i]) return i;
+    }
+
+    return maxlen;
+}
+
 void FactoryInfo::parseV0(const QByteArray &data)
 {
-    m_version = data[0];
-    m_target = data[1];
-    m_body = data[2];
-    m_connect = data[3];
-    m_date = *((time_t*)data.mid(4, sizeof(time_t)).data()),
-    m_name = data.mid(8, FACTORYINFO_NAME_SIZE);
+    const auto *otp = (OTPV0*)(data.data());
+
+    m_version = otp->version;
+    m_target = otp->target;
+    m_body = otp->body;
+    m_connect = otp->connect;
+    m_date = otp->timestamp;
+    m_name = QString::fromLatin1(otp->name, strnLen(otp->name, FACTORYINFO_NAME_SIZE));
 }
 
 void FactoryInfo::parseV1(const QByteArray &data)
 {
-    m_format = data[2];
-    m_date = *((time_t*)data.mid(4, sizeof(time_t)).data()),
-    m_version = data[8];
-    m_target = data[9];
-    m_body = data[10];
-    m_connect = data[11];
-    m_color = (Color)data[12];
-    m_region = (Region)data[13];
-    m_name = data.mid(16, FACTORYINFO_NAME_SIZE);
+    const auto *otp = (OTPV1*)(data.data());
+
+    m_version = otp->version;
+    m_target = otp->target;
+    m_body = otp->body;
+    m_connect = otp->connect;
+    m_date = otp->timestamp;
+    m_name = QString::fromLatin1(otp->name, strnLen(otp->name, FACTORYINFO_NAME_SIZE));
+
+    m_format = otp->format;
+    m_color = (Color)otp->color;
+    m_region = (Region)otp->region;
 }
 
 time_t FactoryInfo::date() const

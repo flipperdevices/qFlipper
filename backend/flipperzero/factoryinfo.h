@@ -40,6 +40,8 @@ public:
     Region region() const;
 
 private:
+    static size_t strnLen(const char *str, size_t maxlen);
+
     void parseV0(const QByteArray &data);
     void parseV1(const QByteArray &data);
 
