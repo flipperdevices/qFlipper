@@ -7,8 +7,7 @@ namespace STM32 {
 namespace WB55 {
 
 OptionBytes::OptionBytes():
-    m_isValid(false),
-    m_data({})
+    m_isValid(false)
 {}
 
 OptionBytes::OptionBytes(const QByteArray &data):

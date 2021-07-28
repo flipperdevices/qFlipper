@@ -12,83 +12,83 @@ class OptionBytes
 #pragma pack(push,1)
     struct OptionBytesData {
         struct Word1 {
-            const unsigned RDP:8;
-            const unsigned ESE:1;
+            unsigned RDP:8;
+            unsigned ESE:1;
             unsigned BORLEV:3;
             unsigned nRSTSTOP:1;
             unsigned nRSTSTDBY:1;
             unsigned nRSTSHDW:1;
-            const unsigned UNUSED1:1;
+            unsigned UNUSED1:1;
             unsigned IWDGSW:1;
             unsigned IWDGSTOP:1;
             unsigned IWGDSTDBY:1;
             unsigned WWDGSW:1;
-            const unsigned UNUSED2:3;
+            unsigned UNUSED2:3;
             unsigned nBoot1:1;
             unsigned SRAM2PE:1;
             unsigned SRAM2RST:1;
             unsigned nSwBoot0:1;
             unsigned nBoot0:1;
-            const unsigned UNUSED3:1;
+            unsigned UNUSED3:1;
             unsigned AGCTRIM:3;
         };
 
         struct Word2 {
-            const unsigned PCROP1ASTRT:9;
-            const unsigned UNUSED:23;
+            unsigned PCROP1ASTRT:9;
+            unsigned UNUSED:23;
         };
 
         struct Word3 {
-            const unsigned PCROP1AEND:9;
-            const unsigned UNUSED:22;
-            const unsigned PCROPRDP:1;
+            unsigned PCROP1AEND:9;
+            unsigned UNUSED:22;
+            unsigned PCROPRDP:1;
         };
 
         struct Word4 {
-            const uint8_t WRP1ASTRT;
-            const uint8_t UNUSED1;
-            const uint8_t WRP1AEND;
-            const uint8_t UNUSED2;
+            uint8_t WRP1ASTRT;
+            uint8_t UNUSED1;
+            uint8_t WRP1AEND;
+            uint8_t UNUSED2;
         };
 
         struct Word5 {
-            const uint8_t WRP1BSTRT;
-            const uint8_t UNUSED1;
-            const uint8_t WRP1BEND;
-            const uint8_t UNUSED2;
+            uint8_t WRP1BSTRT;
+            uint8_t UNUSED1;
+            uint8_t WRP1BEND;
+            uint8_t UNUSED2;
         };
 
         struct Word6 {
-            const unsigned PCROP1BSTRT:9;
-            const unsigned UNUSED:23;
+            unsigned PCROP1BSTRT:9;
+            unsigned UNUSED:23;
         };
 
         struct Word7 {
-            const unsigned PCROP1BEND:9;
-            const unsigned UNUSED:23;
+            unsigned PCROP1BEND:9;
+            unsigned UNUSED:23;
         };
 
         struct Word8 {
             unsigned IPCCDBA:14;
-            const unsigned UNUSED:18;
+            unsigned UNUSED:18;
         };
 
         struct Word9 {
-            const unsigned SFSA:8;
-            const unsigned FSD:1;
-            const unsigned UNUSED1:3;
-            const unsigned DDS:1;
-            const unsigned UNUSED2:19;
+            unsigned SFSA:8;
+            unsigned FSD:1;
+            unsigned UNUSED1:3;
+            unsigned DDS:1;
+            unsigned UNUSED2:19;
         };
 
         struct Word10 {
-            const unsigned SBRV:18;
-            const unsigned SBRSA:5;
-            const unsigned BRSD:1;
-            const unsigned UNUSED1:1;
-            const unsigned SNBRSA:5;
-            const unsigned NBRSD:1;
-            const unsigned C2OPT:1;
+            unsigned SBRV:18;
+            unsigned SBRSA:5;
+            unsigned BRSD:1;
+            unsigned UNUSED1:1;
+            unsigned SNBRSA:5;
+            unsigned NBRSD:1;
+            unsigned C2OPT:1;
         };
 
         Word1 word1[2];
@@ -99,7 +99,7 @@ class OptionBytes
         Word6 word6[2];
         Word7 word7[2];
 
-        const uint32_t UNUSED[12];
+        uint32_t UNUSED[12];
 
         Word8 word8[2];
         Word9 word9[2];
