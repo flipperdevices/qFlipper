@@ -656,6 +656,7 @@ void FlipperZero::fetchInfoVCPMode()
 
     if(!port.open(QIODevice::ReadWrite)) {
         errorFeedback("Failed to open serial port.<br/>Is there a <a href=\"https://flipperzero.one/\"><b>CLI session</b></a> open?");
+        error_msg(QString("Serial port status: %1").arg(port.errorString()));
         return;
     }
 
@@ -683,6 +684,7 @@ void FlipperZero::fetchInfoVCPMode()
     // A hack for Linux systems which seem to allow opening a serial port twice.
     if(bytesAvailable < ARBITRARY_NUMBER) {
         errorFeedback("Failed to read from serial port.<br/>Is there a <a href=\"https://flipperzero.one/\"><b>CLI session</b></a> open?");
+        error_msg(QString("Serial port status: %1").arg(port.errorString()));
         return;
     }
 
@@ -711,6 +713,8 @@ void FlipperZero::fetchInfoVCPMode()
             setError();
             error_msg(msg);
         }
+
+        error_msg(QString("Serial port status: %1").arg(port.errorString()));
     }
 }
 
