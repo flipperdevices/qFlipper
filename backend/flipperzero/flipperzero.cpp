@@ -147,13 +147,21 @@ bool FlipperZero::detach()
 
     QSerialPort port(SerialHelper::findSerialPort(m_info.serialNumber()));
     const auto success = port.open(QIODevice::WriteOnly) && port.setDataTerminalReady(true) &&
-                        (port.write("\rdfu\r") >= 0) && port.flush();
-    port.close();
+                        (port.write("\rdfu\r") >= 0);
 
-    if(!success) {
+    auto flushTries = 100;
+    while(--flushTries && !port.flush()) {
+        info_msg("Serial port flush failure, retrying...");
+        QThread::usleep(1000);
+    }
+
+    if(!success || !flushTries) {
         errorFeedback("Can't detach the device: Failed to reset in DFU mode");
+        error_msg(QString("Serial port status: %1").arg(port.errorString()));
         return false;
     }
+
+    port.close();
 
     return waitForReboot();
 }
