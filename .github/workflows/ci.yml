@@ -5,7 +5,7 @@ on: push
 jobs:
   build_linux:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    # if: github.ref == 'refs/heads/master'
     steps:
       - name: Cleanup workspace
         uses: AutoModality/action-clean@v1
@@ -55,7 +55,7 @@ jobs:
 
   build_mac:
     runs-on: [self-hosted, X64, macOS]
-    if: github.ref == 'refs/heads/master'
+    # if: github.ref == 'refs/heads/master'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -80,7 +80,7 @@ jobs:
 
   build_windows:
     runs-on: [self-hosted, X64, Windows]
-    if: github.ref == 'refs/heads/master'
+    # if: github.ref == 'refs/heads/master'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -107,7 +107,7 @@ jobs:
   upload_mac_windows:
     name: Upload apps for Windows and MacOS
     needs: [build_windows, build_mac]
-    if: github.ref == 'refs/heads/master'
+    # if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
