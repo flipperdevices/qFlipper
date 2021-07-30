@@ -14,6 +14,11 @@ Item {
     property var device
     signal homeRequested()
 
+    function close() {
+        screen.homeRequested();
+        device.remote.enabled = false;
+    }
+
     FileDialog {
         id: fileDialog
         title: qsTr("Please choose a file")
@@ -78,8 +83,7 @@ Item {
                 Layout.fillWidth: true
 
                 onClicked: {
-                    device.remote.enabled = false;
-                    screen.homeRequested();
+                    screen.close();
                 }
             }
         }
