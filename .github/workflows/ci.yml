@@ -42,10 +42,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 'Generate tag suffix'
-        if: ${{ github.ref == 'refs/tags/*' }}
-        run: echo ":set-env name=SUFFIX::${GITHUB_REF/refs\/tags\//}"
-
       - name: Build application
         run: ./build_mac.sh
 
@@ -65,10 +61,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
-      - name: 'Generate tag suffix'
-        if: ${{ github.ref == 'refs/tags/*' }}
-        run: echo ":set-env name=SUFFIX::${GITHUB_REF/refs\/tags\//}"          
 
       - name: Build application
         run: .\build_windows.bat
@@ -115,10 +107,10 @@ jobs:
       - name: Rename app
         run: 
             | 
-            mv qFlipper-x86_64.AppImage ./artifacts/qFlipper-x86_64${SUFFIX}.AppImage
-            mv qFlipperSetup-64bit.exe ./artifacts/qFlipperSetup-64bit${SUFFIX}.exe
-            mv qFlipper-64bit.zip ./artifacts/qFlipper-64bit${SUFFIX}.zip
-            mv qflipper.dmg ./artifacts/qflipper${SUFFIX}.dmg
+            mv qFlipper-x86_64.AppImage ./artifacts/qFlipper-x86_64-${SUFFIX}.AppImage
+            mv qFlipperSetup-64bit.exe ./artifacts/qFlipperSetup-64bit-${SUFFIX}.exe
+            mv qFlipper-64bit.zip ./artifacts/qFlipper-64bit-${SUFFIX}.zip
+            mv qflipper.dmg ./artifacts/qflipper-${SUFFIX}.dmg
 
       - name: Upload apps
         uses: burnett01/rsync-deployments@4.1
