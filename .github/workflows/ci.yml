@@ -115,7 +115,7 @@ jobs:
             mv qFlipper-x86_64.AppImage ./artifacts/qFlipper-x86_64-${SUFFIX}.AppImage
             mv qFlipperSetup-64bit.exe ./artifacts/qFlipperSetup-64bit-${SUFFIX}.exe
             mv qFlipper-64bit.zip ./artifacts/qFlipper-64bit-${SUFFIX}.zip
-            mv qflipper.dmg ./artifacts/qflipper-${SUFFIX}.dmg
+            mv qflipper.dmg ./artifacts/qFlipper-${SUFFIX}.dmg
 
       - name: Upload apps
         uses: burnett01/rsync-deployments@4.1
