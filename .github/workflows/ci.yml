@@ -2,13 +2,9 @@ name: 'CI'
 
 on: push
 
-env:
-  SUFFIX: "-${{ github.sha }}"
-
 jobs:
   build_linux:
     runs-on: ubuntu-latest
-    # if: github.ref == 'refs/heads/master'
     steps:
       - name: Cleanup workspace
         uses: AutoModality/action-clean@v1
@@ -26,109 +22,111 @@ jobs:
       - name: Build docker image
         uses: ./.github/actions/docker
 
-      - name: 'Generate tag suffix'
-        if: ${{ github.ref == 'refs/tags/*' }}
-        run: echo ":set-env name=SUFFIX::-${GITHUB_REF/refs\/tags\//}"
-
       - name: Build application in docker
         run: docker build -t flipp ./docker/ && docker run --rm --privileged -v $(pwd):/project flipp /project/build_linux.sh
-
-      - name: Rename app
-        run: mv ./build/qFlipper-x86_64.AppImage qFlipper-x86_64${SUFFIX}.AppImage
 
       - name: Publish application
         uses: actions/upload-artifact@v2
         with:
           name: qFlipper-x86_64.AppImage
           path: |
-            qFlipper-x86_64${SUFFIX}.AppImage
+                ./build/qFlipper-x86_64.AppImage
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload application
+  build_mac:
+    runs-on: [self-hosted, X64, macOS]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: 'Generate tag suffix'
+        if: ${{ github.ref == 'refs/tags/*' }}
+        run: echo ":set-env name=SUFFIX::${GITHUB_REF/refs\/tags\//}"
+
+      - name: Build application
+        run: ./build_mac.sh
+
+      - name: Publish application
+        uses: actions/upload-artifact@v2
+        with:
+          name: qflipper.dmg
+          path: |
+            ./build_mac/qflipper.dmg
+          if-no-files-found: error
+          retention-days: 7
+
+  build_windows:
+    runs-on: [self-hosted, X64, Windows]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: 'Generate tag suffix'
+        if: ${{ github.ref == 'refs/tags/*' }}
+        run: echo ":set-env name=SUFFIX::${GITHUB_REF/refs\/tags\//}"          
+
+      - name: Build application
+        run: .\build_windows.bat
+
+      - name: Publish application
+        uses: actions/upload-artifact@v2
+        with:
+          name: qFlipperSetup-64bit.exe
+          path: |
+            .\build\qFlipperSetup-64bit.exe
+            .\build\qFlipper-64bit.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  upload:
+    name: Upload apps to storage
+    needs: [build_windows, build_mac,build_linux]
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: 'Make artifacts directory'
+        run: |
+          test -d artifacts && rm -rf artifacts || true
+          mkdir artifacts
+
+      - name: 'Generate tag suffix'
+        if: startsWith(github.ref, 'refs/tags/') == true
+        run: echo "SUFFIX=$(git describe --tags --abbrev=0)"  >> $GITHUB_ENV
+
+      - name: 'Generate branch suffix'
+        if: startsWith(github.ref, 'refs/tags/') != true
+        run: echo "SUFFIX=$(git rev-parse --abbrev-ref HEAD)-$(date +'%d%m%Y')-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: qFlipper-x86_64.AppImage
+      - uses: actions/download-artifact@v2
+        with:
+          name: qFlipperSetup-64bit.exe
+      - uses: actions/download-artifact@v2
+        with:
+          name: qflipper.dmg
+
+      - name: Rename app
+        run: 
+            | 
+            mv qFlipper-x86_64.AppImage ./artifacts/qFlipper-x86_64${SUFFIX}.AppImage
+            mv qFlipperSetup-64bit.exe ./artifacts/qFlipperSetup-64bit${SUFFIX}.exe
+            mv qFlipper-64bit.zip ./artifacts/qFlipper-64bit${SUFFIX}.zip
+            mv qflipper.dmg ./artifacts/qflipper${SUFFIX}.dmg
+
+      - name: Upload apps
         uses: burnett01/rsync-deployments@4.1
         with:
-          switches: -cvzr
-          path: ./build/qFlipper-x86_64${SUFFIX}.AppImage
+          switches: -cvzr --delete
+          path: artifacts/
           remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/${GITHUB_REF##*/}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
           remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
           remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
-
-  # build_mac:
-  #   runs-on: [self-hosted, X64, macOS]
-  #   # if: github.ref == 'refs/heads/master'
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 0
-
-  #     - name: 'Generate tag suffix'
-  #       if: ${{ github.ref == 'refs/tags/*' }}
-  #       run: echo ":set-env name=SUFFIX::${GITHUB_REF/refs\/tags\//}"
-
-  #     - name: Build application
-  #       run: ./build_mac.sh
-
-  #     - name: Publish application
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: qflipper.dmg
-  #         path: |
-  #           ./build_mac/qflipper.dmg
-  #         if-no-files-found: error
-  #         retention-days: 7
-
-  # build_windows:
-  #   runs-on: [self-hosted, X64, Windows]
-  #   # if: github.ref == 'refs/heads/master'
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 0
-
-  #     - name: 'Generate tag suffix'
-  #       if: ${{ github.ref == 'refs/tags/*' }}
-  #       run: echo ":set-env name=SUFFIX::${GITHUB_REF/refs\/tags\//}"          
-
-  #     - name: Build application
-  #       run: .\build_windows.bat
-
-  #     - name: Publish application
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: qFlipperSetup-64bit.exe
-  #         path: |
-  #           .\build\qFlipperSetup-64bit.exe
-  #           .\build\qFlipper-64bit.zip
-  #         if-no-files-found: error
-  #         retention-days: 7
-
-  # upload_mac_windows:
-  #   name: Upload apps for Windows and MacOS
-  #   needs: [build_windows, build_mac]
-  #   # if: github.ref == 'refs/heads/master'
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/download-artifact@v2
-  #       with:
-  #         name: qFlipperSetup-64bit.exe
-  #     - uses: actions/download-artifact@v2
-  #       with:
-  #         name: qflipper.dmg
-
-  #     - name: Generate files list
-  #       run: ls qflipper.dmg qFlipperSetup-64bit.exe qFlipper-64bit.zip > uploadlist.txt
-
-  #     - name: Upload applications
-  #       uses: burnett01/rsync-deployments@4.1
-  #       with:
-  #         switches: -cvzr --files-from=uploadlist.txt
-  #         remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/${GITHUB_REF##*/}/"
-  #         remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
-  #         remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
-  #         remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
-  #         remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
