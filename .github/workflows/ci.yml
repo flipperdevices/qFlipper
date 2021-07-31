@@ -34,14 +34,14 @@ jobs:
         run: docker build -t flipp ./docker/ && docker run --rm --privileged -v $(pwd):/project flipp /project/build_linux.sh
 
       - name: Rename app
-        run: cp ./build/qFlipper-x86_64.AppImage ./build/qFlipper-x86_64${SUFFIX}.AppImage
+        run: mv ./build/qFlipper-x86_64.AppImage qFlipper-x86_64${SUFFIX}.AppImage
 
       - name: Publish application
         uses: actions/upload-artifact@v2
         with:
           name: qFlipper-x86_64.AppImage
           path: |
-            ./build/qFlipper-x86_64${SUFFIX}.AppImage
+            qFlipper-x86_64${SUFFIX}.AppImage
           if-no-files-found: error
           retention-days: 7
 
