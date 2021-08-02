@@ -25,7 +25,7 @@ FirmwareDownloadOperation::~FirmwareDownloadOperation()
 
 const QString FirmwareDownloadOperation::name() const
 {
-    return QString("Firmware Download to %1 %2").arg(m_device->model(), m_device->name());
+    return QString("Firmware Download @%1 %2").arg(m_device->model(), m_device->name());
 }
 
 bool FirmwareDownloadOperation::execute()
@@ -55,7 +55,7 @@ WirelessStackDownloadOperation::~WirelessStackDownloadOperation()
 
 const QString WirelessStackDownloadOperation::name() const
 {
-    return QString("Coprocessor Firmware Download to %1 %2").arg(m_device->model(), m_device->name());
+    return QString("Coprocessor Firmware Download @%1 %2").arg(m_device->model(), m_device->name());
 }
 
 bool WirelessStackDownloadOperation::execute()
@@ -75,27 +75,51 @@ bool WirelessStackDownloadOperation::execute()
     return true;
 }
 
-FixOptionBytesOperation::FixOptionBytesOperation(FlipperZero *device):
+FixBootIssuesOperation::FixBootIssuesOperation(FlipperZero *device):
     m_device(device)
 {
     m_device->setPersistent(true);
     m_device->setStatusMessage(QObject::tr("Fix boot issues operation pending..."));
 }
 
-FixOptionBytesOperation::~FixOptionBytesOperation()
+FixBootIssuesOperation::~FixBootIssuesOperation()
 {
     m_device->setPersistent(false);
 }
 
-const QString FixOptionBytesOperation::name() const
+const QString FixBootIssuesOperation::name() const
 {
-    return QString("Fix Option Bytes for %1 %2").arg(m_device->model(), m_device->name());
+    return QString("Fix boot issues @%1 %2").arg(m_device->model(), m_device->name());
 }
 
-bool FixOptionBytesOperation::execute()
+bool FixBootIssuesOperation::execute()
 {
     check_return_bool(m_device->startWirelessStack(), "Failed to start wireless stack");
     check_return_bool(m_device->setBootMode(FlipperZero::BootMode::Normal), "Failed to set device into Normal boot mode");
+    return true;
+}
+
+CheckOptionBytesOperation::CheckOptionBytesOperation(FlipperZero *device, QIODevice *file):
+    m_device(device),
+    m_file(file)
+{
+    m_device->setPersistent(true);
+    m_device->setStatusMessage(QObject::tr("Check Option Bytes operation pending..."));
+}
+
+CheckOptionBytesOperation::~CheckOptionBytesOperation()
+{
+    m_device->setPersistent(false);
+    m_file->deleteLater();
+}
+
+const QString CheckOptionBytesOperation::name() const
+{
+    return QString("Check Option Bytes @%1 %2").arg(m_device->model(), m_device->name());
+}
+
+bool CheckOptionBytesOperation::execute()
+{
     return true;
 }
 

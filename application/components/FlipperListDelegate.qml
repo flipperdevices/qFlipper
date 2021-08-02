@@ -6,6 +6,7 @@ Item {
     signal localUpdateRequested(var device)
     signal localRadioUpdateRequested(var device)
     signal localFUSUpdateRequested(var device)
+    signal optionBytesCheckRequested(var device)
 
     signal fixBootRequested(var device)
 
@@ -167,6 +168,12 @@ Item {
             MenuItem {
                 text: qsTr("Fix boot issues")
                 onTriggered: fixBootRequested(device)
+                enabled: device.isDFU
+            }
+
+            MenuItem {
+                text: qsTr("Check Option Bytes...")
+                onTriggered: optionBytesCheckRequested(device)
                 enabled: device.isDFU
             }
         }

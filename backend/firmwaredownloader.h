@@ -31,7 +31,8 @@ public slots:
     void downloadLocalFUS(Flipper::FlipperZero *device, const QString &filePath);
     void downloadLocalWirelessStack(Flipper::FlipperZero *device, const QString &filePath);
 
-    void makeBootable(Flipper::FlipperZero *device);
+    void fixBootIssues(Flipper::FlipperZero *device);
+    void checkOptionBytes(Flipper::FlipperZero *device, const QString &filePath);
 
 private slots:
     void processQueue();
