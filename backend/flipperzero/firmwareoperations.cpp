@@ -99,7 +99,7 @@ bool FixBootIssuesOperation::execute()
     return true;
 }
 
-CheckOptionBytesOperation::CheckOptionBytesOperation(FlipperZero *device, QIODevice *file):
+FixOptionBytesOperation::FixOptionBytesOperation(FlipperZero *device, QIODevice *file):
     m_device(device),
     m_file(file)
 {
@@ -107,19 +107,24 @@ CheckOptionBytesOperation::CheckOptionBytesOperation(FlipperZero *device, QIODev
     m_device->setStatusMessage(QObject::tr("Check Option Bytes operation pending..."));
 }
 
-CheckOptionBytesOperation::~CheckOptionBytesOperation()
+FixOptionBytesOperation::~FixOptionBytesOperation()
 {
     m_device->setPersistent(false);
     m_file->deleteLater();
 }
 
-const QString CheckOptionBytesOperation::name() const
+const QString FixOptionBytesOperation::name() const
 {
     return QString("Check Option Bytes @%1 %2").arg(m_device->model(), m_device->name());
 }
 
-bool CheckOptionBytesOperation::execute()
+bool FixOptionBytesOperation::execute()
 {
+    if(!m_device->isDFU()) {
+        check_return_bool(m_device->detach(), "Failed to detach device");
+    }
+
+    check_return_bool(m_device->fixOptionBytes(m_file), "Failed to check option bytes");
     return true;
 }
 

@@ -71,12 +71,12 @@ void FirmwareDownloader::fixBootIssues(FlipperZero *device)
     enqueueOperation(new Flipper::Zero::FixBootIssuesOperation(device));
 }
 
-void FirmwareDownloader::checkOptionBytes(FlipperZero *device, const QString &filePath)
+void FirmwareDownloader::fixOptionBytes(FlipperZero *device, const QString &filePath)
 {
     const auto localUrl = QUrl(filePath).toLocalFile();
     auto *file = new QFile(localUrl, this);
 
-    enqueueOperation(new Flipper::Zero::CheckOptionBytesOperation(device, file));
+    enqueueOperation(new Flipper::Zero::FixOptionBytesOperation(device, file));
 }
 
 void FirmwareDownloader::processQueue()

@@ -66,6 +66,8 @@ public:
     bool downloadWirelessStack(QIODevice *file, uint32_t addr = 0);
     bool upgradeWirelessStack();
 
+    bool fixOptionBytes(QIODevice *file);
+
     const QString &name() const;
     const QString &model() const;
     const QString &target() const;

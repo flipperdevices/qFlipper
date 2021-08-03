@@ -183,6 +183,9 @@ bool DfuseDevice::upload(QIODevice *file, uint32_t addr, size_t maxSize, uint8_t
 
 bool DfuseDevice::leave()
 {
+    check_return_bool(setInterfaceAltSetting(0, 0), "Failed to set interface alternate setting");
+    check_return_bool(prepare() && abort(), "Failed to prepare the device");
+
     setAddressPointer(0x080FFFFFUL);
     check_return_bool(controlTransfer(REQUEST_OUT, DFU_DNLOAD, 0, 0, QByteArray()), "Failed to perform final DFU_DNLOAD transfer");
 

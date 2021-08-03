@@ -186,8 +186,8 @@ bool FlipperZero::setBootMode(BootMode mode)
         return false;
     }
 
-    ob.setNBoot0(mode == BootMode::Normal);
-    ob.setNSwBoot0(mode == BootMode::Normal);
+    ob.setNBOOT0(mode == BootMode::Normal);
+    ob.setNSWBOOT0(mode == BootMode::Normal);
 
     if(!device.setOptionBytes(ob)) {
         errorFeedback("Cant' set boot mode: Failed to set option bytes");
@@ -573,6 +573,36 @@ bool FlipperZero::upgradeWirelessStack()
     }
 
     return false;
+}
+
+bool FlipperZero::fixOptionBytes(QIODevice *file)
+{
+    statusFeedback("Fixing Option Bytes...");
+
+    check_return_bool(file->open(QIODevice::ReadOnly), "Failed to open file for reading");
+    const OptionBytes loaded(file);
+    file->close();
+
+    check_return_bool(loaded.isValid(), "Failed to load option bytes from file");
+
+    QMutexLocker locker(&m_deviceMutex);
+    STM32WB55 device(m_info);
+
+    check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
+    const OptionBytes actual = device.optionBytes();
+
+    if(actual != loaded) {
+        info_msg("Writing corrected Option Bytes")
+        device.setOptionBytes(loaded);
+    } else {
+        info_msg("Option Bytes OK");
+        device.leave();
+    }
+
+    check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
+
+    locker.unlock();
+    return waitForReboot();
 }
 
 const QString &FlipperZero::name() const

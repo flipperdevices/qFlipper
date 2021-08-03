@@ -51,11 +51,11 @@ private:
     FlipperZero *m_device;
 };
 
-class CheckOptionBytesOperation : public AbstractFirmwareOperation
+class FixOptionBytesOperation : public AbstractFirmwareOperation
 {
 public:
-    CheckOptionBytesOperation(FlipperZero *device, QIODevice *file);
-    ~CheckOptionBytesOperation();
+    FixOptionBytesOperation(FlipperZero *device, QIODevice *file);
+    ~FixOptionBytesOperation();
 
     const QString name() const override;
     bool execute() override;

@@ -138,14 +138,14 @@ Item {
                 }, messageObj);
             }
 
-            onOptionBytesCheckRequested: {
+            onFixOptionBytesRequested: {
                 const messageObj = {
-                    title : qsTr("Check the Option Bytes?"),
+                    title : qsTr("Check and fix the Option Bytes?"),
                     subtitle : qsTr("Results will be displayed in the program log.")
                 };
 
                 fileDialog.openWithConfirmation(["Option bytes description files (*.data)", "All files (*)"], function() {
-                    downloader.checkOptionBytes(device, fileDialog.fileUrl);
+                    downloader.fixOptionBytes(device, fileDialog.fileUrl);
                 }, messageObj);
             }
         }

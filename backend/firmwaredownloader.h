@@ -32,7 +32,7 @@ public slots:
     void downloadLocalWirelessStack(Flipper::FlipperZero *device, const QString &filePath);
 
     void fixBootIssues(Flipper::FlipperZero *device);
-    void checkOptionBytes(Flipper::FlipperZero *device, const QString &filePath);
+    void fixOptionBytes(Flipper::FlipperZero *device, const QString &filePath);
 
 private slots:
     void processQueue();
