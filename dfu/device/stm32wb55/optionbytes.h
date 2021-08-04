@@ -1,6 +1,8 @@
 #pragma once
 
+#include <QHash>
 #include <QString>
+#include <QVector>
 #include <QByteArray>
 
 class QIODevice;
@@ -32,7 +34,7 @@ class OptionBytes
             unsigned nSWBOOT0:1;
             unsigned nBOOT0:1;
             unsigned UNUSED3:1;
-            unsigned AGCTRIM:3;
+            unsigned AGC_TRIM:3;
         };
 
         struct Word2 {
@@ -115,88 +117,30 @@ class OptionBytes
     OptionBytes();
 
 public:
+    using DataMap = QHash<QByteArray, uint32_t>;
+
     OptionBytes(const QByteArray &data);
     OptionBytes(QIODevice *file);
-
-    bool operator ==(const OptionBytes &other) const;
-    bool operator !=(const OptionBytes &other) const;
 
     static OptionBytes invalid();
     static qint64 size();
 
+    static const QVector<QByteArray> &fieldNames();
+
     bool isValid() const;
+
     QByteArray data() const;
+    void setData(const QByteArray &data);
 
-    uint8_t RDP() const;
+    uint32_t value(const QByteArray &fieldName) const;
+    void setValue(const QByteArray &fieldName, uint32_t value);
 
-    bool ESE() const;
-
-    uint8_t BOR_LEV() const;
-
-    bool nRST_STOP() const;
-    bool nRST_STDBY() const;
-    bool nRSTSHDW() const;
-
-    bool IWDGSW() const;
-    bool IWDGSTOP() const;
-    bool IWDGSTDBY() const;
-    bool WWDGSW() const;
-
-    bool nBOOT0() const;
-    bool nBOOT1() const;
-    bool nSWBOOT0() const;
-
-    bool SRAM2PE() const;
-    bool SRAM2RST() const;
-
-    uint8_t AGCTRIM() const;
-
-    bool FSD() const;
-    bool DDS() const;
-    bool BRSD() const;
-    bool NBRSD() const;
-    bool C2OPT() const;
-    bool PCROP_RDP() const;
-
-    uint8_t SFSA() const;
-
-    uint8_t SBRSA() const;
-    uint8_t SNBRSA() const;
-
-    uint16_t PCROP1A_STRT() const;
-    uint16_t PCROP1A_END() const;
-
-    uint16_t PCROP1B_STRT() const;
-    uint16_t PCROP1B_END() const;
-
-    uint8_t WRP1A_STRT() const;
-    uint8_t WRP1A_END() const;
-    uint8_t WRP1B_STRT() const;
-    uint8_t WRP1B_END() const;
-
-    uint16_t IPCCDBA() const;
-    uint32_t SBRV() const;
-
-    void setNBOOT0(bool set);
-    void setNBOOT1(bool set);
-    void setNSWBOOT0(bool set);
-
-    void setSRAM2RST(bool set);
-    void setSRAM2PE(bool set);
-
-    void setBOR_LEV(uint8_t val);
-
-    void setnRST_STOP(bool set);
-    void setnRST_STDBY(bool set);
-    void setnRSTSHDW(bool set);
-    void setIWDGSW(bool set);
-    void setIWDGSTOP(bool set);
-    void setIWGDSTDBY(bool set);
-    void setWWDGSW(bool set);
+    DataMap compare(const OptionBytes &other) const;
+    OptionBytes corrected(const DataMap &diff) const;
 
 private:
+    DataMap m_data;
     bool m_isValid;
-    OptionBytesData m_data;
 };
 
 }

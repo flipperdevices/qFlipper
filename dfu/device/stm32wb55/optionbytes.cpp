@@ -5,19 +5,10 @@
 
 #include "macros.h"
 
-// TODO: Try a dictionary-based implementation instead
-
 #define OPTION_BYTES_SIZE 128
 
 #define NORMAL 0
 #define COMPLEMENT 1
-
-#define toHexStr(num) (QString::number(num, 16))
-#define check_register(equal, reg, msg) \
-    if(reg() != other.reg()) { \
-        info_msg(msg.arg(#reg, toHexStr(reg()), toHexStr(other.reg()))); \
-        equal = false; \
-    }
 
 namespace STM32 {
 namespace WB55 {
@@ -27,11 +18,13 @@ OptionBytes::OptionBytes():
 {}
 
 OptionBytes::OptionBytes(const QByteArray &data):
-    m_isValid(data.size() == OPTION_BYTES_SIZE),
-    m_data(*(OptionBytesData*)(data.data()))
-{}
+    OptionBytes()
+{
+    setData(data);
+}
 
-OptionBytes::OptionBytes(QIODevice *file)
+OptionBytes::OptionBytes(QIODevice *file):
+    OptionBytes()
 {
     while(!file->atEnd()) {
         const auto tokens = file->readLine().split(':');
@@ -40,208 +33,22 @@ OptionBytes::OptionBytes(QIODevice *file)
         QRegExp alphanum("[^A-Za-z0-9_]");
         QRegExp hex("[^0-9xXA-Fa-f]");
 
-        check_return_void(alphanum.indexIn(tokens[0]) < 0, QString("Illegal character(s) in the register name: ") + tokens[0]);
-        check_return_void(hex.indexIn(tokens[1]) < 0, QString("Illegal character(s) in the register value: ") + tokens[1]);
+        const auto &fieldName = tokens[0];
+        const auto &hexValue = tokens[1];
 
-        bool canConvert = false;
-        const auto value = tokens[1].toUInt(&canConvert, 16);
-        check_return_void(canConvert, QString("Cannot convert given register value to a number: ") + tokens[1]);
+        check_return_void(alphanum.indexIn(fieldName) < 0, QString("Illegal character(s) in the field name: ") + fieldName);
+        check_return_void(hex.indexIn(hexValue) < 0, QString("Illegal character(s) in the field value: ") + hexValue);
 
-        if(tokens[0] == "RDP") {
-            m_data.word1[NORMAL].RDP = value;
-            m_data.word1[COMPLEMENT].RDP = ~value;
+        check_return_void(fieldNames().contains(fieldName), QString("Illegal field name: ") + fieldName);
 
-        } else if(tokens[0] == "ESE") {
-            m_data.word1[NORMAL].ESE = value;
-            m_data.word1[COMPLEMENT].ESE = !value;
+        bool canConvert;
+        const auto value = hexValue.toUInt(&canConvert, 16);
+        check_return_void(canConvert, QString("Cannot convert given register value to a number: ") + hexValue);
 
-        } else if(tokens[0] == "BOR_LEV") {
-            m_data.word1[NORMAL].BOR_LEV = value;
-            m_data.word1[COMPLEMENT].BOR_LEV = ~value;
-
-        } else if(tokens[0] == "nBOOT0") {
-            m_data.word1[NORMAL].nBOOT0 = value;
-            m_data.word1[COMPLEMENT].nBOOT0 = !value;
-
-        } else if(tokens[0] == "nBOOT1") {
-            m_data.word1[NORMAL].nBOOT1 = value;
-            m_data.word1[COMPLEMENT].nBOOT1 = !value;
-
-        } else if(tokens[0] == "nSWBOOT0") {
-            m_data.word1[NORMAL].nSWBOOT0 = value;
-            m_data.word1[COMPLEMENT].nSWBOOT0  = !value;
-
-        } else if(tokens[0] == "SRAM2RST") {
-            m_data.word1[NORMAL].SRAM2RST = value;
-            m_data.word1[COMPLEMENT].SRAM2RST  = !value;
-
-        } else if(tokens[0] == "SRAM2PE") {
-            m_data.word1[NORMAL].SRAM2PE = value;
-            m_data.word1[COMPLEMENT].SRAM2PE  = !value;
-
-        } else if(tokens[0] == "nRST_STOP") {
-            m_data.word1[NORMAL].nRST_STOP = value;
-            m_data.word1[COMPLEMENT].nRST_STOP  = !value;
-
-        } else if(tokens[0] == "nRST_STDBY") {
-            m_data.word1[NORMAL].nRST_STDBY = value;
-            m_data.word1[COMPLEMENT].nRST_STDBY  = !value;
-
-        } else if(tokens[0] == "nRSTSHDW") {
-            m_data.word1[NORMAL].nRSTSHDW = value;
-            m_data.word1[COMPLEMENT].nRSTSHDW   = !value;
-
-        } else if(tokens[0] == "WWDGSW") {
-            m_data.word1[NORMAL].WWDGSW = value;
-            m_data.word1[COMPLEMENT].WWDGSW = !value;
-
-        } else if((tokens[0] == "IWDGSTDBY") || (tokens[0] == "IWGDSTDBY")) { // Temporary workaround for a typo
-            m_data.word1[NORMAL].IWDGSTDBY = value;
-            m_data.word1[COMPLEMENT].IWDGSTDBY = !value;
-
-        } else if(tokens[0] == "IWDGSTOP") {
-            m_data.word1[NORMAL].IWDGSTOP = value;
-            m_data.word1[COMPLEMENT].IWDGSTOP = !value;
-
-        } else if(tokens[0] == "IWDGSW") {
-            m_data.word1[NORMAL].IWDGSW = value;
-            m_data.word1[COMPLEMENT].IWDGSW = !value;
-
-        } else if(tokens[0] == "AGCTRIM") {
-            m_data.word1[NORMAL].AGCTRIM = value;
-            m_data.word1[COMPLEMENT].AGCTRIM = ~value;
-
-        } else if(tokens[0] == "PCROP1A_STRT") {
-            m_data.word2[NORMAL].PCROP1A_STRT = value;
-            m_data.word2[COMPLEMENT].PCROP1A_STRT = ~value;
-
-        } else if(tokens[0] == "PCROP1A_END") {
-            m_data.word3[NORMAL].PCROP1A_END = value;
-            m_data.word3[COMPLEMENT].PCROP1A_END = ~value;
-
-        } else if(tokens[0] == "PCROP_RDP") {
-            m_data.word3[NORMAL].PCROP_RDP = value;
-            m_data.word3[COMPLEMENT].PCROP_RDP = !value;
-
-        } else if(tokens[0] == "WRP1A_STRT") {
-            m_data.word4[NORMAL].WRP1A_STRT = value;
-            m_data.word4[COMPLEMENT].WRP1A_STRT = ~value;
-
-        } else if(tokens[0] == "WRP1A_END") {
-            m_data.word4[NORMAL].WRP1A_END = value;
-            m_data.word4[COMPLEMENT].WRP1A_END = ~value;
-
-        } else if(tokens[0] == "WRP1B_STRT") {
-            m_data.word5[NORMAL].WRP1B_STRT = value;
-            m_data.word5[COMPLEMENT].WRP1B_STRT = ~value;
-
-        } else if(tokens[0] == "WRP1B_END") {
-            m_data.word5[NORMAL].WRP1B_END = value;
-            m_data.word5[COMPLEMENT].WRP1B_END = ~value;
-
-        } else if(tokens[0] == "PCROP1B_STRT") {
-            m_data.word6[NORMAL].PCROP1B_STRT = value;
-            m_data.word6[COMPLEMENT].PCROP1B_STRT = ~value;
-
-        } else if(tokens[0] == "PCROP1B_END") {
-            m_data.word7[NORMAL].PCROP1B_END = value;
-            m_data.word7[COMPLEMENT].PCROP1B_END = ~value;
-
-        } else if(tokens[0] == "IPCCDBA") {
-            m_data.word8[NORMAL].IPCCDBA = value;
-            m_data.word8[COMPLEMENT].IPCCDBA = ~value;
-
-        } else if(tokens[0] == "SFSA") {
-            m_data.word9[NORMAL].SFSA = value;
-            m_data.word9[COMPLEMENT].SFSA = ~value;
-
-        } else if(tokens[0] == "FSD") {
-            m_data.word9[NORMAL].FSD = value;
-            m_data.word9[COMPLEMENT].FSD = !value;
-
-        } else if(tokens[0] == "DDS") {
-            m_data.word9[NORMAL].DDS = value;
-            m_data.word9[COMPLEMENT].DDS = !value;
-
-        } else if(tokens[0] == "C2OPT") {
-            m_data.word10[NORMAL].C2OPT = value;
-            m_data.word10[COMPLEMENT].C2OPT = !value;
-
-        } else if(tokens[0] == "NBRSD") {
-            m_data.word10[NORMAL].NBRSD = value;
-            m_data.word10[COMPLEMENT].NBRSD = !value;
-
-        } else if(tokens[0] == "SNBRSA") {
-            m_data.word10[NORMAL].SNBRSA = value;
-            m_data.word10[COMPLEMENT].SNBRSA = ~value;
-
-        } else if(tokens[0] == "BRSD") {
-            m_data.word10[NORMAL].BRSD = value;
-            m_data.word10[COMPLEMENT].BRSD = !value;
-
-        } else if(tokens[0] == "SBRSA") {
-            m_data.word10[NORMAL].SBRSA = value;
-            m_data.word10[COMPLEMENT].SBRSA = ~value;
-
-        } else if(tokens[0] == "SBRV") {
-            m_data.word10[NORMAL].SBRV = value;
-            m_data.word10[COMPLEMENT].SBRV = ~value;
-
-        } else {
-            error_msg(QString("Unexpected register name: ") + tokens[0]);
-            return;
-        }
+        m_data.insert(fieldName, value);
     }
 
     m_isValid = true;
-}
-
-bool OptionBytes::operator ==(const OptionBytes &other) const
-{
-    bool equal = true;
-    const QString msg = "Option Bytes mismatch @%1: this: 0x%2, other: 0x%3";
-
-    check_register(equal, RDP, msg);
-    check_register(equal, ESE, msg);
-    check_register(equal, BOR_LEV, msg);
-    check_register(equal, nRST_STOP, msg);
-    check_register(equal, nRST_STDBY, msg);
-    check_register(equal, nRSTSHDW, msg);
-    check_register(equal, IWDGSW, msg);
-    check_register(equal, IWDGSTOP, msg);
-    check_register(equal, IWDGSTDBY, msg);
-    check_register(equal, WWDGSW, msg);
-    check_register(equal, nBOOT0, msg);
-    check_register(equal, nBOOT1, msg);
-    check_register(equal, nSWBOOT0, msg);
-    check_register(equal, SRAM2PE, msg);
-    check_register(equal, SRAM2RST, msg);
-    check_register(equal, PCROP1A_STRT, msg);
-    check_register(equal, PCROP1A_END, msg);
-    check_register(equal, PCROP1B_STRT, msg);
-    check_register(equal, PCROP1B_END, msg);
-    check_register(equal, PCROP_RDP, msg);
-    check_register(equal, WRP1A_STRT, msg);
-    check_register(equal, WRP1A_END, msg);
-    check_register(equal, WRP1B_STRT, msg);
-    check_register(equal, WRP1B_END, msg);
-    check_register(equal, IPCCDBA, msg);
-    check_register(equal, SFSA, msg);
-    check_register(equal, FSD, msg);
-    check_register(equal, DDS, msg);
-    check_register(equal, SBRV, msg);
-    check_register(equal, SBRSA, msg);
-    check_register(equal, BRSD, msg);
-    check_register(equal, SNBRSA, msg);
-    check_register(equal, NBRSD, msg);
-    check_register(equal, C2OPT, msg);
-
-    return equal;
-}
-
-bool OptionBytes::operator !=(const OptionBytes &other) const
-{
-    return !(*this == other);
 }
 
 OptionBytes OptionBytes::invalid()
@@ -254,6 +61,54 @@ qint64 OptionBytes::size()
     return OPTION_BYTES_SIZE;
 }
 
+const QVector<QByteArray> &OptionBytes::fieldNames()
+{
+    const static QVector<QByteArray> names {
+        "RDP",
+        "BOR_LEV",
+        "nBOOT0",
+        "nBOOT1",
+        "nSWBOOT0",
+        "SRAM2RST",
+        "SRAM2PE",
+        "nRST_STOP",
+        "nRST_STDBY",
+        "nRSTSHDW",
+        "WWDGSW",
+        "IWDGSTDBY",
+        "IWGDSTDBY", // correcting for STM's derp
+        "IWDGSTOP",
+        "IWDGSW",
+        "IPCCDBA",
+
+        "ESE",
+        "SFSA",
+        "FSD",
+        "DDS",
+        "C2OPT",
+        "NBRSD",
+        "SNBRSA",
+        "BRSD",
+        "SBRSA",
+        "SBRV",
+
+        "PCROP1A_STRT",
+        "PCROP1A_END",
+        "PCROP_RDP",
+        "PCROP1B_STRT",
+        "PCROP1B_END",
+
+        "WRP1A_STRT",
+        "WRP1A_END",
+        "WRP1B_STRT",
+        "WRP1B_END",
+
+        "AGC_TRIM"
+    };
+
+    return names;
+}
+
 bool OptionBytes::isValid() const
 {
     return m_isValid;
@@ -261,248 +116,223 @@ bool OptionBytes::isValid() const
 
 QByteArray OptionBytes::data() const
 {
-    return QByteArray::fromRawData((const char*)(&m_data), sizeof(OptionBytesData));
+    OptionBytesData ds;
+
+    for(auto it = m_data.constKeyValueBegin(); it != m_data.constKeyValueEnd(); ++it) {
+        const auto &fieldName = it->first;
+        const auto value = it->second;
+
+        if(fieldName == fieldNames()[0]) {
+            ds.word1[NORMAL].RDP = value;
+            ds.word1[COMPLEMENT].RDP = ~value;
+        } else if(fieldName == fieldNames()[1]) {
+            ds.word1[NORMAL].BOR_LEV = value;
+            ds.word1[COMPLEMENT].BOR_LEV = ~value;
+        } else if(fieldName == fieldNames()[2]) {
+            ds.word1[NORMAL].nBOOT0 = value;
+            ds.word1[COMPLEMENT].nBOOT0 = !value;
+        } else if(fieldName == fieldNames()[3]) {
+            ds.word1[NORMAL].nBOOT1 = value;
+            ds.word1[COMPLEMENT].nBOOT1 = !value;
+        } else if(fieldName == fieldNames()[4]) {
+            ds.word1[NORMAL].nSWBOOT0 = value;
+            ds.word1[COMPLEMENT].nSWBOOT0 = !value;
+        } else if(fieldName == fieldNames()[5]) {
+            ds.word1[NORMAL].SRAM2RST = value;
+            ds.word1[COMPLEMENT].SRAM2RST = !value;
+        } else if(fieldName == fieldNames()[6]) {
+            ds.word1[NORMAL].SRAM2PE = value;
+            ds.word1[COMPLEMENT].SRAM2PE = !value;
+        } else if(fieldName == fieldNames()[7]) {
+            ds.word1[NORMAL].nRST_STOP = value;
+            ds.word1[COMPLEMENT].nRST_STOP = !value;
+        } else if(fieldName == fieldNames()[8]) {
+            ds.word1[NORMAL].nRST_STDBY = value;
+            ds.word1[COMPLEMENT].nRST_STDBY = !value;
+        } else if(fieldName == fieldNames()[9]) {
+            ds.word1[NORMAL].nRSTSHDW = value;
+            ds.word1[COMPLEMENT].nRSTSHDW = !value;
+        } else if(fieldName == fieldNames()[10]) {
+            ds.word1[NORMAL].WWDGSW = value;
+            ds.word1[COMPLEMENT].WWDGSW = !value;
+        } else if(fieldName == fieldNames()[11]) {
+            ds.word1[NORMAL].IWDGSTDBY = value;
+            ds.word1[COMPLEMENT].IWDGSTDBY = !value;
+        } else if(fieldName == fieldNames()[13]) { // no index 12 is intentional
+            ds.word1[NORMAL].IWDGSTOP = value;
+            ds.word1[COMPLEMENT].IWDGSTOP = !value;
+        } else if(fieldName == fieldNames()[14]) {
+            ds.word1[NORMAL].IWDGSW = value;
+            ds.word1[COMPLEMENT].IWDGSW = !value;
+        } else if(fieldName == fieldNames()[15]) {
+            ds.word8[NORMAL].IPCCDBA = value;
+            ds.word8[COMPLEMENT].IPCCDBA = ~value;
+
+        } else if(fieldName == fieldNames()[16]) {
+            ds.word1[NORMAL].ESE = value;
+            ds.word1[COMPLEMENT].ESE = !value;
+        } else if(fieldName == fieldNames()[17]) {
+            ds.word9[NORMAL].SFSA = value;
+            ds.word9[COMPLEMENT].SFSA = ~value;
+        } else if(fieldName == fieldNames()[18]) {
+            ds.word9[NORMAL].FSD = value;
+            ds.word9[COMPLEMENT].FSD = !value;
+        } else if(fieldName == fieldNames()[19]) {
+            ds.word9[NORMAL].DDS = value;
+            ds.word9[COMPLEMENT].DDS = !value;
+        } else if(fieldName == fieldNames()[20]) {
+            ds.word10[NORMAL].C2OPT = value;
+            ds.word10[COMPLEMENT].C2OPT = !value;
+        } else if(fieldName == fieldNames()[21]) {
+            ds.word10[NORMAL].NBRSD = value;
+            ds.word10[COMPLEMENT].NBRSD = !value;
+        } else if(fieldName == fieldNames()[22]) {
+            ds.word10[NORMAL].SNBRSA = value;
+            ds.word10[COMPLEMENT].SNBRSA = ~value;
+        } else if(fieldName == fieldNames()[23]) {
+            ds.word10[NORMAL].BRSD = value;
+            ds.word10[COMPLEMENT].BRSD = !value;
+        } else if(fieldName == fieldNames()[24]) {
+            ds.word10[NORMAL].SBRSA = value;
+            ds.word10[COMPLEMENT].SBRSA = ~value;
+        } else if(fieldName == fieldNames()[25]) {
+            ds.word10[NORMAL].SBRV = value;
+            ds.word10[COMPLEMENT].SBRV = ~value;
+
+        } else if(fieldName == fieldNames()[26]) {
+            ds.word2[NORMAL].PCROP1A_STRT = value;
+            ds.word2[COMPLEMENT].PCROP1A_STRT = ~value;
+        } else if(fieldName == fieldNames()[27]) {
+            ds.word3[NORMAL].PCROP1A_END = value;
+            ds.word3[COMPLEMENT].PCROP1A_END = ~value;
+        } else if(fieldName == fieldNames()[28]) {
+            ds.word3[NORMAL].PCROP_RDP = value;
+            ds.word3[COMPLEMENT].PCROP_RDP = !value;
+        } else if(fieldName == fieldNames()[29]) {
+            ds.word6[NORMAL].PCROP1B_STRT = value;
+            ds.word6[COMPLEMENT].PCROP1B_STRT = ~value;
+        } else if(fieldName == fieldNames()[30]) {
+            ds.word7[NORMAL].PCROP1B_END = value;
+            ds.word7[COMPLEMENT].PCROP1B_END = ~value;
+
+        } else if(fieldName == fieldNames()[31]) {
+            ds.word4[NORMAL].WRP1A_STRT = value;
+            ds.word4[COMPLEMENT].WRP1A_STRT  = ~value;
+        } else if(fieldName == fieldNames()[32]) {
+            ds.word4[NORMAL].WRP1A_END = value;
+            ds.word4[COMPLEMENT].WRP1A_END  = ~value;
+        } else if(fieldName == fieldNames()[33]) {
+            ds.word5[NORMAL].WRP1B_STRT = value;
+            ds.word5[COMPLEMENT].WRP1B_STRT  = ~value;
+        } else if(fieldName == fieldNames()[34]) {
+            ds.word5[NORMAL].WRP1B_END = value;
+            ds.word5[COMPLEMENT].WRP1B_END  = ~value;
+        } else if(fieldName == fieldNames()[35]) {
+            ds.word1[NORMAL].AGC_TRIM = value;
+            ds.word1[COMPLEMENT].AGC_TRIM  = ~value;
+        } else {}
+    }
+
+    return QByteArray((const char*)(&ds), sizeof(OptionBytesData));
 }
 
-bool OptionBytes::nBOOT0() const
+void OptionBytes::setData(const QByteArray &data)
 {
-    return m_data.word1[NORMAL].nBOOT0;
+    m_isValid = data.size() == OPTION_BYTES_SIZE;
+    check_return_void(m_isValid, "Unexpected data size");
+
+    m_data.clear();
+
+    const auto ds = *((OptionBytesData*)data.data());
+
+    m_data.insert(fieldNames()[ 0], ds.word1[NORMAL].RDP);
+    m_data.insert(fieldNames()[ 1], ds.word1[NORMAL].BOR_LEV);
+    m_data.insert(fieldNames()[ 2], ds.word1[NORMAL].nBOOT0);
+    m_data.insert(fieldNames()[ 3], ds.word1[NORMAL].nBOOT1);
+    m_data.insert(fieldNames()[ 4], ds.word1[NORMAL].nSWBOOT0);
+    m_data.insert(fieldNames()[ 5], ds.word1[NORMAL].SRAM2RST);
+    m_data.insert(fieldNames()[ 6], ds.word1[NORMAL].SRAM2PE);
+    m_data.insert(fieldNames()[ 7], ds.word1[NORMAL].nRST_STOP);
+    m_data.insert(fieldNames()[ 8], ds.word1[NORMAL].nRST_STDBY);
+    m_data.insert(fieldNames()[ 9], ds.word1[NORMAL].nRSTSHDW);
+    m_data.insert(fieldNames()[10], ds.word1[NORMAL].WWDGSW);
+    m_data.insert(fieldNames()[11], ds.word1[NORMAL].IWDGSTDBY);
+    m_data.insert(fieldNames()[12], ds.word1[NORMAL].IWDGSTDBY); // correcting for STM's derp
+    m_data.insert(fieldNames()[13], ds.word1[NORMAL].IWDGSTOP);
+    m_data.insert(fieldNames()[14], ds.word1[NORMAL].IWDGSW);
+    m_data.insert(fieldNames()[15], ds.word8[NORMAL].IPCCDBA);
+
+    m_data.insert(fieldNames()[16], ds.word1[NORMAL].ESE);
+    m_data.insert(fieldNames()[17], ds.word9[NORMAL].SFSA);
+    m_data.insert(fieldNames()[18], ds.word9[NORMAL].FSD);
+    m_data.insert(fieldNames()[19], ds.word9[NORMAL].DDS);
+    m_data.insert(fieldNames()[20], ds.word10[NORMAL].C2OPT);
+    m_data.insert(fieldNames()[21], ds.word10[NORMAL].NBRSD);
+    m_data.insert(fieldNames()[22], ds.word10[NORMAL].SNBRSA);
+    m_data.insert(fieldNames()[23], ds.word10[NORMAL].BRSD);
+    m_data.insert(fieldNames()[24], ds.word10[NORMAL].SBRSA);
+    m_data.insert(fieldNames()[25], ds.word10[NORMAL].SBRV);
+
+    m_data.insert(fieldNames()[26], ds.word2[NORMAL].PCROP1A_STRT);
+    m_data.insert(fieldNames()[27], ds.word3[NORMAL].PCROP1A_END);
+    m_data.insert(fieldNames()[28], ds.word3[NORMAL].PCROP_RDP);
+    m_data.insert(fieldNames()[29], ds.word6[NORMAL].PCROP1B_STRT);
+    m_data.insert(fieldNames()[30], ds.word7[NORMAL].PCROP1B_END);
+
+    m_data.insert(fieldNames()[31], ds.word4[NORMAL].WRP1A_STRT);
+    m_data.insert(fieldNames()[32], ds.word4[NORMAL].WRP1A_END);
+    m_data.insert(fieldNames()[33], ds.word5[NORMAL].WRP1B_STRT);
+    m_data.insert(fieldNames()[34], ds.word5[NORMAL].WRP1B_END);
+
+    m_data.insert(fieldNames()[35], ds.word1[NORMAL].AGC_TRIM);
 }
 
-bool OptionBytes::nBOOT1() const
+uint32_t OptionBytes::value(const QByteArray &fieldName) const
 {
-    return m_data.word1[NORMAL].nBOOT1;
+    check_return_val(fieldNames().contains(fieldName), QString("Illegal field name: ") + fieldName, std::numeric_limits<uint32_t>::max());
+    check_return_val(m_data.contains(fieldName), QString("Field name allowed, but not set: ") + fieldName, std::numeric_limits<uint32_t>::max());
+
+    return m_data[fieldName];
 }
 
-bool OptionBytes::nSWBOOT0() const
+void OptionBytes::setValue(const QByteArray &fieldName, uint32_t value)
 {
-    return m_data.word1[NORMAL].nSWBOOT0;
+    check_return_void(fieldNames().contains(fieldName), QString("Illegal field name: ") + fieldName);
+    m_data[fieldName] = value;
 }
 
-bool OptionBytes::SRAM2PE() const
+OptionBytes::DataMap OptionBytes::compare(const OptionBytes &other) const
 {
-    return m_data.word1[NORMAL].SRAM2PE;
+    DataMap cmp;
+
+    for(auto it = other.m_data.constKeyValueBegin(); it != other.m_data.constKeyValueEnd(); ++it) {
+        const auto &fieldName = it->first;
+
+        if(m_data.contains(fieldName)) {
+            const auto right = it->second;
+            const auto left = m_data[fieldName];
+
+            if(left != right) {
+                cmp.insert(fieldName, right);
+            }
+
+        } else {
+            cmp.insert(fieldName, it->second);
+        }
+    }
+
+    return cmp;
 }
 
-bool OptionBytes::SRAM2RST() const
+OptionBytes OptionBytes::corrected(const DataMap &diff) const
 {
-    return m_data.word1[NORMAL].SRAM2RST;
-}
+    OptionBytes res = (*this);
 
-uint8_t OptionBytes::AGCTRIM() const
-{
-    return m_data.word1[NORMAL].AGCTRIM;
-}
+    for(auto it = diff.constKeyValueBegin(); it != diff.constKeyValueEnd(); ++it) {
+        res.setValue(it->first, it->second);
+    }
 
-bool OptionBytes::FSD() const
-{
-    return m_data.word9[NORMAL].FSD;
-}
-
-bool OptionBytes::DDS() const
-{
-    return m_data.word9[NORMAL].FSD;
-}
-
-bool OptionBytes::BRSD() const
-{
-    return m_data.word10[NORMAL].BRSD;
-}
-
-bool OptionBytes::NBRSD() const
-{
-    return m_data.word10[NORMAL].NBRSD;
-}
-
-bool OptionBytes::C2OPT() const
-{
-    return m_data.word10[NORMAL].C2OPT;
-}
-
-bool OptionBytes::PCROP_RDP() const
-{
-    return m_data.word3[NORMAL].PCROP_RDP;
-}
-
-uint8_t OptionBytes::RDP() const
-{
-    return m_data.word1[NORMAL].RDP;
-}
-
-bool OptionBytes::ESE() const
-{
-    return m_data.word1[NORMAL].ESE;
-}
-
-uint8_t OptionBytes::BOR_LEV() const
-{
-    return m_data.word1[NORMAL].BOR_LEV;
-}
-
-bool OptionBytes::nRST_STOP() const
-{
-    return m_data.word1[NORMAL].nRST_STOP;
-}
-
-bool OptionBytes::nRST_STDBY() const
-{
-    return m_data.word1[NORMAL].nRST_STDBY;
-}
-
-bool OptionBytes::nRSTSHDW() const
-{
-    return m_data.word1[NORMAL].nRSTSHDW;
-}
-
-bool OptionBytes::IWDGSW() const
-{
-    return m_data.word1[NORMAL].IWDGSW;
-}
-
-bool OptionBytes::IWDGSTOP() const
-{
-    return m_data.word1[NORMAL].IWDGSTOP;
-}
-
-bool OptionBytes::IWDGSTDBY() const
-{
-    return m_data.word1[NORMAL].IWDGSTDBY;
-}
-
-bool OptionBytes::WWDGSW() const
-{
-    return m_data.word1[NORMAL].WWDGSW;
-}
-
-uint8_t OptionBytes::SFSA() const
-{
-    return m_data.word9[NORMAL].SFSA;
-}
-
-uint8_t OptionBytes::SBRSA() const
-{
-    return m_data.word10[NORMAL].SBRSA;
-}
-
-uint8_t OptionBytes::SNBRSA() const
-{
-    return m_data.word10[NORMAL].SNBRSA;
-}
-
-uint16_t OptionBytes::PCROP1A_STRT() const
-{
-    return m_data.word2[NORMAL].PCROP1A_STRT;
-}
-
-uint16_t OptionBytes::PCROP1A_END() const
-{
-    return m_data.word3[NORMAL].PCROP1A_END;
-}
-
-uint16_t OptionBytes::PCROP1B_STRT() const
-{
-    return m_data.word6[NORMAL].PCROP1B_STRT;
-}
-
-uint16_t OptionBytes::PCROP1B_END() const
-{
-    return m_data.word7[NORMAL].PCROP1B_END;
-}
-
-uint8_t OptionBytes::WRP1A_STRT() const
-{
-    return m_data.word4[NORMAL].WRP1A_STRT;
-}
-
-uint8_t OptionBytes::WRP1A_END() const
-{
-    return m_data.word4[NORMAL].WRP1A_END;
-}
-
-uint8_t OptionBytes::WRP1B_STRT() const
-{
-    return m_data.word5[NORMAL].WRP1B_STRT;
-}
-
-uint8_t OptionBytes::WRP1B_END() const
-{
-    return m_data.word5[NORMAL].WRP1B_END;
-}
-
-uint16_t OptionBytes::IPCCDBA() const
-{
-    return m_data.word8[NORMAL].IPCCDBA;
-}
-
-uint32_t OptionBytes::SBRV() const
-{
-    return m_data.word10[NORMAL].SBRV;
-}
-
-void OptionBytes::setNBOOT0(bool set)
-{
-    m_data.word1[NORMAL].nBOOT0 = set;
-    m_data.word1[COMPLEMENT].nBOOT0 = !set;
-}
-
-void OptionBytes::setNBOOT1(bool set)
-{
-    m_data.word1[NORMAL].nBOOT1 = set;
-    m_data.word1[COMPLEMENT].nBOOT1 = !set;
-}
-
-void OptionBytes::setNSWBOOT0(bool set)
-{
-    m_data.word1[NORMAL].nSWBOOT0 = set;
-    m_data.word1[COMPLEMENT].nSWBOOT0 = !set;
-}
-
-void OptionBytes::setBOR_LEV(uint8_t val)
-{
-    m_data.word1[NORMAL].nSWBOOT0 = val;
-    m_data.word1[COMPLEMENT].nSWBOOT0 = ~val;
-}
-
-void OptionBytes::setnRST_STOP(bool set)
-{
-    m_data.word1[NORMAL].nRST_STOP = set;
-    m_data.word1[COMPLEMENT].nRST_STOP = !set;
-}
-
-void OptionBytes::setnRST_STDBY(bool set)
-{
-    m_data.word1[NORMAL].nRST_STDBY = set;
-    m_data.word1[COMPLEMENT].nRST_STDBY = !set;
-}
-
-void OptionBytes::setnRSTSHDW(bool set)
-{
-    m_data.word1[NORMAL].nRSTSHDW = set;
-    m_data.word1[COMPLEMENT].nRSTSHDW = !set;
-}
-
-void OptionBytes::setIWDGSW(bool set)
-{
-    m_data.word1[NORMAL].IWDGSW = set;
-    m_data.word1[COMPLEMENT].IWDGSW = !set;
-}
-
-void OptionBytes::setIWDGSTOP(bool set)
-{
-    m_data.word1[NORMAL].IWDGSTOP = set;
-    m_data.word1[COMPLEMENT].IWDGSTOP = !set;
-}
-
-void OptionBytes::setIWGDSTDBY(bool set)
-{
-    m_data.word1[NORMAL].IWDGSTDBY = set;
-    m_data.word1[COMPLEMENT].IWDGSTDBY = !set;
-}
-
-void OptionBytes::setWWDGSW(bool set)
-{
-    m_data.word1[NORMAL].WWDGSW = set;
-    m_data.word1[COMPLEMENT].WWDGSW = !set;
+    return res;
 }
 
 }

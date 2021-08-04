@@ -115,7 +115,7 @@ FixOptionBytesOperation::~FixOptionBytesOperation()
 
 const QString FixOptionBytesOperation::name() const
 {
-    return QString("Check Option Bytes @%1 %2").arg(m_device->model(), m_device->name());
+    return QString("Fix Option Bytes @%1 %2").arg(m_device->model(), m_device->name());
 }
 
 bool FixOptionBytesOperation::execute()

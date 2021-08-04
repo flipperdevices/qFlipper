@@ -17,12 +17,7 @@
 #include "device/stm32wb55.h"
 
 #define ARBITRARY_NUMBER 800
-
-#define try_run(condition, errorMsg) \
-    if(!(condition)) { \
-        errorFeedback(errorMsg); \
-        return false; \
-    }
+#define to_hex_str(num) (QString::number(num, 16))
 
 /* ----------------------------------------------------------------------------------------------------------------------------------
  * FUS operations are based on the info from AN5185
@@ -186,8 +181,8 @@ bool FlipperZero::setBootMode(BootMode mode)
         return false;
     }
 
-    ob.setNBOOT0(mode == BootMode::Normal);
-    ob.setNSWBOOT0(mode == BootMode::Normal);
+    ob.setValue("nBOOT0", mode == BootMode::Normal);
+    ob.setValue("nSWBOOT0", mode == BootMode::Normal);
 
     if(!device.setOptionBytes(ob)) {
         errorFeedback("Cant' set boot mode: Failed to set option bytes");
@@ -474,9 +469,9 @@ bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
         const auto origin = device.partitionOrigin((uint8_t)STM32WB55::Partition::Flash);
         const auto pageSize = (uint32_t)0x1000; // TODO: do not hardcode page size
 
-        addr = (origin + (pageSize * ob.SFSA()) - file->bytesAvailable()) & (~(pageSize - 1));
+        addr = (origin + (pageSize * ob.value("SFSA")) - file->bytesAvailable()) & (~(pageSize - 1));
 
-        info_msg(QString("SFSA value is 0x%1").arg(QString::number(ob.SFSA(), 16)));
+        info_msg(QString("SFSA value is 0x%1").arg(QString::number(ob.value("SFSA"), 16)));
         info_msg(QString("Target address for co-processor firmware image is 0x%1").arg(QString::number(addr, 16)));
 
     } else {
@@ -591,12 +586,20 @@ bool FlipperZero::fixOptionBytes(QIODevice *file)
     check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
     const OptionBytes actual = device.optionBytes();
 
-    if(actual != loaded) {
-        info_msg("Writing corrected Option Bytes")
-        device.setOptionBytes(loaded);
-    } else {
+    const auto diff = actual.compare(loaded);
+
+    if(diff.isEmpty()) {
         info_msg("Option Bytes OK");
         device.leave();
+
+    } else {
+        for(auto it = diff.constKeyValueBegin(); it != diff.constKeyValueEnd(); ++it) {
+            info_msg(QString("Option Bytes mismatch @%1: this: 0x%2, other: 0x%3")
+                     .arg(it->first, to_hex_str(actual.value(it->first)), to_hex_str(it->second)));
+        }
+
+        info_msg("Writing corrected Option Bytes");
+        device.setOptionBytes(actual.corrected(diff));
     }
 
     check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
