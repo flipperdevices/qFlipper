@@ -5,7 +5,7 @@ on: push
 jobs:
   build_linux:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    # if: github.ref == 'refs/heads/master'
     steps:
       - name: Cleanup workspace
         uses: AutoModality/action-clean@v1
@@ -25,7 +25,7 @@ jobs:
 
       - name: Build application in docker
         run: docker build -t flipp ./docker/ && docker run --rm --privileged -v $(pwd):/project flipp /project/build_linux.sh
-        
+
       - name: Publish application
         uses: actions/upload-artifact@v2
         with:
@@ -33,7 +33,7 @@ jobs:
           path: |
             ./build/qFlipper-x86_64.AppImage
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 1
 
       - name: Upload application
         uses: burnett01/rsync-deployments@4.1
@@ -65,7 +65,7 @@ jobs:
           path: |
             ./build_mac/qflipper.dmg
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 1
 
   build_windows:
     runs-on: [self-hosted, X64, Windows]
@@ -87,7 +87,7 @@ jobs:
             .\build\qFlipperSetup-64bit.exe
             .\build\qFlipper-64bit.zip
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 1
 
   upload_mac_windows:
     name: Upload apps for Windows and MacOS
