@@ -5,7 +5,7 @@ on: push
 jobs:
   build_linux:
     runs-on: ubuntu-latest
-    # if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     steps:
       - name: Cleanup workspace
         uses: AutoModality/action-clean@v1
