@@ -595,7 +595,7 @@ bool FlipperZero::fixOptionBytes(QIODevice *file)
     } else {
         for(auto it = diff.constKeyValueBegin(); it != diff.constKeyValueEnd(); ++it) {
             info_msg(QString("Option Bytes mismatch @%1: this: 0x%2, other: 0x%3")
-                     .arg(it->first, to_hex_str(actual.value(it->first)), to_hex_str(it->second)));
+                     .arg((*it).first, to_hex_str(actual.value((*it).first)), to_hex_str((*it).second)));
         }
 
         info_msg("Writing corrected Option Bytes");

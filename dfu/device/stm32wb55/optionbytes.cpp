@@ -119,8 +119,8 @@ QByteArray OptionBytes::data() const
     OptionBytesData ds;
 
     for(auto it = m_data.constKeyValueBegin(); it != m_data.constKeyValueEnd(); ++it) {
-        const auto &fieldName = it->first;
-        const auto value = it->second;
+        const auto &fieldName = (*it).first;
+        const auto value = (*it).second;
 
         if(fieldName == fieldNames()[0]) {
             ds.word1[NORMAL].RDP = value;
@@ -306,10 +306,10 @@ OptionBytes::DataMap OptionBytes::compare(const OptionBytes &other) const
     DataMap cmp;
 
     for(auto it = other.m_data.constKeyValueBegin(); it != other.m_data.constKeyValueEnd(); ++it) {
-        const auto &fieldName = it->first;
+        const auto &fieldName = (*it).first;
 
         if(m_data.contains(fieldName)) {
-            const auto right = it->second;
+            const auto right = (*it).second;
             const auto left = m_data[fieldName];
 
             if(left != right) {
@@ -317,7 +317,7 @@ OptionBytes::DataMap OptionBytes::compare(const OptionBytes &other) const
             }
 
         } else {
-            cmp.insert(fieldName, it->second);
+            cmp.insert(fieldName, (*it).second);
         }
     }
 
@@ -329,7 +329,7 @@ OptionBytes OptionBytes::corrected(const DataMap &diff) const
     OptionBytes res = (*this);
 
     for(auto it = diff.constKeyValueBegin(); it != diff.constKeyValueEnd(); ++it) {
-        res.setValue(it->first, it->second);
+        res.setValue((*it).first, (*it).second);
     }
 
     return res;
