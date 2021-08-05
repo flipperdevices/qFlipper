@@ -16,6 +16,7 @@ InstallDir "$PROGRAMFILES64\${NAME}"
 
 Page license
 Page directory
+Page components
 Page instfiles
 
 UninstPage uninstConfirm
@@ -29,16 +30,26 @@ Section "-Main Application"
 	
 	ExecWait "${VCREDIST2010_EXE} /passive /norestart"
 	ExecWait "${VCREDIST2019_EXE} /install /passive /norestart"
-	ExecWait '${ZADIC_EXE} --vid 0x0483 --pid 0xdf11 --create "Flipper Zero"'
-	
-	Delete ${VCREDIST2019_EXE}
-	Delete ${VCREDIST2010_EXE}
-	Delete ${ZADIC_EXE}
 	
 	WriteUninstaller $INSTDIR\uninstall.exe
 SectionEnd
 
+Section "USB Driver"
+	ExecWait '${ZADIC_EXE} --vid 0x0483 --pid 0xdf11 --create "Flipper Zero"'
+SectionEnd
+
+Section "Desktop shortcut"
+	CreateShortCut "$DESKTOP\${NAME}.lnk" "$INSTDIR\${NAME}.exe"
+SectionEnd
+
+Section "-Cleanup"
+	Delete ${VCREDIST2019_EXE}
+	Delete ${VCREDIST2010_EXE}
+	Delete ${ZADIC_EXE}
+SectionEnd
+
 Section "Uninstall"
-	Delete $INSTDIR\uninstall.exe
+	Delete "$DESKTOP\${NAME}.lnk"
+	Delete "$INSTDIR\uninstall.exe"
 	RMDir /r $INSTDIR
 SectionEnd
