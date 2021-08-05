@@ -9,6 +9,7 @@ SetCompressor /solid /final lzma
 !define VCREDIST2010_EXE "$INSTDIR\vcredist_x${ARCH_BITS}.exe"
 
 Name ${NAME}
+Icon "installer-assets\icons\${NAME}-installer.ico"
 
 OutFile "build\${NAME}Setup-${ARCH_BITS}bit.exe"
 InstallDir "$PROGRAMFILES64\${NAME}"
