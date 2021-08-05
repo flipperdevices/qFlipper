@@ -44,6 +44,9 @@ win32:!win32-g++ {
 
 include(../qflipper_common.pri)
 
+macx: ICON = assets/icons/qFlipper.icns
+else:win32: RC_ICONS = assets/icons/qFlipper.ico
+
 INCLUDEPATH += \
     $$PWD/../dfu \
     $$PWD/../backend
