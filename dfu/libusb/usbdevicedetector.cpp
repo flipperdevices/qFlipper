@@ -53,31 +53,22 @@ static USBDeviceInfo getDeviceInfo(const USBDeviceInfo &info)
     auto *dev = (libusb_device*)info.backendData().value<void*>();
 
     libusb_device_descriptor desc;
-    check_return_val(!libusb_get_device_descriptor(dev, &desc),"Failed to get device descriptor", info);
+    check_return_val(!libusb_get_device_descriptor(dev, &desc),"Failed to get device descriptor", USBDeviceInfo());
 
     struct libusb_device_handle *handle;
-    check_return_val(!libusb_open(dev, &handle), "Failed to open device", info);
+    check_return_val(!libusb_open(dev, &handle), "Failed to open device", USBDeviceInfo());
 
     USBDeviceInfo newinfo = info;
     unsigned char buf[0xff];
 
-    if(libusb_get_string_descriptor_ascii(handle, desc.iManufacturer, buf, sizeof(buf)) < 0) {
-        error_msg("Failed to get manufacturer string descriptor");
-    } else {
-        newinfo.setManufacturer(QString::fromLocal8Bit((const char*)buf));
-    }
+    check_return_val(libusb_get_string_descriptor_ascii(handle, desc.iManufacturer, buf, sizeof(buf)) >= 0, "Failed to get manufacturer string descriptor", USBDeviceInfo());
+    newinfo.setManufacturer(QString::fromLocal8Bit((const char*)buf));
 
-    if(libusb_get_string_descriptor_ascii(handle, desc.iProduct, buf, sizeof(buf)) < 0) {
-        error_msg("Failed to get product string descriptor");
-    } else {
-        newinfo.setProductDescription(QString::fromLocal8Bit((const char*)buf));
-    }
+    check_return_val(libusb_get_string_descriptor_ascii(handle, desc.iProduct, buf, sizeof(buf)) >= 0,"Failed to get product string descriptor", USBDeviceInfo());
+    newinfo.setProductDescription(QString::fromLocal8Bit((const char*)buf));
 
-    if(libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, buf, sizeof(buf)) < 0) {
-        error_msg("Failed to get device serial number");
-    } else {
-        newinfo.setSerialNumber(QString::fromLocal8Bit((const char*)buf));
-    }
+    check_return_val(libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, buf, sizeof(buf)) >= 0, "Failed to get device serial number", USBDeviceInfo());
+    newinfo.setSerialNumber(QString::fromLocal8Bit((const char*)buf));
 
     libusb_close(handle);
     return newinfo;

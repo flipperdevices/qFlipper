@@ -5,6 +5,11 @@ USBDeviceInfo::USBDeviceInfo(uint16_t vendorID, uint16_t productID):
     m_productID(productID)
 {}
 
+bool USBDeviceInfo::isValid() const
+{
+    return m_backendData.isValid();
+}
+
 USBDeviceInfo USBDeviceInfo::withBackendData(const QVariant &backendData) const
 {
     auto ret = *this;

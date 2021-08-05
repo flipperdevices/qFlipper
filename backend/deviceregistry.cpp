@@ -40,6 +40,8 @@ QHash<int, QByteArray> DeviceRegistry::roleNames() const
 
 void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 {
+    check_return_void(info.isValid(), "A new device has been detected, but it is not a valid one, skipping...");
+
     auto *newDevice = new Flipper::FlipperZero(info, this);
 
     if(newDevice->isError()) {

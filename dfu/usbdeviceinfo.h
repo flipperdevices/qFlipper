@@ -10,6 +10,8 @@ public:
     USBDeviceInfo() = default;
     USBDeviceInfo(uint16_t vendorID, uint16_t productID);
 
+    bool isValid() const;
+
     USBDeviceInfo withBackendData(const QVariant &backendData) const;
     USBDeviceInfo withSerialNumber(const QString &serialNumber) const;
     USBDeviceInfo withManufacturer(const QString &manufacturer) const;
