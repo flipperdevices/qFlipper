@@ -17,6 +17,27 @@ class RemoteController : public QObject
     Q_PROPERTY(int screenHeight READ screenHeight CONSTANT)
 
 public:
+    enum class InputKey {
+        Up,
+        Down,
+        Right,
+        Left,
+        Ok,
+        Back,
+    };
+
+    Q_ENUM(InputKey)
+
+    enum class InputType {
+        Press, /* Press event, emitted after debounce */
+        Release, /* Release event, emitted after debounce */
+        Short, /* Short event, emitted after InputTypeRelease done withing INPUT_LONG_PRESS interval */
+        Long, /* Long event, emmited after INPUT_LONG_PRESS interval, asynchronouse to InputTypeRelease  */
+        Repeat, /* Repeat event, emmited with INPUT_REPEATE_PRESS period after InputTypeLong event */
+    };
+
+    Q_ENUM(InputType)
+
     RemoteController(const QSerialPortInfo &portInfo, QObject *parent = nullptr);
     ~RemoteController();
 
@@ -27,6 +48,9 @@ public:
 
     static int screenWidth();
     static int screenHeight();
+
+public slots:
+    void sendInputEvent(InputKey key, InputType type);
 
 signals:
     void screenDataChanged();

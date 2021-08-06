@@ -10,6 +10,25 @@ RowLayout {
     property real buttonRatio: 3.33
     property real buttonIconSize: 48
 
+    signal inputEvent(var key, var type)
+
+    enum InputKey {
+        Up,
+        Down,
+        Right,
+        Left,
+        Ok,
+        Back
+    }
+
+    enum InputType {
+        Press,
+        Release,
+        Short,
+        Long,
+        Repeat
+    }
+
     Rectangle {
         id: mainPad
 
@@ -23,12 +42,17 @@ RowLayout {
         radius: height / 2
 
         StyledRoundButton {
-            id: buttonPadMiddle
+            id: buttonPadOk
             color: "#444"
             border.color: "#181818"
 
             anchors.centerIn: parent
             width: Math.floor(control.height / buttonRatio)
+
+            onPressed: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Press)
+            onReleased: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Release)
+            onClicked: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Short)
+            onPressAndHold: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Long)
         }
 
         Item {
@@ -43,6 +67,11 @@ RowLayout {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 icon.source: "qrc:/assets/arrow-up.svg"
+
+                onPressed: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Press)
+                onReleased: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Release)
+                onClicked: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Short)
+                onPressAndHold: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Long)
             }
 
             StyledToolButton {
@@ -53,6 +82,11 @@ RowLayout {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 icon.source: "qrc:/assets/arrow-down.svg"
+
+                onPressed: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Press)
+                onReleased: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Release)
+                onClicked: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Short)
+                onPressAndHold: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Long)
             }
 
             StyledToolButton {
@@ -63,6 +97,11 @@ RowLayout {
                 anchors.verticalCenter: parent.verticalCenter
 
                 icon.source: "qrc:/assets/arrow-left.svg"
+
+                onPressed: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Press)
+                onReleased: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Release)
+                onClicked: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Short)
+                onPressAndHold: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Long)
             }
 
             StyledToolButton {
@@ -73,6 +112,11 @@ RowLayout {
                 anchors.verticalCenter: parent.verticalCenter
 
                 icon.source: "qrc:/assets/arrow-right.svg"
+
+                onPressed: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Press)
+                onReleased: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Release)
+                onClicked: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Short)
+                onPressAndHold: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Long)
             }
         }
     }
@@ -84,5 +128,10 @@ RowLayout {
         icon: "qrc:/assets/symbol-back.svg"
 
         Layout.alignment: Qt.AlignBottom
+
+        onPressed: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Press)
+        onReleased: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Release)
+        onClicked: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Short)
+        onPressAndHold: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Long)
     }
 }

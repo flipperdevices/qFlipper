@@ -51,6 +51,10 @@ Item {
 
         StyledKeypad {
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+
+            onInputEvent: {
+                device.remote.sendInputEvent(key, type);
+            }
         }
 
         RowLayout {

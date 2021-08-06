@@ -2,7 +2,13 @@ import QtQuick 2.0
 import QtQuick.Controls 2.12
 
 Rectangle {
+    id: control
     property alias icon: button.icon.source
+
+    signal pressed()
+    signal released()
+    signal clicked()
+    signal pressAndHold()
 
     width: 50
     height: width
@@ -15,5 +21,10 @@ Rectangle {
     StyledToolButton {
         id: button
         anchors.fill: parent
+
+        onPressed: control.pressed()
+        onReleased: control.released()
+        onClicked: control.clicked()
+        onPressAndHold: control.pressAndHold()
     }
 }
