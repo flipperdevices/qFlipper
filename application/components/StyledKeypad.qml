@@ -197,6 +197,8 @@ RowLayout {
         if(!event.isAutoRepeat) {
             inputEvent(key, StyledKeypad.InputType.Short);
             inputEvent(key, StyledKeypad.InputType.Release);
+        } else {
+            inputEvent(key, StyledKeypad.InputType.Long);
         }
 
         event.accepted = true;
