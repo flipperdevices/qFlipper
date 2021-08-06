@@ -53,6 +53,7 @@ RowLayout {
             onReleased: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Release)
             onClicked: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Short)
             onPressAndHold: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Long)
+            onRepeat: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Repeat)
         }
 
         Item {
@@ -72,6 +73,7 @@ RowLayout {
                 onReleased: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Release)
                 onClicked: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Short)
                 onPressAndHold: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Long)
+                onRepeat: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Repeat)
             }
 
             StyledToolButton {
@@ -87,6 +89,7 @@ RowLayout {
                 onReleased: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Release)
                 onClicked: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Short)
                 onPressAndHold: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Long)
+                onRepeat: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Repeat)
             }
 
             StyledToolButton {
@@ -102,6 +105,7 @@ RowLayout {
                 onReleased: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Release)
                 onClicked: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Short)
                 onPressAndHold: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Long)
+                onRepeat: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Repeat)
             }
 
             StyledToolButton {
@@ -117,6 +121,7 @@ RowLayout {
                 onReleased: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Release)
                 onClicked: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Short)
                 onPressAndHold: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Long)
+                onRepeat: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Repeat)
             }
         }
     }
@@ -133,5 +138,6 @@ RowLayout {
         onReleased: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Release)
         onClicked: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Short)
         onPressAndHold: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Long)
+        onRepeat: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Repeat)
     }
 }

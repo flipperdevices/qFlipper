@@ -9,6 +9,7 @@ Rectangle {
     signal released()
     signal clicked()
     signal pressAndHold()
+    signal repeat()
 
     width: 50
     height: width
@@ -26,5 +27,6 @@ Rectangle {
         onReleased: control.released()
         onClicked: control.clicked()
         onPressAndHold: control.pressAndHold()
+        onRepeat: control.repeat()
     }
 }
