@@ -50,6 +50,7 @@ Item {
         }
 
         StyledKeypad {
+            id: keypad
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
 
             onInputEvent: {
@@ -94,6 +95,7 @@ Item {
     }
 
     Component.onCompleted: {
+        keypad.forceActiveFocus();
         device.remote.enabled = true;
     }
 }

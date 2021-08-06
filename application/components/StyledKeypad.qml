@@ -12,6 +12,36 @@ RowLayout {
 
     signal inputEvent(var key, var type)
 
+    function toRemoteKey(key) {
+        switch(key) {
+        case Qt.Key_Left:
+        case Qt.Key_H:
+        case Qt.Key_A:
+            return StyledKeypad.InputKey.Left;
+        case Qt.Key_Right:
+        case Qt.Key_L:
+        case Qt.Key_D:
+            return StyledKeypad.InputKey.Right;
+        case Qt.Key_Up:
+        case Qt.Key_K:
+        case Qt.Key_W:
+            return StyledKeypad.InputKey.Up;
+        case Qt.Key_Down:
+        case Qt.Key_J:
+        case Qt.Key_S:
+            return StyledKeypad.InputKey.Down;
+        case Qt.Key_Enter:
+        case Qt.Key_Return:
+        case Qt.Key_E:
+            return StyledKeypad.InputKey.Ok;
+        case Qt.Key_Escape:
+        case Qt.Key_Backspace:
+            return StyledKeypad.InputKey.Back;
+        default:
+            return null;
+        }
+    }
+
     enum InputKey {
         Up,
         Down,
@@ -139,5 +169,36 @@ RowLayout {
         onClicked: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Short)
         onPressAndHold: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Long)
         onRepeat: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Repeat)
+    }
+
+    Keys.onPressed: {
+        const key = toRemoteKey(event.key);
+
+        if(key === null) {
+            return;
+        }
+
+        if(!event.isAutoRepeat) {
+            inputEvent(key, StyledKeypad.InputType.Press);
+        } else {
+            inputEvent(key, StyledKeypad.InputType.Repeat);
+        }
+
+        event.accepted = true;
+    }
+
+    Keys.onReleased: {
+        const key = toRemoteKey(event.key);
+
+        if(key === null) {
+            return;
+        }
+
+        if(!event.isAutoRepeat) {
+            inputEvent(key, StyledKeypad.InputType.Short);
+            inputEvent(key, StyledKeypad.InputType.Release);
+        }
+
+        event.accepted = true;
     }
 }
