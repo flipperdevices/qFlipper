@@ -92,6 +92,11 @@ void RemoteController::onPortReadyRead()
 
 void RemoteController::onPortErrorOccured()
 {
+    if(m_port->error() == QSerialPort::ResourceError) {
+        return;
+    }
+
+    error_msg(QString("Serial port error occured: %1").arg(m_port->errorString()));
     setEnabled(false);
 }
 
@@ -105,6 +110,9 @@ bool RemoteController::openPort()
 
         m_port->setDataTerminalReady(true);
         m_port->write("\rscreen_stream\r");
+
+    } else {
+        error_msg(QString("Failed to open serial port: %1").arg(m_port->errorString()));
     }
 
     return success;
