@@ -3,13 +3,16 @@ import QtQuick.Controls 2.12
 
 Rectangle {
     id: control
-    property alias icon: button.icon.source
+    property alias icon: button.icon
 
-    signal pressed()
-    signal released()
-    signal clicked()
-    signal pressAndHold()
-    signal repeat()
+    signal pressed
+    signal released
+    signal shortPress
+    signal longPress
+    signal repeat
+
+    function setPressed() { button.setPressed() }
+    function setReleased() { button.setReleased() }
 
     width: 50
     height: width
@@ -25,8 +28,8 @@ Rectangle {
 
         onPressed: control.pressed()
         onReleased: control.released()
-        onClicked: control.clicked()
-        onPressAndHold: control.pressAndHold()
+        onShortPress: control.shortPress()
+        onLongPress: control.longPress()
         onRepeat: control.repeat()
     }
 }

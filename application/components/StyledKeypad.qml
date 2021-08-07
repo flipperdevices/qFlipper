@@ -42,6 +42,36 @@ RowLayout {
         }
     }
 
+    function findButton(key) {
+        switch(key) {
+        case Qt.Key_Left:
+        case Qt.Key_H:
+        case Qt.Key_A:
+            return buttonPadLeft;
+        case Qt.Key_Right:
+        case Qt.Key_L:
+        case Qt.Key_D:
+            return buttonPadRight;
+        case Qt.Key_Up:
+        case Qt.Key_K:
+        case Qt.Key_W:
+            return buttonPadUp;
+        case Qt.Key_Down:
+        case Qt.Key_J:
+        case Qt.Key_S:
+            return buttonPadDown;
+        case Qt.Key_Enter:
+        case Qt.Key_Return:
+        case Qt.Key_E:
+            return buttonPadOk;
+        case Qt.Key_Escape:
+        case Qt.Key_Backspace:
+            return buttonPadBack;
+        default:
+            return null;
+        }
+    }
+
     enum InputKey {
         Up,
         Down,
@@ -81,8 +111,8 @@ RowLayout {
 
             onPressed: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Press)
             onReleased: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Release)
-            onClicked: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Short)
-            onPressAndHold: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Long)
+            onShortPress: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Short)
+            onLongPress: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Long)
             onRepeat: inputEvent(StyledKeypad.InputKey.Ok, StyledKeypad.InputType.Repeat)
         }
 
@@ -97,12 +127,12 @@ RowLayout {
                 anchors.top: parent.top
                 anchors.horizontalCenter: parent.horizontalCenter
 
-                icon.source: "qrc:/assets/arrow-up.svg"
+                icon: "qrc:/assets/arrow-up.svg"
 
                 onPressed: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Press)
                 onReleased: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Release)
-                onClicked: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Short)
-                onPressAndHold: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Long)
+                onShortPress: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Short)
+                onLongPress: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Long)
                 onRepeat: inputEvent(StyledKeypad.InputKey.Up, StyledKeypad.InputType.Repeat)
             }
 
@@ -113,12 +143,12 @@ RowLayout {
                 anchors.bottom: parent.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
 
-                icon.source: "qrc:/assets/arrow-down.svg"
+                icon: "qrc:/assets/arrow-down.svg"
 
                 onPressed: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Press)
                 onReleased: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Release)
-                onClicked: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Short)
-                onPressAndHold: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Long)
+                onShortPress: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Short)
+                onLongPress: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Long)
                 onRepeat: inputEvent(StyledKeypad.InputKey.Down, StyledKeypad.InputType.Repeat)
             }
 
@@ -129,12 +159,12 @@ RowLayout {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
 
-                icon.source: "qrc:/assets/arrow-left.svg"
+                icon: "qrc:/assets/arrow-left.svg"
 
                 onPressed: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Press)
                 onReleased: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Release)
-                onClicked: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Short)
-                onPressAndHold: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Long)
+                onShortPress: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Short)
+                onLongPress: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Long)
                 onRepeat: inputEvent(StyledKeypad.InputKey.Left, StyledKeypad.InputType.Repeat)
             }
 
@@ -145,12 +175,12 @@ RowLayout {
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
 
-                icon.source: "qrc:/assets/arrow-right.svg"
+                icon: "qrc:/assets/arrow-right.svg"
 
                 onPressed: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Press)
                 onReleased: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Release)
-                onClicked: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Short)
-                onPressAndHold: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Long)
+                onShortPress: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Short)
+                onLongPress: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Long)
                 onRepeat: inputEvent(StyledKeypad.InputKey.Right, StyledKeypad.InputType.Repeat)
             }
         }
@@ -166,41 +196,34 @@ RowLayout {
 
         onPressed: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Press)
         onReleased: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Release)
-        onClicked: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Short)
-        onPressAndHold: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Long)
+        onShortPress: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Short)
+        onLongPress: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Long)
         onRepeat: inputEvent(StyledKeypad.InputKey.Back, StyledKeypad.InputType.Repeat)
     }
 
     Keys.onPressed: {
-        const key = toRemoteKey(event.key);
-
-        if(key === null) {
+        if(event.isAutoRepeat)
             return;
-        }
 
-        if(!event.isAutoRepeat) {
-            inputEvent(key, StyledKeypad.InputType.Press);
-        } else {
-            inputEvent(key, StyledKeypad.InputType.Repeat);
-        }
+        const button = findButton(event.key);
 
+        if(button === null)
+            return;
+
+        button.setPressed();
         event.accepted = true;
     }
 
     Keys.onReleased: {
-        const key = toRemoteKey(event.key);
-
-        if(key === null) {
+        if(event.isAutoRepeat)
             return;
-        }
 
-        if(!event.isAutoRepeat) {
-            inputEvent(key, StyledKeypad.InputType.Short);
-            inputEvent(key, StyledKeypad.InputType.Release);
-        } else {
-            inputEvent(key, StyledKeypad.InputType.Long);
-        }
+        const button = findButton(event.key);
 
+        if(button === null)
+            return;
+
+        button.setReleased();
         event.accepted = true;
     }
 }
