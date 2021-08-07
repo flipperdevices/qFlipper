@@ -41,6 +41,7 @@ public:
     };
 
     FlipperZero(const USBDeviceInfo &info, QObject *parent = nullptr);
+    ~FlipperZero();
 
     void setDeviceInfo(const USBDeviceInfo &info);
     void setPersistent(bool set);

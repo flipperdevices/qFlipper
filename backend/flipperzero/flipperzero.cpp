@@ -47,6 +47,11 @@ FlipperZero::FlipperZero(const USBDeviceInfo &info, QObject *parent):
     setDeviceInfo(info);
 }
 
+FlipperZero::~FlipperZero()
+{
+    setConnected(false);
+}
+
 void FlipperZero::setDeviceInfo(const USBDeviceInfo &info)
 {
     m_info = info;

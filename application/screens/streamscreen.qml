@@ -100,5 +100,6 @@ Item {
     Component.onCompleted: {
         keypad.forceActiveFocus();
         device.remote.enabled = true;
+        device.isConnectedChanged.connect(screen.close);
     }
 }
