@@ -36,7 +36,7 @@ Dialog {
 
         Text {
             text: dialog.contentText
-//             textFormat: Text.MarkdownText
+            textFormat: Text.MarkdownText
             color: "white"
         }
     }

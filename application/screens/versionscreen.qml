@@ -31,6 +31,7 @@ Item {
 
             ComboBox {
                 id: channelSelector
+                implicitWidth: 200
                 model: updateRegistry.channels
 
                 onActivated: {

@@ -69,7 +69,7 @@ Item {
         anchors.leftMargin: 100
         anchors.rightMargin: 100
         anchors.topMargin: parent.height/4
-        anchors.bottomMargin: parent.height/4
+        anchors.bottomMargin: 50
 
         spacing: 6
         clip: true
@@ -181,6 +181,7 @@ Item {
     }
 
     Text {
+        id: versionLabel
         text: Qt.application.name + " Version " + Qt.application.version
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
