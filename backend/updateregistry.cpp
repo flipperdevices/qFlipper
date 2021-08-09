@@ -12,8 +12,65 @@
 
 using namespace Flipper;
 
+UpdateChannelModel::UpdateChannelModel(const Updates::ChannelInfo &channelInfo, QObject *parent):
+    QAbstractListModel(parent),
+    m_channelInfo(channelInfo)
+{}
+
+UpdateChannelModel::~UpdateChannelModel()
+{}
+
+int UpdateChannelModel::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent)
+    return m_channelInfo.versions.size();
+}
+
+QVariant UpdateChannelModel::data(const QModelIndex &index, int role) const
+{
+    const auto row = index.row();
+    const auto &version = m_channelInfo.versions.at(row);
+
+    if(role == VersionRole) {
+        return QVariant::fromValue(version);
+    } else if(role == NumberRole) {
+        return version.version;
+    } else if(role == TimestampRole) {
+        return QDateTime::fromSecsSinceEpoch(version.timestamp).date().toString();
+    } else if(role == ChangelogRole) {
+        return version.changelog;
+    } else {
+        return QVariant();
+    }
+}
+
+QHash<int, QByteArray> UpdateChannelModel::roleNames() const
+{
+    return QHash<int, QByteArray> {
+        {VersionRole, "version"},
+        {NumberRole, "number"},
+        {TimestampRole, "timestamp"},
+        {ChangelogRole, "changelog"},
+    };
+}
+
+const QString &UpdateChannelModel::name() const
+{
+    return m_channelInfo.id;
+}
+
+const QString &UpdateChannelModel::description() const
+{
+    return m_channelInfo.description;
+}
+
+const Updates::VersionInfo UpdateChannelModel::latestVersion() const
+{
+    return m_channelInfo.versions.first();
+}
+
 UpdateRegistry::UpdateRegistry(QObject *parent):
-    QAbstractListModel(parent)
+    QObject(parent)
 {
     auto *fetcher = new RemoteFileFetcher(this);
 
@@ -32,122 +89,9 @@ UpdateRegistry::UpdateRegistry(QObject *parent):
 UpdateRegistry::~UpdateRegistry()
 {}
 
-int UpdateRegistry::rowCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent)
-
-    if(!m_channels.contains(m_currentChannel)) {
-        return 0;
-    }
-
-    return m_channels[m_currentChannel].versions.size();
-}
-
-QVariant UpdateRegistry::data(const QModelIndex &index, int role) const
-{
-    const auto row = index.row();
-    const auto &channel = m_channels[m_currentChannel];
-    const auto &version = channel.versions.at(row);
-
-    if(role == VersionRole) {
-        return version.version;
-    } else if(role == TimestampRole) {
-        return QDateTime::fromSecsSinceEpoch(version.timestamp).date().toString();
-    } else if(role == ChangelogRole) {
-        return version.changelog;
-    } else if(role == FileRole) {
-        const auto index = version.indexOf(m_currentTarget, "full_dfu");
-        return index < 0 ? QVariant() : QVariant::fromValue(version.files.at(index));
-    } else {
-        return QVariant();
-    }
-}
-
-QHash<int, QByteArray> UpdateRegistry::roleNames() const
-{
-    static QHash<int, QByteArray> roles {
-        {VersionRole, "version"},
-        {TimestampRole, "timestamp"},
-        {ChangelogRole, "changelog"},
-        {FileRole, "file"}
-    };
-
-    return roles;
-}
-
-const QStringList UpdateRegistry::channels() const
-{
-    return m_channels.keys();
-}
-
-const QString &UpdateRegistry::channel() const
-{
-    return m_currentChannel;
-}
-
-const QString UpdateRegistry::channelDescription() const
-{
-    return m_channels[m_currentChannel].description;
-}
-
-void UpdateRegistry::setChannel(const QString &name)
-{
-    if(name == m_currentChannel) {
-        return;
-    }
-
-    beginResetModel();
-    m_currentChannel = name;
-    endResetModel();
-
-    emit channelChanged(m_currentChannel);
-    emit channelDescriptionChanged(channelDescription());
-}
-
-const QString &UpdateRegistry::target() const
-{
-    return m_currentTarget;
-}
-
-const QString UpdateRegistry::latestVersion(const QString &target) const
-{
-    for(const auto &version: m_channels["release"].versions) {
-        const auto index = version.indexOf(target, "full_dfu");
-        if(index >= 0) {
-            return version.version;
-        }
-    }
-
-    return "N/A";
-}
-
-Updates::FileInfo UpdateRegistry::latestFirmware(const QString &target) const
-{
-    for(const auto &version: m_channels["release"].versions) {
-        const auto index = version.indexOf(target, "full_dfu");
-        if(index >= 0) {
-            return version.files.at(index);
-        }
-    }
-
-    return Updates::FileInfo();
-}
-
-void UpdateRegistry::setTarget(const QString &name)
-{
-    if(name == m_currentTarget) {
-        return;
-    }
-
-    beginResetModel();
-    m_currentTarget = name;
-    endResetModel();
-
-    emit targetChanged(m_currentTarget);
-}
-
 bool UpdateRegistry::fillFromJson(const QByteArray &text)
 {
+    // TODO: Clear map first
     const auto doc = QJsonDocument::fromJson(text);
 
     check_return_bool(!doc.isNull(), "Failed to parse the document");
@@ -164,8 +108,7 @@ bool UpdateRegistry::fillFromJson(const QByteArray &text)
 
         for(const auto &val : arr) {
             const Updates::ChannelInfo info(val);
-            m_channels.insert(info.id, info);
-            emit channelsChanged(channels());
+            m_channelModels.insert(info.id, new UpdateChannelModel(info, this));
         }
 
     } catch(std::runtime_error &e) {
@@ -173,13 +116,16 @@ bool UpdateRegistry::fillFromJson(const QByteArray &text)
         return false;
     }
 
-    if(m_channels.contains("release")) {
-        setChannel("release");
-        emit latestVersionChanged();
-
-    } else if(!m_channels.isEmpty()) {
-        setChannel(m_channels.first().id);
-    }
-
+    emit channelsChanged();
     return true;
+}
+
+const QStringList UpdateRegistry::channelNames() const
+{
+    return m_channelModels.keys();
+}
+
+UpdateChannelModel *UpdateRegistry::channelModel(const QString &channelName) const
+{
+    return m_channelModels.value(channelName, nullptr);
 }

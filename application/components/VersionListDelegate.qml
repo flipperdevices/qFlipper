@@ -5,7 +5,7 @@ import QtQuick.Layouts 1.12
 Rectangle {
     id: element
 
-    signal installRequested(var file)
+    signal installRequested(var versionInfo)
     signal changelogRequested(string title, string text)
 
     height: 80
@@ -22,7 +22,7 @@ Rectangle {
 
         Text {
             id: versionText
-            text: version
+            text: number
 
             color: "white"
             font.capitalization: Font.AllUppercase
@@ -56,7 +56,7 @@ Rectangle {
                 suggested: true
 
                 onClicked: {
-                    installRequested(file);
+                    installRequested(version);
                 }
             }
 
@@ -65,7 +65,7 @@ Rectangle {
                 text: qsTr("Changelog")
 
                 onClicked: {
-                    changelogRequested(version, changelog)
+                    changelogRequested(number, changelog)
                 }
             }
         }

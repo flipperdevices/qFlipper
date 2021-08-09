@@ -26,7 +26,7 @@ public:
 
 public slots:
     void downloadLocalFile(Flipper::FlipperZero *device, const QString &filePath);
-    void downloadRemoteFile(Flipper::FlipperZero *device, const Updates::FileInfo &fileInfo);
+    void downloadRemoteFile(Flipper::FlipperZero *device, const Flipper::Updates::FileInfo &fileInfo);
 
     void downloadLocalFUS(Flipper::FlipperZero *device, const QString &filePath);
     void downloadLocalWirelessStack(Flipper::FlipperZero *device, const QString &filePath);

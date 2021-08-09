@@ -82,8 +82,35 @@ Item {
 
     StyledButton {
         id: updateButton
-        text: device.isDFU ? qsTr("Repair") : qsTr("Reinstall")
-        visible: !device.isPersistent && !device.isError
+        text: {
+            if(device.isDFU || (device.version === "N/A")) {
+                return qsTr("Repair");
+            }
+
+            const channelName = "release";
+            const latestVersion = updateRegistry.channelModel(channelName).latestVersion;
+
+            if(latestVersion.number > device.version) {
+                return qsTr("Update");
+            } else if(latestVersion.number < device.version) {
+                return qsTr("Downgrade");
+            } else {
+                return qsTr("Reinstall");
+            }
+        }
+
+        suggested: {
+            if(device.isDFU) {
+                return false;
+            }
+
+            const channelName = "release";
+            const latestVersion = updateRegistry.channelModel(channelName).latestVersion;
+
+            return latestVersion.number > device.version;
+        }
+
+        visible: !(device.isPersistent || device.isError)
 
         anchors.right: menuButton.left
         anchors.rightMargin: 10
@@ -177,10 +204,4 @@ Item {
             }
         }
     }
-
-//    Component.onCompleted: {
-//        updateRegistry.latestVersionChanged.connect(function() {
-//            updateButton.visible = device.isDFU || (updateRegistry.latestVersion(device.target) > device.version);
-//        })
-//    }
 }

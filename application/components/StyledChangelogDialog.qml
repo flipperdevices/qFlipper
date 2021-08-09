@@ -21,7 +21,7 @@ Dialog {
 
     header: RowLayout {
         Text {
-            text: dialog.titleText
+            text: qsTr("Version ") + dialog.titleText
             color: "white"
             font.pointSize: 20
             font.bold: true

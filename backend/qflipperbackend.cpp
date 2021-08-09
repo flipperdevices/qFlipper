@@ -7,8 +7,10 @@ using namespace Flipper;
 
 QFlipperBackend::QFlipperBackend()
 {
-    qRegisterMetaType<Updates::FileInfo>("Updates::FileInfo");
+    qRegisterMetaType<Flipper::Updates::FileInfo>("Flipper::Updates::FileInfo");
+    qRegisterMetaType<Flipper::Updates::VersionInfo>("Flipper::Updates::VersionInfo");
     qRegisterMetaType<Flipper::Zero::RemoteController*>("Flipper::Zero::RemoteController*");
+    qRegisterMetaType<Flipper::UpdateChannelModel*>("Flipper::UpdateChannelModel*");
 }
 
 QFlipperBackend::~QFlipperBackend()

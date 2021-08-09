@@ -76,13 +76,17 @@ Item {
 
         delegate: FlipperListDelegate {
             onUpdateRequested: {
+                const channelName = "release";
+                const firmwareType = "full_dfu";
+                const latestVersion = updateRegistry.channelModel(channelName).latestVersion;
+
                 const messageObj = {
-                    title : qsTr("Update to version ") + updateRegistry.latestVersion(device.target) + "?",
-                    subtitle : qsTr("This will install the latest available stable firmware version.")
+                    title : qsTr("Install version %1?").arg(latestVersion.number),
+                    subtitle : qsTr("This will install the latest available %1 version.").arg(channelName.toUpperCase())
                 };
 
                 confirmationDialog.openWithMessage(function() {
-                    downloader.downloadRemoteFile(device, updateRegistry.latestFirmware(device.target));
+                    downloader.downloadRemoteFile(device, latestVersion.fileInfo(firmwareType, device.target));
                 }, messageObj);
             }
 
