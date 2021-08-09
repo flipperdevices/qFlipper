@@ -49,6 +49,8 @@ jobs:
   build_mac:
     runs-on: [self-hosted, X64, macOS]
     if: github.ref == 'refs/heads/master'
+    env:
+      SIGNING_KEY: ${{ secrets.MAC_OS_SIGNING_KEY_ID }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
