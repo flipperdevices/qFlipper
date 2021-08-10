@@ -5,7 +5,6 @@ on: push
 jobs:
   build_linux:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
     steps:
       - name: Cleanup workspace
         uses: AutoModality/action-clean@v1
@@ -31,24 +30,12 @@ jobs:
         with:
           name: qFlipper-x86_64.AppImage
           path: |
-            ./build/qFlipper-x86_64.AppImage
+                ./build/qFlipper-x86_64.AppImage
           if-no-files-found: error
           retention-days: 1
 
-      - name: Upload application
-        uses: burnett01/rsync-deployments@4.1
-        with:
-          switches: -cvzr
-          path: ./build/qFlipper-x86_64.AppImage
-          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/"
-          remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
-          remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
-          remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
-          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
-
   build_mac:
     runs-on: [self-hosted, X64, macOS]
-    if: github.ref == 'refs/heads/master'
     env:
       SIGNING_KEY: ${{ secrets.MAC_OS_SIGNING_KEY_ID }}
     steps:
@@ -71,7 +58,6 @@ jobs:
 
   build_windows:
     runs-on: [self-hosted, X64, Windows]
-    if: github.ref == 'refs/heads/master'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -91,12 +77,33 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  upload_mac_windows:
-    name: Upload apps for Windows and MacOS
-    needs: [build_windows, build_mac]
-    if: github.ref == 'refs/heads/master'
+  upload:
+    name: Upload apps to storage
+    needs: [build_windows, build_mac,build_linux]
     runs-on: ubuntu-latest
     steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: 'Make artifacts directory'
+        run: |
+          test -d artifacts && rm -rf artifacts || true
+          mkdir artifacts
+
+      - name: 'Generate tag suffix'
+        if: startsWith(github.ref, 'refs/tags/') == true
+        run: echo "SUFFIX=$(git describe --tags --abbrev=0)"  >> $GITHUB_ENV
+
+      - name: 'Generate branch suffix'
+        if: startsWith(github.ref, 'refs/tags/') != true
+        run: echo "SUFFIX=$(git rev-parse --abbrev-ref HEAD)-$(date +'%d%m%Y')-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: qFlipper-x86_64.AppImage
       - uses: actions/download-artifact@v2
         with:
           name: qFlipperSetup-64bit.exe
@@ -104,14 +111,20 @@ jobs:
         with:
           name: qflipper.dmg
 
-      - name: Generate files list
-        run: ls qflipper.dmg qFlipperSetup-64bit.exe qFlipper-64bit.zip > uploadlist.txt
+      - name: Rename app
+        run: 
+            | 
+            mv qFlipper-x86_64.AppImage ./artifacts/qFlipper-x86_64-${SUFFIX}.AppImage
+            mv qFlipperSetup-64bit.exe ./artifacts/qFlipperSetup-64bit-${SUFFIX}.exe
+            mv qFlipper-64bit.zip ./artifacts/qFlipper-64bit-${SUFFIX}.zip
+            mv qflipper.dmg ./artifacts/qFlipper-${SUFFIX}.dmg
 
-      - name: Upload applications
+      - name: Upload apps
         uses: burnett01/rsync-deployments@4.1
         with:
-          switches: -cvzr --files-from=uploadlist.txt
-          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/"
+          switches: -cvzr --delete
+          path: artifacts/
+          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/${GITHUB_REF##*/}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
           remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
