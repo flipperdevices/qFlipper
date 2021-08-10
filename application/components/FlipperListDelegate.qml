@@ -83,7 +83,9 @@ Item {
     StyledButton {
         id: updateButton
         text: {
-            if(device.isDFU || (device.version === "N/A")) {
+            if(updateRegistry.channelNames.length === 0) {
+                return qsTr("Error");
+            } else if(device.isDFU || (device.version === "N/A")) {
                 return qsTr("Repair");
             }
 
@@ -100,7 +102,7 @@ Item {
         }
 
         suggested: {
-            if(device.isDFU) {
+            if(device.isDFU || (updateRegistry.channelNames.length === 0)) {
                 return false;
             }
 
@@ -110,7 +112,7 @@ Item {
             return latestVersion.number > device.version;
         }
 
-        visible: !(device.isPersistent || device.isError)
+        visible: (updateRegistry.channelNames.length > 0) && !(device.isPersistent || device.isError)
 
         anchors.right: menuButton.left
         anchors.rightMargin: 10
@@ -121,7 +123,7 @@ Item {
 
     Text {
         id: versionLabel
-        visible: !messageLabel.visible && !device.isDFU
+        visible: !(messageLabel.visible || device.isDFU)
         text: qsTr("version ") + device.version
         font.pointSize: 10
 
@@ -162,6 +164,7 @@ Item {
         MenuItem {
             text: qsTr("Other versions...")
             onTriggered: versionListRequested(device)
+            enabled: updateRegistry.channelNames.length > 0
         }
 
         MenuItem {
