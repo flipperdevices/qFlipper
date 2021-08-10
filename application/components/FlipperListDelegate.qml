@@ -92,10 +92,10 @@ Item {
             const channelName = "release";
             const latestVersion = updateRegistry.channel(channelName).latestVersion;
 
-            if(latestVersion.number > device.version) {
+            if((latestVersion.number > device.version) || (device.version.includes(latestVersion.number))) {
                 return qsTr("Update");
             } else if(latestVersion.number < device.version) {
-                return qsTr("Downgrade");
+                return qsTr("Rollback");
             } else {
                 return qsTr("Reinstall");
             }
@@ -109,7 +109,7 @@ Item {
             const channelName = "release";
             const latestVersion = updateRegistry.channel(channelName).latestVersion;
 
-            return latestVersion.number > device.version;
+            return (latestVersion.number > device.version) || (device.version.includes(latestVersion.number));
         }
 
         visible: (updateRegistry.channelNames.length > 0) && !(device.isPersistent || device.isError)
