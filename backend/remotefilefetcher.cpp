@@ -43,7 +43,7 @@ bool RemoteFileFetcher::fetch(const QString &remoteUrl)
 
 bool RemoteFileFetcher::fetch(const Updates::FileInfo &fileInfo)
 {
-    auto *reply = m_manager->get(QNetworkRequest(fileInfo.url));
+    auto *reply = m_manager->get(QNetworkRequest(fileInfo.url()));
 
     if(reply->error() != QNetworkReply::NoError) {
         reply->deleteLater();
@@ -59,7 +59,7 @@ bool RemoteFileFetcher::fetch(const Updates::FileInfo &fileInfo)
             QCryptographicHash hash(QCryptographicHash::Sha256);
             hash.addData(data);
 
-            if(hash.result().toHex() != fileInfo.sha256) {
+            if(hash.result().toHex() != fileInfo.sha256()) {
                 data.clear();
             }
         }

@@ -51,7 +51,7 @@ bool UpdateRegistry::fillFromJson(const QByteArray &text)
 
         for(const auto &val : arr) {
             const Updates::ChannelInfo info(val);
-            m_channels.insert(info.id, info);
+            m_channels.insert(info.name(), info);
         }
 
     } catch(std::runtime_error &e) {

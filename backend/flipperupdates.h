@@ -11,7 +11,7 @@
 namespace Flipper {
 namespace Updates {
 
-struct FileInfo
+class FileInfo
 {
     Q_GADGET
 
@@ -19,56 +19,73 @@ public:
     FileInfo() = default;
     FileInfo(const QJsonValue &val);
 
-    QString target;
-    QString type;
-    QString url;
-    QByteArray sha256;
+    const QString &target() const;
+    const QString &type() const;
+    const QString &url() const;
+    const QByteArray &sha256() const;
+
+private:
+    QString m_target;
+    QString m_type;
+    QString m_url;
+    QByteArray m_sha256;
 };
 
-struct VersionInfo
+class VersionInfo
 {
     Q_GADGET
-    Q_PROPERTY(QString number MEMBER version)
-    Q_PROPERTY(QString changelog MEMBER changelog)
+    Q_PROPERTY(QString number READ number CONSTANT)
+    Q_PROPERTY(QString changelog READ changelog CONSTANT)
     Q_PROPERTY(QString date READ date CONSTANT)
-    Q_PROPERTY(QVector<Flipper::Updates::FileInfo> files READ getFiles CONSTANT)
+    Q_PROPERTY(QVector<Flipper::Updates::FileInfo> files READ files CONSTANT)
 
 public:
     VersionInfo() = default;
     VersionInfo(const QJsonValue &val);
 
-    QString date() const;
-    const QVector<Flipper::Updates::FileInfo> &getFiles() const;
+    const QString &number() const;
+    const QString &changelog() const;
+    const QString &date() const;
+    const QVector<Flipper::Updates::FileInfo> &files() const;
+
+    time_t timestamp() const;
 
     Q_INVOKABLE Flipper::Updates::FileInfo fileInfo(const QString &type, const QString &target) const;
 
-    QString version;
-    QString changelog;
-    time_t timestamp;
-    QVector<FileInfo> files;
+private:
+    QString m_number;
+    QString m_changelog;
+    QString m_date;
+    time_t m_timestamp;
+    QVector<FileInfo> m_files;
 };
 
-struct ChannelInfo
+class ChannelInfo
 {
     Q_GADGET
-    Q_PROPERTY(QString name MEMBER id)
-    Q_PROPERTY(QString description MEMBER description)
-    Q_PROPERTY(QVector<Flipper::Updates::VersionInfo> versions READ getVersions CONSTANT)
+    Q_PROPERTY(QString name READ name CONSTANT)
+    Q_PROPERTY(QString title READ title CONSTANT)
+    Q_PROPERTY(QString description READ description CONSTANT)
+    Q_PROPERTY(QVector<Flipper::Updates::VersionInfo> versions READ versions CONSTANT)
     Q_PROPERTY(Flipper::Updates::VersionInfo latestVersion READ latestVersion CONSTANT)
 
 public:
     ChannelInfo() = default;
     ChannelInfo(const QJsonValue &val);
 
-    Flipper::Updates::VersionInfo latestVersion() const;
-    QVector<Flipper::Updates::VersionInfo> getVersions() const;
+    const QString &name() const;
+    const QString &title() const;
+    const QString &description() const;
+    const QVector<Flipper::Updates::VersionInfo> &versions() const;
+    const Flipper::Updates::VersionInfo &latestVersion() const;
 
-    Q_INVOKABLE Flipper::Updates::VersionInfo versionInfo(const QString &versionName) const;
+    Q_INVOKABLE Flipper::Updates::VersionInfo versionInfo(const QString &versionNumber) const;
 
-    QString id;
-    QString title;
-    QString description;
-    QVector<VersionInfo> versions;
+private:
+    QString m_id;
+    QString m_title;
+    QString m_description;
+    QVector<VersionInfo> m_versions;
 };
 
 }
