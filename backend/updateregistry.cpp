@@ -112,7 +112,7 @@ bool UpdateRegistry::fillFromJson(const QByteArray &text)
         }
 
     } catch(std::runtime_error &e) {
-        error_msg("Unexpected json file");
+        error_msg(e.what());
         return false;
     }
 

@@ -51,7 +51,7 @@ FactoryInfo::FactoryInfo(const QByteArray &data):
     m_region(Region::Unknown)
 {
     check_return_void(data.size() == FACTORYINFO_SIZE, "Bad data size");
-    check_return_void(data != QByteArray(FACTORYINFO_SIZE, 0xff), "Data seems to be unprogrammed");
+    check_return_void(data != QByteArray(FACTORYINFO_SIZE, '\xff'), "Data seems to be unprogrammed");
 
     if(*((uint16_t*)data.data()) == FACTORYINFO_V1_MAGIC) {
         parseV1(data);
@@ -133,7 +133,7 @@ void FactoryInfo::parseV0(const QByteArray &data)
     m_body = otp->body;
     m_connect = otp->connect;
     m_date = otp->timestamp;
-    m_name = QString::fromLatin1(otp->name, strnLen(otp->name, FACTORYINFO_NAME_SIZE));
+    m_name = QString::fromLatin1(otp->name, (int)strnLen(otp->name, FACTORYINFO_NAME_SIZE));
 }
 
 void FactoryInfo::parseV1(const QByteArray &data)
@@ -145,7 +145,7 @@ void FactoryInfo::parseV1(const QByteArray &data)
     m_body = otp->body;
     m_connect = otp->connect;
     m_date = otp->timestamp;
-    m_name = QString::fromLatin1(otp->name, strnLen(otp->name, FACTORYINFO_NAME_SIZE));
+    m_name = QString::fromLatin1(otp->name, (int)strnLen(otp->name, FACTORYINFO_NAME_SIZE));
 
     m_format = otp->format;
     m_color = (Color)otp->color;
