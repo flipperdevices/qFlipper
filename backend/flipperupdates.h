@@ -50,7 +50,7 @@ public:
 
     time_t timestamp() const;
 
-    Q_INVOKABLE Flipper::Updates::FileInfo fileInfo(const QString &type, const QString &target) const;
+    Q_INVOKABLE const Flipper::Updates::FileInfo fileInfo(const QString &type, const QString &target) const;
 
 private:
     QString m_number;
@@ -79,7 +79,7 @@ public:
     const QVector<Flipper::Updates::VersionInfo> &versions() const;
     const Flipper::Updates::VersionInfo &latestVersion() const;
 
-    Q_INVOKABLE Flipper::Updates::VersionInfo versionInfo(const QString &versionNumber) const;
+    Q_INVOKABLE const Flipper::Updates::VersionInfo versionInfo(const QString &versionNumber) const;
 
 private:
     QString m_id;

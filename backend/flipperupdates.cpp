@@ -98,7 +98,7 @@ const QVector<FileInfo> &VersionInfo::files() const
     return m_files;
 }
 
-FileInfo VersionInfo::fileInfo(const QString &type, const QString &target) const
+const FileInfo VersionInfo::fileInfo(const QString &type, const QString &target) const
 {
     const auto it = std::find_if(m_files.cbegin(), m_files.cend(),
         [&](const Updates::FileInfo &arg) {
@@ -165,7 +165,7 @@ const VersionInfo &ChannelInfo::latestVersion() const
     return m_versions.first();
 }
 
-VersionInfo ChannelInfo::versionInfo(const QString &versionNumber) const
+const VersionInfo ChannelInfo::versionInfo(const QString &versionNumber) const
 {
     const auto it = std::find_if(m_versions.cbegin(), m_versions.cend(),
         [&](const Updates::VersionInfo &arg) {
