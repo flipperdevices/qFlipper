@@ -6,9 +6,8 @@ Flipper companion application (desktop)
 ### Windows:
 
 Build requirements:
-- MS Visual Studio 2017 or newer
-- Qt (MSVC build) >= 5.12.0
-- Internet connection (to download OpenSSL files)
+- MS Visual Studio 2019 or newer
+- Qt (MSVC build) >= 5.15.0
 
 Edit `build_windows.bat` to adjust to your build environment and then run:
 ```cmd
@@ -26,7 +25,7 @@ docker-compose exec dev ./build_linux.sh
 Build requirements:
 
 - Xcode or command line tools
-- Qt
+- Qt >= 5.15.0
 - Libusb
 
 If you want to sign binaries, set `SIGNING_KEY` environment variable:
