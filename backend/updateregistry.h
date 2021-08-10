@@ -1,4 +1,4 @@
-#ifndef UPDATESLISTMODEL_H
+﻿#ifndef UPDATESLISTMODEL_H
 #define UPDATESLISTMODEL_H
 
 #include <QMap>
@@ -9,56 +9,56 @@
 
 namespace Flipper {
 
-// TODO: Split into 2 separate models: files model and version model
-
-class UpdateRegistry : public QAbstractListModel
-{
+class UpdateChannelModel: public QAbstractListModel {
     Q_OBJECT
-    Q_PROPERTY(QString channel READ channel WRITE setChannel NOTIFY channelChanged)
-    Q_PROPERTY(QString channelDescription READ channelDescription NOTIFY channelDescriptionChanged)
-    Q_PROPERTY(QString target READ target WRITE setTarget NOTIFY targetChanged)
-    Q_PROPERTY(QStringList channels READ channels NOTIFY channelsChanged)
+    Q_PROPERTY(QString name READ name CONSTANT)
+    Q_PROPERTY(QString description READ description CONSTANT)
+    Q_PROPERTY(Flipper::Updates::VersionInfo latestVersion READ latestVersion CONSTANT)
 
 public:
     enum Role {
         VersionRole = Qt::UserRole + 1,
+        NumberRole,
         TimestampRole,
         ChangelogRole,
-        FileRole
     };
 
-    UpdateRegistry(QObject *parent = nullptr);
-    ~UpdateRegistry();
+    UpdateChannelModel(const Updates::ChannelInfo &channelInfo, QObject *parent = nullptr);
+    ~UpdateChannelModel();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
-    const QStringList channels() const;
-    const QString channelDescription() const;
+    const QString &name() const;
+    const QString &description() const;
 
-    const QString &channel() const;
-    const QString &target() const;
+    const Flipper::Updates::VersionInfo latestVersion() const;
 
-    Q_INVOKABLE const QString latestVersion(const QString &target) const;
-    Q_INVOKABLE Updates::FileInfo latestFirmware(const QString &target) const;
+private:
+    Updates::ChannelInfo m_channelInfo;
+};
 
-    void setChannel(const QString &name);
-    void setTarget(const QString &name);
+class UpdateRegistry : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QStringList channelNames READ channelNames NOTIFY channelsChanged)
+
+public:
+
+    UpdateRegistry(QObject *parent = nullptr);
+    ~UpdateRegistry();
 
     bool fillFromJson(const QByteArray &text);
 
+    const QStringList channelNames() const;
+    Q_INVOKABLE Flipper::UpdateChannelModel *channelModel(const QString &channelName) const;
+
 signals:
-    void channelsChanged(const QStringList&);
-    void channelChanged(const QString&);
-    void channelDescriptionChanged(const QString &);
-    void targetChanged(const QString&);
-    void latestVersionChanged();
+    void channelsChanged();
 
 private:
-    QMap<QString, Updates::ChannelInfo> m_channels;
-    QString m_currentChannel;
-    QString m_currentTarget;
+    QMap<QString, UpdateChannelModel*> m_channelModels;
 };
 
 }

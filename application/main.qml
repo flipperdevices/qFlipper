@@ -29,8 +29,8 @@ Window {
         target: mainLoader.item
         ignoreUnknownSignals: true
 
-        onHomeRequested: mainLoader.setSource("qrc:/screens/homescreen.qml");
-        onVersionsRequested: mainLoader.setSource("qrc:/screens/versionscreen.qml", {device: device});
-        onStreamRequested: mainLoader.setSource("qrc:/screens/streamscreen.qml", {device: device})
+        function onHomeRequested() { mainLoader.setSource("qrc:/screens/homescreen.qml"); }
+        function onVersionsRequested(device) { mainLoader.setSource("qrc:/screens/versionscreen.qml", {device: device}); }
+        function onStreamRequested(device) { mainLoader.setSource("qrc:/screens/streamscreen.qml", {device: device}); }
     }
 }

@@ -25,7 +25,7 @@ FirmwareDownloadOperation::~FirmwareDownloadOperation()
 
 const QString FirmwareDownloadOperation::name() const
 {
-    return QString("Firmware Download to %1 %2").arg(m_device->model(), m_device->name());
+    return QString("Firmware Download @%1 %2").arg(m_device->model(), m_device->name());
 }
 
 bool FirmwareDownloadOperation::execute()
@@ -55,7 +55,7 @@ WirelessStackDownloadOperation::~WirelessStackDownloadOperation()
 
 const QString WirelessStackDownloadOperation::name() const
 {
-    return QString("Coprocessor Firmware Download to %1 %2").arg(m_device->model(), m_device->name());
+    return QString("Coprocessor Firmware Download @%1 %2").arg(m_device->model(), m_device->name());
 }
 
 bool WirelessStackDownloadOperation::execute()
@@ -75,27 +75,56 @@ bool WirelessStackDownloadOperation::execute()
     return true;
 }
 
-FixOptionBytesOperation::FixOptionBytesOperation(FlipperZero *device):
+FixBootIssuesOperation::FixBootIssuesOperation(FlipperZero *device):
     m_device(device)
 {
     m_device->setPersistent(true);
     m_device->setStatusMessage(QObject::tr("Fix boot issues operation pending..."));
 }
 
-FixOptionBytesOperation::~FixOptionBytesOperation()
+FixBootIssuesOperation::~FixBootIssuesOperation()
 {
     m_device->setPersistent(false);
 }
 
+const QString FixBootIssuesOperation::name() const
+{
+    return QString("Fix boot issues @%1 %2").arg(m_device->model(), m_device->name());
+}
+
+bool FixBootIssuesOperation::execute()
+{
+    check_return_bool(m_device->startWirelessStack(), "Failed to start wireless stack");
+    check_return_bool(m_device->setBootMode(FlipperZero::BootMode::Normal), "Failed to set device into Normal boot mode");
+    return true;
+}
+
+FixOptionBytesOperation::FixOptionBytesOperation(FlipperZero *device, QIODevice *file):
+    m_device(device),
+    m_file(file)
+{
+    m_device->setPersistent(true);
+    m_device->setStatusMessage(QObject::tr("Check Option Bytes operation pending..."));
+}
+
+FixOptionBytesOperation::~FixOptionBytesOperation()
+{
+    m_device->setPersistent(false);
+    m_file->deleteLater();
+}
+
 const QString FixOptionBytesOperation::name() const
 {
-    return QString("Fix Option Bytes for %1 %2").arg(m_device->model(), m_device->name());
+    return QString("Fix Option Bytes @%1 %2").arg(m_device->model(), m_device->name());
 }
 
 bool FixOptionBytesOperation::execute()
 {
-    check_return_bool(m_device->startWirelessStack(), "Failed to start wireless stack");
-    check_return_bool(m_device->setBootMode(FlipperZero::BootMode::Normal), "Failed to set device into Normal boot mode");
+    if(!m_device->isDFU()) {
+        check_return_bool(m_device->detach(), "Failed to detach device");
+    }
+
+    check_return_bool(m_device->fixOptionBytes(m_file), "Failed to check option bytes");
     return true;
 }
 

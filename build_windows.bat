@@ -24,10 +24,14 @@ set BUILD_DIR=%PROJECT_DIR%\build
 set QML_DIR=%PROJECT_DIR%\Application
 set DIST_DIR=%BUILD_DIR%\%TARGET%
 
-set OPENSSL_PATH=%QT_DIR%\Tools\OpenSSL\Win_x%ARCH_BITS%\bin
+set OPENSSL_DIR=%QT_DIR%\Tools\OpenSSL\Win_x%ARCH_BITS%\bin
+set VCREDIST_DIR=%QT_DIR%\vcredist
 
 set NSIS="%programfiles(x86)%\NSIS\makensis.exe"
+
 set ZADIC_EXE="C:\bin-deps\zadic.exe"
+set VCREDIST2019_EXE=%VCREDIST_DIR%\vcredist_msvc%MSVC_VERSION%_x%ARCH_BITS%.exe
+set VCREDIST2010_EXE=%VCREDIST_DIR%\vcredist_x%ARCH_BITS%.exe
 
 if exist %BUILD_DIR% (rmdir /S /Q %BUILD_DIR%)
 
@@ -44,12 +48,16 @@ mkdir %DIST_DIR%
 copy /Y %TARGET%.exe %DIST_DIR%
 cd %DIST_DIR%
 
-%WINDEPLOYQT% --release --qmldir %QML_DIR% %TARGET%.exe
+%WINDEPLOYQT% --release --no-compiler-runtime --qmldir %QML_DIR% %TARGET%.exe
 
 rem Copy OpenSSL binaries
-copy /Y %OPENSSL_PATH%\*.dll .
+copy /Y %OPENSSL_DIR%\*.dll .
 
-rem Copy Zadic binary - also temporary solution?
+rem Copy Microsoft Visual C++ redistributable packages
+copy /Y %VCREDIST2019_EXE% .
+copy /Y %VCREDIST2010_EXE% .
+
+rem Copy Zadic binary - temporary solution?
 copy /Y %ZADIC_EXE% .
 
 rem Make the zip archive as well

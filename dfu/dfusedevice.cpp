@@ -41,7 +41,7 @@ bool DfuseDevice::erase(uint32_t addr, size_t maxSize)
     check_return_bool(prepare(), "Failed to prepare the device");
 
     const auto layout = DFUMemoryLayout::fromStringDescriptor(stringInterfaceDescriptor(0));
-    const auto pageAddresses = layout.pageAddresses(addr, addr + maxSize);
+    const auto pageAddresses = layout.pageAddresses(addr, addr + (uint32_t)maxSize);
 
     check_return_bool(!pageAddresses.isEmpty(), "Address list is empty");
 
@@ -116,7 +116,7 @@ bool DfuseDevice::download(QIODevice *file, uint32_t addr, uint8_t alt)
 
     for(size_t totalSize = 0, transaction = 2; !file->atEnd(); ++transaction) {
         const auto buf = file->read(maxTransferSize);
-        check_return_bool(controlTransfer(REQUEST_OUT, DFU_DNLOAD, transaction, 0, buf), "Failed to perform DFU_DNLOAD transfer");
+        check_return_bool(controlTransfer(REQUEST_OUT, DFU_DNLOAD, (uint16_t)transaction, 0, buf), "Failed to perform DFU_DNLOAD transfer");
 
         do {
             status = getStatus();
@@ -156,7 +156,7 @@ bool DfuseDevice::upload(QIODevice *file, uint32_t addr, size_t maxSize, uint8_t
     for(size_t totalSize = 0, transaction = 2; totalSize < maxSize; ++transaction) {
 
         const auto transferSize = qMin<size_t>(maxTransferSize, maxSize - totalSize);
-        const auto buf = controlTransfer(REQUEST_IN, DFU_UPLOAD, transaction, 0, transferSize);
+        const auto buf = controlTransfer(REQUEST_IN, DFU_UPLOAD, (uint16_t)transaction, 0, (uint16_t)transferSize);
 
         const auto bytesWritten = file->write(buf);
 
@@ -183,6 +183,9 @@ bool DfuseDevice::upload(QIODevice *file, uint32_t addr, size_t maxSize, uint8_t
 
 bool DfuseDevice::leave()
 {
+    check_return_bool(setInterfaceAltSetting(0, 0), "Failed to set interface alternate setting");
+    check_return_bool(prepare() && abort(), "Failed to prepare the device");
+
     setAddressPointer(0x080FFFFFUL);
     check_return_bool(controlTransfer(REQUEST_OUT, DFU_DNLOAD, 0, 0, QByteArray()), "Failed to perform final DFU_DNLOAD transfer");
 

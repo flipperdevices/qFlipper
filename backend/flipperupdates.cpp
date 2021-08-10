@@ -5,6 +5,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+#include "macros.h"
+
 using namespace Flipper::Updates;
 
 FileInfo::FileInfo(const QJsonValue &val)
@@ -53,19 +55,15 @@ VersionInfo::VersionInfo(const QJsonValue &val)
     }
 }
 
-int VersionInfo::indexOf(const QString &target, const QString &type) const
+FileInfo VersionInfo::fileInfo(const QString &type, const QString &target) const
 {
     const auto it = std::find_if(files.cbegin(), files.cend(),
-        [=](const Updates::FileInfo &arg) {
+        [&](const Updates::FileInfo &arg) {
             return (arg.type == type) && (target == arg.target);
         });
 
-    const auto index = std::distance(files.cbegin(), it);
-    if(index < files.size()) {
-        return index;
-    } else {
-        return -1;
-    }
+    check_return_val(it != files.cend(), "FileInfo not found", FileInfo());
+    return *it;
 }
 
 ChannelInfo::ChannelInfo(const QJsonValue &val)
@@ -97,4 +95,15 @@ ChannelInfo::ChannelInfo(const QJsonValue &val)
     std::sort(versions.begin(), versions.end(), [](const VersionInfo &a, const VersionInfo &b) {
         return a.version > b.version;
     });
+}
+
+VersionInfo ChannelInfo::versionInfo(const QString &versionName) const
+{
+    const auto it = std::find_if(versions.cbegin(), versions.cend(),
+        [&](const Updates::VersionInfo &arg) {
+            return versionName == arg.version;
+        });
+
+    check_return_val(it != versions.cend(), "VersionInfo not found", VersionInfo());
+    return *it;
 }

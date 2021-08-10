@@ -66,9 +66,17 @@ void FirmwareDownloader::downloadLocalWirelessStack(FlipperZero *device, const Q
     enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file));
 }
 
-void FirmwareDownloader::makeBootable(FlipperZero *device)
+void FirmwareDownloader::fixBootIssues(FlipperZero *device)
 {
-    enqueueOperation(new Flipper::Zero::FixOptionBytesOperation(device));
+    enqueueOperation(new Flipper::Zero::FixBootIssuesOperation(device));
+}
+
+void FirmwareDownloader::fixOptionBytes(FlipperZero *device, const QString &filePath)
+{
+    const auto localUrl = QUrl(filePath).toLocalFile();
+    auto *file = new QFile(localUrl, this);
+
+    enqueueOperation(new Flipper::Zero::FixOptionBytesOperation(device, file));
 }
 
 void FirmwareDownloader::processQueue()

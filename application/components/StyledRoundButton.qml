@@ -2,7 +2,17 @@ import QtQuick 2.0
 import QtQuick.Controls 2.12
 
 Rectangle {
-    property alias icon: button.icon.source
+    id: control
+    property alias icon: button.icon
+
+    signal pressed
+    signal released
+    signal shortPress
+    signal longPress
+    signal repeat
+
+    function setPressed() { button.setPressed() }
+    function setReleased() { button.setReleased() }
 
     width: 50
     height: width
@@ -15,5 +25,11 @@ Rectangle {
     StyledToolButton {
         id: button
         anchors.fill: parent
+
+        onPressed: control.pressed()
+        onReleased: control.released()
+        onShortPress: control.shortPress()
+        onLongPress: control.longPress()
+        onRepeat: control.repeat()
     }
 }

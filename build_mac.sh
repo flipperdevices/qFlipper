@@ -39,8 +39,8 @@ mkdir disk_image
 mv $PROJECT.app disk_image
 create-dmg \
     --volname "$PROJECT" \
-    --volicon "../assets/$PROJECT.icns" \
-    --background "../assets/qFlipper_disk_background.png" \
+    --volicon "../installer-assets/icons/${PROJECT}-installer.icns" \
+    --background "../installer-assets/backgrounds/qFlipper_disk_background.png" \
     --window-pos 200 120 \
     --window-size 600 400 \
     --icon-size 100 \

@@ -1,7 +1,11 @@
 #pragma once
 
+#include <QHash>
 #include <QString>
+#include <QVector>
 #include <QByteArray>
+
+class QIODevice;
 
 namespace STM32 {
 namespace WB55 {
@@ -14,57 +18,57 @@ class OptionBytes
         struct Word1 {
             unsigned RDP:8;
             unsigned ESE:1;
-            unsigned BORLEV:3;
-            unsigned nRSTSTOP:1;
-            unsigned nRSTSTDBY:1;
+            unsigned BOR_LEV:3;
+            unsigned nRST_STOP:1;
+            unsigned nRST_STDBY:1;
             unsigned nRSTSHDW:1;
             unsigned UNUSED1:1;
             unsigned IWDGSW:1;
             unsigned IWDGSTOP:1;
-            unsigned IWGDSTDBY:1;
+            unsigned IWDGSTDBY:1;
             unsigned WWDGSW:1;
             unsigned UNUSED2:3;
-            unsigned nBoot1:1;
+            unsigned nBOOT1:1;
             unsigned SRAM2PE:1;
             unsigned SRAM2RST:1;
-            unsigned nSwBoot0:1;
-            unsigned nBoot0:1;
+            unsigned nSWBOOT0:1;
+            unsigned nBOOT0:1;
             unsigned UNUSED3:1;
-            unsigned AGCTRIM:3;
+            unsigned AGC_TRIM:3;
         };
 
         struct Word2 {
-            unsigned PCROP1ASTRT:9;
+            unsigned PCROP1A_STRT:9;
             unsigned UNUSED:23;
         };
 
         struct Word3 {
-            unsigned PCROP1AEND:9;
+            unsigned PCROP1A_END:9;
             unsigned UNUSED:22;
-            unsigned PCROPRDP:1;
+            unsigned PCROP_RDP:1;
         };
 
         struct Word4 {
-            uint8_t WRP1ASTRT;
+            uint8_t WRP1A_STRT;
             uint8_t UNUSED1;
-            uint8_t WRP1AEND;
+            uint8_t WRP1A_END;
             uint8_t UNUSED2;
         };
 
         struct Word5 {
-            uint8_t WRP1BSTRT;
+            uint8_t WRP1B_STRT;
             uint8_t UNUSED1;
-            uint8_t WRP1BEND;
+            uint8_t WRP1B_END;
             uint8_t UNUSED2;
         };
 
         struct Word6 {
-            unsigned PCROP1BSTRT:9;
+            unsigned PCROP1B_STRT:9;
             unsigned UNUSED:23;
         };
 
         struct Word7 {
-            unsigned PCROP1BEND:9;
+            unsigned PCROP1B_END:9;
             unsigned UNUSED:23;
         };
 
@@ -113,84 +117,30 @@ class OptionBytes
     OptionBytes();
 
 public:
+    using DataMap = QHash<QByteArray, uint32_t>;
+
     OptionBytes(const QByteArray &data);
+    OptionBytes(QIODevice *file);
 
     static OptionBytes invalid();
     static qint64 size();
 
+    static const QVector<QByteArray> &fieldNames();
+
     bool isValid() const;
+
     QByteArray data() const;
+    void setData(const QByteArray &data);
 
-    uint8_t RDP() const;
+    uint32_t value(const QByteArray &fieldName) const;
+    void setValue(const QByteArray &fieldName, uint32_t value);
 
-    bool ESE() const;
-
-    uint8_t BORLEV() const;
-
-    bool nRSTSTOP() const;
-    bool nRSTSTDBY() const;
-    bool nRSTSHDW() const;
-
-    bool IWDGSW() const;
-    bool IWDGSTOP() const;
-    bool IWGDSTDBY() const;
-    bool WWDGSW() const;
-
-    bool nBoot0() const;
-    bool nBoot1() const;
-    bool nSwBoot0() const;
-
-    bool SRAM2PE() const;
-    bool SRAM2RST() const;
-
-    uint8_t AGCTRIM() const;
-
-    bool FSD() const;
-    bool DDS() const;
-    bool BRSD() const;
-    bool NBRSD() const;
-    bool C2OPT() const;
-    bool PCROPRDP() const;
-
-    uint8_t SFSA() const;
-
-    uint8_t SBRSA() const;
-    uint8_t SNBRSA() const;
-
-    uint16_t PCROP1ASTRT() const;
-    uint16_t PCROP1AEND() const;
-
-    uint16_t PCROP1BSTRT() const;
-    uint16_t PCROP1BEND() const;
-
-    uint8_t WRP1ASTRT() const;
-    uint8_t WRP1AEND() const;
-    uint8_t WRP1BSTRT() const;
-    uint8_t WRP1BEND() const;
-
-    uint16_t IPCCDBA() const;
-    uint32_t SBRV() const;
-
-    void setNBoot0(bool set);
-    void setNBoot1(bool set);
-    void setNSwBoot0(bool set);
-
-    void setSRAM2RST(bool set);
-    void setSRAM2PE(bool set);
-
-    void setBORLEV(uint8_t val);
-
-    void setnRSTSTOP(bool set);
-    void setnRSTSTDBY(bool set);
-    void setnRSTSHDW(bool set);
-    void setIWDGSW(bool set);
-    void setIWDGSTOP(bool set);
-    void setIWGDSTDBY(bool set);
-    void setWWDGSW(bool set);
+    DataMap compare(const OptionBytes &other) const;
+    OptionBytes corrected(const DataMap &diff) const;
 
 private:
+    DataMap m_data;
     bool m_isValid;
-    OptionBytesData m_data;
 };
 
 }

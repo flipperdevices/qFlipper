@@ -56,6 +56,13 @@ int RemoteController::screenHeight()
     return 64;
 }
 
+void RemoteController::sendInputEvent(InputKey key, InputType type)
+{
+    const char input[] = { 27, 'i', (char)key, (char)type };
+    m_port->write(input, sizeof(input));
+    m_port->flush();
+}
+
 void RemoteController::onPortReadyRead()
 {
     static const auto header = QByteArray::fromHex("F0E1D2C3");
@@ -85,6 +92,11 @@ void RemoteController::onPortReadyRead()
 
 void RemoteController::onPortErrorOccured()
 {
+    if(m_port->error() == QSerialPort::ResourceError) {
+        return;
+    }
+
+    error_msg(QString("Serial port error occured: %1").arg(m_port->errorString()));
     setEnabled(false);
 }
 
@@ -98,6 +110,9 @@ bool RemoteController::openPort()
 
         m_port->setDataTerminalReady(true);
         m_port->write("\rscreen_stream\r");
+
+    } else {
+        error_msg(QString("Failed to open serial port: %1").arg(m_port->errorString()));
     }
 
     return success;
@@ -108,7 +123,8 @@ void RemoteController::closePort()
     disconnect(m_port, &QSerialPort::readyRead, this, &RemoteController::onPortReadyRead);
     disconnect(m_port, &QSerialPort::errorOccurred, this, &RemoteController::onPortErrorOccured);
 
-    m_port->write("\0");
+    m_port->write("\x01\r");
+    m_port->flush();
     m_port->clear();
     m_port->close();
 }

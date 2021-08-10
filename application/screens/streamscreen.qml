@@ -50,7 +50,12 @@ Item {
         }
 
         StyledKeypad {
+            id: keypad
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+
+            onInputEvent: {
+                device.remote.sendInputEvent(key, type);
+            }
         }
 
         RowLayout {
@@ -61,6 +66,7 @@ Item {
                 id: clipButton
                 text: qsTr("Copy to Clipboard")
                 Layout.fillWidth: true
+                Keys.forwardTo: keypad
 
                 onClicked: {
                     screenCanvas.copyToClipboard();
@@ -71,6 +77,7 @@ Item {
                 id: saveButton
                 text: qsTr("Save to File")
                 Layout.fillWidth: true
+                Keys.forwardTo: keypad
 
                 onClicked: {
                     fileDialog.open();
@@ -81,6 +88,7 @@ Item {
                 id: backButton
                 text: qsTr("Close")
                 Layout.fillWidth: true
+                Keys.forwardTo: keypad
 
                 onClicked: {
                     screen.close();
@@ -90,6 +98,8 @@ Item {
     }
 
     Component.onCompleted: {
+        keypad.forceActiveFocus();
         device.remote.enabled = true;
+        device.isConnectedChanged.connect(screen.close);
     }
 }

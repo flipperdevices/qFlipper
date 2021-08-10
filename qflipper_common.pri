@@ -7,11 +7,10 @@ unix:!macx {
     CONFIG -= debug_and_release
     DEFINES += USB_BACKEND_WIN32
 	
-        !win32-g++: LIBS +=  -lSetupApi -lWinusb -lUser32
-	else: LIBS += -lsetupapi -lwinusb
+    !win32-g++: LIBS +=  -lSetupApi -lWinusb -lUser32
+    else: LIBS += -lsetupapi -lwinusb
 
 } else:macx {
-    ICON = ../assets/qFlipper.icns
     DEFINES += USB_BACKEND_LIBUSB
     PKG_CONFIG = /usr/local/bin/pkg-config
     CONFIG += link_pkgconfig

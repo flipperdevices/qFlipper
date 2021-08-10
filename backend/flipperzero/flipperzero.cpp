@@ -17,12 +17,7 @@
 #include "device/stm32wb55.h"
 
 #define ARBITRARY_NUMBER 800
-
-#define try_run(condition, errorMsg) \
-    if(!(condition)) { \
-        errorFeedback(errorMsg); \
-        return false; \
-    }
+#define to_hex_str(num) (QString::number(num, 16))
 
 /* ----------------------------------------------------------------------------------------------------------------------------------
  * FUS operations are based on the info from AN5185
@@ -50,6 +45,11 @@ FlipperZero::FlipperZero(const USBDeviceInfo &info, QObject *parent):
     m_remote(nullptr)
 {
     setDeviceInfo(info);
+}
+
+FlipperZero::~FlipperZero()
+{
+    setConnected(false);
 }
 
 void FlipperZero::setDeviceInfo(const USBDeviceInfo &info)
@@ -186,8 +186,8 @@ bool FlipperZero::setBootMode(BootMode mode)
         return false;
     }
 
-    ob.setNBoot0(mode == BootMode::Normal);
-    ob.setNSwBoot0(mode == BootMode::Normal);
+    ob.setValue("nBOOT0", mode == BootMode::Normal);
+    ob.setValue("nSWBOOT0", mode == BootMode::Normal);
 
     if(!device.setOptionBytes(ob)) {
         errorFeedback("Cant' set boot mode: Failed to set option bytes");
@@ -474,9 +474,9 @@ bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
         const auto origin = device.partitionOrigin((uint8_t)STM32WB55::Partition::Flash);
         const auto pageSize = (uint32_t)0x1000; // TODO: do not hardcode page size
 
-        addr = (origin + (pageSize * ob.SFSA()) - file->bytesAvailable()) & (~(pageSize - 1));
+        addr = (origin + (pageSize * ob.value("SFSA")) - file->bytesAvailable()) & (~(pageSize - 1));
 
-        info_msg(QString("SFSA value is 0x%1").arg(QString::number(ob.SFSA(), 16)));
+        info_msg(QString("SFSA value is 0x%1").arg(QString::number(ob.value("SFSA"), 16)));
         info_msg(QString("Target address for co-processor firmware image is 0x%1").arg(QString::number(addr, 16)));
 
     } else {
@@ -573,6 +573,44 @@ bool FlipperZero::upgradeWirelessStack()
     }
 
     return false;
+}
+
+bool FlipperZero::fixOptionBytes(QIODevice *file)
+{
+    statusFeedback("Fixing Option Bytes...");
+
+    check_return_bool(file->open(QIODevice::ReadOnly), "Failed to open file for reading");
+    const OptionBytes loaded(file);
+    file->close();
+
+    check_return_bool(loaded.isValid(), "Failed to load option bytes from file");
+
+    QMutexLocker locker(&m_deviceMutex);
+    STM32WB55 device(m_info);
+
+    check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
+    const OptionBytes actual = device.optionBytes();
+
+    const auto diff = actual.compare(loaded);
+
+    if(diff.isEmpty()) {
+        info_msg("Option Bytes OK");
+        device.leave();
+
+    } else {
+        for(auto it = diff.constKeyValueBegin(); it != diff.constKeyValueEnd(); ++it) {
+            info_msg(QString("Option Bytes mismatch @%1: this: 0x%2, other: 0x%3")
+                     .arg((*it).first, to_hex_str(actual.value((*it).first)), to_hex_str((*it).second)));
+        }
+
+        info_msg("Writing corrected Option Bytes");
+        device.setOptionBytes(actual.corrected(diff));
+    }
+
+    check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
+
+    locker.unlock();
+    return waitForReboot();
 }
 
 const QString &FlipperZero::name() const

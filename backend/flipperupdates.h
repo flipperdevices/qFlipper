@@ -13,6 +13,9 @@ namespace Updates {
 
 struct FileInfo
 {
+    Q_GADGET
+
+public:
     FileInfo() = default;
     FileInfo(const QJsonValue &val);
 
@@ -24,10 +27,15 @@ struct FileInfo
 
 struct VersionInfo
 {
+    Q_GADGET
+    Q_PROPERTY(QString number MEMBER version)
+    Q_PROPERTY(QString changelog MEMBER changelog)
+
+public:
     VersionInfo() = default;
     VersionInfo(const QJsonValue &val);
 
-    int indexOf(const QString &target, const QString &type) const;
+    Q_INVOKABLE Flipper::Updates::FileInfo fileInfo(const QString &type, const QString &target) const;
 
     QString version;
     QString changelog;
@@ -37,8 +45,13 @@ struct VersionInfo
 
 struct ChannelInfo
 {
+    Q_GADGET
+
+public:
     ChannelInfo() = default;
     ChannelInfo(const QJsonValue &val);
+
+    Q_INVOKABLE Flipper::Updates::VersionInfo versionInfo(const QString &versionName) const;
 
     QString id;
     QString title;

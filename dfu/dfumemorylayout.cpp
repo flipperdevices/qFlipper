@@ -78,7 +78,7 @@ const QList<uint32_t> DFUMemoryLayout::pageAddresses(uint32_t start, uint32_t en
 
     for(const auto &bank : m_pageBanks) {
         for(size_t i = 0; i < bank.pageCount; ++i) {
-            currentAddress +=  bank.pageSize;
+            currentAddress += (uint32_t)bank.pageSize;
             if((currentAddress > start) && (currentAddress < end)) {
                 ret.append(currentAddress);
             } else if(currentAddress >= end) {

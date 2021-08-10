@@ -12,22 +12,29 @@ Item {
     signal streamRequested(var device)
 
     StyledConfirmationDialog {
-        id: updateConfirmationDialog
+        id: confirmationDialog
 
         width: deviceList.width + 2
         height: deviceList.height + 2
 
-        subtitle: qsTr("This will install the latest firmware on your device.")
-    }
+        function openWithMessage(onAcceptedFunc, messageObj = {}) {
+            const onDialogRejected = function() {
+                confirmationDialog.rejected.disconnect(onDialogRejected);
+                confirmationDialog.accepted.disconnect(onDialogAccepted);
+            }
 
-    StyledConfirmationDialog {
-        id: fileConfirmationDialog
+            const onDialogAccepted = function() {
+                onDialogRejected();
+                onAcceptedFunc();
+            }
 
-        width: deviceList.width + 2
-        height: deviceList.height + 2
+            confirmationDialog.title = messageObj.title ? messageObj.title : qsTr("Question");
+            confirmationDialog.subtitle = messageObj.subtitle ? messageObj.subtitle : qsTr("Proceed with the operation?");
 
-        title: qsTr("Install update from local file?")
-        subtitle: qsTr("Warning: this operation may brick your device.")
+            confirmationDialog.rejected.connect(onDialogRejected);
+            confirmationDialog.accepted.connect(onDialogAccepted);
+            confirmationDialog.open();
+        }
     }
 
     FileDialog {
@@ -36,33 +43,19 @@ Item {
         folder: shortcuts.home
         nameFilters: ["Firmware files (*.dfu)", "All files (*)"]
 
-        function openWithConfirmation(nameFilters, onAcceptedFunc) {
-            const onFileDialogRejected = function() {
-                fileDialog.rejected.disconnect(onFileDialogRejected);
-                fileDialog.accepted.disconnect(onFileDialogAccepted);
+        function openWithConfirmation(nameFilters, onAcceptedFunc, messageObj = {}) {
+            const onDialogRejected = function() {
+                fileDialog.rejected.disconnect(onDialogRejected);
+                fileDialog.accepted.disconnect(onDialogAccepted);
             }
 
-            const onFileDialogAccepted = function() {
-                onFileDialogRejected();
-
-                const onConfirmDialogRejected = function() {
-                    fileConfirmationDialog.accepted.disconnect(onConfirmDialogAccepted);
-                    fileConfirmationDialog.rejected.disconnect(onConfirmDialogRejected);
-                }
-
-                const onConfirmDialogAccepted = function() {
-                    onConfirmDialogRejected();
-                    onAcceptedFunc();
-                };
-
-                fileConfirmationDialog.accepted.connect(onConfirmDialogAccepted);
-                fileConfirmationDialog.rejected.connect(onConfirmDialogRejected);
-                fileConfirmationDialog.open();
-
+            const onDialogAccepted = function() {
+                onDialogRejected();
+                confirmationDialog.openWithMessage(onAcceptedFunc, messageObj)
             }
 
-            fileDialog.accepted.connect(onFileDialogAccepted);
-            fileDialog.rejected.connect(onFileDialogRejected);
+            fileDialog.accepted.connect(onDialogAccepted);
+            fileDialog.rejected.connect(onDialogRejected);
             fileDialog.setNameFilters(nameFilters);
             fileDialog.open();
         }
@@ -76,29 +69,25 @@ Item {
         anchors.leftMargin: 100
         anchors.rightMargin: 100
         anchors.topMargin: parent.height/4
-        anchors.bottomMargin: parent.height/4
+        anchors.bottomMargin: 50
 
         spacing: 6
         clip: true
 
         delegate: FlipperListDelegate {
             onUpdateRequested: {
-                updateConfirmationDialog.title = qsTr("Update to version ") + updateRegistry.latestVersion(device.target) + "?";
+                const channelName = "release";
+                const firmwareType = "full_dfu";
+                const latestVersion = updateRegistry.channelModel(channelName).latestVersion;
 
-                const onUpdateDialogRejected = function() {
-                    updateConfirmationDialog.rejected.disconnect(onUpdateDialogRejected);
-                    updateConfirmationDialog.accepted.disconnect(onUpdateDialogAccepted);
-                }
+                const messageObj = {
+                    title : qsTr("Install version %1?").arg(latestVersion.number),
+                    subtitle : qsTr("This will install the latest available %1 version.").arg(channelName.toUpperCase())
+                };
 
-                const onUpdateDialogAccepted = function() {
-                    onUpdateDialogRejected();
-                    downloader.downloadRemoteFile(device, updateRegistry.latestFirmware(device.target));
-                }
-
-                updateConfirmationDialog.rejected.connect(onUpdateDialogRejected);
-                updateConfirmationDialog.accepted.connect(onUpdateDialogAccepted);
-
-                updateConfirmationDialog.open();
+                confirmationDialog.openWithMessage(function() {
+                    downloader.downloadRemoteFile(device, latestVersion.fileInfo(firmwareType, device.target));
+                }, messageObj);
             }
 
             onVersionListRequested: {
@@ -110,25 +99,58 @@ Item {
             }
 
             onLocalUpdateRequested: {
-                fileDialog.openWithConfirmation(["Firmware files (*.dfu)", "All files (*)"], function () {
+                const messageObj = {
+                    title : qsTr("Install update from the file?"),
+                    subtitle : qsTr("Caution: this may brick your device.")
+                };
+
+                fileDialog.openWithConfirmation(["Firmware files (*.dfu)", "All files (*)"], function() {
                     downloader.downloadLocalFile(device, fileDialog.fileUrl);
-                });
+                }, messageObj);
             }
 
             onLocalRadioUpdateRequested: {
-                fileDialog.openWithConfirmation(["Radio firmware files (*.bin)", "All files (*)"], function () {
+                const messageObj = {
+                    title : qsTr("Update the wireless stack?"),
+                    subtitle : qsTr("Warning: this operation is potetntially unstable<br/>and may need several attempts.")
+                };
+
+                fileDialog.openWithConfirmation(["Radio firmware files (*.bin)", "All files (*)"], function() {
                     downloader.downloadLocalWirelessStack(device, fileDialog.fileUrl);
-                });
+                }, messageObj);
             }
 
             onLocalFUSUpdateRequested: {
-                fileDialog.openWithConfirmation(["FUS firmware files (*.bin)", "All files (*)"], function () {
+                const messageObj = {
+                    title : qsTr("Update the FUS?"),
+                    subtitle : qsTr("WARNING: this operation is potentially unstable<br/>and may need several attempts.")
+                };
+
+                fileDialog.openWithConfirmation(["FUS firmware files (*.bin)", "All files (*)"], function() {
                     downloader.downloadLocalFUS(device, fileDialog.fileUrl);
-                });
+                }, messageObj);
             }
 
             onFixBootRequested: {
-                downloader.makeBootable(device);
+                const messageObj = {
+                    title : qsTr("Attempt to fix boot issues?"),
+                    subtitle : qsTr("This will try to correct device option bytes.")
+                };
+
+                confirmationDialog.openWithMessage(function() {
+                    downloader.fixBootIssues(device);
+                }, messageObj);
+            }
+
+            onFixOptionBytesRequested: {
+                const messageObj = {
+                    title : qsTr("Check and fix the Option Bytes?"),
+                    subtitle : qsTr("Results will be displayed in the program log.")
+                };
+
+                fileDialog.openWithConfirmation(["Option bytes description files (*.data)", "All files (*)"], function() {
+                    downloader.fixOptionBytes(device, fileDialog.fileUrl);
+                }, messageObj);
             }
         }
 
@@ -163,6 +185,7 @@ Item {
     }
 
     Text {
+        id: versionLabel
         text: Qt.application.name + " Version " + Qt.application.version
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom

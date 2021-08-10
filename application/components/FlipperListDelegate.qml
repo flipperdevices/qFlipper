@@ -7,6 +7,7 @@ Item {
     signal localRadioUpdateRequested(var device)
     signal localFUSUpdateRequested(var device)
 
+    signal fixOptionBytesRequested(var device)
     signal fixBootRequested(var device)
 
     signal versionListRequested(var device)
@@ -81,8 +82,37 @@ Item {
 
     StyledButton {
         id: updateButton
-        text: device.isDFU ? qsTr("Repair") : qsTr("Reinstall")
-        visible: !device.isPersistent && !device.isError
+        text: {
+            if(updateRegistry.channelNames.length === 0) {
+                return qsTr("Error");
+            } else if(device.isDFU || (device.version === "N/A")) {
+                return qsTr("Repair");
+            }
+
+            const channelName = "release";
+            const latestVersion = updateRegistry.channelModel(channelName).latestVersion;
+
+            if(latestVersion.number > device.version) {
+                return qsTr("Update");
+            } else if(latestVersion.number < device.version) {
+                return qsTr("Downgrade");
+            } else {
+                return qsTr("Reinstall");
+            }
+        }
+
+        suggested: {
+            if(device.isDFU || (updateRegistry.channelNames.length === 0)) {
+                return false;
+            }
+
+            const channelName = "release";
+            const latestVersion = updateRegistry.channelModel(channelName).latestVersion;
+
+            return latestVersion.number > device.version;
+        }
+
+        visible: (updateRegistry.channelNames.length > 0) && !(device.isPersistent || device.isError)
 
         anchors.right: menuButton.left
         anchors.rightMargin: 10
@@ -93,7 +123,7 @@ Item {
 
     Text {
         id: versionLabel
-        visible: !messageLabel.visible && !device.isDFU
+        visible: !(messageLabel.visible || device.isDFU)
         text: qsTr("version ") + device.version
         font.pointSize: 10
 
@@ -134,6 +164,7 @@ Item {
         MenuItem {
             text: qsTr("Other versions...")
             onTriggered: versionListRequested(device)
+            enabled: updateRegistry.channelNames.length > 0
         }
 
         MenuItem {
@@ -165,16 +196,15 @@ Item {
             }
 
             MenuItem {
+                text: qsTr("Fix Option Bytes...")
+                onTriggered: fixOptionBytesRequested(device)
+            }
+
+            MenuItem {
                 text: qsTr("Fix boot issues")
                 onTriggered: fixBootRequested(device)
                 enabled: device.isDFU
             }
         }
     }
-
-//    Component.onCompleted: {
-//        updateRegistry.latestVersionChanged.connect(function() {
-//            updateButton.visible = device.isDFU || (updateRegistry.latestVersion(device.target) > device.version);
-//        })
-//    }
 }

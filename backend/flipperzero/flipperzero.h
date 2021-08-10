@@ -41,6 +41,7 @@ public:
     };
 
     FlipperZero(const USBDeviceInfo &info, QObject *parent = nullptr);
+    ~FlipperZero();
 
     void setDeviceInfo(const USBDeviceInfo &info);
     void setPersistent(bool set);
@@ -65,6 +66,8 @@ public:
     bool downloadFUS(QIODevice *file, uint32_t addr);
     bool downloadWirelessStack(QIODevice *file, uint32_t addr = 0);
     bool upgradeWirelessStack();
+
+    bool fixOptionBytes(QIODevice *file);
 
     const QString &name() const;
     const QString &model() const;

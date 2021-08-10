@@ -32,10 +32,12 @@ jobs:
           path: |
                 ./build/qFlipper-x86_64.AppImage
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 1
 
   build_mac:
     runs-on: [self-hosted, X64, macOS]
+    env:
+      SIGNING_KEY: ${{ secrets.MAC_OS_SIGNING_KEY_ID }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -52,7 +54,7 @@ jobs:
           path: |
             ./build_mac/qflipper.dmg
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 1
 
   build_windows:
     runs-on: [self-hosted, X64, Windows]
@@ -73,7 +75,7 @@ jobs:
             .\build\qFlipperSetup-64bit.exe
             .\build\qFlipper-64bit.zip
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 1
 
   upload:
     name: Upload apps to storage

@@ -7,12 +7,11 @@ import "../components"
 
 Item {
     id: screen
+    anchors.fill: parent
+
+    signal homeRequested
 
     property var device
-
-    signal homeRequested()
-
-    anchors.fill: parent
 
     StyledChangelogDialog {
         id: changelogDialog
@@ -31,15 +30,19 @@ Item {
 
             ComboBox {
                 id: channelSelector
-                model: updateRegistry.channels
+                implicitWidth: 200
+                model: updateRegistry.channelNames
 
                 onActivated: {
-                    updateRegistry.channel = channelSelector.textAt(index);
+                    const channelModel = updateRegistry.channelModel(textAt(index));
+
+                    versionList.model = channelModel;
+                    descriptionLabel.text = channelModel.description;
                 }
             }
 
             Text {
-                text: updateRegistry.channelDescription
+                id: descriptionLabel
                 color: "white"
                 font.pointSize: 12
             }
@@ -47,7 +50,6 @@ Item {
 
         ListView {
             id: versionList
-            model: updateRegistry
 
             Layout.fillHeight: true
             Layout.fillWidth: true
@@ -57,8 +59,11 @@ Item {
 
             delegate: VersionListDelegate {
                 onInstallRequested: {
-                    downloader.downloadRemoteFile(screen.device, file);
                     screen.homeRequested();
+
+                    const firmwareType = "full_dfu";
+                    const fileInfo = versionInfo.fileInfo(firmwareType, device.target);
+                    downloader.downloadRemoteFile(screen.device, fileInfo);
                 }
 
                 onChangelogRequested: {
@@ -92,7 +97,10 @@ Item {
 
 
     Component.onCompleted: {
-        updateRegistry.target = screen.device.target
-        channelSelector.currentIndex = channelSelector.find(updateRegistry.channel, Qt.MatchFixedString);
+        const defaultChannelName = "release";
+        const defaultChannelNameIdx = channelSelector.find(defaultChannelName, Qt.MatchFixedString);
+
+        channelSelector.currentIndex = defaultChannelNameIdx;
+        channelSelector.activated(defaultChannelNameIdx);
     }
 }
