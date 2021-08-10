@@ -12,63 +12,6 @@
 
 using namespace Flipper;
 
-UpdateChannelModel::UpdateChannelModel(const Updates::ChannelInfo &channelInfo, QObject *parent):
-    QAbstractListModel(parent),
-    m_channelInfo(channelInfo)
-{}
-
-UpdateChannelModel::~UpdateChannelModel()
-{}
-
-int UpdateChannelModel::rowCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent)
-    return m_channelInfo.versions.size();
-}
-
-QVariant UpdateChannelModel::data(const QModelIndex &index, int role) const
-{
-    const auto row = index.row();
-    const auto &version = m_channelInfo.versions.at(row);
-
-    if(role == VersionRole) {
-        return QVariant::fromValue(version);
-    } else if(role == NumberRole) {
-        return version.version;
-    } else if(role == TimestampRole) {
-        return QDateTime::fromSecsSinceEpoch(version.timestamp).date().toString();
-    } else if(role == ChangelogRole) {
-        return version.changelog;
-    } else {
-        return QVariant();
-    }
-}
-
-QHash<int, QByteArray> UpdateChannelModel::roleNames() const
-{
-    return QHash<int, QByteArray> {
-        {VersionRole, "version"},
-        {NumberRole, "number"},
-        {TimestampRole, "timestamp"},
-        {ChangelogRole, "changelog"},
-    };
-}
-
-const QString &UpdateChannelModel::name() const
-{
-    return m_channelInfo.id;
-}
-
-const QString &UpdateChannelModel::description() const
-{
-    return m_channelInfo.description;
-}
-
-const Updates::VersionInfo UpdateChannelModel::latestVersion() const
-{
-    return m_channelInfo.versions.first();
-}
-
 UpdateRegistry::UpdateRegistry(QObject *parent):
     QObject(parent)
 {
@@ -108,7 +51,7 @@ bool UpdateRegistry::fillFromJson(const QByteArray &text)
 
         for(const auto &val : arr) {
             const Updates::ChannelInfo info(val);
-            m_channelModels.insert(info.id, new UpdateChannelModel(info, this));
+            m_channels.insert(info.id, info);
         }
 
     } catch(std::runtime_error &e) {
@@ -122,10 +65,10 @@ bool UpdateRegistry::fillFromJson(const QByteArray &text)
 
 const QStringList UpdateRegistry::channelNames() const
 {
-    return m_channelModels.keys();
+    return m_channels.keys();
 }
 
-UpdateChannelModel *UpdateRegistry::channelModel(const QString &channelName) const
+Updates::ChannelInfo UpdateRegistry::channel(const QString &channelName) const
 {
-    return m_channelModels.value(channelName, nullptr);
+    return m_channels.value(channelName);
 }

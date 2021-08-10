@@ -22,7 +22,7 @@ Rectangle {
 
         Text {
             id: versionText
-            text: number
+            text: modelData.number
 
             color: "white"
             font.capitalization: Font.AllUppercase
@@ -35,7 +35,7 @@ Rectangle {
 
         Text {
             id: timestampText
-            text: timestamp
+            text: modelData.date
 
             color: "darkgray"
             font.capitalization: Font.AllUppercase
@@ -56,7 +56,7 @@ Rectangle {
                 suggested: true
 
                 onClicked: {
-                    installRequested(version);
+                    installRequested(modelData);
                 }
             }
 
@@ -65,7 +65,7 @@ Rectangle {
                 text: qsTr("Changelog")
 
                 onClicked: {
-                    changelogRequested(number, changelog)
+                    changelogRequested(modelData.number, modelData.changelog)
                 }
             }
         }

@@ -78,7 +78,7 @@ Item {
             onUpdateRequested: {
                 const channelName = "release";
                 const firmwareType = "full_dfu";
-                const latestVersion = updateRegistry.channelModel(channelName).latestVersion;
+                const latestVersion = updateRegistry.channel(channelName).latestVersion;
 
                 const messageObj = {
                     title : qsTr("Install version %1?").arg(latestVersion.number),

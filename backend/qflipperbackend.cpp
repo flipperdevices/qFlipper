@@ -9,8 +9,8 @@ QFlipperBackend::QFlipperBackend()
 {
     qRegisterMetaType<Flipper::Updates::FileInfo>("Flipper::Updates::FileInfo");
     qRegisterMetaType<Flipper::Updates::VersionInfo>("Flipper::Updates::VersionInfo");
+    qRegisterMetaType<Flipper::Updates::ChannelInfo>("Flipper::Updates::ChannelInfo");
     qRegisterMetaType<Flipper::Zero::RemoteController*>("Flipper::Zero::RemoteController*");
-    qRegisterMetaType<Flipper::UpdateChannelModel*>("Flipper::UpdateChannelModel*");
 }
 
 QFlipperBackend::~QFlipperBackend()

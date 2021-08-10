@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 
+#include <QDateTime>
 #include <QJsonObject>
 #include <QJsonArray>
 
@@ -55,6 +56,16 @@ VersionInfo::VersionInfo(const QJsonValue &val)
     }
 }
 
+QString VersionInfo::date() const
+{
+    return QDateTime::fromSecsSinceEpoch(timestamp).date().toString();
+}
+
+const QVector<FileInfo> &VersionInfo::getFiles() const
+{
+    return files;
+}
+
 FileInfo VersionInfo::fileInfo(const QString &type, const QString &target) const
 {
     const auto it = std::find_if(files.cbegin(), files.cend(),
@@ -95,6 +106,16 @@ ChannelInfo::ChannelInfo(const QJsonValue &val)
     std::sort(versions.begin(), versions.end(), [](const VersionInfo &a, const VersionInfo &b) {
         return a.version > b.version;
     });
+}
+
+VersionInfo ChannelInfo::latestVersion() const
+{
+    return versions.first();
+}
+
+QVector<VersionInfo> ChannelInfo::getVersions() const
+{
+    return versions;
 }
 
 VersionInfo ChannelInfo::versionInfo(const QString &versionName) const

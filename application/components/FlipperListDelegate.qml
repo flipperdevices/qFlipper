@@ -90,7 +90,7 @@ Item {
             }
 
             const channelName = "release";
-            const latestVersion = updateRegistry.channelModel(channelName).latestVersion;
+            const latestVersion = updateRegistry.channel(channelName).latestVersion;
 
             if(latestVersion.number > device.version) {
                 return qsTr("Update");
@@ -107,7 +107,7 @@ Item {
             }
 
             const channelName = "release";
-            const latestVersion = updateRegistry.channelModel(channelName).latestVersion;
+            const latestVersion = updateRegistry.channel(channelName).latestVersion;
 
             return latestVersion.number > device.version;
         }

@@ -34,10 +34,10 @@ Item {
                 model: updateRegistry.channelNames
 
                 onActivated: {
-                    const channelModel = updateRegistry.channelModel(textAt(index));
+                    const channel = updateRegistry.channel(textAt(index));
 
-                    versionList.model = channelModel;
-                    descriptionLabel.text = channelModel.description;
+                    versionList.model = channel.versions;
+                    descriptionLabel.text = channel.description;
                 }
             }
 
