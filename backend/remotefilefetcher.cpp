@@ -56,10 +56,10 @@ bool RemoteFileFetcher::fetch(const Updates::FileInfo &fileInfo)
         if(reply->error() == QNetworkReply::NoError) {
             data = reply->readAll();
 
-            QCryptographicHash hash(QCryptographicHash::Sha512);
+            QCryptographicHash hash(QCryptographicHash::Sha256);
             hash.addData(data);
 
-            if(hash.result().toHex() != fileInfo.sha512) {
+            if(hash.result().toHex() != fileInfo.sha256) {
                 data.clear();
             }
         }

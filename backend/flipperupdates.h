@@ -22,7 +22,7 @@ public:
     QString target;
     QString type;
     QString url;
-    QByteArray sha512;
+    QByteArray sha256;
 };
 
 struct VersionInfo

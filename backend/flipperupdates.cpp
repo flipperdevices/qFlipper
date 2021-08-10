@@ -27,7 +27,7 @@ FileInfo::FileInfo(const QJsonValue &val)
     target = json["target"].toString();
     type = json["type"].toString();
     url = json["url"].toString();
-    sha512 = json["sha512"].toString().toLocal8Bit();
+    sha256 = json["sha256"].toString().toLocal8Bit();
 }
 
 VersionInfo::VersionInfo(const QJsonValue &val)
