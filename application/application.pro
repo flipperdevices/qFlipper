@@ -1,8 +1,25 @@
 QT += quick serialport widgets quickcontrols2 svg
 
 TARGET = qFlipper
-VERSION = 0.1
-DEFINES += APP_VERSION=\\\"$$VERSION\\\"
+
+GIT_VERSION = $$system("git describe --tags --abbrev=0","lines", HAS_VERSION)
+
+equals(HAS_VERSION, 0) {
+    RC_SUFFIX = -rc
+
+    contains(GIT_VERSION, .*$$RC_SUFFIX) {
+        # Remove -rc suffix as it isn't allowed in Windows manifest
+        VERSION = $$str_member($$GIT_VERSION, 0, $$num_add($$str_size($$GIT_VERSION), -$$num_add($$str_size($$RC_SUFFIX), 1)))
+    } else {
+        VERSION = $$GIT_VERSION
+    }
+
+} else {
+    VERSION = 0.0.0
+    GIT_VERSION = unknown
+}
+
+DEFINES += APP_VERSION=\\\"$$GIT_VERSION\\\"
 DESTDIR = ..
 
 CONFIG += c++11
