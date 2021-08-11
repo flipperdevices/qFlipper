@@ -109,7 +109,7 @@ Item {
             const channelName = "release";
             const latestVersion = updateRegistry.channel(channelName).latestVersion;
 
-            return (latestVersion.number > device.version) || (device.version.includes(latestVersion.number));
+            return (latestVersion.number > device.version) || ((latestVersion.number !== device.version) && (device.version.includes(latestVersion.number)));
         }
 
         visible: (updateRegistry.channelNames.length > 0) && !(device.isPersistent || device.isError)
