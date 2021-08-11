@@ -153,15 +153,6 @@ Item {
                 }, messageObj);
             }
         }
-
-        Text {
-            id: noDevicesLabel
-            text: qsTr("No devices connected")
-            anchors.centerIn: parent
-            color: "#444"
-            font.pointSize: 24
-            visible: deviceList.count === 0
-        }
     }
 
     Text {
@@ -170,7 +161,7 @@ Item {
         anchors.bottomMargin: 40
         anchors.horizontalCenter: deviceList.horizontalCenter
         text: Qt.application.displayName
-        font.pointSize: 24
+        font.pixelSize: 30
         font.capitalization: Font.AllUppercase
         color: "white"
     }
@@ -182,6 +173,15 @@ Item {
         text: "a Flipper companion app"
         color: "darkgray"
         font.capitalization: Font.AllUppercase
+    }
+
+    Text {
+        id: noDevicesLabel
+        text: qsTr("No devices connected")
+        anchors.centerIn: parent
+        color: "#444"
+        font.pixelSize: 30
+        visible: deviceList.count === 0
     }
 
     Text {

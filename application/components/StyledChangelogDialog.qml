@@ -23,7 +23,7 @@ Dialog {
         Text {
             text: qsTr("Version ") + dialog.titleText
             color: "white"
-            font.pointSize: 20
+            font.pixelSize: 24
             font.bold: true
 
             Layout.topMargin: 16

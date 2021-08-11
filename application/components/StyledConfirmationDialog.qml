@@ -35,7 +35,7 @@ Dialog {
                 text: control.title
                 color: "white"
                 font.bold: true
-                font.pointSize: 18
+                font.pixelSize: 22
                 Layout.alignment: Qt.AlignHCenter
                 Layout.fillWidth: true
 
@@ -45,7 +45,7 @@ Dialog {
             Text {
                 text: control.subtitle
                 color: "white"
-                font.pointSize: 14
+                font.pixelSize: 18
                 Layout.alignment: Qt.AlignHCenter
                 Layout.fillWidth: true
 

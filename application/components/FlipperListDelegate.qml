@@ -37,7 +37,7 @@ Item {
         id: modelLabel
         text: device.model
         color: "darkgray"
-        font.pointSize: 10
+        font.pixelSize: 13
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: 15
@@ -58,7 +58,7 @@ Item {
         Text {
             text: device.name
             color: "black"
-            font.pointSize: 12
+            font.pixelSize: 16
             font.bold: true
             anchors.centerIn: parent
         }
@@ -125,7 +125,7 @@ Item {
         id: versionLabel
         visible: !(messageLabel.visible || device.isDFU)
         text: qsTr("version ") + device.version
-        font.pointSize: 10
+        font.pixelSize: 13
 
         anchors.left: nameLabel.right
         anchors.verticalCenter: parent.verticalCenter
@@ -140,7 +140,7 @@ Item {
         visible: device.isPersistent || device.isError
         color: device.isError ? "#ddd" : "white"
 
-        font.pointSize: 10
+        font.pixelSize: 13
 
         anchors.left: nameLabel.right
         anchors.right: menuButton.left

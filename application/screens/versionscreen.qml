@@ -44,7 +44,7 @@ Item {
             Text {
                 id: descriptionLabel
                 color: "white"
-                font.pointSize: 12
+                font.pixelSize: 16
             }
         }
 
@@ -83,7 +83,7 @@ Item {
                 text: qsTr("Updates not found")
                 anchors.centerIn: parent
                 color: "#444"
-                font.pointSize: 24
+                font.pixelSize: 30
                 visible: versionList.count === 0
             }
         }

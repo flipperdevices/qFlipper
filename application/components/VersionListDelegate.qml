@@ -26,7 +26,7 @@ Rectangle {
 
             color: "white"
             font.capitalization: Font.AllUppercase
-            font.pointSize: 14
+            font.pixelSize: 18
             font.bold: true
             elide: Text.ElideLeft
 
@@ -38,8 +38,7 @@ Rectangle {
             text: modelData.date
 
             color: "darkgray"
-            font.capitalization: Font.AllUppercase
-            font.pointSize: 12
+            font.pixelSize: 16
 
             horizontalAlignment: Text.AlignHCenter
             Layout.alignment: Qt.AlignHCenter
