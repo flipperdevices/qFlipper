@@ -92,12 +92,12 @@ Item {
             const channelName = "release";
             const latestVersion = updateRegistry.channel(channelName).latestVersion;
 
-            if((latestVersion.number > device.version) || (device.version.includes(latestVersion.number))) {
-                return qsTr("Update");
-            } else if(latestVersion.number < device.version) {
-                return qsTr("Rollback");
-            } else {
+            if(latestVersion.number === device.version) {
                 return qsTr("Reinstall");
+            } else if((latestVersion.number > device.version) || (device.version.includes(latestVersion.number))) {
+                return qsTr("Update");
+            } else {
+                return qsTr("Rollback");
             }
         }
 
