@@ -5,6 +5,7 @@ set -ex
 TARGET='qFlipper'
 BUILDDIR='build'
 
+export OUTPUT=$TARGET-x86_64.AppImage
 export QML_SOURCES_PATHS='..'
 
 mkdir -p $BUILDDIR && cd $BUILDDIR
