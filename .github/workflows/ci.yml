@@ -129,3 +129,8 @@ jobs:
           remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
           remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
+
+      - name: 'Trigger update server reindex'
+        uses: wei/curl@master
+        with:
+          args: -X POST -F 'key=${{ secrets.REINDEX_KEY }}' ${{ secrets.REINDEX_URL }}
