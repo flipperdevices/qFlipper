@@ -26,7 +26,7 @@ UpdateRegistry::UpdateRegistry(QObject *parent):
         fetcher->deleteLater();
     });
 
-    fetcher->fetch("https://update.flipperzero.one/directory.json");
+    fetcher->fetch("https://update.flipperzero.one/firmware/directory.json");
 }
 
 UpdateRegistry::~UpdateRegistry()
