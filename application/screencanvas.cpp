@@ -110,14 +110,14 @@ qreal ScreenCanvas::renderHeight() const
     return m_renderHeight;
 }
 
-void ScreenCanvas::saveImage(const QUrl &url)
+void ScreenCanvas::saveImage(const QUrl &url, ScalingType scaling)
 {
-    check_return_void(m_canvas.save(url.toLocalFile()), "Failed to save image");
+    check_return_void(canvas(scaling).save(url.toLocalFile()), "Failed to save image");
 }
 
-void ScreenCanvas::copyToClipboard()
+void ScreenCanvas::copyToClipboard(ScalingType scaling)
 {
-    qGuiApp->clipboard()->setImage(m_canvas);
+    qGuiApp->clipboard()->setImage(canvas(scaling));
 }
 
 void ScreenCanvas::setRenderWidth(qreal w)
@@ -128,6 +128,18 @@ void ScreenCanvas::setRenderWidth(qreal w)
 
     m_renderWidth = w;
     emit renderWidthChanged();
+}
+
+const QImage ScreenCanvas::canvas(ScalingType scaling) const
+{
+    switch(scaling) {
+    case ScalingType::NoScaling: return m_canvas;
+    case ScalingType::AsDisplayed: return m_canvas.scaled(m_renderWidth, m_renderHeight);
+    case ScalingType::Scaling2X: return m_canvas.scaled(canvasWidth() * 2, canvasHeight() * 2);
+    case ScalingType::Scaling3X: return m_canvas.scaled(canvasWidth() * 3, canvasHeight() * 3);
+    case ScalingType::Scaling4X: return m_canvas.scaled(canvasWidth() * 4, canvasHeight() * 4);
+    default: return QImage();
+    }
 }
 
 void ScreenCanvas::setRenderHeight(qreal h)

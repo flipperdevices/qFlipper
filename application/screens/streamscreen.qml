@@ -1,6 +1,7 @@
 import QtQml 2.12
 import QtQuick 2.12
 import QtQuick.Layouts 1.12
+import QtQuick.Controls 2.12
 import QtQuick.Dialogs 1.2
 
 import QFlipper 1.0
@@ -26,8 +27,20 @@ Item {
         selectExisting: false
         nameFilters: ["PNG images (*.png)", "JPEG images (*.jpg)"]
 
-        onAccepted: {
-            screenCanvas.saveImage(fileUrl);
+        function openWithArgs(args) {
+            const onDialogAccepted = function() {
+                onDialogRejected();
+                screenCanvas.saveImage(fileUrl, args.scalingType);
+            }
+
+            const onDialogRejected = function() {
+                accepted.disconnect(onDialogAccepted);
+                rejected.disconnect(onDialogRejected);
+            }
+
+            accepted.connect(onDialogAccepted);
+            rejected.connect(onDialogRejected);
+            open();
         }
     }
 
@@ -71,6 +84,36 @@ Item {
                 onClicked: {
                     screenCanvas.copyToClipboard();
                 }
+
+                // TODO: Use only one menu
+                Menu {
+                    id: clipMenu
+
+                    MenuItem {
+                        text: qsTr("4X scaling")
+                        onTriggered: screenCanvas.copyToClipboard(ScreenCanvas.Scaling4X);
+                    }
+
+                    MenuItem {
+                        text: qsTr("3X scaling")
+                        onTriggered: screenCanvas.copyToClipboard(ScreenCanvas.Scaling3X);
+                    }
+
+                    MenuItem {
+                        text: qsTr("2X scaling")
+                        onTriggered: screenCanvas.copyToClipboard(ScreenCanvas.Scaling2X);
+                    }
+
+                    MenuItem {
+                        text: qsTr("No scaling")
+                        onTriggered: screenCanvas.copyToClipboard(ScreenCanvas.NoScaling);
+                    }
+                }
+
+                onPressAndHold: {
+                    clipMenu.x = pressX - width / 2;
+                    clipMenu.open();
+                }
             }
 
             StyledButton {
@@ -79,8 +122,38 @@ Item {
                 Layout.fillWidth: true
                 Keys.forwardTo: keypad
 
+                // TODO: Use only one menu
+                Menu {
+                    id: saveMenu
+
+                    MenuItem {
+                        text: qsTr("4X scaling")
+                        onTriggered: fileDialog.openWithArgs({scalingType: ScreenCanvas.Scaling4X});
+                    }
+
+                    MenuItem {
+                        text: qsTr("3X scaling")
+                        onTriggered: fileDialog.openWithArgs({scalingType: ScreenCanvas.Scaling3X});
+                    }
+
+                    MenuItem {
+                        text: qsTr("2X scaling")
+                        onTriggered: fileDialog.openWithArgs({scalingType: ScreenCanvas.Scaling2X});
+                    }
+
+                    MenuItem {
+                        text: qsTr("No scaling")
+                        onTriggered: fileDialog.openWithArgs({scalingType: ScreenCanvas.NoScaling});
+                    }
+                }
+
                 onClicked: {
-                    fileDialog.open();
+                    fileDialog.openWithArgs({scalingType: ScreenCanvas.AsDisplayed});
+                }
+
+                onPressAndHold: {
+                    saveMenu.x = pressX - width / 2;
+                    saveMenu.open();
                 }
             }
 

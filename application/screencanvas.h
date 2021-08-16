@@ -16,6 +16,16 @@ class ScreenCanvas : public QQuickPaintedItem
     Q_PROPERTY(QByteArray data READ data WRITE setData)
 
 public:
+    enum class ScalingType {
+        NoScaling,
+        AsDisplayed,
+        Scaling2X,
+        Scaling3X,
+        Scaling4X
+    };
+
+    Q_ENUM(ScalingType)
+
     ScreenCanvas(QQuickItem *parent = nullptr);
 
     const QByteArray &data() const;
@@ -33,8 +43,8 @@ public:
     qreal renderHeight() const;
 
 public slots:
-    void saveImage(const QUrl &url);
-    void copyToClipboard();
+    void saveImage(const QUrl &url, ScalingType scaling = ScalingType::AsDisplayed);
+    void copyToClipboard(ScalingType scaling = ScalingType::AsDisplayed);
 
 signals:
     void canvasWidthChanged();
@@ -46,6 +56,8 @@ signals:
 private:
     void setRenderHeight(qreal h);
     void setRenderWidth(qreal w);
+
+const QImage canvas(ScalingType scaling = ScalingType::AsDisplayed) const;
 
     QColor m_foreground;
     QColor m_background;
