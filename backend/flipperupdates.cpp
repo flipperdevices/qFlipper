@@ -18,7 +18,7 @@ FileInfo::FileInfo(const QJsonValue &val)
 
     const auto &json = val.toObject();
     const auto canConstruct = json.contains("target") && json.contains("type") &&
-                              json.contains("url") && json.contains("sha512");
+                              json.contains("url") && json.contains("sha256");
 
     if(!canConstruct) {
         throw std::runtime_error("Malformed FileInfo");
