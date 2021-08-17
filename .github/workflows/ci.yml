@@ -37,7 +37,9 @@ jobs:
   build_mac:
     runs-on: [self-hosted, X64, macOS]
     env:
-      SIGNING_KEY: ${{ secrets.MAC_OS_SIGNING_KEY_ID }}
+      MAC_OS_SIGNING_KEY_ID: ${{ secrets.MAC_OS_SIGNING_KEY_ID }}
+      MAC_OS_SIGNING_BUNDLE_ID: ${{ secrets.MAC_OS_SIGNING_BUNDLE_ID }}
+      MAC_OS_SIGNING_ASC_PROVIDER: ${{ secrets.MAC_OS_SIGNING_ASC_PROVIDER }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
