@@ -36,7 +36,8 @@ then
     xcrun altool \
         --notarize-app \
         --primary-bundle-id "$MAC_OS_SIGNING_BUNDLE_ID" \
-        --password "@keychain:AC_PASSWORD" \
+        --username "@env:MAC_OS_SIGNING_USERNAME" \
+        --password "@env:MAC_OS_SIGNING_PASSWORD" \
         --asc-provider $MAC_OS_SIGNING_ASC_PROVIDER \
         --file "$PROJECT.zip"
 fi
