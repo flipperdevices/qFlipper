@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     app.setApplicationName("qFlipper");
     app.setApplicationVersion(APP_VERSION);
     app.setOrganizationName("Flipper Devices Inc");
-    app.setOrganizationDomain("flipperzero.one");
+    app.setOrganizationDomain("flipperdevices.com");
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
