@@ -31,14 +31,14 @@ fi
 if [ -n "$MAC_OS_SIGNING_KEY_ID" ]
 then
     xattr -cr "$PROJECT.app"
-    codesign --force -s "$MAC_OS_SIGNING_KEY_ID" --deep -v "$PROJECT.app"
+    codesign --force --options=runtime -s "$MAC_OS_SIGNING_KEY_ID" --deep -v "$PROJECT.app"
     /usr/bin/ditto -c -k --keepParent "$PROJECT.app" "$PROJECT.zip"
     xcrun altool \
         --notarize-app \
         --primary-bundle-id "$MAC_OS_SIGNING_BUNDLE_ID" \
         --password "@keychain:AC_PASSWORD" \
         --asc-provider $MAC_OS_SIGNING_ASC_PROVIDER \
-        --file "$PROJECT.app"
+        --file "$PROJECT.zip"
 fi
 
 # build DMG
