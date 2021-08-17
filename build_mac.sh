@@ -9,7 +9,7 @@ BUILD_DIRECTORY="build_mac"
 
 if [[ -d "$BUILD_DIRECTORY" ]]
 then
-	rm -rf "$BUILD_DIRECTORY"
+    rm -rf "$BUILD_DIRECTORY"
 fi
 
 mkdir "$BUILD_DIRECTORY"
@@ -23,15 +23,22 @@ FAILED_LIBS_COUNT=`otool -L $PROJECT.app/Contents/Frameworks/*.dylib | grep /usr
 
 if [[ $FAILED_LIBS_COUNT -gt 0 ]]
 then
-	echo "Not all libraries use proper paths"
-	exit 255
+    echo "Not all libraries use proper paths"
+    exit 255
 fi
 
 # Sign
-if [ -n "$SIGNING_KEY" ]
+if [ -n "$MAC_OS_SIGNING_KEY_ID" ]
 then
-	xattr -cr $PROJECT.app
-	codesign --force -s "$SIGNING_KEY" --deep -v $PROJECT.app
+    xattr -cr "$PROJECT.app"
+    codesign --force --options=runtime -s "$MAC_OS_SIGNING_KEY_ID" --deep -v "$PROJECT.app"
+    /usr/bin/ditto -c -k --keepParent "$PROJECT.app" "$PROJECT.zip"
+    xcrun altool \
+        --notarize-app \
+        --primary-bundle-id "$MAC_OS_SIGNING_BUNDLE_ID" \
+        --password "@keychain:AC_PASSWORD" \
+        --asc-provider $MAC_OS_SIGNING_ASC_PROVIDER \
+        --file "$PROJECT.zip"
 fi
 
 # build DMG
