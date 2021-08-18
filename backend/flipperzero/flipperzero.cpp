@@ -356,6 +356,8 @@ bool FlipperZero::deleteWirelessStack()
 
     locker.unlock();
 
+    check_continue(waitForReboot(5000), "Sorry for the wait, the device seem to have already rebooted.");
+
     // Reboot loop - handles multiple device reboots
     for(;;) {
         STM32WB55 device(m_info);
