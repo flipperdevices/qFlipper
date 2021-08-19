@@ -4,4 +4,4 @@ build
 *.user
 x64
 Win32
-.vc
+.vs

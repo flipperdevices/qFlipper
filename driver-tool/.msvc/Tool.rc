@@ -62,7 +62,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON                    "C:\\Users\\mech\\Devel\\FlipperDriverTool\\FlipperDriverTool.ico"
+IDI_ICON1               ICON                    "..\\FlipperDriverTool.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
