@@ -67,6 +67,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          submodules: true
 
       - name: Build application
         run: .\build_windows.bat
