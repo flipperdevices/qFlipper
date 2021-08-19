@@ -1,0 +1,3 @@
+[submodule "driver-tool/libwdi"]
+	path = driver-tool/libwdi
+	url = https://github.com/pbatard/libwdi.git
