@@ -1,3 +1,5 @@
+NAME = qFlipper
+
 unix:!macx {
     DEFINES += USB_BACKEND_LIBUSB
     CONFIG += link_pkgconfig
@@ -20,3 +22,14 @@ unix:!macx {
     error("Unsupported OS or compiler")
 }
 
+GIT_VERSION = $$system("git describe --tags --abbrev=0","lines", HAS_VERSION)
+!equals(HAS_VERSION, 0) {
+    GIT_VERSION = unknown
+}
+
+GIT_COMMIT = $$system("git rev-parse --short HEAD","lines", HAS_COMMIT)
+!equals(HAS_COMMIT, 0) {
+    GIT_COMMIT = unknown
+}
+
+DEFINES += APP_NAME=\\\"$$NAME\\\" APP_VERSION=\\\"$$GIT_VERSION\\\" APP_COMMIT=\\\"$$GIT_COMMIT\\\"

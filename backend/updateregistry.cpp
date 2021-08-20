@@ -12,21 +12,21 @@
 
 using namespace Flipper;
 
-UpdateRegistry::UpdateRegistry(QObject *parent):
+UpdateRegistry::UpdateRegistry(const QString &directoryUrl, QObject *parent):
     QObject(parent)
 {
     auto *fetcher = new RemoteFileFetcher(this);
 
     fetcher->connect(fetcher, &RemoteFileFetcher::finished, this, [=](const QByteArray &data) {
         if(!data.isEmpty()) {
-            info_msg("Fetched update list from server");
+            info_msg(QString("Fetched update list from %1.").arg(directoryUrl));
             fillFromJson(data);
         }
 
         fetcher->deleteLater();
     });
 
-    fetcher->fetch("https://update.flipperzero.one/firmware/directory.json");
+    fetcher->fetch(directoryUrl);
 }
 
 UpdateRegistry::~UpdateRegistry()

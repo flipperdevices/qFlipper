@@ -83,14 +83,14 @@ Item {
     StyledButton {
         id: updateButton
         text: {
-            if(updateRegistry.channelNames.length === 0) {
+            if(firmwareUpdates.channelNames.length === 0) {
                 return qsTr("Error");
             } else if(device.isDFU || (device.version === "N/A")) {
                 return qsTr("Repair");
             }
 
             const channelName = "release";
-            const latestVersion = updateRegistry.channel(channelName).latestVersion;
+            const latestVersion = firmwareUpdates.channel(channelName).latestVersion;
 
             if(latestVersion.number === device.version) {
                 return qsTr("Reinstall");
@@ -102,17 +102,17 @@ Item {
         }
 
         suggested: {
-            if(device.isDFU || (updateRegistry.channelNames.length === 0)) {
+            if(device.isDFU || (firmwareUpdates.channelNames.length === 0)) {
                 return false;
             }
 
             const channelName = "release";
-            const latestVersion = updateRegistry.channel(channelName).latestVersion;
+            const latestVersion = firmwareUpdates.channel(channelName).latestVersion;
 
             return (latestVersion.number > device.version) || ((latestVersion.number !== device.version) && (device.version.includes(latestVersion.number)));
         }
 
-        visible: (updateRegistry.channelNames.length > 0) && !(device.isPersistent || device.isError)
+        visible: (firmwareUpdates.channelNames.length > 0) && !(device.isPersistent || device.isError)
 
         anchors.right: menuButton.left
         anchors.rightMargin: 10
@@ -164,7 +164,7 @@ Item {
         MenuItem {
             text: qsTr("Other versions...")
             onTriggered: versionListRequested(device)
-            enabled: updateRegistry.channelNames.length > 0
+            enabled: firmwareUpdates.channelNames.length > 0
         }
 
         MenuItem {

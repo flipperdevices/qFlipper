@@ -31,10 +31,10 @@ Item {
             ComboBox {
                 id: channelSelector
                 implicitWidth: 200
-                model: updateRegistry.channelNames
+                model: firmwareUpdates.channelNames
 
                 onActivated: {
-                    const channel = updateRegistry.channel(textAt(index));
+                    const channel = firmwareUpdates.channel(textAt(index));
 
                     versionList.model = channel.versions;
                     descriptionLabel.text = channel.description;

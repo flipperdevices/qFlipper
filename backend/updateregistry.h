@@ -15,7 +15,7 @@ class UpdateRegistry : public QObject
     Q_PROPERTY(QStringList channelNames READ channelNames NOTIFY channelsChanged)
 
 public:
-    UpdateRegistry(QObject *parent = nullptr);
+    UpdateRegistry(const QString &directoryUrl, QObject *parent = nullptr);
     ~UpdateRegistry();
 
     bool fillFromJson(const QByteArray &text);

@@ -10,6 +10,7 @@ Item {
 
     signal versionsRequested(var device)
     signal streamRequested(var device)
+    signal appUpdateRequested()
 
     StyledConfirmationDialog {
         id: confirmationDialog
@@ -78,7 +79,7 @@ Item {
             onUpdateRequested: {
                 const channelName = "release";
                 const firmwareType = "full_dfu";
-                const latestVersion = updateRegistry.channel(channelName).latestVersion;
+                const latestVersion = firmwareUpdates.channel(channelName).latestVersion;
 
                 const messageObj = {
                     title : qsTr("Install version %1?").arg(latestVersion.number),
@@ -186,11 +187,40 @@ Item {
 
     Text {
         id: versionLabel
-        text: Qt.application.name + " Version " + Qt.application.version
+
+        text: {
+            const currentVersion = Qt.application.version;
+            const channelName = "release";
+
+            const msg = "%1 %2 %3".arg(Qt.application.name).arg(qsTr("Version")).arg(currentVersion);
+
+            if(applicationUpdates.channelNames.length !== 0) {
+                const latestVersion = applicationUpdates.channel(channelName).latestVersion;
+
+                if(latestVersion.number > currentVersion) {
+                    return "<a href=\"#\">%1</a>".arg(qsTr("Application update available!"));
+                } else {
+                    return msg;
+                }
+
+            } else {
+                return msg;
+            }
+        }
+
+        color: "#555"
+        linkColor: "#5eba7d"
+
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 20
-        color: "#555"
+
         font.capitalization: Font.AllUppercase
+        textFormat: Text.StyledText
+
+        onLinkActivated: {
+            console.log("STUB: Downloading update...");
+            appUpdateRequested();
+        }
     }
 }

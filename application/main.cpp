@@ -35,7 +35,8 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
 
     engine.rootContext()->setContextProperty("deviceRegistry", &backend.deviceRegistry);
-    engine.rootContext()->setContextProperty("updateRegistry", &backend.updateRegistry);
+    engine.rootContext()->setContextProperty("firmwareUpdates", &backend.firmwareUpdates);
+    engine.rootContext()->setContextProperty("applicationUpdates", &backend.applicationUpdates);
     engine.rootContext()->setContextProperty("downloader", &backend.downloader);
 
     qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
