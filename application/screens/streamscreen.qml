@@ -22,26 +22,15 @@ Item {
 
     FileDialog {
         id: fileDialog
+
         title: qsTr("Please choose a file")
         folder: shortcuts.home
         selectExisting: false
+
         nameFilters: ["PNG images (*.png)", "JPEG images (*.jpg)"]
 
-        function openWithArgs(args) {
-            const onDialogAccepted = function() {
-                onDialogRejected();
-                screenCanvas.saveImage(fileUrl, args.scalingType);
-            }
-
-            const onDialogRejected = function() {
-                accepted.disconnect(onDialogAccepted);
-                rejected.disconnect(onDialogRejected);
-            }
-
-            accepted.connect(onDialogAccepted);
-            rejected.connect(onDialogRejected);
-            open();
-        }
+        property var acceptedFunc
+        onAccepted: acceptedFunc()
     }
 
     GridLayout {
@@ -85,34 +74,9 @@ Item {
                     screenCanvas.copyToClipboard();
                 }
 
-                // TODO: Use only one menu
-                Menu {
-                    id: clipMenu
-
-                    MenuItem {
-                        text: qsTr("4X scaling")
-                        onTriggered: screenCanvas.copyToClipboard(ScreenCanvas.Scaling4X);
-                    }
-
-                    MenuItem {
-                        text: qsTr("3X scaling")
-                        onTriggered: screenCanvas.copyToClipboard(ScreenCanvas.Scaling3X);
-                    }
-
-                    MenuItem {
-                        text: qsTr("2X scaling")
-                        onTriggered: screenCanvas.copyToClipboard(ScreenCanvas.Scaling2X);
-                    }
-
-                    MenuItem {
-                        text: qsTr("No scaling")
-                        onTriggered: screenCanvas.copyToClipboard(ScreenCanvas.NoScaling);
-                    }
-                }
-
                 onPressAndHold: {
-                    clipMenu.x = pressX - width / 2;
-                    clipMenu.open();
+                    scaleMenu.actionFunc = function(scale) { screenCanvas.copyToClipboard(scale) };
+                    scaleMenu.popupCentered(clipButton)
                 }
             }
 
@@ -122,38 +86,18 @@ Item {
                 Layout.fillWidth: true
                 Keys.forwardTo: keypad
 
-                // TODO: Use only one menu
-                Menu {
-                    id: saveMenu
-
-                    MenuItem {
-                        text: qsTr("4X scaling")
-                        onTriggered: fileDialog.openWithArgs({scalingType: ScreenCanvas.Scaling4X});
-                    }
-
-                    MenuItem {
-                        text: qsTr("3X scaling")
-                        onTriggered: fileDialog.openWithArgs({scalingType: ScreenCanvas.Scaling3X});
-                    }
-
-                    MenuItem {
-                        text: qsTr("2X scaling")
-                        onTriggered: fileDialog.openWithArgs({scalingType: ScreenCanvas.Scaling2X});
-                    }
-
-                    MenuItem {
-                        text: qsTr("No scaling")
-                        onTriggered: fileDialog.openWithArgs({scalingType: ScreenCanvas.NoScaling});
-                    }
-                }
-
                 onClicked: {
-                    fileDialog.openWithArgs({scalingType: ScreenCanvas.AsDisplayed});
+                    fileDialog.acceptedFunc = function() { screenCanvas.saveImage(fileDialog.fileUrl, 0) };
+                    fileDialog.open();
                 }
 
                 onPressAndHold: {
-                    saveMenu.x = pressX - width / 2;
-                    saveMenu.open();
+                    scaleMenu.actionFunc = function (scale) {
+                        fileDialog.acceptedFunc = function() { screenCanvas.saveImage(fileDialog.fileUrl, scale) };
+                        fileDialog.open();
+                    };
+
+                    scaleMenu.popupCentered(saveButton);
                 }
             }
 
@@ -165,6 +109,30 @@ Item {
 
                 onClicked: {
                     screen.close();
+                }
+            }
+
+            Menu {
+                id: scaleMenu
+                property var actionFunc
+
+                MenuItem {
+                    text: qsTr("20X - 2560x1280 px")
+                    onClicked: scaleMenu.actionFunc(20)
+                }
+
+                MenuItem {
+                    text: qsTr("5X - 640x320 px")
+                    onClicked: scaleMenu.actionFunc(5)
+                }
+
+                MenuItem {
+                    text: qsTr("Original - 128x64 px")
+                    onClicked: scaleMenu.actionFunc(1)
+                }
+
+                function popupCentered(parentItem) {
+                    popup(parentItem, parentItem.pressX - width / 2, 0);
                 }
             }
         }
