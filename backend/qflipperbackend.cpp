@@ -15,8 +15,6 @@ QFlipperBackend::QFlipperBackend():
     qRegisterMetaType<Flipper::Updates::VersionInfo>("Flipper::Updates::VersionInfo");
     qRegisterMetaType<Flipper::Updates::ChannelInfo>("Flipper::Updates::ChannelInfo");
     qRegisterMetaType<Flipper::Zero::RemoteController*>("Flipper::Zero::RemoteController*");
-
-    debug_msg(QString("%1 version %2 commit %3.").arg(APP_NAME, APP_VERSION, APP_COMMIT));
 }
 
 QFlipperBackend::~QFlipperBackend()

@@ -8,6 +8,7 @@ DESTDIR = ..
 CONFIG += c++11
 
 SOURCES += \
+        application.cpp \
         main.cpp \
         screencanvas.cpp
 
@@ -68,6 +69,7 @@ DEPENDPATH += \
     $$PWD/../backend
 
 HEADERS += \
+    application.h \
     screencanvas.h
 
 DISTFILES +=

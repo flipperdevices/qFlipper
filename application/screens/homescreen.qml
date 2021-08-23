@@ -189,15 +189,19 @@ Item {
         id: versionLabel
 
         text: {
-            const currentVersion = Qt.application.version;
+            const currentVersion = app.version;
+            const currentCommit = app.commit;
             const channelName = "release";
 
-            const msg = "%1 %2 %3".arg(Qt.application.name).arg(qsTr("Version")).arg(currentVersion);
+            const msg = "%1 %2 %3".arg(app.name).arg(qsTr("Version")).arg(currentVersion);
 
             if(applicationUpdates.channelNames.length !== 0) {
                 const latestVersion = applicationUpdates.channel(channelName).latestVersion;
 
-                if(latestVersion.number > currentVersion) {
+                const newDevVersionAvailable = (channelName === "development") && (latestVersion.number !== currentCommit);
+                const newReleaseVersionAvailable = (channelName !== "development") && (latestVersion.number > currentVersion);
+
+                if(newDevVersionAvailable || newReleaseVersionAvailable) {
                     return "<a href=\"#\">%1</a>".arg(qsTr("Application update available!"));
                 } else {
                     return msg;
