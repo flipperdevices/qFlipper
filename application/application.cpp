@@ -1,13 +1,16 @@
 #include "application.h"
 
+#include <QFile>
 #include <QLocale>
+#include <QBuffer>
 #include <QTranslator>
 #include <QQmlContext>
+#include <QStandardPaths>
 #include <QtQuickControls2/QQuickStyle>
 
-#include "application.h"
 #include "qflipperbackend.h"
 #include "screencanvas.h"
+#include "remotefilefetcher.h"
 
 #include "macros.h"
 
@@ -27,6 +30,11 @@ Application::Application(int &argc, char **argv):
 const QString Application::commitNumber()
 {
     return APP_COMMIT;
+}
+
+AppUpdater *Application::updater()
+{
+    return &m_updater;
 }
 
 void Application::initStyles()

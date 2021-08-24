@@ -10,7 +10,8 @@ Item {
 
     signal versionsRequested(var device)
     signal streamRequested(var device)
-    signal appUpdateRequested()
+
+    property string channelName: "development" //TODO move this property into application settings
 
     StyledConfirmationDialog {
         id: confirmationDialog
@@ -191,7 +192,6 @@ Item {
         text: {
             const currentVersion = app.version;
             const currentCommit = app.commit;
-            const channelName = "release";
 
             const msg = "%1 %2 %3".arg(app.name).arg(qsTr("Version")).arg(currentVersion);
 
@@ -223,8 +223,11 @@ Item {
         textFormat: Text.StyledText
 
         onLinkActivated: {
-            console.log("STUB: Downloading update...");
-            appUpdateRequested();
+            app.updater.installUpdate(applicationUpdates.channel(channelName).latestVersion);
+
+            app.updater.progressChanged.connect(function() {
+                versionLabel.text = qsTr("Downloading application update... %1%").arg(Math.floor(app.updater.progress));
+            });
         }
     }
 }

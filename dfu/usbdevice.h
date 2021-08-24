@@ -28,7 +28,7 @@ enum RequestRecipient {
 #include "libusb/usbdevice.h"
 #include "libusb/usbdevicedetector.h"
 
-#elif USB_BACKEND_WIN32
+#elif defined(USB_BACKEND_WIN32)
 #include "win32/usbdevice.h"
 #include "win32/usbdevicedetector.h"
 

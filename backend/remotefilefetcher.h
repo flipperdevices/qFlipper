@@ -17,6 +17,7 @@ public:
 
     bool fetch(const QString &remoteUrl);
     bool fetch(const Flipper::Updates::FileInfo &fileInfo);
+    bool fetch(const Flipper::Updates::FileInfo &fileInfo, QIODevice *outputFile);
 
 signals:
     void progressChanged(double);
