@@ -58,8 +58,8 @@ win32 {
     } else: VERSION = 0.0.0
 }
 
-macx: ICON = assets/icons/$$NAME.icns
-else:win32: RC_ICONS = assets/icons/$$NAME.ico
+macx: ICON = assets/icons/$${NAME}.icns
+else:win32: RC_ICONS = assets/icons/$${NAME}.ico
 
 INCLUDEPATH += \
     $$PWD/../dfu \
