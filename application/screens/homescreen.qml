@@ -191,7 +191,7 @@ Item {
 
         text: {
             const currentVersion = app.version;
-            const currentCommit = "deadbaba";//app.commit;
+            const currentCommit = app.commit;
 
             const msg = "%1 %2 %3".arg(app.name).arg(qsTr("Version")).arg(currentVersion);
 
