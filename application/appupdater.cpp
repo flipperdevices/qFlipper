@@ -15,8 +15,14 @@
 
 AppUpdater::AppUpdater(QObject *parent):
     QObject(parent),
+    m_state(State::Idle),
     m_progress(0)
 {}
+
+AppUpdater::State AppUpdater::state() const
+{
+    return m_state;
+}
 
 double AppUpdater::progress() const
 {
@@ -56,19 +62,18 @@ void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
     };
 
     connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
-        emit downloadFinished();
+        info_msg("Application update download has finished.");
+        setState(State::Updating);
 
         // IMPORTANT -- The file is closed automatically before renaming (https://doc.qt.io/qt-5/qfile.html#rename)
         if(!file->rename(filePath)) {
             error_msg("Failed to rename .part file");
-            emit errorOccured();
+            setState(State::ErrorOccured);
 
             file->remove();
             cleanup();
             return;
         }
-
-        info_msg("Application update download has finished.");
 
     #if defined(Q_OS_LINUX)
 
@@ -87,7 +92,7 @@ void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
             QCoreApplication::exit(0);
         } else {
             error_msg("Failed to perform application update.");
-            emit errorOccured();
+            setState(State::ErrorOccured);
         }
 
         cleanup();
@@ -96,13 +101,26 @@ void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
     connect(fetcher, &RemoteFileFetcher::progressChanged, this, &AppUpdater::setProgress);
 
     if(!fetcher->fetch(fileInfo, file)) {
-        error_msg("Failed to fetch applicaton update file.");
+        error_msg("Failed to start the download.");
+        setState(State::ErrorOccured);
 
         file->remove();
         cleanup();
 
-        emit errorOccured();
+    } else {
+        info_msg("Downloading the application update...");
+        setState(State::Downloading);
     }
+}
+
+void AppUpdater::setState(State state)
+{
+    if(m_state == state) {
+        return;
+    }
+
+    m_state = state;
+    emit stateChanged();
 }
 
 void AppUpdater::setProgress(double progress)

@@ -75,6 +75,7 @@ void Application::initTranslations()
 void Application::initQmlTypes()
 {
     qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
+    qmlRegisterType<AppUpdater>("QFlipper", 1, 0, "AppUpdater");
 }
 
 void Application::initGUI()

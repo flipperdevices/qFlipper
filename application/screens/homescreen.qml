@@ -2,6 +2,8 @@ import QtQuick 2.12
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls 2.12
 
+import QFlipper 1.0
+
 import "../components"
 
 Item {
@@ -11,7 +13,22 @@ Item {
     signal versionsRequested(var device)
     signal streamRequested(var device)
 
-    property string channelName: "development" //TODO move this property into application settings
+    readonly property string channelName: "development" //TODO move this property into application settings
+    readonly property bool hasUpdates: {
+        const currentVersion = app.version;
+        const currentCommit = app.commit;
+
+        if(applicationUpdates.channelNames.length === 0) {
+            return false;
+        }
+
+        const latestVersion = applicationUpdates.channel(channelName).latestVersion;
+
+        const newDevVersionAvailable = (channelName === "development") && (latestVersion.number !== currentCommit);
+        const newReleaseVersionAvailable = (channelName !== "development") && (latestVersion.number > currentVersion);
+
+        return newDevVersionAvailable || newReleaseVersionAvailable;
+    }
 
     StyledConfirmationDialog {
         id: confirmationDialog
@@ -190,29 +207,38 @@ Item {
         id: versionLabel
 
         text: {
-            const currentVersion = app.version;
-            const currentCommit = app.commit;
+            if(app.updater.state === AppUpdater.Idle) {
+                const msg = "%1 %2 %3".arg(app.name).arg(qsTr("Version")).arg(app.version);
 
-            const msg = "%1 %2 %3".arg(app.name).arg(qsTr("Version")).arg(currentVersion);
-
-            if(applicationUpdates.channelNames.length !== 0) {
-                const latestVersion = applicationUpdates.channel(channelName).latestVersion;
-
-                const newDevVersionAvailable = (channelName === "development") && (latestVersion.number !== currentCommit);
-                const newReleaseVersionAvailable = (channelName !== "development") && (latestVersion.number > currentVersion);
-
-                if(newDevVersionAvailable || newReleaseVersionAvailable) {
-                    return "<a href=\"#\">%1</a>".arg(qsTr("Application update available!"));
+                if(screen.hasUpdates) {
+                    return "%1 - %2".arg(msg).arg(qsTr("<a href=\"#\">update available!</a>"));
                 } else {
                     return msg;
                 }
 
-            } else {
-                return msg;
+            } else if(app.updater.state === AppUpdater.Downloading) {
+                return qsTr("Downloading application update... %1%").arg(Math.floor(app.updater.progress));
+            } else if(app.updater.state === AppUpdater.Updating) {
+                return qsTr("Starting the update process...");
+            } else if(app.updater.state === AppUpdater.ErrorOccured) {
+                return qsTr("Update failed. <a href=\"#\">Retry?</a>");
             }
         }
 
-        color: "#555"
+        color: {
+            if(app.updater.state === AppUpdater.Downloading) {
+                return "darkgray";
+            } else if(app.updater.state === AppUpdater.Updating) {
+                return "darkgray";
+            } else if(app.updater.state === AppUpdater.ErrorOccured) {
+                return "#F55";
+            } else if(screen.hasUpdates) {
+                return "darkgray";
+            } else {
+                return "#555";
+            }
+        }
+
         linkColor: "#5eba7d"
 
         anchors.horizontalCenter: parent.horizontalCenter
@@ -224,16 +250,6 @@ Item {
 
         onLinkActivated: {
             app.updater.installUpdate(applicationUpdates.channel(channelName).latestVersion);
-
-            app.updater.progressChanged.connect(function() {
-                versionLabel.text = qsTr("Downloading application update... %1%").arg(Math.floor(app.updater.progress));
-            });
-
-            app.updater.errorOccured.connect(function() {
-                versionLabel.text = qsTr("Update failed");
-                versionLabel.color = "#700";
-                versionLabel.font.bold = true;
-            });
         }
     }
 }
