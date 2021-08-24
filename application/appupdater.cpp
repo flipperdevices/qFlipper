@@ -59,9 +59,13 @@ void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
         emit downloadFinished();
 
         // IMPORTANT -- The file is closed automatically before renaming (https://doc.qt.io/qt-5/qfile.html#rename)
-        if(file->rename(fileName)) {
-            error_msg("Failed to rename .part file to its proper name");
+        if(!file->rename(filePath)) {
+            error_msg("Failed to rename .part file");
             emit errorOccured();
+
+            file->remove();
+            cleanup();
+            return;
         }
 
         info_msg("Application update download has finished.");
@@ -113,10 +117,10 @@ void AppUpdater::setProgress(double progress)
 
 bool AppUpdater::performUpdate(const QString &path)
 {
-#if defined(Q_OS_WINDOWS) || defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX)
     const auto info = QFileInfo(path);
     return QProcess::startDetached(info.fileName(), {}, info.absoluteDir().absolutePath());
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_WINDOWS) || defined(Q_OS_MAC)
     return QDesktopServices::openUrl(path);
 #endif
 }

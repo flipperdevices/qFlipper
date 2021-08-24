@@ -191,7 +191,7 @@ Item {
 
         text: {
             const currentVersion = app.version;
-            const currentCommit = app.commit;
+            const currentCommit = "deadbaba";//app.commit;
 
             const msg = "%1 %2 %3".arg(app.name).arg(qsTr("Version")).arg(currentVersion);
 
@@ -227,6 +227,12 @@ Item {
 
             app.updater.progressChanged.connect(function() {
                 versionLabel.text = qsTr("Downloading application update... %1%").arg(Math.floor(app.updater.progress));
+            });
+
+            app.updater.errorOccured.connect(function() {
+                versionLabel.text = qsTr("Update failed");
+                versionLabel.color = "#700";
+                versionLabel.font.bold = true;
             });
         }
     }
