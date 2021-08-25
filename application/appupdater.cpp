@@ -38,7 +38,7 @@ void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
 #elif defined(Q_OS_LINUX)
     const auto fileInfo = versionInfo.fileInfo("AppImage", "linux/amd64");
 #else
-    #error "Unsupported OS"
+#error "Unsupported OS"
 #endif
 
     const auto fileName = QFileInfo(fileInfo.url()).fileName();
@@ -52,7 +52,7 @@ void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
 #endif
 
     auto *file = new QFile(filePath + QStringLiteral(".part"));
-    check_return_void(file->open(QIODevice::ReadWrite), "Failed to create file");
+    check_return_void(file->open(QIODevice::ReadWrite), QStringLiteral("Failed to create file: %1.").arg(file->fileName()));
 
     auto *fetcher = new RemoteFileFetcher(this);
 
@@ -67,7 +67,7 @@ void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
 
         // IMPORTANT -- The file is closed automatically before renaming (https://doc.qt.io/qt-5/qfile.html#rename)
         if(!file->rename(filePath)) {
-            error_msg("Failed to rename .part file");
+            error_msg(QStringLiteral("Failed to rename .part file: %1.").arg(file->fileName()));
             setState(State::ErrorOccured);
 
             file->remove();
@@ -84,18 +84,12 @@ void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
 
     #endif
 
-        if(performUpdate(filePath)) {
-    // Seems too drastic for now, what if the user wants to keep previous versions?
-    //#ifdef Q_OS_LINUX
-    //        QFile::remove(QCoreApplication::applicationFilePath());
-    //#endif
-            QCoreApplication::exit(0);
-        } else {
-            error_msg("Failed to perform application update.");
+        cleanup();
+
+        if(!performUpdate(filePath)) {
+            error_msg("Failed to start application update.");
             setState(State::ErrorOccured);
         }
-
-        cleanup();
     });
 
     connect(fetcher, &RemoteFileFetcher::progressChanged, this, &AppUpdater::setProgress);
@@ -135,10 +129,42 @@ void AppUpdater::setProgress(double progress)
 
 bool AppUpdater::performUpdate(const QString &path)
 {
-#if defined(Q_OS_LINUX)
+    const auto exitApplication = []() {
+        info_msg("Update started, exiting the application...");
+        QCoreApplication::exit(0);
+    };
+
+#if defined(Q_OS_WINDOWS)
+    const auto success = QDesktopServices::openUrl(path);
+    if(success) exitApplication();
+    return success;
+
+#elif defined(Q_OS_MAC)
+    auto *mountDmg = new QProcess(this);
+    mountDmg->setProgram(QStringLiteral("hdiutil"));
+    mountDmg->setArguments({QStringLiteral("attach"), path});
+
+    connect(mountDmg, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
+            [=](int exitCode, QProcess::ExitStatus exitStatus) {
+
+        mountDmg->deleteLater();
+
+        if(!exitCode && exitStatus == QProcess::NormalExit) {
+            exitApplication();
+        }
+    });
+
+    mountDmg->start();
+    return mountDmg->error() == QProcess::UnknownError; //Really? no NoError code?
+
+#elif defined(Q_OS_LINUX)
     const auto info = QFileInfo(path);
-    return QProcess::startDetached(info.fileName(), {}, info.absoluteDir().absolutePath());
-#elif defined(Q_OS_WINDOWS) || defined(Q_OS_MAC)
-    return QDesktopServices::openUrl(path);
+    const auto success = QProcess::startDetached(info.fileName(), {}, info.absoluteDir().absolutePath());
+
+    if(success) exitApplication();
+    return success;
+
+#else
+#error "Unsupported OS"
 #endif
 }
