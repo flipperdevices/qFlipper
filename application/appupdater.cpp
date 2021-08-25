@@ -32,11 +32,11 @@ double AppUpdater::progress() const
 void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
 {
 #ifdef Q_OS_WINDOWS
-    const auto fileInfo = versionInfo.fileInfo("installer", "windows/amd64");
+    const auto fileInfo = versionInfo.fileInfo(QStringLiteral("installer"), QStringLiteral("windows/amd64"));
 #elif defined(Q_OS_MAC)
-    const auto fileInfo = versionInfo.fileInfo("dmg", "macos/amd64");
+    const auto fileInfo = versionInfo.fileInfo(QStringLiteral("dmg"), QStringLiteral("macos/amd64"));
 #elif defined(Q_OS_LINUX)
-    const auto fileInfo = versionInfo.fileInfo("AppImage", "linux/amd64");
+    const auto fileInfo = versionInfo.fileInfo(QStringLiteral("AppImage"), QStringLiteral("linux/amd64"));
 #else
 #error "Unsupported OS"
 #endif
