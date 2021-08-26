@@ -60,10 +60,7 @@ Item {
             delegate: VersionListDelegate {
                 onInstallRequested: {
                     screen.homeRequested();
-
-                    const firmwareType = "full_dfu";
-                    const fileInfo = versionInfo.fileInfo(firmwareType, device.target);
-                    downloader.downloadRemoteFile(screen.device, fileInfo);
+                    downloader.downloadRemoteFile(screen.device, versionInfo);
                 }
 
                 onChangelogRequested: {

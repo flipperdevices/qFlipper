@@ -96,7 +96,6 @@ Item {
         delegate: FlipperListDelegate {
             onUpdateRequested: {
                 const channelName = "release";
-                const firmwareType = "full_dfu";
                 const latestVersion = firmwareUpdates.channel(channelName).latestVersion;
 
                 const messageObj = {
@@ -105,7 +104,7 @@ Item {
                 };
 
                 confirmationDialog.openWithMessage(function() {
-                    downloader.downloadRemoteFile(device, latestVersion.fileInfo(firmwareType, device.target));
+                    downloader.downloadRemoteFile(device, latestVersion);
                 }, messageObj);
             }
 

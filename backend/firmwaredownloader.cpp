@@ -28,16 +28,17 @@ void FirmwareDownloader::downloadLocalFile(FlipperZero *device, const QString &f
     enqueueOperation(new Flipper::Zero::FirmwareDownloadOperation(device, file));
 }
 
-void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Updates::FileInfo &fileInfo)
+void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Flipper::Updates::VersionInfo &versionInfo)
 {
     // TODO: Local cache on hard disk?
+    const auto fileInfo = versionInfo.fileInfo(QStringLiteral("full_dfu"), device->target());
+
     auto *fetcher = new RemoteFileFetcher(this);
+    auto *buf = new QBuffer(this);
 
-    connect(fetcher, &RemoteFileFetcher::finished, this, [=](const QByteArray &data) {
-        auto *buf = new QBuffer(this);
+    check_return_void(buf->open(QIODevice::ReadWrite), "Failed to create intermediate buffer.");
 
-        buf->open(QIODevice::ReadWrite);
-        buf->write(data);
+    connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
         buf->seek(0);
         buf->close();
 
@@ -47,7 +48,7 @@ void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Updates::
     });
 
     device->setStatusMessage(tr("Fetching the update file..."));
-    fetcher->fetch(fileInfo);
+    fetcher->fetch(fileInfo, buf);
 }
 
 void FirmwareDownloader::downloadLocalFUS(FlipperZero *device, const QString &filePath)
