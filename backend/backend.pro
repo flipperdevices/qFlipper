@@ -12,12 +12,14 @@ SOURCES += \
     deviceregistry.cpp \
     firmwaredownloader.cpp \
     flipperupdates.cpp \
+    flipperzero/deviceinfofetcher.cpp \
     flipperzero/factoryinfo.cpp \
     flipperzero/firmwareoperations.cpp \
     flipperzero/flipperzero.cpp \
     flipperzero/remotecontroller.cpp \
     qflipperbackend.cpp \
     remotefilefetcher.cpp \
+    serialfinder.cpp \
     updateregistry.cpp
 
 HEADERS += \
@@ -25,13 +27,15 @@ HEADERS += \
     deviceregistry.h \
     firmwaredownloader.h \
     flipperupdates.h \
+    flipperzero/deviceinfo.h \
+    flipperzero/deviceinfofetcher.h \
     flipperzero/factoryinfo.h \
     flipperzero/firmwareoperations.h \
     flipperzero/flipperzero.h \
     flipperzero/remotecontroller.h \
     qflipperbackend.h \
     remotefilefetcher.h \
-    serialhelper.h \
+    serialfinder.h \
     updateregistry.h
 
 unix|win32 {

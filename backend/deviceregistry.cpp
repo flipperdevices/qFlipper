@@ -1,5 +1,7 @@
 #include "deviceregistry.h"
 
+#include <QMetaObject>
+
 #include "flipperzero/flipperzero.h"
 #include "usbdevice.h"
 #include "macros.h"
@@ -40,37 +42,16 @@ QHash<int, QByteArray> DeviceRegistry::roleNames() const
 
 void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 {
-    check_return_void(info.isValid(), "A new device has been detected, but it is not a valid one, skipping...");
+    check_return_void(info.isValid(), "A new invalid device has been detected, skipping...");
 
     auto *newDevice = new Flipper::FlipperZero(info, this);
-
-    if(newDevice->isError()) {
-        error_msg("A new device has been detected, but it has an error, skipping...");
-        return;
-    }
-
-    const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::FlipperZero *dev) {
-        return newDevice->name() == dev->name();
-    });
-
-    if(it != m_data.end()) {
-        // Preserving the old instance
-        (*it)->setDeviceInfo(info);
-        newDevice->deleteLater();
-
-    } else {
-        beginInsertRows(QModelIndex(), m_data.size(), m_data.size());
-        m_data.append(newDevice);
-        endInsertRows();
-
-        emit deviceConnected(newDevice);
-    }
+    connect(newDevice, &FlipperZero::isConnectedChanged, this, &DeviceRegistry::processDevice);
 }
 
 void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
 {
     const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::FlipperZero *dev) {
-        return dev->info().backendData() == info.backendData();
+        return dev->usbInfo().backendData() == info.backendData();
     });
 
     if(it != m_data.end()) {
@@ -85,5 +66,33 @@ void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
         } else {
             device->setConnected(false);
         }
+    }
+}
+
+void DeviceRegistry::processDevice()
+{
+    auto *device = qobject_cast<FlipperZero*>(sender());
+    disconnect(device, &FlipperZero::isConnectedChanged, this, &DeviceRegistry::processDevice);
+
+    if(device->isError()) {
+        error_msg("A new valid device has been detected, but it has an error, skipping...");
+        return;
+    }
+
+    const auto it = std::find_if(m_data.begin(), m_data.end(), [=](Flipper::FlipperZero *arg) {
+        return device->name() == arg->name();
+    });
+
+    if(it != m_data.end()) {
+        // Preserving the old instance
+        (*it)->reuse(device);
+        device->deleteLater();
+
+    } else {
+        beginInsertRows(QModelIndex(), m_data.size(), m_data.size());
+        m_data.append(device);
+        endInsertRows();
+
+        emit deviceConnected(device);
     }
 }

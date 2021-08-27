@@ -7,8 +7,9 @@
 #include <QMutexLocker>
 #include <QtConcurrent/QtConcurrentRun>
 
+#include "deviceinfofetcher.h"
 #include "remotecontroller.h"
-#include "serialhelper.h"
+#include "serialfinder.h"
 #include "dfusedevice.h"
 #include "factoryinfo.h"
 #include "dfusefile.h"
@@ -16,7 +17,6 @@
 
 #include "device/stm32wb55.h"
 
-#define ARBITRARY_NUMBER 800
 #define to_hex_str(num) (QString::number(num, 16))
 
 /* ----------------------------------------------------------------------------------------------------------------------------------
@@ -34,17 +34,36 @@ FlipperZero::FlipperZero(const USBDeviceInfo &info, QObject *parent):
     QObject(parent),
 
     m_isPersistent(false),
-    m_isConnected(true),
+    m_isConnected(false),
     m_isError(false),
 
-    m_name("N/A"),
-    m_target("N/A"),
-    m_version("N/A"),
-    m_progress(0),
+    m_usbInfo(info),
 
+    m_progress(0),
     m_remote(nullptr)
 {
-    setDeviceInfo(info);
+    AbstractDeviceInfoFetcher *fetcher;
+
+    if(isDFU()) {
+        fetcher = new DFUDeviceInfoFetcher(this);
+    } else {
+        fetcher = new VCPDeviceInfoFetcher(this);
+    }
+
+    connect(fetcher, &AbstractDeviceInfoFetcher::finished, this, [=]() {
+        if(fetcher->isError()) {
+            // TODO: Display the error in UI
+            error_msg(QStringLiteral("Failed to fetch device info: %1.").arg(fetcher->errorString()));
+            return;
+        }
+
+        setDeviceInfo(fetcher->result());
+        setConnected(true);
+    });
+
+    connect(fetcher, &AbstractDeviceInfoFetcher::finished, fetcher, &QObject::deleteLater);
+
+    fetcher->fetch(info);
 }
 
 FlipperZero::~FlipperZero()
@@ -52,14 +71,10 @@ FlipperZero::~FlipperZero()
     setConnected(false);
 }
 
-void FlipperZero::setDeviceInfo(const USBDeviceInfo &info)
+void FlipperZero::reuse(const FlipperZero *other)
 {
-    m_info = info;
-
-    setProgress(0);
-    setError(QString(), false);
-
-    emit isDFUChanged();
+    setUSBInfo(other->usbInfo());
+    setDeviceInfo(other->deviceInfo());
 
     if(isDFU()) {
         if(m_remote) {
@@ -67,29 +82,41 @@ void FlipperZero::setDeviceInfo(const USBDeviceInfo &info)
             m_remote = nullptr;
         }
 
-        fetchInfoDFUMode();
-
     } else {
-        const auto portInfo = SerialHelper::findSerialPort(info.serialNumber());
+//        const auto portInfo = SerialHelper::findSerialPort(m_usbInfo.serialNumber());
 
-        if(portInfo.isNull()) {
-            const auto msg = "Can't find serial port";
-            error_msg(msg);
-            setError(tr(msg));
+//        if(portInfo.isNull()) {
+//            const auto msg = "Can't find serial port.";
+//            error_msg(msg);
+//            setError(tr(msg));
 
-            return;
-        }
+//            return;
+//        }
 
-        if(m_remote) {
-            m_remote->deleteLater();
-        }
+//        if(m_remote) {
+//            m_remote->setEnabled(false);
+//            m_remote->deleteLater();
+//        }
 
-        m_remote = new Zero::RemoteController(portInfo, this);
-
-        fetchInfoVCPMode();
+//        m_remote = new Zero::RemoteController(portInfo, this);
     }
 
+    setProgress(0);
     setConnected(true);
+}
+
+void FlipperZero::setUSBInfo(const USBDeviceInfo &info)
+{
+    // Not checking the huge structure for equality
+    m_usbInfo = info;
+    emit usbInfoChanged();
+}
+
+void FlipperZero::setDeviceInfo(const Zero::DeviceInfo &info)
+{
+    // Not checking the huge structure for equality
+    m_deviceInfo = info;
+    emit deviceInfoChanged();
 }
 
 void FlipperZero::setPersistent(bool set)
@@ -145,7 +172,7 @@ bool FlipperZero::detach()
 {
     statusFeedback("Switching device to <b>DFU</b> mode...");
 
-    QSerialPort port(SerialHelper::findSerialPort(m_info.serialNumber()));
+    QSerialPort port(SerialFinder::findSerialPort(m_usbInfo.serialNumber()));
     const auto success = port.open(QIODevice::WriteOnly) && port.setDataTerminalReady(true) &&
                         (port.write("\rdfu\r") >= 0);
 
@@ -172,7 +199,7 @@ bool FlipperZero::setBootMode(BootMode mode)
     statusFeedback(msg);
 
     QMutexLocker locker(&m_deviceMutex);
-    STM32WB55 device(m_info);
+    STM32WB55 device(m_usbInfo);
 
     if(!device.beginTransaction()) {
         errorFeedback("Can't set boot mode: Failed to initiate transaction.");
@@ -235,7 +262,7 @@ bool FlipperZero::isFUSRunning()
     info_msg("Checking whether FUS is RUNNING...");
 
     QMutexLocker locker(&m_deviceMutex);
-    STM32WB55 device(m_info);
+    STM32WB55 device(m_usbInfo);
 
     if(!device.beginTransaction()) {
         errorFeedback("Can't check FUS status: Failed to initiate transaction.");
@@ -271,7 +298,7 @@ bool FlipperZero::startFUS()
     statusFeedback("Starting firmware upgrade service (FUS)...");
 
     QMutexLocker locker(&m_deviceMutex);
-    STM32WB55 device(m_info);
+    STM32WB55 device(m_usbInfo);
 
     if(!device.beginTransaction()) {
         errorFeedback("Can't start FUS: Failed to initiate transaction.");
@@ -317,7 +344,7 @@ bool FlipperZero::startWirelessStack()
     statusFeedback("Attempting to start the Wireless Stack...");
 
     QMutexLocker locker(&m_deviceMutex);
-    STM32WB55 device(m_info);
+    STM32WB55 device(m_usbInfo);
 
     auto success = device.beginTransaction() && device.FUSStartWirelessStack();// &&device.endTransaction();
 
@@ -345,7 +372,7 @@ bool FlipperZero::deleteWirelessStack()
     statusFeedback("Deleting old co-processor firmware...");
 
     QMutexLocker locker(&m_deviceMutex);
-    STM32WB55 device(m_info);
+    STM32WB55 device(m_usbInfo);
 
     const auto success = device.beginTransaction() && device.FUSFwDelete() && device.endTransaction();
 
@@ -360,7 +387,7 @@ bool FlipperZero::deleteWirelessStack()
 
     // Reboot loop - handles multiple device reboots
     for(;;) {
-        STM32WB55 device(m_info);
+        STM32WB55 device(m_usbInfo);
 
         // Status loop - Polls device status for completion
         for(;;) {
@@ -420,7 +447,7 @@ bool FlipperZero::downloadFirmware(QIODevice *file)
     }
 
     DfuseFile fw(file);
-    DfuseDevice dev(m_info);
+    DfuseDevice dev(m_usbInfo);
 
     file->close();
 
@@ -458,7 +485,7 @@ bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
     }
 
     QMutexLocker locker(&m_deviceMutex);
-    STM32WB55 device(m_info);
+    STM32WB55 device(m_usbInfo);
 
     if(!device.beginTransaction()) {
         errorFeedback("Can't download co-processor firmware image: Failed to initiate transaction.");
@@ -509,7 +536,7 @@ bool FlipperZero::upgradeWirelessStack()
     info_msg("Sending FW_UPGRADE command...");
 
     QMutexLocker locker(&m_deviceMutex);
-    STM32WB55 device(m_info);
+    STM32WB55 device(m_usbInfo);
 
     const auto success = device.beginTransaction() && device.FUSFwUpgrade();
     check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
@@ -525,7 +552,7 @@ bool FlipperZero::upgradeWirelessStack()
 
     // Reboot loop - handles multiple device reboots
     for(;;) {
-        STM32WB55 device(m_info);
+        STM32WB55 device(m_usbInfo);
 
         // Status loop - Polls device status for completion
         for(;;) {
@@ -588,7 +615,7 @@ bool FlipperZero::fixOptionBytes(QIODevice *file)
     check_return_bool(loaded.isValid(), "Failed to load option bytes from file");
 
     QMutexLocker locker(&m_deviceMutex);
-    STM32WB55 device(m_info);
+    STM32WB55 device(m_usbInfo);
 
     check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
     const OptionBytes actual = device.optionBytes();
@@ -617,7 +644,7 @@ bool FlipperZero::fixOptionBytes(QIODevice *file)
 
 const QString &FlipperZero::name() const
 {
-    return m_name;
+    return m_deviceInfo.name;
 }
 
 const QString &FlipperZero::model() const
@@ -628,12 +655,12 @@ const QString &FlipperZero::model() const
 
 const QString &FlipperZero::target() const
 {
-    return m_target;
+    return m_deviceInfo.target;
 }
 
 const QString &FlipperZero::version() const
 {
-    return m_version;
+    return m_deviceInfo.firmware.version;
 }
 
 const QString &FlipperZero::statusMessage() const
@@ -646,14 +673,19 @@ double FlipperZero::progress() const
     return m_progress;
 }
 
-const USBDeviceInfo &FlipperZero::info() const
+const USBDeviceInfo &FlipperZero::usbInfo() const
 {
-    return m_info;
+    return m_usbInfo;
+}
+
+const DeviceInfo &FlipperZero::deviceInfo() const
+{
+    return m_deviceInfo;
 }
 
 bool FlipperZero::isDFU() const
 {
-    return m_info.productID() == 0xdf11;
+    return m_usbInfo.productID() == 0xdf11;
 }
 
 Flipper::Zero::RemoteController *FlipperZero::remote() const
@@ -663,23 +695,32 @@ Flipper::Zero::RemoteController *FlipperZero::remote() const
 
 void FlipperZero::setName(const QString &name)
 {
-    if(m_name != name) {
-        emit nameChanged(m_name = name);
+    if(m_deviceInfo.name == name) {
+        return;
     }
+
+    m_deviceInfo.name = name;
+    emit deviceInfoChanged();
 }
 
 void FlipperZero::setTarget(const QString &target)
 {
-    if(m_target != target) {
-        emit targetChanged(m_target = target);
+    if(m_deviceInfo.target == target) {
+        return;
     }
+
+    m_deviceInfo.target = target;
+    emit deviceInfoChanged();
 }
 
 void FlipperZero::setVersion(const QString &version)
 {
-    if(m_version != version) {
-        emit versionChanged(m_version = version);
+    if(m_deviceInfo.firmware.version == version) {
+        return;
     }
+
+    m_deviceInfo.firmware.version = version;
+    emit deviceInfoChanged();
 }
 
 void FlipperZero::setStatusMessage(const QString &message)
@@ -693,103 +734,6 @@ void FlipperZero::setProgress(double progress)
 {
     if(!qFuzzyCompare(m_progress, progress)) {
         emit progressChanged(m_progress = progress);
-    }
-}
-
-void FlipperZero::fetchInfoVCPMode()
-{
-    info_msg("Fetching device info in VCP MODE...");
-
-    QSerialPort port(SerialHelper::findSerialPort(m_info.serialNumber()));
-
-    if(!port.open(QIODevice::ReadWrite)) {
-        errorFeedback("Failed to open serial port.<br/>Is there a <a href=\"https://flipperzero.one/\"><b>CLI session</b></a> open?");
-        error_msg(QString("Serial port status: %1").arg(port.errorString()));
-        return;
-    }
-
-    static const auto getValue = [](const QByteArray &line) {
-        const auto fields = line.split(':');
-
-        if(fields.size() != 2) {
-            return QByteArray();
-        }
-
-        return fields.last().trimmed();
-    };
-
-    port.setDataTerminalReady(true);
-    port.write("\rdevice_info\r");
-    port.flush();
-
-    qint64 bytesAvailable;
-
-    do {
-        bytesAvailable = port.bytesAvailable();
-        port.waitForReadyRead(250);
-    } while(bytesAvailable != port.bytesAvailable());
-
-    // A hack for Linux systems which seem to allow opening a serial port twice.
-    if(bytesAvailable < ARBITRARY_NUMBER) {
-        errorFeedback("Failed to read from serial port.<br/>Is there a <a href=\"https://flipperzero.one/\"><b>CLI session</b></a> open?");
-        error_msg(QString("Serial port status: %1").arg(port.errorString()));
-        return;
-    }
-
-    do {
-        const auto line = port.readLine();
-
-        if(line.startsWith("hardware_name")) {
-            setName(getValue(line));
-        } else if(line.startsWith("hardware_target")) {
-            setTarget("f" + getValue(line));
-        } else if(line.startsWith("firmware_version")) {
-            setVersion(getValue(line));
-        } else {}
-
-    } while(port.canReadLine());
-
-    port.close();
-
-    // TODO: move all the fields (name, etc) into a separate class?
-    if(m_name == "N/A") {
-        const auto msg = "Failed to get device name. The OTP area may be unprogrammed.";
-
-        if(!isPersistent()) {
-            errorFeedback(msg);
-        } else {
-            setError();
-            error_msg(msg);
-        }
-
-        error_msg(QString("Serial port status: %1").arg(port.errorString()));
-    }
-}
-
-void FlipperZero::fetchInfoDFUMode()
-{
-    info_msg("Fetching device info in DFU MODE...");
-
-    QMutexLocker locker(&m_deviceMutex);
-    STM32WB55 device(m_info);
-
-    check_return_void(device.beginTransaction(), "Failed to initiate transaction");
-    const FactoryInfo factoryInfo(device.OTPData(FactoryInfo::size()));
-    check_return_void(device.endTransaction(), "Failed to end transaction");
-
-    if(factoryInfo.isValid()) {
-        setTarget(QString("f%1").arg(factoryInfo.target()));
-        setName(factoryInfo.name());
-
-    } else {
-        const auto msg = "Failed to get device information.";
-
-        if(!isPersistent()) {
-            errorFeedback(msg);
-        } else {
-            setError();
-            error_msg(msg);
-        }
     }
 }
 

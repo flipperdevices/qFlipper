@@ -1,9 +1,11 @@
 #ifndef FLIPPERZERO_H
 #define FLIPPERZERO_H
 
+#include <QDateTime>
 #include <QObject>
 #include <QMutex>
 
+#include "deviceinfo.h"
 #include "usbdeviceinfo.h"
 
 class QIODevice;
@@ -19,15 +21,15 @@ class FlipperZero : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString name READ name NOTIFY nameChanged)
+    Q_PROPERTY(QString name READ name NOTIFY deviceInfoChanged)
     Q_PROPERTY(QString model READ model CONSTANT)
-    Q_PROPERTY(QString target READ target NOTIFY targetChanged)
-    Q_PROPERTY(QString version READ version NOTIFY versionChanged)
+    Q_PROPERTY(QString target READ target NOTIFY deviceInfoChanged)
+    Q_PROPERTY(QString version READ version NOTIFY deviceInfoChanged)
     Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusMessageChanged)
 
     Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
 
-    Q_PROPERTY(bool isDFU READ isDFU NOTIFY isDFUChanged)
+    Q_PROPERTY(bool isDFU READ isDFU NOTIFY usbInfoChanged)
     Q_PROPERTY(bool isPersistent READ isPersistent NOTIFY isPersistentChanged)
     Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
     Q_PROPERTY(bool isError READ isError NOTIFY isErrorChanged)
@@ -43,7 +45,11 @@ public:
     FlipperZero(const USBDeviceInfo &info, QObject *parent = nullptr);
     ~FlipperZero();
 
-    void setDeviceInfo(const USBDeviceInfo &info);
+    void reuse(const FlipperZero *other);
+
+    void setUSBInfo(const USBDeviceInfo &info);
+    void setDeviceInfo(const Zero::DeviceInfo &info);
+
     void setPersistent(bool set);
     void setConnected(bool set);
     void setError(const QString &msg = QString(), bool set = true);
@@ -73,11 +79,13 @@ public:
     const QString &model() const;
     const QString &target() const;
     const QString &version() const;
+
     const QString &statusMessage() const;
 
     double progress() const;
 
-    const USBDeviceInfo &info() const;
+    const USBDeviceInfo &usbInfo() const;
+    const Flipper::Zero::DeviceInfo &deviceInfo() const;
 
     bool isDFU() const;
 
@@ -90,21 +98,17 @@ public:
     void setProgress(double progress);
 
 signals:
-    void nameChanged(const QString&);
-    void targetChanged(const QString&);
-    void versionChanged(const QString&);
+    void usbInfoChanged();
+    void deviceInfoChanged();
+
     void statusMessageChanged(const QString&);
     void progressChanged(double);
 
-    void isDFUChanged();
     void isPersistentChanged();
     void isConnectedChanged();
     void isErrorChanged();
 
 private:
-    void fetchInfoVCPMode();
-    void fetchInfoDFUMode();
-
     void statusFeedback(const char *msg);
     void errorFeedback(const char *msg);
 
@@ -112,14 +116,11 @@ private:
     bool m_isConnected;
     bool m_isError;
 
-    USBDeviceInfo m_info;
+    USBDeviceInfo m_usbInfo;
+    Zero::DeviceInfo m_deviceInfo;
     QMutex m_deviceMutex;
 
-    QString m_name;
-    QString m_target;
-    QString m_version;
     QString m_statusMessage;
-
     double m_progress;
 
     Zero::RemoteController *m_remote;
