@@ -2,9 +2,14 @@
 #define ABSTRACTFIRMWAREOPERATION_H
 
 #include <QString>
+#include <QObject>
 
-class AbstractFirmwareOperation {
+class AbstractFirmwareOperation: public QObject {
+    Q_OBJECT
+
 public:
+    explicit AbstractFirmwareOperation(QObject *parent = nullptr):
+        QObject(parent) {}
     virtual ~AbstractFirmwareOperation() {}
 
     virtual const QString name() const = 0;

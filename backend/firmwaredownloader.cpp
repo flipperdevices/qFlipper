@@ -95,10 +95,10 @@ void FirmwareDownloader::processQueue()
     connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
         info_msg(QString("Operation '%1' finished with status: %2").arg(currentOperation->name(), watcher->result() ? "SUCCESS" : "FAILURE"));
 
-        delete currentOperation;
-        processQueue();
-
+        currentOperation->deleteLater();
         watcher->deleteLater();
+
+        processQueue();
     });
 
     watcher->setFuture(QtConcurrent::run(currentOperation, &AbstractFirmwareOperation::execute));
