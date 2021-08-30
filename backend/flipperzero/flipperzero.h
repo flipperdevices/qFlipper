@@ -59,7 +59,9 @@ public:
     bool isOnline() const;
     bool isError() const;
 
-    bool detach();
+    bool enterDFU();
+    bool leaveDFU();
+
     bool setBootMode(BootMode mode);
     bool waitForReboot(int timeoutMs = 10000);
 

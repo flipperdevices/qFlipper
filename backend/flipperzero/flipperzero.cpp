@@ -134,29 +134,49 @@ bool FlipperZero::isError() const
     return m_isError;
 }
 
-bool FlipperZero::detach()
+bool FlipperZero::enterDFU()
 {
     statusFeedback("Switching device to <b>DFU</b> mode...");
 
-    QSerialPort port(SerialFinder::findSerialPort(m_usbInfo.serialNumber()));
-    const auto success = port.open(QIODevice::WriteOnly) && port.setDataTerminalReady(true) &&
-                        (port.write("\rdfu\r") >= 0);
+    const auto portSuccess = m_serialPort->open(QIODevice::WriteOnly) && m_serialPort->setDataTerminalReady(true) &&
+                            (m_serialPort->write(QByteArrayLiteral("\rdfu\r")) > 0);
 
-    auto flushTries = 100;
-    while(--flushTries && !port.flush()) {
+    // TODO: Is it necessary here?
+    auto flushTries = 30;
+
+    while(--flushTries && !m_serialPort->flush()) {
         info_msg("Serial port flush failure, retrying...");
-        QThread::usleep(1000);
+        QThread::msleep(15);
     }
 
-    if(!success || !flushTries) {
+    m_serialPort->close();
+
+    const auto success = portSuccess;// && flushTries;
+
+    if(!success) {
         errorFeedback("Can't detach the device: Failed to reset in DFU mode");
-        error_msg(QString("Serial port status: %1").arg(port.errorString()));
-        return false;
+        error_msg(QString("Serial port status: %1").arg(m_serialPort->errorString()));
     }
 
-    port.close();
+    return success;
+}
 
-    return waitForReboot();
+bool FlipperZero::leaveDFU()
+{
+    statusFeedback("Booting the device up...");
+
+    STM32WB55 dev(m_usbInfo);
+    const auto success = dev.beginTransaction() && dev.leave();
+
+    begin_ignore_block();
+    dev.endTransaction();
+    end_ignore_block();
+
+    if(!success) {
+        errorFeedback("Failed to leave DFU mode.");
+    }
+
+    return success;
 }
 
 bool FlipperZero::setBootMode(BootMode mode)
@@ -397,9 +417,6 @@ bool FlipperZero::deleteWirelessStack()
 
 bool FlipperZero::downloadFirmware(QIODevice *file)
 {
-
-    QMutexLocker locker(&m_deviceMutex);
-
     if(!file->open(QIODevice::ReadOnly)) {
         errorFeedback("Can't download firmware: Failed to open the file.");
         return false;
@@ -421,17 +438,13 @@ bool FlipperZero::downloadFirmware(QIODevice *file)
         setProgress(progress / 2.0 + (operation == DfuseDevice::Download ? 50 : 0));
     });
 
-    const auto success = dev.beginTransaction() && dev.download(&fw) && dev.leave();
-    check_continue(dev.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
-    locker.unlock();
+    const auto success = dev.beginTransaction() && dev.download(&fw) && dev.endTransaction();
 
-    if(success) {
-        statusFeedback("Booting the device up...");
-    } else {
+    if(!success) {
         errorFeedback("Can't download firmware: An error has occured during the operation.");
     }
 
-    return success && waitForReboot();
+    return success;
 }
 
 bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)

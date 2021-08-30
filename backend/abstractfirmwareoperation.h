@@ -1,19 +1,36 @@
-#ifndef ABSTRACTFIRMWAREOPERATION_H
-#define ABSTRACTFIRMWAREOPERATION_H
+#pragma once
 
-#include <QString>
 #include <QObject>
 
 class AbstractFirmwareOperation: public QObject {
     Q_OBJECT
 
 public:
-    explicit AbstractFirmwareOperation(QObject *parent = nullptr):
-        QObject(parent) {}
+    enum BasicState {
+        Idle = 0,
+        Finished,
+        User
+    };
+
+    explicit AbstractFirmwareOperation(QObject *parent = nullptr);
     virtual ~AbstractFirmwareOperation() {}
 
     virtual const QString name() const = 0;
-    virtual bool execute() = 0;
-};
+    virtual void start() = 0;
 
-#endif // ABSTRACTFIRMWAREOPERATION_H
+    int state() const;
+    bool isError() const;
+    const QString &errorString() const;
+
+signals:
+    void finished();
+
+protected:
+    void setState(int state);
+    void setError(const QString &errorString);
+
+private:
+    bool m_isError;
+    QString m_errorString;
+    int m_state;
+};

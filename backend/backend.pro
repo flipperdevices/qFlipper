@@ -9,6 +9,7 @@ CONFIG += c++11
 include(../qflipper_common.pri)
 
 SOURCES += \
+    abstractfirmwareoperation.cpp \
     deviceregistry.cpp \
     firmwaredownloader.cpp \
     flipperupdates.cpp \

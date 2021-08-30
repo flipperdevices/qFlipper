@@ -53,31 +53,31 @@ void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Flipper::
 
 void FirmwareDownloader::downloadLocalFUS(FlipperZero *device, const QString &filePath)
 {
-    const auto localUrl = QUrl(filePath).toLocalFile();
-    auto *file = new QFile(localUrl, this);
+//    const auto localUrl = QUrl(filePath).toLocalFile();
+//    auto *file = new QFile(localUrl, this);
 
-    enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file, 0x080EC000));
+//    enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file, 0x080EC000));
 }
 
 void FirmwareDownloader::downloadLocalWirelessStack(FlipperZero *device, const QString &filePath)
 {
-    const auto localUrl = QUrl(filePath).toLocalFile();
-    auto *file = new QFile(localUrl, this);
+//    const auto localUrl = QUrl(filePath).toLocalFile();
+//    auto *file = new QFile(localUrl, this);
 
-    enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file));
+//    enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file));
 }
 
 void FirmwareDownloader::fixBootIssues(FlipperZero *device)
 {
-    enqueueOperation(new Flipper::Zero::FixBootIssuesOperation(device));
+//    enqueueOperation(new Flipper::Zero::FixBootIssuesOperation(device));
 }
 
 void FirmwareDownloader::fixOptionBytes(FlipperZero *device, const QString &filePath)
 {
-    const auto localUrl = QUrl(filePath).toLocalFile();
-    auto *file = new QFile(localUrl, this);
+//    const auto localUrl = QUrl(filePath).toLocalFile();
+//    auto *file = new QFile(localUrl, this);
 
-    enqueueOperation(new Flipper::Zero::FixOptionBytesOperation(device, file));
+//    enqueueOperation(new Flipper::Zero::FixOptionBytesOperation(device, file));
 }
 
 void FirmwareDownloader::processQueue()
@@ -90,18 +90,14 @@ void FirmwareDownloader::processQueue()
     m_state = State::Running;
 
     auto *currentOperation = m_operationQueue.dequeue();
-    auto *watcher = new QFutureWatcher<bool>(this);
 
-    connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
-        info_msg(QString("Operation '%1' finished with status: %2").arg(currentOperation->name(), watcher->result() ? "SUCCESS" : "FAILURE"));
-
+    connect(currentOperation, &AbstractFirmwareOperation::finished, this, [=]() {
+        info_msg(QString("Operation '%1' finished with status: %2").arg(currentOperation->name(), currentOperation->isError() ? "FAILURE" : "SUCCESS"));
         currentOperation->deleteLater();
-        watcher->deleteLater();
-
         processQueue();
     });
 
-    watcher->setFuture(QtConcurrent::run(currentOperation, &AbstractFirmwareOperation::execute));
+    currentOperation->start();
 }
 
 void FirmwareDownloader::enqueueOperation(AbstractFirmwareOperation *op)
