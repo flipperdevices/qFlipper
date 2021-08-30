@@ -711,7 +711,7 @@ void FlipperZero::initVCPMode(const QSerialPortInfo &portInfo)
     }
 
     setSerialPort(new QSerialPort(portInfo, this));
-//    setRemoteController(new RemoteController(m_serialPort, this));
+    setRemoteController(new RemoteController(m_serialPort, this));
 
     fetchDeviceInfo();
 }
