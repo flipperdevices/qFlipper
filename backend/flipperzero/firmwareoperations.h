@@ -29,6 +29,7 @@ public:
 
 private slots:
     void transitionToNextState();
+    void onOperationTimeout() override;
 
 private:
     FlipperZero *m_device;

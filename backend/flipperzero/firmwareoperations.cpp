@@ -47,6 +47,8 @@ void FirmwareDownloadOperation::transitionToNextState()
         return;
     }
 
+    stopTimeout();
+
     if(state() == AbstractFirmwareOperation::Idle) {
         setState(State::WaitForDFU);
 
@@ -57,6 +59,8 @@ void FirmwareDownloadOperation::transitionToNextState()
         } else if(!m_device->enterDFU()) {
             setError(QStringLiteral("Failed to detach the device."));
             return;
+        } else {
+            startTimeout();
         }
 
     } else if(state() == State::WaitForDFU) {
@@ -81,15 +85,32 @@ void FirmwareDownloadOperation::transitionToNextState()
 
         if(!m_device->leaveDFU()) {
             setError(QStringLiteral("Failed to leave DFU mode."));
+        } else {
+            startTimeout();
         }
 
     } else if(state() == State::WaitForVCP) {
         setState(AbstractFirmwareOperation::Finished);
+
         disconnect(m_device, &FlipperZero::isOnlineChanged, this, &FirmwareDownloadOperation::transitionToNextState);
         emit finished();
 
     } else {
         setError(QStringLiteral("Unexpected state."));
+    }
+}
+
+void FirmwareDownloadOperation::onOperationTimeout()
+{
+    switch(state()) {
+    case FirmwareDownloadOperation::WaitForDFU:
+        setError(QStringLiteral("Failed to reach DFU mode: Operation timeout."));
+        break;
+    case FirmwareDownloadOperation::WaitForVCP:
+        setError(QStringLiteral("Failed to reboot the device: Operation timeout."));
+        break;
+    default:
+        setError(QStringLiteral("Should not have timed out here, probably a bug."));
     }
 }
 
