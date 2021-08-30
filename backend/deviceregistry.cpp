@@ -45,7 +45,7 @@ void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
     check_return_void(info.isValid(), "A new invalid device has been detected, skipping...");
 
     auto *newDevice = new Flipper::FlipperZero(info, this);
-    connect(newDevice, &FlipperZero::isConnectedChanged, this, &DeviceRegistry::processDevice);
+    connect(newDevice, &FlipperZero::isOnlineChanged, this, &DeviceRegistry::processDevice);
 }
 
 void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
@@ -72,7 +72,7 @@ void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
 void DeviceRegistry::processDevice()
 {
     auto *device = qobject_cast<FlipperZero*>(sender());
-    disconnect(device, &FlipperZero::isConnectedChanged, this, &DeviceRegistry::processDevice);
+    disconnect(device, &FlipperZero::isOnlineChanged, this, &DeviceRegistry::processDevice);
 
     if(device->isError()) {
         error_msg("A new valid device has been detected, but it has an error, skipping...");

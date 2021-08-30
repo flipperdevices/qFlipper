@@ -34,7 +34,7 @@ FlipperZero::FlipperZero(const USBDeviceInfo &info, QObject *parent):
     QObject(parent),
 
     m_isPersistent(false),
-    m_isConnected(false),
+    m_isOnline(false),
     m_isError(false),
 
     m_usbInfo(info),
@@ -131,12 +131,12 @@ void FlipperZero::setPersistent(bool set)
 
 void FlipperZero::setConnected(bool set)
 {
-    if(set == m_isConnected) {
+    if(set == m_isOnline) {
         return;
     }
 
-    m_isConnected = set;
-    emit isConnectedChanged();
+    m_isOnline = set;
+    emit isOnlineChanged();
 }
 
 void FlipperZero::setError(const QString &msg, bool set)
@@ -158,9 +158,9 @@ bool FlipperZero::isPersistent() const
     return m_isPersistent;
 }
 
-bool FlipperZero::isConnected() const
+bool FlipperZero::isOnline() const
 {
-    return m_isConnected;
+    return m_isOnline;
 }
 
 bool FlipperZero::isError() const
@@ -232,11 +232,11 @@ bool FlipperZero::waitForReboot(int timeoutMs)
 {
     //TODO: Implement better syncronisation
     auto now = QTime::currentTime();
-    while(m_isConnected && (now.msecsTo(QTime::currentTime()) < timeoutMs)) {
+    while(m_isOnline && (now.msecsTo(QTime::currentTime()) < timeoutMs)) {
         QThread::usleep(1000);
     }
 
-    if(m_isConnected) {
+    if(m_isOnline) {
         errorFeedback("Failed to reboot the device: Reboot timeout exceeded.");
         return false;
     }
@@ -244,17 +244,17 @@ bool FlipperZero::waitForReboot(int timeoutMs)
     info_msg("Device has successfully DISCONNECTED, waiting for it to reconnect...");
 
     now = QTime::currentTime();
-    while(!m_isConnected && (now.msecsTo(QTime::currentTime()) < timeoutMs)) {
+    while(!m_isOnline && (now.msecsTo(QTime::currentTime()) < timeoutMs)) {
         QThread::usleep(1000);
     }
 
-    if(m_isConnected) {
+    if(m_isOnline) {
         info_msg("Device has SUCCESSFULLY rebooted.")
     } else {
         errorFeedback("Failed to reboot the device: Reconnect timeout exceeded.");
     }
 
-    return m_isConnected;
+    return m_isOnline;
 }
 
 bool FlipperZero::isFUSRunning()
@@ -393,7 +393,7 @@ bool FlipperZero::deleteWirelessStack()
         for(;;) {
             QMutexLocker locker(&m_deviceMutex);
 
-            if(!isConnected() || !device.beginTransaction()) {
+            if(!isOnline() || !device.beginTransaction()) {
                 info_msg("Device seems to have REBOOTED itself BEFORE getting state, waiting...");
                 break;
             }
@@ -558,7 +558,7 @@ bool FlipperZero::upgradeWirelessStack()
         for(;;) {
             QMutexLocker locker(&m_deviceMutex);
 
-            if(!isConnected() || !device.beginTransaction()) {
+            if(!isOnline() || !device.beginTransaction()) {
                 info_msg("Device seems to have REBOOTED itself BEFORE getting state, waiting...");
                 break;
             }

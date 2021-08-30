@@ -31,7 +31,7 @@ class FlipperZero : public QObject
 
     Q_PROPERTY(bool isDFU READ isDFU NOTIFY usbInfoChanged)
     Q_PROPERTY(bool isPersistent READ isPersistent NOTIFY isPersistentChanged)
-    Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
+    Q_PROPERTY(bool isOnline READ isOnline NOTIFY isOnlineChanged)
     Q_PROPERTY(bool isError READ isError NOTIFY isErrorChanged)
 
     Q_PROPERTY(Flipper::Zero::RemoteController* remote READ remote CONSTANT)
@@ -55,7 +55,7 @@ public:
     void setError(const QString &msg = QString(), bool set = true);
 
     bool isPersistent() const;
-    bool isConnected() const;
+    bool isOnline() const;
     bool isError() const;
 
     bool detach();
@@ -105,7 +105,7 @@ signals:
     void progressChanged(double);
 
     void isPersistentChanged();
-    void isConnectedChanged();
+    void isOnlineChanged();
     void isErrorChanged();
 
 private:
@@ -113,7 +113,7 @@ private:
     void errorFeedback(const char *msg);
 
     bool m_isPersistent;
-    bool m_isConnected;
+    bool m_isOnline;
     bool m_isError;
 
     USBDeviceInfo m_usbInfo;
