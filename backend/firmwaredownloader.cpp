@@ -8,7 +8,7 @@
 #include <QtConcurrent/QtConcurrentRun>
 
 #include "flipperzero/flipperzero.h"
-#include "flipperzero/firmwareoperations.h"
+#include "flipperzero/operations/firmwaredownloadoperation.h"
 
 #include "remotefilefetcher.h"
 #include "macros.h"

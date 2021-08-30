@@ -17,6 +17,7 @@ SOURCES += \
     flipperzero/factoryinfo.cpp \
     flipperzero/firmwareoperations.cpp \
     flipperzero/flipperzero.cpp \
+    flipperzero/operations/firmwaredownloadoperation.cpp \
     flipperzero/remotecontroller.cpp \
     qflipperbackend.cpp \
     remotefilefetcher.cpp \
@@ -33,6 +34,7 @@ HEADERS += \
     flipperzero/factoryinfo.h \
     flipperzero/firmwareoperations.h \
     flipperzero/flipperzero.h \
+    flipperzero/operations/firmwaredownloadoperation.h \
     flipperzero/remotecontroller.h \
     qflipperbackend.h \
     remotefilefetcher.h \
