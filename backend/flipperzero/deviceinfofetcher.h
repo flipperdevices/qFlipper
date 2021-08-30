@@ -6,6 +6,8 @@
 #include "deviceinfo.h"
 #include "usbdeviceinfo.h"
 
+class QSerialPort;
+
 namespace Flipper {
 namespace Zero {
 
@@ -20,7 +22,7 @@ public:
     bool isError() const;
     const QString &errorString() const;
 
-    virtual void fetch(const USBDeviceInfo &info) = 0;
+    virtual void fetch() = 0;
     virtual const DeviceInfo &result() const = 0;
 
 signals:
@@ -39,17 +41,15 @@ class VCPDeviceInfoFetcher : public AbstractDeviceInfoFetcher
     Q_OBJECT
 
 public:
-    VCPDeviceInfoFetcher(QObject *parent = nullptr);
+    VCPDeviceInfoFetcher(QSerialPort *serialPort, QObject *parent = nullptr);
 
-    void fetch(const USBDeviceInfo &info) override;
+    void fetch() override;
     const DeviceInfo &result() const override;
-
-private slots:
-    void onSerialPortFound(const QSerialPortInfo &portInfo);
 
 private:
     void parseLine(const QByteArray &line);
 
+    QSerialPort *m_serialPort;
     DeviceInfo m_deviceInfo;
 };
 
@@ -58,12 +58,13 @@ class DFUDeviceInfoFetcher : public AbstractDeviceInfoFetcher
     Q_OBJECT
 
 public:
-    DFUDeviceInfoFetcher(QObject *parent = nullptr);
+    DFUDeviceInfoFetcher(const USBDeviceInfo &info, QObject *parent = nullptr);
 
-    void fetch(const USBDeviceInfo &info) override;
+    void fetch() override;
     const DeviceInfo &result() const override;
 
 private:
+    USBDeviceInfo m_usbInfo;
     DeviceInfo m_deviceInfo;
 };
 

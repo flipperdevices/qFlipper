@@ -1,6 +1,7 @@
 #ifndef FLIPPERZERO_H
 #define FLIPPERZERO_H
 
+#include <QSerialPortInfo>
 #include <QDateTime>
 #include <QObject>
 #include <QMutex>
@@ -51,7 +52,7 @@ public:
     void setDeviceInfo(const Zero::DeviceInfo &info);
 
     void setPersistent(bool set);
-    void setConnected(bool set);
+    void setOnline(bool set);
     void setError(const QString &msg = QString(), bool set = true);
 
     bool isPersistent() const;
@@ -108,7 +109,14 @@ signals:
     void isOnlineChanged();
     void isErrorChanged();
 
+private slots:
+    void initVCPMode(const QSerialPortInfo &portInfo);
+    void fetchDeviceInfo();
+
 private:
+    void setSerialPort(QSerialPort *serialPort);
+    void setRemoteController(Zero::RemoteController *remote);
+
     void statusFeedback(const char *msg);
     void errorFeedback(const char *msg);
 
@@ -123,6 +131,7 @@ private:
     QString m_statusMessage;
     double m_progress;
 
+    QSerialPort *m_serialPort;
     Zero::RemoteController *m_remote;
 };
 

@@ -4,7 +4,6 @@
 #include <QSerialPort>
 
 #include "device/stm32wb55.h"
-#include "serialfinder.h"
 #include "factoryinfo.h"
 #include "macros.h"
 
@@ -38,60 +37,47 @@ void AbstractDeviceInfoFetcher::setError(const QString &errorString)
     emit finished();
 }
 
-VCPDeviceInfoFetcher::VCPDeviceInfoFetcher(QObject *parent):
-    AbstractDeviceInfoFetcher(parent)
+VCPDeviceInfoFetcher::VCPDeviceInfoFetcher(QSerialPort *serialPort, QObject *parent):
+    AbstractDeviceInfoFetcher(parent),
+    m_serialPort(serialPort)
 {}
 
-void VCPDeviceInfoFetcher::fetch(const USBDeviceInfo &info)
+void VCPDeviceInfoFetcher::fetch()
 {
-    auto *finder = new SerialFinder(info.serialNumber(), this);
-    connect(finder, &SerialFinder::finished, this, &VCPDeviceInfoFetcher::onSerialPortFound);
-    connect(finder, &SerialFinder::finished, finder, &QObject::deleteLater);
-}
-
-const DeviceInfo &VCPDeviceInfoFetcher::result() const
-{
-    return m_deviceInfo;
-}
-
-void VCPDeviceInfoFetcher::onSerialPortFound(const QSerialPortInfo &portInfo)
-{
-    if(portInfo.isNull()) {
-        setError(QStringLiteral("Failed to find a suitable serial port."));
-        return;
-    }
-
-    auto *port = new QSerialPort(portInfo, this);
-
-    if(!port->open(QIODevice::ReadWrite)) {
-        setError(port->errorString());
+    if(!m_serialPort->open(QIODevice::ReadWrite)) {
+        setError(m_serialPort->errorString());
         return;
     }
 
     auto *timeout = new QTimer(this);
 
     connect(timeout, &QTimer::timeout, this, &AbstractDeviceInfoFetcher::finished);
-    connect(this, &AbstractDeviceInfoFetcher::finished, port, &QObject::deleteLater);
+    connect(this, &AbstractDeviceInfoFetcher::finished, m_serialPort, &QSerialPort::close);
 
-    connect(port, &QSerialPort::errorOccurred, this, [=]() {
+    connect(m_serialPort, &QSerialPort::errorOccurred, this, [=]() {
         timeout->stop();
-        setError(port->errorString());
+        setError(m_serialPort->errorString());
     });
 
-    connect(port, &QSerialPort::readyRead, this, [=]() {
+    connect(m_serialPort, &QSerialPort::readyRead, this, [=]() {
         timeout->start(50);
 
-        while(port->canReadLine()) {
-            parseLine(port->readLine());
+        while(m_serialPort->canReadLine()) {
+            parseLine(m_serialPort->readLine());
         }
     });
 
-    const auto success = port->setDataTerminalReady(true) &&
-                        (port->write("\rdevice_info\r") > 0) &&
-                         port->flush();
+    const auto success = m_serialPort->setDataTerminalReady(true) &&
+                        (m_serialPort->write("\rdevice_info\r") > 0) &&
+                         m_serialPort->flush();
     if(success) {
         timeout->start(100);
     }
+}
+
+const DeviceInfo &VCPDeviceInfoFetcher::result() const
+{
+    return m_deviceInfo;
 }
 
 void VCPDeviceInfoFetcher::parseLine(const QByteArray &line)
@@ -114,14 +100,15 @@ void VCPDeviceInfoFetcher::parseLine(const QByteArray &line)
 
 using namespace STM32;
 
-DFUDeviceInfoFetcher::DFUDeviceInfoFetcher(QObject *parent):
-    AbstractDeviceInfoFetcher(parent)
+DFUDeviceInfoFetcher::DFUDeviceInfoFetcher(const USBDeviceInfo &info, QObject *parent):
+    AbstractDeviceInfoFetcher(parent),
+    m_usbInfo(info)
 {}
 
-void DFUDeviceInfoFetcher::fetch(const USBDeviceInfo &info)
+void DFUDeviceInfoFetcher::fetch()
 {
     QTimer::singleShot(0, this, [=]() {
-        STM32WB55 device(info);
+        STM32WB55 device(m_usbInfo);
 
         if(!device.beginTransaction()) {
             setError(QStringLiteral("Failed to initiate transaction"));

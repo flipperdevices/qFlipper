@@ -64,7 +64,7 @@ void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
             endRemoveRows();
 
         } else {
-            device->setConnected(false);
+            device->setOnline(false);
         }
     }
 }

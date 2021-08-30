@@ -40,69 +40,35 @@ FlipperZero::FlipperZero(const USBDeviceInfo &info, QObject *parent):
     m_usbInfo(info),
 
     m_progress(0),
+    m_serialPort(nullptr),
     m_remote(nullptr)
 {
-    AbstractDeviceInfoFetcher *fetcher;
-
     if(isDFU()) {
-        fetcher = new DFUDeviceInfoFetcher(this);
+        fetchDeviceInfo();
+
     } else {
-        fetcher = new VCPDeviceInfoFetcher(this);
+        auto *finder = new SerialFinder(info.serialNumber(), this);
+        connect(finder, &SerialFinder::finished, this, &FlipperZero::initVCPMode);
+        connect(finder, &SerialFinder::finished, finder, &SerialFinder::deleteLater);
     }
-
-    connect(fetcher, &AbstractDeviceInfoFetcher::finished, this, [=]() {
-        if(fetcher->isError()) {
-            // TODO: Display the error in UI
-            error_msg(QStringLiteral("Failed to fetch device info: %1.").arg(fetcher->errorString()));
-            return;
-        }
-
-        setDeviceInfo(fetcher->result());
-        setConnected(true);
-    });
-
-    connect(fetcher, &AbstractDeviceInfoFetcher::finished, fetcher, &QObject::deleteLater);
-
-    fetcher->fetch(info);
 }
 
 FlipperZero::~FlipperZero()
 {
-    setConnected(false);
+    setOnline(false);
 }
 
 void FlipperZero::reuse(const FlipperZero *other)
 {
+    setProgress(0);
+
     setUSBInfo(other->usbInfo());
     setDeviceInfo(other->deviceInfo());
 
-    if(isDFU()) {
-        if(m_remote) {
-            m_remote->deleteLater();
-            m_remote = nullptr;
-        }
+    setSerialPort(other->m_serialPort);
+    setRemoteController(other->remote());
 
-    } else {
-//        const auto portInfo = SerialHelper::findSerialPort(m_usbInfo.serialNumber());
-
-//        if(portInfo.isNull()) {
-//            const auto msg = "Can't find serial port.";
-//            error_msg(msg);
-//            setError(tr(msg));
-
-//            return;
-//        }
-
-//        if(m_remote) {
-//            m_remote->setEnabled(false);
-//            m_remote->deleteLater();
-//        }
-
-//        m_remote = new Zero::RemoteController(portInfo, this);
-    }
-
-    setProgress(0);
-    setConnected(true);
+    setOnline(true);
 }
 
 void FlipperZero::setUSBInfo(const USBDeviceInfo &info)
@@ -129,7 +95,7 @@ void FlipperZero::setPersistent(bool set)
     emit isPersistentChanged();
 }
 
-void FlipperZero::setConnected(bool set)
+void FlipperZero::setOnline(bool set)
 {
     if(set == m_isOnline) {
         return;
@@ -734,6 +700,71 @@ void FlipperZero::setProgress(double progress)
 {
     if(!qFuzzyCompare(m_progress, progress)) {
         emit progressChanged(m_progress = progress);
+    }
+}
+
+void FlipperZero::initVCPMode(const QSerialPortInfo &portInfo)
+{
+    if(portInfo.isNull()) {
+        error_msg("Failed to find a suitable serial port.");
+        return;
+    }
+
+    setSerialPort(new QSerialPort(portInfo, this));
+//    setRemoteController(new RemoteController(m_serialPort, this));
+
+    fetchDeviceInfo();
+}
+
+void FlipperZero::fetchDeviceInfo()
+{
+    AbstractDeviceInfoFetcher *fetcher;
+
+    if(isDFU()) {
+        fetcher = new DFUDeviceInfoFetcher(m_usbInfo, this);
+    } else {
+        fetcher = new VCPDeviceInfoFetcher(m_serialPort, this);
+    }
+
+    connect(fetcher, &AbstractDeviceInfoFetcher::finished, this, [=]() {
+        if(fetcher->isError()) {
+            // TODO: Display the error in UI
+            error_msg(QStringLiteral("Failed to fetch device info: %1.").arg(fetcher->errorString()));
+            return;
+        }
+
+        setDeviceInfo(fetcher->result());
+        setOnline(true);
+    });
+
+    connect(fetcher, &AbstractDeviceInfoFetcher::finished, fetcher, &QObject::deleteLater);
+
+    fetcher->fetch();
+}
+
+void FlipperZero::setSerialPort(QSerialPort *serialPort)
+{
+    if(m_serialPort) {
+        m_serialPort->deleteLater();
+    }
+
+    m_serialPort = serialPort;
+
+    if(m_serialPort) {
+        m_serialPort->setParent(this);
+    }
+}
+
+void FlipperZero::setRemoteController(Zero::RemoteController *remote)
+{
+    if(m_remote) {
+        m_remote->deleteLater();
+    }
+
+    m_remote = remote;
+
+    if(m_remote) {
+        m_remote->setParent(this);
     }
 }
 
