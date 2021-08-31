@@ -17,7 +17,7 @@ SOURCES += \
     flipperzero/factoryinfo.cpp \
     flipperzero/firmwareoperations.cpp \
     flipperzero/flipperzero.cpp \
-    flipperzero/operations/firmwaredownloadoperation.cpp \
+    flipperzero/operations/firmwareupdateoperation.cpp \
     flipperzero/operations/fixbootissuesoperation.cpp \
     flipperzero/operations/fixoptionbytesoperation.cpp \
     flipperzero/operations/wirelessstackupdateoperation.cpp \
@@ -37,7 +37,7 @@ HEADERS += \
     flipperzero/factoryinfo.h \
     flipperzero/firmwareoperations.h \
     flipperzero/flipperzero.h \
-    flipperzero/operations/firmwaredownloadoperation.h \
+    flipperzero/operations/firmwareupdateoperation.h \
     flipperzero/operations/fixbootissuesoperation.h \
     flipperzero/operations/fixoptionbytesoperation.h \
     flipperzero/operations/wirelessstackupdateoperation.h \
