@@ -1,4 +1,4 @@
-#include "firmwareupdateoperation.h"
+#include "firmwaredownloadoperation.h"
 
 #include <QFutureWatcher>
 #include <QtConcurrent/QtConcurrentRun>
@@ -8,7 +8,7 @@
 using namespace Flipper;
 using namespace Zero;
 
-FirmwareUpdateOperation::FirmwareUpdateOperation(FlipperZero *device, QIODevice *file, QObject *parent):
+FirmwareDownloadOperation::FirmwareDownloadOperation(FlipperZero *device, QIODevice *file, QObject *parent):
     AbstractFirmwareOperation(parent),
     m_device(device),
     m_file(file)
@@ -17,18 +17,18 @@ FirmwareUpdateOperation::FirmwareUpdateOperation(FlipperZero *device, QIODevice 
     m_device->setStatusMessage(QObject::tr("Firmware download pending..."));
 }
 
-FirmwareUpdateOperation::~FirmwareUpdateOperation()
+FirmwareDownloadOperation::~FirmwareDownloadOperation()
 {
     m_device->setPersistent(false);
     m_file->deleteLater();
 }
 
-const QString FirmwareUpdateOperation::name() const
+const QString FirmwareDownloadOperation::name() const
 {
     return QStringLiteral("Firmware Download @%1 %2").arg(m_device->model(), m_device->name());
 }
 
-void FirmwareUpdateOperation::start()
+void FirmwareDownloadOperation::start()
 {
     if(state() != Idle) {
         setError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
@@ -38,7 +38,7 @@ void FirmwareUpdateOperation::start()
     transitionToNextState();
 }
 
-void FirmwareUpdateOperation::transitionToNextState()
+void FirmwareDownloadOperation::transitionToNextState()
 {
     if(!m_device->isOnline()) {
         return;
@@ -48,7 +48,7 @@ void FirmwareUpdateOperation::transitionToNextState()
 
     if(state() == AbstractFirmwareOperation::Idle) {
         setState(State::WaitingForDFU);
-        connect(m_device, &FlipperZero::isOnlineChanged, this, &FirmwareUpdateOperation::transitionToNextState);
+        connect(m_device, &FlipperZero::isOnlineChanged, this, &FirmwareDownloadOperation::transitionToNextState);
         doEnterDFUMode();
 
     } else if(state() == State::WaitingForDFU) {
@@ -61,7 +61,7 @@ void FirmwareUpdateOperation::transitionToNextState()
 
     } else if(state() == State::WaitingForFirmwareBoot) {
         setState(AbstractFirmwareOperation::Finished);
-        disconnect(m_device, &FlipperZero::isOnlineChanged, this, &FirmwareUpdateOperation::transitionToNextState);
+        disconnect(m_device, &FlipperZero::isOnlineChanged, this, &FirmwareDownloadOperation::transitionToNextState);
         emit finished();
 
     } else {
@@ -69,13 +69,13 @@ void FirmwareUpdateOperation::transitionToNextState()
     }
 }
 
-void FirmwareUpdateOperation::onOperationTimeout()
+void FirmwareDownloadOperation::onOperationTimeout()
 {
     switch(state()) {
-    case FirmwareUpdateOperation::WaitingForDFU:
+    case FirmwareDownloadOperation::WaitingForDFU:
         setError(QStringLiteral("Failed to reach DFU mode: Operation timeout."));
         break;
-    case FirmwareUpdateOperation::WaitingForFirmwareBoot:
+    case FirmwareDownloadOperation::WaitingForFirmwareBoot:
         setError(QStringLiteral("Failed to reboot the device: Operation timeout."));
         break;
     default:
@@ -83,7 +83,7 @@ void FirmwareUpdateOperation::onOperationTimeout()
     }
 }
 
-void FirmwareUpdateOperation::doEnterDFUMode()
+void FirmwareDownloadOperation::doEnterDFUMode()
 {
     if(m_device->isDFU()) {
         transitionToNextState();
@@ -94,7 +94,7 @@ void FirmwareUpdateOperation::doEnterDFUMode()
     }
 }
 
-void FirmwareUpdateOperation::doDownloadFirmware()
+void FirmwareDownloadOperation::doDownloadFirmware()
 {
     auto *watcher = new QFutureWatcher<bool>(this);
 
@@ -111,7 +111,7 @@ void FirmwareUpdateOperation::doDownloadFirmware()
     watcher->setFuture(QtConcurrent::run(m_device, &FlipperZero::downloadFirmware, m_file));
 }
 
-void FirmwareUpdateOperation::doBootFirmware()
+void FirmwareDownloadOperation::doBootFirmware()
 {
     if(!m_device->leaveDFU()) {
         setError(QStringLiteral("Failed to leave DFU mode."));

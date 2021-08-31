@@ -10,7 +10,7 @@ class FlipperZero;
 
 namespace Zero {
 
-class WirelessStackUpdateOperation : public AbstractFirmwareOperation
+class WirelessStackDownloadOperation : public AbstractFirmwareOperation
 {
     Q_OBJECT
 
@@ -20,8 +20,8 @@ class WirelessStackUpdateOperation : public AbstractFirmwareOperation
     };
 
 public:
-    WirelessStackUpdateOperation(FlipperZero *device, QIODevice *file, uint32_t targetAddress = 0, QObject *parent = nullptr);
-    ~WirelessStackUpdateOperation();
+    WirelessStackDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t targetAddress = 0, QObject *parent = nullptr);
+    ~WirelessStackDownloadOperation();
 
     const QString name() const override;
     void start() override;

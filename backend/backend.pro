@@ -17,10 +17,10 @@ SOURCES += \
     flipperzero/factoryinfo.cpp \
     flipperzero/firmwareoperations.cpp \
     flipperzero/flipperzero.cpp \
-    flipperzero/operations/firmwareupdateoperation.cpp \
+    flipperzero/operations/firmwaredownloadoperation.cpp \
     flipperzero/operations/fixbootissuesoperation.cpp \
     flipperzero/operations/fixoptionbytesoperation.cpp \
-    flipperzero/operations/wirelessstackupdateoperation.cpp \
+    flipperzero/operations/wirelessstackdownloadoperation.cpp \
     flipperzero/remotecontroller.cpp \
     qflipperbackend.cpp \
     remotefilefetcher.cpp \
@@ -37,10 +37,10 @@ HEADERS += \
     flipperzero/factoryinfo.h \
     flipperzero/firmwareoperations.h \
     flipperzero/flipperzero.h \
-    flipperzero/operations/firmwareupdateoperation.h \
+    flipperzero/operations/firmwaredownloadoperation.h \
     flipperzero/operations/fixbootissuesoperation.h \
     flipperzero/operations/fixoptionbytesoperation.h \
-    flipperzero/operations/wirelessstackupdateoperation.h \
+    flipperzero/operations/wirelessstackdownloadoperation.h \
     flipperzero/remotecontroller.h \
     qflipperbackend.h \
     remotefilefetcher.h \

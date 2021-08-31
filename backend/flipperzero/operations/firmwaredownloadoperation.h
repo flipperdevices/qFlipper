@@ -10,7 +10,7 @@ class FlipperZero;
 
 namespace Zero {
 
-class FirmwareUpdateOperation : public AbstractFirmwareOperation
+class FirmwareDownloadOperation : public AbstractFirmwareOperation
 {
     Q_OBJECT
 
@@ -21,8 +21,8 @@ class FirmwareUpdateOperation : public AbstractFirmwareOperation
     };
 
 public:
-    FirmwareUpdateOperation(FlipperZero *device, QIODevice *file, QObject *parent = nullptr);
-    ~FirmwareUpdateOperation();
+    FirmwareDownloadOperation(FlipperZero *device, QIODevice *file, QObject *parent = nullptr);
+    ~FirmwareDownloadOperation();
 
     const QString name() const override;
     void start() override;

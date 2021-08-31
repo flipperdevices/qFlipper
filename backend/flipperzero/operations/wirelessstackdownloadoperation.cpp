@@ -1,4 +1,4 @@
-#include "wirelessstackupdateoperation.h"
+#include "wirelessstackdownloadoperation.h"
 
 #include <QIODevice>
 #include <QFutureWatcher>
@@ -9,7 +9,7 @@
 using namespace Flipper;
 using namespace Zero;
 
-WirelessStackUpdateOperation::WirelessStackUpdateOperation(FlipperZero *device, QIODevice *file, uint32_t targetAddress, QObject *parent):
+WirelessStackDownloadOperation::WirelessStackDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t targetAddress, QObject *parent):
     AbstractFirmwareOperation(parent),
     m_device(device),
     m_file(file),
@@ -19,18 +19,18 @@ WirelessStackUpdateOperation::WirelessStackUpdateOperation(FlipperZero *device, 
     m_device->setStatusMessage(QObject::tr("Co-Processor firmware update pending..."));
 }
 
-WirelessStackUpdateOperation::~WirelessStackUpdateOperation()
+WirelessStackDownloadOperation::~WirelessStackDownloadOperation()
 {
     m_device->setPersistent(false);
     m_file->deleteLater();
 }
 
-const QString WirelessStackUpdateOperation::name() const
+const QString WirelessStackDownloadOperation::name() const
 {
     return QString("Co-Processor Firmware Download @%1 %2").arg(m_device->model(), m_device->name());
 }
 
-void WirelessStackUpdateOperation::start()
+void WirelessStackDownloadOperation::start()
 {
     if(state() != Idle) {
         setError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
@@ -40,7 +40,7 @@ void WirelessStackUpdateOperation::start()
     transitionToNextState();
 }
 
-void WirelessStackUpdateOperation::transitionToNextState()
+void WirelessStackDownloadOperation::transitionToNextState()
 {
     if(!m_device->isOnline()) {
         return;
@@ -50,14 +50,14 @@ void WirelessStackUpdateOperation::transitionToNextState()
 
     if(state() == AbstractFirmwareOperation::Idle) {
         setState(State::WaitingForDFU);
-        connect(m_device, &FlipperZero::isOnlineChanged, this, &WirelessStackUpdateOperation::transitionToNextState);
+        connect(m_device, &FlipperZero::isOnlineChanged, this, &WirelessStackDownloadOperation::transitionToNextState);
         doEnterDFUMode();
 
     } else if(state() == State::WaitingForDFU) {
 
     } else if(state() == State::WaitingForFirmwareBoot) {
         setState(AbstractFirmwareOperation::Finished);
-        disconnect(m_device, &FlipperZero::isOnlineChanged, this, &WirelessStackUpdateOperation::transitionToNextState);
+        disconnect(m_device, &FlipperZero::isOnlineChanged, this, &WirelessStackDownloadOperation::transitionToNextState);
         emit finished();
 
     } else {
@@ -65,13 +65,13 @@ void WirelessStackUpdateOperation::transitionToNextState()
     }
 }
 
-void WirelessStackUpdateOperation::onOperationTimeout()
+void WirelessStackDownloadOperation::onOperationTimeout()
 {
     switch(state()) {
-    case WirelessStackUpdateOperation::WaitingForDFU:
+    case WirelessStackDownloadOperation::WaitingForDFU:
         setError(QStringLiteral("Failed to reach DFU mode: Operation timeout."));
         break;
-    case WirelessStackUpdateOperation::WaitingForFirmwareBoot:
+    case WirelessStackDownloadOperation::WaitingForFirmwareBoot:
         setError(QStringLiteral("Failed to boot the device: Operation timeout."));
         break;
     default:
@@ -79,7 +79,7 @@ void WirelessStackUpdateOperation::onOperationTimeout()
     }
 }
 
-void WirelessStackUpdateOperation::doEnterDFUMode()
+void WirelessStackDownloadOperation::doEnterDFUMode()
 {
     if(m_device->isDFU()) {
         transitionToNextState();

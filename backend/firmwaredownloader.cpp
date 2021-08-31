@@ -6,7 +6,8 @@
 #include <QBuffer>
 
 #include "flipperzero/flipperzero.h"
-#include "flipperzero/operations/firmwareupdateoperation.h"
+#include "flipperzero/operations/wirelessstackdownloadoperation.h"
+#include "flipperzero/operations/firmwaredownloadoperation.h"
 #include "flipperzero/operations/fixoptionbytesoperation.h"
 #include "flipperzero/operations/fixbootissuesoperation.h"
 
@@ -25,7 +26,7 @@ void FirmwareDownloader::downloadLocalFile(FlipperZero *device, const QString &f
     const auto localUrl = QUrl(filePath).toLocalFile();
     auto *file = new QFile(localUrl, this);
 
-    enqueueOperation(new Flipper::Zero::FirmwareUpdateOperation(device, file));
+    enqueueOperation(new Flipper::Zero::FirmwareDownloadOperation(device, file));
 }
 
 void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Flipper::Updates::VersionInfo &versionInfo)
@@ -42,7 +43,7 @@ void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Flipper::
         buf->seek(0);
         buf->close();
 
-        enqueueOperation(new Flipper::Zero::FirmwareUpdateOperation(device, buf));
+        enqueueOperation(new Flipper::Zero::FirmwareDownloadOperation(device, buf));
 
         fetcher->deleteLater();
     });
@@ -53,18 +54,18 @@ void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Flipper::
 
 void FirmwareDownloader::downloadLocalFUS(FlipperZero *device, const QString &filePath)
 {
-//    const auto localUrl = QUrl(filePath).toLocalFile();
-//    auto *file = new QFile(localUrl, this);
+    const auto localUrl = QUrl(filePath).toLocalFile();
+    auto *file = new QFile(localUrl, this);
 
-//    enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file, 0x080EC000));
+    enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file, 0x080EC000));
 }
 
 void FirmwareDownloader::downloadLocalWirelessStack(FlipperZero *device, const QString &filePath)
 {
-//    const auto localUrl = QUrl(filePath).toLocalFile();
-//    auto *file = new QFile(localUrl, this);
+    const auto localUrl = QUrl(filePath).toLocalFile();
+    auto *file = new QFile(localUrl, this);
 
-//    enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file));
+    enqueueOperation(new Flipper::Zero::WirelessStackDownloadOperation(device, file));
 }
 
 void FirmwareDownloader::fixBootIssues(FlipperZero *device)
