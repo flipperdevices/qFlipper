@@ -25,19 +25,6 @@ namespace Zero {
 //    uint32_t m_targetAddress;
 //};
 
-//class FixBootIssuesOperation : public AbstractFirmwareOperation
-//{
-//public:
-//    FixBootIssuesOperation(FlipperZero *device);
-//    ~FixBootIssuesOperation();
-
-//    const QString name() const override;
-//    bool execute() override;
-
-//private:
-//    FlipperZero *m_device;
-//};
-
 //class FixOptionBytesOperation : public AbstractFirmwareOperation
 //{
 //public:

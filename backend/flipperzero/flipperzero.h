@@ -1,5 +1,4 @@
-#ifndef FLIPPERZERO_H
-#define FLIPPERZERO_H
+#pragma once
 
 #include <QSerialPortInfo>
 #include <QDateTime>
@@ -18,6 +17,8 @@ namespace Zero {
     class RemoteController;
 }
 
+// TODO: move Application processor methods into a separate class
+// TODO: move Co-Processor core methods into a separate class
 class FlipperZero : public QObject
 {
     Q_OBJECT
@@ -43,6 +44,13 @@ public:
         DFUOnly
     };
 
+    enum class WirelessStatus {
+        WSRunning,
+        FUSRunning,
+        UnhandledState,
+        Invalid
+    };
+
     FlipperZero(const USBDeviceInfo &info, QObject *parent = nullptr);
     ~FlipperZero();
 
@@ -65,6 +73,7 @@ public:
     bool setBootMode(BootMode mode);
     bool waitForReboot(int timeoutMs = 10000);
 
+    WirelessStatus wirelessStatus();
     bool isFUSRunning();
 
     bool startFUS();
@@ -138,5 +147,3 @@ private:
 };
 
 }
-
-#endif // FLIPPERZERO_H

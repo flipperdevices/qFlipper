@@ -2,6 +2,7 @@
 
 #include <QUrl>
 #include <QFile>
+#include <QTimer>
 #include <QBuffer>
 #include <QFutureWatcher>
 #include <QSerialPortInfo>
@@ -9,6 +10,7 @@
 
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/operations/firmwaredownloadoperation.h"
+#include "flipperzero/operations/fixbootissuesoperation.h"
 
 #include "remotefilefetcher.h"
 #include "macros.h"
@@ -69,7 +71,7 @@ void FirmwareDownloader::downloadLocalWirelessStack(FlipperZero *device, const Q
 
 void FirmwareDownloader::fixBootIssues(FlipperZero *device)
 {
-//    enqueueOperation(new Flipper::Zero::FixBootIssuesOperation(device));
+    enqueueOperation(new Flipper::Zero::FixBootIssuesOperation(device));
 }
 
 void FirmwareDownloader::fixOptionBytes(FlipperZero *device, const QString &filePath)
@@ -105,6 +107,7 @@ void FirmwareDownloader::enqueueOperation(AbstractFirmwareOperation *op)
     m_operationQueue.enqueue(op);
 
     if(m_state == State::Ready) {
-        processQueue();
+        // Leave the context before calling processQueue()
+        QTimer::singleShot(20, this, &FirmwareDownloader::processQueue);
     }
 }

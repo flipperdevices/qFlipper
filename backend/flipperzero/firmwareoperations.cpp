@@ -48,30 +48,6 @@ namespace Zero {
 //    return true;
 //}
 
-//FixBootIssuesOperation::FixBootIssuesOperation(FlipperZero *device):
-//    m_device(device)
-//{
-//    m_device->setPersistent(true);
-//    m_device->setStatusMessage(QObject::tr("Fix boot issues operation pending..."));
-//}
-
-//FixBootIssuesOperation::~FixBootIssuesOperation()
-//{
-//    m_device->setPersistent(false);
-//}
-
-//const QString FixBootIssuesOperation::name() const
-//{
-//    return QString("Fix boot issues @%1 %2").arg(m_device->model(), m_device->name());
-//}
-
-//bool FixBootIssuesOperation::execute()
-//{
-//    check_return_bool(m_device->startWirelessStack(), "Failed to start wireless stack");
-//    check_return_bool(m_device->setBootMode(FlipperZero::BootMode::Normal), "Failed to set device into Normal boot mode");
-//    return true;
-//}
-
 //FixOptionBytesOperation::FixOptionBytesOperation(FlipperZero *device, QIODevice *file):
 //    m_device(device),
 //    m_file(file)

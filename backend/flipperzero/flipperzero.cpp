@@ -181,10 +181,9 @@ bool FlipperZero::leaveDFU()
 
 bool FlipperZero::setBootMode(BootMode mode)
 {
-    const auto msg = (mode == BootMode::Normal) ? "Booting the device up..." : "Setting device to <b>DFU boot</b> mode...";
+    const auto msg = (mode == BootMode::Normal) ? "Booting the device up..." : "Setting device to DFU boot mode...";
     statusFeedback(msg);
 
-    QMutexLocker locker(&m_deviceMutex);
     STM32WB55 device(m_usbInfo);
 
     if(!device.beginTransaction()) {
@@ -209,9 +208,7 @@ bool FlipperZero::setBootMode(BootMode mode)
 
     check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
 
-    locker.unlock();
-
-    return waitForReboot();
+    return true;
 }
 
 bool FlipperZero::waitForReboot(int timeoutMs)
@@ -241,6 +238,40 @@ bool FlipperZero::waitForReboot(int timeoutMs)
     }
 
     return m_isOnline;
+}
+
+FlipperZero::WirelessStatus FlipperZero::wirelessStatus()
+{
+    info_msg("Getting Co-Processor (Wireless) status...");
+
+    STM32WB55 device(m_usbInfo);
+
+    if(!device.beginTransaction()) {
+        errorFeedback("Can't check FUS status: Failed to initiate transaction.");
+        return WirelessStatus::Invalid;
+    }
+
+    const auto state = device.FUSGetState();
+    if(!state.isValid()) {
+        errorFeedback("Can't check FUS status: Failed to get FUS status.");
+        return WirelessStatus::Invalid;
+    }
+
+    if(!device.endTransaction()) {
+        errorFeedback("Can't check FUS status: Failed to end transaction.");
+        return WirelessStatus::Invalid;
+    }
+
+    const auto status = state.status();
+    const auto error = state.error();
+
+    if((status == FUSState::Idle) && (error == FUSState::NoError)) {
+        return WirelessStatus::FUSRunning;
+    } else if((status == FUSState::ErrorOccured) && (error == FUSState::NotRunning)) {
+        return WirelessStatus::WSRunning;
+    } else {
+        return WirelessStatus::UnhandledState;
+    }
 }
 
 bool FlipperZero::isFUSRunning()
@@ -329,28 +360,16 @@ bool FlipperZero::startWirelessStack()
 {
     statusFeedback("Attempting to start the Wireless Stack...");
 
-    QMutexLocker locker(&m_deviceMutex);
     STM32WB55 device(m_usbInfo);
 
-    auto success = device.beginTransaction() && device.FUSStartWirelessStack();// &&device.endTransaction();
-
-    if(!success) {
-        errorFeedback("Failed to start wireless stack");
-        return false;
-    }
-
-    const auto state = device.FUSGetState();
+    auto success = device.beginTransaction() && device.FUSStartWirelessStack();
     check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
 
-    if(state.isValid()) {
-        info_msg(QString("Current FUS state: %1, %2").arg(state.statusString(), state.errorString()));
-        return true;
-    } else {
-        locker.unlock();
-        return waitForReboot();
+    if(!success) {
+        errorFeedback("Failed to start wireless stack.");
     }
 
-    return false;
+    return success;
 }
 
 bool FlipperZero::deleteWirelessStack()
