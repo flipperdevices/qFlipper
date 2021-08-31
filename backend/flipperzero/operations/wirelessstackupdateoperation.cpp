@@ -1,4 +1,4 @@
-#include "fixoptionbytesoperation.h"
+#include "wirelessstackupdateoperation.h"
 
 #include <QIODevice>
 #include <QFutureWatcher>
@@ -9,27 +9,28 @@
 using namespace Flipper;
 using namespace Zero;
 
-FixOptionBytesOperation::FixOptionBytesOperation(FlipperZero *device, QIODevice *file, QObject *parent):
+WirelessStackUpdateOperation::WirelessStackUpdateOperation(FlipperZero *device, QIODevice *file, uint32_t targetAddress, QObject *parent):
     AbstractFirmwareOperation(parent),
     m_device(device),
-    m_file(file)
+    m_file(file),
+    m_targetAddress(targetAddress)
 {
     m_device->setPersistent(true);
-    m_device->setStatusMessage(QObject::tr("Fix boot issues operation pending..."));
+    m_device->setStatusMessage(QObject::tr("Co-Processor firmware update pending..."));
 }
 
-FixOptionBytesOperation::~FixOptionBytesOperation()
+WirelessStackUpdateOperation::~WirelessStackUpdateOperation()
 {
     m_device->setPersistent(false);
     m_file->deleteLater();
 }
 
-const QString FixOptionBytesOperation::name() const
+const QString WirelessStackUpdateOperation::name() const
 {
-    return QString("Fix Option Bytes @%1 %2").arg(m_device->model(), m_device->name());
+    return QString("Co-Processor Firmware Download @%1 %2").arg(m_device->model(), m_device->name());
 }
 
-void FixOptionBytesOperation::start()
+void WirelessStackUpdateOperation::start()
 {
     if(state() != Idle) {
         setError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
@@ -39,7 +40,7 @@ void FixOptionBytesOperation::start()
     transitionToNextState();
 }
 
-void FixOptionBytesOperation::transitionToNextState()
+void WirelessStackUpdateOperation::transitionToNextState()
 {
     if(!m_device->isOnline()) {
         return;
@@ -49,16 +50,14 @@ void FixOptionBytesOperation::transitionToNextState()
 
     if(state() == AbstractFirmwareOperation::Idle) {
         setState(State::WaitingForDFU);
-        connect(m_device, &FlipperZero::isOnlineChanged, this, &FixOptionBytesOperation::transitionToNextState);
+        connect(m_device, &FlipperZero::isOnlineChanged, this, &WirelessStackUpdateOperation::transitionToNextState);
         doEnterDFUMode();
 
     } else if(state() == State::WaitingForDFU) {
-        setState(FixOptionBytesOperation::WaitingForFirmwareBoot);
-        doFixOptionBytes();
 
     } else if(state() == State::WaitingForFirmwareBoot) {
         setState(AbstractFirmwareOperation::Finished);
-        disconnect(m_device, &FlipperZero::isOnlineChanged, this, &FixOptionBytesOperation::transitionToNextState);
+        disconnect(m_device, &FlipperZero::isOnlineChanged, this, &WirelessStackUpdateOperation::transitionToNextState);
         emit finished();
 
     } else {
@@ -66,35 +65,26 @@ void FixOptionBytesOperation::transitionToNextState()
     }
 }
 
-void FixOptionBytesOperation::onOperationTimeout()
+void WirelessStackUpdateOperation::onOperationTimeout()
 {
     switch(state()) {
-    case FixOptionBytesOperation::WaitingForDFU:
+    case WirelessStackUpdateOperation::WaitingForDFU:
         setError(QStringLiteral("Failed to reach DFU mode: Operation timeout."));
         break;
-    case FixOptionBytesOperation::WaitingForFirmwareBoot:
-        setError(QStringLiteral("Failed to write the corrected Option Bytes: Operation timeout."));
+    case WirelessStackUpdateOperation::WaitingForFirmwareBoot:
+        setError(QStringLiteral("Failed to boot the device: Operation timeout."));
         break;
     default:
         setError(QStringLiteral("Should not have timed out here, probably a bug."));
     }
 }
 
-void FixOptionBytesOperation::doEnterDFUMode()
+void WirelessStackUpdateOperation::doEnterDFUMode()
 {
     if(m_device->isDFU()) {
         transitionToNextState();
     } else if(!m_device->enterDFU()) {
         setError(QStringLiteral("Failed to enter DFU mode."));
-    } else {
-        startTimeout();
-    }
-}
-
-void FixOptionBytesOperation::doFixOptionBytes()
-{
-    if(!m_device->fixOptionBytes(m_file)) {
-        setError("Failed to write corrected Option Bytes.");
     } else {
         startTimeout();
     }
