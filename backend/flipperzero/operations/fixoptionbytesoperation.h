@@ -10,19 +10,18 @@ class FlipperZero;
 
 namespace Zero {
 
-class FirmwareDownloadOperation : public AbstractFirmwareOperation
+class FixOptionBytesOperation : public AbstractFirmwareOperation
 {
     Q_OBJECT
 
     enum State {
         WaitingForDFU = AbstractFirmwareOperation::User,
-        DownloadingFirmware,
         WaitingForFirmwareBoot,
     };
 
 public:
-    FirmwareDownloadOperation(FlipperZero *device, QIODevice *file, QObject *parent = nullptr);
-    ~FirmwareDownloadOperation();
+    FixOptionBytesOperation(FlipperZero *device, QIODevice *file, QObject *parent = nullptr);
+    ~FixOptionBytesOperation();
 
     const QString name() const override;
     void start() override;
@@ -32,10 +31,12 @@ private slots:
     void onOperationTimeout() override;
 
 private:
+    void doEnterDFUMode();
+    void doFixOptionBytes();
+
     FlipperZero *m_device;
     QIODevice *m_file;
 };
 
 }
 }
-

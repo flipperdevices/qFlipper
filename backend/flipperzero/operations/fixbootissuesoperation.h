@@ -13,8 +13,8 @@ class FixBootIssuesOperation : public AbstractFirmwareOperation
     Q_OBJECT
 
     enum State {
-        WaitForWirelessStack = AbstractFirmwareOperation::User,
-        WaitForDeviceBoot
+        WaitingForWirelessStack = AbstractFirmwareOperation::User,
+        WaitingForFirmwareBoot
     };
 
 public:

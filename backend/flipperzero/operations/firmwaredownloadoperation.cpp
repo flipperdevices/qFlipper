@@ -47,7 +47,7 @@ void FirmwareDownloadOperation::transitionToNextState()
     stopTimeout();
 
     if(state() == AbstractFirmwareOperation::Idle) {
-        setState(State::WaitForDFU);
+        setState(State::WaitingForDFU);
 
         connect(m_device, &FlipperZero::isOnlineChanged, this, &FirmwareDownloadOperation::transitionToNextState);
 
@@ -60,8 +60,8 @@ void FirmwareDownloadOperation::transitionToNextState()
             startTimeout();
         }
 
-    } else if(state() == State::WaitForDFU) {
-        setState(State::Downloading);
+    } else if(state() == State::WaitingForDFU) {
+        setState(State::DownloadingFirmware);
 
         auto *watcher = new QFutureWatcher<bool>(this);
 
@@ -77,8 +77,8 @@ void FirmwareDownloadOperation::transitionToNextState()
 
         watcher->setFuture(QtConcurrent::run(m_device, &FlipperZero::downloadFirmware, m_file));
 
-    } else if(state() == State::Downloading) {
-        setState(State::WaitForVCP);
+    } else if(state() == State::DownloadingFirmware) {
+        setState(State::WaitingForFirmwareBoot);
 
         if(!m_device->leaveDFU()) {
             setError(QStringLiteral("Failed to leave DFU mode."));
@@ -86,7 +86,7 @@ void FirmwareDownloadOperation::transitionToNextState()
             startTimeout();
         }
 
-    } else if(state() == State::WaitForVCP) {
+    } else if(state() == State::WaitingForFirmwareBoot) {
         setState(AbstractFirmwareOperation::Finished);
 
         disconnect(m_device, &FlipperZero::isOnlineChanged, this, &FirmwareDownloadOperation::transitionToNextState);
@@ -100,10 +100,10 @@ void FirmwareDownloadOperation::transitionToNextState()
 void FirmwareDownloadOperation::onOperationTimeout()
 {
     switch(state()) {
-    case FirmwareDownloadOperation::WaitForDFU:
+    case FirmwareDownloadOperation::WaitingForDFU:
         setError(QStringLiteral("Failed to reach DFU mode: Operation timeout."));
         break;
-    case FirmwareDownloadOperation::WaitForVCP:
+    case FirmwareDownloadOperation::WaitingForFirmwareBoot:
         setError(QStringLiteral("Failed to reboot the device: Operation timeout."));
         break;
     default:

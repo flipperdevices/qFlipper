@@ -19,6 +19,7 @@ SOURCES += \
     flipperzero/flipperzero.cpp \
     flipperzero/operations/firmwaredownloadoperation.cpp \
     flipperzero/operations/fixbootissuesoperation.cpp \
+    flipperzero/operations/fixoptionbytesoperation.cpp \
     flipperzero/remotecontroller.cpp \
     qflipperbackend.cpp \
     remotefilefetcher.cpp \
@@ -37,6 +38,7 @@ HEADERS += \
     flipperzero/flipperzero.h \
     flipperzero/operations/firmwaredownloadoperation.h \
     flipperzero/operations/fixbootissuesoperation.h \
+    flipperzero/operations/fixoptionbytesoperation.h \
     flipperzero/remotecontroller.h \
     qflipperbackend.h \
     remotefilefetcher.h \

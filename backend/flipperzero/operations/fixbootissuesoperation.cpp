@@ -1,8 +1,5 @@
 #include "fixbootissuesoperation.h"
 
-#include <QFutureWatcher>
-#include <QtConcurrent/QtConcurrentRun>
-
 #include "flipperzero/flipperzero.h"
 
 using namespace Flipper;
@@ -45,17 +42,17 @@ void FixBootIssuesOperation::transitionToNextState()
     stopTimeout();
 
     if(state() == AbstractFirmwareOperation::Idle) {
-        setState(FixBootIssuesOperation::WaitForWirelessStack);
+        setState(FixBootIssuesOperation::WaitingForWirelessStack);
         connect(m_device, &FlipperZero::isOnlineChanged, this, &FixBootIssuesOperation::transitionToNextState);
 
         doStartWirelessStack();
 
-    } else if(state() == FixBootIssuesOperation::WaitForWirelessStack) {
-        setState(FixBootIssuesOperation::WaitForDeviceBoot);
+    } else if(state() == FixBootIssuesOperation::WaitingForWirelessStack) {
+        setState(FixBootIssuesOperation::WaitingForFirmwareBoot);
 
         doFixBootMode();
 
-    } else if(state() == FixBootIssuesOperation::WaitForDeviceBoot) {
+    } else if(state() == FixBootIssuesOperation::WaitingForFirmwareBoot) {
         setState(AbstractFirmwareOperation::Finished);
         disconnect(m_device, &FlipperZero::isOnlineChanged, this, &FixBootIssuesOperation::transitionToNextState);
         emit finished();
@@ -68,10 +65,10 @@ void FixBootIssuesOperation::transitionToNextState()
 void FixBootIssuesOperation::onOperationTimeout()
 {
     switch(state()) {
-    case FixBootIssuesOperation::WaitForWirelessStack:
+    case FixBootIssuesOperation::WaitingForWirelessStack:
         setError(QStringLiteral("Failed to start the Wireless Stack: Operation timeout."));
         break;
-    case FixBootIssuesOperation::WaitForDeviceBoot:
+    case FixBootIssuesOperation::WaitingForFirmwareBoot:
         setError(QStringLiteral("Failed to set the Option Bytes: Operation timeout."));
         break;
     default:

@@ -2,6 +2,8 @@
 
 #include <QTimer>
 
+#include "macros.h"
+
 AbstractFirmwareOperation::AbstractFirmwareOperation(QObject *parent):
     QObject(parent),
     m_isError(false),
@@ -42,6 +44,8 @@ void AbstractFirmwareOperation::setState(int state)
 
 void AbstractFirmwareOperation::setError(const QString &errorString)
 {
+    error_msg(errorString);
+
     m_isError = true;
     m_errorString = errorString;
 

@@ -612,7 +612,6 @@ bool FlipperZero::fixOptionBytes(QIODevice *file)
 
     check_return_bool(loaded.isValid(), "Failed to load option bytes from file");
 
-    QMutexLocker locker(&m_deviceMutex);
     STM32WB55 device(m_usbInfo);
 
     check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
@@ -620,9 +619,16 @@ bool FlipperZero::fixOptionBytes(QIODevice *file)
 
     const auto diff = actual.compare(loaded);
 
+    bool success = false;
+
     if(diff.isEmpty()) {
         info_msg("Option Bytes OK");
-        device.leave();
+
+        success = device.leave();
+
+        if(!success) {
+            errorFeedback("Can't set boot mode: Failed to leave the DFU mode.");
+        }
 
     } else {
         for(auto it = diff.constKeyValueBegin(); it != diff.constKeyValueEnd(); ++it) {
@@ -630,14 +636,24 @@ bool FlipperZero::fixOptionBytes(QIODevice *file)
                      .arg((*it).first, to_hex_str(actual.value((*it).first)), to_hex_str((*it).second)));
         }
 
-        info_msg("Writing corrected Option Bytes");
-        device.setOptionBytes(actual.corrected(diff));
+        info_msg("Writing corrected Option Bytes...");
+
+        success = device.setOptionBytes(actual.corrected(diff));
+
+        if(!success) {
+            errorFeedback("Can't set boot mode: Failed to set option bytes");
+        }
     }
 
-    check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
+    begin_ignore_block();
+    device.endTransaction();
+    end_ignore_block();
 
-    locker.unlock();
-    return waitForReboot();
+    if(success) {
+        statusFeedback("Booting up the device...");
+    }
+
+    return success;
 }
 
 const QString &FlipperZero::name() const

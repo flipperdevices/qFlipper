@@ -48,33 +48,4 @@ namespace Zero {
 //    return true;
 //}
 
-//FixOptionBytesOperation::FixOptionBytesOperation(FlipperZero *device, QIODevice *file):
-//    m_device(device),
-//    m_file(file)
-//{
-//    m_device->setPersistent(true);
-//    m_device->setStatusMessage(QObject::tr("Check Option Bytes operation pending..."));
-//}
-
-//FixOptionBytesOperation::~FixOptionBytesOperation()
-//{
-//    m_device->setPersistent(false);
-//    m_file->deleteLater();
-//}
-
-//const QString FixOptionBytesOperation::name() const
-//{
-//    return QString("Fix Option Bytes @%1 %2").arg(m_device->model(), m_device->name());
-//}
-
-//bool FixOptionBytesOperation::execute()
-//{
-//    if(!m_device->isDFU()) {
-//        check_return_bool(m_device->detach(), "Failed to detach device");
-//    }
-
-//    check_return_bool(m_device->fixOptionBytes(m_file), "Failed to check option bytes");
-//    return true;
-//}
-
 }}

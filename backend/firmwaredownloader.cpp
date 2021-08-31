@@ -4,12 +4,10 @@
 #include <QFile>
 #include <QTimer>
 #include <QBuffer>
-#include <QFutureWatcher>
-#include <QSerialPortInfo>
-#include <QtConcurrent/QtConcurrentRun>
 
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/operations/firmwaredownloadoperation.h"
+#include "flipperzero/operations/fixoptionbytesoperation.h"
 #include "flipperzero/operations/fixbootissuesoperation.h"
 
 #include "remotefilefetcher.h"
@@ -76,10 +74,10 @@ void FirmwareDownloader::fixBootIssues(FlipperZero *device)
 
 void FirmwareDownloader::fixOptionBytes(FlipperZero *device, const QString &filePath)
 {
-//    const auto localUrl = QUrl(filePath).toLocalFile();
-//    auto *file = new QFile(localUrl, this);
+    const auto localUrl = QUrl(filePath).toLocalFile();
+    auto *file = new QFile(localUrl, this);
 
-//    enqueueOperation(new Flipper::Zero::FixOptionBytesOperation(device, file));
+    enqueueOperation(new Flipper::Zero::FixOptionBytesOperation(device, file));
 }
 
 void FirmwareDownloader::processQueue()
@@ -94,7 +92,7 @@ void FirmwareDownloader::processQueue()
     auto *currentOperation = m_operationQueue.dequeue();
 
     connect(currentOperation, &AbstractFirmwareOperation::finished, this, [=]() {
-        info_msg(QString("Operation '%1' finished with status: %2").arg(currentOperation->name(), currentOperation->isError() ? "FAILURE" : "SUCCESS"));
+        info_msg(QStringLiteral("Operation '%1' finished with status: %2").arg(currentOperation->name(), currentOperation->isError() ? "FAILURE" : "SUCCESS"));
         currentOperation->deleteLater();
         processQueue();
     });
