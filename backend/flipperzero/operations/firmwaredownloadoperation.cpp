@@ -30,39 +30,39 @@ const QString FirmwareDownloadOperation::name() const
 
 void FirmwareDownloadOperation::start()
 {
-    if(state() != Idle) {
+    if(state() != Ready) {
         setError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
         return;
     }
 
+    connect(m_device, &FlipperZero::isOnlineChanged, this, &FirmwareDownloadOperation::transitionToNextState);
     transitionToNextState();
 }
 
 void FirmwareDownloadOperation::transitionToNextState()
 {
     if(!m_device->isOnline()) {
+        startTimeout();
         return;
     }
 
     stopTimeout();
 
-    if(state() == AbstractFirmwareOperation::Idle) {
-        setState(State::WaitingForDFU);
-        connect(m_device, &FlipperZero::isOnlineChanged, this, &FirmwareDownloadOperation::transitionToNextState);
-        doEnterDFUMode();
+    if(state() == AbstractFirmwareOperation::Ready) {
+        setState(State::BootingToDFU);
+        booToDFU();
 
-    } else if(state() == State::WaitingForDFU) {
+    } else if(state() == State::BootingToDFU) {
         setState(State::DownloadingFirmware);
-        doDownloadFirmware();
+        downloadFirmware();
 
     } else if(state() == State::DownloadingFirmware) {
-        setState(State::WaitingForFirmwareBoot);
-        doBootFirmware();
+        setState(State::BootingToFirmware);
+        bootToFirmware();
 
-    } else if(state() == State::WaitingForFirmwareBoot) {
+    } else if(state() == State::BootingToFirmware) {
         setState(AbstractFirmwareOperation::Finished);
-        disconnect(m_device, &FlipperZero::isOnlineChanged, this, &FirmwareDownloadOperation::transitionToNextState);
-        emit finished();
+        finish();
 
     } else {
         setError(QStringLiteral("Unexpected state."));
@@ -72,10 +72,10 @@ void FirmwareDownloadOperation::transitionToNextState()
 void FirmwareDownloadOperation::onOperationTimeout()
 {
     switch(state()) {
-    case FirmwareDownloadOperation::WaitingForDFU:
+    case FirmwareDownloadOperation::BootingToDFU:
         setError(QStringLiteral("Failed to reach DFU mode: Operation timeout."));
         break;
-    case FirmwareDownloadOperation::WaitingForFirmwareBoot:
+    case FirmwareDownloadOperation::BootingToFirmware:
         setError(QStringLiteral("Failed to reboot the device: Operation timeout."));
         break;
     default:
@@ -83,18 +83,16 @@ void FirmwareDownloadOperation::onOperationTimeout()
     }
 }
 
-void FirmwareDownloadOperation::doEnterDFUMode()
+void FirmwareDownloadOperation::booToDFU()
 {
     if(m_device->isDFU()) {
         transitionToNextState();
-    } else if(!m_device->enterDFU()) {
+    } else if(!m_device->bootToDFU()) {
         setError(QStringLiteral("Failed to detach the device."));
-    } else {
-        startTimeout();
     }
 }
 
-void FirmwareDownloadOperation::doDownloadFirmware()
+void FirmwareDownloadOperation::downloadFirmware()
 {
     auto *watcher = new QFutureWatcher<bool>(this);
 
@@ -111,11 +109,15 @@ void FirmwareDownloadOperation::doDownloadFirmware()
     watcher->setFuture(QtConcurrent::run(m_device, &FlipperZero::downloadFirmware, m_file));
 }
 
-void FirmwareDownloadOperation::doBootFirmware()
+void FirmwareDownloadOperation::bootToFirmware()
 {
-    if(!m_device->leaveDFU()) {
+    if(!m_device->reboot()) {
         setError(QStringLiteral("Failed to leave DFU mode."));
-    } else {
-        startTimeout();
     }
+}
+
+void FirmwareDownloadOperation::finish()
+{
+    disconnect(m_device, &FlipperZero::isOnlineChanged, this, &FirmwareDownloadOperation::transitionToNextState);
+    emit finished();
 }

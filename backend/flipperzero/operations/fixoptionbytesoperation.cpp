@@ -1,8 +1,6 @@
 #include "fixoptionbytesoperation.h"
 
 #include <QIODevice>
-#include <QFutureWatcher>
-#include <QtConcurrent/QtConcurrentRun>
 
 #include "flipperzero/flipperzero.h"
 
@@ -31,11 +29,12 @@ const QString FixOptionBytesOperation::name() const
 
 void FixOptionBytesOperation::start()
 {
-    if(state() != Idle) {
+    if(state() != Ready) {
         setError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
         return;
     }
 
+    connect(m_device, &FlipperZero::isOnlineChanged, this, &FixOptionBytesOperation::transitionToNextState);
     transitionToNextState();
 }
 
@@ -47,19 +46,17 @@ void FixOptionBytesOperation::transitionToNextState()
 
     stopTimeout();
 
-    if(state() == AbstractFirmwareOperation::Idle) {
-        setState(State::WaitingForDFU);
-        connect(m_device, &FlipperZero::isOnlineChanged, this, &FixOptionBytesOperation::transitionToNextState);
-        doEnterDFUMode();
+    if(state() == AbstractFirmwareOperation::Ready) {
+        setState(State::BootingToDFU);
+        bootToDFU();
 
-    } else if(state() == State::WaitingForDFU) {
-        setState(FixOptionBytesOperation::WaitingForFirmwareBoot);
-        doFixOptionBytes();
+    } else if(state() == State::BootingToDFU) {
+        setState(FixOptionBytesOperation::FixingOptionBytes);
+        fixOptionBytes();
 
-    } else if(state() == State::WaitingForFirmwareBoot) {
+    } else if(state() == State::FixingOptionBytes) {
         setState(AbstractFirmwareOperation::Finished);
-        disconnect(m_device, &FlipperZero::isOnlineChanged, this, &FixOptionBytesOperation::transitionToNextState);
-        emit finished();
+        finish();
 
     } else {
         setError(QStringLiteral("Unexpected state."));
@@ -69,10 +66,10 @@ void FixOptionBytesOperation::transitionToNextState()
 void FixOptionBytesOperation::onOperationTimeout()
 {
     switch(state()) {
-    case FixOptionBytesOperation::WaitingForDFU:
+    case FixOptionBytesOperation::BootingToDFU:
         setError(QStringLiteral("Failed to reach DFU mode: Operation timeout."));
         break;
-    case FixOptionBytesOperation::WaitingForFirmwareBoot:
+    case FixOptionBytesOperation::FixingOptionBytes:
         setError(QStringLiteral("Failed to write the corrected Option Bytes: Operation timeout."));
         break;
     default:
@@ -80,22 +77,24 @@ void FixOptionBytesOperation::onOperationTimeout()
     }
 }
 
-void FixOptionBytesOperation::doEnterDFUMode()
+void FixOptionBytesOperation::bootToDFU()
 {
     if(m_device->isDFU()) {
         transitionToNextState();
-    } else if(!m_device->enterDFU()) {
+    } else if(!m_device->bootToDFU()) {
         setError(QStringLiteral("Failed to enter DFU mode."));
-    } else {
-        startTimeout();
+    } else {}
+}
+
+void FixOptionBytesOperation::fixOptionBytes()
+{
+    if(!m_device->downloadOptionBytes(m_file)) {
+        setError("Failed to write corrected Option Bytes.");
     }
 }
 
-void FixOptionBytesOperation::doFixOptionBytes()
+void FixOptionBytesOperation::finish()
 {
-    if(!m_device->fixOptionBytes(m_file)) {
-        setError("Failed to write corrected Option Bytes.");
-    } else {
-        startTimeout();
-    }
+    disconnect(m_device, &FlipperZero::isOnlineChanged, this, &FixOptionBytesOperation::transitionToNextState);
+    emit finished();
 }

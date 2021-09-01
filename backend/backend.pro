@@ -15,7 +15,6 @@ SOURCES += \
     flipperupdates.cpp \
     flipperzero/deviceinfofetcher.cpp \
     flipperzero/factoryinfo.cpp \
-    flipperzero/firmwareoperations.cpp \
     flipperzero/flipperzero.cpp \
     flipperzero/operations/firmwaredownloadoperation.cpp \
     flipperzero/operations/fixbootissuesoperation.cpp \
@@ -35,7 +34,6 @@ HEADERS += \
     flipperzero/deviceinfo.h \
     flipperzero/deviceinfofetcher.h \
     flipperzero/factoryinfo.h \
-    flipperzero/firmwareoperations.h \
     flipperzero/flipperzero.h \
     flipperzero/operations/firmwaredownloadoperation.h \
     flipperzero/operations/fixbootissuesoperation.h \

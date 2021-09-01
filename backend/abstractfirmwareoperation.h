@@ -9,7 +9,7 @@ class AbstractFirmwareOperation: public QObject {
 
 public:
     enum BasicState {
-        Idle = 0,
+        Ready = 0,
         Finished,
         User
     };

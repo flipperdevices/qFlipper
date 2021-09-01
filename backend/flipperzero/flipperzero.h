@@ -47,6 +47,7 @@ public:
     enum class WirelessStatus {
         WSRunning,
         FUSRunning,
+        ErrorOccured,
         UnhandledState,
         Invalid
     };
@@ -67,25 +68,22 @@ public:
     bool isOnline() const;
     bool isError() const;
 
-    bool enterDFU();
-    bool leaveDFU();
+    bool bootToDFU();
+    bool reboot();
 
     bool setBootMode(BootMode mode);
-    bool waitForReboot(int timeoutMs = 10000);
 
     WirelessStatus wirelessStatus();
-    bool isFUSRunning();
 
     bool startFUS();
     bool startWirelessStack();
     bool deleteWirelessStack();
-
-    bool downloadFirmware(QIODevice *file);
-    bool downloadFUS(QIODevice *file, uint32_t addr);
-    bool downloadWirelessStack(QIODevice *file, uint32_t addr = 0);
     bool upgradeWirelessStack();
 
-    bool fixOptionBytes(QIODevice *file);
+    bool downloadFirmware(QIODevice *file);
+    bool downloadOptionBytes(QIODevice *file);
+    bool downloadFUS(QIODevice *file, uint32_t addr);
+    bool downloadWirelessStack(QIODevice *file, uint32_t addr = 0);
 
     const QString &name() const;
     const QString &model() const;

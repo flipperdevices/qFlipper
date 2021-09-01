@@ -15,8 +15,8 @@ class FixOptionBytesOperation : public AbstractFirmwareOperation
     Q_OBJECT
 
     enum State {
-        WaitingForDFU = AbstractFirmwareOperation::User,
-        WaitingForFirmwareBoot,
+        BootingToDFU = AbstractFirmwareOperation::User,
+        FixingOptionBytes,
     };
 
 public:
@@ -31,8 +31,9 @@ private slots:
     void onOperationTimeout() override;
 
 private:
-    void doEnterDFUMode();
-    void doFixOptionBytes();
+    void bootToDFU();
+    void fixOptionBytes();
+    void finish();
 
     FlipperZero *m_device;
     QIODevice *m_file;

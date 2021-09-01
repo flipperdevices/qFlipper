@@ -9,7 +9,7 @@ AbstractFirmwareOperation::AbstractFirmwareOperation(QObject *parent):
     m_isError(false),
     m_errorString(QStringLiteral("No error")),
     m_timeout(new QTimer(this)),
-    m_state(BasicState::Idle)
+    m_state(BasicState::Ready)
 {
     connect(this, &AbstractFirmwareOperation::finished, m_timeout, &QTimer::stop);
     connect(m_timeout, &QTimer::timeout, this, &AbstractFirmwareOperation::onOperationTimeout);

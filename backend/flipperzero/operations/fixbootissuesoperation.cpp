@@ -25,37 +25,35 @@ const QString FixBootIssuesOperation::name() const
 
 void FixBootIssuesOperation::start()
 {
-    if(state() != Idle) {
+    if(state() != Ready) {
         setError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
         return;
     }
 
+    connect(m_device, &FlipperZero::isOnlineChanged, this, &FixBootIssuesOperation::transitionToNextState);
     transitionToNextState();
 }
 
 void FixBootIssuesOperation::transitionToNextState()
 {
     if(!m_device->isOnline()) {
+        startTimeout();
         return;
     }
 
     stopTimeout();
 
-    if(state() == AbstractFirmwareOperation::Idle) {
-        setState(FixBootIssuesOperation::WaitingForWirelessStack);
-        connect(m_device, &FlipperZero::isOnlineChanged, this, &FixBootIssuesOperation::transitionToNextState);
+    if(state() == AbstractFirmwareOperation::Ready) {
+        setState(FixBootIssuesOperation::StartingWirelessStack);
+        startWirelessStack();
 
-        doStartWirelessStack();
+    } else if(state() == FixBootIssuesOperation::StartingWirelessStack) {
+        setState(FixBootIssuesOperation::FixingBootMode);
+        fixBootMode();
 
-    } else if(state() == FixBootIssuesOperation::WaitingForWirelessStack) {
-        setState(FixBootIssuesOperation::WaitingForFirmwareBoot);
-
-        doFixBootMode();
-
-    } else if(state() == FixBootIssuesOperation::WaitingForFirmwareBoot) {
+    } else if(state() == FixBootIssuesOperation::FixingBootMode) {
         setState(AbstractFirmwareOperation::Finished);
-        disconnect(m_device, &FlipperZero::isOnlineChanged, this, &FixBootIssuesOperation::transitionToNextState);
-        emit finished();
+        finish();
 
     } else {
         setError(QStringLiteral("Unexpected state."));
@@ -65,10 +63,10 @@ void FixBootIssuesOperation::transitionToNextState()
 void FixBootIssuesOperation::onOperationTimeout()
 {
     switch(state()) {
-    case FixBootIssuesOperation::WaitingForWirelessStack:
+    case FixBootIssuesOperation::StartingWirelessStack:
         setError(QStringLiteral("Failed to start the Wireless Stack: Operation timeout."));
         break;
-    case FixBootIssuesOperation::WaitingForFirmwareBoot:
+    case FixBootIssuesOperation::FixingBootMode:
         setError(QStringLiteral("Failed to set the Option Bytes: Operation timeout."));
         break;
     default:
@@ -76,16 +74,16 @@ void FixBootIssuesOperation::onOperationTimeout()
     }
 }
 
-void FixBootIssuesOperation::doStartWirelessStack()
+void FixBootIssuesOperation::startWirelessStack()
 {
     const auto wirelessStatus = m_device->wirelessStatus();
 
     if(wirelessStatus == FlipperZero::WirelessStatus::FUSRunning) {
         if(!m_device->startWirelessStack()) {
             setError(QStringLiteral("Failed to start the Wireless Stack."));
-        } else {
-            startTimeout();
-        }
+        } else if(m_device->wirelessStatus() == FlipperZero::WirelessStatus::UnhandledState) {
+            transitionToNextState();
+        } else {}
 
     } else if(wirelessStatus == FlipperZero::WirelessStatus::WSRunning) {
         transitionToNextState();
@@ -96,16 +94,17 @@ void FixBootIssuesOperation::doStartWirelessStack()
     }
 }
 
-void FixBootIssuesOperation::doFixBootMode()
+void FixBootIssuesOperation::fixBootMode()
 {
-    if(m_device->isDFU()) {
-        if(!m_device->setBootMode(FlipperZero::BootMode::Normal)) {
-            setError(QStringLiteral("Failed to set the Option Bytes."));
-        } else {
-            startTimeout();
-        }
-
-    } else {
+    if(!m_device->isDFU()) {
         transitionToNextState();
-    }
+    } else if (!m_device->setBootMode(FlipperZero::BootMode::Normal)) {
+        setError(QStringLiteral("Failed to set the Option Bytes."));
+    } else{}
+}
+
+void FixBootIssuesOperation::finish()
+{
+    disconnect(m_device, &FlipperZero::isOnlineChanged, this, &FixBootIssuesOperation::transitionToNextState);
+    emit finished();
 }

@@ -93,7 +93,7 @@ void FirmwareDownloader::processQueue()
     auto *currentOperation = m_operationQueue.dequeue();
 
     connect(currentOperation, &AbstractFirmwareOperation::finished, this, [=]() {
-        info_msg(QStringLiteral("Operation '%1' finished with status: %2").arg(currentOperation->name(), currentOperation->isError() ? "FAILURE" : "SUCCESS"));
+        info_msg(QStringLiteral("Operation '%1' finished with status: %2.").arg(currentOperation->name(), currentOperation->errorString()));
         currentOperation->deleteLater();
         processQueue();
     });

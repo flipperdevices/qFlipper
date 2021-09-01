@@ -15,9 +15,9 @@ class FirmwareDownloadOperation : public AbstractFirmwareOperation
     Q_OBJECT
 
     enum State {
-        WaitingForDFU = AbstractFirmwareOperation::User,
+        BootingToDFU = AbstractFirmwareOperation::User,
         DownloadingFirmware,
-        WaitingForFirmwareBoot,
+        BootingToFirmware,
     };
 
 public:
@@ -32,9 +32,10 @@ private slots:
     void onOperationTimeout() override;
 
 private:
-    void doEnterDFUMode();
-    void doDownloadFirmware();
-    void doBootFirmware();
+    void booToDFU();
+    void downloadFirmware();
+    void bootToFirmware();
+    void finish();
 
     FlipperZero *m_device;
     QIODevice *m_file;

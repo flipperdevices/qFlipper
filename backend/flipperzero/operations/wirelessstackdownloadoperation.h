@@ -2,6 +2,7 @@
 
 #include "abstractfirmwareoperation.h"
 
+class QTimer;
 class QIODevice;
 
 namespace Flipper {
@@ -15,8 +16,13 @@ class WirelessStackDownloadOperation : public AbstractFirmwareOperation
     Q_OBJECT
 
     enum State {
-        WaitingForDFU = AbstractFirmwareOperation::User,
-        WaitingForFirmwareBoot,
+        BootingToDFU = AbstractFirmwareOperation::User,
+        SettingDFUBoot,
+        StartingFUS,
+        DeletingWirelessStack,
+        DownloadingWirelessStack,
+        UpgradingWirelessStack,
+        ResettingDFUBoot
     };
 
 public:
@@ -31,10 +37,19 @@ private slots:
     void onOperationTimeout() override;
 
 private:
-    void doEnterDFUMode();
+    void bootToDFU();
+    void setDFUBoot(bool set);
+    void startFUS();
+    void deleteWirelessStack();
+    bool isWirelessStackDeleted();
+    void downloadWirelessStack();
+    void upgradeWirelessStack();
+    bool isWirelessStackUpgraded();
+    void finish();
 
     FlipperZero *m_device;
     QIODevice *m_file;
+    QTimer *m_loopTimer;
     uint32_t m_targetAddress;
 };
 

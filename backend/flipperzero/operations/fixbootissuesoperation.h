@@ -13,8 +13,8 @@ class FixBootIssuesOperation : public AbstractFirmwareOperation
     Q_OBJECT
 
     enum State {
-        WaitingForWirelessStack = AbstractFirmwareOperation::User,
-        WaitingForFirmwareBoot
+        StartingWirelessStack = AbstractFirmwareOperation::User,
+        FixingBootMode
     };
 
 public:
@@ -29,8 +29,9 @@ private slots:
     void onOperationTimeout() override;
 
 private:
-    void doStartWirelessStack();
-    void doFixBootMode();
+    void startWirelessStack();
+    void fixBootMode();
+    void finish();
 
     FlipperZero *m_device;
 };
