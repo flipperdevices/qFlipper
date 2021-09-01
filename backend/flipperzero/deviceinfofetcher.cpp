@@ -71,7 +71,7 @@ void VCPDeviceInfoFetcher::fetch()
                         (m_serialPort->write("\rdevice_info\r") > 0) &&
                          m_serialPort->flush();
     if(success) {
-        timeout->start(100);
+        timeout->start(5000);
     }
 }
 
