@@ -17,28 +17,32 @@ Item {
 
     function setPressed() {
         button.down = true;
-        pressed();
+        onButtonPressed();
     }
 
     function setReleased() {
         button.down = false;
-        released();
+        onButtonReleased();
     }
 
-    onPressed: {
+    function onButtonPressed() {
+        control.pressed();
+
         if(!longTimer.running) {
             longTimer.start();
         }
 
-        if(shortTimer.running) {
-           shortTimer.stop();
+        if(releaseTimer.running) {
+           releaseTimer.stop();
         }
     }
 
-    onReleased: {
+    function onButtonReleased() {
+        releaseTimer.start();
+
         if(longTimer.running) {
             longTimer.stop();
-            shortTimer.start();
+            control.shortPress();
         }
 
         if(repeatTimer.running) {
@@ -60,15 +64,15 @@ Item {
         icon.width: 32
         icon.height: 32
 
-        onPressed: control.pressed()
-        onReleased: control.released()
+        onPressed: onButtonPressed()
+        onReleased: onButtonReleased()
     }
 
     Timer {
-        id: shortTimer
+        id: releaseTimer
         repeat: false
         interval: 1
-        onTriggered: control.shortPress()
+        onTriggered: control.released()
     }
 
     Timer {
