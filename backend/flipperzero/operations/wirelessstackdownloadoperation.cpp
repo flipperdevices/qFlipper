@@ -11,50 +11,36 @@ using namespace Flipper;
 using namespace Zero;
 
 WirelessStackDownloadOperation::WirelessStackDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t targetAddress, QObject *parent):
-    AbstractFirmwareOperation(parent),
-    m_device(device),
+    Operation(device, parent),
     m_file(file),
     m_loopTimer(new QTimer(this)),
     m_targetAddress(targetAddress)
 {
-    m_device->setPersistent(true);
-    m_device->setStatusMessage(QObject::tr("Co-Processor firmware update pending..."));
+    device->setStatusMessage(QObject::tr("Co-Processor firmware update pending..."));
 
     connect(m_loopTimer, &QTimer::timeout, this, &WirelessStackDownloadOperation::transitionToNextState);
 }
 
 WirelessStackDownloadOperation::~WirelessStackDownloadOperation()
 {
-    m_device->setPersistent(false);
     m_file->deleteLater();
 }
 
 const QString WirelessStackDownloadOperation::name() const
 {
-    return QString("Co-Processor Firmware Download @%1 %2").arg(m_device->model(), m_device->name());
-}
-
-void WirelessStackDownloadOperation::start()
-{
-    if(state() != Ready) {
-        setError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
-        return;
-    }
-
-    connect(m_device, &FlipperZero::isOnlineChanged, this, &WirelessStackDownloadOperation::transitionToNextState);
-    transitionToNextState();
+    return QString("Co-Processor Firmware Download @%1 %2").arg(device()->model(), device()->name());
 }
 
 void WirelessStackDownloadOperation::transitionToNextState()
 {
-    if(!m_device->isOnline()) {
+    if(!device()->isOnline()) {
         startTimeout();
         return;
     }
 
     stopTimeout();
 
-    if(state() == AbstractFirmwareOperation::Ready) {
+    if(state() == AbstractOperation::Ready) {
         setState(WirelessStackDownloadOperation::BootingToDFU);
         bootToDFU();
 
@@ -87,7 +73,7 @@ void WirelessStackDownloadOperation::transitionToNextState()
         }
 
     } else if(state() == WirelessStackDownloadOperation::ResettingDFUBoot) {
-        setState(AbstractFirmwareOperation::Finished);
+        setState(AbstractOperation::Finished);
         finish();
 
     } else {
@@ -123,9 +109,9 @@ void WirelessStackDownloadOperation::onOperationTimeout()
 
 void WirelessStackDownloadOperation::bootToDFU()
 {
-    if(m_device->isDFU()) {
+    if(device()->isDFU()) {
         transitionToNextState();
-    } else if(!m_device->bootToDFU()) {
+    } else if(!device()->bootToDFU()) {
         setError(QStringLiteral("Failed to enter DFU mode."));
     } else {}
 }
@@ -134,21 +120,21 @@ void WirelessStackDownloadOperation::setDFUBoot(bool set)
 {
     const auto bootMode = set ? FlipperZero::BootMode::DFUOnly : FlipperZero::BootMode::Normal;
 
-    if(!m_device->setBootMode(bootMode)) {
+    if(!device()->setBootMode(bootMode)) {
         setError(QStringLiteral("Failed to set boot mode."));
     }
 }
 
 void WirelessStackDownloadOperation::startFUS()
 {
-    if(!m_device->startFUS()) {
+    if(!device()->startFUS()) {
         setError(QStringLiteral("Failed to start Firmware Upgrade Service."));
     }
 }
 
 void WirelessStackDownloadOperation::deleteWirelessStack()
 {
-    if(!m_device->deleteWirelessStack()) {
+    if(!device()->deleteWirelessStack()) {
         setError(QStringLiteral("Failed to delete existing Wireless Stack."));
     } else {
         m_loopTimer->start(1000);
@@ -157,7 +143,7 @@ void WirelessStackDownloadOperation::deleteWirelessStack()
 
 bool WirelessStackDownloadOperation::isWirelessStackDeleted()
 {
-    const auto status = m_device->wirelessStatus();
+    const auto status = device()->wirelessStatus();
 
     const auto waitNext = (status == FlipperZero::WirelessStatus::Invalid) ||
                           (status == FlipperZero::WirelessStatus::UnhandledState);
@@ -190,12 +176,12 @@ void WirelessStackDownloadOperation::downloadWirelessStack()
         watcher->deleteLater();
     });
 
-    watcher->setFuture(QtConcurrent::run(m_device, &FlipperZero::downloadWirelessStack, m_file, m_targetAddress));
+    watcher->setFuture(QtConcurrent::run(device(), &FlipperZero::downloadWirelessStack, m_file, m_targetAddress));
 }
 
 void WirelessStackDownloadOperation::upgradeWirelessStack()
 {
-    if(!m_device->upgradeWirelessStack()) {
+    if(!device()->upgradeWirelessStack()) {
         setError(QStringLiteral("Failed to start Wireless Stack upgrade."));
     } else {
         m_loopTimer->start(1000);
@@ -204,7 +190,7 @@ void WirelessStackDownloadOperation::upgradeWirelessStack()
 
 bool WirelessStackDownloadOperation::isWirelessStackUpgraded()
 {
-    const auto status = m_device->wirelessStatus();
+    const auto status = device()->wirelessStatus();
 
     const auto waitNext = (status == FlipperZero::WirelessStatus::Invalid) ||
                           (status == FlipperZero::WirelessStatus::UnhandledState);
@@ -221,10 +207,4 @@ bool WirelessStackDownloadOperation::isWirelessStackUpgraded()
     }
 
     return !errorOccured;
-}
-
-void WirelessStackDownloadOperation::finish()
-{
-    disconnect(m_device, &FlipperZero::isOnlineChanged, this, &WirelessStackDownloadOperation::transitionToNextState);
-    emit finished();
 }

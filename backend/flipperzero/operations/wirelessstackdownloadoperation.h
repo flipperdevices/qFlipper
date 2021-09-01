@@ -1,6 +1,6 @@
 #pragma once
 
-#include "abstractfirmwareoperation.h"
+#include "flipperzerooperation.h"
 
 class QTimer;
 class QIODevice;
@@ -11,12 +11,12 @@ class FlipperZero;
 
 namespace Zero {
 
-class WirelessStackDownloadOperation : public AbstractFirmwareOperation
+class WirelessStackDownloadOperation : public Operation
 {
     Q_OBJECT
 
     enum State {
-        BootingToDFU = AbstractFirmwareOperation::User,
+        BootingToDFU = AbstractOperation::User,
         SettingDFUBoot,
         StartingFUS,
         DeletingWirelessStack,
@@ -30,10 +30,9 @@ public:
     ~WirelessStackDownloadOperation();
 
     const QString name() const override;
-    void start() override;
 
 private slots:
-    void transitionToNextState();
+    void transitionToNextState() override;
     void onOperationTimeout() override;
 
 private:
@@ -45,9 +44,7 @@ private:
     void downloadWirelessStack();
     void upgradeWirelessStack();
     bool isWirelessStackUpgraded();
-    void finish();
 
-    FlipperZero *m_device;
     QIODevice *m_file;
     QTimer *m_loopTimer;
     uint32_t m_targetAddress;

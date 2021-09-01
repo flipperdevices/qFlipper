@@ -92,7 +92,7 @@ void FirmwareDownloader::processQueue()
 
     auto *currentOperation = m_operationQueue.dequeue();
 
-    connect(currentOperation, &AbstractFirmwareOperation::finished, this, [=]() {
+    connect(currentOperation, &AbstractOperation::finished, this, [=]() {
         info_msg(QStringLiteral("Operation '%1' finished with status: %2.").arg(currentOperation->name(), currentOperation->errorString()));
         currentOperation->deleteLater();
         processQueue();
@@ -101,7 +101,7 @@ void FirmwareDownloader::processQueue()
     currentOperation->start();
 }
 
-void FirmwareDownloader::enqueueOperation(AbstractFirmwareOperation *op)
+void FirmwareDownloader::enqueueOperation(AbstractOperation *op)
 {
     m_operationQueue.enqueue(op);
 

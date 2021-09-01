@@ -8,45 +8,32 @@ using namespace Flipper;
 using namespace Zero;
 
 FixOptionBytesOperation::FixOptionBytesOperation(FlipperZero *device, QIODevice *file, QObject *parent):
-    AbstractFirmwareOperation(parent),
-    m_device(device),
+    Operation(device, parent),
     m_file(file)
 {
-    m_device->setPersistent(true);
-    m_device->setStatusMessage(QObject::tr("Fix boot issues operation pending..."));
+    device->setStatusMessage(QObject::tr("Fix Option Bytes operation pending..."));
 }
 
 FixOptionBytesOperation::~FixOptionBytesOperation()
 {
-    m_device->setPersistent(false);
     m_file->deleteLater();
 }
 
 const QString FixOptionBytesOperation::name() const
 {
-    return QString("Fix Option Bytes @%1 %2").arg(m_device->model(), m_device->name());
-}
-
-void FixOptionBytesOperation::start()
-{
-    if(state() != Ready) {
-        setError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
-        return;
-    }
-
-    connect(m_device, &FlipperZero::isOnlineChanged, this, &FixOptionBytesOperation::transitionToNextState);
-    transitionToNextState();
+    return QString("Fix Option Bytes @%1 %2").arg(device()->model(), device()->name());
 }
 
 void FixOptionBytesOperation::transitionToNextState()
 {
-    if(!m_device->isOnline()) {
+    if(!device()->isOnline()) {
+        startTimeout();
         return;
     }
 
     stopTimeout();
 
-    if(state() == AbstractFirmwareOperation::Ready) {
+    if(state() == AbstractOperation::Ready) {
         setState(State::BootingToDFU);
         bootToDFU();
 
@@ -55,7 +42,7 @@ void FixOptionBytesOperation::transitionToNextState()
         fixOptionBytes();
 
     } else if(state() == State::FixingOptionBytes) {
-        setState(AbstractFirmwareOperation::Finished);
+        setState(AbstractOperation::Finished);
         finish();
 
     } else {
@@ -79,22 +66,16 @@ void FixOptionBytesOperation::onOperationTimeout()
 
 void FixOptionBytesOperation::bootToDFU()
 {
-    if(m_device->isDFU()) {
+    if(device()->isDFU()) {
         transitionToNextState();
-    } else if(!m_device->bootToDFU()) {
+    } else if(!device()->bootToDFU()) {
         setError(QStringLiteral("Failed to enter DFU mode."));
     } else {}
 }
 
 void FixOptionBytesOperation::fixOptionBytes()
 {
-    if(!m_device->downloadOptionBytes(m_file)) {
+    if(!device()->downloadOptionBytes(m_file)) {
         setError("Failed to write corrected Option Bytes.");
     }
-}
-
-void FixOptionBytesOperation::finish()
-{
-    disconnect(m_device, &FlipperZero::isOnlineChanged, this, &FixOptionBytesOperation::transitionToNextState);
-    emit finished();
 }

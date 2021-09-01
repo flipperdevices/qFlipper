@@ -1,6 +1,6 @@
 #pragma once
 
-#include "abstractfirmwareoperation.h"
+#include "flipperzerooperation.h"
 
 class QIODevice;
 
@@ -10,12 +10,12 @@ class FlipperZero;
 
 namespace Zero {
 
-class FirmwareDownloadOperation : public AbstractFirmwareOperation
+class FirmwareDownloadOperation : public Operation
 {
     Q_OBJECT
 
     enum State {
-        BootingToDFU = AbstractFirmwareOperation::User,
+        BootingToDFU = AbstractOperation::User,
         DownloadingFirmware,
         BootingToFirmware,
     };
@@ -25,19 +25,16 @@ public:
     ~FirmwareDownloadOperation();
 
     const QString name() const override;
-    void start() override;
 
 private slots:
-    void transitionToNextState();
+    void transitionToNextState() override;
     void onOperationTimeout() override;
 
 private:
     void booToDFU();
     void downloadFirmware();
     void bootToFirmware();
-    void finish();
 
-    FlipperZero *m_device;
     QIODevice *m_file;
 };
 

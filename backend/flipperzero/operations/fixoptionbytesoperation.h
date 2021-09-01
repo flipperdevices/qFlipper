@@ -1,6 +1,6 @@
 #pragma once
 
-#include "abstractfirmwareoperation.h"
+#include "flipperzerooperation.h"
 
 class QIODevice;
 
@@ -10,12 +10,12 @@ class FlipperZero;
 
 namespace Zero {
 
-class FixOptionBytesOperation : public AbstractFirmwareOperation
+class FixOptionBytesOperation : public Operation
 {
     Q_OBJECT
 
     enum State {
-        BootingToDFU = AbstractFirmwareOperation::User,
+        BootingToDFU = AbstractOperation::User,
         FixingOptionBytes,
     };
 
@@ -24,18 +24,15 @@ public:
     ~FixOptionBytesOperation();
 
     const QString name() const override;
-    void start() override;
 
 private slots:
-    void transitionToNextState();
+    void transitionToNextState() override;
     void onOperationTimeout() override;
 
 private:
     void bootToDFU();
     void fixOptionBytes();
-    void finish();
 
-    FlipperZero *m_device;
     QIODevice *m_file;
 };
 

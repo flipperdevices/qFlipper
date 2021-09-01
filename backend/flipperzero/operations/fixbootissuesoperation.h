@@ -1,6 +1,6 @@
 #pragma once
 
-#include "abstractfirmwareoperation.h"
+#include "flipperzerooperation.h"
 
 namespace Flipper {
 
@@ -8,12 +8,12 @@ class FlipperZero;
 
 namespace Zero {
 
-class FixBootIssuesOperation : public AbstractFirmwareOperation
+class FixBootIssuesOperation : public Operation
 {
     Q_OBJECT
 
     enum State {
-        StartingWirelessStack = AbstractFirmwareOperation::User,
+        StartingWirelessStack = AbstractOperation::User,
         FixingBootMode
     };
 
@@ -22,18 +22,14 @@ public:
     ~FixBootIssuesOperation();
 
     const QString name() const override;
-    void start() override;
 
 private slots:
-    void transitionToNextState();
+    void transitionToNextState() override;
     void onOperationTimeout() override;
 
 private:
     void startWirelessStack();
     void fixBootMode();
-    void finish();
-
-    FlipperZero *m_device;
 };
 
 }

@@ -4,7 +4,7 @@
 
 class QTimer;
 
-class AbstractFirmwareOperation: public QObject {
+class AbstractOperation: public QObject {
     Q_OBJECT
 
 public:
@@ -14,17 +14,19 @@ public:
         User
     };
 
-    explicit AbstractFirmwareOperation(QObject *parent = nullptr);
-    virtual ~AbstractFirmwareOperation() {}
+    explicit AbstractOperation(QObject *parent = nullptr);
+    virtual ~AbstractOperation() {}
 
     virtual const QString name() const = 0;
     virtual void start() = 0;
+    virtual void finish() = 0;
 
     int state() const;
     bool isError() const;
     const QString &errorString() const;
 
 signals:
+    void started();
     void finished();
 
 protected slots:
