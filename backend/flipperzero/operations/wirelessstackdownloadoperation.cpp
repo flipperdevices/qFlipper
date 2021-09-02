@@ -78,36 +78,32 @@ void WirelessStackDownloadOperation::transitionToNextState()
         finish();
 
     } else {
-        setError(QStringLiteral("Unexpected state."));
+        finishWithError(QStringLiteral("Unexpected state."));
         device()->setError(errorString());
     }
 }
 
 void WirelessStackDownloadOperation::onOperationTimeout()
 {
-    switch(state()) {
-    case WirelessStackDownloadOperation::BootingToDFU:
-        setError(QStringLiteral("Failed to enter DFU mode: Operation timeout."));
-        break;
-    case WirelessStackDownloadOperation::SettingDFUBoot:
-        setError(QStringLiteral("Failed to set DFU only boot mode: Operation timeout."));
-        break;
-    case WirelessStackDownloadOperation::StartingFUS:
-        setError(QStringLiteral("Failed to start Firmware Upgrade Service: Operation timeout."));
-        break;
-    case WirelessStackDownloadOperation::DeletingWirelessStack:
-        setError(QStringLiteral("Failed to delete existing Wireless Stack: Operation timeout."));
-        break;
-    case WirelessStackDownloadOperation::UpgradingWirelessStack:
-        setError(QStringLiteral("Failed to upgrade Wireless Stack: Operation timeout."));
-        break;
-    case WirelessStackDownloadOperation::ResettingDFUBoot:
-        setError(QStringLiteral("Failed to reset DFU only boot mode: Operation timeout."));
-        break;
-    default:
-        setError(QStringLiteral("Should not have timed out here, probably a bug."));
+    QString msg;
+
+    if(state() == WirelessStackDownloadOperation::BootingToDFU) {
+        msg = QStringLiteral("Failed to enter DFU mode: Operation timeout.");
+    } else if(state() == WirelessStackDownloadOperation::SettingDFUBoot) {
+        msg = QStringLiteral("Failed to set DFU only boot mode: Operation timeout.");
+    } else if(state() == WirelessStackDownloadOperation::StartingFUS) {
+        msg = QStringLiteral("Failed to start Firmware Upgrade Service: Operation timeout.");
+    } else if(state() == WirelessStackDownloadOperation::DeletingWirelessStack) {
+        msg = QStringLiteral("Failed to delete existing Wireless Stack: Operation timeout.");
+    } else if(state() == WirelessStackDownloadOperation::UpgradingWirelessStack) {
+        msg = QStringLiteral("Failed to upgrade Wireless Stack: Operation timeout.");
+    } else if(state() == WirelessStackDownloadOperation::ResettingDFUBoot) {
+        msg = QStringLiteral("Failed to reset DFU only boot mode: Operation timeout.");
+    } else {
+        msg = QStringLiteral("Should not have timed out here, probably a bug.");
     }
 
+    finishWithError(msg);
     device()->setError(errorString());
 }
 
@@ -116,7 +112,7 @@ void WirelessStackDownloadOperation::bootToDFU()
     if(device()->isDFU()) {
         transitionToNextState();
     } else if(!device()->bootToDFU()) {
-        setError(device()->recovery()->errorString());
+        finishWithError(device()->errorString());
     } else {}
 }
 
@@ -125,21 +121,21 @@ void WirelessStackDownloadOperation::setDFUBoot(bool set)
     const auto bootMode = set ? RecoveryController::BootMode::DFUOnly : RecoveryController::BootMode::Normal;
 
     if(!device()->recovery()->setBootMode(bootMode)) {
-        setError(device()->recovery()->errorString());
+        finishWithError(device()->errorString());
     }
 }
 
 void WirelessStackDownloadOperation::startFUS()
 {
     if(!device()->recovery()->startFUS()) {
-        setError(device()->recovery()->errorString());
+        finishWithError(device()->errorString());
     }
 }
 
 void WirelessStackDownloadOperation::deleteWirelessStack()
 {
     if(!device()->recovery()->deleteWirelessStack()) {
-        setError(device()->recovery()->errorString());
+        finishWithError(device()->errorString());
     } else {
         m_loopTimer->start(1000);
     }
@@ -160,7 +156,7 @@ bool WirelessStackDownloadOperation::isWirelessStackDeleted()
     const auto errorOccured = (status == RecoveryController::WirelessStatus::WSRunning) ||
                               (status == RecoveryController::WirelessStatus::ErrorOccured);
     if(errorOccured) {
-        setError("Failed to finish removal of the Wireless Stack.");
+        finishWithError(QStringLiteral("Failed to finish removal of the Wireless Stack."));
         device()->setError(errorString());
     }
 
@@ -175,7 +171,7 @@ void WirelessStackDownloadOperation::downloadWirelessStack()
         if(watcher->result()) {
             transitionToNextState();
         } else {
-            setError(QStringLiteral("Failed to download the Wireless Stack."));
+            finishWithError(QStringLiteral("Failed to download the Wireless Stack."));
             device()->setError(errorString());
         }
 
@@ -188,7 +184,7 @@ void WirelessStackDownloadOperation::downloadWirelessStack()
 void WirelessStackDownloadOperation::upgradeWirelessStack()
 {
     if(!device()->recovery()->upgradeWirelessStack()) {
-        setError(device()->recovery()->errorString());
+        finishWithError(device()->errorString());
     } else {
         m_loopTimer->start(1000);
     }
@@ -209,7 +205,7 @@ bool WirelessStackDownloadOperation::isWirelessStackUpgraded()
     const auto errorOccured = (status == RecoveryController::WirelessStatus::FUSRunning) ||
                               (status == RecoveryController::WirelessStatus::ErrorOccured);
     if(errorOccured) {
-        setError("Failed to finish removal of the Wireless Stack.");
+        finishWithError(QStringLiteral("Failed to finish removal of the Wireless Stack."));
         device()->setError(errorString());
     }
 

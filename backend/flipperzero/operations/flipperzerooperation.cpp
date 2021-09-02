@@ -29,7 +29,7 @@ FlipperZero *Operation::device() const
 void Operation::start()
 {
     if(state() != Ready) {
-        setError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
+        finishWithError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
         return;
     }
 

@@ -386,8 +386,6 @@ double RecoveryController::progress() const
 
 void RecoveryController::setMessage(const QString &msg)
 {
-    info_msg(msg);
-
     m_message = msg;
 
     emit messageChanged();
@@ -395,8 +393,6 @@ void RecoveryController::setMessage(const QString &msg)
 
 void RecoveryController::setError(const QString &msg)
 {
-    error_msg(msg);
-
     m_errorString = msg;
     m_isError = true;
 

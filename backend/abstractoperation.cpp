@@ -34,7 +34,7 @@ const QString &AbstractOperation::errorString() const
 
 void AbstractOperation::onOperationTimeout()
 {
-    setError(QStringLiteral("Operation timeout (generic)."));
+    finishWithError(QStringLiteral("Operation timeout (generic)."));
 }
 
 void AbstractOperation::setState(int state)
@@ -42,7 +42,7 @@ void AbstractOperation::setState(int state)
     m_state = state;
 }
 
-void AbstractOperation::setError(const QString &errorString)
+void AbstractOperation::finishWithError(const QString &errorString)
 {
     error_msg(errorString);
 
@@ -50,7 +50,7 @@ void AbstractOperation::setError(const QString &errorString)
     m_errorString = errorString;
 
     setState(BasicState::Finished);
-    emit finished();
+    finish();
 }
 
 void AbstractOperation::startTimeout(int msec)

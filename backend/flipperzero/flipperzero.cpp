@@ -74,6 +74,7 @@ void FlipperZero::setError(const QString &msg, bool set)
     m_isError = set;
 
     if(!msg.isEmpty()) {
+        error_msg(msg);
         m_errorString = msg;
     }
 
@@ -214,10 +215,7 @@ void FlipperZero::setVersion(const QString &version)
 
 void FlipperZero::setMessage(const QString &message)
 {
-    if(m_statusMessage == message) {
-        return;
-    }
-
+    info_msg(message);
     m_statusMessage = message;
     emit messageChanged();
 }

@@ -52,25 +52,28 @@ void FirmwareDownloadOperation::transitionToNextState()
         finish();
 
     } else {
-        setError(QStringLiteral("Unexpected state."));
+        finishWithError(QStringLiteral("Unexpected state."));
         device()->setError(errorString());
     }
 }
 
 void FirmwareDownloadOperation::onOperationTimeout()
 {
+    QString msg;
+
     switch(state()) {
     case FirmwareDownloadOperation::BootingToDFU:
-        setError(QStringLiteral("Failed to reach DFU mode: Operation timeout."));
+        msg = QStringLiteral("Failed to reach DFU mode: Operation timeout.");
         break;
     case FirmwareDownloadOperation::BootingToFirmware:
-        setError(QStringLiteral("Failed to reboot the device: Operation timeout."));
+        msg = QStringLiteral("Failed to reboot the device: Operation timeout.");
         break;
     default:
-        setError(QStringLiteral("Should not have timed out here, probably a bug."));
+        msg = QStringLiteral("Should not have timed out here, probably a bug.");
     }
 
-    device()->setError(errorString());
+    finishWithError(msg);
+    device()->setError(msg);
 }
 
 void FirmwareDownloadOperation::booToDFU()
@@ -78,7 +81,7 @@ void FirmwareDownloadOperation::booToDFU()
     if(device()->isDFU()) {
         transitionToNextState();
     } else if(!device()->bootToDFU()) {
-        setError(device()->errorString());
+        finishWithError(device()->errorString());
     }
 }
 
@@ -90,7 +93,7 @@ void FirmwareDownloadOperation::downloadFirmware()
         if(watcher->result()) {
             transitionToNextState();
         } else {
-            setError(device()->recovery()->errorString());
+            finishWithError(device()->errorString());
         }
 
         watcher->deleteLater();
@@ -102,6 +105,6 @@ void FirmwareDownloadOperation::downloadFirmware()
 void FirmwareDownloadOperation::bootToFirmware()
 {
     if(!device()->recovery()->leaveDFU()) {
-        setError(device()->recovery()->errorString());
+        finishWithError(device()->errorString());
     }
 }

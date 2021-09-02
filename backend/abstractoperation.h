@@ -34,7 +34,7 @@ protected slots:
 
 protected:
     void setState(int state);
-    void setError(const QString &errorString);
+    void finishWithError(const QString &errorString);
 
     void startTimeout(int msec = 10000);
     void stopTimeout();

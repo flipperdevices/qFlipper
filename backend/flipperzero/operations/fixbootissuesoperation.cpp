@@ -45,24 +45,24 @@ void FixBootIssuesOperation::transitionToNextState()
         finish();
 
     } else {
-        setError(QStringLiteral("Unexpected state."));
+        finishWithError(QStringLiteral("Unexpected state."));
         device()->setError(errorString());
     }
 }
 
 void FixBootIssuesOperation::onOperationTimeout()
 {
-    switch(state()) {
-    case FixBootIssuesOperation::StartingWirelessStack:
-        setError(QStringLiteral("Failed to start the Wireless Stack: Operation timeout."));
-        break;
-    case FixBootIssuesOperation::FixingBootMode:
-        setError(QStringLiteral("Failed to set the Option Bytes: Operation timeout."));
-        break;
-    default:
-        setError(QStringLiteral("Should not have timed out here, probably a bug."));
+    QString msg;
+
+    if(state() == FixBootIssuesOperation::StartingWirelessStack) {
+        msg = QStringLiteral("Failed to start the Wireless Stack: Operation timeout.");
+    } else if(state() == FixBootIssuesOperation::FixingBootMode) {
+        msg = QStringLiteral("Failed to set the Option Bytes: Operation timeout.");
+    } else {
+        msg = QStringLiteral("Should not have timed out here, probably a bug.");
     }
 
+    finishWithError(msg);
     device()->setError(errorString());
 }
 
@@ -72,7 +72,7 @@ void FixBootIssuesOperation::startWirelessStack()
 
     if(wirelessStatus == RecoveryController::WirelessStatus::FUSRunning) {
         if(!device()->recovery()->startWirelessStack()) {
-            setError(device()->recovery()->errorString());
+            finishWithError(device()->errorString());
         } else if(device()->recovery()->wirelessStatus() == RecoveryController::WirelessStatus::UnhandledState) {
             transitionToNextState();
         } else {}
@@ -80,10 +80,10 @@ void FixBootIssuesOperation::startWirelessStack()
     } else if(wirelessStatus == RecoveryController::WirelessStatus::WSRunning) {
         transitionToNextState();
     } else if(wirelessStatus == RecoveryController::WirelessStatus::UnhandledState) {
-        setError(QStringLiteral("Unhandled state. Probably a BUG."));
+        finishWithError(QStringLiteral("Unhandled state. Probably a BUG."));
         device()->setError(errorString());
     } else {
-        setError(QStringLiteral("Failed to get Wireless core status."));
+        finishWithError(QStringLiteral("Failed to get Wireless core status."));
         device()->setError(errorString());
     }
 }
@@ -93,6 +93,6 @@ void FixBootIssuesOperation::fixBootMode()
     if(!device()->isDFU()) {
         transitionToNextState();
     } else if (!device()->recovery()->setBootMode(RecoveryController::BootMode::Normal)) {
-        setError(device()->recovery()->errorString());
+        finishWithError(device()->errorString());
     } else {}
 }

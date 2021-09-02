@@ -47,24 +47,24 @@ void FixOptionBytesOperation::transitionToNextState()
         finish();
 
     } else {
-        setError(QStringLiteral("Unexpected state."));
+        finishWithError(QStringLiteral("Unexpected state."));
         device()->setError(errorString());
     }
 }
 
 void FixOptionBytesOperation::onOperationTimeout()
 {
-    switch(state()) {
-    case FixOptionBytesOperation::BootingToDFU:
-        setError(QStringLiteral("Failed to reach DFU mode: Operation timeout."));
-        break;
-    case FixOptionBytesOperation::FixingOptionBytes:
-        setError(QStringLiteral("Failed to write the corrected Option Bytes: Operation timeout."));
-        break;
-    default:
-        setError(QStringLiteral("Should not have timed out here, probably a bug."));
+    QString msg;
+
+    if(state() == FixOptionBytesOperation::BootingToDFU) {
+        msg = QStringLiteral("Failed to reach DFU mode: Operation timeout.");
+    } else if(state() == FixOptionBytesOperation::FixingOptionBytes) {
+        msg = QStringLiteral("Failed to write the corrected Option Bytes: Operation timeout.");
+    } else {
+        msg = QStringLiteral("Should not have timed out here, probably a bug.");
     }
 
+    finishWithError(msg);
     device()->setError(errorString());
 }
 
@@ -73,13 +73,13 @@ void FixOptionBytesOperation::bootToDFU()
     if(device()->isDFU()) {
         transitionToNextState();
     } else if(!device()->bootToDFU()) {
-        setError(device()->recovery()->errorString());
+        finishWithError(device()->errorString());
     } else {}
 }
 
 void FixOptionBytesOperation::fixOptionBytes()
 {
     if(!device()->recovery()->downloadOptionBytes(m_file)) {
-        setError(device()->recovery()->errorString());
+        finishWithError(device()->errorString());
     }
 }
