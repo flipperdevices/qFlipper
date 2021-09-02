@@ -19,7 +19,8 @@ class FlipperZero : public QObject
     Q_PROPERTY(QString model READ model CONSTANT)
     Q_PROPERTY(QString target READ target NOTIFY deviceInfoChanged)
     Q_PROPERTY(QString version READ version NOTIFY deviceInfoChanged)
-    Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusMessageChanged)
+    Q_PROPERTY(QString messageString READ messageString NOTIFY messageChanged)
+    Q_PROPERTY(QString errorString READ errorString NOTIFY isErrorChanged)
 
     Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
 
@@ -53,7 +54,10 @@ public:
     const QString &model() const;
     const QString &target() const;
     const QString &version() const;
-    const QString &statusMessage() const;
+
+    const QString &messageString() const;
+    const QString &errorString() const;
+
     double progress() const;
 
     const Flipper::Zero::DeviceInfo &deviceInfo() const;
@@ -64,13 +68,13 @@ public:
     void setName(const QString &name);
     void setTarget(const QString &target);
     void setVersion(const QString &version);
-    void setStatusMessage(const QString &message);
+    void setMessage(const QString &message);
     void setProgress(double progress);
 
 signals:
     void deviceInfoChanged();
 
-    void statusMessageChanged();
+    void messageChanged();
     void progressChanged();
 
     void isPersistentChanged();
@@ -87,6 +91,8 @@ private:
     Zero::DeviceInfo m_deviceInfo;
 
     QString m_statusMessage;
+    QString m_errorString;
+
     double m_progress;
 
     Zero::RemoteController *m_remote;

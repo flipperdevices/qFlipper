@@ -12,7 +12,7 @@ FixOptionBytesOperation::FixOptionBytesOperation(FlipperZero *device, QIODevice 
     Operation(device, parent),
     m_file(file)
 {
-    device->setStatusMessage(QObject::tr("Fix Option Bytes operation pending..."));
+    device->setMessage(QStringLiteral("Fix Option Bytes operation pending..."));
 }
 
 FixOptionBytesOperation::~FixOptionBytesOperation()
@@ -22,7 +22,7 @@ FixOptionBytesOperation::~FixOptionBytesOperation()
 
 const QString FixOptionBytesOperation::name() const
 {
-    return QString("Fix Option Bytes @%1 %2").arg(device()->model(), device()->name());
+    return QStringLiteral("Fix Option Bytes @%1 %2").arg(device()->model(), device()->name());
 }
 
 void FixOptionBytesOperation::transitionToNextState()
@@ -48,6 +48,7 @@ void FixOptionBytesOperation::transitionToNextState()
 
     } else {
         setError(QStringLiteral("Unexpected state."));
+        device()->setError(errorString());
     }
 }
 
@@ -63,6 +64,8 @@ void FixOptionBytesOperation::onOperationTimeout()
     default:
         setError(QStringLiteral("Should not have timed out here, probably a bug."));
     }
+
+    device()->setError(errorString());
 }
 
 void FixOptionBytesOperation::bootToDFU()
@@ -70,13 +73,13 @@ void FixOptionBytesOperation::bootToDFU()
     if(device()->isDFU()) {
         transitionToNextState();
     } else if(!device()->bootToDFU()) {
-        setError(QStringLiteral("Failed to enter DFU mode."));
+        setError(device()->recovery()->errorString());
     } else {}
 }
 
 void FixOptionBytesOperation::fixOptionBytes()
 {
     if(!device()->recovery()->downloadOptionBytes(m_file)) {
-        setError("Failed to write corrected Option Bytes.");
+        setError(device()->recovery()->errorString());
     }
 }

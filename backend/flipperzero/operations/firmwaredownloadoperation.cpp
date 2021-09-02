@@ -13,7 +13,7 @@ FirmwareDownloadOperation::FirmwareDownloadOperation(FlipperZero *device, QIODev
     Operation(device, parent),
     m_file(file)
 {
-    device->setStatusMessage(QObject::tr("Firmware download pending..."));
+    device->setMessage(QStringLiteral("Firmware download pending..."));
 }
 
 FirmwareDownloadOperation::~FirmwareDownloadOperation()
@@ -53,6 +53,7 @@ void FirmwareDownloadOperation::transitionToNextState()
 
     } else {
         setError(QStringLiteral("Unexpected state."));
+        device()->setError(errorString());
     }
 }
 
@@ -68,6 +69,8 @@ void FirmwareDownloadOperation::onOperationTimeout()
     default:
         setError(QStringLiteral("Should not have timed out here, probably a bug."));
     }
+
+    device()->setError(errorString());
 }
 
 void FirmwareDownloadOperation::booToDFU()
@@ -75,7 +78,7 @@ void FirmwareDownloadOperation::booToDFU()
     if(device()->isDFU()) {
         transitionToNextState();
     } else if(!device()->bootToDFU()) {
-        setError(QStringLiteral("Failed to detach the device."));
+        setError(device()->errorString());
     }
 }
 
@@ -87,7 +90,7 @@ void FirmwareDownloadOperation::downloadFirmware()
         if(watcher->result()) {
             transitionToNextState();
         } else {
-            setError(QStringLiteral("Failed to download the firmware."));
+            setError(device()->recovery()->errorString());
         }
 
         watcher->deleteLater();
@@ -99,6 +102,6 @@ void FirmwareDownloadOperation::downloadFirmware()
 void FirmwareDownloadOperation::bootToFirmware()
 {
     if(!device()->recovery()->leaveDFU()) {
-        setError(QStringLiteral("Failed to leave DFU mode."));
+        setError(device()->recovery()->errorString());
     }
 }

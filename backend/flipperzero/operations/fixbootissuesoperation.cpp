@@ -10,7 +10,7 @@ FixBootIssuesOperation::FixBootIssuesOperation(FlipperZero *device, QObject *par
     Operation(device, parent)
 {
     device->setPersistent(true);
-    device->setStatusMessage(QObject::tr("Fix boot issues operation pending..."));
+    device->setMessage(QStringLiteral("Fix boot issues operation pending..."));
 }
 
 FixBootIssuesOperation::~FixBootIssuesOperation()
@@ -46,6 +46,7 @@ void FixBootIssuesOperation::transitionToNextState()
 
     } else {
         setError(QStringLiteral("Unexpected state."));
+        device()->setError(errorString());
     }
 }
 
@@ -61,6 +62,8 @@ void FixBootIssuesOperation::onOperationTimeout()
     default:
         setError(QStringLiteral("Should not have timed out here, probably a bug."));
     }
+
+    device()->setError(errorString());
 }
 
 void FixBootIssuesOperation::startWirelessStack()
@@ -69,7 +72,7 @@ void FixBootIssuesOperation::startWirelessStack()
 
     if(wirelessStatus == RecoveryController::WirelessStatus::FUSRunning) {
         if(!device()->recovery()->startWirelessStack()) {
-            setError(QStringLiteral("Failed to start the Wireless Stack."));
+            setError(device()->recovery()->errorString());
         } else if(device()->recovery()->wirelessStatus() == RecoveryController::WirelessStatus::UnhandledState) {
             transitionToNextState();
         } else {}
@@ -78,8 +81,10 @@ void FixBootIssuesOperation::startWirelessStack()
         transitionToNextState();
     } else if(wirelessStatus == RecoveryController::WirelessStatus::UnhandledState) {
         setError(QStringLiteral("Unhandled state. Probably a BUG."));
+        device()->setError(errorString());
     } else {
         setError(QStringLiteral("Failed to get Wireless core status."));
+        device()->setError(errorString());
     }
 }
 
@@ -88,6 +93,6 @@ void FixBootIssuesOperation::fixBootMode()
     if(!device()->isDFU()) {
         transitionToNextState();
     } else if (!device()->recovery()->setBootMode(RecoveryController::BootMode::Normal)) {
-        setError(QStringLiteral("Failed to set the Option Bytes."));
+        setError(device()->recovery()->errorString());
     } else {}
 }

@@ -72,11 +72,12 @@ void FlipperZero::setOnline(bool set)
 void FlipperZero::setError(const QString &msg, bool set)
 {
     m_isError = set;
-    emit isErrorChanged();
 
     if(!msg.isEmpty()) {
-        setStatusMessage(msg);
+        m_errorString = msg;
     }
+
+    emit isErrorChanged();
 }
 
 bool FlipperZero::isPersistent() const
@@ -96,7 +97,7 @@ bool FlipperZero::isError() const
 
 bool FlipperZero::bootToDFU()
 {
-    setStatusMessage("Entering DFU bootloader mode...");
+    setMessage("Entering DFU bootloader mode...");
 
     auto *serialPort = new QSerialPort(m_deviceInfo.serialInfo, this);
 
@@ -146,9 +147,14 @@ const QString &FlipperZero::version() const
     return m_deviceInfo.firmware.version;
 }
 
-const QString &FlipperZero::statusMessage() const
+const QString &FlipperZero::messageString() const
 {
     return m_statusMessage;
+}
+
+const QString &FlipperZero::errorString() const
+{
+    return m_errorString;
 }
 
 double FlipperZero::progress() const
@@ -206,14 +212,14 @@ void FlipperZero::setVersion(const QString &version)
     emit deviceInfoChanged();
 }
 
-void FlipperZero::setStatusMessage(const QString &message)
+void FlipperZero::setMessage(const QString &message)
 {
     if(m_statusMessage == message) {
         return;
     }
 
     m_statusMessage = message;
-    emit statusMessageChanged();
+    emit messageChanged();
 }
 
 void FlipperZero::setProgress(double progress)
@@ -242,7 +248,7 @@ void FlipperZero::initControllers()
     if(isDFU()) {
         m_recovery = new RecoveryController(m_deviceInfo.usbInfo, this);
         connect(m_recovery, &RecoveryController::messageChanged, this, [=]() {
-            setStatusMessage(m_recovery->message());
+            setMessage(m_recovery->message());
         });
 
         connect(m_recovery, &RecoveryController::errorOccured, this, [=]() {
