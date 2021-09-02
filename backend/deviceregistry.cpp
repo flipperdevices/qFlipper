@@ -60,7 +60,7 @@ void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
 {
     const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::FlipperZero *dev) {
-        return dev->usbInfo().backendData() == info.backendData();
+        return dev->deviceInfo().usbInfo.backendData() == info.backendData();
     });
 
     if(it != m_data.end()) {

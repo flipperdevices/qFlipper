@@ -6,6 +6,7 @@
 #include <QtConcurrent/QtConcurrentRun>
 
 #include "flipperzero/flipperzero.h"
+#include "flipperzero/recoverycontroller.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -118,23 +119,23 @@ void WirelessStackDownloadOperation::bootToDFU()
 
 void WirelessStackDownloadOperation::setDFUBoot(bool set)
 {
-    const auto bootMode = set ? FlipperZero::BootMode::DFUOnly : FlipperZero::BootMode::Normal;
+    const auto bootMode = set ? RecoveryController::BootMode::DFUOnly : RecoveryController::BootMode::Normal;
 
-    if(!device()->setBootMode(bootMode)) {
+    if(!device()->recovery()->setBootMode(bootMode)) {
         setError(QStringLiteral("Failed to set boot mode."));
     }
 }
 
 void WirelessStackDownloadOperation::startFUS()
 {
-    if(!device()->startFUS()) {
+    if(!device()->recovery()->startFUS()) {
         setError(QStringLiteral("Failed to start Firmware Upgrade Service."));
     }
 }
 
 void WirelessStackDownloadOperation::deleteWirelessStack()
 {
-    if(!device()->deleteWirelessStack()) {
+    if(!device()->recovery()->deleteWirelessStack()) {
         setError(QStringLiteral("Failed to delete existing Wireless Stack."));
     } else {
         m_loopTimer->start(1000);
@@ -143,18 +144,18 @@ void WirelessStackDownloadOperation::deleteWirelessStack()
 
 bool WirelessStackDownloadOperation::isWirelessStackDeleted()
 {
-    const auto status = device()->wirelessStatus();
+    const auto status = device()->recovery()->wirelessStatus();
 
-    const auto waitNext = (status == FlipperZero::WirelessStatus::Invalid) ||
-                          (status == FlipperZero::WirelessStatus::UnhandledState);
+    const auto waitNext = (status == RecoveryController::WirelessStatus::Invalid) ||
+                          (status == RecoveryController::WirelessStatus::UnhandledState);
     if(waitNext) {
         return false;
     }
 
     m_loopTimer->stop();
 
-    const auto errorOccured = (status == FlipperZero::WirelessStatus::WSRunning) ||
-                              (status == FlipperZero::WirelessStatus::ErrorOccured);
+    const auto errorOccured = (status == RecoveryController::WirelessStatus::WSRunning) ||
+                              (status == RecoveryController::WirelessStatus::ErrorOccured);
     if(errorOccured) {
         setError("Failed to finish removal of the Wireless Stack.");
     }
@@ -176,12 +177,12 @@ void WirelessStackDownloadOperation::downloadWirelessStack()
         watcher->deleteLater();
     });
 
-    watcher->setFuture(QtConcurrent::run(device(), &FlipperZero::downloadWirelessStack, m_file, m_targetAddress));
+    watcher->setFuture(QtConcurrent::run(device()->recovery(), &RecoveryController::downloadWirelessStack, m_file, m_targetAddress));
 }
 
 void WirelessStackDownloadOperation::upgradeWirelessStack()
 {
-    if(!device()->upgradeWirelessStack()) {
+    if(!device()->recovery()->upgradeWirelessStack()) {
         setError(QStringLiteral("Failed to start Wireless Stack upgrade."));
     } else {
         m_loopTimer->start(1000);
@@ -190,18 +191,18 @@ void WirelessStackDownloadOperation::upgradeWirelessStack()
 
 bool WirelessStackDownloadOperation::isWirelessStackUpgraded()
 {
-    const auto status = device()->wirelessStatus();
+    const auto status = device()->recovery()->wirelessStatus();
 
-    const auto waitNext = (status == FlipperZero::WirelessStatus::Invalid) ||
-                          (status == FlipperZero::WirelessStatus::UnhandledState);
+    const auto waitNext = (status == RecoveryController::WirelessStatus::Invalid) ||
+                          (status == RecoveryController::WirelessStatus::UnhandledState);
     if(waitNext) {
         return false;
     }
 
     m_loopTimer->stop();
 
-    const auto errorOccured = (status == FlipperZero::WirelessStatus::FUSRunning) ||
-                              (status == FlipperZero::WirelessStatus::ErrorOccured);
+    const auto errorOccured = (status == RecoveryController::WirelessStatus::FUSRunning) ||
+                              (status == RecoveryController::WirelessStatus::ErrorOccured);
     if(errorOccured) {
         setError("Failed to finish removal of the Wireless Stack.");
     }

@@ -4,6 +4,7 @@
 #include <QtConcurrent/QtConcurrentRun>
 
 #include "flipperzero/flipperzero.h"
+#include "flipperzero/recoverycontroller.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -92,12 +93,12 @@ void FirmwareDownloadOperation::downloadFirmware()
         watcher->deleteLater();
     });
 
-    watcher->setFuture(QtConcurrent::run(device(), &FlipperZero::downloadFirmware, m_file));
+    watcher->setFuture(QtConcurrent::run(device()->recovery(), &RecoveryController::downloadFirmware, m_file));
 }
 
 void FirmwareDownloadOperation::bootToFirmware()
 {
-    if(!device()->reboot()) {
+    if(!device()->recovery()->leaveDFU()) {
         setError(QStringLiteral("Failed to leave DFU mode."));
     }
 }

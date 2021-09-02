@@ -3,6 +3,7 @@
 #include <QIODevice>
 
 #include "flipperzero/flipperzero.h"
+#include "flipperzero/recoverycontroller.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -75,7 +76,7 @@ void FixOptionBytesOperation::bootToDFU()
 
 void FixOptionBytesOperation::fixOptionBytes()
 {
-    if(!device()->downloadOptionBytes(m_file)) {
+    if(!device()->recovery()->downloadOptionBytes(m_file)) {
         setError("Failed to write corrected Option Bytes.");
     }
 }

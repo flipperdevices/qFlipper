@@ -1,14 +1,8 @@
 #pragma once
 
-#include <QSerialPortInfo>
-#include <QDateTime>
 #include <QObject>
 
 #include "deviceinfo.h"
-#include "usbdeviceinfo.h"
-
-class QIODevice;
-class QSerialPort;
 
 namespace Flipper {
 
@@ -17,8 +11,6 @@ namespace Zero {
     class RecoveryController;
 }
 
-// TODO: move Application processor methods into a separate class
-// TODO: move Co-Processor core methods into a separate class
 class FlipperZero : public QObject
 {
     Q_OBJECT
@@ -40,19 +32,6 @@ class FlipperZero : public QObject
     Q_PROPERTY(Flipper::Zero::RecoveryController* recovery READ recovery CONSTANT)
 
 public:
-    enum class BootMode {
-        Normal,
-        DFUOnly
-    };
-
-    enum class WirelessStatus {
-        WSRunning,
-        FUSRunning,
-        ErrorOccured,
-        UnhandledState,
-        Invalid
-    };
-
     FlipperZero(const Zero::DeviceInfo &info, QObject *parent = nullptr);
     ~FlipperZero();
 
@@ -66,36 +45,18 @@ public:
     bool isPersistent() const;
     bool isOnline() const;
     bool isError() const;
+    bool isDFU() const;
 
     bool bootToDFU();
-    bool reboot();
-
-    bool setBootMode(BootMode mode);
-
-    WirelessStatus wirelessStatus();
-
-    bool startFUS();
-    bool startWirelessStack();
-    bool deleteWirelessStack();
-    bool upgradeWirelessStack();
-
-    bool downloadFirmware(QIODevice *file);
-    bool downloadOptionBytes(QIODevice *file);
-    bool downloadWirelessStack(QIODevice *file, uint32_t addr = 0);
 
     const QString &name() const;
     const QString &model() const;
     const QString &target() const;
     const QString &version() const;
-
     const QString &statusMessage() const;
-
     double progress() const;
 
-    const USBDeviceInfo &usbInfo() const;
     const Flipper::Zero::DeviceInfo &deviceInfo() const;
-
-    bool isDFU() const;
 
     Flipper::Zero::RemoteController *remote() const;
     Flipper::Zero::RecoveryController *recovery() const;
@@ -107,11 +68,10 @@ public:
     void setProgress(double progress);
 
 signals:
-    void usbInfoChanged();
     void deviceInfoChanged();
 
-    void statusMessageChanged(const QString&);
-    void progressChanged(double);
+    void statusMessageChanged();
+    void progressChanged();
 
     void isPersistentChanged();
     void isOnlineChanged();
@@ -119,9 +79,6 @@ signals:
 
 private:
     void initControllers();
-
-    void statusFeedback(const char *msg);
-    void errorFeedback(const char *msg);
 
     bool m_isPersistent;
     bool m_isOnline;

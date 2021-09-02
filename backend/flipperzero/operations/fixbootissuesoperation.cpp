@@ -1,6 +1,7 @@
 #include "fixbootissuesoperation.h"
 
 #include "flipperzero/flipperzero.h"
+#include "flipperzero/recoverycontroller.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -64,18 +65,18 @@ void FixBootIssuesOperation::onOperationTimeout()
 
 void FixBootIssuesOperation::startWirelessStack()
 {
-    const auto wirelessStatus = device()->wirelessStatus();
+    const auto wirelessStatus = device()->recovery()->wirelessStatus();
 
-    if(wirelessStatus == FlipperZero::WirelessStatus::FUSRunning) {
-        if(!device()->startWirelessStack()) {
+    if(wirelessStatus == RecoveryController::WirelessStatus::FUSRunning) {
+        if(!device()->recovery()->startWirelessStack()) {
             setError(QStringLiteral("Failed to start the Wireless Stack."));
-        } else if(device()->wirelessStatus() == FlipperZero::WirelessStatus::UnhandledState) {
+        } else if(device()->recovery()->wirelessStatus() == RecoveryController::WirelessStatus::UnhandledState) {
             transitionToNextState();
         } else {}
 
-    } else if(wirelessStatus == FlipperZero::WirelessStatus::WSRunning) {
+    } else if(wirelessStatus == RecoveryController::WirelessStatus::WSRunning) {
         transitionToNextState();
-    } else if(wirelessStatus == FlipperZero::WirelessStatus::UnhandledState) {
+    } else if(wirelessStatus == RecoveryController::WirelessStatus::UnhandledState) {
         setError(QStringLiteral("Unhandled state. Probably a BUG."));
     } else {
         setError(QStringLiteral("Failed to get Wireless core status."));
@@ -86,7 +87,7 @@ void FixBootIssuesOperation::fixBootMode()
 {
     if(!device()->isDFU()) {
         transitionToNextState();
-    } else if (!device()->setBootMode(FlipperZero::BootMode::Normal)) {
+    } else if (!device()->recovery()->setBootMode(RecoveryController::BootMode::Normal)) {
         setError(QStringLiteral("Failed to set the Option Bytes."));
     } else {}
 }
