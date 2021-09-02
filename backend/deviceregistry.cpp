@@ -2,9 +2,14 @@
 
 #include <QMetaObject>
 
+#include "flipperzero/deviceinfofetcher.h"
 #include "flipperzero/flipperzero.h"
 #include "usbdevice.h"
 #include "macros.h"
+
+#define FLIPPER_ZERO_VID 0x0483
+#define FLIPPER_ZERO_PID_VCP 0x5740
+#define FLIPPER_ZERO_PID_DFU 0xdf11
 
 using namespace Flipper;
 
@@ -15,10 +20,8 @@ DeviceRegistry::DeviceRegistry(QObject *parent):
     connect(USBDeviceDetector::instance(), &USBDeviceDetector::deviceUnplugged, this, &DeviceRegistry::removeDevice);
 
     USBDeviceDetector::instance()->setWantedDevices({
-        // Flipper Zero in DFU mode
-        USBDeviceInfo(0x0483, 0xdf11),
-        // Flipper Zero in VCP mode
-        USBDeviceInfo(0x483, 0x5740)
+        USBDeviceInfo(FLIPPER_ZERO_VID, FLIPPER_ZERO_PID_DFU),
+        USBDeviceInfo(FLIPPER_ZERO_VID, FLIPPER_ZERO_PID_VCP)
             .withManufacturer("Flipper Devices Inc.")
             .withProductDescription("Flipper Control Virtual ComPort")
     });
@@ -44,8 +47,14 @@ void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 {
     check_return_void(info.isValid(), "A new invalid device has been detected, skipping...");
 
-    auto *newDevice = new Flipper::FlipperZero(info, this);
-    connect(newDevice, &FlipperZero::isOnlineChanged, this, &DeviceRegistry::processDevice);
+    if(info.vendorID() == FLIPPER_ZERO_VID) {
+        auto *fetcher = Zero::AbstractDeviceInfoFetcher::create(info, this);
+        connect(fetcher, &Zero::AbstractDeviceInfoFetcher::finished, this, &DeviceRegistry::processDevice);
+        fetcher->fetch();
+
+    } else {
+        error_msg("Unexpected device VID and PID.");
+    }
 }
 
 void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
@@ -71,28 +80,32 @@ void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
 
 void DeviceRegistry::processDevice()
 {
-    auto *device = qobject_cast<FlipperZero*>(sender());
-    disconnect(device, &FlipperZero::isOnlineChanged, this, &DeviceRegistry::processDevice);
+    auto *fetcher = qobject_cast<Zero::AbstractDeviceInfoFetcher*>(sender());
 
-    if(device->isError()) {
-        error_msg("A new valid device has been detected, but it has an error, skipping...");
+    if(fetcher->isError()) {
+        error_msg(QStringLiteral("An error has occured: %1").arg(fetcher->errorString()));
         return;
     }
 
-    const auto it = std::find_if(m_data.begin(), m_data.end(), [=](Flipper::FlipperZero *arg) {
-        return device->name() == arg->name();
+    const auto &info = fetcher->result();
+
+    const auto it = std::find_if(m_data.begin(), m_data.end(), [&info](Flipper::FlipperZero *arg) {
+        return info.name == arg->name();
     });
 
     if(it != m_data.end()) {
         // Preserving the old instance
-        (*it)->reuse(device);
-        device->deleteLater();
+        (*it)->reset(info);
 
     } else {
+        auto *device = new FlipperZero(info, this);
+
         beginInsertRows(QModelIndex(), m_data.size(), m_data.size());
         m_data.append(device);
         endInsertRows();
 
         emit deviceConnected(device);
     }
+
+    fetcher->deleteLater();
 }

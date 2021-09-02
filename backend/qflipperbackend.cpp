@@ -2,6 +2,7 @@
 
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/remotecontroller.h"
+#include "flipperzero/recoverycontroller.h"
 
 #include "macros.h"
 
@@ -15,6 +16,7 @@ QFlipperBackend::QFlipperBackend():
     qRegisterMetaType<Flipper::Updates::VersionInfo>("Flipper::Updates::VersionInfo");
     qRegisterMetaType<Flipper::Updates::ChannelInfo>("Flipper::Updates::ChannelInfo");
     qRegisterMetaType<Flipper::Zero::RemoteController*>("Flipper::Zero::RemoteController*");
+    qRegisterMetaType<Flipper::Zero::RecoveryController*>("Flipper::Zero::RecoveryController*");
 }
 
 QFlipperBackend::~QFlipperBackend()

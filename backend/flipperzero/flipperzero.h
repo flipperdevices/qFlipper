@@ -3,7 +3,6 @@
 #include <QSerialPortInfo>
 #include <QDateTime>
 #include <QObject>
-#include <QMutex>
 
 #include "deviceinfo.h"
 #include "usbdeviceinfo.h"
@@ -15,6 +14,7 @@ namespace Flipper {
 
 namespace Zero {
     class RemoteController;
+    class RecoveryController;
 }
 
 // TODO: move Application processor methods into a separate class
@@ -31,12 +31,13 @@ class FlipperZero : public QObject
 
     Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
 
-    Q_PROPERTY(bool isDFU READ isDFU NOTIFY usbInfoChanged)
+    Q_PROPERTY(bool isDFU READ isDFU NOTIFY deviceInfoChanged)
     Q_PROPERTY(bool isPersistent READ isPersistent NOTIFY isPersistentChanged)
     Q_PROPERTY(bool isOnline READ isOnline NOTIFY isOnlineChanged)
     Q_PROPERTY(bool isError READ isError NOTIFY isErrorChanged)
 
     Q_PROPERTY(Flipper::Zero::RemoteController* remote READ remote CONSTANT)
+    Q_PROPERTY(Flipper::Zero::RecoveryController* recovery READ recovery CONSTANT)
 
 public:
     enum class BootMode {
@@ -52,12 +53,10 @@ public:
         Invalid
     };
 
-    FlipperZero(const USBDeviceInfo &info, QObject *parent = nullptr);
+    FlipperZero(const Zero::DeviceInfo &info, QObject *parent = nullptr);
     ~FlipperZero();
 
-    void reuse(const FlipperZero *other);
-
-    void setUSBInfo(const USBDeviceInfo &info);
+    void reset(const Zero::DeviceInfo &info);
     void setDeviceInfo(const Zero::DeviceInfo &info);
 
     void setPersistent(bool set);
@@ -82,7 +81,6 @@ public:
 
     bool downloadFirmware(QIODevice *file);
     bool downloadOptionBytes(QIODevice *file);
-    bool downloadFUS(QIODevice *file, uint32_t addr);
     bool downloadWirelessStack(QIODevice *file, uint32_t addr = 0);
 
     const QString &name() const;
@@ -100,6 +98,7 @@ public:
     bool isDFU() const;
 
     Flipper::Zero::RemoteController *remote() const;
+    Flipper::Zero::RecoveryController *recovery() const;
 
     void setName(const QString &name);
     void setTarget(const QString &target);
@@ -118,13 +117,8 @@ signals:
     void isOnlineChanged();
     void isErrorChanged();
 
-private slots:
-    void initVCPMode(const QSerialPortInfo &portInfo);
-    void fetchDeviceInfo();
-
 private:
-    void setSerialPort(QSerialPort *serialPort);
-    void setRemoteController(Zero::RemoteController *remote);
+    void initControllers();
 
     void statusFeedback(const char *msg);
     void errorFeedback(const char *msg);
@@ -133,15 +127,13 @@ private:
     bool m_isOnline;
     bool m_isError;
 
-    USBDeviceInfo m_usbInfo;
     Zero::DeviceInfo m_deviceInfo;
-    QMutex m_deviceMutex;
 
     QString m_statusMessage;
     double m_progress;
 
-    QSerialPort *m_serialPort;
     Zero::RemoteController *m_remote;
+    Zero::RecoveryController *m_recovery;
 };
 
 }

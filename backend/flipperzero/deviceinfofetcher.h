@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QObject>
-#include <QSerialPortInfo>
 
 #include "deviceinfo.h"
 #include "usbdeviceinfo.h"
@@ -18,6 +17,8 @@ class AbstractDeviceInfoFetcher : public QObject
 public:
     AbstractDeviceInfoFetcher(QObject *parent = nullptr);
     virtual ~AbstractDeviceInfoFetcher();
+
+    static AbstractDeviceInfoFetcher *create(const USBDeviceInfo &info, QObject *parent = nullptr);
 
     bool isError() const;
     const QString &errorString() const;
@@ -41,15 +42,17 @@ class VCPDeviceInfoFetcher : public AbstractDeviceInfoFetcher
     Q_OBJECT
 
 public:
-    VCPDeviceInfoFetcher(QSerialPort *serialPort, QObject *parent = nullptr);
+    VCPDeviceInfoFetcher(const USBDeviceInfo &info, QObject *parent = nullptr);
 
     void fetch() override;
     const DeviceInfo &result() const override;
 
+private slots:
+    void onSerialPortFound(const QSerialPortInfo &portInfo);
+
 private:
     void parseLine(const QByteArray &line);
 
-    QSerialPort *m_serialPort;
     DeviceInfo m_deviceInfo;
 };
 
@@ -64,7 +67,6 @@ public:
     const DeviceInfo &result() const override;
 
 private:
-    USBDeviceInfo m_usbInfo;
     DeviceInfo m_deviceInfo;
 };
 

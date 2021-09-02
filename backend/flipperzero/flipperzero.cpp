@@ -1,16 +1,14 @@
 #include "flipperzero.h"
 
 #include <QTime>
+#include <QThread>
 #include <QBuffer>
-#include <QIODevice>
 #include <QSerialPort>
-#include <QMutexLocker>
-#include <QtConcurrent/QtConcurrentRun>
 
+#include "recoverycontroller.h"
 #include "deviceinfofetcher.h"
 #include "remotecontroller.h"
 #include "serialfinder.h"
-#include "dfusedevice.h"
 #include "factoryinfo.h"
 #include "dfusefile.h"
 #include "macros.h"
@@ -30,27 +28,20 @@ using namespace Zero;
 using namespace STM32;
 using namespace WB55;
 
-FlipperZero::FlipperZero(const USBDeviceInfo &info, QObject *parent):
+FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     QObject(parent),
 
     m_isPersistent(false),
-    m_isOnline(false),
+    m_isOnline(true),
     m_isError(false),
 
-    m_usbInfo(info),
+    m_deviceInfo(info),
 
     m_progress(0),
-    m_serialPort(nullptr),
-    m_remote(nullptr)
+    m_remote(nullptr),
+    m_recovery(nullptr)
 {
-    if(isDFU()) {
-        fetchDeviceInfo();
-
-    } else {
-        auto *finder = new SerialFinder(info.serialNumber(), this);
-        connect(finder, &SerialFinder::finished, this, &FlipperZero::initVCPMode);
-        connect(finder, &SerialFinder::finished, finder, &SerialFinder::deleteLater);
-    }
+    initControllers();
 }
 
 FlipperZero::~FlipperZero()
@@ -58,24 +49,14 @@ FlipperZero::~FlipperZero()
     setOnline(false);
 }
 
-void FlipperZero::reuse(const FlipperZero *other)
+void FlipperZero::reset(const Zero::DeviceInfo &info)
 {
+    setDeviceInfo(info);
+    initControllers();
+
+    setError(QStringLiteral("No error"), false);
     setProgress(0);
-
-    setUSBInfo(other->usbInfo());
-    setDeviceInfo(other->deviceInfo());
-
-    setSerialPort(other->m_serialPort);
-    setRemoteController(other->remote());
-
     setOnline(true);
-}
-
-void FlipperZero::setUSBInfo(const USBDeviceInfo &info)
-{
-    // Not checking the huge structure for equality
-    m_usbInfo = info;
-    emit usbInfoChanged();
 }
 
 void FlipperZero::setDeviceInfo(const Zero::DeviceInfo &info)
@@ -138,25 +119,29 @@ bool FlipperZero::bootToDFU()
 {
     statusFeedback("Entering DFU bootloader mode...");
 
-    const auto portSuccess = m_serialPort->open(QIODevice::WriteOnly) && m_serialPort->setDataTerminalReady(true) &&
-                            (m_serialPort->write(QByteArrayLiteral("\rdfu\r")) > 0);
+    auto *serialPort = new QSerialPort(m_deviceInfo.serialInfo, this);
+
+    const auto portSuccess = serialPort->open(QIODevice::WriteOnly) && serialPort->setDataTerminalReady(true) &&
+                            (serialPort->write(QByteArrayLiteral("\rdfu\r")) > 0);
 
     // TODO: Is it necessary here? Why was this added?
     auto flushTries = 30;
 
-    while(--flushTries && !m_serialPort->flush()) {
+    while(--flushTries && !serialPort->flush()) {
         info_msg("Serial port flush failure, retrying...");
         QThread::msleep(15);
     }
 
-    m_serialPort->close();
+    serialPort->close();
 
     const auto success = portSuccess && flushTries;
 
     if(!success) {
         errorFeedback("Can't detach the device: Failed to reset in DFU mode");
-        error_msg(QString("Serial port status: %1").arg(m_serialPort->errorString()));
+        error_msg(QString("Serial port status: %1").arg(serialPort->errorString()));
     }
+
+    serialPort->deleteLater();
 
     return success;
 }
@@ -165,7 +150,7 @@ bool FlipperZero::reboot()
 {
     statusFeedback("Booting the device up...");
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceInfo.usbInfo);
     const auto success = device.beginTransaction() && device.leave();
 
     begin_ignore_block();
@@ -184,7 +169,7 @@ bool FlipperZero::setBootMode(BootMode mode)
     const auto msg = (mode == BootMode::Normal) ? "Booting the device up..." : "Setting device to DFU boot mode...";
     statusFeedback(msg);
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceInfo.usbInfo);
 
     if(!device.beginTransaction()) {
         errorFeedback("Can't set boot mode: Failed to initiate transaction.");
@@ -218,7 +203,7 @@ FlipperZero::WirelessStatus FlipperZero::wirelessStatus()
 {
     info_msg("Getting Co-Processor (Wireless) status...");
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceInfo.usbInfo);
 
     if(!device.beginTransaction()) {
         info_msg("Failed to get FUS status. This is normal if the device has just rebooted.");
@@ -258,7 +243,7 @@ bool FlipperZero::startFUS()
 {
     statusFeedback("Starting firmware upgrade service (FUS)...");
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceInfo.usbInfo);
 
     if(!device.beginTransaction()) {
         errorFeedback("Can't start FUS: Failed to initiate transaction.");
@@ -301,7 +286,7 @@ bool FlipperZero::startWirelessStack()
 {
     statusFeedback("Attempting to start the Wireless Stack...");
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceInfo.usbInfo);
 
     auto success = device.beginTransaction() && device.FUSStartWirelessStack();
     check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
@@ -317,7 +302,7 @@ bool FlipperZero::deleteWirelessStack()
 {
     statusFeedback("Deleting old co-processor firmware...");
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceInfo.usbInfo);
 
     const auto success = device.beginTransaction() && device.FUSFwDelete() && device.endTransaction();
 
@@ -343,7 +328,7 @@ bool FlipperZero::downloadFirmware(QIODevice *file)
     }
 
     DfuseFile fw(file);
-    DfuseDevice dev(m_usbInfo);
+    DfuseDevice dev(m_deviceInfo.usbInfo);
 
     file->close();
 
@@ -376,7 +361,7 @@ bool FlipperZero::downloadWirelessStack(QIODevice *file, uint32_t addr)
         statusFeedback("Downloading co-processor firmware image...");
     }
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceInfo.usbInfo);
 
     if(!device.beginTransaction()) {
         errorFeedback("Can't download co-processor firmware image: Failed to initiate transaction.");
@@ -426,7 +411,7 @@ bool FlipperZero::upgradeWirelessStack()
 {
     info_msg("Sending FW_UPGRADE command...");
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceInfo.usbInfo);
 
     const auto success = device.beginTransaction() && device.FUSFwUpgrade();
     check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
@@ -450,7 +435,7 @@ bool FlipperZero::downloadOptionBytes(QIODevice *file)
 
     check_return_bool(loaded.isValid(), "Failed to load option bytes from file");
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceInfo.usbInfo);
 
     check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
     const OptionBytes actual = device.optionBytes();
@@ -527,7 +512,7 @@ double FlipperZero::progress() const
 
 const USBDeviceInfo &FlipperZero::usbInfo() const
 {
-    return m_usbInfo;
+    return m_deviceInfo.usbInfo;
 }
 
 const DeviceInfo &FlipperZero::deviceInfo() const
@@ -537,12 +522,17 @@ const DeviceInfo &FlipperZero::deviceInfo() const
 
 bool FlipperZero::isDFU() const
 {
-    return m_usbInfo.productID() == 0xdf11;
+    return m_deviceInfo.usbInfo.productID() == 0xdf11;
 }
 
 Flipper::Zero::RemoteController *FlipperZero::remote() const
 {
     return m_remote;
+}
+
+RecoveryController *FlipperZero::recovery() const
+{
+    return m_recovery;
 }
 
 void FlipperZero::setName(const QString &name)
@@ -589,68 +579,24 @@ void FlipperZero::setProgress(double progress)
     }
 }
 
-void FlipperZero::initVCPMode(const QSerialPortInfo &portInfo)
+void FlipperZero::initControllers()
 {
-    if(portInfo.isNull()) {
-        error_msg("Failed to find a suitable serial port.");
-        return;
+    if(m_remote) {
+       m_remote->deleteLater();
+       m_remote = nullptr;
     }
 
-    setSerialPort(new QSerialPort(portInfo, this));
-    setRemoteController(new RemoteController(m_serialPort, this));
-
-    fetchDeviceInfo();
-}
-
-void FlipperZero::fetchDeviceInfo()
-{
-    AbstractDeviceInfoFetcher *fetcher;
+    if(m_recovery) {
+       m_recovery->deleteLater();
+       m_recovery = nullptr;
+    }
 
     if(isDFU()) {
-        fetcher = new DFUDeviceInfoFetcher(m_usbInfo, this);
+        // TODO: connect the necessary signals
+        m_recovery = new RecoveryController(m_deviceInfo.usbInfo, this);
+
     } else {
-        fetcher = new VCPDeviceInfoFetcher(m_serialPort, this);
-    }
-
-    connect(fetcher, &AbstractDeviceInfoFetcher::finished, this, [=]() {
-        if(fetcher->isError()) {
-            // TODO: Display the error in UI
-            error_msg(QStringLiteral("Failed to fetch device info: %1.").arg(fetcher->errorString()));
-            return;
-        }
-
-        setDeviceInfo(fetcher->result());
-        setOnline(true);
-    });
-
-    connect(fetcher, &AbstractDeviceInfoFetcher::finished, fetcher, &QObject::deleteLater);
-
-    fetcher->fetch();
-}
-
-void FlipperZero::setSerialPort(QSerialPort *serialPort)
-{
-    if(m_serialPort) {
-        m_serialPort->deleteLater();
-    }
-
-    m_serialPort = serialPort;
-
-    if(m_serialPort) {
-        m_serialPort->setParent(this);
-    }
-}
-
-void FlipperZero::setRemoteController(Zero::RemoteController *remote)
-{
-    if(m_remote) {
-        m_remote->deleteLater();
-    }
-
-    m_remote = remote;
-
-    if(m_remote) {
-        m_remote->setParent(this);
+        m_remote = new RemoteController(m_deviceInfo.serialInfo, this);
     }
 }
 

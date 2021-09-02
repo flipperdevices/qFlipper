@@ -40,7 +40,7 @@ public:
 
     Q_ENUM(InputType)
 
-    RemoteController(QSerialPort *serialPort, QObject *parent = nullptr);
+    RemoteController(QSerialPortInfo portInfo, QObject *parent = nullptr);
     ~RemoteController();
 
     const QByteArray &screenData() const;

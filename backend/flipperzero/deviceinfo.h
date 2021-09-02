@@ -2,6 +2,9 @@
 
 #include <QString>
 #include <QDateTime>
+#include <QSerialPortInfo>
+
+#include "usbdeviceinfo.h"
 
 namespace Flipper {
 namespace Zero {
@@ -33,6 +36,9 @@ struct DeviceInfo {
 
     VersionInfo bootloader;
     VersionInfo firmware;
+
+    USBDeviceInfo usbInfo;
+    QSerialPortInfo serialInfo;
 };
 
 }
