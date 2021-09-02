@@ -5,6 +5,8 @@
 #include <QByteArray>
 #include <QSerialPortInfo>
 
+class QSerialPort;
+
 namespace Flipper {
 namespace Zero {
 
@@ -38,7 +40,7 @@ public:
 
     Q_ENUM(InputType)
 
-    RemoteController(const QSerialPortInfo &portInfo, QObject *parent = nullptr);
+    RemoteController(QSerialPortInfo portInfo, QObject *parent = nullptr);
     ~RemoteController();
 
     const QByteArray &screenData() const;

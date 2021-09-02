@@ -2,13 +2,14 @@
 
 #include <QUrl>
 #include <QFile>
+#include <QTimer>
 #include <QBuffer>
-#include <QFutureWatcher>
-#include <QSerialPortInfo>
-#include <QtConcurrent/QtConcurrentRun>
 
 #include "flipperzero/flipperzero.h"
-#include "flipperzero/firmwareoperations.h"
+#include "flipperzero/operations/wirelessstackdownloadoperation.h"
+#include "flipperzero/operations/firmwaredownloadoperation.h"
+#include "flipperzero/operations/fixoptionbytesoperation.h"
+#include "flipperzero/operations/fixbootissuesoperation.h"
 
 #include "remotefilefetcher.h"
 #include "macros.h"
@@ -47,7 +48,7 @@ void FirmwareDownloader::downloadRemoteFile(FlipperZero *device, const Flipper::
         fetcher->deleteLater();
     });
 
-    device->setStatusMessage(tr("Fetching the update file..."));
+    device->setMessage(tr("Fetching the update file..."));
     fetcher->fetch(fileInfo, buf);
 }
 
@@ -90,25 +91,22 @@ void FirmwareDownloader::processQueue()
     m_state = State::Running;
 
     auto *currentOperation = m_operationQueue.dequeue();
-    auto *watcher = new QFutureWatcher<bool>(this);
 
-    connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
-        info_msg(QString("Operation '%1' finished with status: %2").arg(currentOperation->name(), watcher->result() ? "SUCCESS" : "FAILURE"));
-
-        delete currentOperation;
+    connect(currentOperation, &AbstractOperation::finished, this, [=]() {
+        info_msg(QStringLiteral("Operation '%1' finished with status: %2.").arg(currentOperation->name(), currentOperation->errorString()));
+        currentOperation->deleteLater();
         processQueue();
-
-        watcher->deleteLater();
     });
 
-    watcher->setFuture(QtConcurrent::run(currentOperation, &AbstractFirmwareOperation::execute));
+    currentOperation->start();
 }
 
-void FirmwareDownloader::enqueueOperation(AbstractFirmwareOperation *op)
+void FirmwareDownloader::enqueueOperation(AbstractOperation *op)
 {
     m_operationQueue.enqueue(op);
 
     if(m_state == State::Ready) {
-        processQueue();
+        // Leave the context before calling processQueue()
+        QTimer::singleShot(20, this, &FirmwareDownloader::processQueue);
     }
 }

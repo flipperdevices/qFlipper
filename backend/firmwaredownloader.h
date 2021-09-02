@@ -5,7 +5,7 @@
 #include <QQueue>
 
 #include "flipperupdates.h"
-#include "abstractfirmwareoperation.h"
+#include "abstractoperation.h"
 
 class QIODevice;
 
@@ -38,10 +38,10 @@ private slots:
     void processQueue();
 
 private:
-    void enqueueOperation(AbstractFirmwareOperation *op);
+    void enqueueOperation(AbstractOperation *op);
 
     State m_state;
-    QQueue<AbstractFirmwareOperation*> m_operationQueue;
+    QQueue<AbstractOperation*> m_operationQueue;
 };
 
 }

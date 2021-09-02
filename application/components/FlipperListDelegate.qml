@@ -136,7 +136,7 @@ Item {
 
     Text {
         id: messageLabel
-        text: device.statusMessage
+        text: device.isError ? device.errorString : device.messageString
         visible: device.isPersistent || device.isError
         color: device.isError ? "#ddd" : "white"
 

@@ -20,6 +20,13 @@ Item {
         device.remote.enabled = false;
     }
 
+    function onDeviceIsOnlineChanged() {
+        if(!device.isOnline) {
+            device.isOnlineChanged.disconnect(screen.onDeviceIsOnlineChanged);
+            screen.close();
+        }
+    }
+
     FileDialog {
         id: fileDialog
 
@@ -141,6 +148,6 @@ Item {
     Component.onCompleted: {
         keypad.forceActiveFocus();
         device.remote.enabled = true;
-        device.isConnectedChanged.connect(screen.close);
+        device.isOnlineChanged.connect(screen.onDeviceIsOnlineChanged);
     }
 }

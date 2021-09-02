@@ -3,6 +3,7 @@
 
 #include <QAbstractListModel>
 #include <QVector>
+#include <QQueue>
 
 #include "usbdeviceinfo.h"
 
@@ -31,6 +32,9 @@ signals:
 public slots:
     void insertDevice(const USBDeviceInfo &info);
     void removeDevice(const USBDeviceInfo &info);
+
+private slots:
+    void processDevice();
 
 private:
     QVector<Flipper::FlipperZero*> m_data;
