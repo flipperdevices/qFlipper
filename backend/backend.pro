@@ -23,6 +23,7 @@ SOURCES += \
     flipperzero/operations/wirelessstackdownloadoperation.cpp \
     flipperzero/recoverycontroller.cpp \
     flipperzero/remotecontroller.cpp \
+    gzipuncompressor.cpp \
     qflipperbackend.cpp \
     remotefilefetcher.cpp \
     serialfinder.cpp \
@@ -44,6 +45,7 @@ HEADERS += \
     flipperzero/operations/wirelessstackdownloadoperation.h \
     flipperzero/recoverycontroller.h \
     flipperzero/remotecontroller.h \
+    gzipuncompressor.h \
     qflipperbackend.h \
     remotefilefetcher.h \
     serialfinder.h \

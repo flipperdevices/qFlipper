@@ -3,7 +3,7 @@ NAME = qFlipper
 unix:!macx {
     DEFINES += USB_BACKEND_LIBUSB
     CONFIG += link_pkgconfig
-    PKGCONFIG += libusb-1.0
+    PKGCONFIG += libusb-1.0 zlib
 
 } else:win32 {
     CONFIG -= debug_and_release
@@ -16,7 +16,7 @@ unix:!macx {
     DEFINES += USB_BACKEND_LIBUSB
     PKG_CONFIG = /usr/local/bin/pkg-config
     CONFIG += link_pkgconfig
-    PKGCONFIG += libusb-1.0
+    PKGCONFIG += libusb-1.0 zlib
 
 } else {
     error("Unsupported OS or compiler")
