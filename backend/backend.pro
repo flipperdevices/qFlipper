@@ -27,7 +27,7 @@ SOURCES += \
     qflipperbackend.cpp \
     remotefilefetcher.cpp \
     serialfinder.cpp \
-    tarfile.cpp \
+    tararchive.cpp \
     updateregistry.cpp
 
 HEADERS += \
@@ -50,7 +50,7 @@ HEADERS += \
     qflipperbackend.h \
     remotefilefetcher.h \
     serialfinder.h \
-    tarfile.h \
+    tararchive.h \
     updateregistry.h
 
 unix|win32 {
