@@ -14,6 +14,7 @@ RUN add-apt-repository ppa:beineri/opt-qt-5.15.2-bionic && \
     pkg-config \
     git \
     libfuse2 \
+    zlib1g-dev \
     libusb-1.0-0-dev \
     ca-certificates \
     build-essential \
