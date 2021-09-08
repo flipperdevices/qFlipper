@@ -127,6 +127,17 @@ Item {
                 }, messageObj);
             }
 
+            onLocalAssetsUpdateRequested: {
+                const messageObj = {
+                    title : qsTr("Update the databases?"),
+                    subtitle : qsTr("This will install the databases from a file.")
+                };
+
+                fileDialog.openWithConfirmation(["Database files (*.tgz)", "All files (*)"], function() {
+                    downloader.downloadAssets(device, fileDialog.fileUrl);
+                }, messageObj);
+            }
+
             onLocalRadioUpdateRequested: {
                 const messageObj = {
                     title : qsTr("Update the wireless stack?"),

@@ -27,7 +27,7 @@ WirelessStackDownloadOperation::~WirelessStackDownloadOperation()
     m_file->deleteLater();
 }
 
-const QString WirelessStackDownloadOperation::name() const
+const QString WirelessStackDownloadOperation::description() const
 {
     return QStringLiteral("Co-Processor Firmware Download @%1 %2").arg(device()->model(), device()->name());
 }

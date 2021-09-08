@@ -18,7 +18,7 @@ FixBootIssuesOperation::~FixBootIssuesOperation()
     device()->setPersistent(false);
 }
 
-const QString FixBootIssuesOperation::name() const
+const QString FixBootIssuesOperation::description() const
 {
     return QStringLiteral("Fix boot issues @%1 %2").arg(device()->model(), device()->name());
 }

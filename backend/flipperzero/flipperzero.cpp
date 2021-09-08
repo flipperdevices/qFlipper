@@ -4,7 +4,9 @@
 #include <QSerialPort>
 
 #include "recoverycontroller.h"
+#include "storagecontroller.h"
 #include "remotecontroller.h"
+
 #include "macros.h"
 
 namespace Flipper {
@@ -22,7 +24,8 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
 
     m_progress(0),
     m_remote(nullptr),
-    m_recovery(nullptr)
+    m_recovery(nullptr),
+    m_storage(nullptr)
 {
     initControllers();
 }
@@ -183,6 +186,11 @@ RecoveryController *FlipperZero::recovery() const
     return m_recovery;
 }
 
+StorageController *FlipperZero::storage() const
+{
+    return m_storage;
+}
+
 void FlipperZero::setName(const QString &name)
 {
     if(m_deviceInfo.name == name) {
@@ -242,6 +250,11 @@ void FlipperZero::initControllers()
        m_recovery = nullptr;
     }
 
+    if(m_storage) {
+       m_storage->deleteLater();
+       m_storage = nullptr;
+    }
+
     // TODO: better message delivery system
     if(isDFU()) {
         m_recovery = new RecoveryController(m_deviceInfo.usbInfo, this);
@@ -259,6 +272,7 @@ void FlipperZero::initControllers()
 
     } else {
         m_remote = new RemoteController(m_deviceInfo.serialInfo, this);
+        m_storage = new StorageController(m_deviceInfo.serialInfo, this);
     }
 }
 

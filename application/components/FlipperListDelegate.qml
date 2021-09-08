@@ -6,6 +6,7 @@ Item {
     signal localUpdateRequested(var device)
     signal localRadioUpdateRequested(var device)
     signal localFUSUpdateRequested(var device)
+    signal localAssetsUpdateRequested(var device)
 
     signal fixOptionBytesRequested(var device)
     signal fixBootRequested(var device)
@@ -184,6 +185,11 @@ Item {
 
         Menu {
             title: qsTr("Expert options")
+
+            MenuItem {
+                text: qsTr("Update Databases...")
+                onTriggered: localAssetsUpdateRequested(device)
+            }
 
             MenuItem {
                 text: qsTr("Update Wireless stack...")

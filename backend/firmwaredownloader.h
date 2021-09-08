@@ -34,6 +34,8 @@ public slots:
     void fixBootIssues(Flipper::FlipperZero *device);
     void fixOptionBytes(Flipper::FlipperZero *device, const QString &filePath);
 
+    void downloadAssets(Flipper::FlipperZero *device, const QString &filePath);
+
 private slots:
     void processQueue();
 

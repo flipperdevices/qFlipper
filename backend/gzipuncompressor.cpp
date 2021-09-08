@@ -21,12 +21,11 @@ GZipUncompressor::GZipUncompressor(QIODevice *in, QIODevice *out, QObject *paren
     auto *watcher = new QFutureWatcher<bool>(this);
 
     connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
-        info_msg(QStringLiteral("Uncompression finished :%1.").arg(errorString()));
+        info_msg(QStringLiteral("Uncompression finished : %1.").arg(errorString()));
 
-        m_in->close();
-        m_out->close();
+        closeFiles();
 
-        m_isError = watcher->result();
+        m_isError = !watcher->result();
 
         watcher->deleteLater();
         emit finished();
@@ -37,8 +36,7 @@ GZipUncompressor::GZipUncompressor(QIODevice *in, QIODevice *out, QObject *paren
 
 GZipUncompressor::~GZipUncompressor()
 {
-    m_in->close();
-    m_out->close();
+    closeFiles();
 }
 
 bool GZipUncompressor::isError() const
@@ -80,6 +78,7 @@ bool GZipUncompressor::uncompress()
     } else if(m_in->bytesAvailable() <= 4) {
         setError(QStringLiteral("The input file is empty"));
         return false;
+
     } else if(!m_out->open(QIODevice::WriteOnly)) {
         setError(QStringLiteral("Failed to open the output file for writing"));
         return false;
@@ -131,9 +130,11 @@ bool GZipUncompressor::uncompress()
     } while(m_in->bytesAvailable());
 
     inflateEnd(&stream);
+    return true;
+}
 
+void GZipUncompressor::closeFiles()
+{
     m_in->close();
     m_out->close();
-
-    return false;
 }

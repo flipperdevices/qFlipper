@@ -23,7 +23,7 @@ public:
     FixOptionBytesOperation(FlipperZero *device, QIODevice *file, QObject *parent = nullptr);
     ~FixOptionBytesOperation();
 
-    const QString name() const override;
+    const QString description() const override;
 
 private slots:
     void transitionToNextState() override;

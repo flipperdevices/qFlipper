@@ -34,10 +34,14 @@ public:
         Type m_type;
     };
 
+    TarArchive();
     TarArchive(QIODevice *file);
 
-     FileInfo fileInfo(const QString &fullName) const;
-     QByteArray fileData(const QString &fullName) const;
+    bool isValid() const;
+
+    QList<FileInfo> files() const;
+    FileInfo fileInfo(const QString &fullName) const;
+    QByteArray fileData(const QString &fullName) const;
 
 private:
     void buildIndex();

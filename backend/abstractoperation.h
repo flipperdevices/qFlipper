@@ -17,7 +17,7 @@ public:
     explicit AbstractOperation(QObject *parent = nullptr);
     virtual ~AbstractOperation() {}
 
-    virtual const QString name() const = 0;
+    virtual const QString description() const = 0;
     virtual void start() = 0;
     virtual void finish() = 0;
 

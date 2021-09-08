@@ -9,6 +9,7 @@ namespace Flipper {
 namespace Zero {
     class RemoteController;
     class RecoveryController;
+    class StorageController;
 }
 
 class FlipperZero : public QObject
@@ -64,6 +65,7 @@ public:
 
     Flipper::Zero::RemoteController *remote() const;
     Flipper::Zero::RecoveryController *recovery() const;
+    Flipper::Zero::StorageController *storage() const;
 
     void setName(const QString &name);
     void setTarget(const QString &target);
@@ -97,6 +99,7 @@ private:
 
     Zero::RemoteController *m_remote;
     Zero::RecoveryController *m_recovery;
+    Zero::StorageController *m_storage;
 };
 
 }

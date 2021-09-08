@@ -16,6 +16,7 @@ SOURCES += \
     flipperzero/deviceinfofetcher.cpp \
     flipperzero/factoryinfo.cpp \
     flipperzero/flipperzero.cpp \
+    flipperzero/operations/assetsdownloadoperation.cpp \
     flipperzero/operations/firmwaredownloadoperation.cpp \
     flipperzero/operations/fixbootissuesoperation.cpp \
     flipperzero/operations/fixoptionbytesoperation.cpp \
@@ -23,6 +24,9 @@ SOURCES += \
     flipperzero/operations/wirelessstackdownloadoperation.cpp \
     flipperzero/recoverycontroller.cpp \
     flipperzero/remotecontroller.cpp \
+    flipperzero/storage/statoperation.cpp \
+    flipperzero/storage/storageoperation.cpp \
+    flipperzero/storagecontroller.cpp \
     gzipuncompressor.cpp \
     qflipperbackend.cpp \
     remotefilefetcher.cpp \
@@ -39,6 +43,7 @@ HEADERS += \
     flipperzero/deviceinfofetcher.h \
     flipperzero/factoryinfo.h \
     flipperzero/flipperzero.h \
+    flipperzero/operations/assetsdownloadoperation.h \
     flipperzero/operations/firmwaredownloadoperation.h \
     flipperzero/operations/fixbootissuesoperation.h \
     flipperzero/operations/fixoptionbytesoperation.h \
@@ -46,6 +51,9 @@ HEADERS += \
     flipperzero/operations/wirelessstackdownloadoperation.h \
     flipperzero/recoverycontroller.h \
     flipperzero/remotecontroller.h \
+    flipperzero/storage/statoperation.h \
+    flipperzero/storage/storageoperation.h \
+    flipperzero/storagecontroller.h \
     gzipuncompressor.h \
     qflipperbackend.h \
     remotefilefetcher.h \

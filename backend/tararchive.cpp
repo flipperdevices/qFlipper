@@ -31,6 +31,10 @@ static bool isMemZeros(char *p, size_t len)
     return true;
 }
 
+TarArchive::TarArchive():
+    m_tarFile(nullptr)
+{}
+
 TarArchive::TarArchive(QIODevice *file):
     m_tarFile(file)
 {
@@ -40,6 +44,16 @@ TarArchive::TarArchive(QIODevice *file):
     }
 
     buildIndex();
+}
+
+bool TarArchive::isValid() const
+{
+    return m_tarFile && m_fileIndex.size();
+}
+
+QList<TarArchive::FileInfo> TarArchive::files() const
+{
+    return m_fileIndex.values();
 }
 
 TarArchive::FileInfo TarArchive::fileInfo(const QString &fullName) const
@@ -77,7 +91,6 @@ void TarArchive::buildIndex()
             }
 
         } else if(strncmp(header.magic, "ustar", 5)) {
-            qDebug() << header.magic;
             error_msg("Tar magic constant not found.");
             return;
         }
