@@ -4,10 +4,10 @@
 #include <QBuffer>
 #include <QSerialPort>
 
+#include "common/skipmotdoperation.h"
 #include "device/stm32wb55.h"
 #include "serialfinder.h"
 #include "factoryinfo.h"
-#include "motdskipper.h"
 #include "macros.h"
 
 #define RESPONSE_TIMEOUT_MS 5000
@@ -82,9 +82,9 @@ void VCPDeviceInfoFetcher::onSerialPortFound(const QSerialPortInfo &portInfo)
         return;
     }
 
-    auto *skipper = new MOTDSkipper(m_serialPort, this);
+    auto *skipper = new SkipMOTDOperation(m_serialPort, this);
 
-    connect(skipper, &MOTDSkipper::finished, this, [=]() {
+    connect(skipper, &AbstractOperation::finished, this, [=]() {
 
         if(skipper->isError()) {
             finishWithError(skipper->errorString());
@@ -99,6 +99,8 @@ void VCPDeviceInfoFetcher::onSerialPortFound(const QSerialPortInfo &portInfo)
 
         skipper->deleteLater();
     });
+
+    skipper->start();
 }
 
 void VCPDeviceInfoFetcher::onSerialPortReadyRead()

@@ -22,12 +22,15 @@ Directory
 
 >: storage stat /ext/irda/Tv_home.ir
 File, size: 64b
+
+>: storage stat /ext
+Storage error: internal error
 */
 
 static quint64 fromStringSize(const QByteArray &s);
 
 StatOperation::StatOperation(QSerialPort *serialPort, const QByteArray &fileName, QObject *parent):
-    StorageOperation(serialPort, parent),
+    SimpleSerialOperation(serialPort, parent),
     m_fileName(fileName),
     m_size(0),
     m_type(Type::Invalid)
@@ -53,63 +56,44 @@ StatOperation::Type StatOperation::type() const
     return m_type;
 }
 
-void StatOperation::onSerialPortReadyRead()
+QByteArray StatOperation::endOfMessageToken() const
 {
-    m_receivedData += serialPort()->readAll();
-
-    if(m_receivedData.endsWith(">: \a")) {
-        stopTimeout();
-
-        parseReceivedData();
-
-    } else {
-        startTimeout();
-    }
+    return QByteArrayLiteral("\r\n>: \a");
 }
 
-void StatOperation::onOperationTimeout()
+QByteArray StatOperation::commandLine() const
 {
-    finishWithError(QStringLiteral("Operation timeout"));
-}
-
-bool StatOperation::begin()
-{
-    const auto cmdline = QByteArrayLiteral("storage stat ") + m_fileName + QByteArrayLiteral("\r\n");
-    const auto success = serialPort()->write(cmdline) == cmdline.size();
-
-    if(success) {
-        startTimeout(1000);
-    }
-
-    return success;
+    return QByteArrayLiteral("storage stat ") + m_fileName + QByteArrayLiteral("\r\n");
 }
 
 bool StatOperation::parseReceivedData()
 {
-    const auto lines = m_receivedData.split('\n');
+    const auto lines = receivedData().split('\n');
     check_return_bool(lines.size() == 4, "Wrong reply line count.");
 
-    const auto reply = lines[1].trimmed();
-    qDebug() << reply;
-//    if(reply == "storage error: file/dir not exist") {
-//        m_type = Type::NotFound;
-//    } else if(reply == "storage error: invalid name/path") {
-//        m_type = Type::Invalid;
-//    } else if(reply.contains("file, size:")) {
-//        const auto i = reply.indexOf(':');
-//        const auto tsize = reply.mid(i + 1);
+    const auto reply = lines[1].trimmed().toLower();
 
-//        m_size = fromStringSize(tsize);
-//        m_type = Type::File;
+    if(reply == "storage error: file/dir not exist") {
+        m_type = Type::NotFound;
+    } else if(reply == "storage error: invalid name/path") {
+        m_type = Type::Invalid;
+    } else if(reply == "storage error: internal error") {
+        m_type = Type::InternalError;
+    } else if(reply.contains("file, size:")) {
+        const auto i = reply.indexOf(':');
+        const auto tsize = reply.mid(i + 1);
 
-//    } else if(reply.contains("directory")) {
-//        m_type = Type::Directory;
-//    } else if(reply.contains("storage,")) {
-//        m_type = Type::Storage;
-//    } else {
-//        error_msg("Unexpected stat reply string.");
-//        return false;
-//    }
+        m_size = fromStringSize(tsize);
+        m_type = Type::File;
+
+    } else if(reply.contains("directory")) {
+        m_type = Type::Directory;
+    } else if(reply.contains("storage,")) {
+        m_type = Type::Storage;
+    } else {
+        error_msg("Unexpected stat reply string.");
+        return false;
+    }
 
     return true;
 }

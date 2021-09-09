@@ -2,9 +2,12 @@
 
 #include <QObject>
 
+#include "failable.h"
+
 class QTimer;
 
-class AbstractOperation: public QObject {
+class AbstractOperation: public QObject, public Failable
+{
     Q_OBJECT
 
 public:
@@ -22,9 +25,6 @@ public:
     virtual void finish() = 0;
 
     int state() const;
-    bool isError() const;
-    const QString &errorString() const;
-
 signals:
     void started();
     void finished();
@@ -34,14 +34,12 @@ protected slots:
 
 protected:
     void setState(int state);
-    void finishWithError(const QString &errorString);
+    void finishWithError(const QString &errorMsg);
 
-    void startTimeout(int msec = 10000);
+    void startTimeout(int msec = 5000);
     void stopTimeout();
 
 private:
-    bool m_isError;
-    QString m_errorString;
     QTimer *m_timeout;
     int m_state;
 };

@@ -4,16 +4,13 @@
 
 class QSerialPort;
 
-namespace Flipper {
-namespace Zero {
-
-class StorageOperation : public AbstractOperation
+class AbstractSerialOperation : public AbstractOperation
 {
     Q_OBJECT
 
 public:
-    StorageOperation(QSerialPort *serialPort, QObject *parent = nullptr);
-    virtual ~StorageOperation();
+    AbstractSerialOperation(QSerialPort *serialPort, QObject *parent = nullptr);
+    virtual ~AbstractSerialOperation();
 
     void start() override;
     void finish() override;
@@ -30,7 +27,3 @@ private:
 
     QSerialPort *m_serialPort;
 };
-
-}
-}
-

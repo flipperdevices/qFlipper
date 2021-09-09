@@ -10,13 +10,14 @@ include(../qflipper_common.pri)
 
 SOURCES += \
     abstractoperation.cpp \
+    abstractserialoperation.cpp \
     deviceregistry.cpp \
     firmwaredownloader.cpp \
     flipperupdates.cpp \
+    flipperzero/common/skipmotdoperation.cpp \
     flipperzero/deviceinfofetcher.cpp \
     flipperzero/factoryinfo.cpp \
     flipperzero/flipperzero.cpp \
-    flipperzero/motdskipper.cpp \
     flipperzero/operations/assetsdownloadoperation.cpp \
     flipperzero/operations/firmwaredownloadoperation.cpp \
     flipperzero/operations/fixbootissuesoperation.cpp \
@@ -26,26 +27,27 @@ SOURCES += \
     flipperzero/recoverycontroller.cpp \
     flipperzero/remotecontroller.cpp \
     flipperzero/storage/statoperation.cpp \
-    flipperzero/storage/storageoperation.cpp \
     flipperzero/storagecontroller.cpp \
     gzipuncompressor.cpp \
     qflipperbackend.cpp \
     remotefilefetcher.cpp \
     serialfinder.cpp \
+    simpleserialoperation.cpp \
     tararchive.cpp \
     updateregistry.cpp
 
 HEADERS += \
     abstractoperation.h \
+    abstractserialoperation.h \
     deviceregistry.h \
     failable.h \
     firmwaredownloader.h \
     flipperupdates.h \
+    flipperzero/common/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
     flipperzero/deviceinfofetcher.h \
     flipperzero/factoryinfo.h \
     flipperzero/flipperzero.h \
-    flipperzero/motdskipper.h \
     flipperzero/operations/assetsdownloadoperation.h \
     flipperzero/operations/firmwaredownloadoperation.h \
     flipperzero/operations/fixbootissuesoperation.h \
@@ -55,12 +57,12 @@ HEADERS += \
     flipperzero/recoverycontroller.h \
     flipperzero/remotecontroller.h \
     flipperzero/storage/statoperation.h \
-    flipperzero/storage/storageoperation.h \
     flipperzero/storagecontroller.h \
     gzipuncompressor.h \
     qflipperbackend.h \
     remotefilefetcher.h \
     serialfinder.h \
+    simpleserialoperation.h \
     tararchive.h \
     updateregistry.h
 

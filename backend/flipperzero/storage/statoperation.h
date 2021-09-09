@@ -1,18 +1,13 @@
 #pragma once
 
-#include "storageoperation.h"
+#include "simpleserialoperation.h"
 
 namespace Flipper {
 namespace Zero {
 
-class StatOperation : public StorageOperation
+class StatOperation : public SimpleSerialOperation
 {
     Q_OBJECT
-
-    enum State {
-        SkippingReply = BasicState::User,
-        ReadingReply
-    };
 
 public:
     enum class Type{
@@ -20,6 +15,7 @@ public:
         Directory,
         Storage,
         NotFound,
+        InternalError,
         Invalid
     };
 
@@ -31,16 +27,12 @@ public:
     quint64 size() const;
     Type type() const;
 
-private slots:
-    void onSerialPortReadyRead() override;
-    void onOperationTimeout() override;
-
 private:
-    bool begin() override;
-    bool parseReceivedData();
+    QByteArray endOfMessageToken() const override;
+    QByteArray commandLine() const override;
+    bool parseReceivedData() override;
 
     QByteArray m_fileName;
-    QByteArray m_receivedData;
     quint64 m_size;
     Type m_type;
 };

@@ -78,9 +78,13 @@ bool AssetsDownloadOperation::checkForExtStorage()
 {
     auto *op = device()->storage()->stat("/ext");
 
-    connect(op, &StorageOperation::finished, this, [=]() {
+    connect(op, &AbstractOperation::finished, this, [=]() {
         if(op->isError()) {
             finishWithError("Failed to perform stat operation");
+        } else if(op->type() == StatOperation::Type::InternalError) {
+            info_msg("No external storage found, finishing early");
+            finish();
+
         } else if(op->type() != StatOperation::Type::Storage) {
             finishWithError("/ext is not a storage");
         } else {
@@ -111,7 +115,7 @@ bool AssetsDownloadOperation::extractArchive()
         if(uncompressor->isError()) {
             finishWithError(uncompressor->errorString());
         } else {
-            info_msg("/ext storage is present...")
+            info_msg("external storage is present.")
             transitionToNextState();
         }
 

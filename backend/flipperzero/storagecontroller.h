@@ -4,13 +4,13 @@
 #include <QObject>
 #include <QSerialPortInfo>
 
-class QTimer;
 class QSerialPort;
+
+class AbstractSerialOperation;
 
 namespace Flipper {
 namespace Zero {
 
-class StorageOperation;
 class StatOperation;
 
 // BIG TODO: Error signaling
@@ -18,13 +18,11 @@ class StorageController : public QObject
 {
     Q_OBJECT
 
-    using OperationQueue = QQueue<StorageOperation*>;
+    using OperationQueue = QQueue<AbstractSerialOperation*>;
 
     enum class State {
         Idle,
-        SkippingMOTD,
-        ExecutingOperation,
-        ErrorOccured
+        Running
     };
 
 public:
@@ -35,18 +33,12 @@ public:
 
 private slots:
     void processQueue();
-    void onSerialreadyRead();
-    void onSerialErrorOccured();
 
 private:
-    bool openPort();
-    void closePort();
-
-    void enqueueOperation(StorageOperation *op);
+    void enqueueOperation(AbstractSerialOperation *op);
 
     OperationQueue m_operationQueue;
     QSerialPort *m_serialPort;
-    QTimer *m_responseTimer;
     State m_state;
 };
 
