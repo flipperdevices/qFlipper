@@ -105,8 +105,7 @@ void VCPDeviceInfoFetcher::onSerialPortFound(const QSerialPortInfo &portInfo)
     });
 
     const auto success = serialPort->setDataTerminalReady(true) &&
-                        (serialPort->write("\rdevice_info\r") > 0) &&
-                         serialPort->flush();
+                        (serialPort->write("\rdevice_info\r\n") > 0);
     if(success) {
         timeout->start(5000);
     }

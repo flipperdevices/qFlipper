@@ -105,26 +105,14 @@ bool FlipperZero::bootToDFU()
 
     auto *serialPort = new QSerialPort(m_deviceInfo.serialInfo, this);
 
-    const auto portSuccess = serialPort->open(QIODevice::WriteOnly) && serialPort->setDataTerminalReady(true) &&
-                            (serialPort->write(QByteArrayLiteral("\rdfu\r")) > 0);
-
-    // TODO: Is it necessary here? Why was this added?
-    auto flushTries = 30;
-
-    while(--flushTries && !serialPort->flush()) {
-        info_msg("Serial port flush failure, retrying...");
-        QThread::msleep(15);
-    }
-
-    serialPort->close();
-
-    const auto success = portSuccess && flushTries;
-
+    const auto success = serialPort->open(QIODevice::WriteOnly) && serialPort->setDataTerminalReady(true) &&
+                        (serialPort->write(QByteArrayLiteral("\rdfu\r\n")) > 0) && serialPort->waitForBytesWritten(1000);
     if(!success) {
         setError("Can't detach the device: Failed to reset in DFU mode");
         error_msg(QString("Serial port status: %1").arg(serialPort->errorString()));
     }
 
+    serialPort->close();
     serialPort->deleteLater();
 
     return success;
