@@ -36,8 +36,6 @@ RUN wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous
 RUN wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -O /usr/bin/linuxdeploy-plugin-qt \
     && chmod +x /usr/bin/linuxdeploy-plugin-qt
 
-RUN ln -s /usr/lib/x86_64-linux-gnu/libGL.so.1 /usr/lib/x86_64-linux-gnu/libGL.so
-
 ENV QT_BASE_DIR=/opt/qt515
 
 ENV PATH="${QT_BASE_DIR}/bin:${PATH}"
