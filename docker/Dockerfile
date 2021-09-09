@@ -18,6 +18,7 @@ RUN add-apt-repository ppa:beineri/opt-qt-5.15.2-bionic && \
     libusb-1.0-0-dev \
     ca-certificates \
     build-essential \
+    libgl-dev \
     qt515tools \
     qt515base \
     qt5153d \
