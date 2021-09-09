@@ -16,6 +16,7 @@ SOURCES += \
     flipperzero/deviceinfofetcher.cpp \
     flipperzero/factoryinfo.cpp \
     flipperzero/flipperzero.cpp \
+    flipperzero/motdskipper.cpp \
     flipperzero/operations/assetsdownloadoperation.cpp \
     flipperzero/operations/firmwaredownloadoperation.cpp \
     flipperzero/operations/fixbootissuesoperation.cpp \
@@ -37,12 +38,14 @@ SOURCES += \
 HEADERS += \
     abstractoperation.h \
     deviceregistry.h \
+    failable.h \
     firmwaredownloader.h \
     flipperupdates.h \
     flipperzero/deviceinfo.h \
     flipperzero/deviceinfofetcher.h \
     flipperzero/factoryinfo.h \
     flipperzero/flipperzero.h \
+    flipperzero/motdskipper.h \
     flipperzero/operations/assetsdownloadoperation.h \
     flipperzero/operations/firmwaredownloadoperation.h \
     flipperzero/operations/fixbootissuesoperation.h \

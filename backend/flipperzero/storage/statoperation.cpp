@@ -24,7 +24,7 @@ Directory
 File, size: 64b
 */
 
-static size_t fromStringSize(const QByteArray &s);
+static quint64 fromStringSize(const QByteArray &s);
 
 StatOperation::StatOperation(QSerialPort *serialPort, const QByteArray &fileName, QObject *parent):
     StorageOperation(serialPort, parent),
@@ -43,7 +43,7 @@ const QByteArray &StatOperation::fileName() const
     return m_fileName;
 }
 
-size_t StatOperation::size() const
+quint64 StatOperation::size() const
 {
     return m_size;
 }
@@ -55,63 +55,71 @@ StatOperation::Type StatOperation::type() const
 
 void StatOperation::onSerialPortReadyRead()
 {
-    if(!serialPort()->canReadLine()) {
-        return;
+    m_receivedData += serialPort()->readAll();
+
+    if(m_receivedData.endsWith(">: \a")) {
+        stopTimeout();
+
+        parseReceivedData();
+
+    } else {
+        startTimeout();
     }
+}
 
-    const auto line = serialPort()->readLine();
-
-    if(state() == State::SkippingReply) {
-        setState(State::ReadingReply);
-
-    } else if(state() == State::ReadingReply) {
-        if(!parseReply(line.trimmed().toLower())) {
-            finishWithError(QStringLiteral("Failed to parse the reply string"));
-        } else {
-            setState(State::SkippingReply);
-        }
-    }
+void StatOperation::onOperationTimeout()
+{
+    finishWithError(QStringLiteral("Operation timeout"));
 }
 
 bool StatOperation::begin()
 {
-    setState(State::SkippingReply);
-
     const auto cmdline = QByteArrayLiteral("storage stat ") + m_fileName + QByteArrayLiteral("\r\n");
-    return (serialPort()->write(cmdline) == cmdline.size());
+    const auto success = serialPort()->write(cmdline) == cmdline.size();
+
+    if(success) {
+        startTimeout(1000);
+    }
+
+    return success;
 }
 
-bool StatOperation::parseReply(const QByteArray &reply)
+bool StatOperation::parseReceivedData()
 {
-    if(reply == "storage error: file/dir not exist") {
-        m_type = Type::NotFound;
-    } else if(reply == "storage error: invalid name/path") {
-        m_type = Type::Invalid;
-    } else if(reply.contains("file, size:")) {
-        const auto i = reply.indexOf(':');
-        const auto tsize = reply.mid(i + 1);
+    const auto lines = m_receivedData.split('\n');
+    check_return_bool(lines.size() == 4, "Wrong reply line count.");
 
-        m_size = fromStringSize(tsize);
-        m_type = Type::File;
+    const auto reply = lines[1].trimmed();
+    qDebug() << reply;
+//    if(reply == "storage error: file/dir not exist") {
+//        m_type = Type::NotFound;
+//    } else if(reply == "storage error: invalid name/path") {
+//        m_type = Type::Invalid;
+//    } else if(reply.contains("file, size:")) {
+//        const auto i = reply.indexOf(':');
+//        const auto tsize = reply.mid(i + 1);
 
-    } else if(reply.contains("directory")) {
-        m_type = Type::Directory;
-    } else if(reply.contains("storage,")) {
-        m_type = Type::Storage;
-    } else {
-        error_msg("Unexpected stat reply string.");
-        return false;
-    }
+//        m_size = fromStringSize(tsize);
+//        m_type = Type::File;
+
+//    } else if(reply.contains("directory")) {
+//        m_type = Type::Directory;
+//    } else if(reply.contains("storage,")) {
+//        m_type = Type::Storage;
+//    } else {
+//        error_msg("Unexpected stat reply string.");
+//        return false;
+//    }
 
     return true;
 }
 
-static size_t fromStringSize(const QByteArray &s)
+static quint64 fromStringSize(const QByteArray &s)
 {
     if(s.endsWith("kb")) {
-        return s.chopped(2).toULong() * 1024;
+        return s.chopped(2).toULongLong() * 1024;
     } else if(s.endsWith('b')) {
-        return s.chopped(1).toULong();
+        return s.chopped(1).toULongLong();
     } else {
         return 0;
     }

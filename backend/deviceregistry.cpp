@@ -50,7 +50,6 @@ void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
     if(info.vendorID() == FLIPPER_ZERO_VID) {
         auto *fetcher = Zero::AbstractDeviceInfoFetcher::create(info, this);
         connect(fetcher, &Zero::AbstractDeviceInfoFetcher::finished, this, &DeviceRegistry::processDevice);
-        fetcher->fetch();
 
     } else {
         error_msg("Unexpected device VID and PID.");

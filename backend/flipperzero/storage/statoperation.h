@@ -28,18 +28,20 @@ public:
     const QString description() const override;
 
     const QByteArray &fileName() const;
-    size_t size() const;
+    quint64 size() const;
     Type type() const;
 
 private slots:
     void onSerialPortReadyRead() override;
+    void onOperationTimeout() override;
 
 private:
     bool begin() override;
-    bool parseReply(const QByteArray &reply);
+    bool parseReceivedData();
 
     QByteArray m_fileName;
-    size_t m_size;
+    QByteArray m_receivedData;
+    quint64 m_size;
     Type m_type;
 };
 

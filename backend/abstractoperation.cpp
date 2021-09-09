@@ -50,6 +50,8 @@ void AbstractOperation::finishWithError(const QString &errorString)
     m_errorString = errorString;
 
     setState(BasicState::Finished);
+
+    stopTimeout();
     finish();
 }
 
