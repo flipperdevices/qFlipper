@@ -1,8 +1,10 @@
 #include "assetsdownloadoperation.h"
 
 #include <QFile>
+#include <QTimer>
 #include <QStandardPaths>
 
+#include "flipperzero/storage/removeoperation.h"
 #include "flipperzero/storage/statoperation.h"
 #include "flipperzero/storagecontroller.h"
 #include "flipperzero/flipperzero.h"
@@ -10,6 +12,8 @@
 #include "tararchive.h"
 
 #include "macros.h"
+
+#define RESOURCES_PREFIX QByteArrayLiteral("resources")
 
 using namespace Flipper;
 using namespace Zero;
@@ -30,15 +34,6 @@ const QString AssetsDownloadOperation::description() const
 
 void AssetsDownloadOperation::transitionToNextState()
 {
-    // Determine if /ext is present
-    // Extract archive +
-    // Build tar file +
-    // Parse manifest -- skipping for now
-    // Build file lists
-    // Remove files
-    // Copy files
-    // Finish
-
     if(state() == BasicState::Ready) {
         setState(State::CheckingExtStorage);
         if(!checkForExtStorage()) {
@@ -52,16 +47,23 @@ void AssetsDownloadOperation::transitionToNextState()
         }
 
     } else if(state() == State::ExtractingArchive) {
-        m_archive = TarArchive(m_uncompressed);
+        setState(State::CheckingFiles);
 
-        if(!m_archive.isValid()) {
-            finishWithError(QStringLiteral("Failed to parse the databases archive"));
+        if(!buildFileList()) {
+            finishWithError(QStringLiteral("Failed to build file list"));
+        } else if(!checkFiles()) {
+            finishWithError(QStringLiteral("Failed to start checking for existing files"));
         }
 
-//        const auto files = m_archive.files();
-//        for(const auto &fileInfo : files) {
-//            qDebug() << fileInfo.name();
-//        }
+    } else if(state() == State::CheckingFiles) {
+        setState(State::DeletingFiles);
+
+        if(!deleteFiles()) {
+            finishWithError(QStringLiteral("Failed to delete files"));
+        }
+
+    } else if(state() == State::DeletingFiles) {
+        qDebug() << "============= Yay deleted!";
     }
 
     if(isError()) {
@@ -88,6 +90,7 @@ bool AssetsDownloadOperation::checkForExtStorage()
         } else if(op->type() != StatOperation::Type::Storage) {
             finishWithError("/ext is not a storage");
         } else {
+            info_msg(QStringLiteral("External storage is present, %1 bytes free.").arg(op->sizeFree()));
             transitionToNextState();
         }
 
@@ -111,17 +114,95 @@ bool AssetsDownloadOperation::extractArchive()
     m_uncompressed = new QFile(tempPath + "/qflipper-databases.tar");
 
     auto *uncompressor = new GZipUncompressor(m_compressed, m_uncompressed, this);
+
     connect(uncompressor, &GZipUncompressor::finished, this, [=]() {
         if(uncompressor->isError()) {
             finishWithError(uncompressor->errorString());
         } else {
-            info_msg("external storage is present.")
             transitionToNextState();
         }
 
         uncompressor->deleteLater();
         m_compressed->deleteLater();
     });
+
+    return true;
+}
+
+bool AssetsDownloadOperation::buildFileList()
+{
+    m_archive = TarArchive(m_uncompressed);
+
+    if(!m_archive.isValid()) {
+        error_msg("Failed to parse the databases archive");
+        return false;
+    }
+
+    const auto files = m_archive.files();
+
+    for(const auto &fileInfo : files) {
+        if(!fileInfo.name().startsWith(RESOURCES_PREFIX) ||
+            fileInfo.name() == RESOURCES_PREFIX) {
+            continue;
+        }
+
+        m_files.append(fileInfo);
+    }
+
+    return true;
+}
+
+bool AssetsDownloadOperation::checkFiles()
+{
+    auto i = 0;
+    for(const auto &fileInfo : qAsConst(m_files)) {
+        const auto fileName = QStringLiteral("/ext") + fileInfo.name().mid(RESOURCES_PREFIX.size());
+        const auto isLast = (++i == m_files.size());
+
+        auto *op = device()->storage()->stat(fileName.toLocal8Bit());
+
+        connect(op, &AbstractOperation::finished, this, [=]() {
+            op->deleteLater();
+
+            if(op->isError()) {
+                // TODO: what to do if something fails?
+                qDebug() << "============= ERROR!!!!";
+                return;
+
+            } else if(op->type() == StatOperation::Type::File) {
+                m_delete.append(fileName);
+            }
+
+            if(isLast) {
+                QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+            }
+        });
+    }
+
+    return true;
+}
+
+bool AssetsDownloadOperation::deleteFiles()
+{
+    auto i = 0;
+    for(const auto &fileName : qAsConst(m_delete)) {
+        const auto isLast = (++i == m_delete.size());
+
+        auto *op = device()->storage()->remove(fileName.toLocal8Bit());
+
+        connect(op, &AbstractOperation::finished, this, [=]() {
+            op->deleteLater();
+
+            if(op->isError()) {
+                // TODO: what to do if something fails?
+                qDebug() << "============= ERROR!!!!";
+                return;
+
+            } else if(isLast) {
+                QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+            }
+        });
+    }
 
     return true;
 }

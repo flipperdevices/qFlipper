@@ -12,6 +12,7 @@ namespace Flipper {
 namespace Zero {
 
 class StatOperation;
+class RemoveOperation;
 
 // BIG TODO: Error signaling
 class StorageController : public QObject
@@ -30,6 +31,7 @@ public:
     ~StorageController();
 
     StatOperation *stat(const QByteArray &fileName);
+    RemoveOperation *remove(const QByteArray &fileName);
 
 private slots:
     void processQueue();

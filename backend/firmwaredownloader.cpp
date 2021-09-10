@@ -97,8 +97,6 @@ void FirmwareDownloader::processQueue()
         return;
     }
 
-    m_state = State::Running;
-
     auto *currentOperation = m_operationQueue.dequeue();
 
     connect(currentOperation, &AbstractOperation::finished, this, [=]() {
@@ -116,6 +114,7 @@ void FirmwareDownloader::enqueueOperation(AbstractOperation *op)
 
     if(m_state == State::Ready) {
         // Leave the context before calling processQueue()
+        m_state = State::Running;
         QTimer::singleShot(20, this, &FirmwareDownloader::processQueue);
     }
 }

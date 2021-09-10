@@ -98,8 +98,9 @@ void TarArchive::buildIndex()
         const auto fileSize = strtoul(header.size, nullptr, 8);
         const auto fileType = header.typeflag == '0' ? FileInfo::Type::RegularFile :
                               header.typeflag == '5' ? FileInfo::Type::Directory : FileInfo::Type::Unknown;
+        const auto fileName = QString(header.name).chopped(fileType == FileInfo::Type::Directory ? 1 : 0);
 
-        FileInfo fileInfo(header.name, m_tarFile->pos(), fileSize, fileType);
+        FileInfo fileInfo(fileName, m_tarFile->pos(), fileSize, fileType);
         m_fileIndex.insert(fileInfo.name(), fileInfo);
 
         // Blocks are always padded to BLOCK_SIZE

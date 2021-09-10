@@ -4,6 +4,7 @@
 #include <QSerialPort>
 
 #include "common/skipmotdoperation.h"
+#include "storage/removeoperation.h"
 #include "storage/statoperation.h"
 
 #include "macros.h"
@@ -28,20 +29,19 @@ StatOperation *StorageController::stat(const QByteArray &fileName)
     return op;
 }
 
+RemoveOperation *StorageController::remove(const QByteArray &fileName)
+{
+    auto *op = new RemoveOperation(m_serialPort, fileName, this);
+    enqueueOperation(op);
+    return op;
+}
+
 void StorageController::processQueue()
 {
     if(m_operationQueue.isEmpty()) {
         m_state = State::Idle;
         m_serialPort->close();
         return;
-    }
-
-    if(m_state == State::Idle) {
-        if(!m_serialPort->open(QIODevice::ReadWrite)) {
-            qDebug() << "Serial port error:" << m_serialPort->errorString();
-        } else {
-            m_state = State::Running;
-        }
     }
 
     auto *currentOperation = m_operationQueue.dequeue();
@@ -62,15 +62,18 @@ void StorageController::processQueue()
 
 void StorageController::enqueueOperation(AbstractSerialOperation *op)
 {
-    if(m_state == State::Idle) {
-        m_operationQueue.enqueue(new SkipMOTDOperation(m_serialPort, this));
-    }
-
     m_operationQueue.enqueue(op);
 
-    if(m_state != State::Idle) {
-       return;
-    }
+    if(m_state == State::Idle) {
 
-    QTimer::singleShot(0, this, &StorageController::processQueue);
+        if(!m_serialPort->open(QIODevice::ReadWrite)) {
+            qDebug() << "Serial port error:" << m_serialPort->errorString();
+            return;
+        }
+
+        m_state = State::Running;
+        m_operationQueue.prepend(new SkipMOTDOperation(m_serialPort, this));
+
+        QTimer::singleShot(0, this, &StorageController::processQueue);
+    }
 }
