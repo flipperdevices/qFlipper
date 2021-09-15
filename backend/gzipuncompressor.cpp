@@ -14,17 +14,12 @@ GZipUncompressor::GZipUncompressor(QIODevice *in, QIODevice *out, QObject *paren
     QObject(parent),
     m_in(in),
     m_out(out),
-    m_isError(false),
-    m_errorString(QStringLiteral("No Error")),
     m_progress(0)
 {
-    auto *watcher = new QFutureWatcher<bool>(this);
+    auto *watcher = new QFutureWatcher<void>(this);
 
     connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
         info_msg(QStringLiteral("Uncompression finished : %1.").arg(errorString()));
-
-        m_isError = !watcher->result();
-
         watcher->deleteLater();
         emit finished();
     });
@@ -35,24 +30,9 @@ GZipUncompressor::GZipUncompressor(QIODevice *in, QIODevice *out, QObject *paren
 GZipUncompressor::~GZipUncompressor()
 {}
 
-bool GZipUncompressor::isError() const
-{
-    return m_isError;
-}
-
-const QString &GZipUncompressor::errorString()
-{
-    return m_errorString;
-}
-
 double GZipUncompressor::progress() const
 {
     return m_progress;
-}
-
-void GZipUncompressor::setError(const QString &errorString)
-{
-    m_errorString = errorString;
 }
 
 void GZipUncompressor::setProgress(double progress)
@@ -65,11 +45,11 @@ void GZipUncompressor::setProgress(double progress)
     emit progressChanged();
 }
 
-bool GZipUncompressor::uncompress()
+void GZipUncompressor::uncompress()
 {
     if(m_in->bytesAvailable() <= 4) {
         setError(QStringLiteral("The input file is empty"));
-        return false;
+        return;
     }
 
     const auto totalSize = m_in->bytesAvailable();
@@ -85,7 +65,7 @@ bool GZipUncompressor::uncompress()
     const auto err = inflateInit2(&stream, 15 + 16);
     if(err != Z_OK) {
         setError(QStringLiteral("Failed to initialise deflate method"));
-        return false;
+        return;
     }
 
     char inbuf[CHUNK_SIZE];
@@ -106,7 +86,7 @@ bool GZipUncompressor::uncompress()
             if(errorOccured) {
                 inflateEnd(&stream);
                 setError(QStringLiteral("Error during uncompression"));
-                return false;
+                return;
             }
 
             m_out->write(outbuf, CHUNK_SIZE - stream.avail_out);
@@ -118,5 +98,8 @@ bool GZipUncompressor::uncompress()
     } while(m_in->bytesAvailable());
 
     inflateEnd(&stream);
-    return m_out->seek(0);
+
+    if(!m_in->seek(0) || !m_out->seek(0)) {
+        setError(QStringLiteral("Failed to rewind input files"));
+    }
 }
