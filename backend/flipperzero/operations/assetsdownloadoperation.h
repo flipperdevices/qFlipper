@@ -35,19 +35,21 @@ private slots:
 
 private:
     bool checkForExtStorage();
-    bool uploadManifest();
     bool extractArchive();
+    bool readManifest();
 
     bool buildFileLists(const QByteArray &manifestText);
 
-    bool checkFiles();
     bool deleteFiles();
-    bool downloadFiles();
+    bool writeFiles();
 
     QIODevice *m_compressed;
     QIODevice *m_uncompressed;
 
     TarArchive m_archive;
+
+    QStringList m_delete;
+    QStringList m_write;
 };
 
 }

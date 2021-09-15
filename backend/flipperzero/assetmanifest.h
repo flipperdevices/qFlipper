@@ -24,6 +24,8 @@ public:
     time_t timestamp() const;
     const FileNode *tree() const;
 
+    void print() const;
+
 private:
     bool parseLine(const QString &line);
     bool parseVersion(const QStringList &tokens);

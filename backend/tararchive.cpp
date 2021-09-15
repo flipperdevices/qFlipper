@@ -57,12 +57,12 @@ QByteArray TarArchive::fileData(const QString &fullName)
 
     auto *node = file(fullName);
 
-    if(!node->data().canConvert<FileInfo>()) {
+    if(!node->userData().canConvert<FileInfo>()) {
         setError(QStringLiteral("No valid FileData found in the node."));
         return QByteArray();
     }
 
-    const auto data = node->data().value<FileInfo>();
+    const auto data = node->userData().value<FileInfo>();
     const auto success = m_tarFile->seek(data.offset);
 
     if(success) {

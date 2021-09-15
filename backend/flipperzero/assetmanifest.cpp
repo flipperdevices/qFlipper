@@ -42,6 +42,19 @@ const FileNode *AssetManifest::tree() const
     return m_root.get();
 }
 
+void AssetManifest::print() const
+{
+    const auto list = m_root->toList();
+    for(const auto &el : list) {
+        if(el.userData.canConvert<FileInfo>()) {
+            const auto info = el.userData.value<FileInfo>();
+            qDebug() << el.path << ":" << info.size << ":" << info.md5;
+        } else {
+            qDebug() << el.path;
+        }
+    }
+}
+
 bool AssetManifest::parseLine(const QString &line)
 {
     const auto tokens = line.trimmed().split(':');

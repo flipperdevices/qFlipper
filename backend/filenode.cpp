@@ -1,38 +1,42 @@
 #include "filenode.h"
 
+#include <QQueue>
+
 #include "macros.h"
 
 FileNode::FileNode():
-    m_type(Type::Unknown),
     m_parent(nullptr)
 {}
 
 FileNode::FileNode(const QString &name, Type type, const QVariant &data):
-    m_name(name),
-    m_type(type),
-    m_data(data),
-    m_parent(nullptr)
+    m_parent(nullptr),
+    m_attributes({name, QString(), type, data})
 {}
 
 const QString &FileNode::name() const
 {
-    return m_name;
+    return m_attributes.name;
+}
+
+const QString &FileNode::path() const
+{
+    return m_attributes.path;
 }
 
 FileNode::Type FileNode::type() const
 {
-    return m_type;
+    return m_attributes.type;
 }
 
-const QVariant &FileNode::data() const
+const QVariant &FileNode::userData() const
 {
-    return m_data;
+    return m_attributes.userData;
 }
 
-void FileNode::addChild(const QSharedPointer<FileNode> &node)
+void FileNode::addChild(const QSharedPointer<FileNode> &nodePtr)
 {
-    node->setParent(this);
-    m_children.insert(node->name(), node);
+    nodePtr->setParent(this);
+    m_children.insert(nodePtr->name(), nodePtr);
 }
 
 bool FileNode::addDirectory(const QString &path)
@@ -87,8 +91,37 @@ FileNode *FileNode::parent() const
     return m_parent;
 }
 
-QString FileNode::path() const
+QList<FileNode::Attributes> FileNode::toList() const
 {
+    QList<Attributes> ret;
+    QQueue<const FileNode*> queue;
+
+    queue.enqueue(this);
+
+    while(!queue.isEmpty()) {
+        const auto *current = queue.dequeue();
+
+        for(const auto &childPtr: current->m_children) {
+            queue.enqueue(childPtr.get());
+        }
+
+        ret.append(current->m_attributes);
+    }
+
+    return ret;
+}
+
+void FileNode::print() const
+{
+    const auto list = toList();
+    for(const auto &el : list) {
+        qDebug() << el.path;
+    }
+}
+
+void FileNode::setParent(FileNode *node)
+{
+    m_parent = node;
     QStringList fragments;
 
     auto *current = this;
@@ -98,19 +131,5 @@ QString FileNode::path() const
     }
 
     std::reverse(fragments.begin(), fragments.end());
-    return fragments.join('/');
-}
-
-void FileNode::print() const
-{
-    qDebug() << path();
-
-    for(const auto &node: m_children) {
-        node->print();
-    }
-}
-
-void FileNode::setParent(FileNode *node)
-{
-    m_parent = node;
+    m_attributes.path = fragments.join('/');
 }

@@ -50,39 +50,12 @@ void AssetsDownloadOperation::transitionToNextState()
 
     } else if(state() == State::ExtractingArchive) {
         setState(UploadingManifest);
-        if(!uploadManifest()) {
+        if(!readManifest()) {
             finishWithError(QStringLiteral("Failed to upload manifest file"));
         }
 
     } else if(state() == State::UploadingManifest) {
         setState(State::CheckingFiles);
-
-//        auto man = m_archive.fileData("resources/Manifest");
-//        const AssetManifest local(man);
-
-//        if(local.isError()) {
-//            qDebug() << "EEEEEEEEEEEEEEEEEEEEEEee";
-//        } else {
-//            local.tree().print();
-//        }
-
-//        setState(State::CheckingFiles);
-
-//        if(!buildFileList()) {
-//            finishWithError(QStringLiteral("Failed to build file list"));
-//        } else if(!checkFiles()) {
-//            finishWithError(QStringLiteral("Failed to start checking for existing files"));
-//        }
-
-//    } else if(state() == State::CheckingFiles) {
-//        setState(State::DeletingFiles);
-
-//        if(!deleteFiles()) {
-//            finishWithError(QStringLiteral("Failed to delete files"));
-//        }
-
-//    } else if(state() == State::DeletingFiles) {
-//        qDebug() << "============= Yay deleted!";
     }
 
     if(isError()) {
@@ -157,7 +130,7 @@ bool AssetsDownloadOperation::extractArchive()
     return true;
 }
 
-bool AssetsDownloadOperation::uploadManifest()
+bool AssetsDownloadOperation::readManifest()
 {
     auto *op = device()->storage()->read(QByteArrayLiteral("/ext/Manifest"));
 
@@ -178,67 +151,38 @@ bool AssetsDownloadOperation::uploadManifest()
 
 bool AssetsDownloadOperation::buildFileLists(const QByteArray &manifestText)
 {
-//    qDebug() << manifestText;
-//    qDebug() << m_archive.fileData(QStringLiteral("resources/Manifest"));
-//    const auto here = AssetManifest(m_archive.fileData(QStringLiteral("resources/Manifest")));
-//    here.tree()->print();
-//    m_archive.file("resources")->print();
-    auto *folder = m_archive.file("resources");
-    folder->print();
-    return true;
-}
+    const auto here = AssetManifest(m_archive.fileData(QStringLiteral("resources/Manifest")));
+    check_return_bool(!here.isError(), QStringLiteral("Failed to build local manifest: %1").arg(here.errorString()));
 
-bool AssetsDownloadOperation::checkFiles()
-{
-//    auto i = 0;
-//    for(const auto &fileInfo : qAsConst(m_files)) {
-//        const auto fileName = QStringLiteral("/ext") + fileInfo.name().mid(RESOURCES_PREFIX.size());
-//        const auto isLast = (++i == m_files.size());
+    qDebug() << "Here:";
+    here.print();
 
-//        auto *op = device()->storage()->stat(fileName.toLocal8Bit());
+    const auto there = AssetManifest(manifestText);
 
-//        connect(op, &AbstractOperation::finished, this, [=]() {
-//            op->deleteLater();
+    if(there.isError()) {
+        info_msg("Failed to build remote manifest, assuming complete asset overwrite...");
+        // Put all files from here to m_delete and m_write
+        return true;
+    }
 
-//            if(op->isError()) {
-//                // TODO: what to do if something fails?
-//                qDebug() << "============= ERROR!!!!";
-//                return;
+    qDebug() << "There:";
+    there.print();
 
-//            } else if(op->type() == StatOperation::Type::File) {
-//                m_delete.append(fileName);
-//            }
+    // Calculate the difference between trees
 
-//            if(isLast) {
-//                QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
-//            }
-//        });
-//    }
+    // Put files to delete and to write in m_delete
+
+    // Put files to write to m_write
 
     return true;
 }
 
 bool AssetsDownloadOperation::deleteFiles()
 {
-//    auto i = 0;
-//    for(const auto &fileName : qAsConst(m_delete)) {
-//        const auto isLast = (++i == m_delete.size());
+    return true;
+}
 
-//        auto *op = device()->storage()->remove(fileName.toLocal8Bit());
-
-//        connect(op, &AbstractOperation::finished, this, [=]() {
-//            op->deleteLater();
-
-//            if(op->isError()) {
-//                // TODO: what to do if something fails?
-//                qDebug() << "============= ERROR!!!!";
-//                return;
-
-//            } else if(isLast) {
-//                QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
-//            }
-//        });
-//    }
-
+bool AssetsDownloadOperation::writeFiles()
+{
     return true;
 }
