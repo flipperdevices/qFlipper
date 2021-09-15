@@ -48,7 +48,7 @@ bool SimpleSerialOperation::begin()
     }
 
     if(flags() & RTS) {
-        success &= serialPort()->setRequestToSend(true);
+        success &= serialPort()->setRequestToSend(flags() & RTS);
     }
 
     if(!commandLine().isEmpty()) {

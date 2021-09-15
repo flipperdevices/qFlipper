@@ -25,7 +25,6 @@ private:
     void setProgress(double progress);
 
     bool uncompress();
-    void closeFiles();
 
     QIODevice *m_in;
     QIODevice *m_out;

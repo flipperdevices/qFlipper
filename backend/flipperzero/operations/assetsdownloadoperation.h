@@ -17,11 +17,11 @@ class AssetsDownloadOperation : public Operation
 public:
     enum State {
         CheckingExtStorage = BasicState::User,
+        UploadingManifest,
         ExtractingArchive,
-        BuildingFileList,
         CheckingFiles,
         DeletingFiles,
-        DownloadingFiles,
+        DownloadingFiles
     };
 
     AssetsDownloadOperation(FlipperZero *device, QIODevice *file, QObject *parent = nullptr);
@@ -35,9 +35,11 @@ private slots:
 
 private:
     bool checkForExtStorage();
+    bool uploadManifest();
     bool extractArchive();
 
-    bool buildFileList();
+    bool buildFileLists(const QByteArray &manifestText);
+
     bool checkFiles();
     bool deleteFiles();
     bool downloadFiles();
@@ -46,8 +48,6 @@ private:
     QIODevice *m_uncompressed;
 
     TarArchive m_archive;
-    QList<TarArchive::FileInfo> m_files;
-    QList<QString> m_delete;
 };
 
 }

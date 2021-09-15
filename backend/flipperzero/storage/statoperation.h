@@ -10,7 +10,7 @@ class StatOperation : public SimpleSerialOperation
     Q_OBJECT
 
 public:
-    enum class Type{
+    enum class Type {
         File,
         Directory,
         Storage,

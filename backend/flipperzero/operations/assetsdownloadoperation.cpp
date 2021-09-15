@@ -5,8 +5,10 @@
 #include <QStandardPaths>
 
 #include "flipperzero/storage/removeoperation.h"
+#include "flipperzero/storage/readoperation.h"
 #include "flipperzero/storage/statoperation.h"
 #include "flipperzero/storagecontroller.h"
+#include "flipperzero/assetmanifest.h"
 #include "flipperzero/flipperzero.h"
 #include "gzipuncompressor.h"
 #include "tararchive.h"
@@ -47,23 +49,40 @@ void AssetsDownloadOperation::transitionToNextState()
         }
 
     } else if(state() == State::ExtractingArchive) {
+        setState(UploadingManifest);
+        if(!uploadManifest()) {
+            finishWithError(QStringLiteral("Failed to upload manifest file"));
+        }
+
+    } else if(state() == State::UploadingManifest) {
         setState(State::CheckingFiles);
 
-        if(!buildFileList()) {
-            finishWithError(QStringLiteral("Failed to build file list"));
-        } else if(!checkFiles()) {
-            finishWithError(QStringLiteral("Failed to start checking for existing files"));
-        }
+//        auto man = m_archive.fileData("resources/Manifest");
+//        const AssetManifest local(man);
 
-    } else if(state() == State::CheckingFiles) {
-        setState(State::DeletingFiles);
+//        if(local.isError()) {
+//            qDebug() << "EEEEEEEEEEEEEEEEEEEEEEee";
+//        } else {
+//            local.tree().print();
+//        }
 
-        if(!deleteFiles()) {
-            finishWithError(QStringLiteral("Failed to delete files"));
-        }
+//        setState(State::CheckingFiles);
 
-    } else if(state() == State::DeletingFiles) {
-        qDebug() << "============= Yay deleted!";
+//        if(!buildFileList()) {
+//            finishWithError(QStringLiteral("Failed to build file list"));
+//        } else if(!checkFiles()) {
+//            finishWithError(QStringLiteral("Failed to start checking for existing files"));
+//        }
+
+//    } else if(state() == State::CheckingFiles) {
+//        setState(State::DeletingFiles);
+
+//        if(!deleteFiles()) {
+//            finishWithError(QStringLiteral("Failed to delete files"));
+//        }
+
+//    } else if(state() == State::DeletingFiles) {
+//        qDebug() << "============= Yay deleted!";
     }
 
     if(isError()) {
@@ -78,7 +97,7 @@ void AssetsDownloadOperation::onOperationTimeout()
 
 bool AssetsDownloadOperation::checkForExtStorage()
 {
-    auto *op = device()->storage()->stat("/ext");
+    auto *op = device()->storage()->stat(QByteArrayLiteral("/ext"));
 
     connect(op, &AbstractOperation::finished, this, [=]() {
         if(op->isError()) {
@@ -110,8 +129,11 @@ bool AssetsDownloadOperation::extractArchive()
     const auto tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
     check_return_bool(!tempPath.isEmpty(), "Failed to find a suitable temporary location.");
 
+    check_return_bool(m_compressed->open(QIODevice::ReadOnly), m_compressed->errorString());
+
     // TODO: check if file exists, etc.
-    m_uncompressed = new QFile(tempPath + "/qflipper-databases.tar");
+    m_uncompressed = new QFile(tempPath + "/qflipper-databases.tar", this);
+    check_return_bool(m_uncompressed->open(QIODevice::ReadWrite), m_uncompressed->errorString());
 
     auto *uncompressor = new GZipUncompressor(m_compressed, m_uncompressed, this);
 
@@ -119,7 +141,13 @@ bool AssetsDownloadOperation::extractArchive()
         if(uncompressor->isError()) {
             finishWithError(uncompressor->errorString());
         } else {
-            transitionToNextState();
+            m_archive = TarArchive(m_uncompressed);
+
+            if(m_archive.isError()) {
+                finishWithError(m_archive.errorString());
+            } else {
+                QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+            }
         }
 
         uncompressor->deleteLater();
@@ -129,80 +157,88 @@ bool AssetsDownloadOperation::extractArchive()
     return true;
 }
 
-bool AssetsDownloadOperation::buildFileList()
+bool AssetsDownloadOperation::uploadManifest()
 {
-    m_archive = TarArchive(m_uncompressed);
+    auto *op = device()->storage()->read(QByteArrayLiteral("/ext/Manifest"));
 
-    if(!m_archive.isValid()) {
-        error_msg("Failed to parse the databases archive");
-        return false;
-    }
+    connect(op, &AbstractOperation::finished, this, [=]() {
+        const auto success = buildFileLists(op->isError() ?  QByteArray() : op->result());
 
-    const auto files = m_archive.files();
-
-    for(const auto &fileInfo : files) {
-        if(!fileInfo.name().startsWith(RESOURCES_PREFIX) ||
-            fileInfo.name() == RESOURCES_PREFIX) {
-            continue;
+        if(!success) {
+            finishWithError(QStringLiteral("Failed to build file lists"));
+        } else {
+            qDebug() << " ====================== All clear!";
         }
 
-        m_files.append(fileInfo);
-    }
+        op->deleteLater();
+    });
 
+    return true;
+}
+
+bool AssetsDownloadOperation::buildFileLists(const QByteArray &manifestText)
+{
+//    qDebug() << manifestText;
+//    qDebug() << m_archive.fileData(QStringLiteral("resources/Manifest"));
+//    const auto here = AssetManifest(m_archive.fileData(QStringLiteral("resources/Manifest")));
+//    here.tree()->print();
+//    m_archive.file("resources")->print();
+    auto *folder = m_archive.file("resources");
+    folder->print();
     return true;
 }
 
 bool AssetsDownloadOperation::checkFiles()
 {
-    auto i = 0;
-    for(const auto &fileInfo : qAsConst(m_files)) {
-        const auto fileName = QStringLiteral("/ext") + fileInfo.name().mid(RESOURCES_PREFIX.size());
-        const auto isLast = (++i == m_files.size());
+//    auto i = 0;
+//    for(const auto &fileInfo : qAsConst(m_files)) {
+//        const auto fileName = QStringLiteral("/ext") + fileInfo.name().mid(RESOURCES_PREFIX.size());
+//        const auto isLast = (++i == m_files.size());
 
-        auto *op = device()->storage()->stat(fileName.toLocal8Bit());
+//        auto *op = device()->storage()->stat(fileName.toLocal8Bit());
 
-        connect(op, &AbstractOperation::finished, this, [=]() {
-            op->deleteLater();
+//        connect(op, &AbstractOperation::finished, this, [=]() {
+//            op->deleteLater();
 
-            if(op->isError()) {
-                // TODO: what to do if something fails?
-                qDebug() << "============= ERROR!!!!";
-                return;
+//            if(op->isError()) {
+//                // TODO: what to do if something fails?
+//                qDebug() << "============= ERROR!!!!";
+//                return;
 
-            } else if(op->type() == StatOperation::Type::File) {
-                m_delete.append(fileName);
-            }
+//            } else if(op->type() == StatOperation::Type::File) {
+//                m_delete.append(fileName);
+//            }
 
-            if(isLast) {
-                QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
-            }
-        });
-    }
+//            if(isLast) {
+//                QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+//            }
+//        });
+//    }
 
     return true;
 }
 
 bool AssetsDownloadOperation::deleteFiles()
 {
-    auto i = 0;
-    for(const auto &fileName : qAsConst(m_delete)) {
-        const auto isLast = (++i == m_delete.size());
+//    auto i = 0;
+//    for(const auto &fileName : qAsConst(m_delete)) {
+//        const auto isLast = (++i == m_delete.size());
 
-        auto *op = device()->storage()->remove(fileName.toLocal8Bit());
+//        auto *op = device()->storage()->remove(fileName.toLocal8Bit());
 
-        connect(op, &AbstractOperation::finished, this, [=]() {
-            op->deleteLater();
+//        connect(op, &AbstractOperation::finished, this, [=]() {
+//            op->deleteLater();
 
-            if(op->isError()) {
-                // TODO: what to do if something fails?
-                qDebug() << "============= ERROR!!!!";
-                return;
+//            if(op->isError()) {
+//                // TODO: what to do if something fails?
+//                qDebug() << "============= ERROR!!!!";
+//                return;
 
-            } else if(isLast) {
-                QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
-            }
-        });
-    }
+//            } else if(isLast) {
+//                QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+//            }
+//        });
+//    }
 
     return true;
 }

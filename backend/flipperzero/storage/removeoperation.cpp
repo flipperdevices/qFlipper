@@ -1,12 +1,5 @@
 #include "removeoperation.h"
 
-//>: storage remove /ext/test.txt
-
-//>: storage remove /ext/test.txt
-//Storage error: file/dir not exist
-
-//>:
-
 #include "macros.h"
 
 using namespace Flipper;

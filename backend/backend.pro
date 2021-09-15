@@ -12,8 +12,10 @@ SOURCES += \
     abstractoperation.cpp \
     abstractserialoperation.cpp \
     deviceregistry.cpp \
+    filenode.cpp \
     firmwaredownloader.cpp \
     flipperupdates.cpp \
+    flipperzero/assetmanifest.cpp \
     flipperzero/common/skipmotdoperation.cpp \
     flipperzero/deviceinfofetcher.cpp \
     flipperzero/factoryinfo.cpp \
@@ -26,6 +28,7 @@ SOURCES += \
     flipperzero/operations/wirelessstackdownloadoperation.cpp \
     flipperzero/recoverycontroller.cpp \
     flipperzero/remotecontroller.cpp \
+    flipperzero/storage/readoperation.cpp \
     flipperzero/storage/removeoperation.cpp \
     flipperzero/storage/statoperation.cpp \
     flipperzero/storagecontroller.cpp \
@@ -42,8 +45,10 @@ HEADERS += \
     abstractserialoperation.h \
     deviceregistry.h \
     failable.h \
+    filenode.h \
     firmwaredownloader.h \
     flipperupdates.h \
+    flipperzero/assetmanifest.h \
     flipperzero/common/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
     flipperzero/deviceinfofetcher.h \
@@ -57,6 +62,7 @@ HEADERS += \
     flipperzero/operations/wirelessstackdownloadoperation.h \
     flipperzero/recoverycontroller.h \
     flipperzero/remotecontroller.h \
+    flipperzero/storage/readoperation.h \
     flipperzero/storage/removeoperation.h \
     flipperzero/storage/statoperation.h \
     flipperzero/storagecontroller.h \

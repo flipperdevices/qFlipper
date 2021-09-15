@@ -22,7 +22,7 @@ int AbstractOperation::state() const
 
 void AbstractOperation::onOperationTimeout()
 {
-    finishWithError(QStringLiteral("Operation timeout (generic)."));
+    finishWithError(QStringLiteral("Operation timeout (generic)"));
 }
 
 void AbstractOperation::setState(int state)

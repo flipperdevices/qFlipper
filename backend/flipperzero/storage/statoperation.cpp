@@ -8,26 +8,6 @@
 using namespace Flipper;
 using namespace Zero;
 
-/*
->: storage stat /ext
-Storage, 30327040KB total, 30326720KB free
-
->: storage stat /invalid
-Storage error: invalid name/path
-
->: storage stat /int/test
-Storage error: file/dir not exist
-
->: storage stat /ext/irda
-Directory
-
->: storage stat /ext/irda/Tv_home.ir
-File, size: 64b
-
->: storage stat /ext
-Storage error: internal error
-*/
-
 static qint64 fromStringSize(const QByteArray &s);
 
 StatOperation::StatOperation(QSerialPort *serialPort, const QByteArray &fileName, QObject *parent):

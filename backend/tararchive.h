@@ -2,51 +2,32 @@
 
 #include <QMap>
 #include <QByteArray>
+#include <QSharedPointer>
+
+#include "filenode.h"
+#include "failable.h"
 
 class QIODevice;
 
-class TarArchive
+class TarArchive : public Failable
 {
 public:
-    class FileInfo {
-    public:
-        enum class Type {
-            RegularFile,
-            Directory,
-            Unknown
-        };
-
-        FileInfo();
-        FileInfo(const QString name, size_t offset, size_t size, Type type);
-
-        bool isValid() const;
-
-        const QString &name() const;
-
-        size_t offset() const;
-        size_t size() const;
-        Type type() const;
-
-    private:
-        QString m_name;
-        size_t m_offset;
-        size_t m_size;
-        Type m_type;
+    struct FileInfo {
+        qint64 offset;
+        qint64 size;
     };
 
     TarArchive();
     TarArchive(QIODevice *file);
 
-    bool isValid() const;
-
-    QList<FileInfo> files() const;
-    FileInfo fileInfo(const QString &fullName) const;
-    QByteArray fileData(const QString &fullName) const;
+    FileNode *file(const QString &fullName);
+    QByteArray fileData(const QString &fullName);
 
 private:
     void buildIndex();
 
     QIODevice *m_tarFile;
-    QMap<QString, FileInfo> m_fileIndex;
+    QSharedPointer<FileNode> m_root;
 };
 
+Q_DECLARE_METATYPE(TarArchive::FileInfo);

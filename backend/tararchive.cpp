@@ -36,39 +36,42 @@ TarArchive::TarArchive():
 {}
 
 TarArchive::TarArchive(QIODevice *file):
-    m_tarFile(file)
+    m_tarFile(file),
+    m_root(new FileNode("", FileNode::Type::Directory))
 {
-    if(!m_tarFile->open(QIODevice::ReadOnly)) {
-        error_msg("Failed to open the file for reading.");
-        return;
-    }
-
     buildIndex();
 }
 
-bool TarArchive::isValid() const
+FileNode *TarArchive::file(const QString &fullName)
 {
-    return m_tarFile && m_fileIndex.size();
+    const auto fragments = fullName.split('/');
+    return m_root->traverse(fragments);
 }
 
-QList<TarArchive::FileInfo> TarArchive::files() const
+QByteArray TarArchive::fileData(const QString &fullName)
 {
-    return m_fileIndex.values();
-}
+    if(!m_tarFile) {
+        setError(QStringLiteral("Archive file not set"));
+        return QByteArray();
+    }
 
-TarArchive::FileInfo TarArchive::fileInfo(const QString &fullName) const
-{
-    return m_fileIndex.value(fullName, FileInfo());
-}
+    auto *node = file(fullName);
 
-QByteArray TarArchive::fileData(const QString &fullName) const
-{
-    check_return_val(m_tarFile->isOpen(), "Archive not open.", QByteArray());
-    const auto fileInfo = m_fileIndex.value(fullName, FileInfo());
-    check_return_val(fileInfo.isValid(), "Invalid FileInfo.", QByteArray());
+    if(!node->data().canConvert<FileInfo>()) {
+        setError(QStringLiteral("No valid FileData found in the node."));
+        return QByteArray();
+    }
 
-    m_tarFile->seek(fileInfo.offset());
-    return m_tarFile->read(fileInfo.size());
+    const auto data = node->data().value<FileInfo>();
+    const auto success = m_tarFile->seek(data.offset);
+
+    if(success) {
+        return m_tarFile->read(data.size);
+
+    } else {
+        setError(m_tarFile->errorString());
+        return QByteArray();
+    }
 }
 
 void TarArchive::buildIndex()
@@ -79,8 +82,8 @@ void TarArchive::buildIndex()
     do {
         const auto n = m_tarFile->read((char*)&header, sizeof(TarHeader));
 
-        if(n != sizeof (TarHeader)) {
-            error_msg("Archive file is truncated.");
+        if(n != sizeof(TarHeader)) {
+            setError(QStringLiteral("Archive file is truncated"));
             return;
 
         } else if(isMemZeros((char*)&header, sizeof(TarHeader))) {
@@ -91,59 +94,32 @@ void TarArchive::buildIndex()
             }
 
         } else if(strncmp(header.magic, "ustar", 5)) {
-            error_msg("Tar magic constant not found.");
+            setError(QStringLiteral("Tar magic constant not found."));
             return;
         }
 
-        const auto fileSize = strtoul(header.size, nullptr, 8);
-        const auto fileType = header.typeflag == '0' ? FileInfo::Type::RegularFile :
-                              header.typeflag == '5' ? FileInfo::Type::Directory : FileInfo::Type::Unknown;
-        const auto fileName = QString(header.name).chopped(fileType == FileInfo::Type::Directory ? 1 : 0);
+        const auto fileSize = strtol(header.size, nullptr, 8);
+        const auto fileName = QString(header.name);
 
-        FileInfo fileInfo(fileName, m_tarFile->pos(), fileSize, fileType);
-        m_fileIndex.insert(fileInfo.name(), fileInfo);
+        if(header.typeflag == '0') {
+            FileInfo data;
+
+            data.offset = m_tarFile->pos();
+            data.size = fileSize;
+
+            m_root->addFile(fileName, QVariant::fromValue(data));
+
+        } else if(header.typeflag == '5') {
+            m_root->addDirectory(fileName.chopped(1));
+
+        } else {
+            setError(QStringLiteral("Only regular files and directories are supported"));
+            return;
+        }
 
         // Blocks are always padded to BLOCK_SIZE
         const auto padding = fileSize % BLOCK_SIZE ? BLOCK_SIZE - (fileSize % BLOCK_SIZE) : 0;
         m_tarFile->skip(fileSize + padding);
 
     } while(m_tarFile->bytesAvailable());
-}
-
-TarArchive::FileInfo::FileInfo():
-    m_offset(0),
-    m_size(0),
-    m_type(Type::Unknown)
-{}
-
-TarArchive::FileInfo::FileInfo(const QString name, size_t offset, size_t size, Type type):
-    m_name(name),
-    m_offset(offset),
-    m_size(size),
-    m_type(type)
-{}
-
-bool TarArchive::FileInfo::isValid() const
-{
-    return !m_name.isEmpty() || m_type != Type::Unknown;
-}
-
-const QString &TarArchive::FileInfo::name() const
-{
-    return m_name;
-}
-
-size_t TarArchive::FileInfo::offset() const
-{
-    return m_offset;
-}
-
-size_t TarArchive::FileInfo::size() const
-{
-    return m_size;
-}
-
-TarArchive::FileInfo::Type TarArchive::FileInfo::type() const
-{
-    return m_type;
 }
