@@ -13,6 +13,18 @@ FileNode::FileNode(const QString &name, Type type, const QVariant &data):
     m_attributes({name, QString(), type, data})
 {}
 
+bool FileNode::operator ==(const FileNode &other) const
+{
+    return (m_attributes.type == other.m_attributes.type) &&
+           (m_attributes.path == other.m_attributes.path) &&
+           (m_attributes.userData == other.m_attributes.userData);
+}
+
+bool FileNode::operator !=(const FileNode &other) const
+{
+    return !(*this == other);
+}
+
 const QString &FileNode::name() const
 {
     return m_attributes.name;
@@ -65,7 +77,12 @@ bool FileNode::addFile(const QString &path, const QVariant &data)
 
 FileNode *FileNode::traverse(const QStringList &fragments)
 {
+    if(fragments == QStringList({QString()})) {
+        return this;
+    }
+
     auto *current = this;
+
     for(const auto &fragment: fragments) {
         current = current->child(fragment);
 
@@ -86,14 +103,20 @@ FileNode *FileNode::child(const QString &name) const
     return m_children.value(name).get();
 }
 
+FileNode *FileNode::find(const QString &path)
+{
+    const auto fragments = path.split('/');
+    return traverse(fragments);
+}
+
 FileNode *FileNode::parent() const
 {
     return m_parent;
 }
 
-QList<FileNode::Attributes> FileNode::toList() const
+QStringList FileNode::toPreOrderList() const
 {
-    QList<Attributes> ret;
+    QStringList ret;
     QQueue<const FileNode*> queue;
 
     queue.enqueue(this);
@@ -105,7 +128,58 @@ QList<FileNode::Attributes> FileNode::toList() const
             queue.enqueue(childPtr.get());
         }
 
-        ret.append(current->m_attributes);
+        ret.append(current->m_attributes.path);
+    }
+
+    return ret;
+}
+
+QStringList FileNode::difference(FileNode *other)
+{
+    QStringList ret;
+    QQueue<FileNode*> queue;
+
+    queue.enqueue(other);
+
+    while(!queue.isEmpty()) {
+        auto *current = queue.dequeue();
+        auto *counterpart = find(current->path());
+
+        if(!counterpart || (counterpart->type() != current->type())) {
+            ret.append(current->toPreOrderList());
+            continue;
+        }
+
+        for(const auto &childPtr: qAsConst(current->m_children)) {
+            queue.enqueue(childPtr.get());
+        }
+    }
+
+    return ret;
+}
+
+QStringList FileNode::changed(FileNode *other)
+{
+    QStringList ret;
+    QQueue<FileNode*> queue;
+
+    queue.enqueue(other);
+
+    while(!queue.isEmpty()) {
+        auto *current = queue.dequeue();
+        auto *counterpart = find(current->path());
+
+        if(!counterpart || (counterpart->type() != current->type())) {
+            continue;
+
+        } else if (*current != *counterpart) {
+            ret.append(current->path());
+            continue;
+        }
+
+        for(const auto &childPtr: qAsConst(current->m_children)) {
+            queue.enqueue(childPtr.get());
+        }
     }
 
     return ret;
@@ -113,9 +187,9 @@ QList<FileNode::Attributes> FileNode::toList() const
 
 void FileNode::print() const
 {
-    const auto list = toList();
+    const auto list = toPreOrderList();
     for(const auto &el : list) {
-        qDebug() << el.path;
+        qDebug() << el;
     }
 }
 

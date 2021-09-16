@@ -7,10 +7,16 @@
 using namespace Flipper;
 using namespace Zero;
 
-AssetManifest::AssetManifest(const QByteArray &text):
+AssetManifest::AssetManifest():
     m_version(-1),
     m_timestamp(0),
     m_root(new FileNode("", FileNode::Type::Directory))
+{
+    setError(QStringLiteral("Empty manifest"));
+}
+
+AssetManifest::AssetManifest(const QByteArray &text):
+    AssetManifest()
 {
     QTextStream s(text);
 
@@ -37,22 +43,9 @@ time_t AssetManifest::timestamp() const
     return m_timestamp;
 }
 
-const FileNode *AssetManifest::tree() const
+FileNode *AssetManifest::tree() const
 {
     return m_root.get();
-}
-
-void AssetManifest::print() const
-{
-    const auto list = m_root->toList();
-    for(const auto &el : list) {
-        if(el.userData.canConvert<FileInfo>()) {
-            const auto info = el.userData.value<FileInfo>();
-            qDebug() << el.path << ":" << info.size << ":" << info.md5;
-        } else {
-            qDebug() << el.path;
-        }
-    }
 }
 
 bool AssetManifest::parseLine(const QString &line)
@@ -117,4 +110,14 @@ bool AssetManifest::parseDirectory(const QStringList &tokens)
 
     const auto dirName = tokens[1].endsWith('/') ? tokens[1].chopped(1) : tokens[1];
     return m_root->addDirectory(dirName);
+}
+
+bool AssetManifest::FileInfo::operator ==(const FileInfo &other) const
+{
+    return (size == other.size) && (md5 == other.md5);
+}
+
+bool AssetManifest::FileInfo::operator <(const FileInfo &other) const
+{
+    return size < other.size;
 }

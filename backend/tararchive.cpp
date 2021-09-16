@@ -44,8 +44,7 @@ TarArchive::TarArchive(QIODevice *file):
 
 FileNode *TarArchive::file(const QString &fullName)
 {
-    const auto fragments = fullName.split('/');
-    return m_root->traverse(fragments);
+    return m_root->find(fullName);
 }
 
 QByteArray TarArchive::fileData(const QString &fullName)

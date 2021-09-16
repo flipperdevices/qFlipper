@@ -4,6 +4,7 @@
 
 #include "tararchive.h"
 #include "flipperzerooperation.h"
+#include "flipperzero/assetmanifest.h"
 
 class QIODevice;
 
@@ -17,11 +18,12 @@ class AssetsDownloadOperation : public Operation
 public:
     enum State {
         CheckingExtStorage = BasicState::User,
-        UploadingManifest,
         ExtractingArchive,
-        CheckingFiles,
+        ReadingLocalManifest,
+        ReadingDeviceManifest,
+        BuildingFileLists,
         DeletingFiles,
-        DownloadingFiles
+        WritingFiles
     };
 
     AssetsDownloadOperation(FlipperZero *device, QIODevice *file, QObject *parent = nullptr);
@@ -36,9 +38,10 @@ private slots:
 private:
     bool checkForExtStorage();
     bool extractArchive();
-    bool readManifest();
+    bool readLocalManifest();
+    bool readDeviceManifest();
 
-    bool buildFileLists(const QByteArray &manifestText);
+    bool buildFileLists();
 
     bool deleteFiles();
     bool writeFiles();
@@ -47,6 +50,9 @@ private:
     QIODevice *m_uncompressed;
 
     TarArchive m_archive;
+
+    AssetManifest m_localManifest;
+    AssetManifest m_deviceManifest;
 
     QStringList m_delete;
     QStringList m_write;

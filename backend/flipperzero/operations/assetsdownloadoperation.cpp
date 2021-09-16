@@ -20,6 +20,15 @@
 using namespace Flipper;
 using namespace Zero;
 
+static void print_file_list(const QString &header, const QStringList &list)
+{
+    qDebug() << header;
+
+    for(const auto &e : list) {
+        qDebug() << e;
+    }
+}
+
 AssetsDownloadOperation::AssetsDownloadOperation(FlipperZero *device, QIODevice *file, QObject *parent):
     Operation(device, parent),
     m_compressed(file),
@@ -49,13 +58,34 @@ void AssetsDownloadOperation::transitionToNextState()
         }
 
     } else if(state() == State::ExtractingArchive) {
-        setState(UploadingManifest);
-        if(!readManifest()) {
-            finishWithError(QStringLiteral("Failed to upload manifest file"));
+        setState(ReadingLocalManifest);
+        if(!readLocalManifest()) {
+            finishWithError(QStringLiteral("Failed to read local manifest"));
         }
 
-    } else if(state() == State::UploadingManifest) {
-        setState(State::CheckingFiles);
+    } else if(state() == State::ReadingLocalManifest) {
+        setState(ReadingDeviceManifest);
+        if(!readDeviceManifest()) {
+            finishWithError(QStringLiteral("Failed to read device manifest"));
+        }
+
+    } else if(state() == State::ReadingDeviceManifest) {
+        setState(State::BuildingFileLists);
+        if(!buildFileLists()) {
+            finishWithError(QStringLiteral("Failed to build file lists"));
+        }
+
+    } else if(state() == State::BuildingFileLists) {
+        setState(State::DeletingFiles);
+        if(!deleteFiles()) {
+            finishWithError(QStringLiteral("Failed to delete files"));
+        }
+
+    } else if(state() == State::DeletingFiles) {
+        setState(State::WritingFiles);
+
+    } else if(state() == State::WritingFiles) {
+        finish();
     }
 
     if(isError()) {
@@ -76,7 +106,7 @@ bool AssetsDownloadOperation::checkForExtStorage()
         if(op->isError()) {
             finishWithError("Failed to perform stat operation");
         } else if(op->type() == StatOperation::Type::InternalError) {
-            info_msg("No external storage found, finishing early");
+            info_msg("No external storage found, finishing early.");
             finish();
 
         } else if(op->type() != StatOperation::Type::Storage) {
@@ -130,49 +160,71 @@ bool AssetsDownloadOperation::extractArchive()
     return true;
 }
 
-bool AssetsDownloadOperation::readManifest()
+bool AssetsDownloadOperation::readLocalManifest()
+{
+    const auto text = m_archive.fileData(QStringLiteral("resources/Manifest"));
+    check_return_bool(!text.isEmpty(), "Failed to read local manifest text.");
+
+    m_localManifest = AssetManifest(text);
+    check_return_bool(!m_localManifest.isError(), m_localManifest.errorString());
+
+    QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+    return true;
+}
+
+bool AssetsDownloadOperation::readDeviceManifest()
 {
     auto *op = device()->storage()->read(QByteArrayLiteral("/ext/Manifest"));
 
     connect(op, &AbstractOperation::finished, this, [=]() {
-        const auto success = buildFileLists(op->isError() ?  QByteArray() : op->result());
-
-        if(!success) {
-            finishWithError(QStringLiteral("Failed to build file lists"));
-        } else {
-            qDebug() << " ====================== All clear!";
+        if(!op->isError()) {
+            m_deviceManifest = AssetManifest(op->result());
         }
 
         op->deleteLater();
+        QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
     });
 
     return true;
 }
 
-bool AssetsDownloadOperation::buildFileLists(const QByteArray &manifestText)
+bool AssetsDownloadOperation::buildFileLists()
 {
-    const auto here = AssetManifest(m_archive.fileData(QStringLiteral("resources/Manifest")));
-    check_return_bool(!here.isError(), QStringLiteral("Failed to build local manifest: %1").arg(here.errorString()));
+    info_msg("<<<<< Local manifest:");
+    m_localManifest.tree()->print();
 
-    qDebug() << "Here:";
-    here.print();
+    m_delete.append(QStringLiteral("Manifest"));
+    m_write.append(QStringLiteral("Manifest"));
 
-    const auto there = AssetManifest(manifestText);
-
-    if(there.isError()) {
+    if(m_deviceManifest.isError()) {
         info_msg("Failed to build remote manifest, assuming complete asset overwrite...");
-        // Put all files from here to m_delete and m_write
+        m_write.append(m_localManifest.tree()->toPreOrderList().mid(1));
         return true;
     }
 
-    qDebug() << "There:";
-    there.print();
+    info_msg(">>>>> Device manifest:");
+    m_deviceManifest.tree()->print();
 
-    // Calculate the difference between trees
+    const auto deleted = m_localManifest.tree()->difference(m_deviceManifest.tree());
+    print_file_list("----- Files deleted:", deleted);
 
-    // Put files to delete and to write in m_delete
+    const auto added = m_deviceManifest.tree()->difference(m_localManifest.tree());
+    print_file_list("+++++ Files added:", added);
 
-    // Put files to write to m_write
+    const auto changed = m_deviceManifest.tree()->changed(m_localManifest.tree());
+    print_file_list("***** Files changed:", changed);
+
+    m_delete.append(deleted);
+    m_delete.append(changed);
+
+    m_write.append(changed);
+    m_write.append(added);
+
+    std::reverse(m_delete.begin(), m_delete.end());
+    std::reverse(m_write.begin(), m_write.end());
+
+    print_file_list("##### Final list for deletion:", m_delete);
+    print_file_list("##### Final list for writing:", m_write);
 
     return true;
 }

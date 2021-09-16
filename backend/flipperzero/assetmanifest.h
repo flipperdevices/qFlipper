@@ -16,15 +16,17 @@ public:
     struct FileInfo {
         qint64 size;
         QByteArray md5;
+
+        bool operator ==(const FileInfo &other) const;
+        bool operator <(const FileInfo &other) const;
     };
 
+    AssetManifest();
     AssetManifest(const QByteArray &text);
 
     int version() const;
     time_t timestamp() const;
-    const FileNode *tree() const;
-
-    void print() const;
+    FileNode *tree() const;
 
 private:
     bool parseLine(const QString &line);
