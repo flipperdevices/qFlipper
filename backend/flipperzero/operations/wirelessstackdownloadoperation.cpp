@@ -202,10 +202,9 @@ bool WirelessStackDownloadOperation::isWirelessStackUpgraded()
 
     m_loopTimer->stop();
 
-    const auto errorOccured = (status == RecoveryController::WirelessStatus::FUSRunning) ||
-                              (status == RecoveryController::WirelessStatus::ErrorOccured);
+    const auto errorOccured = (status == RecoveryController::WirelessStatus::ErrorOccured);
     if(errorOccured) {
-        finishWithError(QStringLiteral("Failed to finish removal of the Wireless Stack."));
+        finishWithError(QStringLiteral("Failed to finish installation of the Wireless Stack."));
         device()->setError(errorString());
     }
 
