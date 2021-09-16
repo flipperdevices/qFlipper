@@ -14,9 +14,11 @@ RUN add-apt-repository ppa:beineri/opt-qt-5.15.2-bionic && \
     pkg-config \
     git \
     libfuse2 \
+    zlib1g-dev \
     libusb-1.0-0-dev \
     ca-certificates \
     build-essential \
+    libgl-dev \
     qt515tools \
     qt515base \
     qt5153d \
@@ -33,8 +35,6 @@ RUN wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous
 
 RUN wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -O /usr/bin/linuxdeploy-plugin-qt \
     && chmod +x /usr/bin/linuxdeploy-plugin-qt
-
-RUN ln -s /usr/lib/x86_64-linux-gnu/libGL.so.1 /usr/lib/x86_64-linux-gnu/libGL.so
 
 ENV QT_BASE_DIR=/opt/qt515
 
