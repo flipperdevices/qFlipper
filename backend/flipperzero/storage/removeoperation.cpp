@@ -27,6 +27,13 @@ QByteArray RemoveOperation::commandLine() const
 
 bool RemoveOperation::parseReceivedData()
 {
-    qDebug() << "===========" << receivedData();
+    const auto lines = receivedData().split('\n');
+
+    for(const auto &line : lines) {
+        if(line.startsWith(QByteArrayLiteral("Storage error: "))) {
+             return line.trimmed().endsWith(QByteArrayLiteral("file/dir not exist"));
+        }
+    }
+
     return true;
 }

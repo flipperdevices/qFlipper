@@ -31,6 +31,7 @@ SOURCES += \
     flipperzero/storage/readoperation.cpp \
     flipperzero/storage/removeoperation.cpp \
     flipperzero/storage/statoperation.cpp \
+    flipperzero/storage/writeoperation.cpp \
     flipperzero/storagecontroller.cpp \
     gzipuncompressor.cpp \
     qflipperbackend.cpp \
@@ -65,6 +66,7 @@ HEADERS += \
     flipperzero/storage/readoperation.h \
     flipperzero/storage/removeoperation.h \
     flipperzero/storage/statoperation.h \
+    flipperzero/storage/writeoperation.h \
     flipperzero/storagecontroller.h \
     gzipuncompressor.h \
     qflipperbackend.h \

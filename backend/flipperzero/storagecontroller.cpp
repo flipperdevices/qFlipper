@@ -5,6 +5,7 @@
 
 #include "common/skipmotdoperation.h"
 #include "storage/removeoperation.h"
+#include "storage/writeoperation.h"
 #include "storage/readoperation.h"
 #include "storage/statoperation.h"
 
@@ -17,8 +18,7 @@ StorageController::StorageController(const QSerialPortInfo &portInfo, QObject *p
     QObject(parent),
     m_serialPort(new QSerialPort(portInfo, this)),
     m_state(State::Idle)
-{
-}
+{}
 
 StorageController::~StorageController()
 {}
@@ -33,6 +33,13 @@ StatOperation *StorageController::stat(const QByteArray &fileName)
 ReadOperation *StorageController::read(const QByteArray &fileName)
 {
     auto *op = new ReadOperation(m_serialPort, fileName, this);
+    enqueueOperation(op);
+    return op;
+}
+
+WriteOperation *StorageController::write(const QByteArray &fileName, QIODevice *file)
+{
+    auto *op = new WriteOperation(m_serialPort, fileName, file, this);
     enqueueOperation(op);
     return op;
 }

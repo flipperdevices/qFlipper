@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSerialPortInfo>
 
+class QIODevice;
 class QSerialPort;
 
 class AbstractSerialOperation;
@@ -13,6 +14,8 @@ namespace Zero {
 
 class StatOperation;
 class ReadOperation;
+class MkDirOperation;
+class WriteOperation;
 class RemoveOperation;
 
 // BIG TODO: Error signaling
@@ -33,6 +36,8 @@ public:
 
     StatOperation *stat(const QByteArray &fileName);
     ReadOperation *read(const QByteArray &fileName);
+    MkDirOperation *mkdir(const QByteArray &fileName);
+    WriteOperation *write(const QByteArray &fileName, QIODevice *file);
     RemoveOperation *remove(const QByteArray &fileName);
 
 private slots:

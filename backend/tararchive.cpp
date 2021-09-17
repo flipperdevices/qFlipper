@@ -55,6 +55,10 @@ QByteArray TarArchive::fileData(const QString &fullName)
     }
 
     auto *node = file(fullName);
+    if(!node) {
+        setError(QStringLiteral("File not found"));
+        return QByteArray();
+    }
 
     if(!node->userData().canConvert<FileInfo>()) {
         setError(QStringLiteral("No valid FileData found in the node."));

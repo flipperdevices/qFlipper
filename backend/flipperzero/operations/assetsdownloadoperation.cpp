@@ -77,9 +77,10 @@ void AssetsDownloadOperation::transitionToNextState()
 
     } else if(state() == State::BuildingFileLists) {
         setState(State::DeletingFiles);
-        if(!deleteFiles()) {
-            finishWithError(QStringLiteral("Failed to delete files"));
-        }
+        qDebug() << "==================== YAY! =================";
+//        if(!deleteFiles()) {
+//            finishWithError(QStringLiteral("Failed to delete files"));
+//        }
 
     } else if(state() == State::DeletingFiles) {
         setState(State::WritingFiles);
@@ -163,7 +164,7 @@ bool AssetsDownloadOperation::extractArchive()
 bool AssetsDownloadOperation::readLocalManifest()
 {
     const auto text = m_archive.fileData(QStringLiteral("resources/Manifest"));
-    check_return_bool(!text.isEmpty(), "Failed to read local manifest text.");
+    check_return_bool(!text.isEmpty(), m_archive.errorString());
 
     m_localManifest = AssetManifest(text);
     check_return_bool(!m_localManifest.isError(), m_localManifest.errorString());
@@ -220,21 +221,62 @@ bool AssetsDownloadOperation::buildFileLists()
     m_write.append(changed);
     m_write.append(added);
 
-    std::reverse(m_delete.begin(), m_delete.end());
-    std::reverse(m_write.begin(), m_write.end());
+    std::sort(m_delete.rbegin(), m_delete.rend());
+    std::sort(m_write.rbegin(), m_write.rend());
 
     print_file_list("##### Final list for deletion:", m_delete);
     print_file_list("##### Final list for writing:", m_write);
 
+    QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
     return true;
 }
 
 bool AssetsDownloadOperation::deleteFiles()
 {
+    if(m_delete.isEmpty()) {
+        info_msg("No files to delete, skipping to write");
+        QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+        return true;
+    }
+
+    int i = m_delete.size();
+
+    for(const auto &filePath : qAsConst(m_delete)) {
+        --i;
+        auto *op = device()->storage()->remove(QByteArrayLiteral("/ext/") + filePath.toLocal8Bit());
+        connect(op, &AbstractOperation::finished, this, [=]() {
+            if(op->isError()) {
+                finishWithError(op->errorString());
+            } else if(i == 0) {
+                QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+            }
+        });
+    }
+
     return true;
 }
 
 bool AssetsDownloadOperation::writeFiles()
 {
+    if(m_write.isEmpty()) {
+        info_msg("No files to write, skipping to the end");
+        QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+        return true;
+    }
+
+//    int i = m_write.size();
+
+//    for(const auto &filePath : qAsConst(m_delete)) {
+//        --i;
+//        auto *op = device()->storage()->remove(QByteArrayLiteral("/ext/") + filePath.toLocal8Bit());
+//        connect(op, &AbstractOperation::finished, this, [=]() {
+//            if(op->isError()) {
+//                finishWithError(op->errorString());
+//            } else if(i == 0) {
+//                QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+//            }
+//        });
+//    }
+
     return true;
 }

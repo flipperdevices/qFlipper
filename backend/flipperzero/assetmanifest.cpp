@@ -11,9 +11,7 @@ AssetManifest::AssetManifest():
     m_version(-1),
     m_timestamp(0),
     m_root(new FileNode("", FileNode::Type::Directory))
-{
-    setError(QStringLiteral("Empty manifest"));
-}
+{}
 
 AssetManifest::AssetManifest(const QByteArray &text):
     AssetManifest()
