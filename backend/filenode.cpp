@@ -10,14 +10,14 @@ FileNode::FileNode():
 
 FileNode::FileNode(const QString &name, Type type, const QVariant &data):
     m_parent(nullptr),
-    m_attributes({name, QString(), type, data})
+    m_info({name, QString(), type, data})
 {}
 
 bool FileNode::operator ==(const FileNode &other) const
 {
-    return (m_attributes.type == other.m_attributes.type) &&
-           (m_attributes.path == other.m_attributes.path) &&
-           (m_attributes.userData == other.m_attributes.userData);
+    return (m_info.type == other.m_info.type) &&
+           (m_info.absolutePath == other.m_info.absolutePath) &&
+           (m_info.userData == other.m_info.userData);
 }
 
 bool FileNode::operator !=(const FileNode &other) const
@@ -27,22 +27,27 @@ bool FileNode::operator !=(const FileNode &other) const
 
 const QString &FileNode::name() const
 {
-    return m_attributes.name;
+    return m_info.name;
 }
 
-const QString &FileNode::path() const
+const QString &FileNode::absolutePath() const
 {
-    return m_attributes.path;
+    return m_info.absolutePath;
 }
 
 FileNode::Type FileNode::type() const
 {
-    return m_attributes.type;
+    return m_info.type;
 }
 
 const QVariant &FileNode::userData() const
 {
-    return m_attributes.userData;
+    return m_info.userData;
+}
+
+const FileNode::FileInfo &FileNode::fileInfo() const
+{
+    return m_info;
 }
 
 void FileNode::addChild(const QSharedPointer<FileNode> &nodePtr)
@@ -114,9 +119,9 @@ FileNode *FileNode::parent() const
     return m_parent;
 }
 
-QStringList FileNode::toPreOrderList() const
+FileNode::FileInfoList FileNode::toPreOrderList() const
 {
-    QStringList ret;
+    FileInfoList ret;
     QQueue<const FileNode*> queue;
 
     queue.enqueue(this);
@@ -128,22 +133,22 @@ QStringList FileNode::toPreOrderList() const
             queue.enqueue(childPtr.get());
         }
 
-        ret.append(current->m_attributes.path);
+        ret.append(current->m_info);
     }
 
     return ret;
 }
 
-QStringList FileNode::difference(FileNode *other)
+FileNode::FileInfoList FileNode::difference(FileNode *other)
 {
-    QStringList ret;
+    FileInfoList ret;
     QQueue<FileNode*> queue;
 
     queue.enqueue(other);
 
     while(!queue.isEmpty()) {
         auto *current = queue.dequeue();
-        auto *counterpart = find(current->path());
+        auto *counterpart = find(current->absolutePath());
 
         if(!counterpart || (counterpart->type() != current->type())) {
             ret.append(current->toPreOrderList());
@@ -158,22 +163,22 @@ QStringList FileNode::difference(FileNode *other)
     return ret;
 }
 
-QStringList FileNode::changed(FileNode *other)
+FileNode::FileInfoList FileNode::changed(FileNode *other)
 {
-    QStringList ret;
+    FileInfoList ret;
     QQueue<FileNode*> queue;
 
     queue.enqueue(other);
 
     while(!queue.isEmpty()) {
         auto *current = queue.dequeue();
-        auto *counterpart = find(current->path());
+        auto *counterpart = find(current->absolutePath());
 
         if(!counterpart || (counterpart->type() != current->type())) {
             continue;
 
         } else if (*current != *counterpart) {
-            ret.append(current->path());
+            ret.append(current->m_info);
             continue;
         }
 
@@ -183,14 +188,6 @@ QStringList FileNode::changed(FileNode *other)
     }
 
     return ret;
-}
-
-void FileNode::print() const
-{
-    const auto list = toPreOrderList();
-    for(const auto &el : list) {
-        qDebug() << el;
-    }
 }
 
 void FileNode::setParent(FileNode *node)
@@ -205,5 +202,10 @@ void FileNode::setParent(FileNode *node)
     }
 
     std::reverse(fragments.begin(), fragments.end());
-    m_attributes.path = fragments.join('/');
+    m_info.absolutePath = fragments.join('/');
+}
+
+bool FileNode::FileInfo::operator <(const FileInfo &other) const
+{
+    return (type < other.type) || (absolutePath < other.absolutePath);
 }

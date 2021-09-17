@@ -54,8 +54,8 @@ private:
     AssetManifest m_localManifest;
     AssetManifest m_deviceManifest;
 
-    QStringList m_delete;
-    QStringList m_write;
+    FileNode::FileInfoList m_delete;
+    FileNode::FileInfoList m_write;
 };
 
 }

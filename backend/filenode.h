@@ -1,27 +1,31 @@
 #pragma once
 
 #include <QMap>
+#include <QList>
 #include <QString>
 #include <QVariant>
 #include <QSharedPointer>
 
 class FileNode
 {
-    using FileNodeMap = QMap<QString, QSharedPointer<FileNode>>;
-
 public:
     enum class Type {
-        RegularFile,
         Directory,
+        RegularFile,
         Unknown
     };
 
-    struct Attributes {
+    struct FileInfo {
         QString name;
-        QString path;
+        QString absolutePath;
         Type type;
         QVariant userData;
+
+        bool operator <(const FileInfo &other) const;
     };
+
+    using FileNodeMap = QMap<QString, QSharedPointer<FileNode>>;
+    using FileInfoList = QList<FileInfo>;
 
     FileNode();
     FileNode(const QString &name, Type type, const QVariant &data = QVariant());
@@ -30,9 +34,10 @@ public:
     bool operator !=(const FileNode &other) const;
 
     const QString &name() const;
-    const QString &path() const;
+    const QString &absolutePath() const;
     Type type() const;
     const QVariant &userData() const;
+    const FileInfo &fileInfo() const;
 
     bool addDirectory(const QString &path);
     bool addFile(const QString &path, const QVariant &data);
@@ -42,11 +47,9 @@ public:
 
     FileNode *find(const QString &path);
 
-    QStringList toPreOrderList() const;
-    QStringList difference(FileNode *other);
-    QStringList changed(FileNode *other);
-
-    void print() const;
+    FileInfoList toPreOrderList() const;
+    FileInfoList difference(FileNode *other);
+    FileInfoList changed(FileNode *other);
 
 private:
     void setParent(FileNode *node);
@@ -55,5 +58,5 @@ private:
 
     FileNode *m_parent;
     FileNodeMap m_children;
-    Attributes m_attributes;
+    FileInfo m_info;
 };

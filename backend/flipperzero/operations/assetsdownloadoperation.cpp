@@ -20,12 +20,14 @@
 using namespace Flipper;
 using namespace Zero;
 
-static void print_file_list(const QString &header, const QStringList &list)
+static void print_file_list(const QString &header, const FileNode::FileInfoList &list)
 {
     qDebug() << header;
 
     for(const auto &e : list) {
-        qDebug() << e;
+        const auto icon = QStringLiteral("[%1]").arg(e.type == FileNode::Type::RegularFile ? 'F' :
+                                                     e.type == FileNode::Type::Directory   ? 'D' : '?');
+        qDebug() << icon << e.absolutePath;
     }
 }
 
@@ -191,11 +193,7 @@ bool AssetsDownloadOperation::readDeviceManifest()
 
 bool AssetsDownloadOperation::buildFileLists()
 {
-    info_msg("<<<<< Local manifest:");
-    m_localManifest.tree()->print();
-
-    m_delete.append(QStringLiteral("Manifest"));
-    m_write.append(QStringLiteral("Manifest"));
+    print_file_list("<<<<< Local manifest:", m_localManifest.tree()->toPreOrderList());
 
     if(m_deviceManifest.isError()) {
         info_msg("Failed to build remote manifest, assuming complete asset overwrite...");
@@ -203,8 +201,7 @@ bool AssetsDownloadOperation::buildFileLists()
         return true;
     }
 
-    info_msg(">>>>> Device manifest:");
-    m_deviceManifest.tree()->print();
+    print_file_list(">>>>> Device manifest:", m_deviceManifest.tree()->toPreOrderList());
 
     const auto deleted = m_localManifest.tree()->difference(m_deviceManifest.tree());
     print_file_list("----- Files deleted:", deleted);
@@ -218,14 +215,24 @@ bool AssetsDownloadOperation::buildFileLists()
     m_delete.append(deleted);
     m_delete.append(changed);
 
-    m_write.append(changed);
     m_write.append(added);
+    m_write.append(changed);
 
-    std::sort(m_delete.rbegin(), m_delete.rend());
-    std::sort(m_write.rbegin(), m_write.rend());
+    if(!m_delete.isEmpty() && !m_write.isEmpty()) {
+        FileNode::FileInfo manifestInfo;
+        manifestInfo.name = QStringLiteral("Manifest");
+        manifestInfo.absolutePath = manifestInfo.name;
+        manifestInfo.type = FileNode::Type::RegularFile;
 
-    print_file_list("##### Final list for deletion:", m_delete);
-    print_file_list("##### Final list for writing:", m_write);
+        m_write.append(manifestInfo);
+        m_delete.append(manifestInfo);
+
+        // Start deleting by the farthest nodes
+        std::reverse(m_delete.begin(), m_delete.end());
+
+        print_file_list("##### Final list for deletion:", m_delete);
+        print_file_list("##### Final list for writing:", m_write);
+    }
 
     QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
     return true;
@@ -241,9 +248,10 @@ bool AssetsDownloadOperation::deleteFiles()
 
     int i = m_delete.size();
 
-    for(const auto &filePath : qAsConst(m_delete)) {
+    for(const auto &fileInfo : qAsConst(m_delete)) {
         --i;
-        auto *op = device()->storage()->remove(QByteArrayLiteral("/ext/") + filePath.toLocal8Bit());
+        const auto fileName = QByteArrayLiteral("/ext/") + fileInfo.absolutePath.toLocal8Bit();
+        auto *op = device()->storage()->remove(fileName);
         connect(op, &AbstractOperation::finished, this, [=]() {
             if(op->isError()) {
                 finishWithError(op->errorString());
