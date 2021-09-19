@@ -45,7 +45,7 @@ StatOperation::Type StatOperation::type() const
 
 QByteArray StatOperation::endOfMessageToken() const
 {
-    return QByteArrayLiteral("\r\n>: \a");
+    return QByteArrayLiteral("\r\n\r\n>: \a");
 }
 
 QByteArray StatOperation::commandLine() const

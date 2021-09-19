@@ -28,6 +28,7 @@ SOURCES += \
     flipperzero/operations/wirelessstackdownloadoperation.cpp \
     flipperzero/recoverycontroller.cpp \
     flipperzero/remotecontroller.cpp \
+    flipperzero/storage/mkdiroperation.cpp \
     flipperzero/storage/readoperation.cpp \
     flipperzero/storage/removeoperation.cpp \
     flipperzero/storage/statoperation.cpp \
@@ -63,6 +64,7 @@ HEADERS += \
     flipperzero/operations/wirelessstackdownloadoperation.h \
     flipperzero/recoverycontroller.h \
     flipperzero/remotecontroller.h \
+    flipperzero/storage/mkdiroperation.h \
     flipperzero/storage/readoperation.h \
     flipperzero/storage/removeoperation.h \
     flipperzero/storage/statoperation.h \

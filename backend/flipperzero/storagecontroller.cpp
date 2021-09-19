@@ -5,6 +5,7 @@
 
 #include "common/skipmotdoperation.h"
 #include "storage/removeoperation.h"
+#include "storage/mkdiroperation.h"
 #include "storage/writeoperation.h"
 #include "storage/readoperation.h"
 #include "storage/statoperation.h"
@@ -33,6 +34,13 @@ StatOperation *StorageController::stat(const QByteArray &fileName)
 ReadOperation *StorageController::read(const QByteArray &fileName)
 {
     auto *op = new ReadOperation(m_serialPort, fileName, this);
+    enqueueOperation(op);
+    return op;
+}
+
+MkDirOperation *StorageController::mkdir(const QByteArray &dirName)
+{
+    auto *op = new MkDirOperation(m_serialPort, dirName, this);
     enqueueOperation(op);
     return op;
 }

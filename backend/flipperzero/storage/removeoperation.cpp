@@ -17,7 +17,7 @@ const QString RemoveOperation::description() const
 
 QByteArray RemoveOperation::endOfMessageToken() const
 {
-    return QByteArrayLiteral("\r\n>: \a");
+    return QByteArrayLiteral("\r\n\r\n>: \a");
 }
 
 QByteArray RemoveOperation::commandLine() const
@@ -29,11 +29,22 @@ bool RemoveOperation::parseReceivedData()
 {
     const auto lines = receivedData().split('\n');
 
-    for(const auto &line : lines) {
-        if(line.startsWith(QByteArrayLiteral("Storage error: "))) {
-             return line.trimmed().endsWith(QByteArrayLiteral("file/dir not exist"));
-        }
-    }
+    if(lines.size() == 4) {
+        const auto msg = lines.at(1).trimmed();
 
-    return true;
+        if(!msg.startsWith(QByteArrayLiteral("Storage error: "))) {
+            return false;
+        } else if(!msg.endsWith(QByteArrayLiteral("file/dir not exist"))) {
+            setError(msg);
+        } else {
+            info_msg(QStringLiteral("Warning: file %1 does not exist.").arg(QString(m_fileName)));
+        }
+
+        return true;
+
+    } else if(lines.size() == 3) {
+        return true;
+    } else {
+        return false;
+    }
 }

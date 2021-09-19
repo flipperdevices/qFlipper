@@ -2,7 +2,6 @@
 
 #include <QSerialPort>
 
-
 SimpleSerialOperation::SimpleSerialOperation(QSerialPort *serialPort, QObject *parent):
     AbstractSerialOperation(serialPort, parent)
 {}

@@ -36,7 +36,7 @@ public:
 
     StatOperation *stat(const QByteArray &fileName);
     ReadOperation *read(const QByteArray &fileName);
-    MkDirOperation *mkdir(const QByteArray &fileName);
+    MkDirOperation *mkdir(const QByteArray &dirName);
     WriteOperation *write(const QByteArray &fileName, QIODevice *file);
     RemoveOperation *remove(const QByteArray &fileName);
 

@@ -5,6 +5,7 @@
 #include <QStandardPaths>
 
 #include "flipperzero/storage/removeoperation.h"
+#include "flipperzero/storage/mkdiroperation.h"
 #include "flipperzero/storage/readoperation.h"
 #include "flipperzero/storage/statoperation.h"
 #include "flipperzero/storagecontroller.h"
@@ -35,7 +36,9 @@ AssetsDownloadOperation::AssetsDownloadOperation(FlipperZero *device, QIODevice 
     Operation(device, parent),
     m_compressed(file),
     m_uncompressed(nullptr)
-{}
+{
+    device->setMessage(QStringLiteral("Databases download pending..."));
+}
 
 AssetsDownloadOperation::~AssetsDownloadOperation()
 {}
