@@ -2,10 +2,13 @@
 
 #include <QSerialPort>
 
-#include "macros.h"
-
-#define SIZE_HEADER QByteArrayLiteral("Size: ")
+#define READY_PROMPT QByteArrayLiteral("\r\nReady?\r\n")
 #define FINISH_PROMPT QByteArrayLiteral("\r\n\r\n>: ")
+
+#define READY_PROMPT_LINE_COUNT 5
+#define FINISH_PROMPT_LINE_COUNT 4
+
+#define CHUNK_SIZE 512
 
 using namespace Flipper;
 using namespace Zero;
@@ -13,7 +16,6 @@ using namespace Zero;
 ReadOperation::ReadOperation(QSerialPort *serialPort, const QByteArray &fileName, QObject *parent):
     AbstractSerialOperation(serialPort, parent),
     m_size(0),
-    m_lineCount(0),
     m_fileName(fileName)
 {}
 
@@ -24,67 +26,105 @@ const QString ReadOperation::description() const
 
 const QByteArray &ReadOperation::result() const
 {
-    return m_receivedData;
+    return m_result;
 }
 
 void ReadOperation::onSerialPortReadyRead()
 {
     startTimeout();
 
+    m_receivedData += serialPort()->readAll();
+
     if(state() == State::SettingUp) {
-        if(!serialPort()->canReadLine()) {
-            return;
-        }
-
-        const auto line = serialPort()->readLine();
-
-        if(++m_lineCount < 2) {
-            return;
-
-        } else if(line.startsWith(SIZE_HEADER)) {
-            bool success;
-            m_size = line.mid(SIZE_HEADER.size()).toLongLong(&success, 10);
-
-            if(!success) {
-                finishWithError(QStringLiteral("Unexpected reply"));
-                return;
+        if(m_receivedData.endsWith(READY_PROMPT)) {
+            if(!parseSetupReply()) {
+                finish();
+            } else {
+                setState(State::ReceivingData);
+                serialPort()->write("\n");
             }
 
-            setState(State::ReceivingData);
-            m_receivedData += serialPort()->readAll();
-
-        } else if(line.startsWith(QByteArrayLiteral("Storage error:"))) {
-            serialPort()->clear();
-            finishWithError(line.trimmed());
-
-        } else {
-            finishWithError(QStringLiteral("Unexpected number of reply header lines"));
+            m_receivedData.clear();
+        } else if(m_receivedData.endsWith(FINISH_PROMPT)) {
+            parseError();
+            finish();
         }
 
     } else if(state() == State::ReceivingData) {
-        m_receivedData += serialPort()->readAll();
+        if(m_receivedData.endsWith(READY_PROMPT)) {
+            m_result.append(m_receivedData.chopped(READY_PROMPT.size()));
+            m_receivedData.clear();
+            serialPort()->write("\n");
 
-        if(m_receivedData.endsWith(FINISH_PROMPT)) {
-            m_receivedData.chop(FINISH_PROMPT.size());
-
-            if(m_size != m_receivedData.size()) {
-                finishWithError(QStringLiteral("Size mismatch: expected %1, received %2").arg(m_size, m_receivedData.size()));
-            } else {
-                finish();
-            }
+        } else if(m_receivedData.endsWith(FINISH_PROMPT)) {
+            m_result.append(m_receivedData.chopped(FINISH_PROMPT.size()));
+            finish();
         }
     }
 }
 
 bool ReadOperation::begin()
 {
-    const auto cmdLine = QByteArrayLiteral("storage read ") + m_fileName + QByteArrayLiteral("\r");
+    const auto cmdLine = QByteArrayLiteral("storage read_chunks ") + m_fileName + QByteArrayLiteral(" ") +
+                         QByteArray::number(CHUNK_SIZE, 10) + QByteArrayLiteral("\r");
     const auto success = (serialPort()->write(cmdLine) == cmdLine.size()) && serialPort()->flush();
 
     if(success) {
         setState(State::SettingUp);
         startTimeout();
     }
+
+    return success;
+}
+
+bool ReadOperation::parseError()
+{
+    const auto lines = m_receivedData.split('\n');
+
+    if(lines.size() != FINISH_PROMPT_LINE_COUNT) {
+        setError(QStringLiteral("Unexpected error message line count"));
+        return false;
+    }
+
+    const auto &msg = lines.at(1).trimmed();
+
+    if(!msg.startsWith("Storage error:")) {
+        setError(QStringLiteral("Unexpected error message format"));
+        return false;
+    }
+
+    setError(msg);
+    return true;
+}
+
+bool ReadOperation::parseSetupReply()
+{
+    const auto lines = m_receivedData.split('\n');
+    if(lines.size() != READY_PROMPT_LINE_COUNT) {
+        setError(QStringLiteral("Unexpected setup message line count"));
+        return false;
+    }
+
+    const auto &sizeMsg = lines.at(1);
+    if(!sizeMsg.startsWith("Size:")) {
+        setError(QStringLiteral("Unexpected setup message format"));
+        return false;
+    }
+
+    return parseSize(sizeMsg);
+}
+
+bool ReadOperation::parseSize(const QByteArray &s)
+{
+    const auto tokens = s.split(':');
+
+    if(tokens.size() != 2) {
+        setError(QStringLiteral("Unexpected size message format"));
+        return false;
+    }
+
+    bool success;
+    m_size = tokens.at(1).toLongLong(&success, 10);
 
     return success;
 }

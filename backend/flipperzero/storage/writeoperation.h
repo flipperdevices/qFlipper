@@ -31,7 +31,7 @@ private:
     bool writeSetupCommand();
     bool writeChunk();
 
-    bool parseError() const;
+    bool parseError();
 
     QByteArray m_fileName;
     QIODevice *m_file;

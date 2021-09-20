@@ -5,9 +5,12 @@
 
 #include "macros.h"
 
-#define CHUNK_SIZE 512
 #define READY_PROMPT QByteArrayLiteral("\r\nReady?\r\n")
 #define FINISH_PROMPT QByteArrayLiteral("\r\n\r\n>: ")
+
+#define FINISH_PROMPT_LINE_COUNT 4
+
+#define CHUNK_SIZE 512
 
 using namespace Flipper;
 using namespace Zero;
@@ -29,13 +32,8 @@ void WriteOperation::onSerialPortReadyRead()
 
     if(state() == State::SettingUp) {
         if(m_receivedData.endsWith(FINISH_PROMPT)) {
-            if(!parseError()) {
-                finishWithError(QStringLiteral("Unknown error"));
-            } else {
-                finishWithError(QStringLiteral("Error while issuing write_chunk command"));
-            }
-
-            return;
+            parseError();
+            finish();
 
         } else if(!m_receivedData.endsWith(READY_PROMPT)) {
             return;
@@ -103,14 +101,22 @@ bool WriteOperation::writeChunk()
     return success;
 }
 
-bool WriteOperation::parseError() const
+bool WriteOperation::parseError()
 {
     const auto lines = m_receivedData.split('\n');
-    check_return_bool(lines.size() >= 4, "Unexpected error line count.");
 
-    const auto &msg = lines.at(1);
-    check_return_bool(msg.startsWith("Storage error:"), "Unexpected error message format.");
+    if(lines.size() != FINISH_PROMPT_LINE_COUNT) {
+        setError(QStringLiteral("Unexpected error message line count"));
+        return false;
+    }
 
-    error_msg(msg.trimmed());
+    const auto &msg = lines.at(1).trimmed();
+
+    if(!msg.startsWith("Storage error:")) {
+        setError(QStringLiteral("Unexpected error message format"));
+        return false;
+    }
+
+    setError(msg);
     return true;
 }

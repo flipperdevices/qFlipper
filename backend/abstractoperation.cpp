@@ -32,12 +32,7 @@ void AbstractOperation::setState(int state)
 
 void AbstractOperation::finishWithError(const QString &errorMsg)
 {
-    error_msg(errorMsg);
-
     setError(errorMsg);
-    setState(BasicState::Finished);
-    stopTimeout();
-
     finish();
 }
 

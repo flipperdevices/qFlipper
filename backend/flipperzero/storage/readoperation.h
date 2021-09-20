@@ -27,10 +27,14 @@ private slots:
 private:
     bool begin() override;
 
+    bool parseError();
+    bool parseSetupReply();
+    bool parseSize(const QByteArray &s);
+
     qint64 m_size;
-    qint64 m_lineCount;
     QByteArray m_fileName;
     QByteArray m_receivedData;
+    QByteArray m_result;
 };
 
 }
