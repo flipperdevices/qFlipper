@@ -35,7 +35,7 @@ public:
     ~StorageController();
 
     StatOperation *stat(const QByteArray &fileName);
-    ReadOperation *read(const QByteArray &fileName);
+    ReadOperation *read(const QByteArray &fileName, QIODevice *file);
     MkDirOperation *mkdir(const QByteArray &dirName);
     WriteOperation *write(const QByteArray &fileName, QIODevice *file);
     RemoveOperation *remove(const QByteArray &fileName);

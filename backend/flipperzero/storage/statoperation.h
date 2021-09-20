@@ -11,7 +11,7 @@ class StatOperation : public SimpleSerialOperation
 
 public:
     enum class Type {
-        File,
+        RegularFile,
         Directory,
         Storage,
         NotFound,

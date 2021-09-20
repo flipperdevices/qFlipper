@@ -4,6 +4,8 @@
 
 #include <QByteArray>
 
+class QIODevice;
+
 namespace Flipper {
 namespace Zero {
 
@@ -17,9 +19,8 @@ class ReadOperation : public AbstractSerialOperation
     };
 
 public:
-    ReadOperation(QSerialPort *serialPort, const QByteArray &fileName, QObject *parent = nullptr);
+    ReadOperation(QSerialPort *serialPort, const QByteArray &fileName, QIODevice *file, QObject *parent = nullptr);
     const QString description() const override;
-    const QByteArray &result() const;
 
 private slots:
     void onSerialPortReadyRead() override;
@@ -33,8 +34,8 @@ private:
 
     qint64 m_size;
     QByteArray m_fileName;
+    QIODevice *m_file;
     QByteArray m_receivedData;
-    QByteArray m_result;
 };
 
 }

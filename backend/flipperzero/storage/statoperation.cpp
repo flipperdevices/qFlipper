@@ -70,7 +70,7 @@ bool StatOperation::parseReceivedData()
         m_type = Type::InternalError;
 
     } else if(parseFileSize(reply)) {
-        m_type = Type::File;
+        m_type = Type::RegularFile;
 
     } else if(reply.contains("directory")) {
         m_type = Type::Directory;

@@ -13,20 +13,16 @@
 using namespace Flipper;
 using namespace Zero;
 
-ReadOperation::ReadOperation(QSerialPort *serialPort, const QByteArray &fileName, QObject *parent):
+ReadOperation::ReadOperation(QSerialPort *serialPort, const QByteArray &fileName, QIODevice *file, QObject *parent):
     AbstractSerialOperation(serialPort, parent),
     m_size(0),
-    m_fileName(fileName)
+    m_fileName(fileName),
+    m_file(file)
 {}
 
 const QString ReadOperation::description() const
 {
     return QStringLiteral("Read @%1").arg(QString(m_fileName));
-}
-
-const QByteArray &ReadOperation::result() const
-{
-    return m_result;
 }
 
 void ReadOperation::onSerialPortReadyRead()
@@ -52,12 +48,13 @@ void ReadOperation::onSerialPortReadyRead()
 
     } else if(state() == State::ReceivingData) {
         if(m_receivedData.endsWith(READY_PROMPT)) {
-            m_result.append(m_receivedData.chopped(READY_PROMPT.size()));
+            m_file->write(m_receivedData.chopped(READY_PROMPT.size()));
             m_receivedData.clear();
             serialPort()->write("\n");
 
         } else if(m_receivedData.endsWith(FINISH_PROMPT)) {
-            m_result.append(m_receivedData.chopped(FINISH_PROMPT.size()));
+            m_file->write(m_receivedData.chopped(FINISH_PROMPT.size()));
+            m_file->seek(0);
             finish();
         }
     }

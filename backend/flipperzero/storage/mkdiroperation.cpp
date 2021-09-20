@@ -16,7 +16,7 @@ const QString MkDirOperation::description() const
 
 QByteArray MkDirOperation::endOfMessageToken() const
 {
-    return QByteArrayLiteral("\r\n\r\n>: ");
+    return QByteArrayLiteral("\r\n\r\n>: \a");
 }
 
 QByteArray MkDirOperation::commandLine() const

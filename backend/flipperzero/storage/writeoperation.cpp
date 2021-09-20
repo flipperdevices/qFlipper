@@ -5,8 +5,8 @@
 
 #include "macros.h"
 
-#define READY_PROMPT QByteArrayLiteral("\r\nReady?\r\n")
-#define FINISH_PROMPT QByteArrayLiteral("\r\n\r\n>: ")
+#define READY_PROMPT QByteArrayLiteral("\r\nReady\r\n")
+#define FINISH_PROMPT QByteArrayLiteral("\r\n>: ")
 
 #define FINISH_PROMPT_LINE_COUNT 4
 
@@ -28,7 +28,7 @@ const QString WriteOperation::description() const
 
 void WriteOperation::onSerialPortReadyRead()
 {
-    m_receivedData = serialPort()->readAll();
+    m_receivedData.append(serialPort()->readAll());
 
     if(state() == State::SettingUp) {
         if(m_receivedData.endsWith(FINISH_PROMPT)) {

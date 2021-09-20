@@ -20,6 +20,7 @@ public:
         CheckingExtStorage = BasicState::User,
         ExtractingArchive,
         ReadingLocalManifest,
+        CheckingDeviceManifest,
         ReadingDeviceManifest,
         BuildingFileLists,
         DeletingFiles,
@@ -39,6 +40,7 @@ private:
     bool checkForExtStorage();
     bool extractArchive();
     bool readLocalManifest();
+    bool checkForDeviceManifest();
     bool readDeviceManifest();
 
     bool buildFileLists();
@@ -53,6 +55,7 @@ private:
 
     AssetManifest m_localManifest;
     AssetManifest m_deviceManifest;
+    bool m_isDeviceManifestPresent;
 
     FileNode::FileInfoList m_delete;
     FileNode::FileInfoList m_write;

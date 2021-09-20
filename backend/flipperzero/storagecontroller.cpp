@@ -31,9 +31,9 @@ StatOperation *StorageController::stat(const QByteArray &fileName)
     return op;
 }
 
-ReadOperation *StorageController::read(const QByteArray &fileName)
+ReadOperation *StorageController::read(const QByteArray &fileName, QIODevice *file)
 {
-    auto *op = new ReadOperation(m_serialPort, fileName, this);
+    auto *op = new ReadOperation(m_serialPort, fileName, file, this);
     enqueueOperation(op);
     return op;
 }
