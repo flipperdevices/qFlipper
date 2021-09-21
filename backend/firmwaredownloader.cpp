@@ -9,6 +9,7 @@
 #include "flipperzero/operations/wirelessstackdownloadoperation.h"
 #include "flipperzero/operations/firmwaredownloadoperation.h"
 #include "flipperzero/operations/fixoptionbytesoperation.h"
+#include "flipperzero/operations/assetsdownloadoperation.h"
 #include "flipperzero/operations/fixbootissuesoperation.h"
 
 #include "remotefilefetcher.h"
@@ -81,6 +82,14 @@ void FirmwareDownloader::fixOptionBytes(FlipperZero *device, const QString &file
     enqueueOperation(new Flipper::Zero::FixOptionBytesOperation(device, file));
 }
 
+void FirmwareDownloader::downloadAssets(FlipperZero *device, const QString &filePath)
+{
+    const auto localUrl = QUrl(filePath).toLocalFile();
+    auto *file = new QFile(localUrl, this);
+
+    enqueueOperation(new Flipper::Zero::AssetsDownloadOperation(device, file, this));
+}
+
 void FirmwareDownloader::processQueue()
 {
     if(m_operationQueue.isEmpty()) {
@@ -88,12 +97,10 @@ void FirmwareDownloader::processQueue()
         return;
     }
 
-    m_state = State::Running;
-
     auto *currentOperation = m_operationQueue.dequeue();
 
     connect(currentOperation, &AbstractOperation::finished, this, [=]() {
-        info_msg(QStringLiteral("Operation '%1' finished with status: %2.").arg(currentOperation->name(), currentOperation->errorString()));
+        info_msg(QStringLiteral("Operation '%1' finished with status: %2.").arg(currentOperation->description(), currentOperation->errorString()));
         currentOperation->deleteLater();
         processQueue();
     });
@@ -107,6 +114,7 @@ void FirmwareDownloader::enqueueOperation(AbstractOperation *op)
 
     if(m_state == State::Ready) {
         // Leave the context before calling processQueue()
+        m_state = State::Running;
         QTimer::singleShot(20, this, &FirmwareDownloader::processQueue);
     }
 }

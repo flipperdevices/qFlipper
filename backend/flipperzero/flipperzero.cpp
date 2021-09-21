@@ -4,7 +4,9 @@
 #include <QSerialPort>
 
 #include "recoverycontroller.h"
+#include "storagecontroller.h"
 #include "remotecontroller.h"
+
 #include "macros.h"
 
 namespace Flipper {
@@ -22,7 +24,8 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
 
     m_progress(0),
     m_remote(nullptr),
-    m_recovery(nullptr)
+    m_recovery(nullptr),
+    m_storage(nullptr)
 {
     initControllers();
 }
@@ -102,26 +105,14 @@ bool FlipperZero::bootToDFU()
 
     auto *serialPort = new QSerialPort(m_deviceInfo.serialInfo, this);
 
-    const auto portSuccess = serialPort->open(QIODevice::WriteOnly) && serialPort->setDataTerminalReady(true) &&
-                            (serialPort->write(QByteArrayLiteral("\rdfu\r")) > 0);
-
-    // TODO: Is it necessary here? Why was this added?
-    auto flushTries = 30;
-
-    while(--flushTries && !serialPort->flush()) {
-        info_msg("Serial port flush failure, retrying...");
-        QThread::msleep(15);
-    }
-
-    serialPort->close();
-
-    const auto success = portSuccess && flushTries;
-
+    const auto success = serialPort->open(QIODevice::WriteOnly) && serialPort->setDataTerminalReady(true) &&
+                        (serialPort->write(QByteArrayLiteral("\rdfu\r\n")) > 0) && serialPort->waitForBytesWritten(1000);
     if(!success) {
         setError("Can't detach the device: Failed to reset in DFU mode");
         error_msg(QString("Serial port status: %1").arg(serialPort->errorString()));
     }
 
+    serialPort->close();
     serialPort->deleteLater();
 
     return success;
@@ -183,6 +174,11 @@ RecoveryController *FlipperZero::recovery() const
     return m_recovery;
 }
 
+StorageController *FlipperZero::storage() const
+{
+    return m_storage;
+}
+
 void FlipperZero::setName(const QString &name)
 {
     if(m_deviceInfo.name == name) {
@@ -230,6 +226,17 @@ void FlipperZero::setProgress(double progress)
     emit progressChanged();
 }
 
+void FlipperZero::onControllerErrorOccured()
+{
+    auto *controller = qobject_cast<SignalingFailable*>(sender());
+
+    if(!controller) {
+        return;
+    }
+
+    setError(controller->errorString());
+}
+
 void FlipperZero::initControllers()
 {
     if(m_remote) {
@@ -242,23 +249,30 @@ void FlipperZero::initControllers()
        m_recovery = nullptr;
     }
 
+    if(m_storage) {
+       m_storage->deleteLater();
+       m_storage = nullptr;
+    }
+
     // TODO: better message delivery system
     if(isDFU()) {
         m_recovery = new RecoveryController(m_deviceInfo.usbInfo, this);
+
         connect(m_recovery, &RecoveryController::messageChanged, this, [=]() {
             setMessage(m_recovery->message());
-        });
-
-        connect(m_recovery, &RecoveryController::errorOccured, this, [=]() {
-            setError(m_recovery->errorString());
         });
 
         connect(m_recovery, &RecoveryController::progressChanged, this, [=]() {
             setProgress(m_recovery->progress());
         });
 
+        connect(m_recovery, &SignalingFailable::errorOccured, this, &FlipperZero::onControllerErrorOccured);
+
     } else {
         m_remote = new RemoteController(m_deviceInfo.serialInfo, this);
+        m_storage = new StorageController(m_deviceInfo.serialInfo, this);
+
+        connect(m_storage, &SignalingFailable::errorOccured, this, &FlipperZero::onControllerErrorOccured);
     }
 }
 

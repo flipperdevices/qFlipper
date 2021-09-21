@@ -6,8 +6,6 @@
 
 AbstractOperation::AbstractOperation(QObject *parent):
     QObject(parent),
-    m_isError(false),
-    m_errorString(QStringLiteral("No error")),
     m_timeout(new QTimer(this)),
     m_state(BasicState::Ready)
 {
@@ -22,19 +20,9 @@ int AbstractOperation::state() const
     return m_state;
 }
 
-bool AbstractOperation::isError() const
-{
-    return m_isError;
-}
-
-const QString &AbstractOperation::errorString() const
-{
-    return m_errorString;
-}
-
 void AbstractOperation::onOperationTimeout()
 {
-    finishWithError(QStringLiteral("Operation timeout (generic)."));
+    finishWithError(QStringLiteral("Operation timeout (generic)"));
 }
 
 void AbstractOperation::setState(int state)
@@ -42,14 +30,9 @@ void AbstractOperation::setState(int state)
     m_state = state;
 }
 
-void AbstractOperation::finishWithError(const QString &errorString)
+void AbstractOperation::finishWithError(const QString &errorMsg)
 {
-    error_msg(errorString);
-
-    m_isError = true;
-    m_errorString = errorString;
-
-    setState(BasicState::Finished);
+    setError(errorMsg);
     finish();
 }
 

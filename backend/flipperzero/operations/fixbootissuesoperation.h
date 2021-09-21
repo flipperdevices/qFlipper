@@ -21,7 +21,7 @@ public:
     FixBootIssuesOperation(FlipperZero *device, QObject *parent = nullptr);
     ~FixBootIssuesOperation();
 
-    const QString name() const override;
+    const QString description() const override;
 
 private slots:
     void transitionToNextState() override;

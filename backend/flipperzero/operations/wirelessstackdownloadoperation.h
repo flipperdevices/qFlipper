@@ -29,7 +29,7 @@ public:
     WirelessStackDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t targetAddress = 0, QObject *parent = nullptr);
     ~WirelessStackDownloadOperation();
 
-    const QString name() const override;
+    const QString description() const override;
 
 private slots:
     void transitionToNextState() override;

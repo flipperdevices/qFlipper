@@ -3,13 +3,14 @@
 #include <QObject>
 
 #include "usbdeviceinfo.h"
+#include "signalingfailable.h"
 
 class QIODevice;
 
 namespace Flipper {
 namespace Zero {
 
-class RecoveryController : public QObject
+class RecoveryController : public SignalingFailable
 {
     Q_OBJECT
 
@@ -31,11 +32,9 @@ public:
     ~RecoveryController();
 
     const QString &message() const;
-    const QString &errorString() const;
 
     WirelessStatus wirelessStatus();
     double progress() const;
-    bool isError() const;
 
     bool leaveDFU();
     bool setBootMode(BootMode mode);
@@ -51,19 +50,15 @@ public:
 
 signals:
     void messageChanged();
-    void errorOccured();
     void progressChanged();
 
 private:
     void setProgress(double progress);
     void setMessage(const QString &msg);
-    void setError(const QString &msg);
 
     USBDeviceInfo m_usbInfo;
 
-    bool m_isError;
     QString m_message;
-    QString m_errorString;
     double m_progress;
 };
 

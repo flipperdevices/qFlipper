@@ -20,7 +20,7 @@ FixOptionBytesOperation::~FixOptionBytesOperation()
     m_file->deleteLater();
 }
 
-const QString FixOptionBytesOperation::name() const
+const QString FixOptionBytesOperation::description() const
 {
     return QStringLiteral("Fix Option Bytes @%1 %2").arg(device()->model(), device()->name());
 }

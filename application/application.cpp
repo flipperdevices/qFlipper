@@ -1,11 +1,9 @@
 #include "application.h"
 
-#include <QFile>
 #include <QLocale>
-#include <QBuffer>
 #include <QTranslator>
 #include <QQmlContext>
-#include <QStandardPaths>
+#include <QQuickWindow>
 #include <QtQuickControls2/QQuickStyle>
 
 #include "qflipperbackend.h"
@@ -39,6 +37,7 @@ AppUpdater *Application::updater()
 
 void Application::initStyles()
 {
+    QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
     QQuickStyle::setStyle("Universal");
 }
 

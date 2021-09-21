@@ -1,21 +1,26 @@
 #include "deviceinfofetcher.h"
 
 #include <QTimer>
+#include <QBuffer>
 #include <QSerialPort>
 
+#include "common/skipmotdoperation.h"
 #include "device/stm32wb55.h"
 #include "serialfinder.h"
 #include "factoryinfo.h"
 #include "macros.h"
 
+#define RESPONSE_TIMEOUT_MS 5000
+#define PROMPT_READY "\r\n>: \a"
+
 using namespace Flipper;
 using namespace Zero;
 
 AbstractDeviceInfoFetcher::AbstractDeviceInfoFetcher(QObject *parent):
-    QObject(parent),
-    m_isError(false),
-    m_errorString(QStringLiteral("No error"))
-{}
+    QObject(parent)
+{
+    QTimer::singleShot(0, this, &AbstractDeviceInfoFetcher::fetch);
+}
 
 AbstractDeviceInfoFetcher::~AbstractDeviceInfoFetcher()
 {}
@@ -35,28 +40,20 @@ AbstractDeviceInfoFetcher *AbstractDeviceInfoFetcher::create(const USBDeviceInfo
     return nullptr;
 }
 
-bool AbstractDeviceInfoFetcher::isError() const
+void AbstractDeviceInfoFetcher::finishWithError(const QString &errorString)
 {
-    return m_isError;
-}
-
-const QString &AbstractDeviceInfoFetcher::errorString() const
-{
-    return m_errorString;
-}
-
-void AbstractDeviceInfoFetcher::setError(const QString &errorString)
-{
-    m_isError = true;
-    m_errorString = errorString;
-
-    emit finished();
+    setError(errorString);
+    finish();
 }
 
 VCPDeviceInfoFetcher::VCPDeviceInfoFetcher(const USBDeviceInfo &info, QObject *parent):
-    AbstractDeviceInfoFetcher(parent)
+    AbstractDeviceInfoFetcher(parent),
+    m_responseTimer(new QTimer(this)),
+    m_serialPort(nullptr)
 {
     m_deviceInfo.usbInfo = info;
+    m_responseTimer->setSingleShot(true);
+    connect(m_responseTimer, &QTimer::timeout, this, &VCPDeviceInfoFetcher::onResponseTimeout);
 }
 
 void VCPDeviceInfoFetcher::fetch()
@@ -73,43 +70,80 @@ const DeviceInfo &VCPDeviceInfoFetcher::result() const
 void VCPDeviceInfoFetcher::onSerialPortFound(const QSerialPortInfo &portInfo)
 {
     if(portInfo.isNull()) {
-        setError(QStringLiteral("Invalid serial port info."));
+        finishWithError(QStringLiteral("Invalid serial port info."));
         return;
     }
 
     m_deviceInfo.serialInfo = portInfo;
+    m_serialPort = new QSerialPort(portInfo, this);
 
-    auto *serialPort = new QSerialPort(portInfo, this);
-
-    if(!serialPort->open(QIODevice::ReadWrite)) {
-        setError(serialPort->errorString());
+    if(!m_serialPort->open(QIODevice::ReadWrite)) {
+        finishWithError(m_serialPort->errorString());
         return;
     }
 
-    auto *timeout = new QTimer(this);
+    auto *skipper = new SkipMOTDOperation(m_serialPort, this);
 
-    connect(timeout, &QTimer::timeout, this, &AbstractDeviceInfoFetcher::finished);
-    connect(this, &AbstractDeviceInfoFetcher::finished, serialPort, &QSerialPort::close);
+    connect(skipper, &AbstractOperation::finished, this, [=]() {
 
-    connect(serialPort, &QSerialPort::errorOccurred, this, [=]() {
-        timeout->stop();
-        setError(serialPort->errorString());
-    });
+        if(skipper->isError()) {
+            finishWithError(skipper->errorString());
+        } else if(m_serialPort->write("\rdevice_info\r\n") < 0) {
+            finishWithError(m_serialPort->errorString());
+        } else {
+            connect(m_serialPort, &QSerialPort::readyRead, this, &VCPDeviceInfoFetcher::onSerialPortReadyRead);
+            connect(m_serialPort, &QSerialPort::errorOccurred, this, &VCPDeviceInfoFetcher::onSerialPortErrorOccured);
 
-    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
-        timeout->start(50);
-
-        while(serialPort->canReadLine()) {
-            parseLine(serialPort->readLine());
+            m_responseTimer->start(RESPONSE_TIMEOUT_MS);
         }
+
+        skipper->deleteLater();
     });
 
-    const auto success = serialPort->setDataTerminalReady(true) &&
-                        (serialPort->write("\rdevice_info\r") > 0) &&
-                         serialPort->flush();
-    if(success) {
-        timeout->start(5000);
+    skipper->start();
+}
+
+void VCPDeviceInfoFetcher::onSerialPortReadyRead()
+{
+    m_responseTimer->start(RESPONSE_TIMEOUT_MS);
+    m_receivedData += m_serialPort->readAll();
+
+    if(m_receivedData.endsWith(PROMPT_READY)) {
+        parseReceivedData();
+        finish();
     }
+}
+
+void VCPDeviceInfoFetcher::onSerialPortErrorOccured()
+{
+    finishWithError(m_serialPort->errorString());
+}
+
+void VCPDeviceInfoFetcher::onResponseTimeout()
+{
+    finishWithError(QStringLiteral("Operation timeout"));
+}
+
+void VCPDeviceInfoFetcher::finish()
+{
+    m_responseTimer->stop();
+    emit finished();
+}
+
+void VCPDeviceInfoFetcher::parseReceivedData()
+{
+    QBuffer buf(&m_receivedData, this);
+
+    if(!buf.open(QIODevice::ReadOnly)) {
+        finishWithError(buf.errorString());
+        return;
+    }
+
+    while(buf.canReadLine()) {
+        parseLine(buf.readLine());
+    }
+
+    buf.close();
 }
 
 void VCPDeviceInfoFetcher::parseLine(const QByteArray &line)
@@ -141,36 +175,39 @@ DFUDeviceInfoFetcher::DFUDeviceInfoFetcher(const USBDeviceInfo &info, QObject *p
 
 void DFUDeviceInfoFetcher::fetch()
 {
-    QTimer::singleShot(0, this, [=]() {
-        STM32WB55 device(m_deviceInfo.usbInfo);
+    STM32WB55 device(m_deviceInfo.usbInfo);
 
-        if(!device.beginTransaction()) {
-            setError(QStringLiteral("Failed to initiate transaction"));
-            return;
-        }
+    if(!device.beginTransaction()) {
+        finishWithError(QStringLiteral("Failed to initiate transaction"));
+        return;
+    }
 
-        const FactoryInfo factoryInfo(device.OTPData(FactoryInfo::size()));
+    const FactoryInfo factoryInfo(device.OTPData(FactoryInfo::size()));
 
-        if(!device.endTransaction()) {
-            setError(QStringLiteral("Failed to end transaction"));
-            return;
-        }
+    if(!device.endTransaction()) {
+        finishWithError(QStringLiteral("Failed to end transaction"));
+        return;
+    }
 
-        if(!factoryInfo.isValid()) {
-            setError(QStringLiteral("Failed to read device factory information"));
-            return;
-        }
+    if(!factoryInfo.isValid()) {
+        finishWithError(QStringLiteral("Failed to read device factory information"));
+        return;
+    }
 
-        m_deviceInfo.name = factoryInfo.name();
-        m_deviceInfo.target = QStringLiteral("f%1").arg(factoryInfo.target());
-        m_deviceInfo.color = (DeviceInfo::Color)factoryInfo.color();
+    m_deviceInfo.name = factoryInfo.name();
+    m_deviceInfo.target = QStringLiteral("f%1").arg(factoryInfo.target());
+    m_deviceInfo.color = (DeviceInfo::Color)factoryInfo.color();
 
-        emit finished();
-    });
+    finish();
 }
 
 const DeviceInfo &DFUDeviceInfoFetcher::result() const
 {
     return m_deviceInfo;
+}
+
+void DFUDeviceInfoFetcher::finish()
+{
+    emit finished();
 }
 

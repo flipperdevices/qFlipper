@@ -21,7 +21,7 @@ FirmwareDownloadOperation::~FirmwareDownloadOperation()
     m_file->deleteLater();
 }
 
-const QString FirmwareDownloadOperation::name() const
+const QString FirmwareDownloadOperation::description() const
 {
     return QStringLiteral("Firmware Download @%1 %2").arg(device()->model(), device()->name());
 }

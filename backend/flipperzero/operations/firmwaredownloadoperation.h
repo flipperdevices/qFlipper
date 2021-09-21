@@ -24,7 +24,7 @@ public:
     FirmwareDownloadOperation(FlipperZero *device, QIODevice *file, QObject *parent = nullptr);
     ~FirmwareDownloadOperation();
 
-    const QString name() const override;
+    const QString description() const override;
 
 private slots:
     void transitionToNextState() override;

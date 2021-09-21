@@ -65,7 +65,7 @@ void RemoteController::sendInputEvent(InputKey key, InputType type)
 
 void RemoteController::onPortReadyRead()
 {
-    static const auto header = QByteArray::fromHex("F0E1D2C3");
+    static const auto header = QByteArrayLiteral("\xf0\xe1\xd2\xc3");
 
     m_dataBuffer += m_port->readAll();
 
@@ -123,8 +123,7 @@ void RemoteController::closePort()
     disconnect(m_port, &QSerialPort::readyRead, this, &RemoteController::onPortReadyRead);
     disconnect(m_port, &QSerialPort::errorOccurred, this, &RemoteController::onPortErrorOccured);
 
-    m_port->write("\x01\r");
-    m_port->flush();
+    m_port->write("\x01\r\n");
     m_port->clear();
     m_port->close();
 }
