@@ -8,7 +8,8 @@ unix:!macx {
 } else:win32 {
     CONFIG -= debug_and_release
     DEFINES += USB_BACKEND_WIN32
-	
+    INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+
     !win32-g++: LIBS +=  -lSetupApi -lWinusb -lUser32
     else: LIBS += -lsetupapi -lwinusb
 

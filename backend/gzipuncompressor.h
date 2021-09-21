@@ -22,7 +22,7 @@ signals:
 
 private:
     void setProgress(double progress);
-    void uncompress();
+    void doUncompress();
 
     QIODevice *m_in;
     QIODevice *m_out;

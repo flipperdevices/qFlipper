@@ -24,7 +24,7 @@ GZipUncompressor::GZipUncompressor(QIODevice *in, QIODevice *out, QObject *paren
         emit finished();
     });
 
-    watcher->setFuture(QtConcurrent::run(this, &GZipUncompressor::uncompress));
+    watcher->setFuture(QtConcurrent::run(this, &GZipUncompressor::doUncompress));
 }
 
 GZipUncompressor::~GZipUncompressor()
@@ -45,7 +45,7 @@ void GZipUncompressor::setProgress(double progress)
     emit progressChanged();
 }
 
-void GZipUncompressor::uncompress()
+void GZipUncompressor::doUncompress()
 {
     if(m_in->bytesAvailable() <= 4) {
         setError(QStringLiteral("The input file is empty"));
