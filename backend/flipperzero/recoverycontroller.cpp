@@ -19,7 +19,7 @@ using namespace WB55;
 #define to_hex_str(num) (QString::number(num, 16))
 
 RecoveryController::RecoveryController(USBDeviceInfo info, QObject *parent):
-    QObject(parent),
+    SignalingFailable(parent),
     m_usbInfo(info)
 {}
 
@@ -374,11 +374,6 @@ const QString &RecoveryController::message() const
     return m_message;
 }
 
-const QString &RecoveryController::errorString() const
-{
-    return m_errorString;
-}
-
 double RecoveryController::progress() const
 {
     return m_progress;
@@ -389,12 +384,4 @@ void RecoveryController::setMessage(const QString &msg)
     m_message = msg;
 
     emit messageChanged();
-}
-
-void RecoveryController::setError(const QString &msg)
-{
-    m_errorString = msg;
-    m_isError = true;
-
-    emit errorOccured();
 }

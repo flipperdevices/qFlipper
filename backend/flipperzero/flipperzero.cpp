@@ -226,6 +226,17 @@ void FlipperZero::setProgress(double progress)
     emit progressChanged();
 }
 
+void FlipperZero::onControllerErrorOccured()
+{
+    auto *controller = qobject_cast<SignalingFailable*>(sender());
+
+    if(!controller) {
+        return;
+    }
+
+    setError(controller->errorString());
+}
+
 void FlipperZero::initControllers()
 {
     if(m_remote) {
@@ -246,21 +257,22 @@ void FlipperZero::initControllers()
     // TODO: better message delivery system
     if(isDFU()) {
         m_recovery = new RecoveryController(m_deviceInfo.usbInfo, this);
+
         connect(m_recovery, &RecoveryController::messageChanged, this, [=]() {
             setMessage(m_recovery->message());
-        });
-
-        connect(m_recovery, &RecoveryController::errorOccured, this, [=]() {
-            setError(m_recovery->errorString());
         });
 
         connect(m_recovery, &RecoveryController::progressChanged, this, [=]() {
             setProgress(m_recovery->progress());
         });
 
+        connect(m_recovery, &SignalingFailable::errorOccured, this, &FlipperZero::onControllerErrorOccured);
+
     } else {
         m_remote = new RemoteController(m_deviceInfo.serialInfo, this);
         m_storage = new StorageController(m_deviceInfo.serialInfo, this);
+
+        connect(m_storage, &SignalingFailable::errorOccured, this, &FlipperZero::onControllerErrorOccured);
     }
 }
 

@@ -83,6 +83,9 @@ signals:
     void isOnlineChanged();
     void isErrorChanged();
 
+private slots:
+    void onControllerErrorOccured();
+
 private:
     void initControllers();
 

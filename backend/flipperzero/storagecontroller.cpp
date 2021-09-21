@@ -16,7 +16,7 @@ using namespace Flipper;
 using namespace Zero;
 
 StorageController::StorageController(const QSerialPortInfo &portInfo, QObject *parent):
-    QObject(parent),
+    SignalingFailable(parent),
     m_serialPort(new QSerialPort(portInfo, this)),
     m_state(State::Idle)
 {}
@@ -62,8 +62,7 @@ RemoveOperation *StorageController::remove(const QByteArray &fileName)
 void StorageController::processQueue()
 {
     if(m_operationQueue.isEmpty()) {
-        m_state = State::Idle;
-        m_serialPort->close();
+        closePort();
         return;
     }
 
@@ -72,7 +71,10 @@ void StorageController::processQueue()
     connect(currentOperation, &AbstractOperation::finished, this, [=]() {
 
         if(currentOperation->isError()) {
-            qDebug() << "Operation error:" << currentOperation->errorString();
+            clearQueue();
+            processQueue();
+            setError(QStringLiteral("Operation error: %1").arg(currentOperation->errorString()));
+
         } else {
             processQueue();
         }
@@ -83,20 +85,42 @@ void StorageController::processQueue()
     currentOperation->start();
 }
 
+bool StorageController::openPort()
+{
+    if(!m_serialPort->open(QIODevice::ReadWrite)) {
+        setError(QStringLiteral("Serial port error: %1").arg(m_serialPort->errorString()));
+        return false;
+    }
+
+    m_state = State::Running;
+    m_operationQueue.prepend(new SkipMOTDOperation(m_serialPort, this));
+
+    return true;
+}
+
+void StorageController::closePort()
+{
+    m_state = State::Idle;
+    m_serialPort->close();
+}
+
 void StorageController::enqueueOperation(AbstractSerialOperation *op)
 {
     m_operationQueue.enqueue(op);
 
     if(m_state == State::Idle) {
-
-        if(!m_serialPort->open(QIODevice::ReadWrite)) {
-            qDebug() << "Serial port error:" << m_serialPort->errorString();
+        if(!openPort()) {
             return;
         }
 
-        m_state = State::Running;
-        m_operationQueue.prepend(new SkipMOTDOperation(m_serialPort, this));
-
+        resetError();
         QTimer::singleShot(0, this, &StorageController::processQueue);
+    }
+}
+
+void StorageController::clearQueue()
+{
+    while(!m_operationQueue.isEmpty()) {
+        m_operationQueue.dequeue()->deleteLater();
     }
 }

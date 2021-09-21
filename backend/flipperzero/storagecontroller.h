@@ -1,8 +1,9 @@
 #pragma once
 
 #include <QQueue>
-#include <QObject>
 #include <QSerialPortInfo>
+
+#include "signalingfailable.h"
 
 class QIODevice;
 class QSerialPort;
@@ -18,8 +19,7 @@ class MkDirOperation;
 class WriteOperation;
 class RemoveOperation;
 
-// BIG TODO: Error signaling
-class StorageController : public QObject
+class StorageController : public SignalingFailable
 {
     Q_OBJECT
 
@@ -44,7 +44,11 @@ private slots:
     void processQueue();
 
 private:
+    bool openPort();
+    void closePort();
+
     void enqueueOperation(AbstractSerialOperation *op);
+    void clearQueue();
 
     OperationQueue m_operationQueue;
     QSerialPort *m_serialPort;

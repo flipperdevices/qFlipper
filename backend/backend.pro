@@ -74,6 +74,7 @@ HEADERS += \
     qflipperbackend.h \
     remotefilefetcher.h \
     serialfinder.h \
+    signalingfailable.h \
     simpleserialoperation.h \
     tararchive.h \
     updateregistry.h
