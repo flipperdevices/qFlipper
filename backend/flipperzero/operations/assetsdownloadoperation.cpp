@@ -303,6 +303,8 @@ bool AssetsDownloadOperation::deleteFiles()
         return true;
     }
 
+    device()->setMessage(tr("Deleting unneeded files..."));
+
     int i = m_delete.size();
 
     for(const auto &fileInfo : qAsConst(m_delete)) {
@@ -328,6 +330,9 @@ bool AssetsDownloadOperation::writeFiles()
         QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
         return true;
     }
+
+
+    device()->setMessage(tr("Writing new files..."));
 
     int i = m_write.size();
 
