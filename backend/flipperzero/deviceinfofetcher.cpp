@@ -162,6 +162,12 @@ void VCPDeviceInfoFetcher::parseLine(const QByteArray &line)
         m_deviceInfo.target = QStringLiteral("f") + value;
     } else if(line.startsWith(QByteArrayLiteral("firmware_version"))) {
         m_deviceInfo.firmware.version = value;
+    } else if(line.startsWith(QByteArrayLiteral("firmware_commit"))) {
+        m_deviceInfo.firmware.commit = value;
+    } else if(line.startsWith(QByteArrayLiteral("firmware_branch"))) {
+        m_deviceInfo.firmware.branch = value;
+    } else if(line.startsWith(QByteArrayLiteral("firmware_build_date"))) {
+        m_deviceInfo.firmware.date = QDateTime::fromString(value, QStringLiteral("dd-MM-yyyy"));
     } else {}
 }
 

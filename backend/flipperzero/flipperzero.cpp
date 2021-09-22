@@ -136,7 +136,11 @@ const QString &FlipperZero::target() const
 
 const QString &FlipperZero::version() const
 {
-    return m_deviceInfo.firmware.version;
+    if(m_deviceInfo.firmware.branch == QStringLiteral("dev")) {
+        return m_deviceInfo.firmware.commit;
+    } else {
+        return m_deviceInfo.firmware.version;
+    }
 }
 
 const QString &FlipperZero::messageString() const
