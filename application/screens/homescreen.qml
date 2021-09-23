@@ -80,6 +80,29 @@ Item {
         }
     }
 
+    FileDialog {
+        id: dirDialog
+        title: qsTr("Please choose a directory")
+        folder: shortcuts.home
+        selectFolder: true
+
+        function openWithConfirmation(onAcceptedFunc, messageObj = {}) {
+            const onDialogRejected = function() {
+                dirDialog.rejected.disconnect(onDialogRejected);
+                dirDialog.accepted.disconnect(onDialogAccepted);
+            }
+
+            const onDialogAccepted = function() {
+                onDialogRejected();
+                confirmationDialog.openWithMessage(onAcceptedFunc, messageObj)
+            }
+
+            dirDialog.accepted.connect(onDialogAccepted);
+            dirDialog.rejected.connect(onDialogRejected);
+            dirDialog.open();
+        }
+    }
+
     ListView {
         id: deviceList
         model: deviceRegistry
@@ -124,6 +147,28 @@ Item {
 
                 fileDialog.openWithConfirmation(["Firmware files (*.dfu)", "All files (*)"], function() {
                     downloader.downloadLocalFile(device, fileDialog.fileUrl);
+                }, messageObj);
+            }
+
+            onBackupRequested: {
+                const messageObj = {
+                    title : qsTr("Backup user data?"),
+                    subtitle : qsTr("This will backup the contents of internal storage.")
+                };
+
+                dirDialog.openWithConfirmation(function() {
+                    downloader.backupUserData(device, dirDialog.fileUrl);
+                }, messageObj);
+            }
+
+            onRestoreRequested: {
+                const messageObj = {
+                    title : qsTr("Restore user data?"),
+                    subtitle : qsTr("This will restore the contents of internal storage.")
+                };
+
+                dirDialog.openWithConfirmation(function() {
+                    downloader.restoreUserData(device, dirDialog.fileUrl);
                 }, messageObj);
             }
 

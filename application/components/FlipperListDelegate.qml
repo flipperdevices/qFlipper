@@ -14,6 +14,9 @@ Item {
     signal versionListRequested(var device)
     signal screenStreamRequested(var device)
 
+    signal backupRequested(var device)
+    signal restoreRequested(var device)
+
     id: item
     width: parent.width
     height: 85
@@ -182,6 +185,20 @@ Item {
         }
 
         MenuSeparator {}
+
+        Menu {
+            title: qsTr("Backup && Restore")
+
+            MenuItem {
+                text: qsTr("Backup User Data...")
+                onTriggered: backupRequested(device)
+            }
+
+            MenuItem {
+                text: qsTr("Restore User Data...")
+                onTriggered: restoreRequested(device)
+            }
+        }
 
         Menu {
             title: qsTr("Expert options")

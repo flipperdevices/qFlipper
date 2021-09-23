@@ -25,9 +25,12 @@ SOURCES += \
     flipperzero/operations/fixbootissuesoperation.cpp \
     flipperzero/operations/fixoptionbytesoperation.cpp \
     flipperzero/operations/flipperzerooperation.cpp \
+    flipperzero/operations/getfiletreeoperation.cpp \
+    flipperzero/operations/userbackupoperation.cpp \
     flipperzero/operations/wirelessstackdownloadoperation.cpp \
     flipperzero/recoverycontroller.cpp \
     flipperzero/remotecontroller.cpp \
+    flipperzero/storage/listoperation.cpp \
     flipperzero/storage/mkdiroperation.cpp \
     flipperzero/storage/readoperation.cpp \
     flipperzero/storage/removeoperation.cpp \
@@ -47,6 +50,7 @@ HEADERS += \
     abstractserialoperation.h \
     deviceregistry.h \
     failable.h \
+    fileinfo.h \
     filenode.h \
     firmwaredownloader.h \
     flipperupdates.h \
@@ -61,9 +65,12 @@ HEADERS += \
     flipperzero/operations/fixbootissuesoperation.h \
     flipperzero/operations/fixoptionbytesoperation.h \
     flipperzero/operations/flipperzerooperation.h \
+    flipperzero/operations/getfiletreeoperation.h \
+    flipperzero/operations/userbackupoperation.h \
     flipperzero/operations/wirelessstackdownloadoperation.h \
     flipperzero/recoverycontroller.h \
     flipperzero/remotecontroller.h \
+    flipperzero/storage/listoperation.h \
     flipperzero/storage/mkdiroperation.h \
     flipperzero/storage/readoperation.h \
     flipperzero/storage/removeoperation.h \

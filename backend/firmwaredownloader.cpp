@@ -11,6 +11,7 @@
 #include "flipperzero/operations/fixoptionbytesoperation.h"
 #include "flipperzero/operations/assetsdownloadoperation.h"
 #include "flipperzero/operations/fixbootissuesoperation.h"
+#include "flipperzero/operations/userbackupoperation.h"
 
 #include "remotefilefetcher.h"
 #include "macros.h"
@@ -88,6 +89,16 @@ void FirmwareDownloader::downloadAssets(FlipperZero *device, const QString &file
     auto *file = new QFile(localUrl, this);
 
     enqueueOperation(new Flipper::Zero::AssetsDownloadOperation(device, file, this));
+}
+
+void FirmwareDownloader::backupUserData(FlipperZero *device, const QString &backupPath)
+{
+    enqueueOperation(new Flipper::Zero::UserBackupOperation(device, backupPath, this));
+}
+
+void FirmwareDownloader::restoreUserData(FlipperZero *device, const QString &backupPath)
+{
+    qDebug() << device->name() << "<<<-" << backupPath;
 }
 
 void FirmwareDownloader::processQueue()
