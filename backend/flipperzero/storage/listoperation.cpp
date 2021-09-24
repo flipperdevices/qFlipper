@@ -32,7 +32,7 @@ QByteArray ListOperation::endOfMessageToken() const
 
 QByteArray ListOperation::commandLine() const
 {
-    return QByteArrayLiteral("storage list ") + m_dirName + QByteArrayLiteral("\r\n");
+    return QByteArrayLiteral("storage list \"") + m_dirName + QByteArrayLiteral("\"\r\n");
 }
 
 bool ListOperation::parseReceivedData()
@@ -63,6 +63,7 @@ void ListOperation::parseDirectory(const QByteArray &line)
 {
     FileInfo info;
     info.name = line.mid(DIRECTORY_PREFIX.size() + 1);
+    info.absolutePath = m_dirName + QByteArrayLiteral("/") + info.name;
     info.type = FileType::Directory;
     info.size = 0;
 
@@ -75,7 +76,8 @@ void ListOperation::parseFile(const QByteArray &line)
     const auto nameIdx = FILE_PREFIX.size() + 1;
 
     FileInfo info;
-    info.name = line.mid(nameIdx, sizeIdx - nameIdx);
+    info.name = line.mid(nameIdx, sizeIdx - nameIdx - 1);
+    info.absolutePath = m_dirName + QByteArrayLiteral("/") + info.name;
     info.type = FileType::RegularFile;
     info.size = line.mid(sizeIdx, line.size() - sizeIdx - 1).toLongLong(nullptr, 10);
 

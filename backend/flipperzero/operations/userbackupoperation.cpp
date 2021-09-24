@@ -19,12 +19,18 @@ const QString UserBackupOperation::description() const
 
 void UserBackupOperation::transitionToNextState()
 {
-    info_msg("Hello there!");
 
     auto *op = new GetFileTreeOperation(device(), "/ext", this);
 
     connect(op, &AbstractOperation::finished, this, [=]() {
-        info_msg("General Kenobi!");
+        if(op->isError()) {
+            finishWithError(op->errorString());
+        } else {
+            for(const auto &fileInfo: qAsConst(op->result())) {
+                qDebug() << "Path:" << fileInfo.absolutePath << "Type:" << (int)fileInfo.type << "Size:" << fileInfo.size;
+            }
+        }
+
         op->deleteLater();
     });
 

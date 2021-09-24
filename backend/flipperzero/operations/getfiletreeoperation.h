@@ -10,15 +10,12 @@ class QSerialPort;
 namespace Flipper {
 namespace Zero {
 
-class ListOperation;
-
 class GetFileTreeOperation : public Operation
 {
     Q_OBJECT
 
     enum State {
-        PreparingNextOperation = BasicState::User,
-        RunningOperation
+        Running = BasicState::User
     };
 
 public:
@@ -32,9 +29,12 @@ private slots:
     void transitionToNextState() override;
 
 private:
+    void listDirectory(const QByteArray &path);
+
     QByteArray m_rootPath;
     QByteArray m_currentPath;
     FileInfoList m_result;
+    int m_pendingCount;
 };
 
 }

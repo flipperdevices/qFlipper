@@ -13,7 +13,8 @@ using namespace Zero;
 
 GetFileTreeOperation::GetFileTreeOperation(FlipperZero *device, const QByteArray &rootPath, QObject *parent):
     Operation(device, parent),
-    m_rootPath(rootPath)
+    m_rootPath(rootPath),
+    m_pendingCount(0)
 {}
 
 const QString GetFileTreeOperation::description() const
@@ -29,17 +30,11 @@ const GetFileTreeOperation::FileInfoList &GetFileTreeOperation::result() const
 void GetFileTreeOperation::transitionToNextState()
 {
     if(state() == BasicState::Ready) {
-        m_currentPath = m_rootPath;
-        setState(State::PreparingNextOperation);
-        QTimer::singleShot(0, this, &GetFileTreeOperation::transitionToNextState);
+        setState(State::Running);
+        listDirectory(m_rootPath);
 
-    } else if(state() == State::PreparingNextOperation) {
-        setState(State::RunningOperation);
-
-        auto *op = device()->storage()->list(m_currentPath);
-        connect(op, &AbstractOperation::finished, this, &GetFileTreeOperation::transitionToNextState);
-
-    } else if(state() == State::RunningOperation) {
+    } else if(state() == State::Running) {
+        --m_pendingCount;
         auto *op = qobject_cast<ListOperation*>(sender());
 
         if(op->isError()) {
@@ -48,9 +43,24 @@ void GetFileTreeOperation::transitionToNextState()
         }
 
         for(const auto &fileInfo : qAsConst(op->result())) {
-            qDebug() << "Name:" << fileInfo.name << "Type:" << (int)fileInfo.type << "Size:" << fileInfo.size;
+            if(fileInfo.type == FileType::Directory) {
+                listDirectory(fileInfo.absolutePath);
+            }
+
+            m_result.push_back(fileInfo);
         }
 
-        finishWithError("Just a drill");
+        op->deleteLater();
+
+        if(!m_pendingCount) {
+            finish();
+        }
     }
+}
+
+void GetFileTreeOperation::listDirectory(const QByteArray &path)
+{
+    ++m_pendingCount;
+    auto *op = device()->storage()->list(path);
+    connect(op, &AbstractOperation::finished, this, &GetFileTreeOperation::transitionToNextState);
 }
