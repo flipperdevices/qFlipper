@@ -1,7 +1,9 @@
 #pragma once
 
+#include <QDir>
 #include <QObject>
 
+#include "fileinfo.h"
 #include "flipperzerooperation.h"
 
 namespace Flipper {
@@ -15,19 +17,25 @@ class UserBackupOperation : public Operation
     Q_OBJECT
 
     enum State {
-
+        CreatingDirectory = BasicState::User,
+        GettingFileTree,
+        ReadingFiles
     };
 
 public:
-    UserBackupOperation(FlipperZero *device, const QString &path, QObject *parent = nullptr);
+    UserBackupOperation(FlipperZero *device, const QString &backupPath, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:
     void transitionToNextState() override;
-    void onOperationTimeout() override;
 
 private:
-    QString m_backupPath;
+    bool createBackupDirectory();
+    bool readFiles();
+
+    QDir m_backupDir;
+    QByteArray m_deviceDirName;
+    FileInfoList m_fileList;
 };
 
 }

@@ -22,7 +22,7 @@ const QString GetFileTreeOperation::description() const
     return QStringLiteral("Get File Tree @%1").arg(QString(m_rootPath));
 }
 
-const GetFileTreeOperation::FileInfoList &GetFileTreeOperation::result() const
+const FileInfoList &GetFileTreeOperation::result() const
 {
     return m_result;
 }

@@ -3,8 +3,6 @@
 #include "flipperzerooperation.h"
 #include "fileinfo.h"
 
-#include <QList>
-
 class QSerialPort;
 
 namespace Flipper {
@@ -19,8 +17,6 @@ class GetFileTreeOperation : public Operation
     };
 
 public:
-    using FileInfoList = QList<FileInfo>;
-
     GetFileTreeOperation(FlipperZero *device, const QByteArray &rootPath, QObject *parent = nullptr);
     const QString description() const override;
     const FileInfoList &result() const;

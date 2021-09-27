@@ -14,8 +14,6 @@ class ListOperation : public SimpleSerialOperation
     Q_OBJECT
 
 public:
-    using FileInfoList = QList<FileInfo>;
-
     ListOperation(QSerialPort *serialPort, const QByteArray &dirName, QObject *parent = nullptr);
     const QString description() const override;
     const FileInfoList &result() const;

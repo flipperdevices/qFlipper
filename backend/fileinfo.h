@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QList>
 #include <QByteArray>
 
 enum class FileType {
@@ -15,3 +16,5 @@ struct FileInfo {
     FileType type;
     qint64 size;
 };
+
+using FileInfoList = QList<FileInfo>;

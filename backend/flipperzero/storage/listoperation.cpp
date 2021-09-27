@@ -20,7 +20,7 @@ const QString ListOperation::description() const
     return QStringLiteral("List @%1").arg(QString(m_dirName));
 }
 
-const ListOperation::FileInfoList &ListOperation::result() const
+const FileInfoList &ListOperation::result() const
 {
     return m_result;
 }
