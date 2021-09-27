@@ -27,6 +27,7 @@ SOURCES += \
     flipperzero/operations/flipperzerooperation.cpp \
     flipperzero/operations/getfiletreeoperation.cpp \
     flipperzero/operations/userbackupoperation.cpp \
+    flipperzero/operations/userrestoreoperation.cpp \
     flipperzero/operations/wirelessstackdownloadoperation.cpp \
     flipperzero/recoverycontroller.cpp \
     flipperzero/remotecontroller.cpp \
@@ -67,6 +68,7 @@ HEADERS += \
     flipperzero/operations/flipperzerooperation.h \
     flipperzero/operations/getfiletreeoperation.h \
     flipperzero/operations/userbackupoperation.h \
+    flipperzero/operations/userrestoreoperation.h \
     flipperzero/operations/wirelessstackdownloadoperation.h \
     flipperzero/recoverycontroller.h \
     flipperzero/remotecontroller.h \

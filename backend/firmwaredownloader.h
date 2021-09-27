@@ -5,9 +5,9 @@
 #include <QQueue>
 
 #include "flipperupdates.h"
-#include "abstractoperation.h"
 
 class QIODevice;
+class AbstractOperation;
 
 namespace Flipper {
 

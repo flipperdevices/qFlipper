@@ -4,10 +4,9 @@
 #include <QFile>
 #include <QTimer>
 
-#include "flipperzero/storage/readoperation.h"
-
-#include "flipperzero/storagecontroller.h"
 #include "flipperzero/flipperzero.h"
+#include "flipperzero/storagecontroller.h"
+#include "flipperzero/storage/readoperation.h"
 
 #include "getfiletreeoperation.h"
 #include "macros.h"

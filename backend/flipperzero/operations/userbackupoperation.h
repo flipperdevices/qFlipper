@@ -1,15 +1,12 @@
 #pragma once
 
-#include <QDir>
-#include <QObject>
-
-#include "fileinfo.h"
 #include "flipperzerooperation.h"
 
+#include <QDir>
+
+#include "fileinfo.h"
+
 namespace Flipper {
-
-class FlipperZero;
-
 namespace Zero {
 
 class UserBackupOperation : public Operation
