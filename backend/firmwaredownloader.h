@@ -5,9 +5,9 @@
 #include <QQueue>
 
 #include "flipperupdates.h"
-#include "abstractoperation.h"
 
 class QIODevice;
+class AbstractOperation;
 
 namespace Flipper {
 
@@ -35,6 +35,9 @@ public slots:
     void fixOptionBytes(Flipper::FlipperZero *device, const QString &filePath);
 
     void downloadAssets(Flipper::FlipperZero *device, const QString &filePath);
+
+    void backupUserData(Flipper::FlipperZero *device, const QString &backupPath);
+    void restoreUserData(Flipper::FlipperZero *device, const QString &backupPath);
 
 private slots:
     void processQueue();

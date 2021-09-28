@@ -50,7 +50,7 @@ QByteArray StatOperation::endOfMessageToken() const
 
 QByteArray StatOperation::commandLine() const
 {
-    return QByteArrayLiteral("storage stat ") + m_fileName + QByteArrayLiteral("\r\n");
+    return QByteArrayLiteral("storage stat \"") + m_fileName + QByteArrayLiteral("\"\r\n");
 }
 
 bool StatOperation::parseReceivedData()

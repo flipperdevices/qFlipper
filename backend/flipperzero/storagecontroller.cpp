@@ -9,6 +9,7 @@
 #include "storage/writeoperation.h"
 #include "storage/readoperation.h"
 #include "storage/statoperation.h"
+#include "storage/listoperation.h"
 
 #include "macros.h"
 
@@ -23,6 +24,14 @@ StorageController::StorageController(const QSerialPortInfo &portInfo, QObject *p
 
 StorageController::~StorageController()
 {}
+
+ListOperation *StorageController::list(const QByteArray &dirName)
+{
+    auto *op = new ListOperation(m_serialPort, dirName, this);
+    enqueueOperation(op);
+    return op;
+
+}
 
 StatOperation *StorageController::stat(const QByteArray &fileName)
 {

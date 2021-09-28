@@ -1,0 +1,149 @@
+#include "userrestoreoperation.h"
+
+#include <QUrl>
+#include <QFile>
+#include <QTimer>
+#include <QDirIterator>
+
+#include "flipperzero/flipperzero.h"
+#include "flipperzero/storagecontroller.h"
+#include "flipperzero/storage/mkdiroperation.h"
+#include "flipperzero/storage/writeoperation.h"
+#include "flipperzero/storage/removeoperation.h"
+
+#include "macros.h"
+
+using namespace Flipper;
+using namespace Zero;
+
+UserRestoreOperation::UserRestoreOperation(FlipperZero *device, const QString &backupPath, QObject *parent):
+    Operation(device, parent),
+    m_backupDir(QUrl(backupPath).toLocalFile()),
+    m_deviceDirName(QByteArrayLiteral("/int"))
+{
+    m_backupDir.setFilter(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+    m_backupDir.setSorting(QDir::Name | QDir::DirsFirst);
+}
+
+const QString UserRestoreOperation::description() const
+{
+    return QStringLiteral("Restore user data @%1 %2").arg(device()->model(), device()->name());
+}
+
+void UserRestoreOperation::transitionToNextState()
+{
+    if(state() == BasicState::Ready) {
+        setState(State::ReadingBackupDir);
+        if(!readBackupDir()) {
+            finishWithError(QStringLiteral("Failed to process backup directory"));
+        } else {
+            QTimer::singleShot(0, this, &UserRestoreOperation::transitionToNextState);
+        }
+
+    } else if(state() == State::ReadingBackupDir) {
+        setState(State::DeletingFiles);
+        if(!deleteFiles()) {
+            finishWithError(QStringLiteral("Failed to delete old files"));
+        }
+
+    } else if(state() == State::DeletingFiles) {
+        setState(State::WritingFiles);
+        if(!writeFiles()) {
+            finishWithError(QStringLiteral("Failed to write new files"));
+        }
+
+    } else if(state() == State::WritingFiles) {
+        finish();
+    } else {}
+}
+
+bool UserRestoreOperation::readBackupDir()
+{
+    const auto subdir = device()->name() + m_deviceDirName;
+
+    check_return_bool(m_backupDir.exists(subdir), "Requested directory not found");
+    check_return_bool(m_backupDir.cd(subdir), "Access denied");
+
+    QDirIterator it(m_backupDir, QDirIterator::Subdirectories);
+
+    while(it.hasNext()) {
+        it.next();
+        m_files.append(it.fileInfo());
+    }
+
+    check_return_bool(!m_files.isEmpty(), "Backup directory is empty.");
+    return true;
+}
+
+bool UserRestoreOperation::deleteFiles()
+{
+    device()->setMessage(QStringLiteral("Cleaning up..."));
+
+    auto numFiles = m_files.size();
+    for(auto it = m_files.crbegin(); it != m_files.crend(); ++it) {
+        check_return_bool(it->isFile() || it->isDir(), "Expected a file or directory");
+
+        const auto filePath = m_deviceDirName + QByteArrayLiteral("/") + m_backupDir.relativeFilePath(it->absoluteFilePath()).toLocal8Bit();
+        const auto isLastFile = (--numFiles == 0);
+
+        auto *op = device()->storage()->remove(filePath);
+        connect(op, &AbstractOperation::finished, this, [=](){
+            if(op->isError()) {
+                finishWithError(op->errorString());
+            } else if(isLastFile) {
+                QTimer::singleShot(0, this, &UserRestoreOperation::transitionToNextState);
+            }
+
+            op->deleteLater();
+        });
+    }
+
+    return true;
+}
+
+bool UserRestoreOperation::writeFiles()
+{
+    device()->setMessage(QStringLiteral("Restoring backup..."));
+
+    auto numFiles = m_files.size();
+
+    for(const auto &fileInfo: qAsConst(m_files)) {
+        const auto filePath = m_deviceDirName + QByteArrayLiteral("/") + m_backupDir.relativeFilePath(fileInfo.absoluteFilePath()).toLocal8Bit();
+        const auto isLastFile = (--numFiles == 0);
+
+        AbstractOperation *op;
+
+        if(fileInfo.isFile()) {
+            auto *file = new QFile(fileInfo.absoluteFilePath(), this);
+
+            if(!file->open(QIODevice::ReadOnly)) {
+                file->deleteLater();
+                error_msg(QStringLiteral("Failed to open file for reading: %1.").arg(file->errorString()));
+                return false;
+            }
+
+            op = device()->storage()->write(filePath, file);
+            connect(op, &AbstractOperation::finished, this, [=]() {
+                file->close();
+                file->deleteLater();
+            });
+
+        } else if(fileInfo.isDir()) {
+            op = device()->storage()->mkdir(filePath);
+        } else {
+            return false;
+        }
+
+        connect(op, &AbstractOperation::finished, this, [=]() {
+            if(op->isError()) {
+                finishWithError(op->errorString());
+            } else if(isLastFile) {
+                QTimer::singleShot(0, this, &UserRestoreOperation::transitionToNextState);
+            }
+
+            op->deleteLater();
+        });
+    }
+
+    return true;
+}

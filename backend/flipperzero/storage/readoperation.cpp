@@ -62,7 +62,7 @@ void ReadOperation::onSerialPortReadyRead()
 
 bool ReadOperation::begin()
 {
-    const auto cmdLine = QByteArrayLiteral("storage read_chunks ") + m_fileName + QByteArrayLiteral(" ") +
+    const auto cmdLine = QByteArrayLiteral("storage read_chunks \"") + m_fileName + QByteArrayLiteral("\" ") +
                          QByteArray::number(CHUNK_SIZE, 10) + QByteArrayLiteral("\r");
     const auto success = (serialPort()->write(cmdLine) == cmdLine.size()) && serialPort()->flush();
 

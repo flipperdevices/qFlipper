@@ -6,11 +6,13 @@
 #include <QBuffer>
 
 #include "flipperzero/flipperzero.h"
-#include "flipperzero/operations/wirelessstackdownloadoperation.h"
-#include "flipperzero/operations/firmwaredownloadoperation.h"
-#include "flipperzero/operations/fixoptionbytesoperation.h"
-#include "flipperzero/operations/assetsdownloadoperation.h"
+#include "flipperzero/operations/userbackupoperation.h"
+#include "flipperzero/operations/userrestoreoperation.h"
 #include "flipperzero/operations/fixbootissuesoperation.h"
+#include "flipperzero/operations/assetsdownloadoperation.h"
+#include "flipperzero/operations/fixoptionbytesoperation.h"
+#include "flipperzero/operations/firmwaredownloadoperation.h"
+#include "flipperzero/operations/wirelessstackdownloadoperation.h"
 
 #include "remotefilefetcher.h"
 #include "macros.h"
@@ -90,6 +92,16 @@ void FirmwareDownloader::downloadAssets(FlipperZero *device, const QString &file
     enqueueOperation(new Flipper::Zero::AssetsDownloadOperation(device, file, this));
 }
 
+void FirmwareDownloader::backupUserData(FlipperZero *device, const QString &backupPath)
+{
+    enqueueOperation(new Flipper::Zero::UserBackupOperation(device, backupPath, this));
+}
+
+void FirmwareDownloader::restoreUserData(FlipperZero *device, const QString &backupPath)
+{
+    enqueueOperation(new Flipper::Zero::UserRestoreOperation(device, backupPath, this));
+}
+
 void FirmwareDownloader::processQueue()
 {
     if(m_operationQueue.isEmpty()) {
@@ -102,7 +114,8 @@ void FirmwareDownloader::processQueue()
     connect(currentOperation, &AbstractOperation::finished, this, [=]() {
         info_msg(QStringLiteral("Operation '%1' finished with status: %2.").arg(currentOperation->description(), currentOperation->errorString()));
         currentOperation->deleteLater();
-        processQueue();
+
+        QTimer::singleShot(0, this, &FirmwareDownloader::processQueue);
     });
 
     currentOperation->start();

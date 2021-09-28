@@ -22,7 +22,7 @@ QByteArray RemoveOperation::endOfMessageToken() const
 
 QByteArray RemoveOperation::commandLine() const
 {
-    return QByteArrayLiteral("storage remove ") + m_fileName + QByteArrayLiteral("\r\n");
+    return QByteArrayLiteral("storage remove \"") + m_fileName + QByteArrayLiteral("\"\r\n");
 }
 
 bool RemoveOperation::parseReceivedData()

@@ -77,7 +77,7 @@ bool WriteOperation::writeSetupCommand()
 {
     const auto bytesAvailable = m_file->bytesAvailable();
     m_chunkSize = bytesAvailable < CHUNK_SIZE ? bytesAvailable : CHUNK_SIZE;
-    const auto cmdLine = QByteArrayLiteral("storage write_chunk ") + m_fileName + QByteArrayLiteral(" ") +
+    const auto cmdLine = QByteArrayLiteral("storage write_chunk \"") + m_fileName + QByteArrayLiteral("\" ") +
                          QByteArray::number(m_chunkSize) + QByteArrayLiteral("\r");
 
     const auto success = (serialPort()->write(cmdLine) == cmdLine.size()) && serialPort()->flush();

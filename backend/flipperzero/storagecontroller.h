@@ -13,6 +13,7 @@ class AbstractSerialOperation;
 namespace Flipper {
 namespace Zero {
 
+class ListOperation;
 class StatOperation;
 class ReadOperation;
 class MkDirOperation;
@@ -34,6 +35,7 @@ public:
     StorageController(const QSerialPortInfo &portInfo, QObject *parent = nullptr);
     ~StorageController();
 
+    ListOperation *list(const QByteArray &dirName);
     StatOperation *stat(const QByteArray &fileName);
     ReadOperation *read(const QByteArray &fileName, QIODevice *file);
     MkDirOperation *mkdir(const QByteArray &dirName);

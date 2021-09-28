@@ -21,7 +21,7 @@ QByteArray MkDirOperation::endOfMessageToken() const
 
 QByteArray MkDirOperation::commandLine() const
 {
-    return QByteArrayLiteral("storage mkdir ") + m_dirName + QByteArrayLiteral("\r\n");
+    return QByteArrayLiteral("storage mkdir \"") + m_dirName + QByteArrayLiteral("\"\r\n");
 }
 
 bool MkDirOperation::parseReceivedData()

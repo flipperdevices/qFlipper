@@ -305,16 +305,18 @@ bool AssetsDownloadOperation::deleteFiles()
 
     device()->setMessage(tr("Deleting unneeded files..."));
 
-    int i = m_delete.size();
+    int numFiles = m_delete.size();
 
     for(const auto &fileInfo : qAsConst(m_delete)) {
-        --i;
+        const auto isLastFile = (--numFiles == 0);
         const auto fileName = QByteArrayLiteral("/ext/") + fileInfo.absolutePath.toLocal8Bit();
+
         auto *op = device()->storage()->remove(fileName);
+
         connect(op, &AbstractOperation::finished, this, [=]() {
             if(op->isError()) {
                 finishWithError(op->errorString());
-            } else if(i == 0) {
+            } else if(isLastFile) {
                 QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
             }
         });
