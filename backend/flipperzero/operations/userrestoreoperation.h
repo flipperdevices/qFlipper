@@ -3,8 +3,7 @@
 #include "flipperzerooperation.h"
 
 #include <QDir>
-
-//#include "fileinfo.h"
+#include <QFileInfoList>
 
 namespace Flipper {
 namespace Zero {
@@ -12,6 +11,12 @@ namespace Zero {
 class UserRestoreOperation : public Operation
 {
     Q_OBJECT
+
+    enum State {
+        ReadingBackupDir = BasicState::User,
+        DeletingFiles,
+        WritingFiles
+    };
 
 public:
     UserRestoreOperation(FlipperZero *device, const QString &backupPath, QObject *parent = nullptr);
@@ -23,6 +28,11 @@ private slots:
 private:
     QDir m_backupDir;
     QByteArray m_deviceDirName;
+    QFileInfoList m_files;
+
+    bool readBackupDir();
+    bool deleteFiles();
+    bool writeFiles();
 };
 
 }
