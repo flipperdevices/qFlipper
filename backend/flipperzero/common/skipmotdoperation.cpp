@@ -16,7 +16,7 @@ const QString SkipMOTDOperation::description() const
 
 QByteArray SkipMOTDOperation::endOfMessageToken() const
 {
-    return QByteArrayLiteral("\r\n>: ");
+    return QByteArrayLiteral("\r\n\r\n>: ");
 }
 
 uint32_t SkipMOTDOperation::flags() const

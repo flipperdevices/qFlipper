@@ -20,6 +20,7 @@ class FlipperZero : public QObject
     Q_PROPERTY(QString model READ model CONSTANT)
     Q_PROPERTY(QString target READ target NOTIFY deviceInfoChanged)
     Q_PROPERTY(QString version READ version NOTIFY deviceInfoChanged)
+
     Q_PROPERTY(QString messageString READ messageString NOTIFY messageChanged)
     Q_PROPERTY(QString errorString READ errorString NOTIFY isErrorChanged)
 
@@ -67,9 +68,6 @@ public:
     Flipper::Zero::RecoveryController *recovery() const;
     Flipper::Zero::StorageController *storage() const;
 
-    void setName(const QString &name);
-    void setTarget(const QString &target);
-    void setVersion(const QString &version);
     void setMessage(const QString &message);
     void setProgress(double progress);
 

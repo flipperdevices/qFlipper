@@ -183,36 +183,6 @@ StorageController *FlipperZero::storage() const
     return m_storage;
 }
 
-void FlipperZero::setName(const QString &name)
-{
-    if(m_deviceInfo.name == name) {
-        return;
-    }
-
-    m_deviceInfo.name = name;
-    emit deviceInfoChanged();
-}
-
-void FlipperZero::setTarget(const QString &target)
-{
-    if(m_deviceInfo.target == target) {
-        return;
-    }
-
-    m_deviceInfo.target = target;
-    emit deviceInfoChanged();
-}
-
-void FlipperZero::setVersion(const QString &version)
-{
-    if(m_deviceInfo.firmware.version == version) {
-        return;
-    }
-
-    m_deviceInfo.firmware.version = version;
-    emit deviceInfoChanged();
-}
-
 void FlipperZero::setMessage(const QString &message)
 {
     info_msg(message);
