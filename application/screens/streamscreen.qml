@@ -17,7 +17,7 @@ Item {
 
     function close() {
         screen.homeRequested();
-        device.remote.enabled = false;
+        device.screen.enabled = false;
     }
 
     function onDeviceIsOnlineChanged() {
@@ -52,10 +52,10 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            canvasWidth: device.remote.screenWidth
-            canvasHeight: device.remote.screenHeight
+            canvasWidth: device.screen.screenWidth
+            canvasHeight: device.screen.screenHeight
 
-            data: device.remote.screenData
+            data: device.screen.screenData
         }
 
         StyledKeypad {
@@ -63,7 +63,7 @@ Item {
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
 
             onInputEvent: {
-                device.remote.sendInputEvent(key, type);
+                device.screen.sendInputEvent(key, type);
             }
         }
 
@@ -147,7 +147,7 @@ Item {
 
     Component.onCompleted: {
         keypad.forceActiveFocus();
-        device.remote.enabled = true;
+        device.screen.enabled = true;
         device.isOnlineChanged.connect(screen.onDeviceIsOnlineChanged);
     }
 }

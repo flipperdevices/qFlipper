@@ -1,14 +1,11 @@
 #pragma once
 
-#include "flipperzerooperation.h"
+#include "flipperzero/flipperzerooperation.h"
 
 namespace Flipper {
-
-class FlipperZero;
-
 namespace Zero {
 
-class FixBootIssuesOperation : public Operation
+class FixBootIssuesOperation : public FlipperZeroOperation
 {
     Q_OBJECT
 

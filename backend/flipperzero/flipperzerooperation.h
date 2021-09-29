@@ -8,13 +8,13 @@ class FlipperZero;
 
 namespace Zero {
 
-class Operation : public AbstractOperation
+class FlipperZeroOperation : public AbstractOperation
 {
     Q_OBJECT
 
 public:
-    Operation(FlipperZero *device, QObject *parent = nullptr);
-    virtual ~Operation();
+    FlipperZeroOperation(FlipperZero *device, QObject *parent = nullptr);
+    virtual ~FlipperZeroOperation();
 
     FlipperZero *device() const;
 

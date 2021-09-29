@@ -4,13 +4,13 @@
 #include <QtConcurrent/QtConcurrentRun>
 
 #include "flipperzero/flipperzero.h"
-#include "flipperzero/recoverycontroller.h"
+#include "flipperzero/recoveryinterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
 FirmwareDownloadOperation::FirmwareDownloadOperation(FlipperZero *device, QIODevice *file, QObject *parent):
-    Operation(device, parent),
+    FlipperZeroOperation(device, parent),
     m_file(file)
 {
     device->setMessage(QStringLiteral("Firmware download pending..."));
@@ -99,7 +99,7 @@ void FirmwareDownloadOperation::downloadFirmware()
         watcher->deleteLater();
     });
 
-    watcher->setFuture(QtConcurrent::run(device()->recovery(), &RecoveryController::downloadFirmware, m_file));
+    watcher->setFuture(QtConcurrent::run(device()->recovery(), &RecoveryInterface::downloadFirmware, m_file));
 }
 
 void FirmwareDownloadOperation::bootToFirmware()

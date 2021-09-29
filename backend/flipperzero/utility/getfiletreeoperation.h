@@ -1,6 +1,6 @@
 #pragma once
 
-#include "flipperzerooperation.h"
+#include "flipperzero/flipperzerooperation.h"
 #include "fileinfo.h"
 
 class QSerialPort;
@@ -8,7 +8,7 @@ class QSerialPort;
 namespace Flipper {
 namespace Zero {
 
-class GetFileTreeOperation : public Operation
+class GetFileTreeOperation : public FlipperZeroOperation
 {
     Q_OBJECT
 

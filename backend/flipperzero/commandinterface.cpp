@@ -1,31 +1,31 @@
-#include "storagecontroller.h"
+#include "commandinterface.h"
 
 #include <QTimer>
 #include <QSerialPort>
 
-#include "common/skipmotdoperation.h"
-#include "storage/removeoperation.h"
-#include "storage/mkdiroperation.h"
-#include "storage/writeoperation.h"
-#include "storage/readoperation.h"
-#include "storage/statoperation.h"
-#include "storage/listoperation.h"
+#include "cli/skipmotdoperation.h"
+#include "cli/removeoperation.h"
+#include "cli/mkdiroperation.h"
+#include "cli/writeoperation.h"
+#include "cli/readoperation.h"
+#include "cli/statoperation.h"
+#include "cli/listoperation.h"
 
 #include "macros.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-StorageController::StorageController(const QSerialPortInfo &portInfo, QObject *parent):
+CommandInterface::CommandInterface(const QSerialPortInfo &portInfo, QObject *parent):
     SignalingFailable(parent),
     m_serialPort(new QSerialPort(portInfo, this)),
     m_state(State::Idle)
 {}
 
-StorageController::~StorageController()
+CommandInterface::~CommandInterface()
 {}
 
-ListOperation *StorageController::list(const QByteArray &dirName)
+ListOperation *CommandInterface::list(const QByteArray &dirName)
 {
     auto *op = new ListOperation(m_serialPort, dirName, this);
     enqueueOperation(op);
@@ -33,42 +33,42 @@ ListOperation *StorageController::list(const QByteArray &dirName)
 
 }
 
-StatOperation *StorageController::stat(const QByteArray &fileName)
+StatOperation *CommandInterface::stat(const QByteArray &fileName)
 {
     auto *op = new StatOperation(m_serialPort, fileName, this);
     enqueueOperation(op);
     return op;
 }
 
-ReadOperation *StorageController::read(const QByteArray &fileName, QIODevice *file)
+ReadOperation *CommandInterface::read(const QByteArray &fileName, QIODevice *file)
 {
     auto *op = new ReadOperation(m_serialPort, fileName, file, this);
     enqueueOperation(op);
     return op;
 }
 
-MkDirOperation *StorageController::mkdir(const QByteArray &dirName)
+MkDirOperation *CommandInterface::mkdir(const QByteArray &dirName)
 {
     auto *op = new MkDirOperation(m_serialPort, dirName, this);
     enqueueOperation(op);
     return op;
 }
 
-WriteOperation *StorageController::write(const QByteArray &fileName, QIODevice *file)
+WriteOperation *CommandInterface::write(const QByteArray &fileName, QIODevice *file)
 {
     auto *op = new WriteOperation(m_serialPort, fileName, file, this);
     enqueueOperation(op);
     return op;
 }
 
-RemoveOperation *StorageController::remove(const QByteArray &fileName)
+RemoveOperation *CommandInterface::remove(const QByteArray &fileName)
 {
     auto *op = new RemoveOperation(m_serialPort, fileName, this);
     enqueueOperation(op);
     return op;
 }
 
-void StorageController::processQueue()
+void CommandInterface::processQueue()
 {
     if(m_operationQueue.isEmpty()) {
         closePort();
@@ -94,7 +94,7 @@ void StorageController::processQueue()
     currentOperation->start();
 }
 
-bool StorageController::openPort()
+bool CommandInterface::openPort()
 {
     if(!m_serialPort->open(QIODevice::ReadWrite)) {
         setError(QStringLiteral("Serial port error: %1").arg(m_serialPort->errorString()));
@@ -107,13 +107,13 @@ bool StorageController::openPort()
     return true;
 }
 
-void StorageController::closePort()
+void CommandInterface::closePort()
 {
     m_state = State::Idle;
     m_serialPort->close();
 }
 
-void StorageController::enqueueOperation(AbstractSerialOperation *op)
+void CommandInterface::enqueueOperation(AbstractSerialOperation *op)
 {
     m_operationQueue.enqueue(op);
 
@@ -123,11 +123,11 @@ void StorageController::enqueueOperation(AbstractSerialOperation *op)
         }
 
         resetError();
-        QTimer::singleShot(0, this, &StorageController::processQueue);
+        QTimer::singleShot(0, this, &CommandInterface::processQueue);
     }
 }
 
-void StorageController::clearQueue()
+void CommandInterface::clearQueue()
 {
     while(!m_operationQueue.isEmpty()) {
         m_operationQueue.dequeue()->deleteLater();

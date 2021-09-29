@@ -3,13 +3,13 @@
 #include <QIODevice>
 
 #include "flipperzero/flipperzero.h"
-#include "flipperzero/recoverycontroller.h"
+#include "flipperzero/recoveryinterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
 FixOptionBytesOperation::FixOptionBytesOperation(FlipperZero *device, QIODevice *file, QObject *parent):
-    Operation(device, parent),
+    FlipperZeroOperation(device, parent),
     m_file(file)
 {
     device->setMessage(QStringLiteral("Fix Option Bytes operation pending..."));

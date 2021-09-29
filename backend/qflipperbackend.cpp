@@ -2,8 +2,8 @@
 
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/assetmanifest.h"
-#include "flipperzero/remotecontroller.h"
-#include "flipperzero/recoverycontroller.h"
+#include "flipperzero/screenstreaminterface.h"
+#include "flipperzero/recoveryinterface.h"
 
 #include "macros.h"
 
@@ -16,8 +16,8 @@ QFlipperBackend::QFlipperBackend():
     qRegisterMetaType<Flipper::Updates::FileInfo>("Flipper::Updates::FileInfo");
     qRegisterMetaType<Flipper::Updates::VersionInfo>("Flipper::Updates::VersionInfo");
     qRegisterMetaType<Flipper::Updates::ChannelInfo>("Flipper::Updates::ChannelInfo");
-    qRegisterMetaType<Flipper::Zero::RemoteController*>("Flipper::Zero::RemoteController*");
-    qRegisterMetaType<Flipper::Zero::RecoveryController*>("Flipper::Zero::RecoveryController*");
+    qRegisterMetaType<Flipper::Zero::ScreenStreamInterface*>("Flipper::Zero::RemoteController*");
+    qRegisterMetaType<Flipper::Zero::RecoveryInterface*>("Flipper::Zero::RecoveryInterface*");
 
     qRegisterMetaType<Flipper::Zero::AssetManifest::FileInfo>();
     QMetaType::registerComparators<Flipper::Zero::AssetManifest::FileInfo>();

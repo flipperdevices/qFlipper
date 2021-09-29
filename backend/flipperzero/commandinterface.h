@@ -20,7 +20,7 @@ class MkDirOperation;
 class WriteOperation;
 class RemoveOperation;
 
-class StorageController : public SignalingFailable
+class CommandInterface : public SignalingFailable
 {
     Q_OBJECT
 
@@ -32,8 +32,8 @@ class StorageController : public SignalingFailable
     };
 
 public:
-    StorageController(const QSerialPortInfo &portInfo, QObject *parent = nullptr);
-    ~StorageController();
+    CommandInterface(const QSerialPortInfo &portInfo, QObject *parent = nullptr);
+    ~CommandInterface();
 
     ListOperation *list(const QByteArray &dirName);
     StatOperation *stat(const QByteArray &fileName);

@@ -1,5 +1,4 @@
-#ifndef FLIPPER_ZEROREMOTE_H
-#define FLIPPER_ZEROREMOTE_H
+#pragma once
 
 #include <QObject>
 #include <QByteArray>
@@ -10,7 +9,7 @@ class QSerialPort;
 namespace Flipper {
 namespace Zero {
 
-class RemoteController : public QObject
+class ScreenStreamInterface : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QByteArray screenData READ screenData NOTIFY screenDataChanged)
@@ -40,8 +39,8 @@ public:
 
     Q_ENUM(InputType)
 
-    RemoteController(QSerialPortInfo portInfo, QObject *parent = nullptr);
-    ~RemoteController();
+    ScreenStreamInterface(QSerialPortInfo portInfo, QObject *parent = nullptr);
+    ~ScreenStreamInterface();
 
     const QByteArray &screenData() const;
 
@@ -74,7 +73,5 @@ private:
     bool m_isHeaderFound;
 };
 
-} // namespace Zero
-} // namespace Flipper
-
-#endif // FLIPPER_ZEROREMOTE_H
+}
+}

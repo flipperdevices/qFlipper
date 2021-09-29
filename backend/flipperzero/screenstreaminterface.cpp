@@ -1,4 +1,4 @@
-#include "remotecontroller.h"
+#include "screenstreaminterface.h"
 
 #include <QSerialPort>
 
@@ -7,29 +7,29 @@
 namespace Flipper {
 namespace Zero {
 
-RemoteController::RemoteController(QSerialPortInfo portInfo, QObject *parent):
+ScreenStreamInterface::ScreenStreamInterface(QSerialPortInfo portInfo, QObject *parent):
     QObject(parent),
     m_port(new QSerialPort(portInfo, this)),
     m_isEnabled(false),
     m_isHeaderFound(false)
 {}
 
-RemoteController::~RemoteController()
+ScreenStreamInterface::~ScreenStreamInterface()
 {
     setEnabled(false);
 }
 
-const QByteArray &RemoteController::screenData() const
+const QByteArray &ScreenStreamInterface::screenData() const
 {
     return m_screenData;
 }
 
-bool RemoteController::isEnabled() const
+bool ScreenStreamInterface::isEnabled() const
 {
     return m_isEnabled;
 }
 
-void RemoteController::setEnabled(bool enabled)
+void ScreenStreamInterface::setEnabled(bool enabled)
 {
     if (m_isEnabled == enabled) {
         return;
@@ -46,24 +46,24 @@ void RemoteController::setEnabled(bool enabled)
     emit enabledChanged();
 }
 
-int RemoteController::screenWidth()
+int ScreenStreamInterface::screenWidth()
 {
     return 128;
 }
 
-int RemoteController::screenHeight()
+int ScreenStreamInterface::screenHeight()
 {
     return 64;
 }
 
-void RemoteController::sendInputEvent(InputKey key, InputType type)
+void ScreenStreamInterface::sendInputEvent(InputKey key, InputType type)
 {
     const char input[] = { 27, 'i', (char)key, (char)type };
     m_port->write(input, sizeof(input));
     m_port->flush();
 }
 
-void RemoteController::onPortReadyRead()
+void ScreenStreamInterface::onPortReadyRead()
 {
     static const auto header = QByteArrayLiteral("\xf0\xe1\xd2\xc3");
 
@@ -90,7 +90,7 @@ void RemoteController::onPortReadyRead()
     }
 }
 
-void RemoteController::onPortErrorOccured()
+void ScreenStreamInterface::onPortErrorOccured()
 {
     if(m_port->error() == QSerialPort::ResourceError) {
         return;
@@ -100,13 +100,13 @@ void RemoteController::onPortErrorOccured()
     setEnabled(false);
 }
 
-bool RemoteController::openPort()
+bool ScreenStreamInterface::openPort()
 {
     const auto success = m_port->open(QIODevice::ReadWrite);
 
     if(success) {
-        connect(m_port, &QSerialPort::readyRead, this, &RemoteController::onPortReadyRead);
-        connect(m_port, &QSerialPort::errorOccurred, this, &RemoteController::onPortErrorOccured);
+        connect(m_port, &QSerialPort::readyRead, this, &ScreenStreamInterface::onPortReadyRead);
+        connect(m_port, &QSerialPort::errorOccurred, this, &ScreenStreamInterface::onPortErrorOccured);
 
         m_port->setDataTerminalReady(true);
         m_port->write("\rscreen_stream\r");
@@ -118,10 +118,10 @@ bool RemoteController::openPort()
     return success;
 }
 
-void RemoteController::closePort()
+void ScreenStreamInterface::closePort()
 {
-    disconnect(m_port, &QSerialPort::readyRead, this, &RemoteController::onPortReadyRead);
-    disconnect(m_port, &QSerialPort::errorOccurred, this, &RemoteController::onPortErrorOccured);
+    disconnect(m_port, &QSerialPort::readyRead, this, &ScreenStreamInterface::onPortReadyRead);
+    disconnect(m_port, &QSerialPort::errorOccurred, this, &ScreenStreamInterface::onPortErrorOccured);
 
     m_port->write("\x01\r\n");
     m_port->clear();

@@ -1,13 +1,13 @@
 #include "fixbootissuesoperation.h"
 
 #include "flipperzero/flipperzero.h"
-#include "flipperzero/recoverycontroller.h"
+#include "flipperzero/recoveryinterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
 FixBootIssuesOperation::FixBootIssuesOperation(FlipperZero *device, QObject *parent):
-    Operation(device, parent)
+    FlipperZeroOperation(device, parent)
 {
     device->setPersistent(true);
     device->setMessage(QStringLiteral("Fix boot issues operation pending..."));
@@ -70,16 +70,16 @@ void FixBootIssuesOperation::startWirelessStack()
 {
     const auto wirelessStatus = device()->recovery()->wirelessStatus();
 
-    if(wirelessStatus == RecoveryController::WirelessStatus::FUSRunning) {
+    if(wirelessStatus == RecoveryInterface::WirelessStatus::FUSRunning) {
         if(!device()->recovery()->startWirelessStack()) {
             finishWithError(device()->errorString());
-        } else if(device()->recovery()->wirelessStatus() == RecoveryController::WirelessStatus::UnhandledState) {
+        } else if(device()->recovery()->wirelessStatus() == RecoveryInterface::WirelessStatus::UnhandledState) {
             transitionToNextState();
         } else {}
 
-    } else if(wirelessStatus == RecoveryController::WirelessStatus::WSRunning) {
+    } else if(wirelessStatus == RecoveryInterface::WirelessStatus::WSRunning) {
         transitionToNextState();
-    } else if(wirelessStatus == RecoveryController::WirelessStatus::UnhandledState) {
+    } else if(wirelessStatus == RecoveryInterface::WirelessStatus::UnhandledState) {
         finishWithError(QStringLiteral("Unhandled state. Probably a BUG."));
         device()->setError(errorString());
     } else {
@@ -92,7 +92,7 @@ void FixBootIssuesOperation::fixBootMode()
 {
     if(!device()->isDFU()) {
         transitionToNextState();
-    } else if (!device()->recovery()->setBootMode(RecoveryController::BootMode::Normal)) {
+    } else if (!device()->recovery()->setBootMode(RecoveryInterface::BootMode::Normal)) {
         finishWithError(device()->errorString());
     } else {}
 }

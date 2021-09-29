@@ -10,7 +10,7 @@ class QIODevice;
 namespace Flipper {
 namespace Zero {
 
-class RecoveryController : public SignalingFailable
+class RecoveryInterface : public SignalingFailable
 {
     Q_OBJECT
 
@@ -28,8 +28,8 @@ public:
         Invalid
     };
 
-    RecoveryController(USBDeviceInfo info, QObject *parent = nullptr);
-    ~RecoveryController();
+    RecoveryInterface(USBDeviceInfo info, QObject *parent = nullptr);
+    ~RecoveryInterface();
 
     const QString &message() const;
 

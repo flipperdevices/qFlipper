@@ -1,4 +1,4 @@
-#include "flipperzerooperation.h"
+#include "flipperzero/flipperzerooperation.h"
 
 #include <QTimer>
 
@@ -7,7 +7,7 @@
 using namespace Flipper;
 using namespace Zero;
 
-Operation::Operation(FlipperZero *device, QObject *parent):
+FlipperZeroOperation::FlipperZeroOperation(FlipperZero *device, QObject *parent):
     AbstractOperation(parent),
     m_device(device)
 {
@@ -15,30 +15,30 @@ Operation::Operation(FlipperZero *device, QObject *parent):
     m_device->setPersistent(true);
 }
 
-Operation::~Operation()
+FlipperZeroOperation::~FlipperZeroOperation()
 {
     // TODO: set device persistent elsewhere
     m_device->setPersistent(false);
 }
 
-FlipperZero *Operation::device() const
+FlipperZero *FlipperZeroOperation::device() const
 {
     return m_device;
 }
 
-void Operation::start()
+void FlipperZeroOperation::start()
 {
     if(state() != Ready) {
         finishWithError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
         return;
     }
 
-    connect(m_device, &FlipperZero::isOnlineChanged, this, &Operation::transitionToNextState);
+    connect(m_device, &FlipperZero::isOnlineChanged, this, &FlipperZeroOperation::transitionToNextState);
     transitionToNextState();
 }
 
-void Operation::finish()
+void FlipperZeroOperation::finish()
 {
-    disconnect(m_device, &FlipperZero::isOnlineChanged, this, &Operation::transitionToNextState);
+    disconnect(m_device, &FlipperZero::isOnlineChanged, this, &FlipperZeroOperation::transitionToNextState);
     emit finished();
 }

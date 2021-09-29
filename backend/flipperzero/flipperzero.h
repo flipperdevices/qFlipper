@@ -7,9 +7,9 @@
 namespace Flipper {
 
 namespace Zero {
-    class RemoteController;
-    class RecoveryController;
-    class StorageController;
+    class ScreenStreamInterface;
+    class RecoveryInterface;
+    class CommandInterface;
 }
 
 class FlipperZero : public QObject
@@ -31,8 +31,8 @@ class FlipperZero : public QObject
     Q_PROPERTY(bool isOnline READ isOnline NOTIFY isOnlineChanged)
     Q_PROPERTY(bool isError READ isError NOTIFY isErrorChanged)
 
-    Q_PROPERTY(Flipper::Zero::RemoteController* remote READ remote CONSTANT)
-    Q_PROPERTY(Flipper::Zero::RecoveryController* recovery READ recovery CONSTANT)
+    Q_PROPERTY(Flipper::Zero::ScreenStreamInterface* screen READ screen CONSTANT)
+    Q_PROPERTY(Flipper::Zero::RecoveryInterface* recovery READ recovery CONSTANT)
 
 public:
     FlipperZero(const Zero::DeviceInfo &info, QObject *parent = nullptr);
@@ -64,9 +64,9 @@ public:
 
     const Flipper::Zero::DeviceInfo &deviceInfo() const;
 
-    Flipper::Zero::RemoteController *remote() const;
-    Flipper::Zero::RecoveryController *recovery() const;
-    Flipper::Zero::StorageController *storage() const;
+    Flipper::Zero::ScreenStreamInterface *screen() const;
+    Flipper::Zero::RecoveryInterface *recovery() const;
+    Flipper::Zero::CommandInterface *cli() const;
 
     void setMessage(const QString &message);
     void setProgress(double progress);
@@ -85,7 +85,7 @@ private slots:
     void onControllerErrorOccured();
 
 private:
-    void initControllers();
+    void initInterfaces();
 
     bool m_isPersistent;
     bool m_isOnline;
@@ -98,9 +98,9 @@ private:
 
     double m_progress;
 
-    Zero::RemoteController *m_remote;
-    Zero::RecoveryController *m_recovery;
-    Zero::StorageController *m_storage;
+    Zero::ScreenStreamInterface *m_screen;
+    Zero::RecoveryInterface *m_recovery;
+    Zero::CommandInterface *m_cli;
 };
 
 }

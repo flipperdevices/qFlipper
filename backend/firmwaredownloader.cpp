@@ -6,13 +6,13 @@
 #include <QBuffer>
 
 #include "flipperzero/flipperzero.h"
-#include "flipperzero/operations/userbackupoperation.h"
-#include "flipperzero/operations/userrestoreoperation.h"
-#include "flipperzero/operations/fixbootissuesoperation.h"
-#include "flipperzero/operations/assetsdownloadoperation.h"
-#include "flipperzero/operations/fixoptionbytesoperation.h"
-#include "flipperzero/operations/firmwaredownloadoperation.h"
-#include "flipperzero/operations/wirelessstackdownloadoperation.h"
+#include "flipperzero/utility/userbackupoperation.h"
+#include "flipperzero/utility/userrestoreoperation.h"
+#include "flipperzero/recovery/fixbootissuesoperation.h"
+#include "flipperzero/utility/assetsdownloadoperation.h"
+#include "flipperzero/recovery/fixoptionbytesoperation.h"
+#include "flipperzero/recovery/firmwaredownloadoperation.h"
+#include "flipperzero/recovery/wirelessstackdownloadoperation.h"
 
 #include "remotefilefetcher.h"
 #include "macros.h"

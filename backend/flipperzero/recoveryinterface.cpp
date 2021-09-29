@@ -1,4 +1,4 @@
-#include "recoverycontroller.h"
+#include "recoveryinterface.h"
 
 #include "dfusefile.h"
 #include "macros.h"
@@ -18,15 +18,15 @@ using namespace WB55;
 
 #define to_hex_str(num) (QString::number(num, 16))
 
-RecoveryController::RecoveryController(USBDeviceInfo info, QObject *parent):
+RecoveryInterface::RecoveryInterface(USBDeviceInfo info, QObject *parent):
     SignalingFailable(parent),
     m_usbInfo(info)
 {}
 
-RecoveryController::~RecoveryController()
+RecoveryInterface::~RecoveryInterface()
 {}
 
-bool RecoveryController::leaveDFU()
+bool RecoveryInterface::leaveDFU()
 {
     setMessage("Booting the device up...");
 
@@ -44,7 +44,7 @@ bool RecoveryController::leaveDFU()
     return success;
 }
 
-bool RecoveryController::setBootMode(BootMode mode)
+bool RecoveryInterface::setBootMode(BootMode mode)
 {
     const auto msg = (mode == BootMode::Normal) ? "Booting the device up..." : "Setting device to DFU boot mode...";
     setMessage(msg);
@@ -79,7 +79,7 @@ bool RecoveryController::setBootMode(BootMode mode)
     return success;
 }
 
-RecoveryController::WirelessStatus RecoveryController::wirelessStatus()
+RecoveryInterface::WirelessStatus RecoveryInterface::wirelessStatus()
 {
     info_msg("Getting Co-Processor (Wireless) status...");
 
@@ -119,7 +119,7 @@ RecoveryController::WirelessStatus RecoveryController::wirelessStatus()
     }
 }
 
-bool RecoveryController::startFUS()
+bool RecoveryInterface::startFUS()
 {
     setMessage("Starting firmware upgrade service (FUS)...");
 
@@ -162,7 +162,7 @@ bool RecoveryController::startFUS()
 }
 
 // TODO: check status to see if the wireless stack is present at all
-bool RecoveryController::startWirelessStack()
+bool RecoveryInterface::startWirelessStack()
 {
     setMessage("Attempting to start the Wireless Stack...");
 
@@ -178,7 +178,7 @@ bool RecoveryController::startWirelessStack()
     return success;
 }
 
-bool RecoveryController::deleteWirelessStack()
+bool RecoveryInterface::deleteWirelessStack()
 {
     setMessage("Deleting old co-processor firmware...");
 
@@ -193,7 +193,7 @@ bool RecoveryController::deleteWirelessStack()
     return success;
 }
 
-bool RecoveryController::downloadFirmware(QIODevice *file)
+bool RecoveryInterface::downloadFirmware(QIODevice *file)
 {
     if(!file->open(QIODevice::ReadOnly)) {
         setError("Can't download firmware: Failed to open the file.");
@@ -225,7 +225,7 @@ bool RecoveryController::downloadFirmware(QIODevice *file)
     return success;
 }
 
-bool RecoveryController::downloadWirelessStack(QIODevice *file, uint32_t addr)
+bool RecoveryInterface::downloadWirelessStack(QIODevice *file, uint32_t addr)
 {
     info_msg("Attempting to download CO-PROCESSOR firmware image...");
 
@@ -287,7 +287,7 @@ bool RecoveryController::downloadWirelessStack(QIODevice *file, uint32_t addr)
     return success;
 }
 
-void RecoveryController::setProgress(double progress)
+void RecoveryInterface::setProgress(double progress)
 {
     if(qFuzzyCompare(progress, m_progress)) {
         return;
@@ -297,7 +297,7 @@ void RecoveryController::setProgress(double progress)
     emit progressChanged();
 }
 
-bool RecoveryController::upgradeWirelessStack()
+bool RecoveryInterface::upgradeWirelessStack()
 {
     info_msg("Sending FW_UPGRADE command...");
 
@@ -315,7 +315,7 @@ bool RecoveryController::upgradeWirelessStack()
     return success;
 }
 
-bool RecoveryController::downloadOptionBytes(QIODevice *file)
+bool RecoveryInterface::downloadOptionBytes(QIODevice *file)
 {
     setMessage("Downloading Option Bytes...");
 
@@ -369,17 +369,17 @@ bool RecoveryController::downloadOptionBytes(QIODevice *file)
     return success;
 }
 
-const QString &RecoveryController::message() const
+const QString &RecoveryInterface::message() const
 {
     return m_message;
 }
 
-double RecoveryController::progress() const
+double RecoveryInterface::progress() const
 {
     return m_progress;
 }
 
-void RecoveryController::setMessage(const QString &msg)
+void RecoveryInterface::setMessage(const QString &msg)
 {
     m_message = msg;
 

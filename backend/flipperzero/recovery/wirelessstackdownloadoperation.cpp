@@ -6,13 +6,13 @@
 #include <QtConcurrent/QtConcurrentRun>
 
 #include "flipperzero/flipperzero.h"
-#include "flipperzero/recoverycontroller.h"
+#include "flipperzero/recoveryinterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
 WirelessStackDownloadOperation::WirelessStackDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t targetAddress, QObject *parent):
-    Operation(device, parent),
+    FlipperZeroOperation(device, parent),
     m_file(file),
     m_loopTimer(new QTimer(this)),
     m_targetAddress(targetAddress)
@@ -118,7 +118,7 @@ void WirelessStackDownloadOperation::bootToDFU()
 
 void WirelessStackDownloadOperation::setDFUBoot(bool set)
 {
-    const auto bootMode = set ? RecoveryController::BootMode::DFUOnly : RecoveryController::BootMode::Normal;
+    const auto bootMode = set ? RecoveryInterface::BootMode::DFUOnly : RecoveryInterface::BootMode::Normal;
 
     if(!device()->recovery()->setBootMode(bootMode)) {
         finishWithError(device()->errorString());
@@ -145,16 +145,16 @@ bool WirelessStackDownloadOperation::isWirelessStackDeleted()
 {
     const auto status = device()->recovery()->wirelessStatus();
 
-    const auto waitNext = (status == RecoveryController::WirelessStatus::Invalid) ||
-                          (status == RecoveryController::WirelessStatus::UnhandledState);
+    const auto waitNext = (status == RecoveryInterface::WirelessStatus::Invalid) ||
+                          (status == RecoveryInterface::WirelessStatus::UnhandledState);
     if(waitNext) {
         return false;
     }
 
     m_loopTimer->stop();
 
-    const auto errorOccured = (status == RecoveryController::WirelessStatus::WSRunning) ||
-                              (status == RecoveryController::WirelessStatus::ErrorOccured);
+    const auto errorOccured = (status == RecoveryInterface::WirelessStatus::WSRunning) ||
+                              (status == RecoveryInterface::WirelessStatus::ErrorOccured);
     if(errorOccured) {
         finishWithError(QStringLiteral("Failed to finish removal of the Wireless Stack."));
         device()->setError(errorString());
@@ -178,7 +178,7 @@ void WirelessStackDownloadOperation::downloadWirelessStack()
         watcher->deleteLater();
     });
 
-    watcher->setFuture(QtConcurrent::run(device()->recovery(), &RecoveryController::downloadWirelessStack, m_file, m_targetAddress));
+    watcher->setFuture(QtConcurrent::run(device()->recovery(), &RecoveryInterface::downloadWirelessStack, m_file, m_targetAddress));
 }
 
 void WirelessStackDownloadOperation::upgradeWirelessStack()
@@ -194,15 +194,15 @@ bool WirelessStackDownloadOperation::isWirelessStackUpgraded()
 {
     const auto status = device()->recovery()->wirelessStatus();
 
-    const auto waitNext = (status == RecoveryController::WirelessStatus::Invalid) ||
-                          (status == RecoveryController::WirelessStatus::UnhandledState);
+    const auto waitNext = (status == RecoveryInterface::WirelessStatus::Invalid) ||
+                          (status == RecoveryInterface::WirelessStatus::UnhandledState);
     if(waitNext) {
         return false;
     }
 
     m_loopTimer->stop();
 
-    const auto errorOccured = (status == RecoveryController::WirelessStatus::ErrorOccured);
+    const auto errorOccured = (status == RecoveryInterface::WirelessStatus::ErrorOccured);
     if(errorOccured) {
         finishWithError(QStringLiteral("Failed to finish installation of the Wireless Stack."));
         device()->setError(errorString());

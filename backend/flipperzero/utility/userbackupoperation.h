@@ -1,6 +1,6 @@
 #pragma once
 
-#include "flipperzerooperation.h"
+#include "flipperzero/flipperzerooperation.h"
 
 #include <QDir>
 
@@ -9,7 +9,7 @@
 namespace Flipper {
 namespace Zero {
 
-class UserBackupOperation : public Operation
+class UserBackupOperation : public FlipperZeroOperation
 {
     Q_OBJECT
 

@@ -3,8 +3,8 @@
 #include <QTimer>
 
 #include "flipperzero/flipperzero.h"
-#include "flipperzero/storagecontroller.h"
-#include "flipperzero/storage/listoperation.h"
+#include "flipperzero/commandinterface.h"
+#include "flipperzero/cli/listoperation.h"
 
 #include "macros.h"
 
@@ -12,7 +12,7 @@ using namespace Flipper;
 using namespace Zero;
 
 GetFileTreeOperation::GetFileTreeOperation(FlipperZero *device, const QByteArray &rootPath, QObject *parent):
-    Operation(device, parent),
+    FlipperZeroOperation(device, parent),
     m_rootPath(rootPath),
     m_pendingCount(0)
 {}
@@ -61,6 +61,6 @@ void GetFileTreeOperation::transitionToNextState()
 void GetFileTreeOperation::listDirectory(const QByteArray &path)
 {
     ++m_pendingCount;
-    auto *op = device()->storage()->list(path);
+    auto *op = device()->cli()->list(path);
     connect(op, &AbstractOperation::finished, this, &GetFileTreeOperation::transitionToNextState);
 }

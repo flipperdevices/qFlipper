@@ -3,7 +3,7 @@
 #include <QQueue>
 
 #include "tararchive.h"
-#include "flipperzerooperation.h"
+#include "flipperzero/flipperzerooperation.h"
 #include "flipperzero/assetmanifest.h"
 
 class QIODevice;
@@ -11,7 +11,7 @@ class QIODevice;
 namespace Flipper {
 namespace Zero {
 
-class AssetsDownloadOperation : public Operation
+class AssetsDownloadOperation : public FlipperZeroOperation
 {
     Q_OBJECT
 

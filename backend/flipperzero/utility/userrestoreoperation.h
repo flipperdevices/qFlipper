@@ -1,6 +1,6 @@
 #pragma once
 
-#include "flipperzerooperation.h"
+#include "flipperzero/flipperzerooperation.h"
 
 #include <QDir>
 #include <QFileInfoList>
@@ -8,7 +8,7 @@
 namespace Flipper {
 namespace Zero {
 
-class UserRestoreOperation : public Operation
+class UserRestoreOperation : public FlipperZeroOperation
 {
     Q_OBJECT
 

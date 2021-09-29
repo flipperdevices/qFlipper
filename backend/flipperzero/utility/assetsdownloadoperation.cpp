@@ -5,12 +5,12 @@
 #include <QBuffer>
 #include <QStandardPaths>
 
-#include "flipperzero/storage/removeoperation.h"
-#include "flipperzero/storage/mkdiroperation.h"
-#include "flipperzero/storage/writeoperation.h"
-#include "flipperzero/storage/readoperation.h"
-#include "flipperzero/storage/statoperation.h"
-#include "flipperzero/storagecontroller.h"
+#include "flipperzero/cli/removeoperation.h"
+#include "flipperzero/cli/mkdiroperation.h"
+#include "flipperzero/cli/writeoperation.h"
+#include "flipperzero/cli/readoperation.h"
+#include "flipperzero/cli/statoperation.h"
+#include "flipperzero/commandinterface.h"
 #include "flipperzero/assetmanifest.h"
 #include "flipperzero/flipperzero.h"
 #include "gzipuncompressor.h"
@@ -36,7 +36,7 @@ static void print_file_list(const QString &header, const FileNode::FileInfoList 
 }
 
 AssetsDownloadOperation::AssetsDownloadOperation(FlipperZero *device, QIODevice *file, QObject *parent):
-    Operation(device, parent),
+    FlipperZeroOperation(device, parent),
     m_compressed(file),
     m_uncompressed(nullptr),
     m_isDeviceManifestPresent(false)
@@ -118,7 +118,7 @@ void AssetsDownloadOperation::onOperationTimeout()
 
 bool AssetsDownloadOperation::checkForExtStorage()
 {
-    auto *op = device()->storage()->stat(QByteArrayLiteral("/ext"));
+    auto *op = device()->cli()->stat(QByteArrayLiteral("/ext"));
 
     connect(op, &AbstractOperation::finished, this, [=]() {
         if(op->isError()) {
@@ -192,7 +192,7 @@ bool AssetsDownloadOperation::readLocalManifest()
 
 bool AssetsDownloadOperation::checkForDeviceManifest()
 {
-    auto *op = device()->storage()->stat(DEVICE_MANIFEST);
+    auto *op = device()->cli()->stat(DEVICE_MANIFEST);
     connect(op, &AbstractOperation::finished, this, [=]() {
         if(op->isError()) {
             finishWithError(op->errorString());
@@ -221,7 +221,7 @@ bool AssetsDownloadOperation::readDeviceManifest()
         return false;
     }
 
-    auto *op = device()->storage()->read(QByteArrayLiteral("/ext/Manifest"), buf);
+    auto *op = device()->cli()->read(QByteArrayLiteral("/ext/Manifest"), buf);
 
     connect(op, &AbstractOperation::finished, this, [=]() {
         if(!op->isError()) {
@@ -311,7 +311,7 @@ bool AssetsDownloadOperation::deleteFiles()
         const auto isLastFile = (--numFiles == 0);
         const auto fileName = QByteArrayLiteral("/ext/") + fileInfo.absolutePath.toLocal8Bit();
 
-        auto *op = device()->storage()->remove(fileName);
+        auto *op = device()->cli()->remove(fileName);
 
         connect(op, &AbstractOperation::finished, this, [=]() {
             if(op->isError()) {
@@ -345,7 +345,7 @@ bool AssetsDownloadOperation::writeFiles()
         const auto filePath = QByteArrayLiteral("/ext/") + fileInfo.absolutePath.toLocal8Bit();
 
         if(fileInfo.type == FileNode::Type::Directory) {
-            op = device()->storage()->mkdir(filePath);
+            op = device()->cli()->mkdir(filePath);
 
         } else if(fileInfo.type == FileNode::Type::RegularFile) {
             auto *buf = new QBuffer(this);
@@ -360,7 +360,7 @@ bool AssetsDownloadOperation::writeFiles()
                 return false;
             }
 
-            op = device()->storage()->write(filePath, buf);
+            op = device()->cli()->write(filePath, buf);
 
         } else {
             return false;

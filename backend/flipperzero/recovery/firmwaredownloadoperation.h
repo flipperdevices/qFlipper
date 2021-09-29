@@ -1,16 +1,13 @@
 #pragma once
 
-#include "flipperzerooperation.h"
+#include "flipperzero/flipperzerooperation.h"
 
 class QIODevice;
 
 namespace Flipper {
-
-class FlipperZero;
-
 namespace Zero {
 
-class FirmwareDownloadOperation : public Operation
+class FirmwareDownloadOperation : public FlipperZeroOperation
 {
     Q_OBJECT
 

@@ -3,9 +3,9 @@
 #include <QThread>
 #include <QSerialPort>
 
-#include "recoverycontroller.h"
-#include "storagecontroller.h"
-#include "remotecontroller.h"
+#include "recoveryinterface.h"
+#include "commandinterface.h"
+#include "screenstreaminterface.h"
 
 #include "macros.h"
 
@@ -23,11 +23,11 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     m_deviceInfo(info),
 
     m_progress(0),
-    m_remote(nullptr),
+    m_screen(nullptr),
     m_recovery(nullptr),
-    m_storage(nullptr)
+    m_cli(nullptr)
 {
-    initControllers();
+    initInterfaces();
 }
 
 FlipperZero::~FlipperZero()
@@ -38,7 +38,7 @@ FlipperZero::~FlipperZero()
 void FlipperZero::reset(const Zero::DeviceInfo &info)
 {
     setDeviceInfo(info);
-    initControllers();
+    initInterfaces();
 
     setError(QStringLiteral("No error"), false);
     setProgress(0);
@@ -168,19 +168,19 @@ bool FlipperZero::isDFU() const
     return m_deviceInfo.usbInfo.productID() == 0xdf11;
 }
 
-Flipper::Zero::RemoteController *FlipperZero::remote() const
+Flipper::Zero::ScreenStreamInterface *FlipperZero::screen() const
 {
-    return m_remote;
+    return m_screen;
 }
 
-RecoveryController *FlipperZero::recovery() const
+RecoveryInterface *FlipperZero::recovery() const
 {
     return m_recovery;
 }
 
-StorageController *FlipperZero::storage() const
+CommandInterface *FlipperZero::cli() const
 {
-    return m_storage;
+    return m_cli;
 }
 
 void FlipperZero::setMessage(const QString &message)
@@ -211,11 +211,11 @@ void FlipperZero::onControllerErrorOccured()
     setError(controller->errorString());
 }
 
-void FlipperZero::initControllers()
+void FlipperZero::initInterfaces()
 {
-    if(m_remote) {
-       m_remote->deleteLater();
-       m_remote = nullptr;
+    if(m_screen) {
+       m_screen->deleteLater();
+       m_screen = nullptr;
     }
 
     if(m_recovery) {
@@ -223,30 +223,30 @@ void FlipperZero::initControllers()
        m_recovery = nullptr;
     }
 
-    if(m_storage) {
-       m_storage->deleteLater();
-       m_storage = nullptr;
+    if(m_cli) {
+       m_cli->deleteLater();
+       m_cli = nullptr;
     }
 
     // TODO: better message delivery system
     if(isDFU()) {
-        m_recovery = new RecoveryController(m_deviceInfo.usbInfo, this);
+        m_recovery = new RecoveryInterface(m_deviceInfo.usbInfo, this);
 
-        connect(m_recovery, &RecoveryController::messageChanged, this, [=]() {
+        connect(m_recovery, &RecoveryInterface::messageChanged, this, [=]() {
             setMessage(m_recovery->message());
         });
 
-        connect(m_recovery, &RecoveryController::progressChanged, this, [=]() {
+        connect(m_recovery, &RecoveryInterface::progressChanged, this, [=]() {
             setProgress(m_recovery->progress());
         });
 
         connect(m_recovery, &SignalingFailable::errorOccured, this, &FlipperZero::onControllerErrorOccured);
 
     } else {
-        m_remote = new RemoteController(m_deviceInfo.serialInfo, this);
-        m_storage = new StorageController(m_deviceInfo.serialInfo, this);
+        m_screen = new ScreenStreamInterface(m_deviceInfo.serialInfo, this);
+        m_cli = new CommandInterface(m_deviceInfo.serialInfo, this);
 
-        connect(m_storage, &SignalingFailable::errorOccured, this, &FlipperZero::onControllerErrorOccured);
+        connect(m_cli, &SignalingFailable::errorOccured, this, &FlipperZero::onControllerErrorOccured);
     }
 }
 

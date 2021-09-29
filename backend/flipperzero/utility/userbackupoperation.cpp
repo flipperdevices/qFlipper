@@ -5,8 +5,8 @@
 #include <QTimer>
 
 #include "flipperzero/flipperzero.h"
-#include "flipperzero/storagecontroller.h"
-#include "flipperzero/storage/readoperation.h"
+#include "flipperzero/commandinterface.h"
+#include "flipperzero/cli/readoperation.h"
 
 #include "getfiletreeoperation.h"
 #include "macros.h"
@@ -15,7 +15,7 @@ using namespace Flipper;
 using namespace Zero;
 
 UserBackupOperation::UserBackupOperation(FlipperZero *device, const QString &backupPath, QObject *parent):
-    Operation(device, parent),
+    FlipperZeroOperation(device, parent),
     m_backupDir(QUrl(backupPath).toLocalFile()),
     m_deviceDirName(QByteArrayLiteral("/int"))
 {}
@@ -107,7 +107,7 @@ bool UserBackupOperation::readFiles()
                 return false;
             }
 
-            auto *op = device()->storage()->read(fileInfo.absolutePath, file);
+            auto *op = device()->cli()->read(fileInfo.absolutePath, file);
             connect(op, &AbstractOperation::finished, this, [=]() {
                 if(op->isError()) {
                     finishWithError(op->errorString());

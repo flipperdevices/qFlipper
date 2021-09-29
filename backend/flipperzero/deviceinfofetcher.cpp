@@ -4,7 +4,7 @@
 #include <QBuffer>
 #include <QSerialPort>
 
-#include "common/skipmotdoperation.h"
+#include "cli/skipmotdoperation.h"
 #include "device/stm32wb55.h"
 #include "serialfinder.h"
 #include "factoryinfo.h"

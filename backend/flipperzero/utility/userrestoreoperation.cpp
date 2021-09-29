@@ -6,10 +6,10 @@
 #include <QDirIterator>
 
 #include "flipperzero/flipperzero.h"
-#include "flipperzero/storagecontroller.h"
-#include "flipperzero/storage/mkdiroperation.h"
-#include "flipperzero/storage/writeoperation.h"
-#include "flipperzero/storage/removeoperation.h"
+#include "flipperzero/commandinterface.h"
+#include "flipperzero/cli/mkdiroperation.h"
+#include "flipperzero/cli/writeoperation.h"
+#include "flipperzero/cli/removeoperation.h"
 
 #include "macros.h"
 
@@ -17,7 +17,7 @@ using namespace Flipper;
 using namespace Zero;
 
 UserRestoreOperation::UserRestoreOperation(FlipperZero *device, const QString &backupPath, QObject *parent):
-    Operation(device, parent),
+    FlipperZeroOperation(device, parent),
     m_backupDir(QUrl(backupPath).toLocalFile()),
     m_deviceDirName(QByteArrayLiteral("/int"))
 {
@@ -86,7 +86,7 @@ bool UserRestoreOperation::deleteFiles()
         const auto filePath = m_deviceDirName + QByteArrayLiteral("/") + m_backupDir.relativeFilePath(it->absoluteFilePath()).toLocal8Bit();
         const auto isLastFile = (--numFiles == 0);
 
-        auto *op = device()->storage()->remove(filePath);
+        auto *op = device()->cli()->remove(filePath);
         connect(op, &AbstractOperation::finished, this, [=](){
             if(op->isError()) {
                 finishWithError(op->errorString());
@@ -122,14 +122,14 @@ bool UserRestoreOperation::writeFiles()
                 return false;
             }
 
-            op = device()->storage()->write(filePath, file);
+            op = device()->cli()->write(filePath, file);
             connect(op, &AbstractOperation::finished, this, [=]() {
                 file->close();
                 file->deleteLater();
             });
 
         } else if(fileInfo.isDir()) {
-            op = device()->storage()->mkdir(filePath);
+            op = device()->cli()->mkdir(filePath);
         } else {
             return false;
         }
