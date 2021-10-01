@@ -1,13 +1,10 @@
-#ifndef FIRMWAREUPDATER_H
-#define FIRMWAREUPDATER_H
+#pragma once
 
 #include <QObject>
-#include <QQueue>
 
 #include "flipperupdates.h"
 
 class QIODevice;
-class AbstractOperation;
 
 namespace Flipper {
 
@@ -15,11 +12,6 @@ class FlipperZero;
 class FirmwareDownloader : public QObject
 {
     Q_OBJECT
-
-    enum class State {
-        Ready,
-        Running
-    };
 
 public:
     FirmwareDownloader(QObject *parent = nullptr);
@@ -38,17 +30,6 @@ public slots:
 
     void backupUserData(Flipper::FlipperZero *device, const QString &backupPath);
     void restoreUserData(Flipper::FlipperZero *device, const QString &backupPath);
-
-private slots:
-    void processQueue();
-
-private:
-    void enqueueOperation(AbstractOperation *op);
-
-    State m_state;
-    QQueue<AbstractOperation*> m_operationQueue;
 };
 
 }
-
-#endif // FIRMWAREUPDATER_H

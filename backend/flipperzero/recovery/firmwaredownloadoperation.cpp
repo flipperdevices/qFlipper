@@ -4,7 +4,7 @@
 #include <QtConcurrent/QtConcurrentRun>
 
 #include "flipperzero/flipperzero.h"
-#include "flipperzero/recoveryinterface.h"
+#include "flipperzero/recovery.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -99,7 +99,7 @@ void FirmwareDownloadOperation::downloadFirmware()
         watcher->deleteLater();
     });
 
-    watcher->setFuture(QtConcurrent::run(device()->recovery(), &RecoveryInterface::downloadFirmware, m_file));
+    watcher->setFuture(QtConcurrent::run(device()->recovery(), &Recovery::downloadFirmware, m_file));
 }
 
 void FirmwareDownloadOperation::bootToFirmware()

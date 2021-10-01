@@ -10,6 +10,7 @@ include(../qflipper_common.pri)
 
 SOURCES += \
     abstractoperation.cpp \
+    abstractoperationrunner.cpp \
     abstractserialoperation.cpp \
     deviceregistry.cpp \
     filenode.cpp \
@@ -22,9 +23,11 @@ SOURCES += \
     flipperzero/factoryinfo.cpp \
     flipperzero/flipperzero.cpp \
     flipperzero/flipperzerooperation.cpp \
+    flipperzero/recovery.cpp \
     flipperzero/recovery/firmwaredownloadoperation.cpp \
     flipperzero/recovery/fixbootissuesoperation.cpp \
     flipperzero/recovery/fixoptionbytesoperation.cpp \
+    flipperzero/recovery/recoveryoperation.cpp \
     flipperzero/recovery/wirelessstackdownloadoperation.cpp \
     flipperzero/recoveryinterface.cpp \
     flipperzero/screenstreaminterface.cpp \
@@ -48,6 +51,7 @@ SOURCES += \
 
 HEADERS += \
     abstractoperation.h \
+    abstractoperationrunner.h \
     abstractserialoperation.h \
     deviceregistry.h \
     failable.h \
@@ -63,9 +67,11 @@ HEADERS += \
     flipperzero/factoryinfo.h \
     flipperzero/flipperzero.h \
     flipperzero/flipperzerooperation.h \
+    flipperzero/recovery.h \
     flipperzero/recovery/firmwaredownloadoperation.h \
     flipperzero/recovery/fixbootissuesoperation.h \
     flipperzero/recovery/fixoptionbytesoperation.h \
+    flipperzero/recovery/recoveryoperation.h \
     flipperzero/recovery/wirelessstackdownloadoperation.h \
     flipperzero/recoveryinterface.h \
     flipperzero/screenstreaminterface.h \

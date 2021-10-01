@@ -17,9 +17,8 @@ using namespace Flipper;
 using namespace Zero;
 
 CommandInterface::CommandInterface(const QSerialPortInfo &portInfo, QObject *parent):
-    SignalingFailable(parent),
-    m_serialPort(new QSerialPort(portInfo, this)),
-    m_state(State::Idle)
+    AbstractOperationRunner(parent),
+    m_serialPort(new QSerialPort(portInfo, this))
 {}
 
 CommandInterface::~CommandInterface()
@@ -30,7 +29,6 @@ ListOperation *CommandInterface::list(const QByteArray &dirName)
     auto *op = new ListOperation(m_serialPort, dirName, this);
     enqueueOperation(op);
     return op;
-
 }
 
 StatOperation *CommandInterface::stat(const QByteArray &fileName)
@@ -68,68 +66,17 @@ RemoveOperation *CommandInterface::remove(const QByteArray &fileName)
     return op;
 }
 
-void CommandInterface::processQueue()
+bool CommandInterface::onQueueStarted()
 {
-    if(m_operationQueue.isEmpty()) {
-        closePort();
-        return;
-    }
+    const auto success = m_serialPort->open(QIODevice::ReadWrite);
+    check_return_bool(success, QStringLiteral("Serial port error: %1").arg(m_serialPort->errorString()));
 
-    auto *currentOperation = m_operationQueue.dequeue();
-
-    connect(currentOperation, &AbstractOperation::finished, this, [=]() {
-
-        if(currentOperation->isError()) {
-            clearQueue();
-            processQueue();
-            setError(QStringLiteral("Operation error: %1").arg(currentOperation->errorString()));
-
-        } else {
-            processQueue();
-        }
-
-        currentOperation->deleteLater();
-    });
-
-    currentOperation->start();
-}
-
-bool CommandInterface::openPort()
-{
-    if(!m_serialPort->open(QIODevice::ReadWrite)) {
-        setError(QStringLiteral("Serial port error: %1").arg(m_serialPort->errorString()));
-        return false;
-    }
-
-    m_state = State::Running;
-    m_operationQueue.prepend(new SkipMOTDOperation(m_serialPort, this));
-
+    enqueueOperation(new SkipMOTDOperation(m_serialPort, this));
     return true;
 }
 
-void CommandInterface::closePort()
+bool CommandInterface::onQueueFinished()
 {
-    m_state = State::Idle;
     m_serialPort->close();
-}
-
-void CommandInterface::enqueueOperation(AbstractSerialOperation *op)
-{
-    m_operationQueue.enqueue(op);
-
-    if(m_state == State::Idle) {
-        if(!openPort()) {
-            return;
-        }
-
-        resetError();
-        QTimer::singleShot(0, this, &CommandInterface::processQueue);
-    }
-}
-
-void CommandInterface::clearQueue()
-{
-    while(!m_operationQueue.isEmpty()) {
-        m_operationQueue.dequeue()->deleteLater();
-    }
+    return true;
 }

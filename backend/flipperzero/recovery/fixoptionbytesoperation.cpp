@@ -3,7 +3,7 @@
 #include <QIODevice>
 
 #include "flipperzero/flipperzero.h"
-#include "flipperzero/recoveryinterface.h"
+#include "flipperzero/recovery.h"
 
 using namespace Flipper;
 using namespace Zero;

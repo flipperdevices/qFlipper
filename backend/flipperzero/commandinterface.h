@@ -1,14 +1,11 @@
 #pragma once
 
-#include <QQueue>
 #include <QSerialPortInfo>
 
-#include "signalingfailable.h"
+#include "abstractoperationrunner.h"
 
 class QIODevice;
 class QSerialPort;
-
-class AbstractSerialOperation;
 
 namespace Flipper {
 namespace Zero {
@@ -20,16 +17,9 @@ class MkDirOperation;
 class WriteOperation;
 class RemoveOperation;
 
-class CommandInterface : public SignalingFailable
+class CommandInterface : public AbstractOperationRunner
 {
     Q_OBJECT
-
-    using OperationQueue = QQueue<AbstractSerialOperation*>;
-
-    enum class State {
-        Idle,
-        Running
-    };
 
 public:
     CommandInterface(const QSerialPortInfo &portInfo, QObject *parent = nullptr);
@@ -42,19 +32,11 @@ public:
     WriteOperation *write(const QByteArray &fileName, QIODevice *file);
     RemoveOperation *remove(const QByteArray &fileName);
 
-private slots:
-    void processQueue();
-
 private:
-    bool openPort();
-    void closePort();
+    bool onQueueStarted() override;
+    bool onQueueFinished() override;
 
-    void enqueueOperation(AbstractSerialOperation *op);
-    void clearQueue();
-
-    OperationQueue m_operationQueue;
     QSerialPort *m_serialPort;
-    State m_state;
 };
 
 }

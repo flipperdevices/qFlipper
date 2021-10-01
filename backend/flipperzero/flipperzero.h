@@ -8,6 +8,7 @@ namespace Flipper {
 
 namespace Zero {
     class ScreenStreamInterface;
+    class Recovery;
     class RecoveryInterface;
     class CommandInterface;
 }
@@ -32,7 +33,7 @@ class FlipperZero : public QObject
     Q_PROPERTY(bool isError READ isError NOTIFY isErrorChanged)
 
     Q_PROPERTY(Flipper::Zero::ScreenStreamInterface* screen READ screen CONSTANT)
-    Q_PROPERTY(Flipper::Zero::RecoveryInterface* recovery READ recovery CONSTANT)
+    Q_PROPERTY(Flipper::Zero::Recovery* recovery READ recovery CONSTANT)
 
 public:
     FlipperZero(const Zero::DeviceInfo &info, QObject *parent = nullptr);
@@ -65,7 +66,8 @@ public:
     const Flipper::Zero::DeviceInfo &deviceInfo() const;
 
     Flipper::Zero::ScreenStreamInterface *screen() const;
-    Flipper::Zero::RecoveryInterface *recovery() const;
+    Flipper::Zero::Recovery *recovery() const;
+    Flipper::Zero::RecoveryInterface *recoveryNew() const;
     Flipper::Zero::CommandInterface *cli() const;
 
     void setMessage(const QString &message);
@@ -82,7 +84,7 @@ signals:
     void isErrorChanged();
 
 private slots:
-    void onControllerErrorOccured();
+    void onInterfaceErrorOccured();
 
 private:
     void initInterfaces();
@@ -99,6 +101,7 @@ private:
     double m_progress;
 
     Zero::ScreenStreamInterface *m_screen;
+    Zero::Recovery *m_recoveryOld;
     Zero::RecoveryInterface *m_recovery;
     Zero::CommandInterface *m_cli;
 };

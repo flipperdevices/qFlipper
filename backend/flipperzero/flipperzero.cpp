@@ -1,8 +1,8 @@
 #include "flipperzero.h"
 
-#include <QThread>
 #include <QSerialPort>
 
+#include "recovery.h"
 #include "recoveryinterface.h"
 #include "commandinterface.h"
 #include "screenstreaminterface.h"
@@ -24,6 +24,7 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
 
     m_progress(0),
     m_screen(nullptr),
+    m_recoveryOld(nullptr),
     m_recovery(nullptr),
     m_cli(nullptr)
 {
@@ -173,7 +174,12 @@ Flipper::Zero::ScreenStreamInterface *FlipperZero::screen() const
     return m_screen;
 }
 
-RecoveryInterface *FlipperZero::recovery() const
+Recovery *FlipperZero::recovery() const
+{
+    return m_recoveryOld;
+}
+
+RecoveryInterface *FlipperZero::recoveryNew() const
 {
     return m_recovery;
 }
@@ -200,7 +206,7 @@ void FlipperZero::setProgress(double progress)
     emit progressChanged();
 }
 
-void FlipperZero::onControllerErrorOccured()
+void FlipperZero::onInterfaceErrorOccured()
 {
     auto *controller = qobject_cast<SignalingFailable*>(sender());
 
@@ -232,21 +238,21 @@ void FlipperZero::initInterfaces()
     if(isDFU()) {
         m_recovery = new RecoveryInterface(m_deviceInfo.usbInfo, this);
 
-        connect(m_recovery, &RecoveryInterface::messageChanged, this, [=]() {
-            setMessage(m_recovery->message());
-        });
+//        connect(m_recoveryOld, &Recovery::messageChanged, this, [=]() {
+//            setMessage(m_recoveryOld->message());
+//        });
 
-        connect(m_recovery, &RecoveryInterface::progressChanged, this, [=]() {
-            setProgress(m_recovery->progress());
-        });
+//        connect(m_recoveryOld, &Recovery::progressChanged, this, [=]() {
+//            setProgress(m_recoveryOld->progress());
+//        });
 
-        connect(m_recovery, &SignalingFailable::errorOccured, this, &FlipperZero::onControllerErrorOccured);
+        connect(m_recovery, &SignalingFailable::errorOccured, this, &FlipperZero::onInterfaceErrorOccured);
 
     } else {
         m_screen = new ScreenStreamInterface(m_deviceInfo.serialInfo, this);
         m_cli = new CommandInterface(m_deviceInfo.serialInfo, this);
 
-        connect(m_cli, &SignalingFailable::errorOccured, this, &FlipperZero::onControllerErrorOccured);
+        connect(m_cli, &SignalingFailable::errorOccured, this, &FlipperZero::onInterfaceErrorOccured);
     }
 }
 

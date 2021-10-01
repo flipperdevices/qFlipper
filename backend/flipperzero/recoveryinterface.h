@@ -1,66 +1,40 @@
 #pragma once
 
-#include <QObject>
+#include "abstractoperationrunner.h"
 
 #include "usbdeviceinfo.h"
-#include "signalingfailable.h"
 
 class QIODevice;
 
 namespace Flipper {
 namespace Zero {
 
-class RecoveryInterface : public SignalingFailable
+class Recovery;
+
+class FirmwareDownloadOperation;
+class FixBootIssuesOperation;
+class FixOptionBytesOperation;
+class WirelessStackDownloadOperation;
+
+class RecoveryInterface : public AbstractOperationRunner
 {
     Q_OBJECT
 
 public:
-    enum class BootMode {
-        Normal,
-        DFUOnly
-    };
+    RecoveryInterface(const USBDeviceInfo &deviceInfo, QObject *parent = nullptr);
 
-    enum class WirelessStatus {
-        WSRunning,
-        FUSRunning,
-        ErrorOccured,
-        UnhandledState,
-        Invalid
-    };
+    FirmwareDownloadOperation *downloadFirmware(QIODevice *file);
 
-    RecoveryInterface(USBDeviceInfo info, QObject *parent = nullptr);
-    ~RecoveryInterface();
+    WirelessStackDownloadOperation *downloadFUS(QIODevice *file);
+    WirelessStackDownloadOperation *downloadWirelessStack(QIODevice *file);
 
-    const QString &message() const;
-
-    WirelessStatus wirelessStatus();
-    double progress() const;
-
-    bool leaveDFU();
-    bool setBootMode(BootMode mode);
-
-    bool startFUS();
-    bool startWirelessStack();
-    bool deleteWirelessStack();
-    bool upgradeWirelessStack();
-
-    bool downloadFirmware(QIODevice *file);
-    bool downloadOptionBytes(QIODevice *file);
-    bool downloadWirelessStack(QIODevice *file, uint32_t addr = 0);
-
-signals:
-    void messageChanged();
-    void progressChanged();
+    FixBootIssuesOperation *fixBootIssues();
+    FixOptionBytesOperation *fixOptionBytes(QIODevice *file);
 
 private:
-    void setProgress(double progress);
-    void setMessage(const QString &msg);
-
-    USBDeviceInfo m_usbInfo;
-
-    QString m_message;
-    double m_progress;
+    Recovery *m_recovery;
 };
 
 }
 }
+
