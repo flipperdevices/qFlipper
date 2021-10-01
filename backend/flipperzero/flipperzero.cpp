@@ -1,10 +1,7 @@
 #include "flipperzero.h"
 
-#include <QSerialPort>
-
-#include "recovery.h"
-#include "recoveryinterface.h"
-#include "commandinterface.h"
+#include "devicestate.h"
+#include "firmwareupdater.h"
 #include "screenstreaminterface.h"
 
 #include "macros.h"
@@ -16,19 +13,18 @@ using namespace Zero;
 FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     QObject(parent),
 
-    m_isPersistent(false),
-    m_isOnline(true),
-    m_isError(false),
-
-    m_deviceInfo(info),
-
-    m_progress(0),
-    m_screen(nullptr),
-    m_recoveryOld(nullptr),
-    m_recovery(nullptr),
-    m_cli(nullptr)
+    m_state(new DeviceState(info, this)),
+    m_updater(new FirmwareUpdater(m_state, this))
 {
-    initInterfaces();
+    //TODO: expose state instead?
+    connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::deviceInfoChanged);
+    connect(m_state, &DeviceState::isPersistentChanged, this, &FlipperZero::isPersistentChanged);
+    connect(m_state, &DeviceState::isOnlineChanged, this, &FlipperZero::isOnlineChanged);
+    connect(m_state, &DeviceState::errorChanged, this, &FlipperZero::isErrorChanged);
+    connect(m_state, &DeviceState::progressChanged, this, &FlipperZero::progressChanged);
+    connect(m_state, &DeviceState::statusChanged, this, &FlipperZero::messageChanged);
+
+//   connect(m_updater, &SignalingFailable::errorOccured, this, &FlipperZero::onModuleErrorOccured);
 }
 
 FlipperZero::~FlipperZero()
@@ -38,90 +34,56 @@ FlipperZero::~FlipperZero()
 
 void FlipperZero::reset(const Zero::DeviceInfo &info)
 {
-    setDeviceInfo(info);
-    initInterfaces();
+    m_state->setDeviceInfo(info);
 
     setError(QStringLiteral("No error"), false);
     setProgress(0);
     setOnline(true);
 }
 
-void FlipperZero::setDeviceInfo(const Zero::DeviceInfo &info)
-{
-    // Not checking the huge structure for equality
-    m_deviceInfo = info;
-    emit deviceInfoChanged();
-}
-
 void FlipperZero::setPersistent(bool set)
 {
-    if(set == m_isPersistent) {
-        return;
-    }
-
-    m_isPersistent = set;
-    emit isPersistentChanged();
+    Q_UNUSED(set)
+    info_msg("I do nothing, delete me ASAP!");
 }
 
 void FlipperZero::setOnline(bool set)
 {
-    if(set == m_isOnline) {
-        return;
-    }
-
-    m_isOnline = set;
-    emit isOnlineChanged();
+    m_state->setOnline(set);
 }
 
 void FlipperZero::setError(const QString &msg, bool set)
 {
-    m_isError = set;
+    Q_UNUSED(msg)
+    Q_UNUSED(set)
 
-    if(!msg.isEmpty()) {
-        error_msg(msg);
-        m_errorString = msg;
-    }
-
-    emit isErrorChanged();
+    info_msg("I do nothing, delete me ASAP!");
 }
 
 bool FlipperZero::isPersistent() const
 {
-    return m_isPersistent;
+    return m_state->isPersistent();
 }
 
 bool FlipperZero::isOnline() const
 {
-    return m_isOnline;
+    return m_state->isOnline();
 }
 
 bool FlipperZero::isError() const
 {
-    return m_isError;
+    return m_state->isError();
 }
 
 bool FlipperZero::bootToDFU()
 {
-    setMessage("Entering DFU bootloader mode...");
-
-    auto *serialPort = new QSerialPort(m_deviceInfo.serialInfo, this);
-
-    const auto success = serialPort->open(QIODevice::WriteOnly) && serialPort->setDataTerminalReady(true) &&
-                        (serialPort->write(QByteArrayLiteral("\rdfu\r\n")) > 0) && serialPort->waitForBytesWritten(1000);
-    if(!success) {
-        setError("Can't detach the device: Failed to reset in DFU mode");
-        error_msg(QString("Serial port status: %1").arg(serialPort->errorString()));
-    }
-
-    serialPort->close();
-    serialPort->deleteLater();
-
-    return success;
+    info_msg("I do nothing, delete me ASAP!");
+    return false;
 }
 
 const QString &FlipperZero::name() const
 {
-    return m_deviceInfo.name;
+    return m_state->deviceInfo().name;
 }
 
 const QString &FlipperZero::model() const
@@ -132,41 +94,43 @@ const QString &FlipperZero::model() const
 
 const QString &FlipperZero::target() const
 {
-    return m_deviceInfo.target;
+    return m_state->deviceInfo().target;
 }
 
 const QString &FlipperZero::version() const
 {
-    if(m_deviceInfo.firmware.branch == QStringLiteral("dev")) {
-        return m_deviceInfo.firmware.commit;
+    const auto &deviceInfo = m_state->deviceInfo();
+
+    if(deviceInfo.firmware.branch == QStringLiteral("dev")) {
+        return deviceInfo.firmware.commit;
     } else {
-        return m_deviceInfo.firmware.version;
+        return deviceInfo.firmware.version;
     }
 }
 
 const QString &FlipperZero::messageString() const
 {
-    return m_statusMessage;
+    return m_state->statusString();
 }
 
 const QString &FlipperZero::errorString() const
 {
-    return m_errorString;
+    return m_state->errorString();
 }
 
 double FlipperZero::progress() const
 {
-    return m_progress;
+    return m_state->progress();
 }
 
 const DeviceInfo &FlipperZero::deviceInfo() const
 {
-    return m_deviceInfo;
+    return m_state->deviceInfo();
 }
 
 bool FlipperZero::isDFU() const
 {
-    return m_deviceInfo.usbInfo.productID() == 0xdf11;
+    return m_state->deviceInfo().usbInfo.productID() == 0xdf11;
 }
 
 Flipper::Zero::ScreenStreamInterface *FlipperZero::screen() const
@@ -176,84 +140,37 @@ Flipper::Zero::ScreenStreamInterface *FlipperZero::screen() const
 
 Recovery *FlipperZero::recovery() const
 {
-    return m_recoveryOld;
+    info_msg("I do nothing, delete me ASAP!");
+    return nullptr;
 }
 
 RecoveryInterface *FlipperZero::recoveryNew() const
 {
-    return m_recovery;
+    info_msg("I do nothing, delete me ASAP!");
+    return nullptr;
 }
 
 CommandInterface *FlipperZero::cli() const
 {
-    return m_cli;
+    info_msg("I do nothing, delete me ASAP!");
+    return nullptr;
+}
+
+void FlipperZero::fullUpdate()
+{
+    m_updater->fullUpdate();
 }
 
 void FlipperZero::setMessage(const QString &message)
 {
-    info_msg(message);
-    m_statusMessage = message;
-    emit messageChanged();
+    Q_UNUSED(message)
+    info_msg("I do nothing, delete me ASAP!");
 }
 
 void FlipperZero::setProgress(double progress)
 {
-    if(qFuzzyCompare(m_progress, progress)) {
-        return;
-    }
-
-    m_progress = progress;
-    emit progressChanged();
-}
-
-void FlipperZero::onInterfaceErrorOccured()
-{
-    auto *controller = qobject_cast<SignalingFailable*>(sender());
-
-    if(!controller) {
-        return;
-    }
-
-    setError(controller->errorString());
-}
-
-void FlipperZero::initInterfaces()
-{
-    if(m_screen) {
-       m_screen->deleteLater();
-       m_screen = nullptr;
-    }
-
-    if(m_recovery) {
-       m_recovery->deleteLater();
-       m_recovery = nullptr;
-    }
-
-    if(m_cli) {
-       m_cli->deleteLater();
-       m_cli = nullptr;
-    }
-
-    // TODO: better message delivery system
-    if(isDFU()) {
-        m_recovery = new RecoveryInterface(m_deviceInfo.usbInfo, this);
-
-//        connect(m_recoveryOld, &Recovery::messageChanged, this, [=]() {
-//            setMessage(m_recoveryOld->message());
-//        });
-
-//        connect(m_recoveryOld, &Recovery::progressChanged, this, [=]() {
-//            setProgress(m_recoveryOld->progress());
-//        });
-
-        connect(m_recovery, &SignalingFailable::errorOccured, this, &FlipperZero::onInterfaceErrorOccured);
-
-    } else {
-        m_screen = new ScreenStreamInterface(m_deviceInfo.serialInfo, this);
-        m_cli = new CommandInterface(m_deviceInfo.serialInfo, this);
-
-        connect(m_cli, &SignalingFailable::errorOccured, this, &FlipperZero::onInterfaceErrorOccured);
-    }
+    Q_UNUSED(progress)
+    info_msg("I do nothing, delete me ASAP!");
 }
 
 }

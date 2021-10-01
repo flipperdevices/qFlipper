@@ -1,28 +1,25 @@
 #pragma once
 
-#include "abstractoperation.h"
+#include "abstractmessagingoperaton.h"
 
 namespace Flipper {
 namespace Zero {
 
 class Recovery;
 
-class RecoveryOperation : public AbstractOperation
+class RecoveryOperation : public AbstractMessagingOperaton
 {
     Q_OBJECT
 
 public:
     RecoveryOperation(Recovery *recovery, QObject *parent = nullptr);
-    virtual ~RecoveryOperation();
+    virtual ~RecoveryOperation() {}
 
     void start() override;
     void finish() override;
 
-signals:
-
 public slots:
-    void onDeviceOnline();
-    void onDeviceOffline();
+    void onDeviceOnlineChanged(bool isOnline);
 
 protected:
     Recovery *recovery() const;

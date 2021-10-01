@@ -1,15 +1,17 @@
 #pragma once
 
-#include <QSerialPortInfo>
-
 #include "abstractoperationrunner.h"
 
 class QIODevice;
 class QSerialPort;
+class QSerialPortInfo;
 
 namespace Flipper {
 namespace Zero {
 
+class DeviceState;
+
+class DFUOperation;
 class ListOperation;
 class StatOperation;
 class ReadOperation;
@@ -22,8 +24,10 @@ class CommandInterface : public AbstractOperationRunner
     Q_OBJECT
 
 public:
-    CommandInterface(const QSerialPortInfo &portInfo, QObject *parent = nullptr);
+    CommandInterface(DeviceState *state, QObject *parent = nullptr);
     ~CommandInterface();
+
+    DFUOperation *startRecoveryMode();
 
     ListOperation *list(const QByteArray &dirName);
     StatOperation *stat(const QByteArray &fileName);

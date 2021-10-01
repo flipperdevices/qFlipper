@@ -7,7 +7,11 @@
 namespace Flipper {
 
 namespace Zero {
+    class DeviceState;
     class ScreenStreamInterface;
+    class FirmwareUpdater;
+
+    // These should go
     class Recovery;
     class RecoveryInterface;
     class CommandInterface;
@@ -40,7 +44,6 @@ public:
     ~FlipperZero();
 
     void reset(const Zero::DeviceInfo &info);
-    void setDeviceInfo(const Zero::DeviceInfo &info);
 
     void setPersistent(bool set);
     void setOnline(bool set);
@@ -51,6 +54,7 @@ public:
     bool isError() const;
     bool isDFU() const;
 
+    // Move this to CommandInterface
     bool bootToDFU();
 
     const QString &name() const;
@@ -70,6 +74,9 @@ public:
     Flipper::Zero::RecoveryInterface *recoveryNew() const;
     Flipper::Zero::CommandInterface *cli() const;
 
+public slots:
+    void fullUpdate();
+
     void setMessage(const QString &message);
     void setProgress(double progress);
 
@@ -83,27 +90,10 @@ signals:
     void isOnlineChanged();
     void isErrorChanged();
 
-private slots:
-    void onInterfaceErrorOccured();
-
 private:
-    void initInterfaces();
-
-    bool m_isPersistent;
-    bool m_isOnline;
-    bool m_isError;
-
-    Zero::DeviceInfo m_deviceInfo;
-
-    QString m_statusMessage;
-    QString m_errorString;
-
-    double m_progress;
-
+    Zero::DeviceState *m_state;
+    Zero::FirmwareUpdater *m_updater;
     Zero::ScreenStreamInterface *m_screen;
-    Zero::Recovery *m_recoveryOld;
-    Zero::RecoveryInterface *m_recovery;
-    Zero::CommandInterface *m_cli;
 };
 
 }

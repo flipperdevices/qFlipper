@@ -9,6 +9,7 @@ CONFIG += c++11
 include(../qflipper_common.pri)
 
 SOURCES += \
+    abstractmessagingoperaton.cpp \
     abstractoperation.cpp \
     abstractoperationrunner.cpp \
     abstractserialoperation.cpp \
@@ -17,16 +18,20 @@ SOURCES += \
     firmwaredownloader.cpp \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
+    flipperzero/cli/dfuoperation.cpp \
     flipperzero/commandinterface.cpp \
     flipperzero/cli/skipmotdoperation.cpp \
     flipperzero/deviceinfofetcher.cpp \
+    flipperzero/devicestate.cpp \
     flipperzero/factoryinfo.cpp \
+    flipperzero/firmwareupdater.cpp \
     flipperzero/flipperzero.cpp \
     flipperzero/flipperzerooperation.cpp \
     flipperzero/recovery.cpp \
     flipperzero/recovery/firmwaredownloadoperation.cpp \
     flipperzero/recovery/fixbootissuesoperation.cpp \
     flipperzero/recovery/fixoptionbytesoperation.cpp \
+    flipperzero/recovery/leaveoperation.cpp \
     flipperzero/recovery/recoveryoperation.cpp \
     flipperzero/recovery/wirelessstackdownloadoperation.cpp \
     flipperzero/recoveryinterface.cpp \
@@ -50,6 +55,7 @@ SOURCES += \
     updateregistry.cpp
 
 HEADERS += \
+    abstractmessagingoperaton.h \
     abstractoperation.h \
     abstractoperationrunner.h \
     abstractserialoperation.h \
@@ -60,17 +66,21 @@ HEADERS += \
     firmwaredownloader.h \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
+    flipperzero/cli/dfuoperation.h \
     flipperzero/commandinterface.h \
     flipperzero/cli/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
     flipperzero/deviceinfofetcher.h \
+    flipperzero/devicestate.h \
     flipperzero/factoryinfo.h \
+    flipperzero/firmwareupdater.h \
     flipperzero/flipperzero.h \
     flipperzero/flipperzerooperation.h \
     flipperzero/recovery.h \
     flipperzero/recovery/firmwaredownloadoperation.h \
     flipperzero/recovery/fixbootissuesoperation.h \
     flipperzero/recovery/fixoptionbytesoperation.h \
+    flipperzero/recovery/leaveoperation.h \
     flipperzero/recovery/recoveryoperation.h \
     flipperzero/recovery/wirelessstackdownloadoperation.h \
     flipperzero/recoveryinterface.h \

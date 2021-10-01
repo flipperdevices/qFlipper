@@ -1,7 +1,8 @@
 #include "commandinterface.h"
 
-#include <QTimer>
 #include <QSerialPort>
+
+#include "flipperzero/devicestate.h"
 
 #include "cli/skipmotdoperation.h"
 #include "cli/removeoperation.h"
@@ -10,19 +11,46 @@
 #include "cli/readoperation.h"
 #include "cli/statoperation.h"
 #include "cli/listoperation.h"
+#include "cli/dfuoperation.h"
 
 #include "macros.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-CommandInterface::CommandInterface(const QSerialPortInfo &portInfo, QObject *parent):
+CommandInterface::CommandInterface(DeviceState *state, QObject *parent):
     AbstractOperationRunner(parent),
-    m_serialPort(new QSerialPort(portInfo, this))
-{}
+    m_serialPort(nullptr)
+{
+    // Automatically re-create serial port instance when a persistent device reconnects
+    const auto createSerialPort = [=]() {
+        if(m_serialPort) {
+            check_continue(!m_serialPort->isOpen(), "Deleting a Serial Port instance that is still open.");
+            m_serialPort->deleteLater();
+            m_serialPort = nullptr;
+        }
+
+        const auto &portInfo = state->deviceInfo().serialInfo;
+
+        if(!portInfo.isNull()) {
+            m_serialPort = new QSerialPort(portInfo, this);
+        }
+    };
+
+    connect(state, &DeviceState::deviceInfoChanged, this, createSerialPort);
+
+    createSerialPort();
+}
 
 CommandInterface::~CommandInterface()
 {}
+
+DFUOperation *CommandInterface::startRecoveryMode()
+{
+    auto *op = new DFUOperation(m_serialPort, this);
+    enqueueOperation(op);
+    return op;
+}
 
 ListOperation *CommandInterface::list(const QByteArray &dirName)
 {

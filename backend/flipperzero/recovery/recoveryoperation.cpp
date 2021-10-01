@@ -8,21 +8,17 @@ using namespace Flipper;
 using namespace Zero;
 
 RecoveryOperation::RecoveryOperation(Recovery *recovery, QObject *parent):
-    AbstractOperation(parent),
+    AbstractMessagingOperaton(parent),
     m_recovery(recovery)
-{}
-
-RecoveryOperation::~RecoveryOperation()
 {}
 
 void RecoveryOperation::start()
 {
-    if(state() != BasicState::Ready) {
+    if(state() == BasicState::Ready) {
+        CALL_LATER(this, &RecoveryOperation::transitionToNextState);
+    } else {
         finishWithError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
-        return;
     }
-
-    CALL_LATER(this, &RecoveryOperation::transitionToNextState);
 }
 
 void RecoveryOperation::finish()
@@ -30,12 +26,16 @@ void RecoveryOperation::finish()
     emit finished();
 }
 
-void RecoveryOperation::onDeviceOnline()
+void RecoveryOperation::onDeviceOnlineChanged(bool isOnline)
 {
-    transitionToNextState();
+    if(isOnline) {
+        CALL_LATER(this, &RecoveryOperation::transitionToNextState);
+    } else {
+        startTimeout();
+    }
 }
 
-void RecoveryOperation::onDeviceOffline()
+Recovery *RecoveryOperation::recovery() const
 {
-    startTimeout();
+    return m_recovery;
 }

@@ -1,22 +1,29 @@
 #include "recoveryinterface.h"
 
-#include "recovery.h"
-
+#include "flipperzero/devicestate.h"
+#include "flipperzero/recovery/leaveoperation.h"
 #include "flipperzero/recovery/fixbootissuesoperation.h"
 #include "flipperzero/recovery/fixoptionbytesoperation.h"
 #include "flipperzero/recovery/firmwaredownloadoperation.h"
 #include "flipperzero/recovery/wirelessstackdownloadoperation.h"
 
-#include "remotefilefetcher.h"
+#include "recovery.h"
 #include "macros.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-RecoveryInterface::RecoveryInterface(const USBDeviceInfo &deviceInfo, QObject *parent):
+RecoveryInterface::RecoveryInterface(DeviceState *state, QObject *parent):
     AbstractOperationRunner(parent),
-    m_recovery(new Recovery(deviceInfo, this))
+    m_recovery(new Recovery(state->deviceInfo().usbInfo, this))
 {}
+
+LeaveOperation *RecoveryInterface::exitRecoveryMode()
+{
+    auto *operation = new LeaveOperation(m_recovery, this);
+    enqueueOperation(operation);
+    return operation;
+}
 
 FirmwareDownloadOperation *RecoveryInterface::downloadFirmware(QIODevice *file)
 {

@@ -119,7 +119,7 @@ Item {
         delegate: FlipperListDelegate {
             onUpdateRequested: {
                 const channelName = "release";
-                const latestVersion = firmwareUpdates.channel(channelName).latestVersion;
+                const latestVersion = "Hello";//firmwareUpdates.channel(channelName).latestVersion;
 
                 const messageObj = {
                     title : qsTr("Install version %1?").arg(latestVersion.number),
@@ -127,7 +127,7 @@ Item {
                 };
 
                 confirmationDialog.openWithMessage(function() {
-                    downloader.downloadRemoteFile(device, latestVersion);
+                    device.fullUpdate();
                 }, messageObj);
             }
 
@@ -146,7 +146,7 @@ Item {
                 };
 
                 fileDialog.openWithConfirmation(["Firmware files (*.dfu)", "All files (*)"], function() {
-                    downloader.downloadLocalFile(device, fileDialog.fileUrl);
+//                    downloader.downloadLocalFile(device, fileDialog.fileUrl);
                 }, messageObj);
             }
 
@@ -157,7 +157,7 @@ Item {
                 };
 
                 dirDialog.openWithConfirmation(function() {
-                    downloader.backupUserData(device, dirDialog.fileUrl);
+//                    downloader.backupUserData(device, dirDialog.fileUrl);
                 }, messageObj);
             }
 
@@ -168,7 +168,7 @@ Item {
                 };
 
                 dirDialog.openWithConfirmation(function() {
-                    downloader.restoreUserData(device, dirDialog.fileUrl);
+//                    downloader.restoreUserData(device, dirDialog.fileUrl);
                 }, messageObj);
             }
 
@@ -179,7 +179,7 @@ Item {
                 };
 
                 fileDialog.openWithConfirmation(["Database files (*.tgz)", "All files (*)"], function() {
-                    downloader.downloadAssets(device, fileDialog.fileUrl);
+//                    downloader.downloadAssets(device, fileDialog.fileUrl);
                 }, messageObj);
             }
 
@@ -190,7 +190,7 @@ Item {
                 };
 
                 fileDialog.openWithConfirmation(["Radio firmware files (*.bin)", "All files (*)"], function() {
-                    downloader.downloadLocalWirelessStack(device, fileDialog.fileUrl);
+//                    downloader.downloadLocalWirelessStack(device, fileDialog.fileUrl);
                 }, messageObj);
             }
 
@@ -201,18 +201,18 @@ Item {
                 };
 
                 fileDialog.openWithConfirmation(["FUS firmware files (*.bin)", "All files (*)"], function() {
-                    downloader.downloadLocalFUS(device, fileDialog.fileUrl);
+//                    downloader.downloadLocalFUS(device, fileDialog.fileUrl);
                 }, messageObj);
             }
 
             onFixBootRequested: {
                 const messageObj = {
                     title : qsTr("Attempt to fix boot issues?"),
-                    subtitle : qsTr("This will try to correct device option bytes.")
+//                    subtitle : qsTr("This will try to correct device option bytes.")
                 };
 
                 confirmationDialog.openWithMessage(function() {
-                    downloader.fixBootIssues(device);
+//                    downloader.fixBootIssues(device);
                 }, messageObj);
             }
 
@@ -223,7 +223,7 @@ Item {
                 };
 
                 fileDialog.openWithConfirmation(["Option bytes description files (*.data)", "All files (*)"], function() {
-                    downloader.fixOptionBytes(device, fileDialog.fileUrl);
+//                    downloader.fixOptionBytes(device, fileDialog.fileUrl);
                 }, messageObj);
             }
         }
