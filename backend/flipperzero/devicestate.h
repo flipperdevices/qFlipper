@@ -26,6 +26,8 @@ public:
     bool isError() const;
     void setError(bool set);
 
+    bool isRecoveryMode() const;
+
     double progress() const;
     void setProgress(double newProgress);
 

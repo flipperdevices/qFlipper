@@ -130,7 +130,7 @@ const DeviceInfo &FlipperZero::deviceInfo() const
 
 bool FlipperZero::isDFU() const
 {
-    return m_state->deviceInfo().usbInfo.productID() == 0xdf11;
+    return m_state->isRecoveryMode();
 }
 
 Flipper::Zero::ScreenStreamInterface *FlipperZero::screen() const

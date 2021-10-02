@@ -67,6 +67,11 @@ void DeviceState::setError(bool set)
     emit errorChanged();
 }
 
+bool DeviceState::isRecoveryMode() const
+{
+    return m_deviceInfo.usbInfo.productID() == 0xdf11;
+}
+
 double DeviceState::progress() const
 {
     return m_progress;
