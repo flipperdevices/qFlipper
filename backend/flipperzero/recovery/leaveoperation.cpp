@@ -14,18 +14,18 @@ const QString LeaveOperation::description() const
     return QStringLiteral("Leave Recovery Mode");
 }
 
-void LeaveOperation::transitionToNextState()
+void LeaveOperation::doNextOperationState()
 {
-    if(state() == BasicState::Ready) {
-        setState(State::WaitingForOnline);
+    if(operationState() == BasicState::Ready) {
+        setOperationState(State::WaitingForOnline);
 
-        setMessage(tr("Exiting recovery mode..."));
+//        setMessage(tr("Exiting recovery mode..."));
 
         if(!recovery()->leaveDFU()) {
             finishWithError(recovery()->errorString());
         }
 
-    } else if(state() == State::WaitingForOnline) {
+    } else if(operationState() == State::WaitingForOnline) {
         finish();
     }
 }

@@ -41,40 +41,40 @@ void WirelessStackDownloadOperation::transitionToNextState()
 
     stopTimeout();
 
-    if(state() == AbstractOperation::Ready) {
-        setState(WirelessStackDownloadOperation::BootingToDFU);
+    if(operationState() == AbstractOperation::Ready) {
+        setOperationState(WirelessStackDownloadOperation::BootingToDFU);
         bootToDFU();
 
-    } else if(state() == WirelessStackDownloadOperation::BootingToDFU) {
-        setState(WirelessStackDownloadOperation::SettingDFUBoot);
+    } else if(operationState() == WirelessStackDownloadOperation::BootingToDFU) {
+        setOperationState(WirelessStackDownloadOperation::SettingDFUBoot);
         setDFUBoot(true);
 
-    } else if(state() == WirelessStackDownloadOperation::SettingDFUBoot) {
-        setState(WirelessStackDownloadOperation::StartingFUS);
+    } else if(operationState() == WirelessStackDownloadOperation::SettingDFUBoot) {
+        setOperationState(WirelessStackDownloadOperation::StartingFUS);
         startFUS();
 
-    } else if(state() == WirelessStackDownloadOperation::StartingFUS) {
-        setState(WirelessStackDownloadOperation::DeletingWirelessStack);
+    } else if(operationState() == WirelessStackDownloadOperation::StartingFUS) {
+        setOperationState(WirelessStackDownloadOperation::DeletingWirelessStack);
         deleteWirelessStack();
 
-    } else if(state() == WirelessStackDownloadOperation::DeletingWirelessStack) {
+    } else if(operationState() == WirelessStackDownloadOperation::DeletingWirelessStack) {
         if(isWirelessStackDeleted()) {
-            setState(WirelessStackDownloadOperation::DownloadingWirelessStack);
+            setOperationState(WirelessStackDownloadOperation::DownloadingWirelessStack);
             downloadWirelessStack();
         }
 
-    } else if(state() == WirelessStackDownloadOperation::DownloadingWirelessStack) {
-        setState(WirelessStackDownloadOperation::UpgradingWirelessStack);
+    } else if(operationState() == WirelessStackDownloadOperation::DownloadingWirelessStack) {
+        setOperationState(WirelessStackDownloadOperation::UpgradingWirelessStack);
         upgradeWirelessStack();
 
-    } else if(state() == WirelessStackDownloadOperation::UpgradingWirelessStack) {
+    } else if(operationState() == WirelessStackDownloadOperation::UpgradingWirelessStack) {
         if(isWirelessStackUpgraded()) {
-            setState(WirelessStackDownloadOperation::ResettingDFUBoot);
+            setOperationState(WirelessStackDownloadOperation::ResettingDFUBoot);
             setDFUBoot(false);
         }
 
-    } else if(state() == WirelessStackDownloadOperation::ResettingDFUBoot) {
-        setState(AbstractOperation::Finished);
+    } else if(operationState() == WirelessStackDownloadOperation::ResettingDFUBoot) {
+        setOperationState(AbstractOperation::Finished);
         finish();
 
     } else {
@@ -87,17 +87,17 @@ void WirelessStackDownloadOperation::onOperationTimeout()
 {
     QString msg;
 
-    if(state() == WirelessStackDownloadOperation::BootingToDFU) {
+    if(operationState() == WirelessStackDownloadOperation::BootingToDFU) {
         msg = QStringLiteral("Failed to enter DFU mode: Operation timeout.");
-    } else if(state() == WirelessStackDownloadOperation::SettingDFUBoot) {
+    } else if(operationState() == WirelessStackDownloadOperation::SettingDFUBoot) {
         msg = QStringLiteral("Failed to set DFU only boot mode: Operation timeout.");
-    } else if(state() == WirelessStackDownloadOperation::StartingFUS) {
+    } else if(operationState() == WirelessStackDownloadOperation::StartingFUS) {
         msg = QStringLiteral("Failed to start Firmware Upgrade Service: Operation timeout.");
-    } else if(state() == WirelessStackDownloadOperation::DeletingWirelessStack) {
+    } else if(operationState() == WirelessStackDownloadOperation::DeletingWirelessStack) {
         msg = QStringLiteral("Failed to delete existing Wireless Stack: Operation timeout.");
-    } else if(state() == WirelessStackDownloadOperation::UpgradingWirelessStack) {
+    } else if(operationState() == WirelessStackDownloadOperation::UpgradingWirelessStack) {
         msg = QStringLiteral("Failed to upgrade Wireless Stack: Operation timeout.");
-    } else if(state() == WirelessStackDownloadOperation::ResettingDFUBoot) {
+    } else if(operationState() == WirelessStackDownloadOperation::ResettingDFUBoot) {
         msg = QStringLiteral("Failed to reset DFU only boot mode: Operation timeout.");
     } else {
         msg = QStringLiteral("Should not have timed out here, probably a bug.");

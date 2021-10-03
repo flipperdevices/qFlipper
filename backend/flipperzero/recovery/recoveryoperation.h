@@ -1,13 +1,13 @@
 #pragma once
 
-#include "abstractmessagingoperaton.h"
+#include "abstractoperation.h"
 
 namespace Flipper {
 namespace Zero {
 
 class Recovery;
 
-class RecoveryOperation : public AbstractMessagingOperaton
+class RecoveryOperation : public AbstractOperation
 {
     Q_OBJECT
 
@@ -25,7 +25,7 @@ protected:
     Recovery *recovery() const;
 
 protected slots:
-    virtual void transitionToNextState() = 0;
+    virtual void doNextOperationState() = 0;
 
 private:
     Recovery *m_recovery;

@@ -34,16 +34,16 @@ void FixOptionBytesOperation::transitionToNextState()
 
     stopTimeout();
 
-    if(state() == AbstractOperation::Ready) {
-        setState(State::BootingToDFU);
+    if(operationState() == AbstractOperation::Ready) {
+        setOperationState(State::BootingToDFU);
         bootToDFU();
 
-    } else if(state() == State::BootingToDFU) {
-        setState(FixOptionBytesOperation::FixingOptionBytes);
+    } else if(operationState() == State::BootingToDFU) {
+        setOperationState(FixOptionBytesOperation::FixingOptionBytes);
         fixOptionBytes();
 
-    } else if(state() == State::FixingOptionBytes) {
-        setState(AbstractOperation::Finished);
+    } else if(operationState() == State::FixingOptionBytes) {
+        setOperationState(AbstractOperation::Finished);
         finish();
 
     } else {
@@ -56,9 +56,9 @@ void FixOptionBytesOperation::onOperationTimeout()
 {
     QString msg;
 
-    if(state() == FixOptionBytesOperation::BootingToDFU) {
+    if(operationState() == FixOptionBytesOperation::BootingToDFU) {
         msg = QStringLiteral("Failed to reach DFU mode: Operation timeout.");
-    } else if(state() == FixOptionBytesOperation::FixingOptionBytes) {
+    } else if(operationState() == FixOptionBytesOperation::FixingOptionBytes) {
         msg = QStringLiteral("Failed to write the corrected Option Bytes: Operation timeout.");
     } else {
         msg = QStringLiteral("Should not have timed out here, probably a bug.");

@@ -35,20 +35,20 @@ void FirmwareDownloadOperation::transitionToNextState()
 
     stopTimeout();
 
-    if(state() == AbstractOperation::Ready) {
-        setState(State::BootingToDFU);
+    if(operationState() == AbstractOperation::Ready) {
+        setOperationState(State::BootingToDFU);
         booToDFU();
 
-    } else if(state() == State::BootingToDFU) {
-        setState(State::DownloadingFirmware);
+    } else if(operationState() == State::BootingToDFU) {
+        setOperationState(State::DownloadingFirmware);
         downloadFirmware();
 
-    } else if(state() == State::DownloadingFirmware) {
-        setState(State::BootingToFirmware);
+    } else if(operationState() == State::DownloadingFirmware) {
+        setOperationState(State::BootingToFirmware);
         bootToFirmware();
 
-    } else if(state() == State::BootingToFirmware) {
-        setState(AbstractOperation::Finished);
+    } else if(operationState() == State::BootingToFirmware) {
+        setOperationState(AbstractOperation::Finished);
         finish();
 
     } else {
@@ -61,7 +61,7 @@ void FirmwareDownloadOperation::onOperationTimeout()
 {
     QString msg;
 
-    switch(state()) {
+    switch(operationState()) {
     case FirmwareDownloadOperation::BootingToDFU:
         msg = QStringLiteral("Failed to reach DFU mode: Operation timeout.");
         break;

@@ -8,6 +8,8 @@ class QIODevice;
 namespace Flipper {
 namespace Zero {
 
+class DeviceState;
+
 class Recovery : public SignalingFailable
 {
     Q_OBJECT
@@ -26,13 +28,12 @@ public:
         Invalid
     };
 
-    Recovery(USBDeviceInfo info, QObject *parent = nullptr);
+    Recovery(DeviceState *deviceState, QObject *parent = nullptr);
     ~Recovery();
 
-    const QString &message() const;
+    DeviceState *deviceState() const;
 
     WirelessStatus wirelessStatus();
-    double progress() const;
 
     bool leaveDFU();
     bool setBootMode(BootMode mode);
@@ -46,18 +47,8 @@ public:
     bool downloadOptionBytes(QIODevice *file);
     bool downloadWirelessStack(QIODevice *file, uint32_t addr = 0);
 
-signals:
-    void messageChanged();
-    void progressChanged();
-
 private:
-    void setProgress(double progress);
-    void setMessage(const QString &msg);
-
-    USBDeviceInfo m_usbInfo;
-
-    QString m_message;
-    double m_progress;
+    DeviceState *m_deviceState;
 };
 
 }

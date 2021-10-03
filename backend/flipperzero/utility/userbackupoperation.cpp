@@ -27,8 +27,8 @@ const QString UserBackupOperation::description() const
 
 void UserBackupOperation::transitionToNextState()
 {
-    if(state() == BasicState::Ready) {
-        setState(State::CreatingDirectory);
+    if(operationState() == BasicState::Ready) {
+        setOperationState(State::CreatingDirectory);
 
         if(!m_deviceDirName.startsWith('/')) {
             finishWithError(QStringLiteral("Expecting absolute path for device directory"));
@@ -38,8 +38,8 @@ void UserBackupOperation::transitionToNextState()
             QTimer::singleShot(0, this, &UserBackupOperation::transitionToNextState);
         }
 
-    } else if(state() == State::CreatingDirectory) {
-        setState(State::GettingFileTree);
+    } else if(operationState() == State::CreatingDirectory) {
+        setOperationState(State::GettingFileTree);
 
         auto *op = new GetFileTreeOperation(device(), m_deviceDirName, this);
 
@@ -56,8 +56,8 @@ void UserBackupOperation::transitionToNextState()
 
         op->start();
 
-    } else if(state() == State::GettingFileTree) {
-        setState(State::ReadingFiles);
+    } else if(operationState() == State::GettingFileTree) {
+        setOperationState(State::ReadingFiles);
 
         if(!readFiles()) {
             finishWithError(QStringLiteral("Failed to read files from device"));

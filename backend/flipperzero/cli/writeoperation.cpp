@@ -30,7 +30,7 @@ void WriteOperation::onSerialPortReadyRead()
 {
     m_receivedData.append(serialPort()->readAll());
 
-    if(state() == State::SettingUp) {
+    if(operationState() == State::SettingUp) {
         if(m_receivedData.endsWith(FINISH_PROMPT)) {
             parseError();
             finish();
@@ -39,18 +39,18 @@ void WriteOperation::onSerialPortReadyRead()
             return;
         }
 
-        setState(State::WritingData);
+        setOperationState(State::WritingData);
 
         if(!writeChunk()) {
             finishWithError(QStringLiteral("Failed to write chunk"));
         }
 
-    } else if(state() == State::WritingData) {
+    } else if(operationState() == State::WritingData) {
         if(!m_receivedData.endsWith(FINISH_PROMPT)) {
             return;
         }
 
-        setState(State::SettingUp);
+        setOperationState(State::SettingUp);
 
         if(!m_file->bytesAvailable()) {
             finish();
@@ -69,7 +69,7 @@ bool WriteOperation::begin()
 {
     check_return_bool(m_file->bytesAvailable(), "No data is available for reading from file");
 
-    setState(State::SettingUp);
+    setOperationState(State::SettingUp);
     return writeSetupCommand();
 }
 

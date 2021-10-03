@@ -28,7 +28,7 @@ FlipperZero *FlipperZeroOperation::device() const
 
 void FlipperZeroOperation::start()
 {
-    if(state() != Ready) {
+    if(operationState() != Ready) {
         finishWithError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
         return;
     }

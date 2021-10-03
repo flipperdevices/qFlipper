@@ -9,7 +9,6 @@ CONFIG += c++11
 include(../qflipper_common.pri)
 
 SOURCES += \
-    abstractmessagingoperaton.cpp \
     abstractoperation.cpp \
     abstractoperationrunner.cpp \
     abstractserialoperation.cpp \
@@ -55,7 +54,6 @@ SOURCES += \
     updateregistry.cpp
 
 HEADERS += \
-    abstractmessagingoperaton.h \
     abstractoperation.h \
     abstractoperationrunner.h \
     abstractserialoperation.h \

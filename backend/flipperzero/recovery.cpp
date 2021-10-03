@@ -1,5 +1,6 @@
 #include "recovery.h"
 
+#include "devicestate.h"
 #include "dfusefile.h"
 #include "macros.h"
 
@@ -18,19 +19,24 @@ using namespace WB55;
 
 #define to_hex_str(num) (QString::number(num, 16))
 
-Recovery::Recovery(USBDeviceInfo info, QObject *parent):
+Recovery::Recovery(DeviceState *deviceState, QObject *parent):
     SignalingFailable(parent),
-    m_usbInfo(info)
+    m_deviceState(deviceState)
 {}
 
 Recovery::~Recovery()
 {}
 
+DeviceState *Recovery::deviceState() const
+{
+    return m_deviceState;
+}
+
 bool Recovery::leaveDFU()
 {
-    setMessage("Booting the device up...");
+    m_deviceState->setStatusString(QStringLiteral("Booting the device up..."));
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
     const auto success = device.beginTransaction() && device.leave();
 
     begin_ignore_block();
@@ -47,9 +53,9 @@ bool Recovery::leaveDFU()
 bool Recovery::setBootMode(BootMode mode)
 {
     const auto msg = (mode == BootMode::Normal) ? "Booting the device up..." : "Setting device to DFU boot mode...";
-    setMessage(msg);
+    m_deviceState->setStatusString(msg);
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
     if(!device.beginTransaction()) {
         setError("Can't set boot mode: Failed to initiate transaction.");
@@ -83,7 +89,7 @@ Recovery::WirelessStatus Recovery::wirelessStatus()
 {
     info_msg("Getting Co-Processor (Wireless) status...");
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
     if(!device.beginTransaction()) {
         info_msg("Failed to get FUS status. This is normal if the device has just rebooted.");
@@ -121,9 +127,9 @@ Recovery::WirelessStatus Recovery::wirelessStatus()
 
 bool Recovery::startFUS()
 {
-    setMessage("Starting firmware upgrade service (FUS)...");
+    m_deviceState->setStatusString("Starting firmware upgrade service (FUS)...");
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
     if(!device.beginTransaction()) {
         setError("Can't start FUS: Failed to initiate transaction.");
@@ -164,9 +170,9 @@ bool Recovery::startFUS()
 // TODO: check status to see if the wireless stack is present at all
 bool Recovery::startWirelessStack()
 {
-    setMessage("Attempting to start the Wireless Stack...");
+    m_deviceState->setStatusString("Attempting to start the Wireless Stack...");
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
     auto success = device.beginTransaction() && device.FUSStartWirelessStack();
     check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
@@ -180,9 +186,9 @@ bool Recovery::startWirelessStack()
 
 bool Recovery::deleteWirelessStack()
 {
-    setMessage("Deleting old co-processor firmware...");
+    m_deviceState->setStatusString("Deleting old co-processor firmware...");
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
     const auto success = device.beginTransaction() && device.FUSFwDelete() && device.endTransaction();
 
@@ -204,16 +210,16 @@ bool Recovery::downloadFirmware(QIODevice *file)
         return false;
 
     } else {
-        setMessage("Downloading the firmware, please wait...");
+        m_deviceState->setStatusString("Downloading the firmware, please wait...");
     }
 
     DfuseFile fw(file);
-    DfuseDevice dev(m_usbInfo);
+    DfuseDevice dev(m_deviceState->deviceInfo().usbInfo);
 
     file->close();
 
     connect(&dev, &DfuseDevice::progressChanged, this, [=](int operation, double progress) {
-        setProgress(progress / 2.0 + (operation == DfuseDevice::Download ? 50 : 0));
+        m_deviceState->setProgress(progress / 2.0 + (operation == DfuseDevice::Download ? 50 : 0));
     });
 
     const auto success = dev.beginTransaction() && dev.download(&fw) && dev.endTransaction();
@@ -238,10 +244,10 @@ bool Recovery::downloadWirelessStack(QIODevice *file, uint32_t addr)
         return false;
 
     } else {
-        setMessage("Downloading co-processor firmware image...");
+        m_deviceState->setStatusString("Downloading co-processor firmware image...");
     }
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
     if(!device.beginTransaction()) {
         setError("Can't download co-processor firmware image: Failed to initiate transaction.");
@@ -269,7 +275,7 @@ bool Recovery::downloadWirelessStack(QIODevice *file, uint32_t addr)
     }
 
     connect(&device, &DfuseDevice::progressChanged, this, [=](int operation, double progress) {
-        setProgress(progress / 2.0 + (operation == DfuseDevice::Download ? 50 : 0));
+        m_deviceState->setProgress(progress / 2.0 + (operation == DfuseDevice::Download ? 50 : 0));
     });
 
     bool success;
@@ -287,21 +293,11 @@ bool Recovery::downloadWirelessStack(QIODevice *file, uint32_t addr)
     return success;
 }
 
-void Recovery::setProgress(double progress)
-{
-    if(qFuzzyCompare(progress, m_progress)) {
-        return;
-    }
-
-    m_progress = progress;
-    emit progressChanged();
-}
-
 bool Recovery::upgradeWirelessStack()
 {
     info_msg("Sending FW_UPGRADE command...");
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
     const auto success = device.beginTransaction() && device.FUSFwUpgrade();
     check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
@@ -309,7 +305,7 @@ bool Recovery::upgradeWirelessStack()
     if(!success) {
         setError("Can't upgrade Co-Processor firmware: Failed to initiate installation.");
     } else {
-        setMessage("Upgrading Co-Processor firmware, please wait...");
+        m_deviceState->setStatusString("Upgrading Co-Processor firmware, please wait...");
     }
 
     return success;
@@ -317,7 +313,7 @@ bool Recovery::upgradeWirelessStack()
 
 bool Recovery::downloadOptionBytes(QIODevice *file)
 {
-    setMessage("Downloading Option Bytes...");
+    m_deviceState->setStatusString("Downloading Option Bytes...");
 
     check_return_bool(file->open(QIODevice::ReadOnly), "Failed to open file for reading");
     const OptionBytes loaded(file);
@@ -325,7 +321,7 @@ bool Recovery::downloadOptionBytes(QIODevice *file)
 
     check_return_bool(loaded.isValid(), "Failed to load option bytes from file");
 
-    STM32WB55 device(m_usbInfo);
+    STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
     check_return_bool(device.beginTransaction(), "Failed to initiate transaction");
     const OptionBytes actual = device.optionBytes();
@@ -363,25 +359,8 @@ bool Recovery::downloadOptionBytes(QIODevice *file)
     end_ignore_block();
 
     if(success) {
-        setMessage("Booting up the device...");
+        m_deviceState->setStatusString("Booting up the device...");
     }
 
     return success;
-}
-
-const QString &Recovery::message() const
-{
-    return m_message;
-}
-
-double Recovery::progress() const
-{
-    return m_progress;
-}
-
-void Recovery::setMessage(const QString &msg)
-{
-    m_message = msg;
-
-    emit messageChanged();
 }

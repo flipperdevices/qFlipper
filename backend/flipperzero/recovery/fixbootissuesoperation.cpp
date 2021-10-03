@@ -32,16 +32,16 @@ void FixBootIssuesOperation::transitionToNextState()
 
     stopTimeout();
 
-    if(state() == AbstractOperation::Ready) {
-        setState(FixBootIssuesOperation::StartingWirelessStack);
+    if(operationState() == AbstractOperation::Ready) {
+        setOperationState(FixBootIssuesOperation::StartingWirelessStack);
         startWirelessStack();
 
-    } else if(state() == FixBootIssuesOperation::StartingWirelessStack) {
-        setState(FixBootIssuesOperation::FixingBootMode);
+    } else if(operationState() == FixBootIssuesOperation::StartingWirelessStack) {
+        setOperationState(FixBootIssuesOperation::FixingBootMode);
         fixBootMode();
 
-    } else if(state() == FixBootIssuesOperation::FixingBootMode) {
-        setState(AbstractOperation::Finished);
+    } else if(operationState() == FixBootIssuesOperation::FixingBootMode) {
+        setOperationState(AbstractOperation::Finished);
         finish();
 
     } else {
@@ -54,9 +54,9 @@ void FixBootIssuesOperation::onOperationTimeout()
 {
     QString msg;
 
-    if(state() == FixBootIssuesOperation::StartingWirelessStack) {
+    if(operationState() == FixBootIssuesOperation::StartingWirelessStack) {
         msg = QStringLiteral("Failed to start the Wireless Stack: Operation timeout.");
-    } else if(state() == FixBootIssuesOperation::FixingBootMode) {
+    } else if(operationState() == FixBootIssuesOperation::FixingBootMode) {
         msg = QStringLiteral("Failed to set the Option Bytes: Operation timeout.");
     } else {
         msg = QStringLiteral("Should not have timed out here, probably a bug.");

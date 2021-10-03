@@ -29,11 +29,11 @@ const FileInfoList &GetFileTreeOperation::result() const
 
 void GetFileTreeOperation::transitionToNextState()
 {
-    if(state() == BasicState::Ready) {
-        setState(State::Running);
+    if(operationState() == BasicState::Ready) {
+        setOperationState(State::Running);
         listDirectory(m_rootPath);
 
-    } else if(state() == State::Running) {
+    } else if(operationState() == State::Running) {
         --m_pendingCount;
         auto *op = qobject_cast<ListOperation*>(sender());
 

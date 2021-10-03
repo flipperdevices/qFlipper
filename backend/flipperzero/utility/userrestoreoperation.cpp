@@ -32,27 +32,27 @@ const QString UserRestoreOperation::description() const
 
 void UserRestoreOperation::transitionToNextState()
 {
-    if(state() == BasicState::Ready) {
-        setState(State::ReadingBackupDir);
+    if(operationState() == BasicState::Ready) {
+        setOperationState(State::ReadingBackupDir);
         if(!readBackupDir()) {
             finishWithError(QStringLiteral("Failed to process backup directory"));
         } else {
             QTimer::singleShot(0, this, &UserRestoreOperation::transitionToNextState);
         }
 
-    } else if(state() == State::ReadingBackupDir) {
-        setState(State::DeletingFiles);
+    } else if(operationState() == State::ReadingBackupDir) {
+        setOperationState(State::DeletingFiles);
         if(!deleteFiles()) {
             finishWithError(QStringLiteral("Failed to delete old files"));
         }
 
-    } else if(state() == State::DeletingFiles) {
-        setState(State::WritingFiles);
+    } else if(operationState() == State::DeletingFiles) {
+        setOperationState(State::WritingFiles);
         if(!writeFiles()) {
             finishWithError(QStringLiteral("Failed to write new files"));
         }
 
-    } else if(state() == State::WritingFiles) {
+    } else if(operationState() == State::WritingFiles) {
         finish();
     } else {}
 }

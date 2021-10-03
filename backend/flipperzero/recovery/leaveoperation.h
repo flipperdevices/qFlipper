@@ -18,7 +18,7 @@ public:
     const QString description() const override;
 
 private slots:
-    void transitionToNextState() override;
+    void doNextOperationState() override;
 };
 
 }

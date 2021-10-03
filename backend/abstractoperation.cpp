@@ -7,7 +7,7 @@
 AbstractOperation::AbstractOperation(QObject *parent):
     QObject(parent),
     m_timeout(new QTimer(this)),
-    m_state(BasicState::Ready)
+    m_operationState(BasicState::Ready)
 {
     connect(this, &AbstractOperation::finished, m_timeout, &QTimer::stop);
     connect(m_timeout, &QTimer::timeout, this, &AbstractOperation::onOperationTimeout);
@@ -15,9 +15,9 @@ AbstractOperation::AbstractOperation(QObject *parent):
     m_timeout->setSingleShot(true);
 }
 
-int AbstractOperation::state() const
+int AbstractOperation::operationState() const
 {
-    return m_state;
+    return m_operationState;
 }
 
 void AbstractOperation::onOperationTimeout()
@@ -25,9 +25,9 @@ void AbstractOperation::onOperationTimeout()
     finishWithError(QStringLiteral("Operation timeout (generic)"));
 }
 
-void AbstractOperation::setState(int state)
+void AbstractOperation::setOperationState(int state)
 {
-    m_state = state;
+    m_operationState = state;
 }
 
 void AbstractOperation::finishWithError(const QString &errorMsg)

@@ -54,55 +54,55 @@ const QString AssetsDownloadOperation::description() const
 
 void AssetsDownloadOperation::transitionToNextState()
 {
-    if(state() == BasicState::Ready) {
-        setState(State::CheckingExtStorage);
+    if(operationState() == BasicState::Ready) {
+        setOperationState(State::CheckingExtStorage);
         if(!checkForExtStorage()) {
             finishWithError(QStringLiteral("Failed to access the external storage"));
         }
 
-    } else if(state() == State::CheckingExtStorage) {
-        setState(State::ExtractingArchive);
+    } else if(operationState() == State::CheckingExtStorage) {
+        setOperationState(State::ExtractingArchive);
         if(!extractArchive()) {
             finishWithError(QStringLiteral("Failed to extract the databases archive"));
         }
 
-    } else if(state() == State::ExtractingArchive) {
-        setState(ReadingLocalManifest);
+    } else if(operationState() == State::ExtractingArchive) {
+        setOperationState(ReadingLocalManifest);
         if(!readLocalManifest()) {
             finishWithError(QStringLiteral("Failed to read local manifest"));
         }
 
-    } else if(state() == State::ReadingLocalManifest) {
-        setState(CheckingDeviceManifest);
+    } else if(operationState() == State::ReadingLocalManifest) {
+        setOperationState(CheckingDeviceManifest);
         if(!checkForDeviceManifest()) {
             finishWithError(QStringLiteral("Failed to check for device manifest"));
         }
 
-    } else if(state() == State::CheckingDeviceManifest) {
-        setState(ReadingDeviceManifest);
+    } else if(operationState() == State::CheckingDeviceManifest) {
+        setOperationState(ReadingDeviceManifest);
         if(!readDeviceManifest()) {
             finishWithError(QStringLiteral("Failed to read device manifest"));
         }
 
-    } else if(state() == State::ReadingDeviceManifest) {
-        setState(State::BuildingFileLists);
+    } else if(operationState() == State::ReadingDeviceManifest) {
+        setOperationState(State::BuildingFileLists);
         if(!buildFileLists()) {
             finishWithError(QStringLiteral("Failed to build file lists"));
         }
 
-    } else if(state() == State::BuildingFileLists) {
-        setState(State::DeletingFiles);
+    } else if(operationState() == State::BuildingFileLists) {
+        setOperationState(State::DeletingFiles);
         if(!deleteFiles()) {
             finishWithError(QStringLiteral("Failed to delete files"));
         }
 
-    } else if(state() == State::DeletingFiles) {
-        setState(State::WritingFiles);
+    } else if(operationState() == State::DeletingFiles) {
+        setOperationState(State::WritingFiles);
         if(!writeFiles()) {
             finishWithError(QStringLiteral("Failed to write files"));
         }
 
-    } else if(state() == State::WritingFiles) {
+    } else if(operationState() == State::WritingFiles) {
         finish();
     }
 
@@ -198,7 +198,7 @@ bool AssetsDownloadOperation::checkForDeviceManifest()
             finishWithError(op->errorString());
         } else {
             if(op->type() != StatOperation::Type::RegularFile) {
-                setState(State::ReadingDeviceManifest);
+                setOperationState(State::ReadingDeviceManifest);
             } else {
                 m_isDeviceManifestPresent = true;
             }

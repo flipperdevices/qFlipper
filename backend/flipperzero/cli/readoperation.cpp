@@ -31,12 +31,12 @@ void ReadOperation::onSerialPortReadyRead()
 
     m_receivedData += serialPort()->readAll();
 
-    if(state() == State::SettingUp) {
+    if(operationState() == State::SettingUp) {
         if(m_receivedData.endsWith(READY_PROMPT)) {
             if(!parseSetupReply()) {
                 finish();
             } else {
-                setState(State::ReceivingData);
+                setOperationState(State::ReceivingData);
                 serialPort()->write("\n");
             }
 
@@ -46,7 +46,7 @@ void ReadOperation::onSerialPortReadyRead()
             finish();
         }
 
-    } else if(state() == State::ReceivingData) {
+    } else if(operationState() == State::ReceivingData) {
         if(m_receivedData.endsWith(READY_PROMPT)) {
             m_file->write(m_receivedData.chopped(READY_PROMPT.size()));
             m_receivedData.clear();
@@ -67,7 +67,7 @@ bool ReadOperation::begin()
     const auto success = (serialPort()->write(cmdLine) == cmdLine.size()) && serialPort()->flush();
 
     if(success) {
-        setState(State::SettingUp);
+        setOperationState(State::SettingUp);
         startTimeout();
     }
 
