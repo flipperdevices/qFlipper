@@ -29,7 +29,7 @@ const FileInfoList &GetFileTreeOperation::result() const
 
 void GetFileTreeOperation::transitionToNextState()
 {
-    if(operationState() == BasicState::Ready) {
+    if(operationState() == BasicOperationState::Ready) {
         setOperationState(State::Running);
         listDirectory(m_rootPath);
 

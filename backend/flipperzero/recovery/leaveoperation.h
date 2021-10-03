@@ -9,8 +9,8 @@ class LeaveOperation : public RecoveryOperation
 {
     Q_OBJECT
 
-    enum State {
-        WaitingForOnline = BasicState::User
+    enum OperationState {
+        WaitingForOnline = BasicOperationState::User
     };
 
 public:

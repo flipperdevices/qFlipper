@@ -6,6 +6,7 @@ namespace Flipper {
 namespace Zero {
 
 class Recovery;
+class DeviceState;
 
 class RecoveryOperation : public AbstractOperation
 {
@@ -18,13 +19,12 @@ public:
     void start() override;
     void finish() override;
 
-public slots:
-    void onDeviceOnlineChanged(bool isOnline);
-
 protected:
     Recovery *recovery() const;
+    DeviceState *deviceState() const;
 
-protected slots:
+private slots:
+    void onDeviceOnlineChanged();
     virtual void doNextOperationState() = 0;
 
 private:

@@ -11,7 +11,7 @@ class AbstractOperation: public QObject, public Failable
     Q_OBJECT
 
 public:
-    enum BasicState {
+    enum BasicOperationState {
         Ready = 0,
         Finished,
         User

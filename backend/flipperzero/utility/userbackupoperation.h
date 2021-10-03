@@ -14,7 +14,7 @@ class UserBackupOperation : public FlipperZeroOperation
     Q_OBJECT
 
     enum State {
-        CreatingDirectory = BasicState::User,
+        CreatingDirectory = BasicOperationState::User,
         GettingFileTree,
         ReadingFiles
     };

@@ -54,7 +54,7 @@ const QString AssetsDownloadOperation::description() const
 
 void AssetsDownloadOperation::transitionToNextState()
 {
-    if(operationState() == BasicState::Ready) {
+    if(operationState() == BasicOperationState::Ready) {
         setOperationState(State::CheckingExtStorage);
         if(!checkForExtStorage()) {
             finishWithError(QStringLiteral("Failed to access the external storage"));

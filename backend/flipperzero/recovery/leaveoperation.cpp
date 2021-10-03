@@ -1,6 +1,7 @@
 #include "leaveoperation.h"
 
 #include "flipperzero/recovery.h"
+#include "flipperzero/devicestate.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -11,21 +12,21 @@ LeaveOperation::LeaveOperation(Recovery *recovery, QObject *parent):
 
 const QString LeaveOperation::description() const
 {
-    return QStringLiteral("Leave Recovery Mode");
+    return QStringLiteral("Exit Recovery Mode");
 }
 
 void LeaveOperation::doNextOperationState()
 {
-    if(operationState() == BasicState::Ready) {
-        setOperationState(State::WaitingForOnline);
+    if(operationState() == BasicOperationState::Ready) {
+        setOperationState(OperationState::WaitingForOnline);
 
-//        setMessage(tr("Exiting recovery mode..."));
+        deviceState()->setStatusString(tr("Exiting recovery mode..."));
 
         if(!recovery()->leaveDFU()) {
             finishWithError(recovery()->errorString());
         }
 
-    } else if(operationState() == State::WaitingForOnline) {
+    } else if(operationState() == OperationState::WaitingForOnline) {
         finish();
     }
 }

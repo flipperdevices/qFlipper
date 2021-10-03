@@ -13,7 +13,7 @@ class GetFileTreeOperation : public FlipperZeroOperation
     Q_OBJECT
 
     enum State {
-        Running = BasicState::User
+        Running = BasicOperationState::User
     };
 
 public:

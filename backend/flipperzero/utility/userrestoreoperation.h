@@ -13,7 +13,7 @@ class UserRestoreOperation : public FlipperZeroOperation
     Q_OBJECT
 
     enum State {
-        ReadingBackupDir = BasicState::User,
+        ReadingBackupDir = BasicOperationState::User,
         DeletingFiles,
         WritingFiles
     };

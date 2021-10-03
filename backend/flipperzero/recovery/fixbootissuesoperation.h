@@ -1,11 +1,11 @@
 #pragma once
 
-#include "flipperzero/flipperzerooperation.h"
+#include "recoveryoperation.h"
 
 namespace Flipper {
 namespace Zero {
 
-class FixBootIssuesOperation : public FlipperZeroOperation
+class FixBootIssuesOperation : public RecoveryOperation
 {
     Q_OBJECT
 
@@ -15,7 +15,7 @@ class FixBootIssuesOperation : public FlipperZeroOperation
     };
 
 public:
-    FixBootIssuesOperation(FlipperZero *device, QObject *parent = nullptr);
+    FixBootIssuesOperation(Recovery *recovery, QObject *parent = nullptr);
     ~FixBootIssuesOperation();
 
     const QString description() const override;

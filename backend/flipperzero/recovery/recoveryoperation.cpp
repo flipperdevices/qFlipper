@@ -2,6 +2,9 @@
 
 #include <QTimer>
 
+#include "flipperzero/recovery.h"
+#include "flipperzero/devicestate.h"
+
 #define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
 
 using namespace Flipper;
@@ -14,7 +17,8 @@ RecoveryOperation::RecoveryOperation(Recovery *recovery, QObject *parent):
 
 void RecoveryOperation::start()
 {
-    if(operationState() == BasicState::Ready) {
+    if(operationState() == BasicOperationState::Ready) {
+        connect(m_recovery->deviceState(), &DeviceState::isOnlineChanged, this, &RecoveryOperation::onDeviceOnlineChanged);
         CALL_LATER(this, &RecoveryOperation::doNextOperationState);
     } else {
         finishWithError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
@@ -23,12 +27,14 @@ void RecoveryOperation::start()
 
 void RecoveryOperation::finish()
 {
+    disconnect(m_recovery->deviceState(), &DeviceState::isOnlineChanged, this, &RecoveryOperation::onDeviceOnlineChanged);
     emit finished();
 }
 
-void RecoveryOperation::onDeviceOnlineChanged(bool isOnline)
+void RecoveryOperation::onDeviceOnlineChanged()
 {
-    if(isOnline) {
+    if(m_recovery->deviceState()->isOnline()) {
+        stopTimeout();
         CALL_LATER(this, &RecoveryOperation::doNextOperationState);
     } else {
         startTimeout();
@@ -38,4 +44,9 @@ void RecoveryOperation::onDeviceOnlineChanged(bool isOnline)
 Recovery *RecoveryOperation::recovery() const
 {
     return m_recovery;
+}
+
+DeviceState *RecoveryOperation::deviceState() const
+{
+    return m_recovery->deviceState();
 }

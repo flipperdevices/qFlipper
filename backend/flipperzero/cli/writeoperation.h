@@ -14,7 +14,7 @@ class WriteOperation : public AbstractSerialOperation
     Q_OBJECT
 
     enum State {
-        SettingUp = BasicState::Ready,
+        SettingUp = BasicOperationState::Ready,
         WritingData
     };
 

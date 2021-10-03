@@ -27,7 +27,7 @@ const QString UserBackupOperation::description() const
 
 void UserBackupOperation::transitionToNextState()
 {
-    if(operationState() == BasicState::Ready) {
+    if(operationState() == BasicOperationState::Ready) {
         setOperationState(State::CreatingDirectory);
 
         if(!m_deviceDirName.startsWith('/')) {

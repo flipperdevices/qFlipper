@@ -17,7 +17,7 @@ class AssetsDownloadOperation : public FlipperZeroOperation
 
 public:
     enum State {
-        CheckingExtStorage = BasicState::User,
+        CheckingExtStorage = BasicOperationState::User,
         ExtractingArchive,
         ReadingLocalManifest,
         CheckingDeviceManifest,

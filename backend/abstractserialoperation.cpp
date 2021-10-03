@@ -24,7 +24,7 @@ void AbstractSerialOperation::start()
 void AbstractSerialOperation::finish()
 {
     stopTimeout();
-    setOperationState(BasicState::Finished);
+    setOperationState(BasicOperationState::Finished);
 
     disconnect(m_serialPort, &QSerialPort::readyRead, this, &AbstractSerialOperation::onSerialPortReadyRead);
     disconnect(m_serialPort, &QSerialPort::errorOccurred, this, &AbstractSerialOperation::onSerialPortError);

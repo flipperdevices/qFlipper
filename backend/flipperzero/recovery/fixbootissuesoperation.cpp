@@ -1,31 +1,34 @@
 #include "fixbootissuesoperation.h"
 
-#include "flipperzero/flipperzero.h"
 #include "flipperzero/recovery.h"
+#include "flipperzero/devicestate.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-FixBootIssuesOperation::FixBootIssuesOperation(FlipperZero *device, QObject *parent):
-    FlipperZeroOperation(device, parent)
+FixBootIssuesOperation::FixBootIssuesOperation(Recovery *recovery, QObject *parent):
+    RecoveryOperation(recovery, parent)
 {
-    device->setPersistent(true);
-    device->setMessage(QStringLiteral("Fix boot issues operation pending..."));
+//    recovery->setPersistent(true);
+//    recovery->setMessage(QStringLiteral("Fix boot issues operation pending..."));
 }
 
 FixBootIssuesOperation::~FixBootIssuesOperation()
 {
-    device()->setPersistent(false);
+//    deviceState()->setPersistent(false);
 }
 
 const QString FixBootIssuesOperation::description() const
 {
-    return QStringLiteral("Fix boot issues @%1 %2").arg(device()->model(), device()->name());
+    const auto &model = recovery()->deviceState()->deviceInfo().model;
+    const auto &name = recovery()->deviceState()->deviceInfo().name;
+
+    return QStringLiteral("Fix boot issues @%1 %2").arg(model, name);
 }
 
 void FixBootIssuesOperation::transitionToNextState()
 {
-    if(!device()->isOnline()) {
+    if(!deviceState()->isOnline()) {
         startTimeout();
         return;
     }
@@ -46,7 +49,7 @@ void FixBootIssuesOperation::transitionToNextState()
 
     } else {
         finishWithError(QStringLiteral("Unexpected state."));
-        device()->setError(errorString());
+//        deviceState()->setError(errorString());
     }
 }
 
@@ -63,17 +66,17 @@ void FixBootIssuesOperation::onOperationTimeout()
     }
 
     finishWithError(msg);
-    device()->setError(errorString());
+//    deviceState()->setError(errorString());
 }
 
 void FixBootIssuesOperation::startWirelessStack()
 {
-    const auto wirelessStatus = device()->recovery()->wirelessStatus();
+    const auto wirelessStatus = recovery()->wirelessStatus();
 
     if(wirelessStatus == Recovery::WirelessStatus::FUSRunning) {
-        if(!device()->recovery()->startWirelessStack()) {
-            finishWithError(device()->errorString());
-        } else if(device()->recovery()->wirelessStatus() == Recovery::WirelessStatus::UnhandledState) {
+        if(!recovery()->startWirelessStack()) {
+            finishWithError(deviceState()->errorString());
+        } else if(recovery()->wirelessStatus() == Recovery::WirelessStatus::UnhandledState) {
             transitionToNextState();
         } else {}
 
@@ -81,18 +84,18 @@ void FixBootIssuesOperation::startWirelessStack()
         transitionToNextState();
     } else if(wirelessStatus == Recovery::WirelessStatus::UnhandledState) {
         finishWithError(QStringLiteral("Unhandled state. Probably a BUG."));
-        device()->setError(errorString());
+//        deviceState()->setError(errorString());
     } else {
         finishWithError(QStringLiteral("Failed to get Wireless core status."));
-        device()->setError(errorString());
+//        deviceState()->setError(errorString());
     }
 }
 
 void FixBootIssuesOperation::fixBootMode()
 {
-    if(!device()->isDFU()) {
+    if(!deviceState()->isRecoveryMode()) {
         transitionToNextState();
-    } else if (!device()->recovery()->setBootMode(Recovery::BootMode::Normal)) {
-        finishWithError(device()->errorString());
+    } else if (!recovery()->setBootMode(Recovery::BootMode::Normal)) {
+        finishWithError(deviceState()->errorString());
     } else {}
 }

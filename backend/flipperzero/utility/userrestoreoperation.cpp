@@ -32,7 +32,7 @@ const QString UserRestoreOperation::description() const
 
 void UserRestoreOperation::transitionToNextState()
 {
-    if(operationState() == BasicState::Ready) {
+    if(operationState() == BasicOperationState::Ready) {
         setOperationState(State::ReadingBackupDir);
         if(!readBackupDir()) {
             finishWithError(QStringLiteral("Failed to process backup directory"));
