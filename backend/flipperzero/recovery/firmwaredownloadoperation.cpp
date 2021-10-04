@@ -3,85 +3,40 @@
 #include <QFutureWatcher>
 #include <QtConcurrent/QtConcurrentRun>
 
-#include "flipperzero/flipperzero.h"
+#include "flipperzero/devicestate.h"
 #include "flipperzero/recovery.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-FirmwareDownloadOperation::FirmwareDownloadOperation(FlipperZero *device, QIODevice *file, QObject *parent):
-    FlipperZeroOperation(device, parent),
+FirmwareDownloadOperation::FirmwareDownloadOperation(Recovery *recovery, QIODevice *file, QObject *parent):
+    AbstractRecoveryOperation(recovery, parent),
     m_file(file)
-{
-    device->setMessage(QStringLiteral("Firmware download pending..."));
-}
+{}
 
 FirmwareDownloadOperation::~FirmwareDownloadOperation()
 {
+    // TODO: not hide the deletion of files?
     m_file->deleteLater();
 }
 
 const QString FirmwareDownloadOperation::description() const
 {
-    return QStringLiteral("Firmware Download @%1 %2").arg(device()->model(), device()->name());
+    const auto &model = deviceState()->deviceInfo().model;
+    const auto &name = deviceState()->deviceInfo().name;
+
+    return QStringLiteral("Firmware Download @%1 %2").arg(model, name);
 }
 
-void FirmwareDownloadOperation::transitionToNextState()
+void FirmwareDownloadOperation::advanceOperationState()
 {
-    if(!device()->isOnline()) {
-        startTimeout();
-        return;
-    }
-
-    stopTimeout();
-
     if(operationState() == AbstractOperation::Ready) {
-        setOperationState(State::BootingToDFU);
-        booToDFU();
-
-    } else if(operationState() == State::BootingToDFU) {
         setOperationState(State::DownloadingFirmware);
         downloadFirmware();
-
     } else if(operationState() == State::DownloadingFirmware) {
-        setOperationState(State::BootingToFirmware);
-        bootToFirmware();
-
-    } else if(operationState() == State::BootingToFirmware) {
-        setOperationState(AbstractOperation::Finished);
         finish();
-
     } else {
         finishWithError(QStringLiteral("Unexpected state."));
-        device()->setError(errorString());
-    }
-}
-
-void FirmwareDownloadOperation::onOperationTimeout()
-{
-    QString msg;
-
-    switch(operationState()) {
-    case FirmwareDownloadOperation::BootingToDFU:
-        msg = QStringLiteral("Failed to reach DFU mode: Operation timeout.");
-        break;
-    case FirmwareDownloadOperation::BootingToFirmware:
-        msg = QStringLiteral("Failed to reboot the device: Operation timeout.");
-        break;
-    default:
-        msg = QStringLiteral("Should not have timed out here, probably a bug.");
-    }
-
-    finishWithError(msg);
-    device()->setError(msg);
-}
-
-void FirmwareDownloadOperation::booToDFU()
-{
-    if(device()->isDFU()) {
-        transitionToNextState();
-    } else if(!device()->bootToDFU()) {
-        finishWithError(device()->errorString());
     }
 }
 
@@ -91,20 +46,13 @@ void FirmwareDownloadOperation::downloadFirmware()
 
     connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
         if(watcher->result()) {
-            transitionToNextState();
+            advanceOperationState();
         } else {
-            finishWithError(device()->errorString());
+            finishWithError(recovery()->errorString());
         }
 
         watcher->deleteLater();
     });
 
-    watcher->setFuture(QtConcurrent::run(device()->recovery(), &Recovery::downloadFirmware, m_file));
-}
-
-void FirmwareDownloadOperation::bootToFirmware()
-{
-    if(!device()->recovery()->leaveDFU()) {
-        finishWithError(device()->errorString());
-    }
+    watcher->setFuture(QtConcurrent::run(recovery(), &Recovery::downloadFirmware, m_file));
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "flipperzero/flipperzerooperation.h"
+#include "abstractrecoveryoperation.h"
 
 class QTimer;
 class QIODevice;
@@ -8,33 +8,30 @@ class QIODevice;
 namespace Flipper {
 namespace Zero {
 
-class WirelessStackDownloadOperation : public FlipperZeroOperation
+class WirelessStackDownloadOperation : public AbstractRecoveryOperation
 {
     Q_OBJECT
 
     enum State {
-        BootingToDFU = AbstractOperation::User,
-        SettingDFUBoot,
+        SettingDFUBoot = AbstractOperation::User,
         StartingFUS,
         DeletingWirelessStack,
         DownloadingWirelessStack,
-        UpgradingWirelessStack,
-        ResettingDFUBoot
+        UpgradingWirelessStack
     };
 
 public:
-    WirelessStackDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t targetAddress = 0, QObject *parent = nullptr);
+    WirelessStackDownloadOperation(Recovery *recovery, QIODevice *file, uint32_t targetAddress = 0, QObject *parent = nullptr);
     ~WirelessStackDownloadOperation();
 
     const QString description() const override;
 
 private slots:
-    void transitionToNextState() override;
+    void advanceOperationState() override;
     void onOperationTimeout() override;
 
 private:
-    void bootToDFU();
-    void setDFUBoot(bool set);
+    void setDFUBoot();
     void startFUS();
     void deleteWirelessStack();
     bool isWirelessStackDeleted();

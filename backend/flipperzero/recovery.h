@@ -1,7 +1,9 @@
 #pragma once
 
+#include <QObject>
+
+#include "failable.h"
 #include "usbdeviceinfo.h"
-#include "signalingfailable.h"
 
 class QIODevice;
 
@@ -10,7 +12,7 @@ namespace Zero {
 
 class DeviceState;
 
-class Recovery : public SignalingFailable
+class Recovery : public QObject, public Failable
 {
     Q_OBJECT
 
@@ -35,7 +37,7 @@ public:
 
     WirelessStatus wirelessStatus();
 
-    bool leaveDFU();
+    bool exitRecoveryMode();
     bool setBootMode(BootMode mode);
 
     bool startFUS();

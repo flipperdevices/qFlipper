@@ -7,7 +7,7 @@ using namespace Flipper;
 using namespace Zero;
 
 LeaveOperation::LeaveOperation(Recovery *recovery, QObject *parent):
-    RecoveryOperation(recovery, parent)
+    AbstractRecoveryOperation(recovery, parent)
 {}
 
 const QString LeaveOperation::description() const
@@ -15,14 +15,14 @@ const QString LeaveOperation::description() const
     return QStringLiteral("Exit Recovery Mode");
 }
 
-void LeaveOperation::doNextOperationState()
+void LeaveOperation::advanceOperationState()
 {
     if(operationState() == BasicOperationState::Ready) {
         setOperationState(OperationState::WaitingForOnline);
 
         deviceState()->setStatusString(tr("Exiting recovery mode..."));
 
-        if(!recovery()->leaveDFU()) {
+        if(!recovery()->exitRecoveryMode()) {
             finishWithError(recovery()->errorString());
         }
 

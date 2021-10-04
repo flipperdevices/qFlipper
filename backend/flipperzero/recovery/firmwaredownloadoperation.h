@@ -1,36 +1,31 @@
 #pragma once
 
-#include "flipperzero/flipperzerooperation.h"
+#include "abstractrecoveryoperation.h"
 
 class QIODevice;
 
 namespace Flipper {
 namespace Zero {
 
-class FirmwareDownloadOperation : public FlipperZeroOperation
+class FirmwareDownloadOperation : public AbstractRecoveryOperation
 {
     Q_OBJECT
 
     enum State {
-        BootingToDFU = AbstractOperation::User,
-        DownloadingFirmware,
-        BootingToFirmware,
+        DownloadingFirmware = AbstractOperation::User
     };
 
 public:
-    FirmwareDownloadOperation(FlipperZero *device, QIODevice *file, QObject *parent = nullptr);
+    FirmwareDownloadOperation(Recovery *recovery, QIODevice *file, QObject *parent = nullptr);
     ~FirmwareDownloadOperation();
 
     const QString description() const override;
 
 private slots:
-    void transitionToNextState() override;
-    void onOperationTimeout() override;
+    void advanceOperationState() override;
 
 private:
-    void booToDFU();
     void downloadFirmware();
-    void bootToFirmware();
 
     QIODevice *m_file;
 };

@@ -32,6 +32,7 @@ signals:
 
 protected slots:
     virtual void onOperationTimeout();
+    void onOperationFinished();
 
 protected:
     void setOperationState(int state);

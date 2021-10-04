@@ -20,7 +20,7 @@ using namespace WB55;
 #define to_hex_str(num) (QString::number(num, 16))
 
 Recovery::Recovery(DeviceState *deviceState, QObject *parent):
-    SignalingFailable(parent),
+    QObject(parent),
     m_deviceState(deviceState)
 {}
 
@@ -32,7 +32,7 @@ DeviceState *Recovery::deviceState() const
     return m_deviceState;
 }
 
-bool Recovery::leaveDFU()
+bool Recovery::exitRecoveryMode()
 {
     m_deviceState->setStatusString(QStringLiteral("Booting the device up..."));
 

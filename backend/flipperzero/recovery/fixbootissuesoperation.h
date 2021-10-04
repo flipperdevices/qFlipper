@@ -1,11 +1,11 @@
 #pragma once
 
-#include "recoveryoperation.h"
+#include "abstractrecoveryoperation.h"
 
 namespace Flipper {
 namespace Zero {
 
-class FixBootIssuesOperation : public RecoveryOperation
+class FixBootIssuesOperation : public AbstractRecoveryOperation
 {
     Q_OBJECT
 
@@ -21,7 +21,7 @@ public:
     const QString description() const override;
 
 private slots:
-    void transitionToNextState() override;
+    void advanceOperationState() override;
     void onOperationTimeout() override;
 
 private:

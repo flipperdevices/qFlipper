@@ -27,11 +27,11 @@ SOURCES += \
     flipperzero/flipperzero.cpp \
     flipperzero/flipperzerooperation.cpp \
     flipperzero/recovery.cpp \
+    flipperzero/recovery/abstractrecoveryoperation.cpp \
     flipperzero/recovery/firmwaredownloadoperation.cpp \
     flipperzero/recovery/fixbootissuesoperation.cpp \
     flipperzero/recovery/fixoptionbytesoperation.cpp \
     flipperzero/recovery/leaveoperation.cpp \
-    flipperzero/recovery/recoveryoperation.cpp \
     flipperzero/recovery/wirelessstackdownloadoperation.cpp \
     flipperzero/recoveryinterface.cpp \
     flipperzero/screenstreaminterface.cpp \
@@ -75,11 +75,11 @@ HEADERS += \
     flipperzero/flipperzero.h \
     flipperzero/flipperzerooperation.h \
     flipperzero/recovery.h \
+    flipperzero/recovery/abstractrecoveryoperation.h \
     flipperzero/recovery/firmwaredownloadoperation.h \
     flipperzero/recovery/fixbootissuesoperation.h \
     flipperzero/recovery/fixoptionbytesoperation.h \
     flipperzero/recovery/leaveoperation.h \
-    flipperzero/recovery/recoveryoperation.h \
     flipperzero/recovery/wirelessstackdownloadoperation.h \
     flipperzero/recoveryinterface.h \
     flipperzero/screenstreaminterface.h \

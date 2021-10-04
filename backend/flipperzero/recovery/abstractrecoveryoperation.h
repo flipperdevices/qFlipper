@@ -8,13 +8,13 @@ namespace Zero {
 class Recovery;
 class DeviceState;
 
-class RecoveryOperation : public AbstractOperation
+class AbstractRecoveryOperation : public AbstractOperation
 {
     Q_OBJECT
 
 public:
-    RecoveryOperation(Recovery *recovery, QObject *parent = nullptr);
-    virtual ~RecoveryOperation() {}
+    AbstractRecoveryOperation(Recovery *recovery, QObject *parent = nullptr);
+    virtual ~AbstractRecoveryOperation() {}
 
     void start() override;
     void finish() override;
@@ -25,7 +25,7 @@ protected:
 
 private slots:
     void onDeviceOnlineChanged();
-    virtual void doNextOperationState() = 0;
+    virtual void advanceOperationState() = 0;
 
 private:
     Recovery *m_recovery;

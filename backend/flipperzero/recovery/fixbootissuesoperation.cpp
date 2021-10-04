@@ -7,34 +7,22 @@ using namespace Flipper;
 using namespace Zero;
 
 FixBootIssuesOperation::FixBootIssuesOperation(Recovery *recovery, QObject *parent):
-    RecoveryOperation(recovery, parent)
-{
-//    recovery->setPersistent(true);
-//    recovery->setMessage(QStringLiteral("Fix boot issues operation pending..."));
-}
+    AbstractRecoveryOperation(recovery, parent)
+{}
 
 FixBootIssuesOperation::~FixBootIssuesOperation()
-{
-//    deviceState()->setPersistent(false);
-}
+{}
 
 const QString FixBootIssuesOperation::description() const
 {
-    const auto &model = recovery()->deviceState()->deviceInfo().model;
-    const auto &name = recovery()->deviceState()->deviceInfo().name;
+    const auto &model = deviceState()->deviceInfo().model;
+    const auto &name = deviceState()->deviceInfo().name;
 
     return QStringLiteral("Fix boot issues @%1 %2").arg(model, name);
 }
 
-void FixBootIssuesOperation::transitionToNextState()
+void FixBootIssuesOperation::advanceOperationState()
 {
-    if(!deviceState()->isOnline()) {
-        startTimeout();
-        return;
-    }
-
-    stopTimeout();
-
     if(operationState() == AbstractOperation::Ready) {
         setOperationState(FixBootIssuesOperation::StartingWirelessStack);
         startWirelessStack();
@@ -49,7 +37,6 @@ void FixBootIssuesOperation::transitionToNextState()
 
     } else {
         finishWithError(QStringLiteral("Unexpected state."));
-//        deviceState()->setError(errorString());
     }
 }
 
@@ -66,7 +53,6 @@ void FixBootIssuesOperation::onOperationTimeout()
     }
 
     finishWithError(msg);
-//    deviceState()->setError(errorString());
 }
 
 void FixBootIssuesOperation::startWirelessStack()
@@ -77,25 +63,23 @@ void FixBootIssuesOperation::startWirelessStack()
         if(!recovery()->startWirelessStack()) {
             finishWithError(deviceState()->errorString());
         } else if(recovery()->wirelessStatus() == Recovery::WirelessStatus::UnhandledState) {
-            transitionToNextState();
+            advanceOperationState();
         } else {}
 
     } else if(wirelessStatus == Recovery::WirelessStatus::WSRunning) {
-        transitionToNextState();
+        advanceOperationState();
     } else if(wirelessStatus == Recovery::WirelessStatus::UnhandledState) {
         finishWithError(QStringLiteral("Unhandled state. Probably a BUG."));
-//        deviceState()->setError(errorString());
     } else {
         finishWithError(QStringLiteral("Failed to get Wireless core status."));
-//        deviceState()->setError(errorString());
     }
 }
 
 void FixBootIssuesOperation::fixBootMode()
 {
     if(!deviceState()->isRecoveryMode()) {
-        transitionToNextState();
+        advanceOperationState();
     } else if (!recovery()->setBootMode(Recovery::BootMode::Normal)) {
-        finishWithError(deviceState()->errorString());
+        finishWithError(recovery()->errorString());
     } else {}
 }

@@ -5,49 +5,40 @@
 #include <QFutureWatcher>
 #include <QtConcurrent/QtConcurrentRun>
 
-#include "flipperzero/flipperzero.h"
+#include "flipperzero/devicestate.h"
 #include "flipperzero/recovery.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-WirelessStackDownloadOperation::WirelessStackDownloadOperation(FlipperZero *device, QIODevice *file, uint32_t targetAddress, QObject *parent):
-    FlipperZeroOperation(device, parent),
+WirelessStackDownloadOperation::WirelessStackDownloadOperation(Recovery *recovery, QIODevice *file, uint32_t targetAddress, QObject *parent):
+    AbstractRecoveryOperation(recovery, parent),
     m_file(file),
     m_loopTimer(new QTimer(this)),
     m_targetAddress(targetAddress)
 {
-    device->setMessage(QStringLiteral("Co-Processor firmware update pending..."));
-
-    connect(m_loopTimer, &QTimer::timeout, this, &WirelessStackDownloadOperation::transitionToNextState);
+    connect(m_loopTimer, &QTimer::timeout, this, &WirelessStackDownloadOperation::advanceOperationState);
 }
 
 WirelessStackDownloadOperation::~WirelessStackDownloadOperation()
 {
+    // TODO: not hide the deletion of files?
     m_file->deleteLater();
 }
 
 const QString WirelessStackDownloadOperation::description() const
 {
-    return QStringLiteral("Co-Processor Firmware Download @%1 %2").arg(device()->model(), device()->name());
+    const auto &model = deviceState()->deviceInfo().model;
+    const auto &name = deviceState()->deviceInfo().name;
+
+    return QStringLiteral("Co-Processor Firmware Download @%1 %2").arg(model, name);
 }
 
-void WirelessStackDownloadOperation::transitionToNextState()
+void WirelessStackDownloadOperation::advanceOperationState()
 {
-    if(!device()->isOnline()) {
-        startTimeout();
-        return;
-    }
-
-    stopTimeout();
-
     if(operationState() == AbstractOperation::Ready) {
-        setOperationState(WirelessStackDownloadOperation::BootingToDFU);
-        bootToDFU();
-
-    } else if(operationState() == WirelessStackDownloadOperation::BootingToDFU) {
         setOperationState(WirelessStackDownloadOperation::SettingDFUBoot);
-        setDFUBoot(true);
+        setDFUBoot();
 
     } else if(operationState() == WirelessStackDownloadOperation::SettingDFUBoot) {
         setOperationState(WirelessStackDownloadOperation::StartingFUS);
@@ -69,17 +60,11 @@ void WirelessStackDownloadOperation::transitionToNextState()
 
     } else if(operationState() == WirelessStackDownloadOperation::UpgradingWirelessStack) {
         if(isWirelessStackUpgraded()) {
-            setOperationState(WirelessStackDownloadOperation::ResettingDFUBoot);
-            setDFUBoot(false);
+            finish();
         }
-
-    } else if(operationState() == WirelessStackDownloadOperation::ResettingDFUBoot) {
-        setOperationState(AbstractOperation::Finished);
-        finish();
 
     } else {
         finishWithError(QStringLiteral("Unexpected state."));
-        device()->setError(errorString());
     }
 }
 
@@ -87,9 +72,7 @@ void WirelessStackDownloadOperation::onOperationTimeout()
 {
     QString msg;
 
-    if(operationState() == WirelessStackDownloadOperation::BootingToDFU) {
-        msg = QStringLiteral("Failed to enter DFU mode: Operation timeout.");
-    } else if(operationState() == WirelessStackDownloadOperation::SettingDFUBoot) {
+    if(operationState() == WirelessStackDownloadOperation::SettingDFUBoot) {
         msg = QStringLiteral("Failed to set DFU only boot mode: Operation timeout.");
     } else if(operationState() == WirelessStackDownloadOperation::StartingFUS) {
         msg = QStringLiteral("Failed to start Firmware Upgrade Service: Operation timeout.");
@@ -97,45 +80,31 @@ void WirelessStackDownloadOperation::onOperationTimeout()
         msg = QStringLiteral("Failed to delete existing Wireless Stack: Operation timeout.");
     } else if(operationState() == WirelessStackDownloadOperation::UpgradingWirelessStack) {
         msg = QStringLiteral("Failed to upgrade Wireless Stack: Operation timeout.");
-    } else if(operationState() == WirelessStackDownloadOperation::ResettingDFUBoot) {
-        msg = QStringLiteral("Failed to reset DFU only boot mode: Operation timeout.");
     } else {
         msg = QStringLiteral("Should not have timed out here, probably a bug.");
     }
 
     finishWithError(msg);
-    device()->setError(errorString());
 }
 
-void WirelessStackDownloadOperation::bootToDFU()
+void WirelessStackDownloadOperation::setDFUBoot()
 {
-    if(device()->isDFU()) {
-        transitionToNextState();
-    } else if(!device()->bootToDFU()) {
-        finishWithError(device()->errorString());
-    } else {}
-}
-
-void WirelessStackDownloadOperation::setDFUBoot(bool set)
-{
-    const auto bootMode = set ? Recovery::BootMode::DFUOnly : Recovery::BootMode::Normal;
-
-    if(!device()->recovery()->setBootMode(bootMode)) {
-        finishWithError(device()->errorString());
+    if(!recovery()->setBootMode(Recovery::BootMode::DFUOnly)) {
+        finishWithError(recovery()->errorString());
     }
 }
 
 void WirelessStackDownloadOperation::startFUS()
 {
-    if(!device()->recovery()->startFUS()) {
-        finishWithError(device()->errorString());
+    if(!recovery()->startFUS()) {
+        finishWithError(recovery()->errorString());
     }
 }
 
 void WirelessStackDownloadOperation::deleteWirelessStack()
 {
-    if(!device()->recovery()->deleteWirelessStack()) {
-        finishWithError(device()->errorString());
+    if(!recovery()->deleteWirelessStack()) {
+        finishWithError(recovery()->errorString());
     } else {
         m_loopTimer->start(1000);
     }
@@ -143,7 +112,7 @@ void WirelessStackDownloadOperation::deleteWirelessStack()
 
 bool WirelessStackDownloadOperation::isWirelessStackDeleted()
 {
-    const auto status = device()->recovery()->wirelessStatus();
+    const auto status = recovery()->wirelessStatus();
 
     const auto waitNext = (status == Recovery::WirelessStatus::Invalid) ||
                           (status == Recovery::WirelessStatus::UnhandledState);
@@ -157,7 +126,6 @@ bool WirelessStackDownloadOperation::isWirelessStackDeleted()
                               (status == Recovery::WirelessStatus::ErrorOccured);
     if(errorOccured) {
         finishWithError(QStringLiteral("Failed to finish removal of the Wireless Stack."));
-        device()->setError(errorString());
     }
 
     return !errorOccured;
@@ -169,22 +137,21 @@ void WirelessStackDownloadOperation::downloadWirelessStack()
 
     connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
         if(watcher->result()) {
-            transitionToNextState();
+            advanceOperationState();
         } else {
             finishWithError(QStringLiteral("Failed to download the Wireless Stack."));
-            device()->setError(errorString());
         }
 
         watcher->deleteLater();
     });
 
-    watcher->setFuture(QtConcurrent::run(device()->recovery(), &Recovery::downloadWirelessStack, m_file, m_targetAddress));
+    watcher->setFuture(QtConcurrent::run(recovery(), &Recovery::downloadWirelessStack, m_file, m_targetAddress));
 }
 
 void WirelessStackDownloadOperation::upgradeWirelessStack()
 {
-    if(!device()->recovery()->upgradeWirelessStack()) {
-        finishWithError(device()->errorString());
+    if(!recovery()->upgradeWirelessStack()) {
+        finishWithError(recovery()->errorString());
     } else {
         m_loopTimer->start(1000);
     }
@@ -192,7 +159,7 @@ void WirelessStackDownloadOperation::upgradeWirelessStack()
 
 bool WirelessStackDownloadOperation::isWirelessStackUpgraded()
 {
-    const auto status = device()->recovery()->wirelessStatus();
+    const auto status = recovery()->wirelessStatus();
 
     const auto waitNext = (status == Recovery::WirelessStatus::Invalid) ||
                           (status == Recovery::WirelessStatus::UnhandledState);
@@ -205,7 +172,6 @@ bool WirelessStackDownloadOperation::isWirelessStackUpgraded()
     const auto errorOccured = (status == Recovery::WirelessStatus::ErrorOccured);
     if(errorOccured) {
         finishWithError(QStringLiteral("Failed to finish installation of the Wireless Stack."));
-        device()->setError(errorString());
     }
 
     return !errorOccured;
