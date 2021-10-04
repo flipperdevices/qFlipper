@@ -1,6 +1,6 @@
 #pragma once
 
-#include "flipperzero/flipperzerooperation.h"
+#include "abstractutilityoperation.h"
 
 #include <QDir>
 
@@ -9,22 +9,22 @@
 namespace Flipper {
 namespace Zero {
 
-class UserBackupOperation : public FlipperZeroOperation
+class UserBackupOperation : public AbstractUtilityOperation
 {
     Q_OBJECT
 
     enum State {
-        CreatingDirectory = BasicOperationState::User,
+        CreatingDirectory = AbstractOperation::User,
         GettingFileTree,
         ReadingFiles
     };
 
 public:
-    UserBackupOperation(FlipperZero *device, const QString &backupPath, QObject *parent = nullptr);
+    UserBackupOperation(CommandInterface *cli, DeviceState *deviceState, const QString &backupPath, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:
-    void transitionToNextState() override;
+    void advanceOperationState() override;
 
 private:
     bool createBackupDirectory();

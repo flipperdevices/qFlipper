@@ -4,28 +4,33 @@
 #include <QFile>
 #include <QTimer>
 
-#include "flipperzero/flipperzero.h"
+#include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
 #include "flipperzero/cli/readoperation.h"
 
 #include "getfiletreeoperation.h"
 #include "macros.h"
 
+#define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
+
 using namespace Flipper;
 using namespace Zero;
 
-UserBackupOperation::UserBackupOperation(FlipperZero *device, const QString &backupPath, QObject *parent):
-    FlipperZeroOperation(device, parent),
+UserBackupOperation::UserBackupOperation(CommandInterface *cli, DeviceState *deviceState, const QString &backupPath, QObject *parent):
+    AbstractUtilityOperation(cli, deviceState, parent),
     m_backupDir(QUrl(backupPath).toLocalFile()),
     m_deviceDirName(QByteArrayLiteral("/int"))
 {}
 
 const QString UserBackupOperation::description() const
 {
-    return QStringLiteral("Backup user data @%1 %2").arg(device()->model(), device()->name());
+    const auto &model = deviceState()->deviceInfo().model;
+    const auto &name = deviceState()->deviceInfo().name;
+
+    return QStringLiteral("Backup user data @%1 %2").arg(model, name);
 }
 
-void UserBackupOperation::transitionToNextState()
+void UserBackupOperation::advanceOperationState()
 {
     if(operationState() == BasicOperationState::Ready) {
         setOperationState(State::CreatingDirectory);
@@ -35,20 +40,20 @@ void UserBackupOperation::transitionToNextState()
         } else if(!createBackupDirectory()) {
             finishWithError(QStringLiteral("Failed to create backup directory"));
         } else {
-            QTimer::singleShot(0, this, &UserBackupOperation::transitionToNextState);
+            CALL_LATER(this, &UserBackupOperation::advanceOperationState);
         }
 
     } else if(operationState() == State::CreatingDirectory) {
         setOperationState(State::GettingFileTree);
 
-        auto *op = new GetFileTreeOperation(device(), m_deviceDirName, this);
+        auto *op = new GetFileTreeOperation(cli(), deviceState(), m_deviceDirName, this);
 
         connect(op, &AbstractOperation::finished, this, [=]() {
             if(op->isError()) {
                 finishWithError(op->errorString());
             } else {
                 m_fileList = op->result();
-                QTimer::singleShot(0, this, &UserBackupOperation::transitionToNextState);
+                CALL_LATER(this, &UserBackupOperation::advanceOperationState);
             }
 
             op->deleteLater();
@@ -67,7 +72,7 @@ void UserBackupOperation::transitionToNextState()
 
 bool UserBackupOperation::createBackupDirectory()
 {
-    const auto &subdir = device()->name();
+    const auto &subdir = deviceState()->deviceInfo().name;
     const QFileInfo targetDirInfo(m_backupDir, subdir);
 
     if(targetDirInfo.isDir()) {
@@ -107,20 +112,16 @@ bool UserBackupOperation::readFiles()
                 return false;
             }
 
-            auto *op = device()->cli()->read(fileInfo.absolutePath, file);
+            auto *op = cli()->read(fileInfo.absolutePath, file);
             connect(op, &AbstractOperation::finished, this, [=]() {
                 if(op->isError()) {
                     finishWithError(op->errorString());
+                } else if(isLastFile) {
+                    finish();
                 }
-
-                op->deleteLater();
 
                 file->close();
                 file->deleteLater();
-
-                if(isLastFile) {
-                    finish();
-                }
             });
         }
     }

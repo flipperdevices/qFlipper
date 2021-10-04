@@ -1,7 +1,6 @@
 #pragma once
 
 #include "abstractrecoveryoperation.h"
-#include "flipperzero/flipperzerooperation.h"
 
 class QIODevice;
 

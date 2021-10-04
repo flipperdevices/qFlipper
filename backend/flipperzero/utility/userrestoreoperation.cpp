@@ -5,7 +5,7 @@
 #include <QTimer>
 #include <QDirIterator>
 
-#include "flipperzero/flipperzero.h"
+#include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
 #include "flipperzero/cli/mkdiroperation.h"
 #include "flipperzero/cli/writeoperation.h"
@@ -16,28 +16,31 @@
 using namespace Flipper;
 using namespace Zero;
 
-UserRestoreOperation::UserRestoreOperation(FlipperZero *device, const QString &backupPath, QObject *parent):
-    FlipperZeroOperation(device, parent),
+UserRestoreOperation::UserRestoreOperation(CommandInterface *cli, DeviceState *deviceState, const QString &backupPath, QObject *parent):
+    AbstractUtilityOperation(cli, deviceState, parent),
     m_backupDir(QUrl(backupPath).toLocalFile()),
     m_deviceDirName(QByteArrayLiteral("/int"))
 {
-    m_backupDir.setFilter(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+    m_backupDir.setFilter(QDir::Dirs  | QDir::Files | QDir::NoDotAndDotDot);
     m_backupDir.setSorting(QDir::Name | QDir::DirsFirst);
 }
 
 const QString UserRestoreOperation::description() const
 {
-    return QStringLiteral("Restore user data @%1 %2").arg(device()->model(), device()->name());
+    const auto &model = deviceState()->deviceInfo().model;
+    const auto &name = deviceState()->deviceInfo().name;
+
+    return QStringLiteral("Restore user data @%1 %2").arg(model, name);
 }
 
-void UserRestoreOperation::transitionToNextState()
+void UserRestoreOperation::advanceOperationState()
 {
     if(operationState() == BasicOperationState::Ready) {
         setOperationState(State::ReadingBackupDir);
         if(!readBackupDir()) {
             finishWithError(QStringLiteral("Failed to process backup directory"));
         } else {
-            QTimer::singleShot(0, this, &UserRestoreOperation::transitionToNextState);
+            QTimer::singleShot(0, this, &UserRestoreOperation::advanceOperationState);
         }
 
     } else if(operationState() == State::ReadingBackupDir) {
@@ -59,7 +62,8 @@ void UserRestoreOperation::transitionToNextState()
 
 bool UserRestoreOperation::readBackupDir()
 {
-    const auto subdir = device()->name() + m_deviceDirName;
+    const auto &name = deviceState()->deviceInfo().name;
+    const auto subdir = name + m_deviceDirName;
 
     check_return_bool(m_backupDir.exists(subdir), "Requested directory not found");
     check_return_bool(m_backupDir.cd(subdir), "Access denied");
@@ -77,7 +81,7 @@ bool UserRestoreOperation::readBackupDir()
 
 bool UserRestoreOperation::deleteFiles()
 {
-    device()->setMessage(QStringLiteral("Cleaning up..."));
+    deviceState()->setStatusString(tr("Cleaning up..."));
 
     auto numFiles = m_files.size();
     for(auto it = m_files.crbegin(); it != m_files.crend(); ++it) {
@@ -86,15 +90,13 @@ bool UserRestoreOperation::deleteFiles()
         const auto filePath = m_deviceDirName + QByteArrayLiteral("/") + m_backupDir.relativeFilePath(it->absoluteFilePath()).toLocal8Bit();
         const auto isLastFile = (--numFiles == 0);
 
-        auto *op = device()->cli()->remove(filePath);
+        auto *op = cli()->remove(filePath);
         connect(op, &AbstractOperation::finished, this, [=](){
             if(op->isError()) {
                 finishWithError(op->errorString());
             } else if(isLastFile) {
-                QTimer::singleShot(0, this, &UserRestoreOperation::transitionToNextState);
+                QTimer::singleShot(0, this, &UserRestoreOperation::advanceOperationState);
             }
-
-            op->deleteLater();
         });
     }
 
@@ -103,7 +105,7 @@ bool UserRestoreOperation::deleteFiles()
 
 bool UserRestoreOperation::writeFiles()
 {
-    device()->setMessage(QStringLiteral("Restoring backup..."));
+    deviceState()->setStatusString(tr("Restoring backup..."));
 
     auto numFiles = m_files.size();
 
@@ -122,14 +124,14 @@ bool UserRestoreOperation::writeFiles()
                 return false;
             }
 
-            op = device()->cli()->write(filePath, file);
+            op = cli()->write(filePath, file);
             connect(op, &AbstractOperation::finished, this, [=]() {
                 file->close();
                 file->deleteLater();
             });
 
         } else if(fileInfo.isDir()) {
-            op = device()->cli()->mkdir(filePath);
+            op = cli()->mkdir(filePath);
         } else {
             return false;
         }
@@ -138,7 +140,7 @@ bool UserRestoreOperation::writeFiles()
             if(op->isError()) {
                 finishWithError(op->errorString());
             } else if(isLastFile) {
-                QTimer::singleShot(0, this, &UserRestoreOperation::transitionToNextState);
+                QTimer::singleShot(0, this, &UserRestoreOperation::advanceOperationState);
             }
 
             op->deleteLater();

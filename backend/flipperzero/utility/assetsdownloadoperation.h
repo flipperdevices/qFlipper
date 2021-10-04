@@ -3,7 +3,7 @@
 #include <QQueue>
 
 #include "tararchive.h"
-#include "flipperzero/flipperzerooperation.h"
+#include "abstractutilityoperation.h"
 #include "flipperzero/assetmanifest.h"
 
 class QIODevice;
@@ -11,13 +11,13 @@ class QIODevice;
 namespace Flipper {
 namespace Zero {
 
-class AssetsDownloadOperation : public FlipperZeroOperation
+class AssetsDownloadOperation : public AbstractUtilityOperation
 {
     Q_OBJECT
 
 public:
     enum State {
-        CheckingExtStorage = BasicOperationState::User,
+        CheckingExtStorage = AbstractOperation::User,
         ExtractingArchive,
         ReadingLocalManifest,
         CheckingDeviceManifest,
@@ -27,14 +27,13 @@ public:
         WritingFiles
     };
 
-    AssetsDownloadOperation(FlipperZero *device, QIODevice *file, QObject *parent = nullptr);
+    AssetsDownloadOperation(CommandInterface *cli, DeviceState *deviceState, QIODevice *compressedFile, QObject *parent = nullptr);
     ~AssetsDownloadOperation();
 
     const QString description() const override;
 
 private slots:
-    void transitionToNextState() override;
-    void onOperationTimeout() override;
+    void advanceOperationState() override;
 
 private:
     bool checkForExtStorage();
@@ -48,8 +47,8 @@ private:
     bool deleteFiles();
     bool writeFiles();
 
-    QIODevice *m_compressed;
-    QIODevice *m_uncompressed;
+    QIODevice *m_compressedFile;
+    QIODevice *m_uncompressedFile;
 
     TarArchive m_archive;
 
@@ -57,8 +56,8 @@ private:
     AssetManifest m_deviceManifest;
     bool m_isDeviceManifestPresent;
 
-    FileNode::FileInfoList m_delete;
-    FileNode::FileInfoList m_write;
+    FileNode::FileInfoList m_deleteList;
+    FileNode::FileInfoList m_writeList;
 };
 
 }

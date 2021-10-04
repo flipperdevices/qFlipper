@@ -6,9 +6,8 @@ namespace Flipper {
 namespace Zero {
 
 class DeviceState;
-class CommandInterface;
 class RecoveryInterface;
-//class FileManagerInterface;
+class UtilityInterface;
 
 class FirmwareUpdater : public AbstractOperationRunner
 {
@@ -20,15 +19,11 @@ public:
     void fullUpdate();
 
 private slots:
-    void onDeviceInfoChanged();
-
-    void onCLIErrorOccured();
-    void onRecoveryErrorOccured();
 
 private:
     DeviceState *m_state;
-    CommandInterface *m_cli;
     RecoveryInterface *m_recovery;
+    UtilityInterface *m_utility;
 };
 
 }

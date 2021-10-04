@@ -1,6 +1,6 @@
 #pragma once
 
-#include "flipperzero/flipperzerooperation.h"
+#include "abstractutilityoperation.h"
 #include "fileinfo.h"
 
 class QSerialPort;
@@ -8,21 +8,21 @@ class QSerialPort;
 namespace Flipper {
 namespace Zero {
 
-class GetFileTreeOperation : public FlipperZeroOperation
+class GetFileTreeOperation : public AbstractUtilityOperation
 {
     Q_OBJECT
 
     enum State {
-        Running = BasicOperationState::User
+        Running = AbstractOperation::User
     };
 
 public:
-    GetFileTreeOperation(FlipperZero *device, const QByteArray &rootPath, QObject *parent = nullptr);
+    GetFileTreeOperation(CommandInterface *cli, DeviceState *deviceState, const QByteArray &rootPath, QObject *parent = nullptr);
     const QString description() const override;
     const FileInfoList &result() const;
 
 private slots:
-    void transitionToNextState() override;
+    void advanceOperationState() override;
 
 private:
     void listDirectory(const QByteArray &path);

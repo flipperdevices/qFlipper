@@ -5,7 +5,7 @@
 namespace Flipper {
 namespace Zero {
 
-class LeaveOperation : public AbstractRecoveryOperation
+class ExitRecoveryOperation : public AbstractRecoveryOperation
 {
     Q_OBJECT
 
@@ -14,7 +14,7 @@ class LeaveOperation : public AbstractRecoveryOperation
     };
 
 public:
-    LeaveOperation(Recovery *recovery, QObject *parent = nullptr);
+    ExitRecoveryOperation(Recovery *recovery, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:

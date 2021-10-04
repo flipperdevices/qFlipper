@@ -25,13 +25,12 @@ SOURCES += \
     flipperzero/factoryinfo.cpp \
     flipperzero/firmwareupdater.cpp \
     flipperzero/flipperzero.cpp \
-    flipperzero/flipperzerooperation.cpp \
     flipperzero/recovery.cpp \
     flipperzero/recovery/abstractrecoveryoperation.cpp \
+    flipperzero/recovery/exitrecoveryoperation.cpp \
     flipperzero/recovery/firmwaredownloadoperation.cpp \
     flipperzero/recovery/fixbootissuesoperation.cpp \
     flipperzero/recovery/fixoptionbytesoperation.cpp \
-    flipperzero/recovery/leaveoperation.cpp \
     flipperzero/recovery/wirelessstackdownloadoperation.cpp \
     flipperzero/recoveryinterface.cpp \
     flipperzero/screenstreaminterface.cpp \
@@ -41,10 +40,13 @@ SOURCES += \
     flipperzero/cli/removeoperation.cpp \
     flipperzero/cli/statoperation.cpp \
     flipperzero/cli/writeoperation.cpp \
+    flipperzero/utility/abstractutilityoperation.cpp \
     flipperzero/utility/assetsdownloadoperation.cpp \
     flipperzero/utility/getfiletreeoperation.cpp \
+    flipperzero/utility/startrecoveryoperation.cpp \
     flipperzero/utility/userbackupoperation.cpp \
     flipperzero/utility/userrestoreoperation.cpp \
+    flipperzero/utilityinterface.cpp \
     gzipuncompressor.cpp \
     qflipperbackend.cpp \
     remotefilefetcher.cpp \
@@ -73,13 +75,12 @@ HEADERS += \
     flipperzero/factoryinfo.h \
     flipperzero/firmwareupdater.h \
     flipperzero/flipperzero.h \
-    flipperzero/flipperzerooperation.h \
     flipperzero/recovery.h \
     flipperzero/recovery/abstractrecoveryoperation.h \
+    flipperzero/recovery/exitrecoveryoperation.h \
     flipperzero/recovery/firmwaredownloadoperation.h \
     flipperzero/recovery/fixbootissuesoperation.h \
     flipperzero/recovery/fixoptionbytesoperation.h \
-    flipperzero/recovery/leaveoperation.h \
     flipperzero/recovery/wirelessstackdownloadoperation.h \
     flipperzero/recoveryinterface.h \
     flipperzero/screenstreaminterface.h \
@@ -89,10 +90,13 @@ HEADERS += \
     flipperzero/cli/removeoperation.h \
     flipperzero/cli/statoperation.h \
     flipperzero/cli/writeoperation.h \
+    flipperzero/utility/abstractutilityoperation.h \
     flipperzero/utility/assetsdownloadoperation.h \
     flipperzero/utility/getfiletreeoperation.h \
+    flipperzero/utility/startrecoveryoperation.h \
     flipperzero/utility/userbackupoperation.h \
     flipperzero/utility/userrestoreoperation.h \
+    flipperzero/utilityinterface.h \
     gzipuncompressor.h \
     qflipperbackend.h \
     remotefilefetcher.h \

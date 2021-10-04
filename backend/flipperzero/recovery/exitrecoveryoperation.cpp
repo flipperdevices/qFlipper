@@ -1,4 +1,4 @@
-#include "leaveoperation.h"
+#include "exitrecoveryoperation.h"
 
 #include "flipperzero/recovery.h"
 #include "flipperzero/devicestate.h"
@@ -6,16 +6,19 @@
 using namespace Flipper;
 using namespace Zero;
 
-LeaveOperation::LeaveOperation(Recovery *recovery, QObject *parent):
+ExitRecoveryOperation::ExitRecoveryOperation(Recovery *recovery, QObject *parent):
     AbstractRecoveryOperation(recovery, parent)
 {}
 
-const QString LeaveOperation::description() const
+const QString ExitRecoveryOperation::description() const
 {
-    return QStringLiteral("Exit Recovery Mode");
+    const auto &model = deviceState()->deviceInfo().model;
+    const auto &name = deviceState()->deviceInfo().name;
+
+    return QStringLiteral("Exit Recovery Mode @%1 %2").arg(model, name);
 }
 
-void LeaveOperation::advanceOperationState()
+void ExitRecoveryOperation::advanceOperationState()
 {
     if(operationState() == BasicOperationState::Ready) {
         setOperationState(OperationState::WaitingForOnline);

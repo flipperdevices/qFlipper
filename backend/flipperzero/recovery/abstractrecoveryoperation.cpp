@@ -17,18 +17,18 @@ AbstractRecoveryOperation::AbstractRecoveryOperation(Recovery *recovery, QObject
 
 void AbstractRecoveryOperation::start()
 {
-    if(operationState() == BasicOperationState::Ready) {
+    if(operationState() != AbstractOperation::Ready) {
+        finishWithError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
+    } else {
         connect(m_recovery->deviceState(), &DeviceState::isOnlineChanged, this, &AbstractRecoveryOperation::onDeviceOnlineChanged);
         CALL_LATER(this, &AbstractRecoveryOperation::advanceOperationState);
-    } else {
-        finishWithError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
     }
 }
 
 void AbstractRecoveryOperation::finish()
 {
     disconnect(m_recovery->deviceState(), &DeviceState::isOnlineChanged, this, &AbstractRecoveryOperation::onDeviceOnlineChanged);
-    emit finished();
+    AbstractOperation::finish();
 }
 
 void AbstractRecoveryOperation::onDeviceOnlineChanged()

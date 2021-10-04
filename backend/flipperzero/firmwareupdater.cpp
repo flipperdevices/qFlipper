@@ -1,10 +1,10 @@
 #include "firmwareupdater.h"
 
 #include "devicestate.h"
-#include "commandinterface.h"
 #include "recoveryinterface.h"
+#include "utilityinterface.h"
 
-#include "flipperzero/devicestate.h"
+#include "flipperzero/utility/startrecoveryoperation.h"
 
 #include "macros.h"
 
@@ -14,31 +14,22 @@ using namespace Zero;
 FirmwareUpdater::FirmwareUpdater(DeviceState *state, QObject *parent):
     AbstractOperationRunner(parent),
     m_state(state),
-    m_cli(new CommandInterface(state, this)),
-    m_recovery(new RecoveryInterface(state, this))
-{
-    connect(m_cli, &SignalingFailable::errorOccured, this, &FirmwareUpdater::onCLIErrorOccured);
-    connect(m_recovery, &SignalingFailable::errorOccured, this, &FirmwareUpdater::onRecoveryErrorOccured);
-}
+    m_recovery(new RecoveryInterface(state, this)),
+    m_utility(new UtilityInterface(state, this))
+{}
 
 void FirmwareUpdater::fullUpdate()
 {
-    info_msg("=========== Hello there! ==============");
-//    m_cli->startRecoveryMode();
-}
+    m_state->setPersistent(true);
 
-void FirmwareUpdater::onDeviceInfoChanged()
-{
-}
+    auto *operation = m_utility->startRecoveryMode();
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            qDebug() << "================== NAY!" << operation->errorString();
+        } else {
+            qDebug() << "================== YAY!";
+        }
 
-void FirmwareUpdater::onCLIErrorOccured()
-{
-    // TODO: Proper error reporting
-    qDebug() << "!!! CLI ERROR !!!" << m_cli->errorString();
-}
-
-void FirmwareUpdater::onRecoveryErrorOccured()
-{
-    // TODO: Proper error reporting
-    qDebug() << "!!! RECOVERY ERROR !!!" << m_cli->errorString();
+        m_state->setPersistent(false);
+    });
 }

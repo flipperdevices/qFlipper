@@ -10,7 +10,7 @@ namespace Zero {
 class Recovery;
 class DeviceState;
 
-class LeaveOperation;
+class ExitRecoveryOperation;
 class FirmwareDownloadOperation;
 class FixBootIssuesOperation;
 class FixOptionBytesOperation;
@@ -23,7 +23,7 @@ class RecoveryInterface : public AbstractOperationRunner
 public:
     RecoveryInterface(DeviceState *state, QObject *parent = nullptr);
 
-    LeaveOperation *exitRecoveryMode();
+    ExitRecoveryOperation *exitRecoveryMode();
 
     FirmwareDownloadOperation *downloadFirmware(QIODevice *file);
 

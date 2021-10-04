@@ -5,12 +5,11 @@
 
 #include "macros.h"
 
+#define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
+
 AbstractSerialOperation::AbstractSerialOperation(QSerialPort *serialPort, QObject *parent):
     AbstractOperation(parent),
     m_serialPort(serialPort)
-{}
-
-AbstractSerialOperation::~AbstractSerialOperation()
 {}
 
 void AbstractSerialOperation::start()
@@ -18,18 +17,15 @@ void AbstractSerialOperation::start()
     connect(m_serialPort, &QSerialPort::readyRead, this, &AbstractSerialOperation::onSerialPortReadyRead);
     connect(m_serialPort, &QSerialPort::errorOccurred, this, &AbstractSerialOperation::onSerialPortError);
 
-    QTimer::singleShot(0, this, &AbstractSerialOperation::begin);
+    CALL_LATER(this, &AbstractSerialOperation::begin);
 }
 
 void AbstractSerialOperation::finish()
 {
-    stopTimeout();
-    setOperationState(BasicOperationState::Finished);
-
     disconnect(m_serialPort, &QSerialPort::readyRead, this, &AbstractSerialOperation::onSerialPortReadyRead);
     disconnect(m_serialPort, &QSerialPort::errorOccurred, this, &AbstractSerialOperation::onSerialPortError);
 
-    emit finished();
+    AbstractOperation::finish();
 }
 
 QSerialPort *AbstractSerialOperation::serialPort() const

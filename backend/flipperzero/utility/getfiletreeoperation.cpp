@@ -2,7 +2,7 @@
 
 #include <QTimer>
 
-#include "flipperzero/flipperzero.h"
+#include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
 #include "flipperzero/cli/listoperation.h"
 
@@ -11,15 +11,18 @@
 using namespace Flipper;
 using namespace Zero;
 
-GetFileTreeOperation::GetFileTreeOperation(FlipperZero *device, const QByteArray &rootPath, QObject *parent):
-    FlipperZeroOperation(device, parent),
+GetFileTreeOperation::GetFileTreeOperation(CommandInterface *cli, DeviceState *deviceState, const QByteArray &rootPath, QObject *parent):
+    AbstractUtilityOperation(cli, deviceState, parent),
     m_rootPath(rootPath),
     m_pendingCount(0)
 {}
 
 const QString GetFileTreeOperation::description() const
 {
-    return QStringLiteral("Get File Tree @%1").arg(QString(m_rootPath));
+    const auto &model = deviceState()->deviceInfo().model;
+    const auto &name = deviceState()->deviceInfo().name;
+
+    return QStringLiteral("Get File Tree @%1 %2").arg(model, name);
 }
 
 const FileInfoList &GetFileTreeOperation::result() const
@@ -27,7 +30,7 @@ const FileInfoList &GetFileTreeOperation::result() const
     return m_result;
 }
 
-void GetFileTreeOperation::transitionToNextState()
+void GetFileTreeOperation::advanceOperationState()
 {
     if(operationState() == BasicOperationState::Ready) {
         setOperationState(State::Running);
@@ -50,8 +53,6 @@ void GetFileTreeOperation::transitionToNextState()
             m_result.push_back(fileInfo);
         }
 
-        op->deleteLater();
-
         if(!m_pendingCount) {
             finish();
         }
@@ -61,6 +62,6 @@ void GetFileTreeOperation::transitionToNextState()
 void GetFileTreeOperation::listDirectory(const QByteArray &path)
 {
     ++m_pendingCount;
-    auto *op = device()->cli()->list(path);
-    connect(op, &AbstractOperation::finished, this, &GetFileTreeOperation::transitionToNextState);
+    auto *op = cli()->list(path);
+    connect(op, &AbstractOperation::finished, this, &GetFileTreeOperation::advanceOperationState);
 }

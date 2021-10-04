@@ -10,9 +10,11 @@
 #include "flipperzero/cli/writeoperation.h"
 #include "flipperzero/cli/readoperation.h"
 #include "flipperzero/cli/statoperation.h"
+
 #include "flipperzero/commandinterface.h"
 #include "flipperzero/assetmanifest.h"
-#include "flipperzero/flipperzero.h"
+#include "flipperzero/devicestate.h"
+
 #include "gzipuncompressor.h"
 #include "tararchive.h"
 
@@ -35,24 +37,25 @@ static void print_file_list(const QString &header, const FileNode::FileInfoList 
     }
 }
 
-AssetsDownloadOperation::AssetsDownloadOperation(FlipperZero *device, QIODevice *file, QObject *parent):
-    FlipperZeroOperation(device, parent),
-    m_compressed(file),
-    m_uncompressed(nullptr),
+AssetsDownloadOperation::AssetsDownloadOperation(CommandInterface *cli, DeviceState *deviceState, QIODevice *compressedFile, QObject *parent):
+    AbstractUtilityOperation(cli, deviceState, parent),
+    m_compressedFile(compressedFile),
+    m_uncompressedFile(nullptr),
     m_isDeviceManifestPresent(false)
-{
-    device->setMessage(QStringLiteral("Databases download pending..."));
-}
+{}
 
 AssetsDownloadOperation::~AssetsDownloadOperation()
 {}
 
 const QString AssetsDownloadOperation::description() const
 {
-    return QStringLiteral("Assets Download @%1 %2").arg(device()->model(), device()->name());
+    const auto &model = deviceState()->deviceInfo().model;
+    const auto &name = deviceState()->deviceInfo().name;
+
+    return QStringLiteral("Assets Download @%1 %2").arg(model, name);
 }
 
-void AssetsDownloadOperation::transitionToNextState()
+void AssetsDownloadOperation::advanceOperationState()
 {
     if(operationState() == BasicOperationState::Ready) {
         setOperationState(State::CheckingExtStorage);
@@ -105,20 +108,11 @@ void AssetsDownloadOperation::transitionToNextState()
     } else if(operationState() == State::WritingFiles) {
         finish();
     }
-
-    if(isError()) {
-        device()->setError(errorString());
-    }
-}
-
-void AssetsDownloadOperation::onOperationTimeout()
-{
-    qDebug() << "Operation timeout";
 }
 
 bool AssetsDownloadOperation::checkForExtStorage()
 {
-    auto *op = device()->cli()->stat(QByteArrayLiteral("/ext"));
+    auto *op = cli()->stat(QByteArrayLiteral("/ext"));
 
     connect(op, &AbstractOperation::finished, this, [=]() {
         if(op->isError()) {
@@ -129,16 +123,11 @@ bool AssetsDownloadOperation::checkForExtStorage()
 
         } else if(op->type() != StatOperation::Type::Storage) {
             finishWithError("/ext is not a storage");
+
         } else {
             info_msg(QStringLiteral("External storage is present, %1 bytes free.").arg(op->sizeFree()));
-            transitionToNextState();
+            advanceOperationState();
         }
-
-        if(isError()) {
-            device()->setError(errorString());
-        }
-
-        op->deleteLater();
     });
 
     return true;
@@ -150,29 +139,29 @@ bool AssetsDownloadOperation::extractArchive()
     const auto tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
     check_return_bool(!tempPath.isEmpty(), "Failed to find a suitable temporary location.");
 
-    check_return_bool(m_compressed->open(QIODevice::ReadOnly), m_compressed->errorString());
+    check_return_bool(m_compressedFile->open(QIODevice::ReadOnly), m_compressedFile->errorString());
 
     // TODO: check if file exists, etc.
-    m_uncompressed = new QFile(tempPath + "/qflipper-databases.tar", this);
-    check_return_bool(m_uncompressed->open(QIODevice::ReadWrite), m_uncompressed->errorString());
+    m_uncompressedFile = new QFile(tempPath + "/qflipper-databases.tar", this);
+    check_return_bool(m_uncompressedFile->open(QIODevice::ReadWrite), m_uncompressedFile->errorString());
 
-    auto *uncompressor = new GZipUncompressor(m_compressed, m_uncompressed, this);
+    auto *uncompressor = new GZipUncompressor(m_compressedFile, m_uncompressedFile, this);
 
     connect(uncompressor, &GZipUncompressor::finished, this, [=]() {
         if(uncompressor->isError()) {
             finishWithError(uncompressor->errorString());
         } else {
-            m_archive = TarArchive(m_uncompressed);
+            m_archive = TarArchive(m_uncompressedFile);
 
             if(m_archive.isError()) {
                 finishWithError(m_archive.errorString());
             } else {
-                QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+                QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
             }
         }
 
         uncompressor->deleteLater();
-        m_compressed->deleteLater();
+        m_compressedFile->deleteLater();
     });
 
     return true;
@@ -186,13 +175,13 @@ bool AssetsDownloadOperation::readLocalManifest()
     m_localManifest = AssetManifest(text);
     check_return_bool(!m_localManifest.isError(), m_localManifest.errorString());
 
-    QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+    QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
     return true;
 }
 
 bool AssetsDownloadOperation::checkForDeviceManifest()
 {
-    auto *op = device()->cli()->stat(DEVICE_MANIFEST);
+    auto *op = cli()->stat(DEVICE_MANIFEST);
     connect(op, &AbstractOperation::finished, this, [=]() {
         if(op->isError()) {
             finishWithError(op->errorString());
@@ -203,10 +192,8 @@ bool AssetsDownloadOperation::checkForDeviceManifest()
                 m_isDeviceManifestPresent = true;
             }
 
-            QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+            QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
         }
-
-        op->deleteLater();
     });
 
     return true;
@@ -221,7 +208,7 @@ bool AssetsDownloadOperation::readDeviceManifest()
         return false;
     }
 
-    auto *op = device()->cli()->read(QByteArrayLiteral("/ext/Manifest"), buf);
+    auto *op = cli()->read(QByteArrayLiteral("/ext/Manifest"), buf);
 
     connect(op, &AbstractOperation::finished, this, [=]() {
         if(!op->isError()) {
@@ -231,7 +218,7 @@ bool AssetsDownloadOperation::readDeviceManifest()
         op->deleteLater();
         buf->deleteLater();
 
-        QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+        QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
     });
 
     return true;
@@ -282,42 +269,42 @@ bool AssetsDownloadOperation::buildFileLists()
         print_file_list("***** Files changed:", changed);
     }
 
-    m_delete.append(deleted);
-    m_delete.append(changed);
+    m_deleteList.append(deleted);
+    m_deleteList.append(changed);
 
-    m_write.append(added);
-    m_write.append(changed);
+    m_writeList.append(added);
+    m_writeList.append(changed);
 
     // Start deleting by the farthest nodes
-    std::reverse(m_delete.begin(), m_delete.end());
+    std::reverse(m_deleteList.begin(), m_deleteList.end());
 
-    QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+    QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
     return true;
 }
 
 bool AssetsDownloadOperation::deleteFiles()
 {
-    if(m_delete.isEmpty()) {
+    if(m_deleteList.isEmpty()) {
         info_msg("No files to delete, skipping to write");
-        QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+        QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
         return true;
     }
 
-    device()->setMessage(tr("Deleting unneeded files..."));
+    deviceState()->setStatusString(tr("Deleting unneeded files..."));
 
-    int numFiles = m_delete.size();
+    int numFiles = m_deleteList.size();
 
-    for(const auto &fileInfo : qAsConst(m_delete)) {
+    for(const auto &fileInfo : qAsConst(m_deleteList)) {
         const auto isLastFile = (--numFiles == 0);
         const auto fileName = QByteArrayLiteral("/ext/") + fileInfo.absolutePath.toLocal8Bit();
 
-        auto *op = device()->cli()->remove(fileName);
+        auto *op = cli()->remove(fileName);
 
         connect(op, &AbstractOperation::finished, this, [=]() {
             if(op->isError()) {
                 finishWithError(op->errorString());
             } else if(isLastFile) {
-                QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+                QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
             }
         });
     }
@@ -327,25 +314,24 @@ bool AssetsDownloadOperation::deleteFiles()
 
 bool AssetsDownloadOperation::writeFiles()
 {
-    if(m_write.isEmpty()) {
+    if(m_writeList.isEmpty()) {
         info_msg("No files to write, skipping to the end");
-        QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+        QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
         return true;
     }
 
+    deviceState()->setStatusString(tr("Writing new files..."));
 
-    device()->setMessage(tr("Writing new files..."));
+    int i = m_writeList.size();
 
-    int i = m_write.size();
-
-    for(const auto &fileInfo : qAsConst(m_write)) {
+    for(const auto &fileInfo : qAsConst(m_writeList)) {
         --i;
 
         AbstractOperation *op;
         const auto filePath = QByteArrayLiteral("/ext/") + fileInfo.absolutePath.toLocal8Bit();
 
         if(fileInfo.type == FileNode::Type::Directory) {
-            op = device()->cli()->mkdir(filePath);
+            op = cli()->mkdir(filePath);
 
         } else if(fileInfo.type == FileNode::Type::RegularFile) {
             auto *buf = new QBuffer(this);
@@ -360,7 +346,7 @@ bool AssetsDownloadOperation::writeFiles()
                 return false;
             }
 
-            op = device()->cli()->write(filePath, buf);
+            op = cli()->write(filePath, buf);
 
         } else {
             return false;
@@ -370,10 +356,8 @@ bool AssetsDownloadOperation::writeFiles()
             if(op->isError()) {
                 finishWithError(op->errorString());
             } else if(i == 0) {
-                QTimer::singleShot(0, this, &AssetsDownloadOperation::transitionToNextState);
+                QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
             }
-
-            op->deleteLater();
         });
     }
 

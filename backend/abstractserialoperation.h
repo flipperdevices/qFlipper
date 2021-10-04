@@ -10,7 +10,7 @@ class AbstractSerialOperation : public AbstractOperation
 
 public:
     AbstractSerialOperation(QSerialPort *serialPort, QObject *parent = nullptr);
-    virtual ~AbstractSerialOperation();
+    virtual ~AbstractSerialOperation() {}
 
     void start() override;
     void finish() override;

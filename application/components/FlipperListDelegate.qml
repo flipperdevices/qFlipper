@@ -117,7 +117,7 @@ Item {
 //            return (latestVersion.number > device.version) || ((latestVersion.number !== device.version) && (device.version.includes(latestVersion.number)));
 //        }
 
-//        visible: (firmwareUpdates.channelNames.length > 0) && !(device.isPersistent || device.isError)
+        visible: /*(firmwareUpdates.channelNames.length > 0) &&*/ !(device.isPersistent || device.isError)
 
         anchors.right: menuButton.left
         anchors.rightMargin: 10

@@ -23,8 +23,6 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     connect(m_state, &DeviceState::errorChanged, this, &FlipperZero::isErrorChanged);
     connect(m_state, &DeviceState::progressChanged, this, &FlipperZero::progressChanged);
     connect(m_state, &DeviceState::statusChanged, this, &FlipperZero::messageChanged);
-
-//   connect(m_updater, &SignalingFailable::errorOccured, this, &FlipperZero::onModuleErrorOccured);
 }
 
 FlipperZero::~FlipperZero()
@@ -35,9 +33,6 @@ FlipperZero::~FlipperZero()
 void FlipperZero::reset(const Zero::DeviceInfo &info)
 {
     m_state->setDeviceInfo(info);
-
-    setError(QStringLiteral("No error"), false);
-    setProgress(0);
     setOnline(true);
 }
 

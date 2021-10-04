@@ -22,7 +22,7 @@ public:
 
     virtual const QString description() const = 0;
     virtual void start() = 0;
-    virtual void finish() = 0;
+    virtual void finish();
 
     int operationState() const;
 
@@ -32,7 +32,6 @@ signals:
 
 protected slots:
     virtual void onOperationTimeout();
-    void onOperationFinished();
 
 protected:
     void setOperationState(int state);
