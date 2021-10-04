@@ -6,8 +6,7 @@
 
 #include "macros.h"
 
-namespace Flipper {
-
+using namespace Flipper;
 using namespace Zero;
 
 FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
@@ -36,23 +35,9 @@ void FlipperZero::reset(const Zero::DeviceInfo &info)
     setOnline(true);
 }
 
-void FlipperZero::setPersistent(bool set)
-{
-    Q_UNUSED(set)
-    info_msg("I do nothing, delete me ASAP!");
-}
-
 void FlipperZero::setOnline(bool set)
 {
     m_state->setOnline(set);
-}
-
-void FlipperZero::setError(const QString &msg, bool set)
-{
-    Q_UNUSED(msg)
-    Q_UNUSED(set)
-
-    info_msg("I do nothing, delete me ASAP!");
 }
 
 bool FlipperZero::isPersistent() const
@@ -68,12 +53,6 @@ bool FlipperZero::isOnline() const
 bool FlipperZero::isError() const
 {
     return m_state->isError();
-}
-
-bool FlipperZero::bootToDFU()
-{
-    info_msg("I do nothing, delete me ASAP!");
-    return false;
 }
 
 const QString &FlipperZero::name() const
@@ -133,39 +112,7 @@ Flipper::Zero::ScreenStreamInterface *FlipperZero::screen() const
     return m_screen;
 }
 
-Recovery *FlipperZero::recovery() const
-{
-    info_msg("I do nothing, delete me ASAP!");
-    return nullptr;
-}
-
-RecoveryInterface *FlipperZero::recoveryNew() const
-{
-    info_msg("I do nothing, delete me ASAP!");
-    return nullptr;
-}
-
-CommandInterface *FlipperZero::cli() const
-{
-    info_msg("I do nothing, delete me ASAP!");
-    return nullptr;
-}
-
 void FlipperZero::fullUpdate()
 {
     m_updater->fullUpdate();
-}
-
-void FlipperZero::setMessage(const QString &message)
-{
-    Q_UNUSED(message)
-    info_msg("I do nothing, delete me ASAP!");
-}
-
-void FlipperZero::setProgress(double progress)
-{
-    Q_UNUSED(progress)
-    info_msg("I do nothing, delete me ASAP!");
-}
-
 }

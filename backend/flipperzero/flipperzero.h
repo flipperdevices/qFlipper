@@ -10,11 +10,6 @@ namespace Zero {
     class DeviceState;
     class ScreenStreamInterface;
     class FirmwareUpdater;
-
-    // These should go
-    class Recovery;
-    class RecoveryInterface;
-    class CommandInterface;
 }
 
 class FlipperZero : public QObject
@@ -37,25 +32,18 @@ class FlipperZero : public QObject
     Q_PROPERTY(bool isError READ isError NOTIFY isErrorChanged)
 
     Q_PROPERTY(Flipper::Zero::ScreenStreamInterface* screen READ screen CONSTANT)
-    Q_PROPERTY(Flipper::Zero::Recovery* recovery READ recovery CONSTANT)
 
 public:
     FlipperZero(const Zero::DeviceInfo &info, QObject *parent = nullptr);
     ~FlipperZero();
 
     void reset(const Zero::DeviceInfo &info);
-
-    void setPersistent(bool set);
     void setOnline(bool set);
-    void setError(const QString &msg = QString(), bool set = true);
 
     bool isPersistent() const;
     bool isOnline() const;
     bool isError() const;
     bool isDFU() const;
-
-    // Move this to CommandInterface
-    bool bootToDFU();
 
     const QString &name() const;
     const QString &model() const;
@@ -70,15 +58,10 @@ public:
     const Flipper::Zero::DeviceInfo &deviceInfo() const;
 
     Flipper::Zero::ScreenStreamInterface *screen() const;
-    Flipper::Zero::Recovery *recovery() const;
-    Flipper::Zero::RecoveryInterface *recoveryNew() const;
-    Flipper::Zero::CommandInterface *cli() const;
+    Flipper::Zero::FirmwareUpdater *updater() const;
 
 public slots:
     void fullUpdate();
-
-    void setMessage(const QString &message);
-    void setProgress(double progress);
 
 signals:
     void deviceInfoChanged();
