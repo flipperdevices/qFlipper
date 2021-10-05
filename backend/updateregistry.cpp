@@ -72,3 +72,15 @@ Updates::ChannelInfo UpdateRegistry::channel(const QString &channelName) const
 {
     return m_channels.value(channelName);
 }
+
+UpdateRegistry *UpdateRegistry::firmwareUpdates()
+{
+    static auto *instance = new UpdateRegistry("https://update.flipperzero.one/firmware/directory.json");
+    return instance;
+}
+
+UpdateRegistry *UpdateRegistry::applicationUpdates()
+{
+    static auto *instance = new UpdateRegistry("https://update.flipperzero.one/qFlipper/directory.json");
+    return instance;
+}

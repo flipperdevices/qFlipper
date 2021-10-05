@@ -2,7 +2,7 @@
 #define QFLIPPERBACKEND_H
 
 #include "deviceregistry.h"
-#include "updateregistry.h"
+//#include "updateregistry.h"
 
 struct QFlipperBackend
 {
@@ -10,8 +10,8 @@ struct QFlipperBackend
     ~QFlipperBackend();
 
     Flipper::DeviceRegistry deviceRegistry;
-    Flipper::UpdateRegistry firmwareUpdates;
-    Flipper::UpdateRegistry applicationUpdates;
+//    Flipper::UpdateRegistry firmwareUpdates;
+//    Flipper::UpdateRegistry applicationUpdates;
 };
 
 #endif // QFLIPPERBACKEND_H

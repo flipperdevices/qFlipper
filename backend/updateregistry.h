@@ -24,6 +24,10 @@ public:
 
     Q_INVOKABLE Flipper::Updates::ChannelInfo channel(const QString &channelName) const;
 
+    // Sorry, I really need these
+    static UpdateRegistry *firmwareUpdates();
+    static UpdateRegistry *applicationUpdates();
+
 signals:
     void channelsChanged();
 

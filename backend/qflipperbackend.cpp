@@ -1,5 +1,7 @@
 #include "qflipperbackend.h"
 
+#include "flipperupdates.h"
+
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/assetmanifest.h"
 #include "flipperzero/screenstreaminterface.h"
@@ -8,9 +10,9 @@
 
 using namespace Flipper;
 
-QFlipperBackend::QFlipperBackend():
-    firmwareUpdates("https://update.flipperzero.one/firmware/directory.json"),
-    applicationUpdates("https://update.flipperzero.one/qFlipper/directory.json")
+QFlipperBackend::QFlipperBackend()//:
+//    firmwareUpdates("https://update.flipperzero.one/firmware/directory.json"),
+//    applicationUpdates("https://update.flipperzero.one/qFlipper/directory.json")
 {
     qRegisterMetaType<Flipper::Updates::FileInfo>("Flipper::Updates::FileInfo");
     qRegisterMetaType<Flipper::Updates::VersionInfo>("Flipper::Updates::VersionInfo");
