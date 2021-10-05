@@ -18,7 +18,7 @@ using namespace Zero;
 
 UserBackupOperation::UserBackupOperation(CommandInterface *cli, DeviceState *deviceState, const QString &backupPath, QObject *parent):
     AbstractUtilityOperation(cli, deviceState, parent),
-    m_backupDir(QUrl(backupPath).toLocalFile()),
+    m_backupDir(backupPath),
     m_deviceDirName(QByteArrayLiteral("/int"))
 {}
 
