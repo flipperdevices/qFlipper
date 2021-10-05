@@ -25,21 +25,21 @@ Item {
         id: progressBar
         anchors.fill: parent
         anchors.margins: frame.border.width
-        value: device.progress
+        value: device.state.progress
     }
 
     Rectangle {
         id: frame
         radius: 6
         anchors.fill: parent
-        color: device.isError ? "#3a0000" : "transparent"
-        border.color: device.isError ? "#d32a34" : "white"
+        color: device.state.isError ? "#3a0000" : "transparent"
+        border.color: device.state.isError ? "#d32a34" : "white"
         border.width: 1
     }
 
     Text {
         id: modelLabel
-        text: device.model
+        text: device.state.model
         color: "darkgray"
         font.pixelSize: 13
         anchors.verticalCenter: parent.verticalCenter
@@ -49,7 +49,7 @@ Item {
 
     Rectangle {
         id: nameLabel
-        color: device.isError ? "#d32a34" : (device.isDFU ? "#0345ff" : "darkorange")
+        color: device.state.isError ? "#d32a34" : (device.state.isRecoveryMode ? "#0345ff" : "darkorange")
         width: 100
         height: 30
 
@@ -60,7 +60,7 @@ Item {
         anchors.leftMargin: 10
 
         Text {
-            text: device.name
+            text: device.state.name
             color: "black"
             font.pixelSize: 16
             font.bold: true
@@ -79,7 +79,7 @@ Item {
         anchors.rightMargin: 25
         anchors.verticalCenter: parent.verticalCenter
 
-        enabled: !device.isPersistent && !device.isError
+        enabled: !device.state.isPersistent && !device.state.isError
 
         onClicked: actionMenu.open()
     }
@@ -117,7 +117,7 @@ Item {
 //            return (latestVersion.number > device.version) || ((latestVersion.number !== device.version) && (device.version.includes(latestVersion.number)));
 //        }
 
-        visible: /*(firmwareUpdates.channelNames.length > 0) &&*/ !(device.isPersistent || device.isError)
+        visible: /*(firmwareUpdates.channelNames.length > 0) &&*/ !(device.state.isPersistent || device.state.isError)
 
         anchors.right: menuButton.left
         anchors.rightMargin: 10
@@ -128,8 +128,8 @@ Item {
 
     Text {
         id: versionLabel
-        visible: !(messageLabel.visible || device.isDFU)
-        text: qsTr("version ") + device.version
+        visible: !(messageLabel.visible || device.state.isRecoveryMode)
+        text: qsTr("version ") + device.state.version
         font.pixelSize: 13
 
         anchors.left: nameLabel.right
@@ -141,9 +141,9 @@ Item {
 
     Text {
         id: messageLabel
-        text: device.isError ? device.errorString : device.messageString
-        visible: device.isPersistent || device.isError
-        color: device.isError ? "#ddd" : "white"
+        text: device.state.isError ? device.state.errorString : device.state.statusString
+        visible: device.state.isPersistent || device.state.isError
+        color: device.state.isError ? "#ddd" : "white"
 
         font.pixelSize: 13
 
@@ -182,7 +182,7 @@ Item {
         MenuItem {
             text: qsTr("Screen Streaming...")
 //            onTriggered: screenStreamRequested(device)
-            enabled: !device.isDFU
+            enabled: !device.state.isRecoveryMode
         }
 
         MenuSeparator {}
@@ -227,7 +227,7 @@ Item {
             MenuItem {
                 text: qsTr("Fix boot issues")
 //                onTriggered: fixBootRequested(device)
-                enabled: device.isDFU
+                enabled: device.state.isRecoveryMode
             }
         }
     }

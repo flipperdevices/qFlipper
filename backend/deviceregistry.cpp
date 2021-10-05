@@ -4,6 +4,8 @@
 
 #include "flipperzero/deviceinfofetcher.h"
 #include "flipperzero/flipperzero.h"
+#include "flipperzero/devicestate.h"
+
 #include "usbdevice.h"
 #include "macros.h"
 
@@ -59,20 +61,21 @@ void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
 {
     const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::FlipperZero *dev) {
-        return dev->deviceInfo().usbInfo.backendData() == info.backendData();
+        const auto &deviceInfo = dev->deviceState()->deviceInfo().usbInfo;
+        return deviceInfo.backendData() == info.backendData();
     });
 
     if(it != m_data.end()) {
         const auto idx = std::distance(m_data.begin(), it);
         auto *device = m_data.at(idx);
 
-        if(!device->isPersistent()) {
+        if(!device->deviceState()->isPersistent()) {
             beginRemoveRows(QModelIndex(), idx, idx);
             m_data.takeAt(idx)->deleteLater();
             endRemoveRows();
 
         } else {
-            device->setOnline(false);
+            device->deviceState()->setOnline(false);
         }
     }
 }
@@ -89,12 +92,13 @@ void DeviceRegistry::processDevice()
     const auto &info = fetcher->result();
 
     const auto it = std::find_if(m_data.begin(), m_data.end(), [&info](Flipper::FlipperZero *arg) {
-        return info.name == arg->name();
+        return info.name == arg->deviceState()->name();
     });
 
     if(it != m_data.end()) {
         // Preserving the old instance
-        (*it)->reset(info);
+        (*it)->deviceState()->setDeviceInfo(info);
+        (*it)->deviceState()->setOnline(true);
 
     } else {
         auto *device = new FlipperZero(info, this);

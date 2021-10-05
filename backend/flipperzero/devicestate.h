@@ -11,6 +11,21 @@ class DeviceState : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool isPersistent READ isPersistent NOTIFY isPersistentChanged)
+    Q_PROPERTY(bool isOnline READ isOnline NOTIFY isOnlineChanged)
+    Q_PROPERTY(bool isError READ isError NOTIFY errorChanged)
+    Q_PROPERTY(bool isRecoveryMode READ isRecoveryMode NOTIFY deviceInfoChanged)
+
+    Q_PROPERTY(QString name READ name NOTIFY deviceInfoChanged)
+    Q_PROPERTY(QString model READ model CONSTANT)
+    Q_PROPERTY(QString target READ target NOTIFY deviceInfoChanged)
+    Q_PROPERTY(QString version READ version NOTIFY deviceInfoChanged)
+
+    Q_PROPERTY(QString statusString READ statusString NOTIFY statusChanged)
+    Q_PROPERTY(QString errorString READ errorString NOTIFY errorChanged)
+
+    Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
+
 public:
     DeviceState(const DeviceInfo &deviceInfo, QObject *parent = nullptr);
 
@@ -37,14 +52,22 @@ public:
     const QString &errorString() const;
     void setErrorString(const QString &newErrorString);
 
+    const QString &name() const;
+    const QString &model() const;
+    const QString &target() const;
+    const QString &version() const;
+
 signals:
     void deviceInfoChanged();
     void isPersistentChanged();
     void isOnlineChanged();
-    void progressChanged();
+
+    void updateInfoChanged();
 
     void statusChanged();
     void errorChanged();
+
+    void progressChanged();
 
 private:
     DeviceInfo m_deviceInfo;
@@ -53,9 +76,10 @@ private:
     bool m_isOnline;
     bool m_isError;
 
-    double m_progress;
     QString m_statusString;
     QString m_errorString;
+
+    double m_progress;
 };
 
 }
