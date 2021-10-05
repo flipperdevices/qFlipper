@@ -8,7 +8,6 @@
 
 #include "qflipperbackend.h"
 #include "screencanvas.h"
-#include "remotefilefetcher.h"
 
 #include "macros.h"
 
@@ -47,7 +46,6 @@ void Application::initContextProperties()
     m_engine.rootContext()->setContextProperty("deviceRegistry", &m_backend.deviceRegistry);
     m_engine.rootContext()->setContextProperty("firmwareUpdates", &m_backend.firmwareUpdates);
     m_engine.rootContext()->setContextProperty("applicationUpdates", &m_backend.applicationUpdates);
-    m_engine.rootContext()->setContextProperty("downloader", &m_backend.downloader);
 }
 
 void Application::initInstanceProperties()
