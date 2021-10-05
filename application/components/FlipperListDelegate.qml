@@ -86,38 +86,24 @@ Item {
 
     StyledButton {
         id: updateButton
-//        text: {
-//            if(firmwareUpdates.channelNames.length === 0) {
-//                return qsTr("Error");
-//            } else if(device.isDFU || (device.version === "N/A")) {
-//                return qsTr("Repair");
-//            }
+        text: {
+            if(!device.updater.isReady) {
+                return qsTr("Error");
+            } else if(device.state.isRecoveryMode) {
+                return qsTr("Repair");
+            } else if(device.updater.canChangeChannel) {
+                return qsTr("Change");
+            } else if(device.updater.canUpdate) {
+                return qsTr("Update");
+            } else if(device.updater.canRollback) {
+                return qsTr("Rollback");
+            } else {
+                return qsTr("Reinstall");
+            }
+        }
 
-//            const channelName = "release";
-//            const latestVersion = firmwareUpdates.channel(channelName).latestVersion;
-
-//            if(latestVersion.number === device.version) {
-//                return qsTr("Reinstall");
-//            } else if((latestVersion.number > device.version) || (device.version.includes(latestVersion.number))) {
-//                return qsTr("Update");
-//            } else {
-//                return qsTr("Rollback");
-//            }
-//        }
-        text: qsTr("Update")
-
-//        suggested: {
-//            if(device.isDFU || (firmwareUpdates.channelNames.length === 0)) {
-//                return false;
-//            }
-
-//            const channelName = "release";
-//            const latestVersion = firmwareUpdates.channel(channelName).latestVersion;
-
-//            return (latestVersion.number > device.version) || ((latestVersion.number !== device.version) && (device.version.includes(latestVersion.number)));
-//        }
-
-        visible: /*(firmwareUpdates.channelNames.length > 0) &&*/ !(device.state.isPersistent || device.state.isError)
+        suggested: device.state.isRecoveryMode ? false : device.updater.canUpdate
+        visible: device.updater.isReady && !(device.state.isPersistent || device.state.isError)
 
         anchors.right: menuButton.left
         anchors.rightMargin: 10
@@ -185,50 +171,50 @@ Item {
             enabled: !device.state.isRecoveryMode
         }
 
-        MenuSeparator {}
+//        MenuSeparator {}
 
-        Menu {
-            title: qsTr("Backup && Restore")
+//        Menu {
+//            title: qsTr("Backup && Restore")
 
-            MenuItem {
-                text: qsTr("Backup User Data...")
-//                onTriggered: backupRequested(device)
-            }
+//            MenuItem {
+//                text: qsTr("Backup User Data...")
+////                onTriggered: backupRequested(device)
+//            }
 
-            MenuItem {
-                text: qsTr("Restore User Data...")
-//                onTriggered: restoreRequested(device)
-            }
-        }
+//            MenuItem {
+//                text: qsTr("Restore User Data...")
+////                onTriggered: restoreRequested(device)
+//            }
+//        }
 
-        Menu {
-            title: qsTr("Expert options")
+//        Menu {
+//            title: qsTr("Expert options")
 
-            MenuItem {
-                text: qsTr("Update Databases...")
-//                onTriggered: localAssetsUpdateRequested(device)
-            }
+//            MenuItem {
+//                text: qsTr("Update Databases...")
+////                onTriggered: localAssetsUpdateRequested(device)
+//            }
 
-            MenuItem {
-                text: qsTr("Update Wireless stack...")
-//                onTriggered: localRadioUpdateRequested(device)
-            }
+//            MenuItem {
+//                text: qsTr("Update Wireless stack...")
+////                onTriggered: localRadioUpdateRequested(device)
+//            }
 
-            MenuItem {
-                text: qsTr("Update FUS...")
-//                onTriggered: localFUSUpdateRequested(device)
-            }
+//            MenuItem {
+//                text: qsTr("Update FUS...")
+////                onTriggered: localFUSUpdateRequested(device)
+//            }
 
-            MenuItem {
-                text: qsTr("Fix Option Bytes...")
-//                onTriggered: fixOptionBytesRequested(device)
-            }
+//            MenuItem {
+//                text: qsTr("Fix Option Bytes...")
+////                onTriggered: fixOptionBytesRequested(device)
+//            }
 
-            MenuItem {
-                text: qsTr("Fix boot issues")
-//                onTriggered: fixBootRequested(device)
-                enabled: device.state.isRecoveryMode
-            }
-        }
+//            MenuItem {
+//                text: qsTr("Fix boot issues")
+////                onTriggered: fixBootRequested(device)
+//                enabled: device.state.isRecoveryMode
+//            }
+//        }
     }
 }

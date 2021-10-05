@@ -16,6 +16,7 @@ class FlipperZero : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(Flipper::Zero::DeviceState* state READ deviceState CONSTANT)
+    Q_PROPERTY(Flipper::Zero::FirmwareUpdater* updater READ updater CONSTANT)
     Q_PROPERTY(Flipper::Zero::ScreenStreamInterface* screen READ screen CONSTANT)
 
 public:
@@ -26,8 +27,8 @@ public:
     Flipper::Zero::ScreenStreamInterface *screen() const;
     Flipper::Zero::FirmwareUpdater *updater() const;
 
-public slots:
-    void fullUpdate();
+private slots:
+    void onErrorOccured();
 
 private:
     Zero::DeviceState *m_state;

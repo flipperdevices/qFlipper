@@ -13,7 +13,9 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     QObject(parent),
     m_state(new DeviceState(info, this)),
     m_updater(new FirmwareUpdater(m_state, this))
-{}
+{
+    connect(m_updater, &SignalingFailable::errorOccured, this, &FlipperZero::onErrorOccured);
+}
 
 FlipperZero::~FlipperZero()
 {
@@ -30,7 +32,13 @@ Flipper::Zero::ScreenStreamInterface *FlipperZero::screen() const
     return m_screen;
 }
 
-void FlipperZero::fullUpdate()
+FirmwareUpdater *FlipperZero::updater() const
 {
-    m_updater->fullUpdate();
+    return m_updater;
+}
+
+void FlipperZero::onErrorOccured()
+{
+    auto *instance = qobject_cast<SignalingFailable*>(sender());
+    m_state->setErrorString(instance->errorString());
 }

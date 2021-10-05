@@ -41,6 +41,7 @@ SOURCES += \
     flipperzero/cli/statoperation.cpp \
     flipperzero/cli/writeoperation.cpp \
     flipperzero/toplevel/abstracttopleveloperation.cpp \
+    flipperzero/toplevel/fullupdateoperation.cpp \
     flipperzero/utility/abstractutilityoperation.cpp \
     flipperzero/utility/assetsdownloadoperation.cpp \
     flipperzero/utility/getfiletreeoperation.cpp \
@@ -92,6 +93,7 @@ HEADERS += \
     flipperzero/cli/statoperation.h \
     flipperzero/cli/writeoperation.h \
     flipperzero/toplevel/abstracttopleveloperation.h \
+    flipperzero/toplevel/fullupdateoperation.h \
     flipperzero/utility/abstractutilityoperation.h \
     flipperzero/utility/assetsdownloadoperation.h \
     flipperzero/utility/getfiletreeoperation.h \

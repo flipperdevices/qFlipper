@@ -127,7 +127,7 @@ Item {
                 };
 
                 confirmationDialog.openWithMessage(function() {
-                    device.fullUpdate();
+                    device.updater.fullUpdate();
                 }, messageObj);
             }
 

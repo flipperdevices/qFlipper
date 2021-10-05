@@ -4,8 +4,6 @@
 
 #include "flipperzero/devicestate.h"
 
-#define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
-
 using namespace Flipper;
 using namespace Zero;
 
@@ -24,6 +22,11 @@ void AbstractTopLevelOperation::start()
     if(operationState() != AbstractOperation::Ready) {
         finishWithError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
     } else {
-        CALL_LATER(this, &AbstractTopLevelOperation::advanceOperationState);
+        advanceOperationState();
     }
+}
+
+void AbstractTopLevelOperation::advanceOperationState()
+{
+    QTimer::singleShot(0, this, &AbstractTopLevelOperation::nextStateLogic);
 }

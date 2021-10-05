@@ -19,8 +19,11 @@ public:
 
     void start() override;
 
+protected:
+    void advanceOperationState();
+
 private slots:
-    virtual void advanceOperationState() = 0;
+    virtual void nextStateLogic() = 0;
 
 private:
     DeviceState *m_deviceState;
