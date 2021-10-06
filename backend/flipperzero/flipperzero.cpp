@@ -2,7 +2,7 @@
 
 #include "devicestate.h"
 #include "firmwareupdater.h"
-#include "screenstreaminterface.h"
+#include "screenstreamer.h"
 
 #include "macros.h"
 
@@ -27,9 +27,9 @@ DeviceState *FlipperZero::deviceState() const
     return m_state;
 }
 
-Flipper::Zero::ScreenStreamInterface *FlipperZero::screen() const
+Flipper::Zero::ScreenStreamer *FlipperZero::streamer() const
 {
-    return m_screen;
+    return m_streamer;
 }
 
 FirmwareUpdater *FlipperZero::updater() const

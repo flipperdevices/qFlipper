@@ -9,7 +9,7 @@ class QSerialPort;
 namespace Flipper {
 namespace Zero {
 
-class ScreenStreamInterface : public QObject
+class ScreenStreamer : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QByteArray screenData READ screenData NOTIFY screenDataChanged)
@@ -39,8 +39,8 @@ public:
 
     Q_ENUM(InputType)
 
-    ScreenStreamInterface(QSerialPortInfo portInfo, QObject *parent = nullptr);
-    ~ScreenStreamInterface();
+    ScreenStreamer(QSerialPortInfo portInfo, QObject *parent = nullptr);
+    ~ScreenStreamer();
 
     const QByteArray &screenData() const;
 

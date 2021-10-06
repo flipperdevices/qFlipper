@@ -17,12 +17,12 @@ Item {
 
     function close() {
         screen.homeRequested();
-        device.screen.enabled = false;
+        device.streamer.enabled = false;
     }
 
     function onDeviceIsOnlineChanged() {
-        if(!device.isOnline) {
-            device.isOnlineChanged.disconnect(screen.onDeviceIsOnlineChanged);
+        if(!device.state.isOnline) {
+            device.state.isOnlineChanged.disconnect(screen.onDeviceIsOnlineChanged);
             screen.close();
         }
     }
@@ -52,10 +52,10 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            canvasWidth: device.screen.screenWidth
-            canvasHeight: device.screen.screenHeight
+            canvasWidth: device.streamer.screenWidth
+            canvasHeight: device.streamer.screenHeight
 
-            data: device.screen.screenData
+            data: device.streamer.screenData
         }
 
         StyledKeypad {
@@ -63,7 +63,7 @@ Item {
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
 
             onInputEvent: {
-                device.screen.sendInputEvent(key, type);
+                device.streamer.sendInputEvent(key, type);
             }
         }
 
@@ -147,7 +147,7 @@ Item {
 
     Component.onCompleted: {
         keypad.forceActiveFocus();
-        device.screen.enabled = true;
-        device.isOnlineChanged.connect(screen.onDeviceIsOnlineChanged);
+        device.streamer.enabled = true;
+        device.state.isOnlineChanged.connect(screen.onDeviceIsOnlineChanged);
     }
 }

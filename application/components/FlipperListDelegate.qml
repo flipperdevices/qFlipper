@@ -167,7 +167,7 @@ Item {
 
         MenuItem {
             text: qsTr("Screen Streaming...")
-//            onTriggered: screenStreamRequested(device)
+            onTriggered: screenStreamRequested(device)
             enabled: !device.state.isRecoveryMode
         }
 

@@ -34,13 +34,13 @@ SOURCES += \
     flipperzero/recovery/fixoptionbytesoperation.cpp \
     flipperzero/recovery/wirelessstackdownloadoperation.cpp \
     flipperzero/recoveryinterface.cpp \
-    flipperzero/screenstreaminterface.cpp \
     flipperzero/cli/listoperation.cpp \
     flipperzero/cli/mkdiroperation.cpp \
     flipperzero/cli/readoperation.cpp \
     flipperzero/cli/removeoperation.cpp \
     flipperzero/cli/statoperation.cpp \
     flipperzero/cli/writeoperation.cpp \
+    flipperzero/screenstreamer.cpp \
     flipperzero/toplevel/abstracttopleveloperation.cpp \
     flipperzero/toplevel/fullupdateoperation.cpp \
     flipperzero/utility/abstractutilityoperation.cpp \
@@ -88,13 +88,13 @@ HEADERS += \
     flipperzero/recovery/fixoptionbytesoperation.h \
     flipperzero/recovery/wirelessstackdownloadoperation.h \
     flipperzero/recoveryinterface.h \
-    flipperzero/screenstreaminterface.h \
     flipperzero/cli/listoperation.h \
     flipperzero/cli/mkdiroperation.h \
     flipperzero/cli/readoperation.h \
     flipperzero/cli/removeoperation.h \
     flipperzero/cli/statoperation.h \
     flipperzero/cli/writeoperation.h \
+    flipperzero/screenstreamer.h \
     flipperzero/toplevel/abstracttopleveloperation.h \
     flipperzero/toplevel/fullupdateoperation.h \
     flipperzero/utility/abstractutilityoperation.h \

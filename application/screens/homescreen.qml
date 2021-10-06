@@ -132,11 +132,11 @@ Item {
             }
 
             onVersionListRequested: {
-                screen.versionsRequested(device)
+                screen.versionsRequested(device);
             }
 
             onScreenStreamRequested: {
-                screen.streamRequested(device)
+//                screen.streamRequested(device);
             }
 
             onLocalUpdateRequested: {

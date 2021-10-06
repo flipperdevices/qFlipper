@@ -8,7 +8,7 @@ namespace Flipper {
 
 namespace Zero {
     class DeviceState;
-    class ScreenStreamInterface;
+    class ScreenStreamer;
     class FirmwareUpdater;
 }
 
@@ -17,14 +17,14 @@ class FlipperZero : public QObject
     Q_OBJECT
     Q_PROPERTY(Flipper::Zero::DeviceState* state READ deviceState CONSTANT)
     Q_PROPERTY(Flipper::Zero::FirmwareUpdater* updater READ updater CONSTANT)
-    Q_PROPERTY(Flipper::Zero::ScreenStreamInterface* screen READ screen CONSTANT)
+    Q_PROPERTY(Flipper::Zero::ScreenStreamer* streamer READ streamer CONSTANT)
 
 public:
     FlipperZero(const Zero::DeviceInfo &info, QObject *parent = nullptr);
     ~FlipperZero();
 
     Flipper::Zero::DeviceState *deviceState() const;
-    Flipper::Zero::ScreenStreamInterface *screen() const;
+    Flipper::Zero::ScreenStreamer *streamer() const;
     Flipper::Zero::FirmwareUpdater *updater() const;
 
 private slots:
@@ -33,7 +33,7 @@ private slots:
 private:
     Zero::DeviceState *m_state;
     Zero::FirmwareUpdater *m_updater;
-    Zero::ScreenStreamInterface *m_screen;
+    Zero::ScreenStreamer *m_streamer;
 };
 
 }
