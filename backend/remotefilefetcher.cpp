@@ -77,7 +77,7 @@ bool RemoteFileFetcher::fetch(const Updates::FileInfo &fileInfo)
 
 bool RemoteFileFetcher::fetch(const Flipper::Updates::FileInfo &fileInfo, QIODevice *outputFile)
 {
-    if(!outputFile->open(QIODevice::WriteOnly)) {
+    if(!outputFile->open(QIODevice::ReadWrite)) {
         error_msg(QStringLiteral("Failed to open file for writing: %1.").arg(outputFile->errorString()));
         return false;
     }
