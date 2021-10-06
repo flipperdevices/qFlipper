@@ -3,11 +3,12 @@
 
 #include <QObject>
 
+#include "failable.h"
 #include "flipperupdates.h"
 
 class QNetworkAccessManager;
 
-class RemoteFileFetcher : public QObject
+class RemoteFileFetcher : public QObject, public Failable
 {
     Q_OBJECT
 

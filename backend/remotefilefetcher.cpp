@@ -23,6 +23,7 @@ bool RemoteFileFetcher::fetch(const QString &remoteUrl)
     auto *reply = m_manager->get(QNetworkRequest(remoteUrl));
 
     if(reply->error() != QNetworkReply::NoError) {
+        setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
         reply->deleteLater();
         return false;
     }
@@ -32,6 +33,8 @@ bool RemoteFileFetcher::fetch(const QString &remoteUrl)
 
         if(reply->error() == QNetworkReply::NoError) {
             data = reply->readAll();
+        } else {
+            setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
         }
 
         emit finished(data);
@@ -48,6 +51,7 @@ bool RemoteFileFetcher::fetch(const Updates::FileInfo &fileInfo)
     auto *reply = m_manager->get(QNetworkRequest(fileInfo.url()));
 
     if(reply->error() != QNetworkReply::NoError) {
+        setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
         reply->deleteLater();
         return false;
     }
@@ -63,7 +67,12 @@ bool RemoteFileFetcher::fetch(const Updates::FileInfo &fileInfo)
 
             if(hash.result().toHex() != fileInfo.sha256()) {
                 data.clear();
+            } else {
+                setError(QStringLiteral("File checksum mismatch").arg(reply->errorString()));
             }
+
+        } else {
+            setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
         }
 
         emit finished(data);
@@ -78,13 +87,15 @@ bool RemoteFileFetcher::fetch(const Updates::FileInfo &fileInfo)
 bool RemoteFileFetcher::fetch(const Flipper::Updates::FileInfo &fileInfo, QIODevice *outputFile)
 {
     if(!outputFile->open(QIODevice::ReadWrite)) {
-        error_msg(QStringLiteral("Failed to open file for writing: %1.").arg(outputFile->errorString()));
+        setError(QStringLiteral("Failed to open file for writing: %1.").arg(outputFile->errorString()));
         return false;
     }
 
     auto *reply = m_manager->get(QNetworkRequest(fileInfo.url()));
 
     if(reply->error() != QNetworkReply::NoError) {
+        setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
+
         reply->deleteLater();
         return false;
     }
@@ -97,11 +108,11 @@ bool RemoteFileFetcher::fetch(const Flipper::Updates::FileInfo &fileInfo, QIODev
             hash.addData(outputFile);
 
             if(hash.result().toHex() != fileInfo.sha256()) {
-                error_msg("SHA256 sum does not match");
-            } else {
-                outputFile->seek(0);
+                setError(QStringLiteral("File checksum mismatch").arg(reply->errorString()));
             }
 
+        } else {
+            setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
         }
 
         outputFile->close();
