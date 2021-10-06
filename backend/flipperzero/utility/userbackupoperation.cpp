@@ -35,6 +35,8 @@ void UserBackupOperation::advanceOperationState()
     if(operationState() == BasicOperationState::Ready) {
         setOperationState(State::CreatingDirectory);
 
+        deviceState()->setStatusString(QStringLiteral("Backing up internal storage..."));
+
         if(!m_deviceDirName.startsWith('/')) {
             finishWithError(QStringLiteral("Expecting absolute path for device directory"));
         } else if(!createBackupDirectory()) {

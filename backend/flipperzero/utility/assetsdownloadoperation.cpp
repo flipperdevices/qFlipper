@@ -237,8 +237,8 @@ bool AssetsDownloadOperation::buildFileLists()
 
     if(!m_isDeviceManifestPresent) {
         info_msg("Device manifest not present, assumimg fresh install...");
-        added.append(manifestInfo);
-        added.append(m_localManifest.tree()->toPreOrderList().mid(1));
+        changed.append(manifestInfo);
+        changed.append(m_localManifest.tree()->toPreOrderList().mid(1));
 
     } else if(m_deviceManifest.isError()) {
         info_msg("Failed to build device manifest, assuming complete asset overwrite...");

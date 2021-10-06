@@ -11,9 +11,12 @@
 #include "flipperzero/utilityinterface.h"
 #include "flipperzero/utility/userbackupoperation.h"
 #include "flipperzero/utility/userrestoreoperation.h"
+#include "flipperzero/utility/startrecoveryoperation.h"
 #include "flipperzero/utility/assetsdownloadoperation.h"
 
 #include "flipperzero/recoveryinterface.h"
+#include "flipperzero/recovery/exitrecoveryoperation.h"
+#include "flipperzero/recovery/firmwaredownloadoperation.h"
 
 #include "remotefilefetcher.h"
 #include "macros.h"
@@ -130,55 +133,38 @@ void FullUpdateOperation::fetchAssets()
 
 void FullUpdateOperation::saveBackup()
 {
-    auto *operation = m_utility->backupInternalStorage(m_workDir.absolutePath());
-
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            finishWithError(operation->errorString());
-        } else {
-            advanceOperationState();
-        }
-    });
+    registerOperation(m_utility->backupInternalStorage(m_workDir.absolutePath()));
 }
 
 void FullUpdateOperation::startRecovery()
 {
-    finish();
+    registerOperation(m_utility->startRecoveryMode());
 }
 
 void FullUpdateOperation::downloadFirmware()
 {
-
+    registerOperation(m_recovery->downloadFirmware(m_firmwareFile));
 }
 
 void FullUpdateOperation::exitRecovery()
 {
-
+    registerOperation(m_recovery->exitRecoveryMode());
 }
 
 void FullUpdateOperation::downloadAssets()
 {
-
+    registerOperation(m_utility->downloadAssets(m_assetsFile));
 }
 
 void FullUpdateOperation::restoreBackup()
 {
-
+    registerOperation(m_utility->restoreInternalStorage(m_workDir.absolutePath()));
 }
 
 void FullUpdateOperation::cleanupFiles()
 {
-//    if(m_firmwareFile) {
-//        m_firmwareFile->deleteLater();
-//        m_firmwareFile = nullptr;
-//    }
-
-//    if(m_assetsFile) {
-//        m_assetsFile->deleteLater();
-//        m_assetsFile = nullptr;
-//    }
-
     m_workDir.removeRecursively();
+    advanceOperationState();
 }
 
 QFile *FullUpdateOperation::fetchFile(const Updates::FileInfo &fileInfo)
@@ -187,13 +173,6 @@ QFile *FullUpdateOperation::fetchFile(const Updates::FileInfo &fileInfo)
     const auto filePath = m_workDir.absoluteFilePath(fileName);
 
     auto *file = new QFile(filePath, this);
-
-    if(!file->open(QIODevice::ReadWrite)) {
-        finishWithError(file->errorString());
-        file->deleteLater();
-        return nullptr;
-    }
-
     auto *fetcher = new RemoteFileFetcher(this);
 
     connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
@@ -204,6 +183,7 @@ QFile *FullUpdateOperation::fetchFile(const Updates::FileInfo &fileInfo)
             advanceOperationState();
         }
 
+        file->close();
         fetcher->deleteLater();
     });
 
@@ -215,4 +195,15 @@ QFile *FullUpdateOperation::fetchFile(const Updates::FileInfo &fileInfo)
     }
 
     return file;
+}
+
+void FullUpdateOperation::registerOperation(AbstractOperation *operation)
+{
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(operation->errorString());
+        } else {
+            advanceOperationState();
+        }
+    });
 }

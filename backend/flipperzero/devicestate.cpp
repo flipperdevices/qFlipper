@@ -11,6 +11,14 @@ DeviceState::DeviceState(const DeviceInfo &deviceInfo, QObject *parent):
     m_isError(false)
 {}
 
+void DeviceState::reset(const DeviceInfo &newDeviceInfo)
+{
+    setDeviceInfo(newDeviceInfo);
+    setError(false);
+    setProgress(0.0);
+    setOnline(true);
+}
+
 const DeviceInfo &DeviceState::deviceInfo() const
 {
     return m_deviceInfo;

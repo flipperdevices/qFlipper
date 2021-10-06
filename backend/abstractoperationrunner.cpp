@@ -1,6 +1,7 @@
 #include "abstractoperationrunner.h"
 
 #include <QTimer>
+#include <QDebug>
 
 #include "abstractoperation.h"
 
@@ -73,6 +74,7 @@ void AbstractOperationRunner::processQueue()
             processQueue();
 
         } else {
+            qDebug() << "[Operation Runner]" << operation->description() << "has finished with status:" << operation->errorString();
             CALL_LATER(this, &AbstractOperationRunner::processQueue);
         }
 

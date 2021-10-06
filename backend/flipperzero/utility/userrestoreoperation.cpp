@@ -1,6 +1,5 @@
 #include "userrestoreoperation.h"
 
-#include <QUrl>
 #include <QFile>
 #include <QTimer>
 #include <QDirIterator>
@@ -18,7 +17,7 @@ using namespace Zero;
 
 UserRestoreOperation::UserRestoreOperation(CommandInterface *cli, DeviceState *deviceState, const QString &backupPath, QObject *parent):
     AbstractUtilityOperation(cli, deviceState, parent),
-    m_backupDir(QUrl(backupPath).toLocalFile()),
+    m_backupDir(backupPath),
     m_deviceDirName(QByteArrayLiteral("/int"))
 {
     m_backupDir.setFilter(QDir::Dirs  | QDir::Files | QDir::NoDotAndDotDot);

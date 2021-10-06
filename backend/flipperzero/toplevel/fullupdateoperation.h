@@ -53,6 +53,7 @@ private:
     void cleanupFiles();
 
     QFile *fetchFile(const Updates::FileInfo &fileInfo);
+    void registerOperation(AbstractOperation *operation);
 
     RecoveryInterface *m_recovery;
     UtilityInterface *m_utility;

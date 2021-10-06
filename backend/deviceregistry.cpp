@@ -97,8 +97,7 @@ void DeviceRegistry::processDevice()
 
     if(it != m_data.end()) {
         // Preserving the old instance
-        (*it)->deviceState()->setDeviceInfo(info);
-        (*it)->deviceState()->setOnline(true);
+        (*it)->deviceState()->reset(info);
 
     } else {
         auto *device = new FlipperZero(info, this);
