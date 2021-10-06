@@ -42,6 +42,8 @@ private slots:
     void nextStateLogic() override;
 
 private:
+    void onSubOperationErrorOccured() override;
+
     void createWorkDir();
     void fetchFirmware();
     void fetchAssets();
@@ -55,7 +57,6 @@ private:
     void cleanupFiles();
 
     QFile *fetchFile(const Updates::FileInfo &fileInfo);
-    void registerOperation(AbstractOperation *operation);
 
     RecoveryInterface *m_recovery;
     UtilityInterface *m_utility;

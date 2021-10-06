@@ -102,6 +102,11 @@ void FullUpdateOperation::nextStateLogic()
     }
 }
 
+void FullUpdateOperation::onSubOperationErrorOccured()
+{
+    cleanupFiles();
+}
+
 void FullUpdateOperation::createWorkDir()
 {
     // TODO: add random suffix
@@ -205,16 +210,4 @@ QFile *FullUpdateOperation::fetchFile(const Updates::FileInfo &fileInfo)
     }
 
     return file;
-}
-
-void FullUpdateOperation::registerOperation(AbstractOperation *operation)
-{
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            finishWithError(operation->errorString());
-            cleanupFiles();
-        } else {
-            advanceOperationState();
-        }
-    });
 }

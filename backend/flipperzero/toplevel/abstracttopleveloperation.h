@@ -21,11 +21,14 @@ public:
 
 protected:
     void advanceOperationState();
+    void registerOperation(AbstractOperation *operation);
 
 private slots:
     virtual void nextStateLogic() = 0;
 
 private:
+    virtual void onSubOperationErrorOccured();
+
     DeviceState *m_deviceState;
 };
 

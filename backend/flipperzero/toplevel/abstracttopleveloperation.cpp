@@ -30,3 +30,20 @@ void AbstractTopLevelOperation::advanceOperationState()
 {
     QTimer::singleShot(0, this, &AbstractTopLevelOperation::nextStateLogic);
 }
+
+void AbstractTopLevelOperation::registerOperation(AbstractOperation *operation)
+{
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            onSubOperationErrorOccured();
+            finishWithError(operation->errorString());
+        } else {
+            advanceOperationState();
+        }
+    });
+}
+
+void AbstractTopLevelOperation::onSubOperationErrorOccured()
+{
+    //Empty default implementation
+}
