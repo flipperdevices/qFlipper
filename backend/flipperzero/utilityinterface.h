@@ -14,6 +14,7 @@ class StartRecoveryOperation;
 class AssetsDownloadOperation;
 class UserBackupOperation;
 class UserRestoreOperation;
+class RestartOperation;
 
 class UtilityInterface : public AbstractOperationRunner
 {
@@ -26,6 +27,7 @@ public:
     AssetsDownloadOperation *downloadAssets(QIODevice *compressedFile);
     UserBackupOperation *backupInternalStorage(const QString &backupPath);
     UserRestoreOperation *restoreInternalStorage(const QString &backupPath);
+    RestartOperation *restartDevice();
 
 private:
     DeviceState *m_deviceState;

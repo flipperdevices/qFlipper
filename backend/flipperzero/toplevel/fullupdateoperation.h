@@ -28,6 +28,7 @@ class FullUpdateOperation : public AbstractTopLevelOperation
         ExitingRecovery,
         DownloadingAssets,
         RestoringBackup,
+        RestartingDevice,
         CleaningUp
     };
 
@@ -50,6 +51,7 @@ private:
     void exitRecovery();
     void downloadAssets();
     void restoreBackup();
+    void restartDevice();
     void cleanupFiles();
 
     QFile *fetchFile(const Updates::FileInfo &fileInfo);

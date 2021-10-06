@@ -5,6 +5,7 @@
 #include "flipperzero/devicestate.h"
 
 #include "cli/skipmotdoperation.h"
+#include "cli/rebootoperation.h"
 #include "cli/removeoperation.h"
 #include "cli/mkdiroperation.h"
 #include "cli/writeoperation.h"
@@ -44,6 +45,13 @@ CommandInterface::CommandInterface(DeviceState *state, QObject *parent):
 
 CommandInterface::~CommandInterface()
 {}
+
+RebootOperation *CommandInterface::reboot()
+{
+    auto *op = new RebootOperation(m_serialPort, this);
+    enqueueOperation(op);
+    return op;
+}
 
 DFUOperation *CommandInterface::startRecoveryMode()
 {

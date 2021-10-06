@@ -3,6 +3,7 @@
 #include "devicestate.h"
 #include "commandinterface.h"
 
+#include "flipperzero/utility/restartoperation.h"
 #include "flipperzero/utility/userbackupoperation.h"
 #include "flipperzero/utility/userrestoreoperation.h"
 #include "flipperzero/utility/startrecoveryoperation.h"
@@ -41,6 +42,13 @@ UserBackupOperation *UtilityInterface::backupInternalStorage(const QString &back
 UserRestoreOperation *UtilityInterface::restoreInternalStorage(const QString &backupPath)
 {
     auto *operation = new UserRestoreOperation(m_cli, m_deviceState, backupPath, this);
+    enqueueOperation(operation);
+    return operation;
+}
+
+RestartOperation *UtilityInterface::restartDevice()
+{
+    auto *operation = new RestartOperation(m_cli, m_deviceState, this);
     enqueueOperation(operation);
     return operation;
 }

@@ -9,6 +9,7 @@
 #include "flipperzero/devicestate.h"
 
 #include "flipperzero/utilityinterface.h"
+#include "flipperzero/utility/restartoperation.h"
 #include "flipperzero/utility/userbackupoperation.h"
 #include "flipperzero/utility/userrestoreoperation.h"
 #include "flipperzero/utility/startrecoveryoperation.h"
@@ -89,6 +90,10 @@ void FullUpdateOperation::nextStateLogic()
         restoreBackup();
 
     } else if(operationState() == FullUpdateOperation::RestoringBackup) {
+        setOperationState(FullUpdateOperation::RestartingDevice);
+        restartDevice();
+
+    } else if(operationState() == FullUpdateOperation::RestartingDevice) {
         setOperationState(FullUpdateOperation::CleaningUp);
         cleanupFiles();
 
@@ -161,6 +166,11 @@ void FullUpdateOperation::restoreBackup()
     registerOperation(m_utility->restoreInternalStorage(m_workDir.absolutePath()));
 }
 
+void FullUpdateOperation::restartDevice()
+{
+    registerOperation(m_utility->restartDevice());
+}
+
 void FullUpdateOperation::cleanupFiles()
 {
     m_workDir.removeRecursively();
@@ -202,6 +212,7 @@ void FullUpdateOperation::registerOperation(AbstractOperation *operation)
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(operation->errorString());
+            cleanupFiles();
         } else {
             advanceOperationState();
         }

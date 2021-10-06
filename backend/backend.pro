@@ -18,6 +18,7 @@ SOURCES += \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
     flipperzero/cli/dfuoperation.cpp \
+    flipperzero/cli/rebootoperation.cpp \
     flipperzero/commandinterface.cpp \
     flipperzero/cli/skipmotdoperation.cpp \
     flipperzero/deviceinfofetcher.cpp \
@@ -45,6 +46,7 @@ SOURCES += \
     flipperzero/utility/abstractutilityoperation.cpp \
     flipperzero/utility/assetsdownloadoperation.cpp \
     flipperzero/utility/getfiletreeoperation.cpp \
+    flipperzero/utility/restartoperation.cpp \
     flipperzero/utility/startrecoveryoperation.cpp \
     flipperzero/utility/userbackupoperation.cpp \
     flipperzero/utility/userrestoreoperation.cpp \
@@ -69,6 +71,7 @@ HEADERS += \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
     flipperzero/cli/dfuoperation.h \
+    flipperzero/cli/rebootoperation.h \
     flipperzero/commandinterface.h \
     flipperzero/cli/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
@@ -97,6 +100,7 @@ HEADERS += \
     flipperzero/utility/abstractutilityoperation.h \
     flipperzero/utility/assetsdownloadoperation.h \
     flipperzero/utility/getfiletreeoperation.h \
+    flipperzero/utility/restartoperation.h \
     flipperzero/utility/startrecoveryoperation.h \
     flipperzero/utility/userbackupoperation.h \
     flipperzero/utility/userrestoreoperation.h \
