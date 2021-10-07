@@ -74,9 +74,10 @@ void AbstractOperationRunner::processQueue()
             processQueue();
 
         } else {
-            qDebug() << "[Operation Runner]" << operation->description() << "finished with status:" << operation->errorString();
             CALL_LATER(this, &AbstractOperationRunner::processQueue);
         }
+
+        qDebug() << "[Operation Runner]" << operation->description() << "finished with status:" << operation->errorString();
 
         onOperationFinished(operation);
         operation->deleteLater();
