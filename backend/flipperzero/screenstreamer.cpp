@@ -2,17 +2,22 @@
 
 #include <QSerialPort>
 
+#include "devicestate.h"
 #include "macros.h"
 
-namespace Flipper {
-namespace Zero {
+using namespace Flipper;
+using namespace Zero;
 
-ScreenStreamer::ScreenStreamer(QSerialPortInfo portInfo, QObject *parent):
+ScreenStreamer::ScreenStreamer(DeviceState *deviceState, QObject *parent):
     QObject(parent),
-    m_port(new QSerialPort(portInfo, this)),
+    m_deviceState(deviceState),
+    m_serialPort(nullptr),
     m_isEnabled(false),
     m_isHeaderFound(false)
-{}
+{
+    connect(m_deviceState, &DeviceState::deviceInfoChanged, this, &ScreenStreamer::createPort);
+    createPort();
+}
 
 ScreenStreamer::~ScreenStreamer()
 {
@@ -36,8 +41,7 @@ void ScreenStreamer::setEnabled(bool enabled)
     }
 
     if(enabled) {
-        const auto success = openPort();
-        check_return_void(success, "Failed to open serial port");
+        check_return_void(openPort(), "Failed to open serial port");
     } else {
         closePort();
     }
@@ -59,15 +63,26 @@ int ScreenStreamer::screenHeight()
 void ScreenStreamer::sendInputEvent(InputKey key, InputType type)
 {
     const char input[] = { 27, 'i', (char)key, (char)type };
-    m_port->write(input, sizeof(input));
-    m_port->flush();
+    m_serialPort->write(input, sizeof(input));
+    m_serialPort->flush();
+}
+
+void ScreenStreamer::createPort()
+{
+    if(m_serialPort) {
+        m_serialPort->deleteLater();
+    }
+
+    if(!m_deviceState->isRecoveryMode()) {
+        m_serialPort = new QSerialPort(m_deviceState->deviceInfo().serialInfo, this);
+    }
 }
 
 void ScreenStreamer::onPortReadyRead()
 {
     static const auto header = QByteArrayLiteral("\xf0\xe1\xd2\xc3");
 
-    m_dataBuffer += m_port->readAll();
+    m_dataBuffer += m_serialPort->readAll();
 
     if (!m_isHeaderFound) {
         const int pos = m_dataBuffer.indexOf(header);
@@ -92,27 +107,27 @@ void ScreenStreamer::onPortReadyRead()
 
 void ScreenStreamer::onPortErrorOccured()
 {
-    if(m_port->error() == QSerialPort::ResourceError) {
+    if(m_serialPort->error() == QSerialPort::ResourceError) {
         return;
     }
 
-    error_msg(QString("Serial port error occured: %1").arg(m_port->errorString()));
+    error_msg(QString("Serial port error occured: %1").arg(m_serialPort->errorString()));
     setEnabled(false);
 }
 
 bool ScreenStreamer::openPort()
 {
-    const auto success = m_port->open(QIODevice::ReadWrite);
+    const auto success = m_serialPort->open(QIODevice::ReadWrite);
 
     if(success) {
-        connect(m_port, &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
-        connect(m_port, &QSerialPort::errorOccurred, this, &ScreenStreamer::onPortErrorOccured);
+        connect(m_serialPort, &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
+        connect(m_serialPort, &QSerialPort::errorOccurred, this, &ScreenStreamer::onPortErrorOccured);
 
-        m_port->setDataTerminalReady(true);
-        m_port->write("\rscreen_stream\r");
+        m_serialPort->setDataTerminalReady(true);
+        m_serialPort->write("\rscreen_stream\r");
 
     } else {
-        error_msg(QString("Failed to open serial port: %1").arg(m_port->errorString()));
+        error_msg(QString("Failed to open serial port: %1").arg(m_serialPort->errorString()));
     }
 
     return success;
@@ -120,13 +135,10 @@ bool ScreenStreamer::openPort()
 
 void ScreenStreamer::closePort()
 {
-    disconnect(m_port, &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
-    disconnect(m_port, &QSerialPort::errorOccurred, this, &ScreenStreamer::onPortErrorOccured);
+    disconnect(m_serialPort, &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
+    disconnect(m_serialPort, &QSerialPort::errorOccurred, this, &ScreenStreamer::onPortErrorOccured);
 
-    m_port->write("\x01\r\n");
-    m_port->clear();
-    m_port->close();
+    m_serialPort->write("\x01\r\n");
+    m_serialPort->clear();
+    m_serialPort->close();
 }
-
-} // namespace Zero
-} // namespace Flipper

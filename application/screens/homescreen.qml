@@ -136,7 +136,7 @@ Item {
             }
 
             onScreenStreamRequested: {
-//                screen.streamRequested(device);
+                screen.streamRequested(device);
             }
 
             onLocalUpdateRequested: {

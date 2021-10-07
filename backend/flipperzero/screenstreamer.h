@@ -9,6 +9,8 @@ class QSerialPort;
 namespace Flipper {
 namespace Zero {
 
+class DeviceState;
+
 class ScreenStreamer : public QObject
 {
     Q_OBJECT
@@ -39,7 +41,7 @@ public:
 
     Q_ENUM(InputType)
 
-    ScreenStreamer(QSerialPortInfo portInfo, QObject *parent = nullptr);
+    ScreenStreamer(DeviceState *deviceState, QObject *parent = nullptr);
     ~ScreenStreamer();
 
     const QByteArray &screenData() const;
@@ -58,6 +60,7 @@ signals:
     void enabledChanged();
 
 private slots:
+    void createPort();
     void onPortReadyRead();
     void onPortErrorOccured();
 
@@ -65,7 +68,9 @@ private:
     bool openPort();
     void closePort();
 
-    QSerialPort *m_port;
+    DeviceState *m_deviceState;
+    QSerialPort *m_serialPort;
+
     QByteArray m_dataBuffer;
     QByteArray m_screenData;
 

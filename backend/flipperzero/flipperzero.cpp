@@ -12,7 +12,8 @@ using namespace Zero;
 FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     QObject(parent),
     m_state(new DeviceState(info, this)),
-    m_updater(new FirmwareUpdater(m_state, this))
+    m_updater(new FirmwareUpdater(m_state, this)),
+    m_streamer(new ScreenStreamer(m_state, this))
 {
     connect(m_updater, &SignalingFailable::errorOccured, this, &FlipperZero::onErrorOccured);
 }
