@@ -1,12 +1,11 @@
 #pragma once
 
-#include <QQueue>
-
 #include "tararchive.h"
 #include "abstractutilityoperation.h"
 #include "flipperzero/assetmanifest.h"
 
 class QIODevice;
+class QFile;
 
 namespace Flipper {
 namespace Zero {
@@ -36,19 +35,17 @@ private slots:
     void advanceOperationState() override;
 
 private:
-    bool checkForExtStorage();
-    bool extractArchive();
-    bool readLocalManifest();
-    bool checkForDeviceManifest();
-    bool readDeviceManifest();
-
-    bool buildFileLists();
-
-    bool deleteFiles();
-    bool writeFiles();
+    void checkForExtStorage();
+    void extractArchive();
+    void readLocalManifest();
+    void checkForDeviceManifest();
+    void readDeviceManifest();
+    void buildFileLists();
+    void deleteFiles();
+    void writeFiles();
 
     QIODevice *m_compressedFile;
-    QIODevice *m_uncompressedFile;
+    QFile *m_uncompressedFile;
 
     TarArchive m_archive;
 

@@ -191,7 +191,6 @@ QFile *FullUpdateOperation::fetchFile(const Updates::FileInfo &fileInfo)
     auto *fetcher = new RemoteFileFetcher(this);
 
     connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
-        // TODO: make RemoteFileFetcher a Failable
         if(!file->bytesAvailable()) {
             finishWithError(QStringLiteral("Failed to fetch the file (2)"));
         } else {
@@ -199,15 +198,12 @@ QFile *FullUpdateOperation::fetchFile(const Updates::FileInfo &fileInfo)
         }
 
         file->close();
-        fetcher->deleteLater();
     });
 
     if(!fetcher->fetch(fileInfo, file)) {
         finishWithError(QStringLiteral("Failed to fetch the file (1)"));
-        fetcher->deleteLater();
-        file->deleteLater();
         return nullptr;
+    } else {
+        return file;
     }
-
-    return file;
 }
