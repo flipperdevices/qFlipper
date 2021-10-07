@@ -18,80 +18,14 @@ RemoteFileFetcher::~RemoteFileFetcher()
     // TODO: correct destruction in all cases
 }
 
-bool RemoteFileFetcher::fetch(const QString &remoteUrl)
-{
-    auto *reply = m_manager->get(QNetworkRequest(remoteUrl));
-
-    if(reply->error() != QNetworkReply::NoError) {
-        setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
-        reply->deleteLater();
-        return false;
-    }
-
-    connect(reply, &QNetworkReply::finished, this, [=]() {
-        QByteArray data;
-
-        if(reply->error() == QNetworkReply::NoError) {
-            data = reply->readAll();
-        } else {
-            setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
-        }
-
-        emit finished(data);
-        reply->deleteLater();
-    });
-
-    connect(reply, &QNetworkReply::downloadProgress, this, &RemoteFileFetcher::onDownloadProgress);
-
-    return true;
-}
-
-bool RemoteFileFetcher::fetch(const Updates::FileInfo &fileInfo)
-{
-    auto *reply = m_manager->get(QNetworkRequest(fileInfo.url()));
-
-    if(reply->error() != QNetworkReply::NoError) {
-        setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
-        reply->deleteLater();
-        return false;
-    }
-
-    connect(reply, &QNetworkReply::finished, this, [=]() {
-        QByteArray data;
-
-        if(reply->error() == QNetworkReply::NoError) {
-            data = reply->readAll();
-
-            QCryptographicHash hash(QCryptographicHash::Sha256);
-            hash.addData(data);
-
-            if(hash.result().toHex() != fileInfo.sha256()) {
-                data.clear();
-            } else {
-                setError(QStringLiteral("File checksum mismatch").arg(reply->errorString()));
-            }
-
-        } else {
-            setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
-        }
-
-        emit finished(data);
-        reply->deleteLater();
-    });
-
-    connect(reply, &QNetworkReply::downloadProgress, this, &RemoteFileFetcher::onDownloadProgress);
-
-    return true;
-}
-
-bool RemoteFileFetcher::fetch(const Flipper::Updates::FileInfo &fileInfo, QIODevice *outputFile)
+bool RemoteFileFetcher::fetch(const QString &remoteUrl, QIODevice *outputFile)
 {
     if(!outputFile->open(QIODevice::ReadWrite)) {
         setError(QStringLiteral("Failed to open file for writing: %1.").arg(outputFile->errorString()));
         return false;
     }
 
-    auto *reply = m_manager->get(QNetworkRequest(fileInfo.url()));
+    auto *reply = m_manager->get(QNetworkRequest(remoteUrl));
 
     if(reply->error() != QNetworkReply::NoError) {
         setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
@@ -101,18 +35,18 @@ bool RemoteFileFetcher::fetch(const Flipper::Updates::FileInfo &fileInfo, QIODev
     }
 
     connect(reply, &QNetworkReply::finished, this, [=]() {
-        if(reply->error() == QNetworkReply::NoError) {
+        if(reply->error() != QNetworkReply::NoError) {
+            setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
+
+        } else if(!m_expectedChecksum.isEmpty()) {
             outputFile->seek(0);
 
             QCryptographicHash hash(QCryptographicHash::Sha256);
             hash.addData(outputFile);
 
-            if(hash.result().toHex() != fileInfo.sha256()) {
-                setError(QStringLiteral("File checksum mismatch").arg(reply->errorString()));
+            if(hash.result().toHex() != m_expectedChecksum) {
+                setError(QStringLiteral("File integrity check failed"));
             }
-
-        } else {
-            setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
         }
 
         outputFile->close();
@@ -129,6 +63,12 @@ bool RemoteFileFetcher::fetch(const Flipper::Updates::FileInfo &fileInfo, QIODev
     connect(reply, &QNetworkReply::downloadProgress, this, &RemoteFileFetcher::onDownloadProgress);
 
     return true;
+}
+
+bool RemoteFileFetcher::fetch(const Flipper::Updates::FileInfo &fileInfo, QIODevice *outputFile)
+{
+    m_expectedChecksum = fileInfo.sha256();
+    return fetch(fileInfo.url(), outputFile);
 }
 
 void RemoteFileFetcher::onDownloadProgress(qint64 received, qint64 total)

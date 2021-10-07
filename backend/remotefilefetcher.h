@@ -16,8 +16,7 @@ public:
     RemoteFileFetcher(QObject *parent = nullptr);
     virtual ~RemoteFileFetcher();
 
-    bool fetch(const QString &remoteUrl);
-    bool fetch(const Flipper::Updates::FileInfo &fileInfo);
+    bool fetch(const QString &remoteUrl, QIODevice *outputFile);
     bool fetch(const Flipper::Updates::FileInfo &fileInfo, QIODevice *outputFile);
 
 signals:
@@ -29,6 +28,7 @@ private slots:
 
 private:
     QNetworkAccessManager *m_manager;
+    QByteArray m_expectedChecksum;
 };
 
 #endif // FILEFETCHER_H
