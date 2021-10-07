@@ -12,6 +12,7 @@ Item {
 
     signal versionsRequested(var device)
     signal streamRequested(var device)
+    signal prefsRequested()
 
     readonly property string channelName: "development" //TODO move this property into application settings
     readonly property bool hasUpdates: {
@@ -306,5 +307,17 @@ Item {
         onLinkActivated: {
             app.updater.installUpdate(applicationUpdates.channel(channelName).latestVersion);
         }
+    }
+
+    StyledToolButton {
+        id: prefsButton
+        anchors.right: screen.right
+        anchors.bottom: screen.bottom
+        anchors.margins: 6
+
+        color: "darkgray"
+        icon: "qrc:/assets/symbol-gear.svg"
+
+        onPressed: screen.prefsRequested()
     }
 }

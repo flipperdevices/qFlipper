@@ -32,5 +32,6 @@ Window {
         function onHomeRequested() { mainLoader.setSource("qrc:/screens/homescreen.qml"); }
         function onVersionsRequested(device) { mainLoader.setSource("qrc:/screens/versionscreen.qml", {device: device}); }
         function onStreamRequested(device) { mainLoader.setSource("qrc:/screens/streamscreen.qml", {device: device}); }
+        function onPrefsRequested() { mainLoader.setSource("qrc:/screens/prefscreen.qml") }
     }
 }

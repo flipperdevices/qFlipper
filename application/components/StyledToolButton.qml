@@ -5,6 +5,7 @@ import QtQuick.Controls 2.12
 Item {
     id: control
     property alias icon: button.icon.source
+    property alias color: button.icon.color
 
     width: 50
     height: width
