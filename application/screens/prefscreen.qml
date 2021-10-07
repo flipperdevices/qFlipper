@@ -59,8 +59,12 @@ Item {
             implicitWidth: 200
             model: firmwareUpdates.channelNames
 
+            onCountChanged: {
+                currentIndex = find(preferences.updateChannel);
+            }
+
             onActivated: {
-                console.log(textAt(index))
+                preferences.updateChannel = textAt(index);
             }
         }
 
@@ -73,8 +77,12 @@ Item {
 
         Switch {
             id: updateSwitch
-            checked: true
+            checked: preferences.checkAppUpdates
             Layout.leftMargin: -10
+
+            onCheckedChanged: {
+                preferences.checkAppUpdates = checked
+            }
         }
 
         Item {

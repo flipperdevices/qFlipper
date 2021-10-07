@@ -119,8 +119,8 @@ Item {
 
         delegate: FlipperListDelegate {
             onUpdateRequested: {
-                const channelName = "release";
-                const latestVersion = "Hello";//firmwareUpdates.channel(channelName).latestVersion;
+                const channelName = preferences.updateChannel;
+                const latestVersion = firmwareUpdates.channel(channelName).latestVersion;
 
                 const messageObj = {
                     title : qsTr("Install version %1?").arg(latestVersion.number),

@@ -8,9 +8,8 @@
 
 #include "toplevel/fullupdateoperation.h"
 
+#include "preferences.h"
 #include "macros.h"
-
-#define UPDATE_CHANNEL_TMP (QStringLiteral("development"))
 
 using namespace Flipper;
 using namespace Zero;
@@ -23,6 +22,7 @@ FirmwareUpdater::FirmwareUpdater(DeviceState *state, QObject *parent):
 {
     connect(m_state, &DeviceState::deviceInfoChanged, this, &FirmwareUpdater::updateInfoChanged);
     connect(UpdateRegistry::firmwareUpdates(), &UpdateRegistry::channelsChanged, this, &FirmwareUpdater::updateInfoChanged);
+    connect(Preferences::instance(), &Preferences::firmwareUpdateChannelChanged, this, &FirmwareUpdater::updateInfoChanged);
 }
 
 bool FirmwareUpdater::isReady() const
@@ -32,21 +32,10 @@ bool FirmwareUpdater::isReady() const
 
 void FirmwareUpdater::fullUpdate()
 {
-    const auto &latestVersion = UpdateRegistry::firmwareUpdates()->channel(UPDATE_CHANNEL_TMP).latestVersion();
+    const auto currentChannel = Preferences::instance()->firmwareUpdateChannel();
+    const auto &latestVersion = UpdateRegistry::firmwareUpdates()->channel(currentChannel).latestVersion();
     auto *operation = new FullUpdateOperation(m_recovery, m_utility, m_state, latestVersion, this);
     enqueueOperation(operation);
-//    m_state->setPersistent(true);
-
-//    auto *operation = m_utility->startRecoveryMode();
-//    connect(operation, &AbstractOperation::finished, this, [=]() {
-//        if(operation->isError()) {
-//            qDebug() << "================== NAY!" << operation->errorString();
-//        } else {
-//            qDebug() << "================== YAY!";
-//        }
-
-//        m_state->setPersistent(false);
-//    });
 }
 
 bool FirmwareUpdater::canUpdate() const
@@ -91,7 +80,8 @@ bool FirmwareUpdater::canRollback() const
 
 bool FirmwareUpdater::canChangeChannel() const
 {
-    return branchToChannelName() != UPDATE_CHANNEL_TMP;
+    const auto currentChannel = Preferences::instance()->firmwareUpdateChannel();
+    return branchToChannelName() != currentChannel;
 }
 
 const QString &FirmwareUpdater::channelName(ChannelType channelType)

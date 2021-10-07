@@ -52,6 +52,7 @@ SOURCES += \
     flipperzero/utility/userrestoreoperation.cpp \
     flipperzero/utilityinterface.cpp \
     gzipuncompressor.cpp \
+    preferences.cpp \
     qflipperbackend.cpp \
     remotefilefetcher.cpp \
     serialfinder.cpp \
@@ -106,6 +107,7 @@ HEADERS += \
     flipperzero/utility/userrestoreoperation.h \
     flipperzero/utilityinterface.h \
     gzipuncompressor.h \
+    preferences.h \
     qflipperbackend.h \
     remotefilefetcher.h \
     serialfinder.h \

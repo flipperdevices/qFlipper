@@ -9,6 +9,7 @@
 #include "qflipperbackend.h"
 #include "updateregistry.h"
 #include "screencanvas.h"
+#include "preferences.h"
 
 #include "macros.h"
 
@@ -44,6 +45,7 @@ void Application::initStyles()
 void Application::initContextProperties()
 {
     m_engine.rootContext()->setContextProperty("app", this);
+    m_engine.rootContext()->setContextProperty("preferences", Preferences::instance());
     m_engine.rootContext()->setContextProperty("deviceRegistry", &m_backend.deviceRegistry);
     m_engine.rootContext()->setContextProperty("firmwareUpdates", Flipper::UpdateRegistry::firmwareUpdates());
     m_engine.rootContext()->setContextProperty("applicationUpdates", Flipper::UpdateRegistry::applicationUpdates());
