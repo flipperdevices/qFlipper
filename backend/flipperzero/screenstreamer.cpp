@@ -75,6 +75,8 @@ void ScreenStreamer::createPort()
 
     if(!m_deviceState->isRecoveryMode()) {
         m_serialPort = new QSerialPort(m_deviceState->deviceInfo().serialInfo, this);
+    } else{
+        m_serialPort = nullptr;
     }
 }
 
