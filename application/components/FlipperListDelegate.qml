@@ -3,19 +3,15 @@ import QtQuick.Controls 2.12
 
 Item {
     signal updateRequested(var device)
-    signal localUpdateRequested(var device)
-    signal localRadioUpdateRequested(var device)
-    signal localFUSUpdateRequested(var device)
-    signal localAssetsUpdateRequested(var device)
-
-    signal fixOptionBytesRequested(var device)
-    signal fixBootRequested(var device)
 
     signal versionListRequested(var device)
     signal screenStreamRequested(var device)
 
-    signal backupRequested(var device)
-    signal restoreRequested(var device)
+    signal localUpdateRequested(var device)
+    signal localRadioUpdateRequested(var device)
+    signal localFUSUpdateRequested(var device)
+
+    signal fixBootRequested(var device)
 
     id: item
     width: parent.width
@@ -87,23 +83,23 @@ Item {
     StyledButton {
         id: updateButton
         text: {
-            if(!device.updater.isReady) {
+            if(!firmwareUpdates.isReady) {
                 return qsTr("Error");
             } else if(device.state.isRecoveryMode) {
                 return qsTr("Repair");
-            } else if(device.updater.canChangeChannel) {
+            } else if(device.updater.canChangeChannel(firmwareUpdates.latestVersion)) {
                 return qsTr("Change");
-            } else if(device.updater.canUpdate) {
+            } else if(device.updater.canUpdate(firmwareUpdates.latestVersion)) {
                 return qsTr("Update");
-            } else if(device.updater.canRollback) {
+            } else if(device.updater.canRollback(firmwareUpdates.latestVersion)) {
                 return qsTr("Rollback");
             } else {
                 return qsTr("Reinstall");
             }
         }
 
-        suggested: device.state.isRecoveryMode ? false : device.updater.canUpdate
-        visible: device.updater.isReady && !(device.state.isPersistent || device.state.isError)
+        suggested: device.state.isRecoveryMode ? false : device.updater.canUpdate(firmwareUpdates.latestVersion)
+        visible: firmwareUpdates.isReady && !(device.state.isPersistent || device.state.isError)
 
         anchors.right: menuButton.left
         anchors.rightMargin: 10
@@ -154,8 +150,8 @@ Item {
 
         MenuItem {
             text: qsTr("Other versions...")
-//            onTriggered: versionListRequested(device)
-//            enabled: firmwareUpdates.channelNames.length > 0
+            onTriggered: versionListRequested(device)
+            enabled: firmwareUpdates.isReady
         }
 
         MenuItem {
@@ -174,26 +170,7 @@ Item {
 //        MenuSeparator {}
 
 //        Menu {
-//            title: qsTr("Backup && Restore")
-
-//            MenuItem {
-//                text: qsTr("Backup User Data...")
-////                onTriggered: backupRequested(device)
-//            }
-
-//            MenuItem {
-//                text: qsTr("Restore User Data...")
-////                onTriggered: restoreRequested(device)
-//            }
-//        }
-
-//        Menu {
 //            title: qsTr("Expert options")
-
-//            MenuItem {
-//                text: qsTr("Update Databases...")
-////                onTriggered: localAssetsUpdateRequested(device)
-//            }
 
 //            MenuItem {
 //                text: qsTr("Update Wireless stack...")

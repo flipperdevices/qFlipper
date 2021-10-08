@@ -1,7 +1,7 @@
 #include "qflipperbackend.h"
 
-#include "flipperupdates.h"
 #include "preferences.h"
+#include "flipperupdates.h"
 
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/devicestate.h"
@@ -13,7 +13,9 @@
 
 using namespace Flipper;
 
-QFlipperBackend::QFlipperBackend()
+QFlipperBackend::QFlipperBackend():
+    firmwareUpdates("https://update.flipperzero.one/firmware/directory.json"),
+    applicationUpdates("https://update.flipperzero.one/qFlipper/directory.json")
 {
     qRegisterMetaType<Preferences*>("Preferences*");
     qRegisterMetaType<Flipper::Updates::FileInfo>("Flipper::Updates::FileInfo");

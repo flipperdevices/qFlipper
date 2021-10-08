@@ -2,8 +2,6 @@
 #define UPDATESLISTMODEL_H
 
 #include <QMap>
-#include <QStringList>
-#include <QAbstractListModel>
 
 #include "flipperupdates.h"
 
@@ -13,21 +11,20 @@ class UpdateRegistry : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList channelNames READ channelNames NOTIFY channelsChanged)
-
-    UpdateRegistry(const QString &directoryUrl, QObject *parent = nullptr);
+    Q_PROPERTY(Flipper::Updates::VersionInfo latestVersion READ latestVersion NOTIFY channelsChanged)
+    Q_PROPERTY(bool isReady READ isReady NOTIFY channelsChanged)
 
 public:
-    ~UpdateRegistry();
-
+    UpdateRegistry(const QString &directoryUrl, QObject *parent = nullptr);
     bool fillFromJson(const QByteArray &text);
 
     const QStringList channelNames() const;
+    bool isReady() const;
 
-    Q_INVOKABLE Flipper::Updates::ChannelInfo channel(const QString &channelName) const;
+    const Flipper::Updates::VersionInfo latestVersion() const;
 
-    // Sorry, I really need these
-    static UpdateRegistry *firmwareUpdates();
-    static UpdateRegistry *applicationUpdates();
+public slots:
+    Flipper::Updates::ChannelInfo channel(const QString &channelName) const;
 
 signals:
     void channelsChanged();

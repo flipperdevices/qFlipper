@@ -1,5 +1,6 @@
 #pragma once
 
+#include "flipperupdates.h"
 #include "abstractoperationrunner.h"
 
 namespace Flipper {
@@ -19,25 +20,16 @@ class FirmwareUpdater : public AbstractOperationRunner
         Release
     };
 
-    Q_PROPERTY(bool isReady READ isReady NOTIFY updateInfoChanged)
-    Q_PROPERTY(bool canUpdate READ canUpdate NOTIFY updateInfoChanged)
-    Q_PROPERTY(bool canRollback READ canRollback NOTIFY updateInfoChanged)
-    Q_PROPERTY(bool canChangeChannel READ canChangeChannel NOTIFY updateInfoChanged)
-
 public:
     FirmwareUpdater(DeviceState *state, QObject *parent = nullptr);
 
-    bool isReady() const;
-
-    bool canUpdate() const;
-    bool canRollback() const;
+public slots:
+    bool canUpdate(const Flipper::Updates::VersionInfo &versionInfo) const;
+    bool canRollback(const Flipper::Updates::VersionInfo &versionInfo) const;
     bool canChangeChannel() const;
 
-public slots:
-    void fullUpdate();
-
-signals:
-    void updateInfoChanged();
+    void fullUpdate(const Flipper::Updates::VersionInfo &versionInfo);
+    void fullRepair(const Flipper::Updates::VersionInfo &versionInfo);
 
 private:
     static const QString &channelName(ChannelType channelType);

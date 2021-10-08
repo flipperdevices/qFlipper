@@ -120,7 +120,7 @@ Item {
         delegate: FlipperListDelegate {
             onUpdateRequested: {
                 const channelName = preferences.updateChannel;
-                const latestVersion = firmwareUpdates.channel(channelName).latestVersion;
+                const latestVersion = firmwareUpdates.latestVersion;
 
                 const messageObj = {
                     title : qsTr("Install version %1?").arg(latestVersion.number),
@@ -128,7 +128,12 @@ Item {
                 };
 
                 confirmationDialog.openWithMessage(function() {
-                    device.updater.fullUpdate();
+                    if(device.state.isRecoveryMode) {
+                        device.updater.fullRepair(latestVersion);
+                    } else {
+                        device.updater.fullUpdate(latestVersion);
+                    }
+
                 }, messageObj);
             }
 
@@ -148,39 +153,6 @@ Item {
 
                 fileDialog.openWithConfirmation(["Firmware files (*.dfu)", "All files (*)"], function() {
 //                    downloader.downloadLocalFile(device, fileDialog.fileUrl);
-                }, messageObj);
-            }
-
-            onBackupRequested: {
-                const messageObj = {
-                    title : qsTr("Backup user data?"),
-                    subtitle : qsTr("This will backup the contents of internal storage.")
-                };
-
-                dirDialog.openWithConfirmation(function() {
-//                    downloader.backupUserData(device, dirDialog.fileUrl);
-                }, messageObj);
-            }
-
-            onRestoreRequested: {
-                const messageObj = {
-                    title : qsTr("Restore user data?"),
-                    subtitle : qsTr("This will restore the contents of internal storage.")
-                };
-
-                dirDialog.openWithConfirmation(function() {
-//                    downloader.restoreUserData(device, dirDialog.fileUrl);
-                }, messageObj);
-            }
-
-            onLocalAssetsUpdateRequested: {
-                const messageObj = {
-                    title : qsTr("Update the databases?"),
-                    subtitle : qsTr("This will install the databases from a file.")
-                };
-
-                fileDialog.openWithConfirmation(["Database files (*.tgz)", "All files (*)"], function() {
-//                    downloader.downloadAssets(device, fileDialog.fileUrl);
                 }, messageObj);
             }
 
@@ -214,17 +186,6 @@ Item {
 
                 confirmationDialog.openWithMessage(function() {
 //                    downloader.fixBootIssues(device);
-                }, messageObj);
-            }
-
-            onFixOptionBytesRequested: {
-                const messageObj = {
-                    title : qsTr("Check and fix the Option Bytes?"),
-                    subtitle : qsTr("Results will be displayed in the program log.")
-                };
-
-                fileDialog.openWithConfirmation(["Option bytes description files (*.data)", "All files (*)"], function() {
-//                    downloader.fixOptionBytes(device, fileDialog.fileUrl);
                 }, messageObj);
             }
         }

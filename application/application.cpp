@@ -47,8 +47,8 @@ void Application::initContextProperties()
     m_engine.rootContext()->setContextProperty("app", this);
     m_engine.rootContext()->setContextProperty("preferences", Preferences::instance());
     m_engine.rootContext()->setContextProperty("deviceRegistry", &m_backend.deviceRegistry);
-    m_engine.rootContext()->setContextProperty("firmwareUpdates", Flipper::UpdateRegistry::firmwareUpdates());
-    m_engine.rootContext()->setContextProperty("applicationUpdates", Flipper::UpdateRegistry::applicationUpdates());
+    m_engine.rootContext()->setContextProperty("firmwareUpdates", &m_backend.firmwareUpdates);
+    m_engine.rootContext()->setContextProperty("applicationUpdates", &m_backend.applicationUpdates);
 }
 
 void Application::initInstanceProperties()

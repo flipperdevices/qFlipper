@@ -33,8 +33,12 @@ Item {
                 implicitWidth: 200
                 model: firmwareUpdates.channelNames
 
-                onActivated: {
-                    const channel = firmwareUpdates.channel(textAt(index));
+                onCountChanged: {
+                    currentIndex = find(preferences.updateChannel);
+                }
+
+                onCurrentIndexChanged: {
+                    const channel = firmwareUpdates.channel(textAt(currentIndex));
 
                     versionList.model = channel.versions;
                     descriptionLabel.text = channel.description;
@@ -60,7 +64,12 @@ Item {
             delegate: VersionListDelegate {
                 onInstallRequested: {
                     screen.homeRequested();
-                    downloader.downloadRemoteFile(screen.device, versionInfo);
+
+                    if(device.state.isRecoveryMode) {
+                        device.updater.fullRepair(versionInfo)
+                    } else  {
+                        device.updater.fullUpdate(versionInfo);
+                    }
                 }
 
                 onChangelogRequested: {
@@ -81,7 +90,7 @@ Item {
                 anchors.centerIn: parent
                 color: "#444"
                 font.pixelSize: 30
-                visible: versionList.count === 0
+                visible: !firmwareUpdates.isReady
             }
         }
 
@@ -90,14 +99,5 @@ Item {
             Layout.alignment: Qt.AlignRight
             onClicked: screen.homeRequested()
         }
-    }
-
-
-    Component.onCompleted: {
-        const defaultChannelName = "release";
-        const defaultChannelNameIdx = channelSelector.find(defaultChannelName, Qt.MatchFixedString);
-
-        channelSelector.currentIndex = defaultChannelNameIdx;
-        channelSelector.activated(defaultChannelNameIdx);
     }
 }

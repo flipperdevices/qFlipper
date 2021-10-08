@@ -34,7 +34,7 @@ DeviceState *Recovery::deviceState() const
 
 bool Recovery::exitRecoveryMode()
 {
-    m_deviceState->setStatusString(QStringLiteral("Booting the device up..."));
+    m_deviceState->setStatusString(QStringLiteral("Exiting recovery mode..."));
 
     STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
     const auto success = device.beginTransaction() && device.leave();
@@ -44,7 +44,7 @@ bool Recovery::exitRecoveryMode()
     end_ignore_block();
 
     if(!success) {
-        setError("Failed to leave DFU mode.");
+        setError("Failed to exit recovery mode");
     }
 
     return success;

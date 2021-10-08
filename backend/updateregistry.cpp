@@ -9,6 +9,7 @@
 #include <QBuffer>
 
 #include "macros.h"
+#include "preferences.h"
 #include "remotefilefetcher.h"
 
 using namespace Flipper;
@@ -36,9 +37,6 @@ UpdateRegistry::UpdateRegistry(const QString &directoryUrl, QObject *parent):
         buf->deleteLater();
     }
 }
-
-UpdateRegistry::~UpdateRegistry()
-{}
 
 bool UpdateRegistry::fillFromJson(const QByteArray &text)
 {
@@ -76,19 +74,17 @@ const QStringList UpdateRegistry::channelNames() const
     return m_channels.keys();
 }
 
+bool UpdateRegistry::isReady() const
+{
+    return !m_channels.isEmpty();
+}
+
+const Updates::VersionInfo UpdateRegistry::latestVersion() const
+{
+    return channel(Preferences::instance()->firmwareUpdateChannel()).latestVersion();
+}
+
 Updates::ChannelInfo UpdateRegistry::channel(const QString &channelName) const
 {
     return m_channels.value(channelName);
-}
-
-UpdateRegistry *UpdateRegistry::firmwareUpdates()
-{
-    static auto *instance = new UpdateRegistry("https://update.flipperzero.one/firmware/directory.json");
-    return instance;
-}
-
-UpdateRegistry *UpdateRegistry::applicationUpdates()
-{
-    static auto *instance = new UpdateRegistry("https://update.flipperzero.one/qFlipper/directory.json");
-    return instance;
 }

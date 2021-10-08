@@ -1,15 +1,11 @@
 #include "firmwareupdater.h"
 
 #include "devicestate.h"
-#include "updateregistry.h"
-#include "flipperupdates.h"
 #include "recoveryinterface.h"
 #include "utilityinterface.h"
 
 #include "toplevel/fullupdateoperation.h"
-
 #include "preferences.h"
-#include "macros.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -19,67 +15,50 @@ FirmwareUpdater::FirmwareUpdater(DeviceState *state, QObject *parent):
     m_state(state),
     m_recovery(new RecoveryInterface(state, this)),
     m_utility(new UtilityInterface(state, this))
-{
-    connect(m_state, &DeviceState::deviceInfoChanged, this, &FirmwareUpdater::updateInfoChanged);
-    connect(UpdateRegistry::firmwareUpdates(), &UpdateRegistry::channelsChanged, this, &FirmwareUpdater::updateInfoChanged);
-    connect(Preferences::instance(), &Preferences::firmwareUpdateChannelChanged, this, &FirmwareUpdater::updateInfoChanged);
-}
+{}
 
-bool FirmwareUpdater::isReady() const
+void FirmwareUpdater::fullUpdate(const Updates::VersionInfo &versionInfo)
 {
-    return UpdateRegistry::firmwareUpdates()->channelNames().size();
-}
+    if(m_state->isRecoveryMode()) {
+        return;
+    }
 
-void FirmwareUpdater::fullUpdate()
-{
-    const auto currentChannel = Preferences::instance()->firmwareUpdateChannel();
-    const auto &latestVersion = UpdateRegistry::firmwareUpdates()->channel(currentChannel).latestVersion();
-    auto *operation = new FullUpdateOperation(m_recovery, m_utility, m_state, latestVersion, this);
+    auto *operation = new FullUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this);
     enqueueOperation(operation);
 }
 
-bool FirmwareUpdater::canUpdate() const
+void FirmwareUpdater::fullRepair(const Updates::VersionInfo &versionInfo)
+{
+    if(!m_state->isRecoveryMode()) {
+        return;
+    }
+
+    Q_UNUSED(versionInfo)
+}
+
+bool FirmwareUpdater::canUpdate(const Updates::VersionInfo &versionInfo) const
 {
     if(canChangeChannel()) {
         return false;
-    }
-
-    const auto &deviceChannelName = branchToChannelName();
-    check_return_bool(UpdateRegistry::firmwareUpdates()->channelNames().contains(deviceChannelName), "Specified update channel not found.");
-
-    const auto &channel = UpdateRegistry::firmwareUpdates()->channel(deviceChannelName);
-    const auto &latestVersionNumber = channel.latestVersion().number();
-
-    if(deviceChannelName == channelName(ChannelType::Development)) {
-        return m_state->deviceInfo().firmware.commit != latestVersionNumber;
+    } else if(branchToChannelName() == channelName(ChannelType::Development)) {
+        return m_state->deviceInfo().firmware.commit != versionInfo.number();
     } else {
-        return m_state->deviceInfo().firmware.version < latestVersionNumber;
+        return m_state->deviceInfo().firmware.version < versionInfo.number();
     }
 }
 
-bool FirmwareUpdater::canRollback() const
+bool FirmwareUpdater::canRollback(const Updates::VersionInfo &versionInfo) const
 {
-    if(canChangeChannel()) {
-        return false;
-    }
-
-    const auto &deviceChannelName = branchToChannelName();
-    check_return_bool(UpdateRegistry::firmwareUpdates()->channelNames().contains(deviceChannelName), "Specified update channel not found.");
-
-    const auto &channel = UpdateRegistry::firmwareUpdates()->channel(deviceChannelName);
-    const auto &latestVersionNumber = channel.latestVersion().number();
-
-    if(deviceChannelName == channelName(ChannelType::Development)) {
+    if(canChangeChannel() || (branchToChannelName() == channelName(ChannelType::Development))) {
         return false;
     } else {
-        return m_state->deviceInfo().firmware.version > latestVersionNumber;
+        return m_state->deviceInfo().firmware.version > versionInfo.number();
     }
 }
 
 bool FirmwareUpdater::canChangeChannel() const
 {
-    const auto currentChannel = Preferences::instance()->firmwareUpdateChannel();
-    return branchToChannelName() != currentChannel;
+    return branchToChannelName() != Preferences::instance()->firmwareUpdateChannel();
 }
 
 const QString &FirmwareUpdater::channelName(ChannelType channelType)
