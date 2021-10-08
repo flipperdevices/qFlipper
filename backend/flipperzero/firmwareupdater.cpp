@@ -51,8 +51,7 @@ bool FirmwareUpdater::canUpdate() const
     const auto &latestVersionNumber = channel.latestVersion().number();
 
     if(deviceChannelName == channelName(ChannelType::Development)) {
-        // Really? diffferent hash lengths?
-        return !m_state->deviceInfo().firmware.commit.startsWith(latestVersionNumber);
+        return m_state->deviceInfo().firmware.commit != latestVersionNumber;
     } else {
         return m_state->deviceInfo().firmware.version < latestVersionNumber;
     }
@@ -71,7 +70,6 @@ bool FirmwareUpdater::canRollback() const
     const auto &latestVersionNumber = channel.latestVersion().number();
 
     if(deviceChannelName == channelName(ChannelType::Development)) {
-        // Really? diffferent hash lengths?
         return false;
     } else {
         return m_state->deviceInfo().firmware.version > latestVersionNumber;
