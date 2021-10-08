@@ -222,15 +222,15 @@ void AssetsDownloadOperation::buildFileLists()
 
     print_file_list("<<<<< Local manifest:", m_localManifest.tree()->toPreOrderList());
 
-    if(!m_isDeviceManifestPresent) {
-        info_msg("Device manifest not present, assumimg fresh install...");
-        changed.append(manifestInfo);
-        changed.append(m_localManifest.tree()->toPreOrderList().mid(1));
+    if(!m_isDeviceManifestPresent || m_deviceManifest.isError()) {
+        info_msg("Device manifest not present or corrupt, assumimg fresh install...");
 
-    } else if(m_deviceManifest.isError()) {
-        info_msg("Failed to build device manifest, assuming complete asset overwrite...");
         changed.append(manifestInfo);
-        changed.append(m_localManifest.tree()->toPreOrderList().mid(1));
+        added.append(m_localManifest.tree()->toPreOrderList().mid(1));
+
+        std::copy_if(added.cbegin(), added.cend(), std::back_inserter(deleted), [](const FileNode::FileInfo &arg) {
+            return arg.type == FileNode::Type::RegularFile;
+        });
 
     } else {
         print_file_list(">>>>> Device manifest:", m_deviceManifest.tree()->toPreOrderList());
@@ -238,6 +238,10 @@ void AssetsDownloadOperation::buildFileLists()
         deleted.append(m_localManifest.tree()->difference(m_deviceManifest.tree()));
         added.append(m_deviceManifest.tree()->difference(m_localManifest.tree()));
         changed.append(m_deviceManifest.tree()->changed(m_localManifest.tree()));
+
+        std::remove_if(deleted.begin(), deleted.end(), [](const FileNode::FileInfo &arg) {
+            return arg.type != FileNode::Type::RegularFile;
+        });
 
         if(!deleted.isEmpty() || !added.isEmpty() || !changed.isEmpty()) {
             changed.prepend(manifestInfo);
