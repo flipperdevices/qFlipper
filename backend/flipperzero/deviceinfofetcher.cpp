@@ -110,7 +110,12 @@ void VCPDeviceInfoFetcher::onSerialPortReadyRead()
 
     if(m_receivedData.endsWith(PROMPT_READY)) {
         parseReceivedData();
-        finish();
+
+        if(m_deviceInfo.name.isEmpty()) {
+            finishWithError(QStringLiteral("Failed to read device factory information"));
+        } else {
+            finish();
+        }
     }
 }
 

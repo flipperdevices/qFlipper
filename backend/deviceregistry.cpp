@@ -84,6 +84,8 @@ void DeviceRegistry::processDevice()
 {
     auto *fetcher = qobject_cast<Zero::AbstractDeviceInfoFetcher*>(sender());
 
+    fetcher->deleteLater();
+
     if(fetcher->isError()) {
         error_msg(QStringLiteral("An error has occured: %1").arg(fetcher->errorString()));
         return;
@@ -109,5 +111,4 @@ void DeviceRegistry::processDevice()
         emit deviceConnected(device);
     }
 
-    fetcher->deleteLater();
 }
