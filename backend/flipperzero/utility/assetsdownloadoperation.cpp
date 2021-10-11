@@ -16,6 +16,7 @@
 #include "flipperzero/devicestate.h"
 
 #include "gzipuncompressor.h"
+#include "tempdirectories.h"
 #include "tararchive.h"
 
 #include "macros.h"
@@ -119,23 +120,11 @@ void AssetsDownloadOperation::checkForExtStorage()
 
 void AssetsDownloadOperation::extractArchive()
 {
-    // TODO: Use a unified temp path program-wide
-    auto tempDir = QDir::temp();
-    const auto subdirName = QStringLiteral("qFlipper");
-
-    bool success;
-
-    if(tempDir.exists(subdirName)) {
-        success = tempDir.cd(subdirName);
-    } else {
-        success = tempDir.mkdir(subdirName) && tempDir.cd(subdirName);
-    }
-
-    if(!success) {
-        return finishWithError(QStringLiteral("Failed to access the temporary directory"));
-    } else if(!m_compressedFile->open(QIODevice::ReadOnly)) {
+    if(!m_compressedFile->open(QIODevice::ReadOnly)) {
         return finishWithError(m_compressedFile->errorString());
     }
+
+    const auto tempDir = TempDirectories::instance()->tempRoot();
 
     // TODO: check if file exists, etc.
     m_uncompressedFile = new QFile(tempDir.absoluteFilePath(QStringLiteral("qFlipper-databases.tar")), this);

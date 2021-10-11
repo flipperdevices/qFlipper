@@ -19,8 +19,7 @@ class FullUpdateOperation : public AbstractTopLevelOperation
     Q_OBJECT
 
     enum OperationState {
-        CreatingWorkDir = AbstractOperation::User,
-        FetchingFirmware,
+        FetchingFirmware = AbstractOperation::User,
         FetchingAssets,
         SavingBackup,
         StartingRecovery,
@@ -44,7 +43,6 @@ private slots:
 private:
     void onSubOperationErrorOccured() override;
 
-    void createWorkDir();
     void fetchFirmware();
     void fetchAssets();
     void saveBackup();

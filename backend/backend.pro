@@ -58,6 +58,7 @@ SOURCES += \
     serialfinder.cpp \
     simpleserialoperation.cpp \
     tararchive.cpp \
+    tempdirectories.cpp \
     updateregistry.cpp
 
 HEADERS += \
@@ -114,6 +115,7 @@ HEADERS += \
     signalingfailable.h \
     simpleserialoperation.h \
     tararchive.h \
+    tempdirectories.h \
     updateregistry.h
 
 unix|win32 {

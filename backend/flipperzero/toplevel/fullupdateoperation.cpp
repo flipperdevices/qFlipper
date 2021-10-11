@@ -20,6 +20,7 @@
 #include "flipperzero/recovery/firmwaredownloadoperation.h"
 
 #include "remotefilefetcher.h"
+#include "tempdirectories.h"
 #include "macros.h"
 
 using namespace Flipper;
@@ -30,7 +31,7 @@ FullUpdateOperation::FullUpdateOperation(RecoveryInterface *recovery, UtilityInt
     m_recovery(recovery),
     m_utility(utility),
     m_versionInfo(versionInfo),
-    m_workDir(QDir::temp()),
+    m_workDir(TempDirectories::instance()->tempRoot()),
     m_firmwareFile(nullptr),
     m_assetsFile(nullptr)
 {
@@ -53,11 +54,7 @@ const QString FullUpdateOperation::description() const
 
 void FullUpdateOperation::nextStateLogic()
 {
-    if(operationState() == AbstractOperation::Ready) {
-        setOperationState(FullUpdateOperation::CreatingWorkDir);
-        createWorkDir();
-
-    } else if(operationState() == FullUpdateOperation::CreatingWorkDir) {
+    if(operationState() == FullUpdateOperation::Ready) {
         setOperationState(FullUpdateOperation::FetchingFirmware);
         fetchFirmware();
 
@@ -105,26 +102,6 @@ void FullUpdateOperation::nextStateLogic()
 void FullUpdateOperation::onSubOperationErrorOccured()
 {
     cleanupFiles();
-}
-
-void FullUpdateOperation::createWorkDir()
-{
-    // TODO: add random suffix
-    const auto subdir = QStringLiteral("qFlipper");
-
-    bool success = true;
-
-    if(!m_workDir.exists(subdir)) {
-        success = m_workDir.mkdir(subdir) && m_workDir.cd(subdir);
-    } else {
-        success = m_workDir.cd(subdir);
-    }
-
-    if(!success) {
-        finishWithError(QStringLiteral("Failed to create working directory"));
-    } else {
-        advanceOperationState();
-    }
 }
 
 void FullUpdateOperation::fetchFirmware()
