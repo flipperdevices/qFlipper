@@ -26,6 +26,7 @@ SOURCES += \
     flipperzero/factoryinfo.cpp \
     flipperzero/firmwareupdater.cpp \
     flipperzero/flipperzero.cpp \
+    flipperzero/radiomanifest.cpp \
     flipperzero/recovery.cpp \
     flipperzero/recovery/abstractrecoveryoperation.cpp \
     flipperzero/recovery/exitrecoveryoperation.cpp \
@@ -82,6 +83,7 @@ HEADERS += \
     flipperzero/factoryinfo.h \
     flipperzero/firmwareupdater.h \
     flipperzero/flipperzero.h \
+    flipperzero/radiomanifest.h \
     flipperzero/recovery.h \
     flipperzero/recovery/abstractrecoveryoperation.h \
     flipperzero/recovery/exitrecoveryoperation.h \
