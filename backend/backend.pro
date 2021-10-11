@@ -44,6 +44,7 @@ SOURCES += \
     flipperzero/screenstreamer.cpp \
     flipperzero/toplevel/abstracttopleveloperation.cpp \
     flipperzero/toplevel/fullupdateoperation.cpp \
+    flipperzero/toplevel/wirelessstackupdateoperation.cpp \
     flipperzero/utility/abstractutilityoperation.cpp \
     flipperzero/utility/assetsdownloadoperation.cpp \
     flipperzero/utility/getfiletreeoperation.cpp \
@@ -101,6 +102,7 @@ HEADERS += \
     flipperzero/screenstreamer.h \
     flipperzero/toplevel/abstracttopleveloperation.h \
     flipperzero/toplevel/fullupdateoperation.h \
+    flipperzero/toplevel/wirelessstackupdateoperation.h \
     flipperzero/utility/abstractutilityoperation.h \
     flipperzero/utility/assetsdownloadoperation.h \
     flipperzero/utility/getfiletreeoperation.h \

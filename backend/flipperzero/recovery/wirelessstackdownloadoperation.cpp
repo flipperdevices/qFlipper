@@ -28,10 +28,7 @@ WirelessStackDownloadOperation::~WirelessStackDownloadOperation()
 
 const QString WirelessStackDownloadOperation::description() const
 {
-    const auto &model = deviceState()->deviceInfo().model;
-    const auto &name = deviceState()->deviceInfo().name;
-
-    return QStringLiteral("Co-Processor Firmware Download @%1 %2").arg(model, name);
+    return QStringLiteral("Co-Processor Firmware Download @%1").arg(deviceState()->name());
 }
 
 void WirelessStackDownloadOperation::advanceOperationState()

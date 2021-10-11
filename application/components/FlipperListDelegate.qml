@@ -154,10 +154,10 @@ Item {
             enabled: firmwareUpdates.isReady
         }
 
-        MenuItem {
-            text: qsTr("Update from local file...")
-//            onTriggered: localUpdateRequested(device)
-        }
+//        MenuItem {
+//            text: qsTr("Update from local file...")
+////            onTriggered: localUpdateRequested(device)
+//        }
 
         MenuSeparator {}
 
@@ -167,15 +167,15 @@ Item {
             enabled: !device.state.isRecoveryMode
         }
 
-//        MenuSeparator {}
+        MenuSeparator {}
 
-//        Menu {
-//            title: qsTr("Expert options")
+        Menu {
+            title: qsTr("Expert options")
 
-//            MenuItem {
-//                text: qsTr("Update Wireless stack...")
-////                onTriggered: localRadioUpdateRequested(device)
-//            }
+            MenuItem {
+                text: qsTr("Update Wireless stack...")
+                onTriggered: localRadioUpdateRequested(device)
+            }
 
 //            MenuItem {
 //                text: qsTr("Update FUS...")
@@ -192,6 +192,6 @@ Item {
 ////                onTriggered: fixBootRequested(device)
 //                enabled: device.state.isRecoveryMode
 //            }
-//        }
+        }
     }
 }

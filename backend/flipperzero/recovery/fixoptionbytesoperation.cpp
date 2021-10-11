@@ -21,10 +21,7 @@ FixOptionBytesOperation::~FixOptionBytesOperation()
 
 const QString FixOptionBytesOperation::description() const
 {
-    const auto &model = deviceState()->deviceInfo().model;
-    const auto &name = deviceState()->deviceInfo().name;
-
-    return QStringLiteral("Fix Option Bytes @%1 %2").arg(model, name);
+    return QStringLiteral("Fix Option Bytes @%1").arg(deviceState()->name());
 }
 
 void FixOptionBytesOperation::advanceOperationState()

@@ -12,10 +12,7 @@ ExitRecoveryOperation::ExitRecoveryOperation(Recovery *recovery, QObject *parent
 
 const QString ExitRecoveryOperation::description() const
 {
-    const auto &model = deviceState()->deviceInfo().model;
-    const auto &name = deviceState()->deviceInfo().name;
-
-    return QStringLiteral("Exit Recovery Mode @ %1 %2").arg(model, name);
+    return QStringLiteral("Exit Recovery Mode @%1").arg(deviceState()->name());
 }
 
 void ExitRecoveryOperation::advanceOperationState()

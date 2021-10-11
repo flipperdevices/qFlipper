@@ -13,7 +13,7 @@ class AbstractTopLevelOperation : public AbstractOperation
 
 public:
     AbstractTopLevelOperation(DeviceState *deviceState, QObject *parent = nullptr);
-    virtual ~AbstractTopLevelOperation() {}
+    virtual ~AbstractTopLevelOperation();
 
     DeviceState *deviceState() const;
 

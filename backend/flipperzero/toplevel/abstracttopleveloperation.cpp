@@ -10,7 +10,14 @@ using namespace Zero;
 AbstractTopLevelOperation::AbstractTopLevelOperation(DeviceState *deviceState, QObject *parent):
     AbstractOperation(parent),
     m_deviceState(deviceState)
-{}
+{
+    m_deviceState->setPersistent(true);
+}
+
+AbstractTopLevelOperation::~AbstractTopLevelOperation()
+{
+    m_deviceState->setPersistent(false);
+}
 
 DeviceState *AbstractTopLevelOperation::deviceState() const
 {

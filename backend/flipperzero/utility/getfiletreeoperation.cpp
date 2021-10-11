@@ -19,10 +19,7 @@ GetFileTreeOperation::GetFileTreeOperation(CommandInterface *cli, DeviceState *d
 
 const QString GetFileTreeOperation::description() const
 {
-    const auto &model = deviceState()->deviceInfo().model;
-    const auto &name = deviceState()->deviceInfo().name;
-
-    return QStringLiteral("Get File Tree @%1 %2").arg(model, name);
+    return QStringLiteral("Get File Tree @%1").arg(deviceState()->name());
 }
 
 const FileInfoList &GetFileTreeOperation::result() const

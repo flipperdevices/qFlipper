@@ -43,6 +43,7 @@ private:
     void buildFileLists();
     void deleteFiles();
     void writeFiles();
+    void cleanup();
 
     QIODevice *m_compressedFile;
     QFile *m_uncompressedFile;

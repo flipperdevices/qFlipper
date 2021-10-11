@@ -17,10 +17,7 @@ StartRecoveryOperation::StartRecoveryOperation(CommandInterface *cli, DeviceStat
 
 const QString StartRecoveryOperation::description() const
 {
-    const auto &model = deviceState()->deviceInfo().model;
-    const auto &name = deviceState()->deviceInfo().name;
-
-    return QStringLiteral("Start Recovery Mode @%1 %2").arg(model, name);
+    return QStringLiteral("Start Recovery Mode @%1").arg(deviceState()->name());
 }
 
 void StartRecoveryOperation::advanceOperationState()

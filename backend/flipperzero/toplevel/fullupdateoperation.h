@@ -33,7 +33,6 @@ class FullUpdateOperation : public AbstractTopLevelOperation
 
 public:
     FullUpdateOperation(RecoveryInterface *recovery, UtilityInterface *utility, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent = nullptr);
-    ~FullUpdateOperation();
 
     const QString description() const override;
 

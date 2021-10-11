@@ -145,16 +145,16 @@ Item {
                 screen.streamRequested(device);
             }
 
-            onLocalUpdateRequested: {
-                const messageObj = {
-                    title : qsTr("Install update from the file?"),
-                    subtitle : qsTr("Caution: this may brick your device.")
-                };
+//            onLocalUpdateRequested: {
+//                const messageObj = {
+//                    title : qsTr("Install update from the file?"),
+//                    subtitle : qsTr("Caution: this may brick your device.")
+//                };
 
-                fileDialog.openWithConfirmation(["Firmware files (*.dfu)", "All files (*)"], function() {
-//                    downloader.downloadLocalFile(device, fileDialog.fileUrl);
-                }, messageObj);
-            }
+//                fileDialog.openWithConfirmation(["Firmware files (*.dfu)", "All files (*)"], function() {
+////                    downloader.downloadLocalFile(device, fileDialog.fileUrl);
+//                }, messageObj);
+//            }
 
             onLocalRadioUpdateRequested: {
                 const messageObj = {
@@ -162,32 +162,32 @@ Item {
                     subtitle : qsTr("Warning: this operation is potetntially unstable<br/>and may need several attempts.")
                 };
 
-                fileDialog.openWithConfirmation(["Radio firmware files (*.bin)", "All files (*)"], function() {
-//                    downloader.downloadLocalWirelessStack(device, fileDialog.fileUrl);
+                fileDialog.openWithConfirmation(["Radio firmware bundle (*.tgz)", "All files (*)"], function() {
+                    device.updater.localWirelessStackUpdate(fileDialog.fileUrl);
                 }, messageObj);
             }
 
-            onLocalFUSUpdateRequested: {
-                const messageObj = {
-                    title : qsTr("Update the FUS?"),
-                    subtitle : qsTr("WARNING: this operation is potentially unstable<br/>and may need several attempts.")
-                };
+//            onLocalFUSUpdateRequested: {
+//                const messageObj = {
+//                    title : qsTr("Update the FUS?"),
+//                    subtitle : qsTr("WARNING: this operation is potentially unstable<br/>and may need several attempts.")
+//                };
 
-                fileDialog.openWithConfirmation(["FUS firmware files (*.bin)", "All files (*)"], function() {
-//                    downloader.downloadLocalFUS(device, fileDialog.fileUrl);
-                }, messageObj);
-            }
+//                fileDialog.openWithConfirmation(["FUS firmware files (*.bin)", "All files (*)"], function() {
+////                    downloader.downloadLocalFUS(device, fileDialog.fileUrl);
+//                }, messageObj);
+//            }
 
-            onFixBootRequested: {
-                const messageObj = {
-                    title : qsTr("Attempt to fix boot issues?"),
+//            onFixBootRequested: {
+//                const messageObj = {
+//                    title : qsTr("Attempt to fix boot issues?"),
 //                    subtitle : qsTr("This will try to correct device option bytes.")
-                };
+//                };
 
-                confirmationDialog.openWithMessage(function() {
-//                    downloader.fixBootIssues(device);
-                }, messageObj);
-            }
+//                confirmationDialog.openWithMessage(function() {
+////                    downloader.fixBootIssues(device);
+//                }, messageObj);
+//            }
         }
     }
 

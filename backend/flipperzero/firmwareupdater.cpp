@@ -4,6 +4,7 @@
 #include "recoveryinterface.h"
 #include "utilityinterface.h"
 
+#include "toplevel/wirelessstackupdateoperation.h"
 #include "toplevel/fullupdateoperation.h"
 #include "preferences.h"
 
@@ -34,6 +35,23 @@ void FirmwareUpdater::fullRepair(const Updates::VersionInfo &versionInfo)
     }
 
     Q_UNUSED(versionInfo)
+}
+
+void FirmwareUpdater::localFirmwareUpdate(const QUrl &fileUrl)
+{
+    Q_UNUSED(fileUrl)
+    qDebug() << "Not implemented yet";
+}
+
+void FirmwareUpdater::localFUSUpdate(const QUrl &fileUrl)
+{
+    Q_UNUSED(fileUrl)
+    qDebug() << "Not implemented yet";
+}
+
+void FirmwareUpdater::localWirelessStackUpdate(const QUrl &fileUrl)
+{
+    enqueueOperation(new WirelessStackUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
 }
 
 bool FirmwareUpdater::canUpdate(const Updates::VersionInfo &versionInfo) const

@@ -17,10 +17,7 @@ RestartOperation::RestartOperation(CommandInterface *cli, DeviceState *deviceSta
 
 const QString RestartOperation::description() const
 {
-    const auto &model = deviceState()->deviceInfo().model;
-    const auto &name = deviceState()->deviceInfo().name;
-
-    return QStringLiteral("Restart device @%1 %2").arg(model, name);
+    return QStringLiteral("Restart device @%1").arg(deviceState()->name());
 }
 
 void RestartOperation::advanceOperationState()

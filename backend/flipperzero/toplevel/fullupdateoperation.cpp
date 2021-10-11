@@ -1,10 +1,6 @@
 #include "fullupdateoperation.h"
 
-#include <QUrl>
-#include <QDir>
 #include <QFile>
-#include <QTimer>
-#include <QStandardPaths>
 
 #include "flipperzero/devicestate.h"
 
@@ -34,22 +30,11 @@ FullUpdateOperation::FullUpdateOperation(RecoveryInterface *recovery, UtilityInt
     m_workDir(TempDirectories::instance()->tempRoot()),
     m_firmwareFile(nullptr),
     m_assetsFile(nullptr)
-{
-    deviceState()->setPersistent(true);
-    deviceState()->setStatusString(QStringLiteral("Firmware update pending..."));
-}
-
-FullUpdateOperation::~FullUpdateOperation()
-{
-    deviceState()->setPersistent(false);
-}
+{}
 
 const QString FullUpdateOperation::description() const
 {
-    const auto &model = deviceState()->deviceInfo().model;
-    const auto &name = deviceState()->deviceInfo().name;
-
-    return QStringLiteral("Full Update @%1 %2").arg(model, name);
+    return QStringLiteral("Full Update @%1").arg(deviceState()->name());
 }
 
 void FullUpdateOperation::nextStateLogic()

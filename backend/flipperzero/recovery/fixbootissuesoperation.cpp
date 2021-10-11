@@ -15,10 +15,7 @@ FixBootIssuesOperation::~FixBootIssuesOperation()
 
 const QString FixBootIssuesOperation::description() const
 {
-    const auto &model = deviceState()->deviceInfo().model;
-    const auto &name = deviceState()->deviceInfo().name;
-
-    return QStringLiteral("Fix boot issues @%1 %2").arg(model, name);
+    return QStringLiteral("Fix boot issues @%1").arg(deviceState()->name());
 }
 
 void FixBootIssuesOperation::advanceOperationState()

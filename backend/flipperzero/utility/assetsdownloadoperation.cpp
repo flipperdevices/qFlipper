@@ -1,6 +1,5 @@
 #include "assetsdownloadoperation.h"
 
-#include <QDir>
 #include <QFile>
 #include <QTimer>
 #include <QBuffer>
@@ -50,10 +49,7 @@ AssetsDownloadOperation::~AssetsDownloadOperation()
 
 const QString AssetsDownloadOperation::description() const
 {
-    const auto &model = deviceState()->deviceInfo().model;
-    const auto &name = deviceState()->deviceInfo().name;
-
-    return QStringLiteral("Assets Download @%1 %2").arg(model, name);
+    return QStringLiteral("Assets Download @%1 %2").arg(deviceState()->name());
 }
 
 void AssetsDownloadOperation::advanceOperationState()
@@ -91,8 +87,7 @@ void AssetsDownloadOperation::advanceOperationState()
         writeFiles();
 
     } else if(operationState() == State::WritingFiles) {
-        // TODO: move this into a function for consistency?
-        m_uncompressedFile->remove();
+        cleanup();
         finish();
     }
 }
@@ -333,4 +328,9 @@ void AssetsDownloadOperation::writeFiles()
             }
         });
     }
+}
+
+void AssetsDownloadOperation::cleanup()
+{
+    m_uncompressedFile->remove();
 }
