@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QTimer>
 #include <QBuffer>
+#include <QFileInfo>
 
 #include "flipperzero/cli/removeoperation.h"
 #include "flipperzero/cli/mkdiroperation.h"
@@ -40,7 +41,7 @@ static void print_file_list(const QString &header, const FileNode::FileInfoList 
 AssetsDownloadOperation::AssetsDownloadOperation(CommandInterface *cli, DeviceState *deviceState, QIODevice *compressedFile, QObject *parent):
     AbstractUtilityOperation(cli, deviceState, parent),
     m_compressedFile(compressedFile),
-    m_uncompressedFile(nullptr),
+    m_uncompressedFile(new QFile(TempDirectories::instance()->tempRoot().absoluteFilePath(QStringLiteral("qFlipper-databases.tar")), this)),
     m_isDeviceManifestPresent(false)
 {}
 
@@ -49,7 +50,7 @@ AssetsDownloadOperation::~AssetsDownloadOperation()
 
 const QString AssetsDownloadOperation::description() const
 {
-    return QStringLiteral("Assets Download @%1 %2").arg(deviceState()->name());
+    return QStringLiteral("Assets Download @%1").arg(deviceState()->name());
 }
 
 void AssetsDownloadOperation::advanceOperationState()
@@ -115,25 +116,18 @@ void AssetsDownloadOperation::checkForExtStorage()
 
 void AssetsDownloadOperation::extractArchive()
 {
-    if(!m_compressedFile->open(QIODevice::ReadOnly)) {
-        return finishWithError(m_compressedFile->errorString());
-    }
-
-    const auto tempDir = TempDirectories::instance()->tempRoot();
-
-    // TODO: check if file exists, etc.
-    m_uncompressedFile = new QFile(tempDir.absoluteFilePath(QStringLiteral("qFlipper-databases.tar")), this);
-    if(!m_uncompressedFile->open(QIODevice::ReadWrite)) {
-        return finishWithError(m_uncompressedFile->errorString());
-    }
-
     auto *uncompressor = new GZipUncompressor(m_compressedFile, m_uncompressedFile, this);
+
+    if(uncompressor->isError()) {
+        finishWithError(uncompressor->errorString());
+        return;
+    }
 
     connect(uncompressor, &GZipUncompressor::finished, this, [=]() {
         if(uncompressor->isError()) {
             finishWithError(uncompressor->errorString());
         } else {
-            m_archive = TarArchive(m_uncompressedFile);
+            m_archive = std::move(TarArchive(m_uncompressedFile));
 
             if(m_archive.isError()) {
                 finishWithError(m_archive.errorString());
@@ -141,12 +135,15 @@ void AssetsDownloadOperation::extractArchive()
                 QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
             }
         }
+
+        uncompressor->deleteLater();
     });
 }
 
 void AssetsDownloadOperation::readLocalManifest()
 {
     const auto text = m_archive.fileData(QStringLiteral("resources/Manifest"));
+
     if(text.isEmpty()) {
         return finishWithError(m_archive.errorString());
     }

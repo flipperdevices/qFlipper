@@ -16,6 +16,15 @@ GZipUncompressor::GZipUncompressor(QIODevice *in, QIODevice *out, QObject *paren
     m_out(out),
     m_progress(0)
 {
+    if(!m_in->open(QIODevice::ReadOnly)) {
+        setError(m_in->errorString());
+        return;
+
+    } else if(!m_out->open(QIODevice::WriteOnly)) {
+        setError(m_out->errorString());
+        return;
+    }
+
     auto *watcher = new QFutureWatcher<void>(this);
 
     connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
@@ -28,7 +37,9 @@ GZipUncompressor::GZipUncompressor(QIODevice *in, QIODevice *out, QObject *paren
 }
 
 GZipUncompressor::~GZipUncompressor()
-{}
+{
+    closeFiles();
+}
 
 double GZipUncompressor::progress() const
 {
@@ -98,8 +109,11 @@ void GZipUncompressor::doUncompress()
     } while(m_in->bytesAvailable());
 
     inflateEnd(&stream);
+    closeFiles();
+}
 
-    if(!m_in->seek(0) || !m_out->seek(0)) {
-        setError(QStringLiteral("Failed to rewind input files"));
-    }
+void GZipUncompressor::closeFiles()
+{
+    m_in->close();
+    m_out->close();
 }
