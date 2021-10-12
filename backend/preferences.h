@@ -28,3 +28,5 @@ private:
     QSettings m_settings;
 };
 
+#define globalPrefs() (Preferences::instance())
+

@@ -27,7 +27,7 @@ FullUpdateOperation::FullUpdateOperation(RecoveryInterface *recovery, UtilityInt
     m_recovery(recovery),
     m_utility(utility),
     m_versionInfo(versionInfo),
-    m_workDir(TempDirectories::instance()->tempRoot()),
+    m_workDir(tempDirs()->root()),
     m_firmwareFile(nullptr),
     m_assetsFile(nullptr)
 {}

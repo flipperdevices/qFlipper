@@ -10,10 +10,11 @@ class TempDirectories
 public:
     static TempDirectories *instance();
 
-    QDir tempRoot() const;
-    QDir tempSubdir(const QString &subdirName) const;
+    QDir root() const;
+    QDir subdir(const QString &subdirName) const;
 
 private:
     QDir m_tempRoot;
 };
 
+#define tempDirs() (TempDirectories::instance())

@@ -1,13 +1,30 @@
 #include "tempdirectories.h"
 
+#include <QRandomGenerator>
+
 #include "macros.h"
+
+static QString randomString(int len)
+{
+   static const auto chars = QStringLiteral("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+
+   QString ret;
+
+   for(int i = 0; i < len; ++i) {
+       const auto index = QRandomGenerator::global()->bounded(chars.length());
+       ret.append(chars.at(index));
+   }
+
+   return ret;
+}
 
 TempDirectories::TempDirectories():
     m_tempRoot(QDir::temp())
 {
-    const auto appDir = QStringLiteral("qFlipper");
+    const auto appDir = QStringLiteral("qFlipper-%1").arg(randomString(8));
+
     const auto success = m_tempRoot.mkdir(appDir) && m_tempRoot.cd(appDir);
-    check_continue(success, "Failed to create a temporary directory");
+    check_continue(success, "Failed to create temporary directory.");
 }
 
 TempDirectories::~TempDirectories()
@@ -21,12 +38,12 @@ TempDirectories *TempDirectories::instance()
     return &instance;
 }
 
-QDir TempDirectories::tempRoot() const
+QDir TempDirectories::root() const
 {
     return m_tempRoot;
 }
 
-QDir TempDirectories::tempSubdir(const QString &subdirName) const
+QDir TempDirectories::subdir(const QString &subdirName) const
 {
     auto subdir = m_tempRoot;
     bool success;

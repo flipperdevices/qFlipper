@@ -3,6 +3,7 @@
 #include "abstracttopleveloperation.h"
 
 class QFile;
+class QIODevice;
 
 namespace Flipper {
 namespace Zero {
@@ -16,9 +17,11 @@ class WirelessStackUpdateOperation : public AbstractTopLevelOperation
 
     enum OperationState {
         ExtractingBundle = AbstractOperation::User,
+        ReadingFirmware,
         StartingRecovery,
-        SettingDFUBootMode,
-        DownloadingWirelessStack
+        SettingRecoveryBootMode,
+        UpdatingWirelessStack,
+        SettingOSBootMode
     };
 
 public:
@@ -29,12 +32,12 @@ private slots:
     void nextStateLogic() override;
 
 private:
-    void onSubOperationErrorOccured() override;
-
     void extractBundle();
+    void readFirmware();
     void startRecoveryMode();
-    void setBootMode();
-    void downloadWirelessStack();
+    void setRecoveryBootMode();
+    void updateWirelessStack();
+    void setOSBootMode();
     void cleanup();
 
     RecoveryInterface *m_recovery;
@@ -42,6 +45,9 @@ private:
 
     QFile *m_compressedFile;
     QFile *m_uncompressedFile;
+
+    QIODevice *m_fusFile;
+    QIODevice *m_radioFile;
 };
 
 }

@@ -140,7 +140,7 @@ RadioManifest::Section::Section(const QJsonValue &json)
     }
 
     readVersion(obj.value(QStringLiteral("version")));
-    readFiles(QStringLiteral("files"));
+    readFiles(obj.value(QStringLiteral("files")));
 }
 
 const QString &RadioManifest::Section::version() const
@@ -175,7 +175,7 @@ void RadioManifest::Section::readVersion(const QJsonValue &json)
     const auto minor = obj.value(QStringLiteral("minor")).toInt();
     const auto sub = obj.value(QStringLiteral("sub")).toInt();
 
-    m_version = QStringLiteral("%1.%2.%3").arg(major, minor, sub);
+    m_version = QStringLiteral("%1.%2.%3").arg(major).arg(minor).arg(sub);
 }
 
 void RadioManifest::Section::readFiles(const QJsonValue &json)
@@ -195,6 +195,37 @@ void RadioManifest::Section::readFiles(const QJsonValue &json)
     }
 }
 
+RadioManifest::FirmwareInfo::FirmwareInfo(const QJsonValue &json)
+{
+    if(!json.isObject()) {
+        throw std::runtime_error("Expected FirmwareInfo to be an object");
+    }
+
+    const auto obj = json.toObject();
+    if(obj.isEmpty()) {
+        throw std::runtime_error("FirmwareInfo is empty");
+    }
+
+    const bool canConstruct = obj.contains(QStringLiteral("fus")) &&
+                              obj.contains(QStringLiteral("radio"));
+    if(!canConstruct) {
+        throw std::runtime_error("Malformed FirmwareInfo");
+    }
+
+    m_fus = Section(obj.value(QStringLiteral("fus")));
+    m_radio = Section(obj.value(QStringLiteral("radio")));
+}
+
+const RadioManifest::Section &RadioManifest::FirmwareInfo::fus() const
+{
+    return m_fus;
+}
+
+const RadioManifest::Section &RadioManifest::FirmwareInfo::radio() const
+{
+    return m_radio;
+}
+
 RadioManifest::RadioManifest(const QByteArray &text)
 {
     if(text.isEmpty()) {
@@ -211,8 +242,7 @@ RadioManifest::RadioManifest(const QByteArray &text)
 
     const auto obj = doc.object();
     const auto canConstruct = obj.contains(QStringLiteral("manifest")) &&
-                              obj.contains(QStringLiteral("copro")) &&
-                              obj.contains(QStringLiteral("radio"));
+                              obj.contains(QStringLiteral("copro"));
     if(!canConstruct) {
         setError("Malformed RadioManifest");
         return;
@@ -220,8 +250,7 @@ RadioManifest::RadioManifest(const QByteArray &text)
 
     try {
         m_header = Header(obj.value(QStringLiteral("manifest")));
-        m_fus = Section(obj.value(QStringLiteral("copro")));
-        m_radio = Section(obj.value(QStringLiteral("radio")));
+        m_firmware = FirmwareInfo(obj.value(QStringLiteral("copro")));
 
     } catch(const std::runtime_error &e) {
         setError(e.what());
@@ -233,14 +262,7 @@ const RadioManifest::Header &RadioManifest::header() const
     return m_header;
 }
 
-const RadioManifest::Section &RadioManifest::fus() const
+const RadioManifest::FirmwareInfo &RadioManifest::firmware() const
 {
-    return m_fus;
+    return m_firmware;
 }
-
-const RadioManifest::Section &RadioManifest::radio() const
-{
-    return m_radio;
-}
-
-

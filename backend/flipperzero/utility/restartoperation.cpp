@@ -33,6 +33,11 @@ void RestartOperation::advanceOperationState()
     } else {}
 }
 
+void RestartOperation::onOperationTimeout()
+{
+    finishWithError(QStringLiteral("Failed to restart: timeout exceeded"));
+}
+
 void RestartOperation::onDeviceOnlineChanged()
 {
     if(deviceState()->isOnline()) {

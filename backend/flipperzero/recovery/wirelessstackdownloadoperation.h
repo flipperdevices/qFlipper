@@ -13,8 +13,7 @@ class WirelessStackDownloadOperation : public AbstractRecoveryOperation
     Q_OBJECT
 
     enum State {
-        SettingDFUBoot = AbstractOperation::User,
-        StartingFUS,
+        StartingFUS = AbstractOperation::User,
         DeletingWirelessStack,
         DownloadingWirelessStack,
         UpgradingWirelessStack

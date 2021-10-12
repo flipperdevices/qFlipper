@@ -1,5 +1,6 @@
 #include "recoveryinterface.h"
 
+#include "flipperzero/recovery/setbootmodeoperation.h"
 #include "flipperzero/recovery/exitrecoveryoperation.h"
 #include "flipperzero/recovery/fixbootissuesoperation.h"
 #include "flipperzero/recovery/fixoptionbytesoperation.h"
@@ -20,6 +21,20 @@ RecoveryInterface::RecoveryInterface(DeviceState *state, QObject *parent):
 ExitRecoveryOperation *RecoveryInterface::exitRecoveryMode()
 {
     auto *operation = new ExitRecoveryOperation(m_recovery, this);
+    enqueueOperation(operation);
+    return operation;
+}
+
+SetBootModeOperation *RecoveryInterface::setOSBootMode()
+{
+    auto *operation = new SetOSBootOperation(m_recovery, this);
+    enqueueOperation(operation);
+    return operation;
+}
+
+SetBootModeOperation *RecoveryInterface::setRecoveryBootMode()
+{
+    auto *operation = new SetRecoveryBootOperation(m_recovery, this);
     enqueueOperation(operation);
     return operation;
 }

@@ -34,10 +34,6 @@ const QString WirelessStackDownloadOperation::description() const
 void WirelessStackDownloadOperation::advanceOperationState()
 {
     if(operationState() == AbstractOperation::Ready) {
-        setOperationState(WirelessStackDownloadOperation::SettingDFUBoot);
-        setDFUBoot();
-
-    } else if(operationState() == WirelessStackDownloadOperation::SettingDFUBoot) {
         setOperationState(WirelessStackDownloadOperation::StartingFUS);
         startFUS();
 
@@ -61,7 +57,7 @@ void WirelessStackDownloadOperation::advanceOperationState()
         }
 
     } else {
-        finishWithError(QStringLiteral("Unexpected state."));
+        finishWithError(QStringLiteral("Unexpected state"));
     }
 }
 
@@ -69,9 +65,7 @@ void WirelessStackDownloadOperation::onOperationTimeout()
 {
     QString msg;
 
-    if(operationState() == WirelessStackDownloadOperation::SettingDFUBoot) {
-        msg = QStringLiteral("Failed to set DFU only boot mode: Operation timeout.");
-    } else if(operationState() == WirelessStackDownloadOperation::StartingFUS) {
+    if(operationState() == WirelessStackDownloadOperation::StartingFUS) {
         msg = QStringLiteral("Failed to start Firmware Upgrade Service: Operation timeout.");
     } else if(operationState() == WirelessStackDownloadOperation::DeletingWirelessStack) {
         msg = QStringLiteral("Failed to delete existing Wireless Stack: Operation timeout.");

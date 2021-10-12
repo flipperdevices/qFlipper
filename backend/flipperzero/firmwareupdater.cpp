@@ -76,7 +76,7 @@ bool FirmwareUpdater::canRollback(const Updates::VersionInfo &versionInfo) const
 
 bool FirmwareUpdater::canChangeChannel() const
 {
-    return branchToChannelName() != Preferences::instance()->firmwareUpdateChannel();
+    return branchToChannelName() != globalPrefs()->firmwareUpdateChannel();
 }
 
 const QString &FirmwareUpdater::channelName(ChannelType channelType)

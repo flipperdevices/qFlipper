@@ -80,17 +80,28 @@ public:
         FileInfoMap m_files;
     };
 
+    class FirmwareInfo {
+    public:
+        FirmwareInfo() = default;
+        FirmwareInfo(const QJsonValue &json);
+
+        const Section &fus() const;
+        const Section &radio() const;
+
+    private:
+        Section m_fus;
+        Section m_radio;
+    };
+
     RadioManifest() = default;
     RadioManifest(const QByteArray &text);
 
     const Header &header() const;
-    const Section &fus() const;
-    const Section &radio() const;
+    const FirmwareInfo &firmware() const;
 
 private:
     Header m_header;
-    Section m_fus;
-    Section m_radio;
+    FirmwareInfo m_firmware;
 };
 
 }

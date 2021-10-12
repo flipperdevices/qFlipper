@@ -52,7 +52,10 @@ bool Recovery::exitRecoveryMode()
 
 bool Recovery::setBootMode(BootMode mode)
 {
-    const auto msg = (mode == BootMode::Normal) ? "Booting the device up..." : "Setting device to DFU boot mode...";
+    const auto msg = (mode == BootMode::Normal) ?
+               QStringLiteral("Setting OS boot mode...") :
+               QStringLiteral("Setting Recovery boot mode...");
+
     m_deviceState->setStatusString(msg);
 
     STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
@@ -75,7 +78,7 @@ bool Recovery::setBootMode(BootMode mode)
     const auto success = device.setOptionBytes(ob);
 
     if(!success) {
-        setError("Cant' set boot mode: Failed to set option bytes");
+        setError("Can't set boot mode: Failed to set option bytes");
     }
 
     begin_ignore_block();
@@ -88,6 +91,11 @@ bool Recovery::setBootMode(BootMode mode)
 Recovery::WirelessStatus Recovery::wirelessStatus()
 {
     info_msg("Getting Co-Processor (Wireless) status...");
+
+    if(!m_deviceState->isOnline()) {
+        info_msg("Failed to get FUS status. The device is offline at the moment.");
+        return WirelessStatus::Invalid;
+    }
 
     STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
@@ -210,7 +218,7 @@ bool Recovery::downloadFirmware(QIODevice *file)
         return false;
 
     } else {
-        m_deviceState->setStatusString("Downloading the firmware, please wait...");
+        m_deviceState->setStatusString("Downloading firmware, please wait...");
     }
 
     DfuseFile fw(file);

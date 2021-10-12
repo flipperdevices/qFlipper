@@ -44,6 +44,11 @@ void StartRecoveryOperation::onDeviceOnlineChanged()
 
 void StartRecoveryOperation::startRecoveryMode()
 {
+    if(deviceState()->isRecoveryMode()) {
+        advanceOperationState();
+        return;
+    }
+
     deviceState()->setStatusString(QStringLiteral("Starting Recovery mode..."));
 
     connect(deviceState(), &DeviceState::isOnlineChanged, this, &StartRecoveryOperation::onDeviceOnlineChanged);

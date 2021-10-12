@@ -37,9 +37,7 @@ GZipUncompressor::GZipUncompressor(QIODevice *in, QIODevice *out, QObject *paren
 }
 
 GZipUncompressor::~GZipUncompressor()
-{
-    closeFiles();
-}
+{}
 
 double GZipUncompressor::progress() const
 {

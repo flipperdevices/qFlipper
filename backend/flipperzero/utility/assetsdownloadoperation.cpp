@@ -41,7 +41,7 @@ static void print_file_list(const QString &header, const FileNode::FileInfoList 
 AssetsDownloadOperation::AssetsDownloadOperation(CommandInterface *cli, DeviceState *deviceState, QIODevice *compressedFile, QObject *parent):
     AbstractUtilityOperation(cli, deviceState, parent),
     m_compressedFile(compressedFile),
-    m_uncompressedFile(new QFile(TempDirectories::instance()->tempRoot().absoluteFilePath(QStringLiteral("qFlipper-databases.tar")), this)),
+    m_uncompressedFile(new QFile(tempDirs()->root().absoluteFilePath(QStringLiteral("qFlipper-databases.tar")), this)),
     m_isDeviceManifestPresent(false)
 {}
 
