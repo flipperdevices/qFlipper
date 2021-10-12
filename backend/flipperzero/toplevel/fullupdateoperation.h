@@ -7,6 +7,7 @@
 #include "flipperupdates.h"
 
 class QFile;
+class QIODevice;
 
 namespace Flipper {
 namespace Zero {
@@ -20,6 +21,8 @@ class FullUpdateOperation : public AbstractTopLevelOperation
 
     enum OperationState {
         FetchingFirmware = AbstractOperation::User,
+        FetchingWirelessStack,
+        FetchingScripts,
         FetchingAssets,
         SavingBackup,
         StartingRecovery,
@@ -43,7 +46,10 @@ private:
     void onSubOperationErrorOccured() override;
 
     void fetchFirmware();
+    void fetchWirelessStack();
+    void fetchScripts();
     void fetchAssets();
+
     void saveBackup();
     void startRecovery();
     void downloadFirmware();
@@ -60,7 +66,10 @@ private:
     Updates::VersionInfo m_versionInfo;
 
     QDir m_workDir;
+
     QFile *m_firmwareFile;
+    QFile *m_wirelessStackFile;
+    QFile *m_scriptsFile;
     QFile *m_assetsFile;
 };
 

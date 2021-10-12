@@ -44,6 +44,14 @@ void FullUpdateOperation::nextStateLogic()
         fetchFirmware();
 
     } else if(operationState() == FullUpdateOperation::FetchingFirmware) {
+        setOperationState(FullUpdateOperation::FetchingWirelessStack);
+        fetchWirelessStack();
+
+    } else if(operationState() == FullUpdateOperation::FetchingWirelessStack) {
+        setOperationState(FullUpdateOperation::FetchingScripts);
+        fetchScripts();
+
+    } else if(operationState() == FullUpdateOperation::FetchingScripts) {
         setOperationState(FullUpdateOperation::FetchingAssets);
         fetchAssets();
 
@@ -94,6 +102,20 @@ void FullUpdateOperation::fetchFirmware()
     deviceState()->setStatusString(QStringLiteral("Fetching firmware..."));
     const auto &fileInfo = m_versionInfo.fileInfo(QStringLiteral("full_dfu"), deviceState()->deviceInfo().target);
     m_firmwareFile = fetchFile(fileInfo);
+}
+
+void FullUpdateOperation::fetchWirelessStack()
+{
+    deviceState()->setStatusString(QStringLiteral("Fetching wireless stack..."));
+    const auto &fileInfo = m_versionInfo.fileInfo(QStringLiteral("core2_firmware_tgz"), QStringLiteral("any"));
+    m_wirelessStackFile = fetchFile(fileInfo);
+}
+
+void FullUpdateOperation::fetchScripts()
+{
+    deviceState()->setStatusString(QStringLiteral("Fetching scripts..."));
+    const auto &fileInfo = m_versionInfo.fileInfo(QStringLiteral("scripts_tgz"), QStringLiteral("any"));
+    m_scriptsFile = fetchFile(fileInfo);
 }
 
 void FullUpdateOperation::fetchAssets()
@@ -154,7 +176,7 @@ QFile *FullUpdateOperation::fetchFile(const Updates::FileInfo &fileInfo)
 
     connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
         if(!file->bytesAvailable()) {
-            finishWithError(QStringLiteral("Failed to fetch the file (2)"));
+            finishWithError(QStringLiteral("Failed to fetch file: %1").arg(fetcher->errorString()));
         } else {
             advanceOperationState();
         }
@@ -163,7 +185,7 @@ QFile *FullUpdateOperation::fetchFile(const Updates::FileInfo &fileInfo)
     });
 
     if(!fetcher->fetch(fileInfo, file)) {
-        finishWithError(QStringLiteral("Failed to fetch the file (1)"));
+        finishWithError(QStringLiteral("Failed to fetch file: %1").arg(fetcher->errorString()));
         return nullptr;
     } else {
         return file;
