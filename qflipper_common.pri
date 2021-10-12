@@ -28,7 +28,7 @@ GIT_VERSION = $$system("git describe --tags --abbrev=0","lines", HAS_VERSION)
     GIT_VERSION = unknown
 }
 
-GIT_COMMIT = $$system("git rev-parse --short HEAD","lines", HAS_COMMIT)
+GIT_COMMIT = $$system("git rev-parse --short=8 HEAD","lines", HAS_COMMIT)
 !equals(HAS_COMMIT, 0) {
     GIT_COMMIT = unknown
 }
