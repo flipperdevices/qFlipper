@@ -25,7 +25,7 @@ void RebootOperation::onSerialPortReadyRead()
 
 bool RebootOperation::begin()
 {
-    const auto success = (serialPort()->write("\rreboot\r\n") > 0);
+    const auto success = (serialPort()->write("\rreboot\r\n") > 0) && serialPort()->flush();
 
     if(success) {
         CALL_LATER(this, &AbstractOperation::finish);

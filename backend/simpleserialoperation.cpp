@@ -51,7 +51,7 @@ bool SimpleSerialOperation::begin()
     }
 
     if(!commandLine().isEmpty()) {
-        success &= serialPort()->write(commandLine()) == commandLine().size();
+        success &= (serialPort()->write(commandLine()) == commandLine().size()) && serialPort()->flush();
     }
 
     if(success) {
