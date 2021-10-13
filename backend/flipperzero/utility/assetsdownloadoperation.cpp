@@ -220,9 +220,9 @@ void AssetsDownloadOperation::buildFileLists()
         added.append(m_deviceManifest.tree()->difference(m_localManifest.tree()));
         changed.append(m_deviceManifest.tree()->changed(m_localManifest.tree()));
 
-        std::remove_if(deleted.begin(), deleted.end(), [](const FileNode::FileInfo &arg) {
+        deleted.erase(std::remove_if(deleted.begin(), deleted.end(), [](const FileNode::FileInfo &arg) {
             return arg.type != FileNode::Type::RegularFile;
-        });
+        }), deleted.end());
 
         if(!deleted.isEmpty() || !added.isEmpty() || !changed.isEmpty()) {
             changed.prepend(manifestInfo);

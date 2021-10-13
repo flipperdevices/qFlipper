@@ -1,5 +1,7 @@
 #include "radiomanifest.h"
 
+#include <stdexcept>
+
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
