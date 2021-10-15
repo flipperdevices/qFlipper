@@ -14,14 +14,15 @@ class RemoteFileFetcher : public QObject, public Failable
 
 public:
     RemoteFileFetcher(QObject *parent = nullptr);
-    virtual ~RemoteFileFetcher();
+    RemoteFileFetcher(const QString &remoteUrl, QIODevice *outputFile, QObject *parent = nullptr);
+    RemoteFileFetcher(const Flipper::Updates::FileInfo &fileInfo, QIODevice *outputFile, QObject *parent = nullptr);
 
     bool fetch(const QString &remoteUrl, QIODevice *outputFile);
     bool fetch(const Flipper::Updates::FileInfo &fileInfo, QIODevice *outputFile);
 
 signals:
     void progressChanged(double);
-    void finished(const QByteArray&);
+    void finished();
 
 private slots:
     void onDownloadProgress(qint64 received, qint64 total);

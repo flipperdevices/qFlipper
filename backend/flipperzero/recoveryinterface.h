@@ -14,7 +14,7 @@ class SetBootModeOperation;
 class ExitRecoveryOperation;
 class FirmwareDownloadOperation;
 class FixBootIssuesOperation;
-class FixOptionBytesOperation;
+class CorrectOptionBytesOperation;
 class WirelessStackDownloadOperation;
 
 class RecoveryInterface : public AbstractOperationRunner
@@ -35,7 +35,7 @@ public:
     WirelessStackDownloadOperation *downloadWirelessStack(QIODevice *file);
 
     FixBootIssuesOperation *fixBootIssues();
-    FixOptionBytesOperation *fixOptionBytes(QIODevice *file);
+    CorrectOptionBytesOperation *fixOptionBytes(QIODevice *file);
 
 private:
     Recovery *m_recovery;

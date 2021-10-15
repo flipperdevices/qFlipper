@@ -13,14 +13,21 @@ RemoteFileFetcher::RemoteFileFetcher(QObject *parent):
     m_manager(new QNetworkAccessManager(this))
 {}
 
-RemoteFileFetcher::~RemoteFileFetcher()
+RemoteFileFetcher::RemoteFileFetcher(const QString &remoteUrl, QIODevice *outputFile, QObject *parent):
+    RemoteFileFetcher(parent)
 {
-    // TODO: correct destruction in all cases
+    fetch(remoteUrl, outputFile);
+}
+
+RemoteFileFetcher::RemoteFileFetcher(const Flipper::Updates::FileInfo &fileInfo, QIODevice *outputFile, QObject *parent):
+    RemoteFileFetcher(parent)
+{
+    fetch(fileInfo, outputFile);
 }
 
 bool RemoteFileFetcher::fetch(const QString &remoteUrl, QIODevice *outputFile)
 {
-    if(!outputFile->open(QIODevice::ReadWrite)) {
+    if(!outputFile->open(QIODevice::WriteOnly)) {
         setError(QStringLiteral("Failed to open file for writing: %1.").arg(outputFile->errorString()));
         return false;
     }
@@ -35,11 +42,17 @@ bool RemoteFileFetcher::fetch(const QString &remoteUrl, QIODevice *outputFile)
     }
 
     connect(reply, &QNetworkReply::finished, this, [=]() {
+        reply->deleteLater();
+        outputFile->close();
+
         if(reply->error() != QNetworkReply::NoError) {
             setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
 
         } else if(!m_expectedChecksum.isEmpty()) {
-            outputFile->seek(0);
+            if(!outputFile->open(QIODevice::ReadOnly)) {
+                setError(QStringLiteral("Failed to open file for reading: %1.").arg(outputFile->errorString()));
+                return;
+            }
 
             QCryptographicHash hash(QCryptographicHash::Sha256);
             hash.addData(outputFile);
@@ -47,13 +60,11 @@ bool RemoteFileFetcher::fetch(const QString &remoteUrl, QIODevice *outputFile)
             if(hash.result().toHex() != m_expectedChecksum) {
                 setError(QStringLiteral("File integrity check failed"));
             }
+
+            outputFile->close();
         }
 
-        outputFile->close();
-
-        // TODO: make this signal param-less
-        emit finished(QByteArray());
-        reply->deleteLater();
+        emit finished();
     });
 
     connect(reply, &QNetworkReply::readyRead, this, [=]() {

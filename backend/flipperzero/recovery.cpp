@@ -367,7 +367,7 @@ bool Recovery::downloadOptionBytes(QIODevice *file)
     end_ignore_block();
 
     if(success) {
-        m_deviceState->setStatusString("Booting up the device...");
+        m_deviceState->setStatusString(QStringLiteral("Exiting recovery mode..."));
     }
 
     return success;

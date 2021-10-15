@@ -2,25 +2,27 @@
 
 #include "abstractrecoveryoperation.h"
 
+class QFile;
 class QTimer;
-class QIODevice;
+class QBuffer;
 
 namespace Flipper {
 namespace Zero {
 
-class WirelessStackDownloadOperation : public AbstractRecoveryOperation
+class RadioUpdateOperation : public AbstractRecoveryOperation
 {
     Q_OBJECT
 
-    enum State {
-        StartingFUS = AbstractOperation::User,
+    enum OperationState {
+        UnpackingArchive = AbstractOperation::User,
+        StartingFUS,
         DeletingWirelessStack,
         DownloadingWirelessStack,
         UpgradingWirelessStack
     };
 
 public:
-    WirelessStackDownloadOperation(Recovery *recovery, QIODevice *file, uint32_t targetAddress = 0, QObject *parent = nullptr);
+    RadioUpdateOperation(Recovery *recovery, QFile *file, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:
@@ -28,6 +30,7 @@ private slots:
     void onOperationTimeout() override;
 
 private:
+    void unpackArchive();
     void startFUS();
     void deleteWirelessStack();
     bool isWirelessStackDeleted();
@@ -35,10 +38,11 @@ private:
     void upgradeWirelessStack();
     bool isWirelessStackUpgraded();
 
-    QIODevice *m_file;
+    QFile *m_sourceFile;
+    QBuffer *m_firmwareFile;
     QTimer *m_loopTimer;
-    uint32_t m_targetAddress;
 };
 
 }
 }
+

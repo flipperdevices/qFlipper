@@ -1,51 +1,59 @@
-#include "wirelessstackdownloadoperation.h"
+#include "radioupdateoperation.h"
 
+#include <QFile>
 #include <QTimer>
-#include <QIODevice>
+#include <QBuffer>
 #include <QFutureWatcher>
 #include <QtConcurrent/QtConcurrentRun>
 
+#include "flipperzero/radiomanifest.h"
 #include "flipperzero/devicestate.h"
 #include "flipperzero/recovery.h"
+
+#include "tarziparchive.h"
+#include "tararchive.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-WirelessStackDownloadOperation::WirelessStackDownloadOperation(Recovery *recovery, QIODevice *file, uint32_t targetAddress, QObject *parent):
+RadioUpdateOperation::RadioUpdateOperation(Recovery *recovery, QFile *file, QObject *parent):
     AbstractRecoveryOperation(recovery, parent),
-    m_file(file),
-    m_loopTimer(new QTimer(this)),
-    m_targetAddress(targetAddress)
+    m_sourceFile(file),
+    m_firmwareFile(new QBuffer(this)),
+    m_loopTimer(new QTimer(this))
 {
-    connect(m_loopTimer, &QTimer::timeout, this, &WirelessStackDownloadOperation::advanceOperationState);
+    connect(m_loopTimer, &QTimer::timeout, this, &RadioUpdateOperation::advanceOperationState);
 }
 
-const QString WirelessStackDownloadOperation::description() const
+const QString RadioUpdateOperation::description() const
 {
-    return QStringLiteral("Co-Processor Firmware Download @%1").arg(deviceState()->name());
+    return QStringLiteral("Radio firmware update @%1").arg(deviceState()->name());
 }
 
-void WirelessStackDownloadOperation::advanceOperationState()
+void RadioUpdateOperation::advanceOperationState()
 {
     if(operationState() == AbstractOperation::Ready) {
-        setOperationState(WirelessStackDownloadOperation::StartingFUS);
+        setOperationState(RadioUpdateOperation::UnpackingArchive);
+
+    } else if(operationState() == RadioUpdateOperation::UnpackingArchive) {
+        setOperationState(RadioUpdateOperation::StartingFUS);
         startFUS();
 
-    } else if(operationState() == WirelessStackDownloadOperation::StartingFUS) {
-        setOperationState(WirelessStackDownloadOperation::DeletingWirelessStack);
+    } else if(operationState() == RadioUpdateOperation::StartingFUS) {
+        setOperationState(RadioUpdateOperation::DeletingWirelessStack);
         deleteWirelessStack();
 
-    } else if(operationState() == WirelessStackDownloadOperation::DeletingWirelessStack) {
+    } else if(operationState() == RadioUpdateOperation::DeletingWirelessStack) {
         if(isWirelessStackDeleted()) {
-            setOperationState(WirelessStackDownloadOperation::DownloadingWirelessStack);
+            setOperationState(RadioUpdateOperation::DownloadingWirelessStack);
             downloadWirelessStack();
         }
 
-    } else if(operationState() == WirelessStackDownloadOperation::DownloadingWirelessStack) {
-        setOperationState(WirelessStackDownloadOperation::UpgradingWirelessStack);
+    } else if(operationState() == RadioUpdateOperation::DownloadingWirelessStack) {
+        setOperationState(RadioUpdateOperation::UpgradingWirelessStack);
         upgradeWirelessStack();
 
-    } else if(operationState() == WirelessStackDownloadOperation::UpgradingWirelessStack) {
+    } else if(operationState() == RadioUpdateOperation::UpgradingWirelessStack) {
         if(isWirelessStackUpgraded()) {
             finish();
         }
@@ -55,31 +63,27 @@ void WirelessStackDownloadOperation::advanceOperationState()
     }
 }
 
-void WirelessStackDownloadOperation::onOperationTimeout()
+void RadioUpdateOperation::unpackArchive()
 {
-    QString msg;
+//    auto *archive = new TarZipArchive(m_sourceFile, this);
 
-    if(operationState() == WirelessStackDownloadOperation::StartingFUS) {
-        msg = QStringLiteral("Failed to start Firmware Upgrade Service: Operation timeout.");
-    } else if(operationState() == WirelessStackDownloadOperation::DeletingWirelessStack) {
-        msg = QStringLiteral("Failed to delete existing Wireless Stack: Operation timeout.");
-    } else if(operationState() == WirelessStackDownloadOperation::UpgradingWirelessStack) {
-        msg = QStringLiteral("Failed to upgrade Wireless Stack: Operation timeout.");
-    } else {
-        msg = QStringLiteral("Should not have timed out here, probably a bug.");
-    }
+//    if(archive->isError()) {
+//        finishWithError(QStringLiteral("Failed to uncompress radio firmware file: %1").arg(archive->errorString()));
+//        return;
+//    }
 
-    finishWithError(msg);
+//    connect(archive, &TarZipArchive::ready, this, [=]() {
+    //    });
 }
 
-void WirelessStackDownloadOperation::startFUS()
+void RadioUpdateOperation::startFUS()
 {
     if(!recovery()->startFUS()) {
         finishWithError(recovery()->errorString());
     }
 }
 
-void WirelessStackDownloadOperation::deleteWirelessStack()
+void RadioUpdateOperation::deleteWirelessStack()
 {
     if(!recovery()->deleteWirelessStack()) {
         finishWithError(recovery()->errorString());
@@ -88,7 +92,7 @@ void WirelessStackDownloadOperation::deleteWirelessStack()
     }
 }
 
-bool WirelessStackDownloadOperation::isWirelessStackDeleted()
+bool RadioUpdateOperation::isWirelessStackDeleted()
 {
     const auto status = recovery()->wirelessStatus();
 
@@ -109,7 +113,7 @@ bool WirelessStackDownloadOperation::isWirelessStackDeleted()
     return !errorOccured;
 }
 
-void WirelessStackDownloadOperation::downloadWirelessStack()
+void RadioUpdateOperation::downloadWirelessStack()
 {
     auto *watcher = new QFutureWatcher<bool>(this);
 
@@ -123,10 +127,10 @@ void WirelessStackDownloadOperation::downloadWirelessStack()
         watcher->deleteLater();
     });
 
-    watcher->setFuture(QtConcurrent::run(recovery(), &Recovery::downloadWirelessStack, m_file, m_targetAddress));
+    watcher->setFuture(QtConcurrent::run(recovery(), &Recovery::downloadWirelessStack, m_firmwareFile, 0));
 }
 
-void WirelessStackDownloadOperation::upgradeWirelessStack()
+void RadioUpdateOperation::upgradeWirelessStack()
 {
     if(!recovery()->upgradeWirelessStack()) {
         finishWithError(recovery()->errorString());
@@ -135,7 +139,7 @@ void WirelessStackDownloadOperation::upgradeWirelessStack()
     }
 }
 
-bool WirelessStackDownloadOperation::isWirelessStackUpgraded()
+bool RadioUpdateOperation::isWirelessStackUpgraded()
 {
     const auto status = recovery()->wirelessStatus();
 

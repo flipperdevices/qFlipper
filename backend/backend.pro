@@ -10,6 +10,7 @@ include(../qflipper_common.pri)
 
 SOURCES += \
     abstractoperation.cpp \
+    abstractoperationhelper.cpp \
     abstractoperationrunner.cpp \
     abstractserialoperation.cpp \
     deviceregistry.cpp \
@@ -26,13 +27,16 @@ SOURCES += \
     flipperzero/factoryinfo.cpp \
     flipperzero/firmwareupdater.cpp \
     flipperzero/flipperzero.cpp \
+    flipperzero/helper/radiomanifesthelper.cpp \
+    flipperzero/helper/scriptshelper.cpp \
     flipperzero/radiomanifest.cpp \
     flipperzero/recovery.cpp \
     flipperzero/recovery/abstractrecoveryoperation.cpp \
+    flipperzero/recovery/correctoptionbytesoperation.cpp \
     flipperzero/recovery/exitrecoveryoperation.cpp \
     flipperzero/recovery/firmwaredownloadoperation.cpp \
     flipperzero/recovery/fixbootissuesoperation.cpp \
-    flipperzero/recovery/fixoptionbytesoperation.cpp \
+    flipperzero/recovery/radioupdateoperation.cpp \
     flipperzero/recovery/setbootmodeoperation.cpp \
     flipperzero/recovery/wirelessstackdownloadoperation.cpp \
     flipperzero/recoveryinterface.cpp \
@@ -61,11 +65,13 @@ SOURCES += \
     serialfinder.cpp \
     simpleserialoperation.cpp \
     tararchive.cpp \
+    tarziparchive.cpp \
     tempdirectories.cpp \
     updateregistry.cpp
 
 HEADERS += \
     abstractoperation.h \
+    abstractoperationhelper.h \
     abstractoperationrunner.h \
     abstractserialoperation.h \
     deviceregistry.h \
@@ -85,13 +91,16 @@ HEADERS += \
     flipperzero/factoryinfo.h \
     flipperzero/firmwareupdater.h \
     flipperzero/flipperzero.h \
+    flipperzero/helper/radiomanifesthelper.h \
+    flipperzero/helper/scriptshelper.h \
     flipperzero/radiomanifest.h \
     flipperzero/recovery.h \
     flipperzero/recovery/abstractrecoveryoperation.h \
+    flipperzero/recovery/correctoptionbytesoperation.h \
     flipperzero/recovery/exitrecoveryoperation.h \
     flipperzero/recovery/firmwaredownloadoperation.h \
     flipperzero/recovery/fixbootissuesoperation.h \
-    flipperzero/recovery/fixoptionbytesoperation.h \
+    flipperzero/recovery/radioupdateoperation.h \
     flipperzero/recovery/setbootmodeoperation.h \
     flipperzero/recovery/wirelessstackdownloadoperation.h \
     flipperzero/recoveryinterface.h \
@@ -121,6 +130,7 @@ HEADERS += \
     signalingfailable.h \
     simpleserialoperation.h \
     tararchive.h \
+    tarziparchive.h \
     tempdirectories.h \
     updateregistry.h
 

@@ -16,8 +16,6 @@ class FixBootIssuesOperation : public AbstractRecoveryOperation
 
 public:
     FixBootIssuesOperation(Recovery *recovery, QObject *parent = nullptr);
-    ~FixBootIssuesOperation();
-
     const QString description() const override;
 
 private slots:

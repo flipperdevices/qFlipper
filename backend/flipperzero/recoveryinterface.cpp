@@ -3,7 +3,7 @@
 #include "flipperzero/recovery/setbootmodeoperation.h"
 #include "flipperzero/recovery/exitrecoveryoperation.h"
 #include "flipperzero/recovery/fixbootissuesoperation.h"
-#include "flipperzero/recovery/fixoptionbytesoperation.h"
+#include "flipperzero/recovery/correctoptionbytesoperation.h"
 #include "flipperzero/recovery/firmwaredownloadoperation.h"
 #include "flipperzero/recovery/wirelessstackdownloadoperation.h"
 
@@ -68,9 +68,9 @@ FixBootIssuesOperation *RecoveryInterface::fixBootIssues()
     return operation;
 }
 
-FixOptionBytesOperation *RecoveryInterface::fixOptionBytes(QIODevice *file)
+CorrectOptionBytesOperation *RecoveryInterface::fixOptionBytes(QIODevice *file)
 {
-    auto *operation = new FixOptionBytesOperation(m_recovery, file, this);
+    auto *operation = new CorrectOptionBytesOperation(m_recovery, file, this);
     enqueueOperation(operation);
     return operation;
 }

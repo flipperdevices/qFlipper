@@ -7,27 +7,25 @@ class QIODevice;
 namespace Flipper {
 namespace Zero {
 
-class FirmwareDownloadOperation : public AbstractRecoveryOperation
+class CorrectOptionBytesOperation : public AbstractRecoveryOperation
 {
     Q_OBJECT
 
-    enum State {
-        DownloadingFirmware = AbstractOperation::User
+    enum OperationState {
+        CorrectingOptionBytes = AbstractOperation::User
     };
 
 public:
-    FirmwareDownloadOperation(Recovery *recovery, QIODevice *file, QObject *parent = nullptr);
+    CorrectOptionBytesOperation(Recovery *recovery, QIODevice *file, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:
     void advanceOperationState() override;
 
 private:
-    void downloadFirmware();
-
+    void correctOptionBytes();
     QIODevice *m_file;
 };
 
 }
 }
-

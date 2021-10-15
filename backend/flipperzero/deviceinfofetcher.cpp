@@ -176,32 +176,33 @@ void VCPDeviceInfoFetcher::parseLine(const QByteArray &line)
         m_deviceInfo.firmware.branch = value;
     } else if(line.startsWith(QByteArrayLiteral("firmware_build_date"))) {
         m_deviceInfo.firmware.date = QDateTime::fromString(value, QStringLiteral("dd-MM-yyyy"));
-    } else if(line.startsWith(QByteArrayLiteral("radio_fus_major"))) {
+
+    } else if(line.startsWith(QByteArrayLiteral("radio_stack_major"))) {
         auto fields = m_deviceInfo.radioVersion.split('.');
         fields.replace(0, value);
         m_deviceInfo.radioVersion = fields.join('.');
 
-    } else if(line.startsWith(QByteArrayLiteral("radio_fus_minor"))) {
+    } else if(line.startsWith(QByteArrayLiteral("radio_stack_minor"))) {
         auto fields = m_deviceInfo.radioVersion.split('.');
         fields.replace(1, value);
         m_deviceInfo.radioVersion = fields.join('.');
 
-    } else if(line.startsWith(QByteArrayLiteral("radio_fus_sub"))) {
+    } else if(line.startsWith(QByteArrayLiteral("radio_stack_sub"))) {
         auto fields = m_deviceInfo.radioVersion.split('.');
         fields.replace(2, value);
         m_deviceInfo.radioVersion = fields.join('.');
 
-    } else if(line.startsWith(QByteArrayLiteral("radio_stack_major"))) {
+    } else if(line.startsWith(QByteArrayLiteral("radio_fus_major"))) {
         auto fields = m_deviceInfo.fusVersion.split('.');
         fields.replace(0, value);
         m_deviceInfo.fusVersion = fields.join('.');
 
-    } else if(line.startsWith(QByteArrayLiteral("radio_stack_minor"))) {
+    } else if(line.startsWith(QByteArrayLiteral("radio_fus_minor"))) {
         auto fields = m_deviceInfo.fusVersion.split('.');
         fields.replace(1, value);
         m_deviceInfo.fusVersion = fields.join('.');
 
-    } else if(line.startsWith(QByteArrayLiteral("radio_stack_sub"))) {
+    } else if(line.startsWith(QByteArrayLiteral("radio_fus_sub"))) {
         auto fields = m_deviceInfo.fusVersion.split('.');
         fields.replace(2, value);
         m_deviceInfo.fusVersion = fields.join('.');

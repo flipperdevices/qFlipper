@@ -14,12 +14,6 @@ FirmwareDownloadOperation::FirmwareDownloadOperation(Recovery *recovery, QIODevi
     m_file(file)
 {}
 
-FirmwareDownloadOperation::~FirmwareDownloadOperation()
-{
-    // TODO: not hide the deletion of files?
-    m_file->deleteLater();
-}
-
 const QString FirmwareDownloadOperation::description() const
 {
     return QStringLiteral("Firmware Download @%1").arg(deviceState()->name());

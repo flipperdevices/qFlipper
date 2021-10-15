@@ -2,12 +2,13 @@
 
 #include "abstracttopleveloperation.h"
 
-#include <QDir>
+#include <QMap>
+#include <QFile>
+#include <QSharedPointer>
 
 #include "flipperupdates.h"
 
-class QFile;
-class QIODevice;
+class QBuffer;
 
 namespace Flipper {
 namespace Zero {
@@ -21,12 +22,17 @@ class FullUpdateOperation : public AbstractTopLevelOperation
 
     enum OperationState {
         FetchingFirmware = AbstractOperation::User,
-        FetchingWirelessStack,
+        FetchingCore2Firmware,
+        PreparingRadioFirmware,
         FetchingScripts,
+        PreparingOptionBytes,
         FetchingAssets,
         SavingBackup,
         StartingRecovery,
+        SettingBootMode,
+        DownloadingRadioFirmware,
         DownloadingFirmware,
+        CorrectingOptionBytes,
         ExitingRecovery,
         DownloadingAssets,
         RestoringBackup,
@@ -34,8 +40,20 @@ class FullUpdateOperation : public AbstractTopLevelOperation
         CleaningUp
     };
 
+    enum class FileIndex {
+        Firmware,
+        Core2Tgz,
+        ScriptsTgz,
+        AssetsTgz,
+        RadioFirmware,
+        OptionBytes
+    };
+
+    using FileDict = QMap<FileIndex, QFile*>;
+
 public:
     FullUpdateOperation(RecoveryInterface *recovery, UtilityInterface *utility, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent = nullptr);
+    ~FullUpdateOperation();
 
     const QString description() const override;
 
@@ -46,31 +64,33 @@ private:
     void onSubOperationErrorOccured() override;
 
     void fetchFirmware();
-    void fetchWirelessStack();
+    void fetchCore2Firmware();
+    void prepareRadioFirmware();
     void fetchScripts();
+    void prepareOptionBytes();
     void fetchAssets();
-
     void saveBackup();
     void startRecovery();
+    void setBootMode();
+    void downloadRadioFirmware();
     void downloadFirmware();
+    void correctOptionBytes();
     void exitRecovery();
     void downloadAssets();
     void restoreBackup();
     void restartDevice();
     void cleanupFiles();
 
-    QFile *fetchFile(const Updates::FileInfo &fileInfo);
+    void fetchFile(FileIndex index, const Updates::FileInfo &fileInfo);
 
     RecoveryInterface *m_recovery;
     UtilityInterface *m_utility;
     Updates::VersionInfo m_versionInfo;
 
-    QDir m_workDir;
-
-    QFile *m_firmwareFile;
-    QFile *m_wirelessStackFile;
-    QFile *m_scriptsFile;
-    QFile *m_assetsFile;
+    FileDict m_files;
+    bool m_updateRadio;
+    QBuffer *m_radioBuffer;
+    QBuffer *m_optionBuffer;
 };
 
 }

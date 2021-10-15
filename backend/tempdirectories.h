@@ -2,6 +2,9 @@
 
 #include <QDir>
 
+class QFile;
+class QObject;
+
 class TempDirectories
 {
     TempDirectories();
@@ -12,6 +15,8 @@ public:
 
     QDir root() const;
     QDir subdir(const QString &subdirName) const;
+
+    QFile *createFile(const QString &fileName, QObject *parent = nullptr) const;
 
 private:
     QDir m_tempRoot;

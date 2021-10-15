@@ -10,9 +10,6 @@ FixBootIssuesOperation::FixBootIssuesOperation(Recovery *recovery, QObject *pare
     AbstractRecoveryOperation(recovery, parent)
 {}
 
-FixBootIssuesOperation::~FixBootIssuesOperation()
-{}
-
 const QString FixBootIssuesOperation::description() const
 {
     return QStringLiteral("Fix boot issues @%1").arg(deviceState()->name());
