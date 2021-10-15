@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDir>
+#include <QTemporaryDir>
 
 class QFile;
 class QObject;
@@ -8,7 +9,6 @@ class QObject;
 class TempDirectories
 {
     TempDirectories();
-    ~TempDirectories();
 
 public:
     static TempDirectories *instance();
@@ -20,7 +20,7 @@ public:
     QFile *createTempFile() const;
 
 private:
-    QDir m_tempRoot;
+    QTemporaryDir m_root;
 };
 
 #define tempDirs() (TempDirectories::instance())
