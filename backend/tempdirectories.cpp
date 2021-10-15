@@ -1,6 +1,7 @@
 #include "tempdirectories.h"
 
 #include <QFile>
+#include <QTemporaryFile>
 #include <QRandomGenerator>
 
 #include "macros.h"
@@ -61,4 +62,9 @@ QDir TempDirectories::subdir(const QString &subdirName) const
 QFile *TempDirectories::createFile(const QString &fileName, QObject *parent) const
 {
     return new QFile(m_tempRoot.absoluteFilePath(fileName), parent);
+}
+
+QFile *TempDirectories::createTempFile() const
+{
+    return new QTemporaryFile(m_tempRoot.absoluteFilePath(QStringLiteral("temp.XXXXXXXX")));
 }

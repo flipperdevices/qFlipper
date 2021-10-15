@@ -1,7 +1,7 @@
 #include "fullupdateoperation.h"
 
 #include <QFile>
-#include <QBuffer>
+#include <QTemporaryFile>
 
 #include "flipperzero/devicestate.h"
 
@@ -196,16 +196,17 @@ void FullUpdateOperation::prepareRadioFirmware()
         m_updateRadio = currentRadioVersion <= newRadioVersion;
 
         if(m_updateRadio) {
-            m_radioBuffer = new QBuffer(this);
+            auto *file = tempDirs()->createTempFile();
+            m_files.insert(FileIndex::RadioFirmware, file);
 
-            if(!m_radioBuffer->open(QIODevice::WriteOnly)) {
-                finishWithError(QStringLiteral("Failed to open intermediate buffer: %1").arg(m_radioBuffer->errorString()));
+            if(!file->open(QIODevice::WriteOnly)) {
+                finishWithError(QStringLiteral("Failed to open temporary file: %1").arg(file->errorString()));
                 return;
-            } else if(m_radioBuffer->write(helper->radioFirmwareData()) <= 0) {
-                finishWithError(QStringLiteral("Failed to write to intermediate buffer: %1").arg(m_radioBuffer->errorString()));
+            } else if(file->write(helper->radioFirmwareData()) <= 0) {
+                finishWithError(QStringLiteral("Failed to write to temporary file: %1").arg(file->errorString()));
                 return;
             } else {
-                m_radioBuffer->close();
+                file->close();
             }
         }
 
@@ -220,7 +221,7 @@ void FullUpdateOperation::setBootMode()
 
 void FullUpdateOperation::downloadRadioFirmware()
 {
-    registerOperation(m_recovery->downloadWirelessStack(m_radioBuffer));
+    registerOperation(m_recovery->downloadWirelessStack(m_files[FileIndex::RadioFirmware]));
 }
 
 void FullUpdateOperation::downloadFirmware()
@@ -241,14 +242,15 @@ void FullUpdateOperation::prepareOptionBytes()
             return;
         }
 
-        m_optionBuffer = new QBuffer(this);
+        auto *file = tempDirs()->createTempFile();
+        m_files.insert(FileIndex::OptionBytes, file);
 
-        if(!m_optionBuffer->open(QIODevice::WriteOnly)) {
-            finishWithError(QStringLiteral("Failed to open intermediate buffer: %1").arg(m_radioBuffer->errorString()));
-        } else if(m_optionBuffer->write(helper->optionBytesData()) <= 0) {
-            finishWithError(QStringLiteral("Failed to write to intermediate buffer: %1").arg(m_radioBuffer->errorString()));
+        if(!file->open(QIODevice::WriteOnly)) {
+            finishWithError(QStringLiteral("Failed to open temporary file: %1").arg(file->errorString()));
+        } else if(file->write(helper->optionBytesData()) <= 0) {
+            finishWithError(QStringLiteral("Failed to write to temporary file: %1").arg(file->errorString()));
         } else {
-            m_optionBuffer->close();
+            file->close();
             advanceOperationState();
         }
     });
@@ -256,7 +258,7 @@ void FullUpdateOperation::prepareOptionBytes()
 
 void FullUpdateOperation::correctOptionBytes()
 {
-    registerOperation(m_recovery->fixOptionBytes(m_optionBuffer));
+    registerOperation(m_recovery->fixOptionBytes(m_files[FileIndex::OptionBytes]));
 }
 
 void FullUpdateOperation::exitRecovery()

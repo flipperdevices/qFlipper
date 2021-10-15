@@ -4,11 +4,8 @@
 
 #include <QMap>
 #include <QFile>
-#include <QSharedPointer>
 
 #include "flipperupdates.h"
-
-class QBuffer;
 
 namespace Flipper {
 namespace Zero {
@@ -89,8 +86,6 @@ private:
 
     FileDict m_files;
     bool m_updateRadio;
-    QBuffer *m_radioBuffer;
-    QBuffer *m_optionBuffer;
 };
 
 }

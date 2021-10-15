@@ -344,7 +344,7 @@ bool Recovery::downloadOptionBytes(QIODevice *file)
         success = device.leave();
 
         if(!success) {
-            setError("Can't set boot mode: Failed to leave the DFU mode.");
+            setError("Can't set boot mode: Failed to leave the Recovery mode.");
         }
 
     } else {
