@@ -5,6 +5,7 @@
 #include "utilityinterface.h"
 
 #include "toplevel/wirelessstackupdateoperation.h"
+#include "toplevel/fullrepairoperation.h"
 #include "toplevel/fullupdateoperation.h"
 #include "preferences.h"
 
@@ -34,7 +35,8 @@ void FirmwareUpdater::fullRepair(const Updates::VersionInfo &versionInfo)
         return;
     }
 
-    Q_UNUSED(versionInfo)
+    auto *operation = new FullRepairOperation(m_recovery, m_state, versionInfo, this);
+    enqueueOperation(operation);
 }
 
 void FirmwareUpdater::localFirmwareUpdate(const QUrl &fileUrl)

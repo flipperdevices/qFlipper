@@ -48,6 +48,7 @@ SOURCES += \
     flipperzero/cli/writeoperation.cpp \
     flipperzero/screenstreamer.cpp \
     flipperzero/toplevel/abstracttopleveloperation.cpp \
+    flipperzero/toplevel/fullrepairoperation.cpp \
     flipperzero/toplevel/fullupdateoperation.cpp \
     flipperzero/toplevel/wirelessstackupdateoperation.cpp \
     flipperzero/utility/abstractutilityoperation.cpp \
@@ -112,6 +113,7 @@ HEADERS += \
     flipperzero/cli/writeoperation.h \
     flipperzero/screenstreamer.h \
     flipperzero/toplevel/abstracttopleveloperation.h \
+    flipperzero/toplevel/fullrepairoperation.h \
     flipperzero/toplevel/fullupdateoperation.h \
     flipperzero/toplevel/wirelessstackupdateoperation.h \
     flipperzero/utility/abstractutilityoperation.h \

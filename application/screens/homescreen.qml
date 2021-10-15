@@ -122,19 +122,30 @@ Item {
                 const channelName = preferences.updateChannel;
                 const latestVersion = firmwareUpdates.latestVersion;
 
-                const messageObj = {
-                    title : qsTr("Install version %1?").arg(latestVersion.number),
-                    subtitle : qsTr("This will install the latest available %1 version.").arg(channelName.toUpperCase())
-                };
+                let messageObj, actionFunc;
 
-                confirmationDialog.openWithMessage(function() {
-                    if(device.state.isRecoveryMode) {
+                if(device.state.isRecoveryMode) {
+                    messageObj = {
+                        title : qsTr("Repair device with version %1?").arg(latestVersion.number),
+                        subtitle : qsTr("WARNING! This will fully erase the contents of internal storage.")
+                    };
+
+                    actionFunc = function() {
                         device.updater.fullRepair(latestVersion);
-                    } else {
-                        device.updater.fullUpdate(latestVersion);
                     }
 
-                }, messageObj);
+                } else {
+                    messageObj = {
+                        title : qsTr("Install version %1?").arg(latestVersion.number),
+                        subtitle : qsTr("This will install the latest available %1 version.").arg(channelName.toUpperCase())
+                    };
+
+                    actionFunc = function() {
+                        device.updater.fullUpdate(latestVersion);
+                    }
+                }
+
+                confirmationDialog.openWithMessage(actionFunc, messageObj);
             }
 
             onVersionListRequested: {

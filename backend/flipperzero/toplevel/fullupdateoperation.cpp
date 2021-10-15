@@ -134,11 +134,6 @@ void FullUpdateOperation::nextStateLogic()
     }
 }
 
-void FullUpdateOperation::onSubOperationErrorOccured()
-{
-    cleanupFiles();
-}
-
 void FullUpdateOperation::fetchFirmware()
 {
     deviceState()->setStatusString(QStringLiteral("Fetching application firmware..."));

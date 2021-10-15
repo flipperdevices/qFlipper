@@ -10,10 +10,9 @@
 namespace Flipper {
 namespace Zero {
 
-class UtilityInterface;
 class RecoveryInterface;
 
-class FullUpdateOperation : public AbstractTopLevelOperation
+class FullRepairOperation : public AbstractTopLevelOperation
 {
     Q_OBJECT
 
@@ -23,17 +22,10 @@ class FullUpdateOperation : public AbstractTopLevelOperation
         PreparingRadioFirmware,
         FetchingScripts,
         PreparingOptionBytes,
-        FetchingAssets,
-        SavingBackup,
-        StartingRecovery,
         SettingBootMode,
         DownloadingRadioFirmware,
         DownloadingFirmware,
         CorrectingOptionBytes,
-        ExitingRecovery,
-        DownloadingAssets,
-        RestoringBackup,
-        RestartingDevice,
         CleaningUp
     };
 
@@ -41,7 +33,6 @@ class FullUpdateOperation : public AbstractTopLevelOperation
         Firmware,
         Core2Tgz,
         ScriptsTgz,
-        AssetsTgz,
         RadioFirmware,
         OptionBytes
     };
@@ -49,8 +40,8 @@ class FullUpdateOperation : public AbstractTopLevelOperation
     using FileDict = QMap<FileIndex, QFile*>;
 
 public:
-    FullUpdateOperation(RecoveryInterface *recovery, UtilityInterface *utility, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent = nullptr);
-    ~FullUpdateOperation();
+    FullRepairOperation(RecoveryInterface *recovery, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent = nullptr);
+    ~FullRepairOperation();
 
     const QString description() const override;
 
@@ -63,27 +54,18 @@ private:
     void prepareRadioFirmware();
     void fetchScripts();
     void prepareOptionBytes();
-    void fetchAssets();
-    void saveBackup();
-    void startRecovery();
     void setBootMode();
     void downloadRadioFirmware();
     void downloadFirmware();
     void correctOptionBytes();
-    void exitRecovery();
-    void downloadAssets();
-    void restoreBackup();
-    void restartDevice();
     void cleanupFiles();
 
     void fetchFile(FileIndex index, const Updates::FileInfo &fileInfo);
 
     RecoveryInterface *m_recovery;
-    UtilityInterface *m_utility;
     Updates::VersionInfo m_versionInfo;
 
     FileDict m_files;
-    bool m_updateRadio;
 };
 
 }
