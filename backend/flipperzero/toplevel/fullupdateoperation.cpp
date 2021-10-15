@@ -193,7 +193,7 @@ void FullUpdateOperation::prepareRadioFirmware()
         const auto &newRadioVersion = helper->radioVersion();
         const auto &currentRadioVersion = deviceState()->deviceInfo().radioVersion;
 
-        m_updateRadio = currentRadioVersion <= newRadioVersion;
+        m_updateRadio = currentRadioVersion < newRadioVersion;
 
         if(m_updateRadio) {
             auto *file = tempDirs()->createTempFile();
