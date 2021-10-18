@@ -19,12 +19,9 @@
 #include "flipperzero/recovery/firmwaredownloadoperation.h"
 #include "flipperzero/recovery/wirelessstackdownloadoperation.h"
 
-#include "flipperzero/helper/scriptshelper.h"
-#include "flipperzero/helper/radiomanifesthelper.h"
+#include "flipperzero/helper/firmwarehelper.h"
 
-#include "remotefilefetcher.h"
 #include "tempdirectories.h"
-#include "macros.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -33,14 +30,8 @@ FullUpdateOperation::FullUpdateOperation(RecoveryInterface *recovery, UtilityInt
     AbstractTopLevelOperation(state, parent),
     m_recovery(recovery),
     m_utility(utility),
-    m_versionInfo(versionInfo),
-    m_updateRadio(false)
+    m_versionInfo(versionInfo)
 {}
-
-FullUpdateOperation::~FullUpdateOperation()
-{
-    cleanupFiles();
-}
 
 const QString FullUpdateOperation::description() const
 {
@@ -54,26 +45,6 @@ void FullUpdateOperation::nextStateLogic()
         fetchFirmware();
 
     } else if(operationState() == FullUpdateOperation::FetchingFirmware) {
-        setOperationState(FullUpdateOperation::FetchingCore2Firmware);
-        fetchCore2Firmware();
-
-    } else if(operationState() == FullUpdateOperation::FetchingCore2Firmware) {
-        setOperationState(FullUpdateOperation::PreparingRadioFirmware);
-        prepareRadioFirmware();
-
-    } else if(operationState() == FullUpdateOperation::PreparingRadioFirmware) {
-        setOperationState(FullUpdateOperation::FetchingScripts);
-        fetchScripts();
-
-    } else if(operationState() == FullUpdateOperation::FetchingScripts) {
-        setOperationState(FullUpdateOperation::PreparingOptionBytes);
-        prepareOptionBytes();
-
-    } else if(operationState() == FullUpdateOperation::PreparingOptionBytes) {
-        setOperationState(FullUpdateOperation::FetchingAssets);
-        fetchAssets();
-
-    } else if(operationState() == FullUpdateOperation::FetchingAssets) {
         setOperationState(FullUpdateOperation::SavingBackup);
         saveBackup();
 
@@ -83,7 +54,7 @@ void FullUpdateOperation::nextStateLogic()
 
     } else if(operationState() == FullUpdateOperation::StartingRecovery) {
 
-        if(m_updateRadio) {
+        if(m_helper->hasRadioUpdate()) {
             setOperationState(FullUpdateOperation::SettingBootMode);
             setBootMode();
 
@@ -102,7 +73,7 @@ void FullUpdateOperation::nextStateLogic()
 
     } else if(operationState() == FullUpdateOperation::DownloadingFirmware) {
 
-        if(m_updateRadio) {
+        if(m_helper->hasRadioUpdate()) {
             setOperationState(FullUpdateOperation::CorrectingOptionBytes);
             correctOptionBytes();
 
@@ -125,41 +96,21 @@ void FullUpdateOperation::nextStateLogic()
         restartDevice();
 
     } else if(operationState() == FullUpdateOperation::RestartingDevice) {
-        setOperationState(FullUpdateOperation::CleaningUp);
-        cleanupFiles();
-        advanceOperationState();
-
-    } else if(operationState() == FullUpdateOperation::CleaningUp) {
         finish();
     }
 }
 
 void FullUpdateOperation::fetchFirmware()
 {
-    deviceState()->setStatusString(QStringLiteral("Fetching application firmware..."));
-    const auto &fileInfo = m_versionInfo.fileInfo(QStringLiteral("full_dfu"), deviceState()->deviceInfo().target);
-    fetchFile(FileIndex::Firmware, fileInfo);
-}
+    m_helper = new FirmwareHelper(deviceState(), m_versionInfo, this);
 
-void FullUpdateOperation::fetchCore2Firmware()
-{
-    deviceState()->setStatusString(QStringLiteral("Fetching radio firmware..."));
-    const auto &fileInfo = m_versionInfo.fileInfo(QStringLiteral("core2_firmware_tgz"), QStringLiteral("any"));
-    fetchFile(FileIndex::Core2Tgz, fileInfo);
-}
-
-void FullUpdateOperation::fetchScripts()
-{
-    deviceState()->setStatusString(QStringLiteral("Fetching scripts..."));
-    const auto &fileInfo = m_versionInfo.fileInfo(QStringLiteral("scripts_tgz"), QStringLiteral("any"));
-    fetchFile(FileIndex::ScriptsTgz, fileInfo);
-}
-
-void FullUpdateOperation::fetchAssets()
-{
-    deviceState()->setStatusString(QStringLiteral("Fetching databases..."));
-    const auto &fileInfo = m_versionInfo.fileInfo(QStringLiteral("resources_tgz"), QStringLiteral("any"));
-    fetchFile(FileIndex::AssetsTgz, fileInfo);
+    connect(m_helper, &AbstractOperationHelper::finished, this, [=]() {
+        if(m_helper->isError()) {
+            finishWithError(QStringLiteral("Failed to fetch the files: %1").arg(m_helper->errorString()));
+        } else {
+            advanceOperationState();
+        }
+    });
 }
 
 void FullUpdateOperation::saveBackup()
@@ -172,88 +123,27 @@ void FullUpdateOperation::startRecovery()
     registerOperation(m_utility->startRecoveryMode());
 }
 
-void FullUpdateOperation::prepareRadioFirmware()
-{
-    deviceState()->setStatusString(QStringLiteral("Preparing radio firmware..."));
-    auto *helper = new RadioManifestHelper(m_files[FileIndex::Core2Tgz], this);
-
-    connect(helper, &AbstractOperationHelper::finished, this, [=]() {
-        helper->deleteLater();
-
-        if(helper->isError()) {
-            finishWithError(helper->errorString());
-            return;
-        }
-
-        const auto &newRadioVersion = helper->radioVersion();
-        const auto &currentRadioVersion = deviceState()->deviceInfo().radioVersion;
-
-        m_updateRadio = currentRadioVersion < newRadioVersion;
-
-        if(m_updateRadio) {
-            auto *file = tempDirs()->createTempFile();
-            m_files.insert(FileIndex::RadioFirmware, file);
-
-            if(!file->open(QIODevice::WriteOnly)) {
-                finishWithError(QStringLiteral("Failed to open temporary file: %1").arg(file->errorString()));
-                return;
-            } else if(file->write(helper->radioFirmwareData()) <= 0) {
-                finishWithError(QStringLiteral("Failed to write to temporary file: %1").arg(file->errorString()));
-                return;
-            } else {
-                file->close();
-            }
-        }
-
-        advanceOperationState();
-    });
-}
-
 void FullUpdateOperation::setBootMode()
 {
     registerOperation(m_recovery->setRecoveryBootMode());
 }
 
-void FullUpdateOperation::downloadRadioFirmware()
-{
-    registerOperation(m_recovery->downloadWirelessStack(m_files[FileIndex::RadioFirmware]));
-}
-
 void FullUpdateOperation::downloadFirmware()
 {
-    registerOperation(m_recovery->downloadFirmware(m_files[FileIndex::Firmware]));
+    auto *file = m_helper->file(FirmwareHelper::FileIndex::Firmware);
+    registerOperation(m_recovery->downloadFirmware(file));
 }
 
-void FullUpdateOperation::prepareOptionBytes()
+void FullUpdateOperation::downloadRadioFirmware()
 {
-    deviceState()->setStatusString(QStringLiteral("Preparing scripts..."));
-    auto *helper = new ScriptsHelper(m_files[FileIndex::ScriptsTgz], this);
-
-    connect(helper, &AbstractOperationHelper::finished, this, [=]() {
-        helper->deleteLater();
-
-        if(helper->isError()) {
-            finishWithError(helper->errorString());
-            return;
-        }
-
-        auto *file = tempDirs()->createTempFile();
-        m_files.insert(FileIndex::OptionBytes, file);
-
-        if(!file->open(QIODevice::WriteOnly)) {
-            finishWithError(QStringLiteral("Failed to open temporary file: %1").arg(file->errorString()));
-        } else if(file->write(helper->optionBytesData()) <= 0) {
-            finishWithError(QStringLiteral("Failed to write to temporary file: %1").arg(file->errorString()));
-        } else {
-            file->close();
-            advanceOperationState();
-        }
-    });
+    auto *file = m_helper->file(FirmwareHelper::FileIndex::RadioFirmware);
+    registerOperation(m_recovery->downloadWirelessStack(file));
 }
 
 void FullUpdateOperation::correctOptionBytes()
 {
-    registerOperation(m_recovery->fixOptionBytes(m_files[FileIndex::OptionBytes]));
+    auto *file = m_helper->file(FirmwareHelper::FileIndex::OptionBytes);
+    registerOperation(m_recovery->fixOptionBytes(file));
 }
 
 void FullUpdateOperation::exitRecovery()
@@ -263,7 +153,8 @@ void FullUpdateOperation::exitRecovery()
 
 void FullUpdateOperation::downloadAssets()
 {
-    registerOperation(m_utility->downloadAssets(m_files[FileIndex::AssetsTgz]));
+    auto *file = m_helper->file(FirmwareHelper::FileIndex::AssetsTgz);
+    registerOperation(m_utility->downloadAssets(file));
 }
 
 void FullUpdateOperation::restoreBackup()
@@ -274,36 +165,4 @@ void FullUpdateOperation::restoreBackup()
 void FullUpdateOperation::restartDevice()
 {
     registerOperation(m_utility->restartDevice());
-}
-
-void FullUpdateOperation::cleanupFiles()
-{
-    for(const auto &file : qAsConst(m_files)) {
-        file->remove();
-    }
-
-    m_files.clear();
-}
-
-void FullUpdateOperation::fetchFile(FileIndex index, const Updates::FileInfo &fileInfo)
-{
-    const auto fileName = QUrl(fileInfo.url()).fileName();
-
-    auto *file = tempDirs()->createFile(fileName, this);
-    auto *fetcher = new RemoteFileFetcher(fileInfo, file, this);
-
-    if(fetcher->isError()) {
-        finishWithError(QStringLiteral("Failed to fetch file: %1").arg(fetcher->errorString()));
-        return;
-    }
-
-    connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
-        m_files.insert(index, file);
-
-        if(fetcher->isError()) {
-            finishWithError(QStringLiteral("Failed to fetch file: %1").arg(fetcher->errorString()));
-        } else {
-            advanceOperationState();
-        }
-    });
 }

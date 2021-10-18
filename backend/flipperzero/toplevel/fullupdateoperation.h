@@ -10,6 +10,7 @@
 namespace Flipper {
 namespace Zero {
 
+class FirmwareHelper;
 class UtilityInterface;
 class RecoveryInterface;
 
@@ -19,11 +20,6 @@ class FullUpdateOperation : public AbstractTopLevelOperation
 
     enum OperationState {
         FetchingFirmware = AbstractOperation::User,
-        FetchingCore2Firmware,
-        PreparingRadioFirmware,
-        FetchingScripts,
-        PreparingOptionBytes,
-        FetchingAssets,
         SavingBackup,
         StartingRecovery,
         SettingBootMode,
@@ -33,25 +29,11 @@ class FullUpdateOperation : public AbstractTopLevelOperation
         ExitingRecovery,
         DownloadingAssets,
         RestoringBackup,
-        RestartingDevice,
-        CleaningUp
+        RestartingDevice
     };
-
-    enum class FileIndex {
-        Firmware,
-        Core2Tgz,
-        ScriptsTgz,
-        AssetsTgz,
-        RadioFirmware,
-        OptionBytes
-    };
-
-    using FileDict = QMap<FileIndex, QFile*>;
 
 public:
     FullUpdateOperation(RecoveryInterface *recovery, UtilityInterface *utility, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent = nullptr);
-    ~FullUpdateOperation();
-
     const QString description() const override;
 
 private slots:
@@ -59,11 +41,6 @@ private slots:
 
 private:
     void fetchFirmware();
-    void fetchCore2Firmware();
-    void prepareRadioFirmware();
-    void fetchScripts();
-    void prepareOptionBytes();
-    void fetchAssets();
     void saveBackup();
     void startRecovery();
     void setBootMode();
@@ -74,16 +51,12 @@ private:
     void downloadAssets();
     void restoreBackup();
     void restartDevice();
-    void cleanupFiles();
-
-    void fetchFile(FileIndex index, const Updates::FileInfo &fileInfo);
 
     RecoveryInterface *m_recovery;
     UtilityInterface *m_utility;
-    Updates::VersionInfo m_versionInfo;
+    FirmwareHelper *m_helper;
 
-    FileDict m_files;
-    bool m_updateRadio;
+    Updates::VersionInfo m_versionInfo;
 };
 
 }

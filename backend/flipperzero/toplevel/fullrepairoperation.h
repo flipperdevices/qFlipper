@@ -1,15 +1,13 @@
 #pragma once
 
 #include "abstracttopleveloperation.h"
-
-#include <QMap>
-#include <QFile>
-
 #include "flipperupdates.h"
 
 namespace Flipper {
 namespace Zero {
 
+class FirmwareHelper;
+class UtilityInterface;
 class RecoveryInterface;
 
 class FullRepairOperation : public AbstractTopLevelOperation
@@ -18,31 +16,15 @@ class FullRepairOperation : public AbstractTopLevelOperation
 
     enum OperationState {
         FetchingFirmware = AbstractOperation::User,
-        FetchingCore2Firmware,
-        PreparingRadioFirmware,
-        FetchingScripts,
-        PreparingOptionBytes,
         SettingBootMode,
         DownloadingRadioFirmware,
         DownloadingFirmware,
         CorrectingOptionBytes,
-        CleaningUp
+        DownloadingAssets
     };
-
-    enum class FileIndex {
-        Firmware,
-        Core2Tgz,
-        ScriptsTgz,
-        RadioFirmware,
-        OptionBytes
-    };
-
-    using FileDict = QMap<FileIndex, QFile*>;
 
 public:
-    FullRepairOperation(RecoveryInterface *recovery, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent = nullptr);
-    ~FullRepairOperation();
-
+    FullRepairOperation(RecoveryInterface *recovery, UtilityInterface *utility, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:
@@ -50,22 +32,17 @@ private slots:
 
 private:
     void fetchFirmware();
-    void fetchCore2Firmware();
-    void prepareRadioFirmware();
-    void fetchScripts();
-    void prepareOptionBytes();
     void setBootMode();
     void downloadRadioFirmware();
     void downloadFirmware();
     void correctOptionBytes();
-    void cleanupFiles();
-
-    void fetchFile(FileIndex index, const Updates::FileInfo &fileInfo);
+    void downloadAssets();
 
     RecoveryInterface *m_recovery;
-    Updates::VersionInfo m_versionInfo;
+    UtilityInterface *m_utility;
+    FirmwareHelper *m_helper;
 
-    FileDict m_files;
+    Updates::VersionInfo m_versionInfo;
 };
 
 }

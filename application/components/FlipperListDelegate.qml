@@ -154,10 +154,6 @@ Item {
             enabled: firmwareUpdates.isReady
         }
 
-//        MenuItem {
-//            text: qsTr("Update from local file...")
-////            onTriggered: localUpdateRequested(device)
-//        }
 
         MenuSeparator {}
 
@@ -172,26 +168,19 @@ Item {
         Menu {
             title: qsTr("Expert options")
 
+        MenuItem {
+            text: qsTr("Update Main firmware...")
+//            onTriggered: localUpdateRequested(device)
+        }
             MenuItem {
-                text: qsTr("Update Wireless stack...")
+                text: qsTr("Update Radio firmware...")
                 onTriggered: localRadioUpdateRequested(device)
             }
 
-//            MenuItem {
-//                text: qsTr("Update FUS...")
-////                onTriggered: localFUSUpdateRequested(device)
-//            }
-
-//            MenuItem {
-//                text: qsTr("Fix Option Bytes...")
-////                onTriggered: fixOptionBytesRequested(device)
-//            }
-
-//            MenuItem {
-//                text: qsTr("Fix boot issues")
-////                onTriggered: fixBootRequested(device)
-//                enabled: device.state.isRecoveryMode
-//            }
+            MenuItem {
+                text: qsTr("Update FUS (not recommended)...")
+//                onTriggered: localFUSUpdateRequested(device)
+            }
         }
     }
 }

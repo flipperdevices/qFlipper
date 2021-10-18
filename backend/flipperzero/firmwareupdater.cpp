@@ -35,7 +35,7 @@ void FirmwareUpdater::fullRepair(const Updates::VersionInfo &versionInfo)
         return;
     }
 
-    auto *operation = new FullRepairOperation(m_recovery, m_state, versionInfo, this);
+    auto *operation = new FullRepairOperation(m_recovery, m_utility, m_state, versionInfo, this);
     enqueueOperation(operation);
 }
 
