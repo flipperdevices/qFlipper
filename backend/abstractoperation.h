@@ -37,7 +37,7 @@ protected:
     void setOperationState(int state);
     void finishWithError(const QString &errorMsg);
 
-    void startTimeout(int msec = 5000);
+    void startTimeout(int msec = 10000);
     void stopTimeout();
 
 private:

@@ -46,10 +46,9 @@ FirmwareDownloadOperation *RecoveryInterface::downloadFirmware(QIODevice *file)
     return operation;
 }
 
-WirelessStackDownloadOperation *RecoveryInterface::downloadFUS(QIODevice *file)
+WirelessStackDownloadOperation *RecoveryInterface::downloadFUS(QIODevice *file, uint32_t address)
 {
-    // TODO: allow for different FUS addresses
-    auto *operation = new WirelessStackDownloadOperation(m_recovery, file, 0x080ec000, this);
+    auto *operation = new WirelessStackDownloadOperation(m_recovery, file, address, this);
     enqueueOperation(operation);
     return operation;
 }

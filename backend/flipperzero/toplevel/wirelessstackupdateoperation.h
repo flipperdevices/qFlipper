@@ -3,7 +3,6 @@
 #include "abstracttopleveloperation.h"
 
 class QFile;
-class QIODevice;
 
 namespace Flipper {
 namespace Zero {
@@ -11,43 +10,59 @@ namespace Zero {
 class UtilityInterface;
 class RecoveryInterface;
 
-class WirelessStackUpdateOperation : public AbstractTopLevelOperation
+class AbstractCore2UpdateOperation : public AbstractTopLevelOperation
 {
     Q_OBJECT
 
     enum OperationState {
-        ExtractingBundle = AbstractOperation::User,
-        ReadingFirmware,
-        StartingRecovery,
+        StartingRecovery = AbstractOperation::User,
         SettingRecoveryBootMode,
         UpdatingWirelessStack,
         SettingOSBootMode
     };
 
 public:
-    WirelessStackUpdateOperation(RecoveryInterface *recovery, UtilityInterface *utility, DeviceState *state, const QString &filePath, QObject *parent = nullptr);
-    const QString description() const override;
+    AbstractCore2UpdateOperation(RecoveryInterface *recovery, UtilityInterface *utility, DeviceState *state, const QString &filePath, QObject *parent = nullptr);
 
 private slots:
     void nextStateLogic() override;
 
 private:
-    void extractBundle();
-    void readFirmware();
+    virtual void updateCore2Firmware() = 0;
+
     void startRecoveryMode();
     void setRecoveryBootMode();
-    void updateWirelessStack();
     void setOSBootMode();
-    void cleanup();
 
+protected:
     RecoveryInterface *m_recovery;
     UtilityInterface *m_utility;
+    QFile *m_file;
+};
 
-    QFile *m_compressedFile;
-    QFile *m_uncompressedFile;
+class WirelessStackUpdateOperation : public AbstractCore2UpdateOperation
+{
+    Q_OBJECT
 
-    QIODevice *m_fusFile;
-    QIODevice *m_radioFile;
+public:
+    WirelessStackUpdateOperation(RecoveryInterface *recovery, UtilityInterface *utility, DeviceState *state, const QString &filePath, QObject *parent = nullptr);
+    const QString description() const override;
+
+private:
+    void updateCore2Firmware() override;
+};
+
+class FUSUpdateOperation : public AbstractCore2UpdateOperation
+{
+    Q_OBJECT
+
+public:
+    FUSUpdateOperation(RecoveryInterface *recovery, UtilityInterface *utility, DeviceState *state, const QString &filePath, uint32_t address, QObject *parent = nullptr);
+    const QString description() const override;
+
+private:
+    void updateCore2Firmware() override;
+    uint32_t m_address;
 };
 
 }

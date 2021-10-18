@@ -166,20 +166,20 @@ Item {
         MenuSeparator {}
 
         Menu {
-            title: qsTr("Expert options")
+            title: qsTr("Install from file")
 
         MenuItem {
-            text: qsTr("Update Main firmware...")
-//            onTriggered: localUpdateRequested(device)
+            text: qsTr("Application firmware...")
+            onTriggered: localUpdateRequested(device)
         }
             MenuItem {
-                text: qsTr("Update Radio firmware...")
+                text: qsTr("Wireless stack...")
                 onTriggered: localRadioUpdateRequested(device)
             }
 
             MenuItem {
-                text: qsTr("Update FUS (not recommended)...")
-//                onTriggered: localFUSUpdateRequested(device)
+                text: qsTr("FUS (not recommended)...")
+                onTriggered: localFUSUpdateRequested(device)
             }
         }
     }

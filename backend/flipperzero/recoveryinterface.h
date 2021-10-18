@@ -31,7 +31,7 @@ public:
 
     FirmwareDownloadOperation *downloadFirmware(QIODevice *file);
 
-    WirelessStackDownloadOperation *downloadFUS(QIODevice *file);
+    WirelessStackDownloadOperation *downloadFUS(QIODevice *file, uint32_t address);
     WirelessStackDownloadOperation *downloadWirelessStack(QIODevice *file);
 
     FixBootIssuesOperation *fixBootIssues();

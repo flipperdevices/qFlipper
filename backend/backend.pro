@@ -15,7 +15,6 @@ SOURCES += \
     abstractserialoperation.cpp \
     deviceregistry.cpp \
     filenode.cpp \
-    firmwaredownloader.cpp \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
     flipperzero/cli/dfuoperation.cpp \
@@ -49,6 +48,7 @@ SOURCES += \
     flipperzero/cli/writeoperation.cpp \
     flipperzero/screenstreamer.cpp \
     flipperzero/toplevel/abstracttopleveloperation.cpp \
+    flipperzero/toplevel/firmwareupdateoperation.cpp \
     flipperzero/toplevel/fullrepairoperation.cpp \
     flipperzero/toplevel/fullupdateoperation.cpp \
     flipperzero/toplevel/wirelessstackupdateoperation.cpp \
@@ -80,7 +80,6 @@ HEADERS += \
     failable.h \
     fileinfo.h \
     filenode.h \
-    firmwaredownloader.h \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
     flipperzero/cli/dfuoperation.h \
@@ -115,6 +114,7 @@ HEADERS += \
     flipperzero/cli/writeoperation.h \
     flipperzero/screenstreamer.h \
     flipperzero/toplevel/abstracttopleveloperation.h \
+    flipperzero/toplevel/firmwareupdateoperation.h \
     flipperzero/toplevel/fullrepairoperation.h \
     flipperzero/toplevel/fullupdateoperation.h \
     flipperzero/toplevel/wirelessstackupdateoperation.h \

@@ -5,8 +5,10 @@
 #include "utilityinterface.h"
 
 #include "toplevel/wirelessstackupdateoperation.h"
+#include "toplevel/firmwareupdateoperation.h"
 #include "toplevel/fullrepairoperation.h"
 #include "toplevel/fullupdateoperation.h"
+
 #include "preferences.h"
 
 using namespace Flipper;
@@ -41,14 +43,13 @@ void FirmwareUpdater::fullRepair(const Updates::VersionInfo &versionInfo)
 
 void FirmwareUpdater::localFirmwareUpdate(const QUrl &fileUrl)
 {
-    Q_UNUSED(fileUrl)
-    qDebug() << "Not implemented yet";
+    enqueueOperation(new FirmwareUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
 }
 
 void FirmwareUpdater::localFUSUpdate(const QUrl &fileUrl)
 {
-    Q_UNUSED(fileUrl)
-    qDebug() << "Not implemented yet";
+    //TODO: User-settable address
+    enqueueOperation(new FUSUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), 0x080EC000, this));
 }
 
 void FirmwareUpdater::localWirelessStackUpdate(const QUrl &fileUrl)
