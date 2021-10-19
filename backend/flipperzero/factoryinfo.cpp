@@ -3,7 +3,6 @@
 #include <QRegExp>
 #include "macros.h"
 
-#define FACTORYINFO_SIZE 24
 #define FACTORYINFO_NAME_SIZE 8
 #define FACTORYINFO_V1_MAGIC 0xbabe
 
@@ -22,11 +21,15 @@ struct OTPV0 {
     const char name[FACTORYINFO_NAME_SIZE];
 };
 
-struct OTPV1 {
+struct OTPHeader {
     const uint16_t magic;
     const uint8_t format;
-    const uint8_t reserved1;
+    const uint8_t reserved;
     const uint32_t timestamp;
+};
+
+struct OTPV1 {
+    const OTPHeader header;
 
     const uint8_t version;
     const uint8_t target;
@@ -34,15 +37,37 @@ struct OTPV1 {
     const uint8_t connect;
     const uint8_t color;
     const uint8_t region;
+    const uint16_t reserved;
+
+    const char name[FACTORYINFO_NAME_SIZE];
+};
+
+struct OTPV2 {
+    const OTPHeader header;
+
+    const uint8_t version;
+    const uint8_t target;
+    const uint8_t body;
+    const uint8_t connect;
+    const uint8_t display;
+    const uint8_t reserved1;
     const uint16_t reserved2;
+
+    const uint8_t color;
+    const uint8_t region;
+    const uint16_t reserved3;
+    const uint32_t reserved4;
 
     const char name[FACTORYINFO_NAME_SIZE];
 };
 
 #pragma pack(pop)
 
-static_assert(sizeof(OTPV0) == 16, "Check struct packing for OTPV0");
-static_assert(sizeof(OTPV1) == 24, "Check struct packing for OTPV1");
+static_assert(sizeof(OTPV0) == 16, "Check struct packing for OTPv0");
+static_assert(sizeof(OTPV1) == 24, "Check struct packing for OTPv1");
+static_assert(sizeof(OTPV2) == 32, "Check struct packing for OTPv2");
+
+#define FACTORYINFO_SIZE (sizeof(OTPV2))
 
 FactoryInfo::FactoryInfo(const QByteArray &data):
     m_isValid(false),
@@ -53,8 +78,19 @@ FactoryInfo::FactoryInfo(const QByteArray &data):
     check_return_void(data.size() == FACTORYINFO_SIZE, "Bad data size");
     check_return_void(data != QByteArray(FACTORYINFO_SIZE, '\xff'), "Data seems to be unprogrammed");
 
-    if(*((uint16_t*)data.data()) == FACTORYINFO_V1_MAGIC) {
-        parseV1(data);
+    auto *header = (OTPHeader*)(data.data());
+
+    if(header->magic == FACTORYINFO_V1_MAGIC) {
+
+        if(header->format == 1) {
+            parseV1(data);
+        } else if(header->format == 2) {
+            parseV2(data);
+        } else {
+            error_msg("Unsupported OTP version");
+            return;
+        }
+
     } else {
         parseV0(data);
     }
@@ -144,10 +180,26 @@ void FactoryInfo::parseV1(const QByteArray &data)
     m_target = otp->target;
     m_body = otp->body;
     m_connect = otp->connect;
-    m_date = otp->timestamp;
+    m_date = otp->header.timestamp;
     m_name = QString::fromLatin1(otp->name, (int)strnLen(otp->name, FACTORYINFO_NAME_SIZE));
 
-    m_format = otp->format;
+    m_format = otp->header.format;
+    m_color = (Color)otp->color;
+    m_region = (Region)otp->region;
+}
+
+void FactoryInfo::parseV2(const QByteArray &data)
+{
+    const auto *otp = (OTPV2*)(data.data());
+
+    m_version = otp->version;
+    m_target = otp->target;
+    m_body = otp->body;
+    m_connect = otp->connect;
+    m_date = otp->header.timestamp;
+    m_name = QString::fromLatin1(otp->name, (int)strnLen(otp->name, FACTORYINFO_NAME_SIZE));
+
+    m_format = otp->header.format;
     m_color = (Color)otp->color;
     m_region = (Region)otp->region;
 }

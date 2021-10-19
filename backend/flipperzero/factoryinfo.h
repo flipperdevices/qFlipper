@@ -44,6 +44,7 @@ private:
 
     void parseV0(const QByteArray &data);
     void parseV1(const QByteArray &data);
+    void parseV2(const QByteArray &data);
 
     bool m_isValid;
 
