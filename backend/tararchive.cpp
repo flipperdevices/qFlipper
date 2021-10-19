@@ -39,8 +39,15 @@ TarArchive::TarArchive(QIODevice *file):
     m_tarFile(file),
     m_root(new FileNode("", FileNode::Type::Directory))
 {
-    buildIndex();
+    if(!m_tarFile->open(QIODevice::ReadOnly)) {
+        setError(m_tarFile->errorString());
+    } else {
+        buildIndex();
+    }
 }
+
+TarArchive::~TarArchive()
+{}
 
 FileNode *TarArchive::file(const QString &fullName)
 {
@@ -51,6 +58,10 @@ QByteArray TarArchive::fileData(const QString &fullName)
 {
     if(!m_tarFile) {
         setError(QStringLiteral("Archive file not set"));
+        return QByteArray();
+
+    } else if(!m_tarFile->isOpen()) {
+        setError(QStringLiteral("Archive file is not open"));
         return QByteArray();
     }
 

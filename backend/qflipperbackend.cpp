@@ -1,9 +1,13 @@
 #include "qflipperbackend.h"
 
+#include "preferences.h"
+#include "flipperupdates.h"
+
 #include "flipperzero/flipperzero.h"
+#include "flipperzero/devicestate.h"
 #include "flipperzero/assetmanifest.h"
-#include "flipperzero/remotecontroller.h"
-#include "flipperzero/recoverycontroller.h"
+#include "flipperzero/firmwareupdater.h"
+#include "flipperzero/screenstreamer.h"
 
 #include "macros.h"
 
@@ -13,11 +17,14 @@ QFlipperBackend::QFlipperBackend():
     firmwareUpdates("https://update.flipperzero.one/firmware/directory.json"),
     applicationUpdates("https://update.flipperzero.one/qFlipper/directory.json")
 {
+    qRegisterMetaType<Preferences*>("Preferences*");
     qRegisterMetaType<Flipper::Updates::FileInfo>("Flipper::Updates::FileInfo");
     qRegisterMetaType<Flipper::Updates::VersionInfo>("Flipper::Updates::VersionInfo");
     qRegisterMetaType<Flipper::Updates::ChannelInfo>("Flipper::Updates::ChannelInfo");
-    qRegisterMetaType<Flipper::Zero::RemoteController*>("Flipper::Zero::RemoteController*");
-    qRegisterMetaType<Flipper::Zero::RecoveryController*>("Flipper::Zero::RecoveryController*");
+
+    qRegisterMetaType<Flipper::Zero::DeviceState*>("Flipper::Zero::DeviceState*");
+    qRegisterMetaType<Flipper::Zero::FirmwareUpdater*>("Flipper::Zero::FirmwareUpdater*");
+    qRegisterMetaType<Flipper::Zero::ScreenStreamer*>("Flipper::Zero::ScreenStreamer*");
 
     qRegisterMetaType<Flipper::Zero::AssetManifest::FileInfo>();
     QMetaType::registerComparators<Flipper::Zero::AssetManifest::FileInfo>();

@@ -11,7 +11,7 @@ class AbstractOperation: public QObject, public Failable
     Q_OBJECT
 
 public:
-    enum BasicState {
+    enum BasicOperationState {
         Ready = 0,
         Finished,
         User
@@ -22,9 +22,10 @@ public:
 
     virtual const QString description() const = 0;
     virtual void start() = 0;
-    virtual void finish() = 0;
+    virtual void finish();
 
-    int state() const;
+    int operationState() const;
+
 signals:
     void started();
     void finished();
@@ -33,13 +34,13 @@ protected slots:
     virtual void onOperationTimeout();
 
 protected:
-    void setState(int state);
+    void setOperationState(int state);
     void finishWithError(const QString &errorMsg);
 
-    void startTimeout(int msec = 5000);
+    void startTimeout(int msec = 10000);
     void stopTimeout();
 
 private:
     QTimer *m_timeout;
-    int m_state;
+    int m_operationState;
 };

@@ -19,6 +19,7 @@ public:
 
     TarArchive();
     TarArchive(QIODevice *file);
+    virtual ~TarArchive();
 
     FileNode *file(const QString &fullName);
     QByteArray fileData(const QString &fullName);

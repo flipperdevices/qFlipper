@@ -19,5 +19,7 @@
         <file>assets/arrow-down.svg</file>
         <file>assets/symbol-back.svg</file>
         <file>components/StyledRoundButton.qml</file>
+        <file>screens/prefscreen.qml</file>
+        <file>assets/symbol-gear.svg</file>
     </qresource>
 </RCC>

@@ -3,19 +3,15 @@ import QtQuick.Controls 2.12
 
 Item {
     signal updateRequested(var device)
-    signal localUpdateRequested(var device)
-    signal localRadioUpdateRequested(var device)
-    signal localFUSUpdateRequested(var device)
-    signal localAssetsUpdateRequested(var device)
-
-    signal fixOptionBytesRequested(var device)
-    signal fixBootRequested(var device)
 
     signal versionListRequested(var device)
     signal screenStreamRequested(var device)
 
-    signal backupRequested(var device)
-    signal restoreRequested(var device)
+    signal localUpdateRequested(var device)
+    signal localRadioUpdateRequested(var device)
+    signal localFUSUpdateRequested(var device)
+
+    signal fixBootRequested(var device)
 
     id: item
     width: parent.width
@@ -25,21 +21,21 @@ Item {
         id: progressBar
         anchors.fill: parent
         anchors.margins: frame.border.width
-        value: device.progress
+        value: device.state.progress
     }
 
     Rectangle {
         id: frame
         radius: 6
         anchors.fill: parent
-        color: device.isError ? "#3a0000" : "transparent"
-        border.color: device.isError ? "#d32a34" : "white"
+        color: device.state.isError ? "#3a0000" : "transparent"
+        border.color: device.state.isError ? "#d32a34" : "white"
         border.width: 1
     }
 
     Text {
         id: modelLabel
-        text: device.model
+        text: device.state.model
         color: "darkgray"
         font.pixelSize: 13
         anchors.verticalCenter: parent.verticalCenter
@@ -49,7 +45,7 @@ Item {
 
     Rectangle {
         id: nameLabel
-        color: device.isError ? "#d32a34" : (device.isDFU ? "#0345ff" : "darkorange")
+        color: device.state.isError ? "#d32a34" : (device.state.isRecoveryMode ? "#0345ff" : "darkorange")
         width: 100
         height: 30
 
@@ -60,7 +56,7 @@ Item {
         anchors.leftMargin: 10
 
         Text {
-            text: device.name
+            text: device.state.name
             color: "black"
             font.pixelSize: 16
             font.bold: true
@@ -79,7 +75,7 @@ Item {
         anchors.rightMargin: 25
         anchors.verticalCenter: parent.verticalCenter
 
-        enabled: !device.isPersistent && !device.isError
+        enabled: !device.state.isPersistent && !device.state.isError
 
         onClicked: actionMenu.open()
     }
@@ -87,36 +83,23 @@ Item {
     StyledButton {
         id: updateButton
         text: {
-            if(firmwareUpdates.channelNames.length === 0) {
+            if(!firmwareUpdates.isReady) {
                 return qsTr("Error");
-            } else if(device.isDFU || (device.version === "N/A")) {
+            } else if(device.state.isRecoveryMode) {
                 return qsTr("Repair");
-            }
-
-            const channelName = "release";
-            const latestVersion = firmwareUpdates.channel(channelName).latestVersion;
-
-            if(latestVersion.number === device.version) {
-                return qsTr("Reinstall");
-            } else if((latestVersion.number > device.version) || (device.version.includes(latestVersion.number))) {
+            } else if(device.updater.canChangeChannel(firmwareUpdates.latestVersion)) {
+                return qsTr("Change");
+            } else if(device.updater.canUpdate(firmwareUpdates.latestVersion)) {
                 return qsTr("Update");
-            } else {
+            } else if(device.updater.canRollback(firmwareUpdates.latestVersion)) {
                 return qsTr("Rollback");
+            } else {
+                return qsTr("Reinstall");
             }
         }
 
-        suggested: {
-            if(device.isDFU || (firmwareUpdates.channelNames.length === 0)) {
-                return false;
-            }
-
-            const channelName = "release";
-            const latestVersion = firmwareUpdates.channel(channelName).latestVersion;
-
-            return (latestVersion.number > device.version) || ((latestVersion.number !== device.version) && (device.version.includes(latestVersion.number)));
-        }
-
-        visible: (firmwareUpdates.channelNames.length > 0) && !(device.isPersistent || device.isError)
+        suggested: device.state.isRecoveryMode ? false : device.updater.canUpdate(firmwareUpdates.latestVersion)
+        visible: firmwareUpdates.isReady && !(device.state.isPersistent || device.state.isError)
 
         anchors.right: menuButton.left
         anchors.rightMargin: 10
@@ -127,8 +110,8 @@ Item {
 
     Text {
         id: versionLabel
-        visible: !(messageLabel.visible || device.isDFU)
-        text: qsTr("version ") + device.version
+        visible: !(messageLabel.visible || device.state.isRecoveryMode)
+        text: qsTr("version ") + device.state.version
         font.pixelSize: 13
 
         anchors.left: nameLabel.right
@@ -140,9 +123,9 @@ Item {
 
     Text {
         id: messageLabel
-        text: device.isError ? device.errorString : device.messageString
-        visible: device.isPersistent || device.isError
-        color: device.isError ? "#ddd" : "white"
+        text: device.state.isError ? device.state.errorString : device.state.statusString
+        visible: device.state.isPersistent || device.state.isError
+        color: device.state.isError ? "#ddd" : "white"
 
         font.pixelSize: 13
 
@@ -168,65 +151,35 @@ Item {
         MenuItem {
             text: qsTr("Other versions...")
             onTriggered: versionListRequested(device)
-            enabled: firmwareUpdates.channelNames.length > 0
+            enabled: firmwareUpdates.isReady
         }
 
-        MenuItem {
-            text: qsTr("Update from local file...")
-            onTriggered: localUpdateRequested(device)
-        }
 
         MenuSeparator {}
 
         MenuItem {
             text: qsTr("Screen Streaming...")
             onTriggered: screenStreamRequested(device)
-            enabled: !device.isDFU
+            enabled: !device.state.isRecoveryMode
         }
 
         MenuSeparator {}
 
         Menu {
-            title: qsTr("Backup && Restore")
+            title: qsTr("Install from file")
 
-            MenuItem {
-                text: qsTr("Backup User Data...")
-                onTriggered: backupRequested(device)
-            }
-
-            MenuItem {
-                text: qsTr("Restore User Data...")
-                onTriggered: restoreRequested(device)
-            }
+        MenuItem {
+            text: qsTr("Application firmware...")
+            onTriggered: localUpdateRequested(device)
         }
-
-        Menu {
-            title: qsTr("Expert options")
-
             MenuItem {
-                text: qsTr("Update Databases...")
-                onTriggered: localAssetsUpdateRequested(device)
-            }
-
-            MenuItem {
-                text: qsTr("Update Wireless stack...")
+                text: qsTr("Wireless stack...")
                 onTriggered: localRadioUpdateRequested(device)
             }
 
             MenuItem {
-                text: qsTr("Update FUS...")
+                text: qsTr("FUS (not recommended)...")
                 onTriggered: localFUSUpdateRequested(device)
-            }
-
-            MenuItem {
-                text: qsTr("Fix Option Bytes...")
-                onTriggered: fixOptionBytesRequested(device)
-            }
-
-            MenuItem {
-                text: qsTr("Fix boot issues")
-                onTriggered: fixBootRequested(device)
-                enabled: device.isDFU
             }
         }
     }

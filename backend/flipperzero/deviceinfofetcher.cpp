@@ -4,7 +4,7 @@
 #include <QBuffer>
 #include <QSerialPort>
 
-#include "common/skipmotdoperation.h"
+#include "cli/skipmotdoperation.h"
 #include "device/stm32wb55.h"
 #include "serialfinder.h"
 #include "factoryinfo.h"
@@ -110,7 +110,12 @@ void VCPDeviceInfoFetcher::onSerialPortReadyRead()
 
     if(m_receivedData.endsWith(PROMPT_READY)) {
         parseReceivedData();
-        finish();
+
+        if(m_deviceInfo.name.isEmpty()) {
+            finishWithError(QStringLiteral("Failed to read device factory information"));
+        } else {
+            finish();
+        }
     }
 }
 
@@ -139,6 +144,9 @@ void VCPDeviceInfoFetcher::parseReceivedData()
         return;
     }
 
+    m_deviceInfo.fusVersion = QStringLiteral("0.0.0");
+    m_deviceInfo.radioVersion = QStringLiteral("0.0.0");
+
     while(buf.canReadLine()) {
         parseLine(buf.readLine());
     }
@@ -154,20 +162,51 @@ void VCPDeviceInfoFetcher::parseLine(const QByteArray &line)
     }
 
     const auto validx = line.indexOf(':');
+    const auto key = line.left(validx).trimmed();
     const auto value = line.mid(validx + 1).trimmed();
 
-    if(line.startsWith(QByteArrayLiteral("hardware_name"))) {
+    if(key == QByteArrayLiteral("hardware_name")) {
         m_deviceInfo.name = value;
-    } else if(line.startsWith(QByteArrayLiteral("hardware_target"))) {
+    } else if(key == QByteArrayLiteral("hardware_target")) {
         m_deviceInfo.target = QStringLiteral("f") + value;
-    } else if(line.startsWith(QByteArrayLiteral("firmware_version"))) {
+    } else if(key == QByteArrayLiteral("firmware_version")) {
         m_deviceInfo.firmware.version = value;
-    } else if(line.startsWith(QByteArrayLiteral("firmware_commit"))) {
+    } else if(key == QByteArrayLiteral("firmware_commit")) {
         m_deviceInfo.firmware.commit = value;
-    } else if(line.startsWith(QByteArrayLiteral("firmware_branch"))) {
+    } else if(key == QByteArrayLiteral("firmware_branch")) {
         m_deviceInfo.firmware.branch = value;
-    } else if(line.startsWith(QByteArrayLiteral("firmware_build_date"))) {
+    } else if(key == QByteArrayLiteral("firmware_build_date")) {
         m_deviceInfo.firmware.date = QDateTime::fromString(value, QStringLiteral("dd-MM-yyyy"));
+
+    } else if(key == QByteArrayLiteral("radio_stack_major")) {
+        auto fields = m_deviceInfo.radioVersion.split('.');
+        fields.replace(0, value);
+        m_deviceInfo.radioVersion = fields.join('.');
+
+    } else if(key == QByteArrayLiteral("radio_stack_minor")) {
+        auto fields = m_deviceInfo.radioVersion.split('.');
+        fields.replace(1, value);
+        m_deviceInfo.radioVersion = fields.join('.');
+
+    } else if(key == QByteArrayLiteral("radio_stack_sub")) {
+        auto fields = m_deviceInfo.radioVersion.split('.');
+        fields.replace(2, value);
+        m_deviceInfo.radioVersion = fields.join('.');
+
+    } else if(key == QByteArrayLiteral("radio_fus_major")) {
+        auto fields = m_deviceInfo.fusVersion.split('.');
+        fields.replace(0, value);
+        m_deviceInfo.fusVersion = fields.join('.');
+
+    } else if(key == QByteArrayLiteral("radio_fus_minor")) {
+        auto fields = m_deviceInfo.fusVersion.split('.');
+        fields.replace(1, value);
+        m_deviceInfo.fusVersion = fields.join('.');
+
+    } else if(key == QByteArrayLiteral("radio_fus_sub")) {
+        auto fields = m_deviceInfo.fusVersion.split('.');
+        fields.replace(2, value);
+        m_deviceInfo.fusVersion = fields.join('.');
     } else {}
 }
 

@@ -12,6 +12,7 @@ Item {
 
     signal versionsRequested(var device)
     signal streamRequested(var device)
+    signal prefsRequested()
 
     readonly property string channelName: "development" //TODO move this property into application settings
     readonly property bool hasUpdates: {
@@ -118,112 +119,73 @@ Item {
 
         delegate: FlipperListDelegate {
             onUpdateRequested: {
-                const channelName = "release";
-                const latestVersion = firmwareUpdates.channel(channelName).latestVersion;
+                const channelName = preferences.updateChannel;
+                const latestVersion = firmwareUpdates.latestVersion;
 
-                const messageObj = {
-                    title : qsTr("Install version %1?").arg(latestVersion.number),
-                    subtitle : qsTr("This will install the latest available %1 version.").arg(channelName.toUpperCase())
-                };
+                let messageObj, actionFunc;
 
-                confirmationDialog.openWithMessage(function() {
-                    downloader.downloadRemoteFile(device, latestVersion);
-                }, messageObj);
+                if(device.state.isRecoveryMode) {
+                    messageObj = {
+                        title : qsTr("Repair device with version %1?").arg(latestVersion.number),
+                        subtitle : qsTr("WARNING! This will fully erase the contents of internal storage.")
+                    };
+
+                    actionFunc = function() {
+                        device.updater.fullRepair(latestVersion);
+                    }
+
+                } else {
+                    messageObj = {
+                        title : qsTr("Install version %1?").arg(latestVersion.number),
+                        subtitle : qsTr("This will install the latest available %1 version.").arg(channelName.toUpperCase())
+                    };
+
+                    actionFunc = function() {
+                        device.updater.fullUpdate(latestVersion);
+                    }
+                }
+
+                confirmationDialog.openWithMessage(actionFunc, messageObj);
             }
 
             onVersionListRequested: {
-                screen.versionsRequested(device)
+                screen.versionsRequested(device);
             }
 
             onScreenStreamRequested: {
-                screen.streamRequested(device)
+                screen.streamRequested(device);
             }
 
             onLocalUpdateRequested: {
                 const messageObj = {
-                    title : qsTr("Install update from the file?"),
-                    subtitle : qsTr("Caution: this may brick your device.")
+                    title : qsTr("Install update from a file?"),
+                    subtitle : qsTr("Caution: this may brick your device.<br/>User settings will NOT be saved.")
                 };
 
                 fileDialog.openWithConfirmation(["Firmware files (*.dfu)", "All files (*)"], function() {
-                    downloader.downloadLocalFile(device, fileDialog.fileUrl);
-                }, messageObj);
-            }
-
-            onBackupRequested: {
-                const messageObj = {
-                    title : qsTr("Backup user data?"),
-                    subtitle : qsTr("This will backup the contents of internal storage.")
-                };
-
-                dirDialog.openWithConfirmation(function() {
-                    downloader.backupUserData(device, dirDialog.fileUrl);
-                }, messageObj);
-            }
-
-            onRestoreRequested: {
-                const messageObj = {
-                    title : qsTr("Restore user data?"),
-                    subtitle : qsTr("This will restore the contents of internal storage.")
-                };
-
-                dirDialog.openWithConfirmation(function() {
-                    downloader.restoreUserData(device, dirDialog.fileUrl);
-                }, messageObj);
-            }
-
-            onLocalAssetsUpdateRequested: {
-                const messageObj = {
-                    title : qsTr("Update the databases?"),
-                    subtitle : qsTr("This will install the databases from a file.")
-                };
-
-                fileDialog.openWithConfirmation(["Database files (*.tgz)", "All files (*)"], function() {
-                    downloader.downloadAssets(device, fileDialog.fileUrl);
+                    device.updater.localFirmwareUpdate(fileDialog.fileUrl);
                 }, messageObj);
             }
 
             onLocalRadioUpdateRequested: {
                 const messageObj = {
                     title : qsTr("Update the wireless stack?"),
-                    subtitle : qsTr("Warning: this operation is potetntially unstable<br/>and may need several attempts.")
+                    subtitle : qsTr("Warning: this operation may need several attempts.<br/>User settings will NOT be saved.")
                 };
 
-                fileDialog.openWithConfirmation(["Radio firmware files (*.bin)", "All files (*)"], function() {
-                    downloader.downloadLocalWirelessStack(device, fileDialog.fileUrl);
+                fileDialog.openWithConfirmation(["Wireless firmware files (*.bin)", "All files (*)"], function() {
+                    device.updater.localWirelessStackUpdate(fileDialog.fileUrl);
                 }, messageObj);
             }
 
             onLocalFUSUpdateRequested: {
                 const messageObj = {
                     title : qsTr("Update the FUS?"),
-                    subtitle : qsTr("WARNING: this operation is potentially unstable<br/>and may need several attempts.")
+                    subtitle : qsTr("WARNING: this operation will ERASE your SECURITY KEYS.<br/> You MUST know what you are doing.")
                 };
 
                 fileDialog.openWithConfirmation(["FUS firmware files (*.bin)", "All files (*)"], function() {
-                    downloader.downloadLocalFUS(device, fileDialog.fileUrl);
-                }, messageObj);
-            }
-
-            onFixBootRequested: {
-                const messageObj = {
-                    title : qsTr("Attempt to fix boot issues?"),
-                    subtitle : qsTr("This will try to correct device option bytes.")
-                };
-
-                confirmationDialog.openWithMessage(function() {
-                    downloader.fixBootIssues(device);
-                }, messageObj);
-            }
-
-            onFixOptionBytesRequested: {
-                const messageObj = {
-                    title : qsTr("Check and fix the Option Bytes?"),
-                    subtitle : qsTr("Results will be displayed in the program log.")
-                };
-
-                fileDialog.openWithConfirmation(["Option bytes description files (*.data)", "All files (*)"], function() {
-                    downloader.fixOptionBytes(device, fileDialog.fileUrl);
+                    device.updater.localFUSUpdate(fileDialog.fileUrl);
                 }, messageObj);
             }
         }
@@ -306,5 +268,17 @@ Item {
         onLinkActivated: {
             app.updater.installUpdate(applicationUpdates.channel(channelName).latestVersion);
         }
+    }
+
+    StyledToolButton {
+        id: prefsButton
+        anchors.right: screen.right
+        anchors.bottom: screen.bottom
+        anchors.margins: 6
+
+        color: "darkgray"
+        icon: "qrc:/assets/symbol-gear.svg"
+
+        onPressed: screen.prefsRequested()
     }
 }

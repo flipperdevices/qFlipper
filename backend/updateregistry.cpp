@@ -6,8 +6,10 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDateTime>
+#include <QBuffer>
 
 #include "macros.h"
+#include "preferences.h"
 #include "remotefilefetcher.h"
 
 using namespace Flipper;
@@ -16,21 +18,25 @@ UpdateRegistry::UpdateRegistry(const QString &directoryUrl, QObject *parent):
     QObject(parent)
 {
     auto *fetcher = new RemoteFileFetcher(this);
+    auto *buf = new QBuffer(this);
 
-    fetcher->connect(fetcher, &RemoteFileFetcher::finished, this, [=](const QByteArray &data) {
-        if(!data.isEmpty()) {
-            info_msg(QString("Fetched update list from %1.").arg(directoryUrl));
-            fillFromJson(data);
+    fetcher->connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
+        if(buf->open(QIODevice::ReadOnly)) {
+            info_msg(QStringLiteral("Fetched update directory from %1.").arg(directoryUrl));
+            fillFromJson(buf->readAll());
+
+        } else {
+            info_msg(QStringLiteral("Failed to open a buffer for reading: %1.").arg(buf->errorString()));
         }
 
         fetcher->deleteLater();
+        buf->deleteLater();
     });
 
-    fetcher->fetch(directoryUrl);
+    if(!fetcher->fetch(directoryUrl, buf)) {
+        buf->deleteLater();
+    }
 }
-
-UpdateRegistry::~UpdateRegistry()
-{}
 
 bool UpdateRegistry::fillFromJson(const QByteArray &text)
 {
@@ -66,6 +72,16 @@ bool UpdateRegistry::fillFromJson(const QByteArray &text)
 const QStringList UpdateRegistry::channelNames() const
 {
     return m_channels.keys();
+}
+
+bool UpdateRegistry::isReady() const
+{
+    return !m_channels.isEmpty();
+}
+
+const Updates::VersionInfo UpdateRegistry::latestVersion() const
+{
+    return channel(globalPrefs()->firmwareUpdateChannel()).latestVersion();
 }
 
 Updates::ChannelInfo UpdateRegistry::channel(const QString &channelName) const

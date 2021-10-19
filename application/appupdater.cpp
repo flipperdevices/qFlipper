@@ -52,8 +52,6 @@ void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
 #endif
 
     auto *file = new QFile(filePath + QStringLiteral(".part"));
-    check_return_void(file->open(QIODevice::ReadWrite), QStringLiteral("Failed to create file: %1.").arg(file->fileName()));
-
     auto *fetcher = new RemoteFileFetcher(this);
 
     const auto  cleanup = [=]() {
