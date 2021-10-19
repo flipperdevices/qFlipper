@@ -9,6 +9,7 @@
 #include <QStandardPaths>
 
 #include "macros.h"
+#include "preferences.h"
 #include "remotefilefetcher.h"
 
 // TODO Refactor all this conditional compilation, it's ugly! (and inflexible).
@@ -27,6 +28,17 @@ AppUpdater::State AppUpdater::state() const
 double AppUpdater::progress() const
 {
     return m_progress;
+}
+
+bool AppUpdater::canUpdate(const Flipper::Updates::VersionInfo &versionInfo)
+{
+    if(!globalPrefs()->checkApplicationUpdates()) {
+        return false;
+    } else if(globalPrefs()->applicationUpdateChannel() == QStringLiteral("development")) {
+        return versionInfo.number() != APP_COMMIT;
+    } else{
+        return versionInfo.number() > APP_VERSION;
+    }
 }
 
 void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)

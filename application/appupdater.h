@@ -30,6 +30,7 @@ signals:
     void progressChanged();
 
 public slots:
+    bool canUpdate(const Flipper::Updates::VersionInfo &versionInfo);
     void installUpdate(const Flipper::Updates::VersionInfo &versionInfo);
 
 private slots:

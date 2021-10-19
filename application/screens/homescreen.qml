@@ -14,23 +14,6 @@ Item {
     signal streamRequested(var device)
     signal prefsRequested()
 
-    readonly property string channelName: "development" //TODO move this property into application settings
-    readonly property bool hasUpdates: {
-        const currentVersion = app.version;
-        const currentCommit = app.commit;
-
-        if(applicationUpdates.channelNames.length === 0) {
-            return false;
-        }
-
-        const latestVersion = applicationUpdates.channel(channelName).latestVersion;
-
-        const newDevVersionAvailable = (channelName === "development") && (latestVersion.number !== currentCommit);
-        const newReleaseVersionAvailable = (channelName !== "development") && (latestVersion.number > currentVersion);
-
-        return newDevVersionAvailable || newReleaseVersionAvailable;
-    }
-
     StyledConfirmationDialog {
         id: confirmationDialog
 
@@ -224,10 +207,12 @@ Item {
         id: versionLabel
 
         text: {
-            if(app.updater.state === AppUpdater.Idle) {
-                const msg = "%1 %2 %3".arg(app.name).arg(qsTr("Version")).arg(app.version);
+            const msg = "%1 %2 %3".arg(app.name).arg(qsTr("Version")).arg(app.version);
 
-                if(screen.hasUpdates) {
+            if(app.updater.state === AppUpdater.Idle) {
+                if(!applicationUpdates.isReady) {
+                    return msg;
+                } else if(app.updater.canUpdate(applicationUpdates.latestVersion)) {
                     return "%1 - %2".arg(msg).arg(qsTr("<a href=\"#\">update available!</a>"));
                 } else {
                     return msg;
@@ -243,16 +228,20 @@ Item {
         }
 
         color: {
-            if(app.updater.state === AppUpdater.Downloading) {
+            const defaultColor = "#555";
+
+            if(!applicationUpdates.isReady) {
+                return defaultColor;
+            } else if(app.updater.state === AppUpdater.Downloading) {
                 return "darkgray";
             } else if(app.updater.state === AppUpdater.Updating) {
                 return "darkgray";
             } else if(app.updater.state === AppUpdater.ErrorOccured) {
                 return "#F55";
-            } else if(screen.hasUpdates) {
+            } else if(app.updater.canUpdate(applicationUpdates.latestVersion)) {
                 return "darkgray";
             } else {
-                return "#555";
+                return defaultColor;
             }
         }
 
@@ -266,7 +255,7 @@ Item {
         textFormat: Text.StyledText
 
         onLinkActivated: {
-            app.updater.installUpdate(applicationUpdates.channel(channelName).latestVersion);
+            app.updater.installUpdate(applicationUpdates.latestVersion);
         }
     }
 

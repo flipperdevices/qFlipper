@@ -1,5 +1,4 @@
-#ifndef QFLIPPERBACKEND_H
-#define QFLIPPERBACKEND_H
+#pragma once
 
 #include "deviceregistry.h"
 #include "updateregistry.h"
@@ -13,5 +12,3 @@ struct QFlipperBackend
     Flipper::UpdateRegistry firmwareUpdates;
     Flipper::UpdateRegistry applicationUpdates;
 };
-
-#endif // QFLIPPERBACKEND_H
