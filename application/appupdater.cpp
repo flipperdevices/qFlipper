@@ -10,7 +10,6 @@
 
 #include "macros.h"
 #include "preferences.h"
-#include "tempdirectories.h"
 #include "remotefilefetcher.h"
 
 // TODO Refactor all this conditional compilation, it's ugly! (and inflexible).
@@ -57,7 +56,7 @@ void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
     const auto fileName = QFileInfo(fileInfo.url()).fileName();
 
 #if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC)
-    const auto filePath = tempDirs()->root().absoluteFilePath(fileName);
+    const auto filePath = QDir::temp().absoluteFilePath(fileName);
 #elif defined(Q_OS_LINUX)
     const auto filePath = fileName;
 #else
