@@ -81,10 +81,20 @@ bool UpdateRegistry::isReady() const
 
 const Updates::VersionInfo UpdateRegistry::latestVersion() const
 {
-    return channel(globalPrefs()->firmwareUpdateChannel()).latestVersion();
+    return channel(updateChannel()).latestVersion();
 }
 
 Updates::ChannelInfo UpdateRegistry::channel(const QString &channelName) const
 {
     return m_channels.value(channelName);
+}
+
+const QString FirmwareUpdates::updateChannel() const
+{
+    return globalPrefs()->firmwareUpdateChannel();
+}
+
+const QString ApplicationUpdates::updateChannel() const
+{
+    return globalPrefs()->applicationUpdateChannel();
 }

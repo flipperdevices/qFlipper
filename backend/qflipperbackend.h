@@ -9,6 +9,6 @@ struct QFlipperBackend
     ~QFlipperBackend();
 
     Flipper::DeviceRegistry deviceRegistry;
-    Flipper::UpdateRegistry firmwareUpdates;
-    Flipper::UpdateRegistry applicationUpdates;
+    Flipper::FirmwareUpdates firmwareUpdates;
+    Flipper::ApplicationUpdates applicationUpdates;
 };

@@ -1,5 +1,4 @@
-﻿#ifndef UPDATESLISTMODEL_H
-#define UPDATESLISTMODEL_H
+﻿#pragma once
 
 #include <QMap>
 
@@ -30,9 +29,30 @@ signals:
     void channelsChanged();
 
 private:
+    virtual const QString updateChannel() const = 0;
     QMap<QString, Updates::ChannelInfo> m_channels;
 };
 
-}
+class FirmwareUpdates : public UpdateRegistry {
+    Q_OBJECT
 
-#endif // UPDATESLISTMODEL_H
+public:
+    FirmwareUpdates(const QString &directoryUrl, QObject *parent = nullptr):
+        UpdateRegistry(directoryUrl, parent) {}
+
+private:
+    const QString updateChannel() const override;
+};
+
+class ApplicationUpdates : public UpdateRegistry {
+    Q_OBJECT
+
+public:
+    ApplicationUpdates(const QString &directoryUrl, QObject *parent = nullptr):
+        UpdateRegistry(directoryUrl, parent) {}
+
+private:
+    const QString updateChannel() const override;
+};
+
+}
