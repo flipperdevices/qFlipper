@@ -21,5 +21,12 @@
         <file>components/StyledRoundButton.qml</file>
         <file>screens/prefscreen.qml</file>
         <file>assets/symbol-gear.svg</file>
+        <file>assets/fonts/Born2bSportyV2.ttf</file>
+        <file>assets/fonts/haxrcorp-4089.ttf</file>
+        <file>imports/Theme/Theme.qml</file>
+        <file>style/Button.qml</file>
+        <file>imports/Theme/qmldir</file>
+        <file>assets/gfx/symbolic/arrow-dropdown.svg</file>
+        <file>assets/gfx/images/flipper.svg</file>
     </qresource>
 </RCC>

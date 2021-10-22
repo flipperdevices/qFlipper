@@ -28,6 +28,8 @@ private:
     void initInstanceProperties();
     void initTranslations();
     void initQmlTypes();
+    void initImports();
+    void initFonts();
     void initGUI();
 
     AppUpdater m_updater;
