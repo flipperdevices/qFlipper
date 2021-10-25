@@ -3,9 +3,12 @@ import QtQuick.Window 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.15
+
 import Theme 1.0
 
-import "./screens"
+import "components"
+import "screens"
+import "style"
 
 Window {
     id: root
@@ -24,26 +27,17 @@ Window {
 
     color: "transparent"
 
-//    Rectangle {
-//        id: bounds
-//        anchors.fill: parent
-//        color: "transparent"
-//        border.color: Qt.rgba(1, 1, 1, 0.05)
-//        border.width: 1
-//    }
+    Rectangle {
+        id: bounds
+        anchors.fill: parent
+        color: "transparent"
+        border.color: Qt.rgba(1, 1, 1, 0.05)
+        border.width: 1
+    }
 
     DragHandler {
         onActiveChanged: if(active) { root.startSystemMove(); }
         target: null
-    }
-
-    Rectangle {
-        id: logWindow
-
-        width: mainWindow.width
-        height: mainWindow.height
-
-        visible: false
     }
 
     Rectangle {
@@ -63,6 +57,7 @@ Window {
 
         layer.enabled: true
         layer.effect: DropShadow {
+            cached: true
             radius: shadowSize
             samples: shadowSize * 2 + 1
             horizontalOffset: 0
@@ -79,9 +74,43 @@ Window {
             anchors.rightMargin: 15
 
             radius: 9
-            color: "transparent"
             border.width: 2
             border.color: Theme.color.orange
+
+            gradient: Gradient {
+                GradientStop {position: 0; color: "#090400"}
+                GradientStop {position: 1; color: "#210F00"}
+            }
+
+            Canvas {
+                anchors.fill: parent
+                anchors.margins: mainContent.border.width
+
+                opacity: 0.15
+
+                onPaint: {
+                    const numCells = 30;
+                    const cellSize = width / numCells;
+
+                    const ctx = getContext("2d");
+                    ctx.strokeStyle = "#aa5115";
+                    ctx.lineWidth = 2;
+
+                    for(let ypos = cellSize; ypos < height; ypos += cellSize) {
+                        const pos = Math.floor(ypos);
+                        ctx.moveTo(0, pos);
+                        ctx.lineTo(width, pos);
+                    }
+
+                    for(let xpos = cellSize; xpos < width; xpos += cellSize) {
+                        const pos = Math.floor(xpos);
+                        ctx.moveTo(pos, 0);
+                        ctx.lineTo(pos, height);
+                    }
+
+                    ctx.stroke();
+                }
+            }
 
             Text {
                 id: connectMsg
@@ -113,6 +142,13 @@ Window {
                         duration: 350
                     }
                 }
+            }
+
+            UpdateButton {
+                id: updateButton
+
+                x: 460
+                y: 265
             }
 
             Button {

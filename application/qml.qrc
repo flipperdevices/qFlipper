@@ -28,5 +28,9 @@
         <file>imports/Theme/qmldir</file>
         <file>assets/gfx/symbolic/arrow-dropdown.svg</file>
         <file>assets/gfx/images/flipper.svg</file>
+        <file>assets/fonts/ter-u14n.bdf</file>
+        <file>assets/fonts/ter-u24n.bdf</file>
+        <file>style/ColorGroup.qml</file>
+        <file>components/UpdateButton.qml</file>
     </qresource>
 </RCC>
