@@ -7,8 +7,6 @@ import QtGraphicalEffects 1.15
 import Theme 1.0
 
 import "components"
-import "screens"
-import "style"
 
 Window {
     id: root
@@ -52,7 +50,7 @@ Window {
         radius: 10
 
         color: "black"
-        border.color: Theme.color.darkbrown
+        border.color: Theme.color.mediumorange3
         border.width: 2
 
         layer.enabled: true
@@ -65,76 +63,53 @@ Window {
             color: Qt.rgba(0, 0, 0, 0.3)
         }
 
-        Rectangle {
+        states: State {
+            name: "connected"
+            when: logButton.checked
+
+            PropertyChanges {
+                target: device
+                x: Math.floor(mainContent.width / 2)
+            }
+
+            PropertyChanges {
+                target: noDeviceOverlay
+                opacity: 0
+            }
+
+            PropertyChanges {
+                target: homeOverlay
+                opacity: 1
+            }
+        }
+
+        MainBackground {
             id: mainContent
-            anchors.fill: parent
-            anchors.topMargin: 47
-            anchors.bottomMargin: 61
-            anchors.leftMargin:  15
-            anchors.rightMargin: 15
 
-            radius: 9
-            border.width: 2
-            border.color: Theme.color.orange
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: 38
 
-            gradient: Gradient {
-                GradientStop {position: 0; color: "#090400"}
-                GradientStop {position: 1; color: "#210F00"}
-            }
+            width: 800 + border.width * 2
+            height: 390 + border.width * 2
 
-            Canvas {
+            NoDeviceOverlay {
+                id: noDeviceOverlay
                 anchors.fill: parent
-                anchors.margins: mainContent.border.width
-
-                opacity: 0.15
-
-                onPaint: {
-                    const numCells = 30;
-                    const cellSize = width / numCells;
-
-                    const ctx = getContext("2d");
-                    ctx.strokeStyle = "#aa5115";
-                    ctx.lineWidth = 2;
-
-                    for(let ypos = cellSize; ypos < height; ypos += cellSize) {
-                        const pos = Math.floor(ypos);
-                        ctx.moveTo(0, pos);
-                        ctx.lineTo(width, pos);
-                    }
-
-                    for(let xpos = cellSize; xpos < width; xpos += cellSize) {
-                        const pos = Math.floor(xpos);
-                        ctx.moveTo(pos, 0);
-                        ctx.lineTo(pos, height);
-                    }
-
-                    ctx.stroke();
-                }
             }
 
-            Text {
-                id: connectMsg
-                anchors.top: mainContent.top
-                anchors.topMargin: 30
-                anchors.horizontalCenter: mainContent.horizontalCenter
-
-                color: Theme.color.orange
-                text: qsTr("Connect your Flipper")
-                font.family: "Born2bSportyV2"
-                font.pixelSize: 48
+            HomeOverlay {
+                id: homeOverlay
+                anchors.fill: parent
+                opacity: 0
             }
 
-            Item {
+            Image {
                 id: device
 
-                x: mainContent.width / 2 - deviceBg.width / 2
-                y: 100
+                x: 216
+                y: 80
 
-                Image {
-                    id: deviceBg
-                    smooth: false
-                    source: "qrc:/assets/gfx/images/flipper.svg"
-                }
+                source: "qrc:/assets/gfx/images/flipper.svg"
 
                 Behavior on x {
                     PropertyAnimation {
@@ -143,52 +118,32 @@ Window {
                     }
                 }
             }
-
-            UpdateButton {
-                id: updateButton
-
-                x: 460
-                y: 265
-            }
-
-            Button {
-                text: "BUMP"
-                x: 20
-                y: 150
-
-                checkable: true
-
-                onCheckedChanged: {
-                    if(checked) {
-                        device.x = mainContent.width / 2
-                    } else {
-                        device.x = mainContent.width / 2 - deviceBg.width / 2
-                    }
-                }
-            }
         }
 
         RowLayout {
-                width: mainContent.width
-                height: 40
-                spacing: 15
+            id: footerLayour
+            width: mainContent.width
 
-                anchors.left: mainWindow.left
-                anchors.right: mainWindow.right
-                anchors.bottom: mainWindow.bottom
+            height: 42
+            spacing: 15
 
-                anchors.leftMargin: 15
-                anchors.rightMargin: 15
-                anchors.bottomMargin: 11
+            anchors.horizontalCenter: mainContent.horizontalCenter
+            anchors.top: mainContent.bottom
+            anchors.topMargin: 13
 
             Button {
                 id: logButton
                 text: qsTr("LOGS")
 
-                Layout.preferredWidth: 130
+                Layout.preferredWidth: 110
                 Layout.fillHeight: true
 
-                icon.source: "qrc:/assets/gfx/symbolic/arrow-dropdown.svg"
+                icon.width: 24
+                icon.height: 24
+                icon.source: checked ? "qrc:/assets/gfx/symbolic/arrow-up.svg" :
+                                       "qrc:/assets/gfx/symbolic/arrow-down.svg"
+
+                checkable: true
             }
 
             Rectangle {
@@ -204,7 +159,7 @@ Window {
 
                     anchors.fill: parent
                     anchors.leftMargin: 10
-                    color: Theme.color.orange
+                    color: Theme.color.red
 
                     font.capitalization: Font.AllUppercase
                     verticalAlignment: Text.AlignVCenter

@@ -1,6 +1,5 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Controls.impl 2.15
 
 import Theme 1.0
 
@@ -9,8 +8,8 @@ import "../style"
 Button {
     id: control
 
-    width: 270
-    height: 50
+    width: 280
+    height: 56
 
     radius: 7
     borderWidth: 3
@@ -20,20 +19,20 @@ Button {
     font.pixelSize: 48
 
     foregroundColor: ColorGroup {
-        normal: Theme.color.green
+        normal: Theme.color.lightgreen
         hover: Theme.color.lightgreen
         down: Theme.color.darkgreen
     }
 
     backgroundColor: ColorGroup {
-        normal: Color.transparent(Theme.color.lightgreen, 0.15)
-        hover: Color.transparent(Theme.color.lightgreen, 0.3)
-        down: Theme.color.green
+        normal: Theme.color.green
+        hover: Theme.color.mediumgreen
+        down: Theme.color.lightgreen
     }
 
     strokeColor: ColorGroup {
-        normal: Theme.color.green
+        normal: Theme.color.lightgreen
         hover: Theme.color.lightgreen
-        down: Theme.color.green
+        down: Theme.color.lightgreen
     }
 }

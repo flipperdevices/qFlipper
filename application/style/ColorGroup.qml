@@ -4,4 +4,5 @@ QtObject {
     property color normal
     property color hover
     property color down
+    property color disabled
 }

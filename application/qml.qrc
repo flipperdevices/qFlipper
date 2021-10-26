@@ -26,11 +26,16 @@
         <file>imports/Theme/Theme.qml</file>
         <file>style/Button.qml</file>
         <file>imports/Theme/qmldir</file>
-        <file>assets/gfx/symbolic/arrow-dropdown.svg</file>
         <file>assets/gfx/images/flipper.svg</file>
         <file>assets/fonts/ter-u14n.bdf</file>
         <file>assets/fonts/ter-u24n.bdf</file>
         <file>style/ColorGroup.qml</file>
         <file>components/UpdateButton.qml</file>
+        <file>components/MainBackground.qml</file>
+        <file>assets/gfx/images/typec.svg</file>
+        <file>assets/gfx/symbolic/arrow-up.svg</file>
+        <file>assets/gfx/symbolic/arrow-down.svg</file>
+        <file>components/HomeOverlay.qml</file>
+        <file>components/NoDeviceOverlay.qml</file>
     </qresource>
 </RCC>

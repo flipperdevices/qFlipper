@@ -12,19 +12,22 @@ T.Button {
     property var foregroundColor: ColorGroup {
         normal: Theme.color.orange
         hover: Theme.color.lightorange
-        down: Theme.color.brown
+        down: Theme.color.darkorange1
+        disabled: Theme.color.mediumorange1
     }
 
     property var backgroundColor: ColorGroup {
-        normal: Theme.color.brown
-        hover: Theme.color.darkorange
+        normal: Theme.color.darkorange1
+        hover: Theme.color.mediumorange2
         down: Theme.color.orange
+        disabled: Theme.color.darkorange2
     }
 
     property var strokeColor: ColorGroup {
         normal: Theme.color.orange
         hover: Theme.color.lightorange
         down: Theme.color.orange
+        disabled: Theme.color.darkorange2
     }
 
     property alias radius: bg.radius
@@ -111,7 +114,25 @@ T.Button {
                 color: foregroundColor.hover
                 icon.color: foregroundColor.hover
             }
+        },
+
+        State {
+            name: "disabled"
+            when: !control.enabled
+
+            PropertyChanges {
+                target: bg
+                color: backgroundColor.disabled
+                border.color: strokeColor.disabled
+            }
+
+            PropertyChanges {
+                target: content
+                color: foregroundColor.disabled
+                icon.color: foregroundColor.disabled
+            }
         }
+
     ]
 }
 
