@@ -5,7 +5,7 @@ import QtQuick.Templates 2.15 as T
 
 import Theme 1.0
 
-T.Button {
+T.TabButton {
     id: control
 
     property var foregroundColor: ColorGroup {
@@ -32,21 +32,18 @@ T.Button {
     property alias radius: bg.radius
     property alias borderWidth: bg.border.width
 
+    radius: 4
+    borderWidth: 2
+
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-
     padding: 6
-    horizontalPadding: padding + 2
     spacing: 6
 
-    icon.width: 16
-    icon.height: 16
-    icon.color: foregroundColor.normal
-
-    font.capitalization: Font.AllUppercase
-    font.underline: flat
+    icon.width: 24
+    icon.height: 24
 
     contentItem: IconLabel {
         id: content
@@ -57,23 +54,37 @@ T.Button {
         icon: control.icon
         text: control.text
         font: control.font
-
-        color: foregroundColor.normal
     }
 
     background: Rectangle {
         id: bg
 
-        visible: !control.flat
-
-        implicitWidth: 100
-        implicitHeight: 40
-
-        radius: 5
+        implicitWidth: 47
+        implicitHeight: 41
 
         color: backgroundColor.normal
         border.color: strokeColor.normal
-        border.width: 2
+
+        Item {
+            clip: true
+            height: control.radius
+
+            anchors.bottom: bg.bottom
+            anchors.right: bg.right
+            anchors.left: bg.left
+
+            Rectangle {
+                height: parent.height + bg.border.width
+
+                color: bg.color
+                border.color: bg.border.color
+                border.width: bg.border.width
+
+                anchors.bottom: parent.bottom
+                anchors.right: parent.right
+                anchors.left: parent.left
+            }
+        }
 
         Behavior on color {
             ColorAnimation {
@@ -86,7 +97,7 @@ T.Button {
     states: [
         State {
             name: "down"
-            when: control.down
+            when: control.down || control.checked
 
             PropertyChanges {
                 target: bg
@@ -136,4 +147,3 @@ T.Button {
         }
     ]
 }
-

@@ -27,7 +27,7 @@ Item {
     Text {
         id: connectMsg
         anchors.horizontalCenter: parent.horizontalCenter
-        y: 255
+        y: 264
 
         color: Theme.color.orange
         text: qsTr("Connect your Flipper")

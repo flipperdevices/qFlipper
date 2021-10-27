@@ -37,5 +37,13 @@
         <file>assets/gfx/symbolic/arrow-down.svg</file>
         <file>components/HomeOverlay.qml</file>
         <file>components/NoDeviceOverlay.qml</file>
+        <file>components/LinkButton.qml</file>
+        <file>assets/fonts/ter-u12n.bdf</file>
+        <file>components/TransparentLabel.qml</file>
+        <file>assets/gfx/symbolic/usb-connected.svg</file>
+        <file>style/TabButton.qml</file>
+        <file>style/TabBar.qml</file>
+        <file>assets/gfx/symbolic/info.svg</file>
+        <file>assets/gfx/symbolic/wrench.svg</file>
     </qresource>
 </RCC>
