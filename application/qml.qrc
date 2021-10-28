@@ -45,5 +45,7 @@
         <file>components/TabPane.qml</file>
         <file>components/TextLabel.qml</file>
         <file>assets/fonts/TerminusTTF.ttf</file>
+        <file>components/DeviceInfo.qml</file>
+        <file>components/DeviceActions.qml</file>
     </qresource>
 </RCC>

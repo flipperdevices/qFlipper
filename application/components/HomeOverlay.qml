@@ -26,23 +26,12 @@ Item {
         anchors.left: tabs.left
         anchors.topMargin: -2
 
-        contentItem: ColumnLayout {
-            TextLabel {
-                text: qsTr("Version")
-            }
+        currentIndex: tabs.currentIndex
 
-            TextLabel {
-                text: qsTr("Date")
-            }
-
-            TextLabel {
-                text: qsTr("Hardware")
-            }
-
-            TextLabel {
-                text: qsTr("Battery")
-            }
-        }
+        items: [
+            DeviceInfo {},
+            DeviceActions {}
+        ]
     }
 
     TabBar {
