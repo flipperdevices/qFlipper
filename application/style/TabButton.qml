@@ -44,6 +44,7 @@ T.TabButton {
 
     icon.width: 24
     icon.height: 24
+    icon.color: foregroundColor.normal
 
     contentItem: IconLabel {
         id: content
@@ -54,6 +55,8 @@ T.TabButton {
         icon: control.icon
         text: control.text
         font: control.font
+
+        color: foregroundColor.normal
     }
 
     background: Rectangle {

@@ -27,6 +27,7 @@ RUN add-apt-repository ppa:beineri/opt-qt-5.15.2-bionic && \
     qt515declarative \
     qt515quickcontrols \
     qt515quickcontrols2 \
+    qt515graphicaleffects \
     qt515wayland \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
