@@ -6,6 +6,7 @@ import Theme 1.0
 
 Item {
     id: noDeviceOverlay
+    layer.enabled: true
 
     Behavior on opacity {
         PropertyAnimation {

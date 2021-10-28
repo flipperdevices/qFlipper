@@ -45,5 +45,7 @@
         <file>style/TabBar.qml</file>
         <file>assets/gfx/symbolic/info.svg</file>
         <file>assets/gfx/symbolic/wrench.svg</file>
+        <file>components/TabPane.qml</file>
+        <file>components/TextLabel.qml</file>
     </qresource>
 </RCC>

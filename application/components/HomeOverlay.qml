@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
-import QtQuick.Controls.impl 2.15
 
 import Theme 1.0
 
@@ -11,6 +10,7 @@ Item {
     id: overlay
 
     readonly property int centerX: 590
+    layer.enabled: true
 
     Behavior on opacity {
         PropertyAnimation {
@@ -19,18 +19,30 @@ Item {
         }
     }
 
-    Rectangle {
-       width: 320
-       height: 280
+    TabPane {
+        width: 320
 
-       color: "transparent"
+        anchors.top: tabs.bottom
+        anchors.left: tabs.left
+        anchors.topMargin: -2
 
-       anchors.top: tabs.bottom
-       anchors.left: tabs.left
-       anchors.topMargin: -2
+        contentItem: ColumnLayout {
+            TextLabel {
+                text: qsTr("Version")
+            }
 
-       border.color: Theme.color.orange
-       border.width: 2
+            TextLabel {
+                text: qsTr("Date")
+            }
+
+            TextLabel {
+                text: qsTr("Hardware")
+            }
+
+            TextLabel {
+                text: qsTr("Battery")
+            }
+        }
     }
 
     TabBar {
