@@ -27,8 +27,6 @@
         <file>style/Button.qml</file>
         <file>imports/Theme/qmldir</file>
         <file>assets/gfx/images/flipper.svg</file>
-        <file>assets/fonts/ter-u14n.bdf</file>
-        <file>assets/fonts/ter-u24n.bdf</file>
         <file>style/ColorGroup.qml</file>
         <file>components/UpdateButton.qml</file>
         <file>components/MainBackground.qml</file>
@@ -38,7 +36,6 @@
         <file>components/HomeOverlay.qml</file>
         <file>components/NoDeviceOverlay.qml</file>
         <file>components/LinkButton.qml</file>
-        <file>assets/fonts/ter-u12n.bdf</file>
         <file>components/TransparentLabel.qml</file>
         <file>assets/gfx/symbolic/usb-connected.svg</file>
         <file>style/TabButton.qml</file>
@@ -47,5 +44,6 @@
         <file>assets/gfx/symbolic/wrench.svg</file>
         <file>components/TabPane.qml</file>
         <file>components/TextLabel.qml</file>
+        <file>assets/fonts/TerminusTTF.ttf</file>
     </qresource>
 </RCC>

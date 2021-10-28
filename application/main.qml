@@ -11,7 +11,7 @@ import "components"
 Window {
     id: root
     visible: true
-    flags: Qt.FramelessWindowHint
+    flags: flags | Qt.FramelessWindowHint
     title: Qt.application.displayName
 
     readonly property int shadowSize: 16

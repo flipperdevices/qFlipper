@@ -15,7 +15,7 @@ Item {
     property alias font: label.font
     property alias icon: icon
 
-    font.family: "Terminus"
+    font.family: "Terminus (TTF)"
     font.pixelSize: 12
 
     width: layout.width + margins * 2
@@ -35,6 +35,7 @@ Item {
 
         Text {
             id: label
+            antialiasing: false
             color: control.color
 
             verticalAlignment: Qt.AlignVCenter

@@ -90,9 +90,7 @@ void Application::initFonts()
 {
     QFontDatabase::addApplicationFont(":/assets/fonts/haxrcorp-4089.ttf");
     QFontDatabase::addApplicationFont(":/assets/fonts/Born2bSportyV2.ttf");
-    QFontDatabase::addApplicationFont(":/assets/fonts/ter-u24n.bdf");
-    QFontDatabase::addApplicationFont(":/assets/fonts/ter-u14n.bdf");
-    QFontDatabase::addApplicationFont(":/assets/fonts/ter-u12n.bdf");
+    QFontDatabase::addApplicationFont(":/assets/fonts/TerminusTTF.ttf");
 
     QFont haxr("HaxrCorp 4089");
     haxr.setPixelSize(32);
