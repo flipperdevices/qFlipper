@@ -11,30 +11,58 @@ ColumnLayout {
     TransparentLabel {
         height: 14
         color: Theme.color.orange
-        text: qsTr("Header one")
+        text: qsTr("Firmware update channel")
         font.capitalization: Font.AllUppercase
     }
 
-//    ComboBox {
-//        model: ["One", "Two", "Three"]
-//    }
-
-    Button {
-        text: "Hello there!"
-    }
-
-    Button {
-        text: "General Kenobi!"
+    ComboBox {
+        model: ["Release", "Release-candidate", "Development"]
+        Layout.fillWidth: true
     }
 
     TransparentLabel {
         height: 14
         color: Theme.color.orange
-        text: qsTr("Header two a longer one")
+        text: qsTr("Backup & Restore")
+        font.capitalization: Font.AllUppercase
+    }
+
+    GridLayout {
+        columns: 2
+        rowSpacing: control.spacing
+        columnSpacing: control.spacing
+
+        Layout.fillWidth: true
+
+        SmallButton {
+            text: qsTr("Backup")
+            Layout.fillWidth: true
+            icon.source: "qrc:/assets/gfx/symbolic/backup-symbolic.svg"
+        }
+
+        SmallButton {
+            text: qsTr("Restore")
+            Layout.fillWidth: true
+            icon.source: "qrc:/assets/gfx/symbolic/restore-symbolic.svg"
+        }
+
+        SmallButtonRed {
+            text: qsTr("Erase")
+            Layout.fillWidth: true
+            icon.source: "qrc:/assets/gfx/symbolic/trashcan.svg"
+        }
+    }
+
+    TransparentLabel {
+        height: 14
+        color: Theme.color.orange
+        text: qsTr("Application update")
         font.capitalization: Font.AllUppercase
     }
 
     Button {
-        text: "So uncivilised"
+        text: qsTr("Update qFlipper")
+        Layout.fillWidth: true
+        icon.source: "qrc:/assets/gfx/symbolic/update-symbolic.svg"
     }
 }

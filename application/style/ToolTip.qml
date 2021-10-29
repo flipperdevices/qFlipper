@@ -34,38 +34,40 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.15
-import QtQuick.Templates 2.15 as T
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Controls.impl 2.12
+import QtQuick.Templates 2.12 as T
 
 import Theme 1.0
 
-T.TabBar {
+T.ToolTip {
     id: control
+
+    x: parent ? (parent.width - implicitWidth) / 2 : 0
+    y: -implicitHeight - 3
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
-    spacing: -2
+    margins: 6
+    padding: 6
 
-    background: Rectangle {
-        radius: 4
+    closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutsideParent | T.Popup.CloseOnReleaseOutsideParent
+
+    contentItem: Text {
+        text: control.text
+        font: control.font
+        wrapMode: Text.Wrap
         color: Theme.color.orange
+        antialiasing: false
     }
 
-    contentItem: ListView {
-        model: control.contentModel
-        currentIndex: control.currentIndex
-
-        spacing: control.spacing
-        orientation: ListView.Horizontal
-        boundsBehavior: Flickable.StopAtBounds
-        flickableDirection: Flickable.AutoFlickIfNeeded
-        snapMode: ListView.SnapToItem
-
-        highlightMoveDuration: 0
-        highlightRangeMode: ListView.ApplyRange
-        preferredHighlightBegin: 40
-        preferredHighlightEnd: width - 40
+    background: Rectangle {
+        radius: 2
+        border.width: 2
+        border.color: Theme.color.darkorange2
+        color: "black"
     }
 }

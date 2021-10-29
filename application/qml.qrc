@@ -47,5 +47,14 @@
         <file>assets/fonts/TerminusTTF.ttf</file>
         <file>components/DeviceInfo.qml</file>
         <file>components/DeviceActions.qml</file>
+        <file>style/ComboBox.qml</file>
+        <file>style/ToolTip.qml</file>
+        <file>components/SmallButton.qml</file>
+        <file>assets/gfx/symbolic/trashcan.svg</file>
+        <file>assets/gfx/symbolic/update-symbolic.svg</file>
+        <file>assets/gfx/symbolic/backup-symbolic.svg</file>
+        <file>assets/gfx/symbolic/restore-symbolic.svg</file>
+        <file>style/IconLabelEx.qml</file>
+        <file>components/SmallButtonRed.qml</file>
     </qresource>
 </RCC>

@@ -20,7 +20,7 @@ Item {
     }
 
     TabPane {
-        width: 320
+        width: 322
 
         anchors.top: tabs.bottom
         anchors.left: tabs.left
@@ -36,19 +36,24 @@ Item {
 
     TabBar {
         id: tabs
-        x: 30
-        y: 30
+        x: 28
+        y: 28
+
 
         TabButton {
             icon.source: "qrc:/assets/gfx/symbolic/info.svg"
             icon.width: 25
             icon.height: 25
+
+            ToolTip.text: qsTr("Device information")
         }
 
         TabButton {
             icon.source: "qrc:/assets/gfx/symbolic/wrench.svg"
             icon.width: 27
             icon.height: 27
+
+            ToolTip.text: qsTr("Avdanced controls")
         }
     }
 
