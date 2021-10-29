@@ -100,7 +100,7 @@ Item {
 
     LinkButton {
         id: releaseButton
-        x: centerX - width
+        x: centerX - width - 6
 
         anchors.top: updateButton.bottom
         anchors.topMargin: 8
@@ -112,7 +112,7 @@ Item {
 
     LinkButton {
         id: fileButton
-        x: centerX
+        x: centerX + 6
 
         anchors.top: updateButton.bottom
         anchors.topMargin: 8

@@ -9,6 +9,7 @@ import "../style"
 Button {
     id: control
     flat: true
+    padding: 0
     font.capitalization: Font.MixedCase
 
     property color linkColor: Theme.color.orange
