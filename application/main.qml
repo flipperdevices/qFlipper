@@ -14,14 +14,19 @@ Window {
     flags: Qt.Window | Qt.FramelessWindowHint
     title: Qt.application.displayName
 
+    readonly property int baseWidth: 830
+    readonly property int baseHeight: 500
+
     readonly property int shadowSize: 16
     readonly property int shadowOffset: 4
 
-    minimumWidth: mainWindow.width + shadowSize * 2
-    minimumHeight: mainWindow.height + shadowSize * 2
+    height: baseHeight + shadowSize * 2
+
+    minimumWidth: baseWidth + shadowSize * 2
+    minimumHeight: baseHeight + shadowSize * 2
 
     maximumWidth: minimumWidth
-    maximumHeight: minimumHeight
+//    maximumHeight: minimumHeight
 
     color: "transparent"
 
@@ -44,8 +49,8 @@ Window {
         x: shadowSize
         y: shadowSize - shadowOffset
 
-        width: 830
-        height: 500
+        width: root.baseWidth
+        height: root.baseHeight
 
         radius: 10
 
@@ -55,7 +60,6 @@ Window {
 
         layer.enabled: true
         layer.effect: DropShadow {
-            cached: true
             radius: shadowSize
             samples: shadowSize * 2 + 1
             horizontalOffset: 0
@@ -65,7 +69,7 @@ Window {
 
         states: State {
             name: "connected"
-            when: logButton.checked
+            when: clicker.checked
 
             PropertyChanges {
                 target: device
@@ -122,6 +126,16 @@ Window {
                 font.pixelSize: 12
 
                 text: app.version
+
+                MouseArea {
+                    id: clicker
+                    property bool checked: false
+                    anchors.fill: parent
+
+                    onClicked: {
+                        checked = !checked
+                    }
+                }
             }
 
             NoDeviceOverlay {
@@ -170,12 +184,19 @@ Window {
                 Layout.preferredWidth: 110
                 Layout.fillHeight: true
 
-                icon.width: 24
-                icon.height: 24
                 icon.source: checked ? "qrc:/assets/gfx/symbolic/arrow-up.svg" :
                                        "qrc:/assets/gfx/symbolic/arrow-down.svg"
-
                 checkable: true
+
+                onCheckedChanged: {
+                    if(checked) {
+                        root.height = root.baseHeight * 2 + shadowSize * 2
+//                        mainWindow.height = root.baseHeight * 2
+                    } else {
+                        root.height = root.baseHeight + shadowSize * 2
+//                        mainWindow.height = root.baseHeight
+                    }
+                }
             }
 
             Rectangle {
