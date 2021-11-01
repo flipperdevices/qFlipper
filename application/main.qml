@@ -43,7 +43,8 @@ Window {
         target: null
     }
 
-    Rectangle {
+
+    Item {
         id: mainWindow
 
         x: shadowSize
@@ -52,19 +53,23 @@ Window {
         width: root.baseWidth
         height: root.baseHeight
 
-        radius: 10
+        Rectangle {
+            id: bg
+            radius: 10
+            anchors.fill: parent
 
-        color: "black"
-        border.color: Theme.color.mediumorange3
-        border.width: 2
+            color: "black"
+            border.color: Theme.color.mediumorange3
+            border.width: 2
 
-        layer.enabled: true
-        layer.effect: DropShadow {
-            radius: shadowSize
-            samples: shadowSize * 2 + 1
-            horizontalOffset: 0
-            verticalOffset: shadowOffset
-            color: Qt.rgba(0, 0, 0, 0.3)
+            layer.enabled: true
+            layer.effect: DropShadow {
+                radius: shadowSize
+                samples: shadowSize * 2 + 1
+                horizontalOffset: 0
+                verticalOffset: shadowOffset
+                color: Qt.rgba(0, 0, 0, 0.3)
+            }
         }
 
         states: State {
@@ -97,7 +102,7 @@ Window {
             anchors.right: mainContent.right
             anchors.bottom: mainContent.top
 
-            anchors.topMargin: mainWindow.border.width
+            anchors.topMargin: bg.border.width
             onMinimizeRequested: root.showMinimized()
             onCloseRequested: Qt.quit()
         }
@@ -191,10 +196,10 @@ Window {
                 onCheckedChanged: {
                     if(checked) {
                         root.height = root.baseHeight * 2 + shadowSize * 2
-//                        mainWindow.height = root.baseHeight * 2
+                        mainWindow.height = root.baseHeight * 2
                     } else {
                         root.height = root.baseHeight + shadowSize * 2
-//                        mainWindow.height = root.baseHeight
+                        mainWindow.height = root.baseHeight
                     }
                 }
             }
