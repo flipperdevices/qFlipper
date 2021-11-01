@@ -7,7 +7,7 @@ QtObject {
         readonly property color transparent: Qt.rgba(0, 0, 0, 0)
         readonly property color orange: "#fe8a2c"
         readonly property color lightorange: "#ff9722"
-        readonly property color darkorange1: "#481c01"
+        readonly property color darkorange1: "#491d00"
         readonly property color darkorange2: "#3a1f10"
         readonly property color mediumorange1: "#9e5823"
         readonly property color mediumorange2: "#76380b"

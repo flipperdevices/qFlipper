@@ -83,6 +83,21 @@ Window {
             }
         }
 
+        WindowControls {
+            id: windowControls
+
+            controlPath: "qrc:/assets/gfx/controls"
+
+            anchors.top: mainWindow.top
+            anchors.left: mainContent.left
+            anchors.right: mainContent.right
+            anchors.bottom: mainContent.top
+
+            anchors.topMargin: mainWindow.border.width
+            onMinimizeRequested: root.showMinimized()
+            onCloseRequested: Qt.quit()
+        }
+
         MainBackground {
             id: mainContent
 
@@ -148,7 +163,7 @@ Window {
 
             Rectangle {
                 id: popupBg
-                color: Theme.color.brown
+                color: Theme.color.darkorange1
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -159,7 +174,7 @@ Window {
 
                     anchors.fill: parent
                     anchors.leftMargin: 10
-                    color: Theme.color.red
+                    color: Theme.color.orange
 
                     font.capitalization: Font.AllUppercase
                     verticalAlignment: Text.AlignVCenter
