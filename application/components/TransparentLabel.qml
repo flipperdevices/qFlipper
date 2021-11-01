@@ -35,7 +35,6 @@ Item {
 
         Text {
             id: label
-            antialiasing: false
             color: control.color
 
             verticalAlignment: Qt.AlignVCenter

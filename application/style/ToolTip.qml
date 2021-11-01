@@ -61,7 +61,6 @@ T.ToolTip {
         font: control.font
         wrapMode: Text.Wrap
         color: Theme.color.orange
-        antialiasing: false
     }
 
     background: Rectangle {

@@ -93,7 +93,9 @@ void Application::initFonts()
     QFontDatabase::addApplicationFont(":/assets/fonts/TerminusTTF.ttf");
 
     QFont haxr("HaxrCorp 4089");
+
     haxr.setPixelSize(32);
+    haxr.setStyleStrategy(QFont::NoAntialias);
 
     qApp->setFont(haxr);
 }
