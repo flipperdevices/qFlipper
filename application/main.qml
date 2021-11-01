@@ -107,6 +107,23 @@ Window {
             width: 800 + border.width * 2
             height: 390 + border.width * 2
 
+            Text {
+                id: versionLabel
+
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.margins: 10
+                anchors.rightMargin: 16
+
+                color: Theme.color.orange
+                opacity: 0.5
+
+                font.family: "Terminus (TTF)"
+                font.pixelSize: 12
+
+                text: app.version
+            }
+
             NoDeviceOverlay {
                 id: noDeviceOverlay
                 anchors.fill: parent
