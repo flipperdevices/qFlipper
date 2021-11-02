@@ -26,23 +26,22 @@ Window {
     minimumHeight: baseHeight + shadowSize * 2
 
     maximumWidth: minimumWidth
-//    maximumHeight: minimumHeight
+    maximumHeight: minimumHeight
 
     color: "transparent"
 
-    Rectangle {
-        id: bounds
-        anchors.fill: parent
-        color: "transparent"
-        border.color: Qt.rgba(1, 1, 1, 0.05)
-        border.width: 1
-    }
+//    Rectangle {
+//        id: bounds
+//        anchors.fill: parent
+//        color: "transparent"
+//        border.color: Qt.rgba(0, 1, 0, 0.3)
+//        border.width: 1
+//    }
 
     DragHandler {
         onActiveChanged: if(active) { root.startSystemMove(); }
         target: null
     }
-
 
     Item {
         id: mainWindow
@@ -52,6 +51,54 @@ Window {
 
         width: root.baseWidth
         height: root.baseHeight
+
+        PropertyAnimation {
+            id: logExpand
+            target: mainWindow
+            easing.type: Easing.InOutQuad
+            property: "height"
+            from: root.baseHeight
+            to: root.baseHeight * 2
+            duration: 500
+
+            onStarted: {
+                root.maximumHeight = root.baseHeight * 2 + shadowSize * 2;
+                root.height = root.maximumHeight;
+            }
+
+            onFinished: {
+                root.minimumHeight = root.maximumHeight;
+            }
+        }
+
+        PropertyAnimation {
+            id: logCollapse
+            target: logExpand.target
+            easing: logExpand.easing
+            duration: logExpand.duration
+            property: logExpand.property
+
+            from: logExpand.to
+            to: logExpand.from
+
+            onStarted: {
+                root.minimumHeight = root.baseHeight + shadowSize * 2;
+            }
+
+            onFinished: {
+                root.height = root.baseHeight + shadowSize * 2;
+                root.maximumHeight = root.height;
+            }
+        }
+
+        Rectangle {
+            id: blackBorder
+            anchors.fill: parent
+            anchors.margins: -1
+            radius: bg.radius + 1
+            opacity: 0.5
+            color: "black"
+        }
 
         Rectangle {
             id: bg
@@ -192,16 +239,7 @@ Window {
                 icon.source: checked ? "qrc:/assets/gfx/symbolic/arrow-up.svg" :
                                        "qrc:/assets/gfx/symbolic/arrow-down.svg"
                 checkable: true
-
-                onCheckedChanged: {
-                    if(checked) {
-                        root.height = root.baseHeight * 2 + shadowSize * 2
-                        mainWindow.height = root.baseHeight * 2
-                    } else {
-                        root.height = root.baseHeight + shadowSize * 2
-                        mainWindow.height = root.baseHeight
-                    }
-                }
+                onCheckedChanged: checked ? logExpand.start() : logCollapse.start();
             }
 
             Rectangle {
