@@ -239,7 +239,22 @@ Window {
                 icon.source: checked ? "qrc:/assets/gfx/symbolic/arrow-up.svg" :
                                        "qrc:/assets/gfx/symbolic/arrow-down.svg"
                 checkable: true
-                onCheckedChanged: checked ? logExpand.start() : logCollapse.start();
+                onCheckedChanged: {
+                    if(checked) {
+                        if(!logCollapse.running) {
+                            logExpand.start();
+                        } else {
+                            checked = false;
+                        }
+
+                    } else {
+                        if(!logExpand.running) {
+                            logCollapse.start();
+                        } else {
+                            checked = true;
+                        }
+                    }
+                }
             }
 
             Rectangle {
@@ -260,6 +275,32 @@ Window {
                     font.capitalization: Font.AllUppercase
                     verticalAlignment: Text.AlignVCenter
                 }
+            }
+        }
+
+        ScrollView {
+            clip: true
+
+            anchors.top: footerLayour.bottom
+            anchors.left: mainContent.left
+            anchors.right: mainContent.right
+            anchors.bottom: parent.bottom
+
+            anchors.topMargin: 14
+            anchors.bottomMargin: 12
+
+            background: Rectangle {
+                radius: 7
+                color: "black"
+                border.width: 2
+                border.color: Theme.color.mediumorange3
+            }
+
+            TextArea {
+                id: logText
+                anchors.fill: parent
+                color: Theme.color.orange
+
             }
         }
     }

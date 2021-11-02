@@ -41,6 +41,7 @@ AppUpdater *Application::updater()
 
 void Application::initStyles()
 {
+    QQuickWindow::setDefaultAlphaBuffer(true);
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
     QQuickStyle::setStyle(":/style");
 }
