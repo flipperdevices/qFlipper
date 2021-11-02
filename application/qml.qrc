@@ -70,5 +70,7 @@
         <file>assets/gfx/controls/windows/minimize_down.svg</file>
         <file>assets/gfx/controls/windows/minimize_hover.svg</file>
         <file>assets/gfx/controls/windows/minimize.svg</file>
+        <file>style/ScrollBar.qml</file>
+        <file>style/ScrollView.qml</file>
     </qresource>
 </RCC>

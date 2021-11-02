@@ -279,8 +279,6 @@ Window {
         }
 
         ScrollView {
-            clip: true
-
             anchors.top: footerLayour.bottom
             anchors.left: mainContent.left
             anchors.right: mainContent.right
@@ -289,18 +287,11 @@ Window {
             anchors.topMargin: 14
             anchors.bottomMargin: 12
 
-            background: Rectangle {
-                radius: 7
-                color: "black"
-                border.width: 2
-                border.color: Theme.color.mediumorange3
-            }
-
             TextArea {
                 id: logText
+                padding: 0
                 anchors.fill: parent
                 color: Theme.color.orange
-
             }
         }
     }
