@@ -5,6 +5,7 @@ import QtQuick 2.15
 QtObject {
     readonly property var color: QtObject {
         readonly property color transparent: Qt.rgba(0, 0, 0, 0)
+
         readonly property color orange: "#fe8a2c"
         readonly property color lightorange: "#ff9722"
         readonly property color darkorange1: "#491d00"
@@ -18,9 +19,10 @@ QtObject {
         readonly property color lightgreen: "#2ed832"
         readonly property color mediumgreen: "#285b12"
 
-        readonly property color cyan: "#35cbdf"
-        readonly property color darkcyan: "#174a51"
-        readonly property color lightcyan: "#56ebff"
+        readonly property color lightblue: "#228cff"
+        readonly property color mediumblue: "#143c66"
+        readonly property color darkblue1: "#11355c"
+        readonly property color darkblue2: "#152b47"
 
         readonly property color lightred1: "#ff5b27"
         readonly property color lightred2: "#ff5924"

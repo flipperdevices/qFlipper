@@ -8,6 +8,14 @@ import "../style"
 Button {
     id: control
 
+    enum Accent {
+        Default,
+        Green,
+        Blue
+    }
+
+    property int accent: UpdateButton.Default
+
     width: 280
     height: 56
 
@@ -18,21 +26,55 @@ Button {
     font.family: "Born2bSportyV2"
     font.pixelSize: 48
 
-//    foregroundColor: ColorGroup {
-//        normal: Theme.color.lightgreen
-//        hover: Theme.color.lightgreen
-//        down: Theme.color.darkgreen
-//    }
+    states: [
+        State {
+            when: accent === UpdateButton.Green
 
-//    backgroundColor: ColorGroup {
-//        normal: Theme.color.green
-//        hover: Theme.color.mediumgreen
-//        down: Theme.color.lightgreen
-//    }
+            PropertyChanges {
+                target: foregroundColor
+                normal: Theme.color.lightgreen
+                hover: Theme.color.lightgreen
+                down: Theme.color.darkgreen
+            }
 
-//    strokeColor: ColorGroup {
-//        normal: Theme.color.lightgreen
-//        hover: Theme.color.lightgreen
-//        down: Theme.color.lightgreen
-//    }
+            PropertyChanges {
+                target: backgroundColor
+                normal: Theme.color.green
+                hover: Theme.color.mediumgreen
+                down: Theme.color.lightgreen
+            }
+
+            PropertyChanges {
+                target: strokeColor
+                normal: Theme.color.lightgreen
+                hover: Theme.color.lightgreen
+                down: Theme.color.lightgreen
+            }
+        },
+
+        State {
+            when: accent === UpdateButton.Blue
+
+            PropertyChanges {
+                target: foregroundColor
+                normal: Theme.color.lightblue
+                hover: Theme.color.lightblue
+                down: Theme.color.darkblue1
+            }
+
+            PropertyChanges {
+                target: backgroundColor
+                normal: Theme.color.darkblue2
+                hover: Theme.color.darkblue1
+                down: Theme.color.lightblue
+            }
+
+            PropertyChanges {
+                target: strokeColor
+                normal: Theme.color.lightblue
+                hover: Theme.color.lightblue
+                down: Theme.color.lightblue
+            }
+        }
+    ]
 }

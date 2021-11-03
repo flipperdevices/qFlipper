@@ -94,6 +94,8 @@ Item {
     UpdateButton {
         id: updateButton
 
+        accent: UpdateButton.Green
+
         x: Math.round(centerX - width / 2)
         y: 260
     }
