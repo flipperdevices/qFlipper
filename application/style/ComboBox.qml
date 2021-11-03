@@ -107,7 +107,8 @@ T.ComboBox {
         x: control.mirrored ? control.padding : control.width - width - 13
         y: control.topPadding + (control.availableHeight - height) / 2
 
-        color: foregroundColor.normal
+        color: !control.enabled ? foregroundColor.disabled : control.down ? foregroundColor.down :
+                control.hovered ? foregroundColor.hover : foregroundColor.normal
         source: control.down ? "qrc:/assets/gfx/symbolic/arrow-up.svg" :
                                "qrc:/assets/gfx/symbolic/arrow-down.svg"
     }
@@ -130,7 +131,9 @@ T.ComboBox {
 
         font: control.font
 
-        color: foregroundColor.normal
+        color: !control.enabled ? foregroundColor.disabled : control.down ? foregroundColor.down :
+                control.hovered ? foregroundColor.hover : foregroundColor.normal
+
         selectionColor: control.palette.highlight
         selectedTextColor: control.palette.highlightedText
         verticalAlignment: Text.AlignVCenter
@@ -149,8 +152,10 @@ T.ComboBox {
         implicitWidth: 140
         implicitHeight: 42
 
-        color: backgroundColor.normal
-        border.color: strokeColor.normal
+        color: !control.enabled ? backgroundColor.disabled : control.down ? backgroundColor.down :
+                control.hovered ? backgroundColor.hover : backgroundColor.normal
+        border.color: !control.enabled ? strokeColor.disabled : control.down ? strokeColor.down :
+                       control.hovered ? strokeColor.hover : strokeColor.normal
         border.width: 2
 
         Item {
@@ -207,76 +212,11 @@ T.ComboBox {
                 border.color: strokeColor.normal
             }
 
-            T.ScrollIndicator.vertical: ScrollIndicator { }
+            T.ScrollIndicator.vertical: ScrollIndicator {}
         }
 
         background: Rectangle {
             color: backgroundColor.normal
         }
     }
-
-    states: [
-        State {
-            name: "down"
-            when: control.down
-
-            PropertyChanges {
-                target: bg
-                color: backgroundColor.down
-                border.color: strokeColor.down
-            }
-
-            PropertyChanges {
-                target: content
-                color: foregroundColor.down
-            }
-
-            PropertyChanges {
-                target: icon
-                color: foregroundColor.down
-            }
-        },
-
-        State {
-            name: "hovered"
-            when: control.hovered
-
-            PropertyChanges {
-                target: bg
-                color: backgroundColor.hover
-                border.color: strokeColor.hover
-            }
-
-            PropertyChanges {
-                target: content
-                color: foregroundColor.hover
-            }
-
-            PropertyChanges {
-                target: icon
-                color: foregroundColor.hover
-            }
-        },
-
-        State {
-            name: "disabled"
-            when: !control.enabled
-
-            PropertyChanges {
-                target: bg
-                color: backgroundColor.disabled
-                border.color: strokeColor.disabled
-            }
-
-            PropertyChanges {
-                target: content
-                color: foregroundColor.disabled
-            }
-
-            PropertyChanges {
-                target: icon
-                color: foregroundColor.disabled
-            }
-        }
-    ]
 }

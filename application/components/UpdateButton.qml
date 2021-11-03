@@ -18,21 +18,21 @@ Button {
     font.family: "Born2bSportyV2"
     font.pixelSize: 48
 
-    foregroundColor: ColorGroup {
-        normal: Theme.color.lightgreen
-        hover: Theme.color.lightgreen
-        down: Theme.color.darkgreen
-    }
+//    foregroundColor: ColorGroup {
+//        normal: Theme.color.lightgreen
+//        hover: Theme.color.lightgreen
+//        down: Theme.color.darkgreen
+//    }
 
-    backgroundColor: ColorGroup {
-        normal: Theme.color.green
-        hover: Theme.color.mediumgreen
-        down: Theme.color.lightgreen
-    }
+//    backgroundColor: ColorGroup {
+//        normal: Theme.color.green
+//        hover: Theme.color.mediumgreen
+//        down: Theme.color.lightgreen
+//    }
 
-    strokeColor: ColorGroup {
-        normal: Theme.color.lightgreen
-        hover: Theme.color.lightgreen
-        down: Theme.color.lightgreen
-    }
+//    strokeColor: ColorGroup {
+//        normal: Theme.color.lightgreen
+//        hover: Theme.color.lightgreen
+//        down: Theme.color.lightgreen
+//    }
 }

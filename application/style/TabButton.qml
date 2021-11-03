@@ -80,7 +80,8 @@ T.TabButton {
 
     icon.width: 24
     icon.height: 24
-    icon.color: foregroundColor.normal
+    icon.color: !control.enabled ? foregroundColor.disabled : control.down || control.checked ? foregroundColor.down :
+                 control.hovered ? foregroundColor.hover : foregroundColor.normal
 
     ToolTip.delay: Theme.timing.toolTipDelay
     ToolTip.visible: hovered && ToolTip.text
@@ -95,7 +96,8 @@ T.TabButton {
         text: control.text
         font: control.font
 
-        color: foregroundColor.normal
+        color: !control.enabled ? foregroundColor.disabled : control.down || control.checked ? foregroundColor.down :
+                control.hovered ? foregroundColor.hover : foregroundColor.normal
     }
 
     background: Rectangle {
@@ -104,8 +106,10 @@ T.TabButton {
         implicitWidth: 47
         implicitHeight: 41
 
-        color: backgroundColor.normal
-        border.color: strokeColor.normal
+        color: !control.enabled ? backgroundColor.disabled : control.down || control.checked ? backgroundColor.down :
+                control.hovered ? backgroundColor.hover : backgroundColor.normal
+        border.color: !control.enabled ? strokeColor.disabled : control.down || control.checked ? strokeColor.down :
+                       control.hovered ? strokeColor.hover : strokeColor.normal
 
         Item {
             clip: true
@@ -135,57 +139,4 @@ T.TabButton {
             }
         }
     }
-
-    states: [
-        State {
-            name: "down"
-            when: control.down || control.checked
-
-            PropertyChanges {
-                target: bg
-                color: backgroundColor.down
-                border.color: strokeColor.down
-            }
-
-            PropertyChanges {
-                target: content
-                color: foregroundColor.down
-                icon.color: foregroundColor.down
-            }
-        },
-
-        State {
-            name: "hovered"
-            when: control.hovered
-
-            PropertyChanges {
-                target: bg
-                color: backgroundColor.hover
-                border.color: strokeColor.hover
-            }
-
-            PropertyChanges {
-                target: content
-                color: foregroundColor.hover
-                icon.color: foregroundColor.hover
-            }
-        },
-
-        State {
-            name: "disabled"
-            when: !control.enabled
-
-            PropertyChanges {
-                target: bg
-                color: backgroundColor.disabled
-                border.color: strokeColor.disabled
-            }
-
-            PropertyChanges {
-                target: content
-                color: foregroundColor.disabled
-                icon.color: foregroundColor.disabled
-            }
-        }
-    ]
 }

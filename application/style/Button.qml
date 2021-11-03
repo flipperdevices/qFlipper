@@ -35,7 +35,6 @@
 ****************************************************************************/
 
 import QtQuick 2.15
-import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.impl 2.15
 import QtQuick.Templates 2.15 as T
@@ -80,7 +79,8 @@ T.Button {
 
     icon.width: 16
     icon.height: 16
-    icon.color: foregroundColor.normal
+    icon.color: !control.enabled ? foregroundColor.disabled : control.down ? foregroundColor.down :
+                 control.hovered ? foregroundColor.hover : foregroundColor.normal
 
     font.capitalization: Font.AllUppercase
     font.underline: flat
@@ -91,7 +91,8 @@ T.Button {
         text: control.text
         font: control.font
 
-        color: foregroundColor.normal
+        color: !control.enabled ? foregroundColor.disabled : control.down ? foregroundColor.down :
+                control.hovered ? foregroundColor.hover : foregroundColor.normal
 
         icon.source: control.icon.source
         icon.color: control.icon.color
@@ -109,8 +110,10 @@ T.Button {
 
         radius: 5
 
-        color: backgroundColor.normal
-        border.color: strokeColor.normal
+        color: !control.enabled ? backgroundColor.disabled : control.down ? backgroundColor.down :
+                control.hovered ? backgroundColor.hover : backgroundColor.normal
+        border.color: !control.enabled ? strokeColor.disabled : control.down ? strokeColor.down :
+                       control.hovered ? strokeColor.hover : strokeColor.normal
         border.width: 2
 
         Behavior on color {
@@ -120,58 +123,5 @@ T.Button {
             }
         }
     }
-
-    states: [
-        State {
-            name: "down"
-            when: control.down
-
-            PropertyChanges {
-                target: bg
-                color: backgroundColor.down
-                border.color: strokeColor.down
-            }
-
-            PropertyChanges {
-                target: content
-                color: foregroundColor.down
-                icon.color: foregroundColor.down
-            }
-        },
-
-        State {
-            name: "hovered"
-            when: control.hovered
-
-            PropertyChanges {
-                target: bg
-                color: backgroundColor.hover
-                border.color: strokeColor.hover
-            }
-
-            PropertyChanges {
-                target: content
-                color: foregroundColor.hover
-                icon.color: foregroundColor.hover
-            }
-        },
-
-        State {
-            name: "disabled"
-            when: !control.enabled
-
-            PropertyChanges {
-                target: bg
-                color: backgroundColor.disabled
-                border.color: strokeColor.disabled
-            }
-
-            PropertyChanges {
-                target: content
-                color: foregroundColor.disabled
-                icon.color: foregroundColor.disabled
-            }
-        }
-    ]
 }
 
