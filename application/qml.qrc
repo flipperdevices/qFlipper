@@ -72,5 +72,6 @@
         <file>assets/gfx/controls/windows/minimize.svg</file>
         <file>style/ScrollBar.qml</file>
         <file>style/ScrollView.qml</file>
+        <file>components/MainWindow.qml</file>
     </qresource>
 </RCC>

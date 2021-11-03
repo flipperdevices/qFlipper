@@ -1,10 +1,5 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
-import QtQuick.Layouts 1.15
-import QtQuick.Controls 2.15
-import QtGraphicalEffects 1.15
-
-import Theme 1.0
 
 import "components"
 
@@ -14,21 +9,20 @@ Window {
     flags: Qt.Window | Qt.FramelessWindowHint
     title: Qt.application.displayName
 
-    readonly property int baseWidth: 830
-    readonly property int baseHeight: 500
+    height: mainWindow.baseHeight + mainWindow.shadowSize * 2
 
-    readonly property int shadowSize: 16
-    readonly property int shadowOffset: 4
-
-    height: baseHeight + shadowSize * 2
-
-    minimumWidth: baseWidth + shadowSize * 2
-    minimumHeight: baseHeight + shadowSize * 2
+    minimumWidth: mainWindow.baseWidth + mainWindow.shadowSize * 2
+    minimumHeight: mainWindow.baseHeight + mainWindow.shadowSize * 2
 
     maximumWidth: minimumWidth
     maximumHeight: minimumHeight
 
     color: "transparent"
+
+    DragHandler {
+        onActiveChanged: if(active) { root.startSystemMove(); }
+        target: null
+    }
 
 //    Rectangle {
 //        id: bounds
@@ -38,261 +32,30 @@ Window {
 //        border.width: 1
 //    }
 
-    DragHandler {
-        onActiveChanged: if(active) { root.startSystemMove(); }
-        target: null
-    }
-
-    Item {
+    MainWindow {
         id: mainWindow
 
-        x: shadowSize
-        y: shadowSize - shadowOffset
-
-        width: root.baseWidth
-        height: root.baseHeight
-
-        PropertyAnimation {
-            id: logExpand
-            target: mainWindow
-            easing.type: Easing.InOutQuad
-            property: "height"
-            from: root.baseHeight
-            to: root.baseHeight * 2
-            duration: 500
-
-            onStarted: {
-                root.maximumHeight = root.baseHeight * 2 + shadowSize * 2;
-                root.height = root.maximumHeight;
-            }
-
-            onFinished: {
-                root.minimumHeight = root.maximumHeight;
-            }
+        onExpandStarted: {
+            root.maximumHeight = baseHeight * 2 + shadowSize * 2;
+            root.height = root.maximumHeight;
         }
 
-        PropertyAnimation {
-            id: logCollapse
-            target: logExpand.target
-            easing: logExpand.easing
-            duration: logExpand.duration
-            property: logExpand.property
-
-            from: logExpand.to
-            to: logExpand.from
-
-            onStarted: {
-                root.minimumHeight = root.baseHeight + shadowSize * 2;
-            }
-
-            onFinished: {
-                root.height = root.baseHeight + shadowSize * 2;
-                root.maximumHeight = root.height;
-            }
+        onExpandFinished: {
+            root.minimumHeight = root.maximumHeight;
         }
 
-        Rectangle {
-            id: blackBorder
-            anchors.fill: parent
-            anchors.margins: -1
-            radius: bg.radius + 1
-            opacity: 0.5
-            color: "black"
+        onCollapseStarted: {
+            root.minimumHeight = baseHeight + shadowSize * 2;
         }
 
-        Rectangle {
-            id: bg
-            radius: 10
-            anchors.fill: parent
-
-            color: "black"
-            border.color: Theme.color.mediumorange3
-            border.width: 2
-
-            layer.enabled: true
-            layer.effect: DropShadow {
-                radius: shadowSize
-                samples: shadowSize * 2 + 1
-                horizontalOffset: 0
-                verticalOffset: shadowOffset
-                color: Qt.rgba(0, 0, 0, 0.3)
-            }
+        onCollapseFinished: {
+            root.height = baseHeight + shadowSize * 2;
+            root.maximumHeight = root.height;
         }
+    }
 
-        states: State {
-            name: "connected"
-            when: clicker.checked
-
-            PropertyChanges {
-                target: device
-                x: Math.floor(mainContent.width / 2)
-            }
-
-            PropertyChanges {
-                target: noDeviceOverlay
-                opacity: 0
-            }
-
-            PropertyChanges {
-                target: homeOverlay
-                opacity: 1
-            }
-        }
-
-        WindowControls {
-            id: windowControls
-
-            controlPath: "qrc:/assets/gfx/controls"
-
-            anchors.top: mainWindow.top
-            anchors.left: mainContent.left
-            anchors.right: mainContent.right
-            anchors.bottom: mainContent.top
-
-            anchors.topMargin: bg.border.width
-            onMinimizeRequested: root.showMinimized()
-            onCloseRequested: Qt.quit()
-        }
-
-        MainBackground {
-            id: mainContent
-
-            anchors.horizontalCenter: parent.horizontalCenter
-            y: 38
-
-            width: 800 + border.width * 2
-            height: 390 + border.width * 2
-
-            Text {
-                id: versionLabel
-
-                anchors.top: parent.top
-                anchors.right: parent.right
-                anchors.margins: 10
-                anchors.rightMargin: 16
-
-                color: Theme.color.orange
-                opacity: 0.5
-
-                font.family: "Terminus (TTF)"
-                font.pixelSize: 12
-
-                text: app.version
-
-                MouseArea {
-                    id: clicker
-                    property bool checked: false
-                    anchors.fill: parent
-
-                    onClicked: {
-                        checked = !checked
-                    }
-                }
-            }
-
-            NoDeviceOverlay {
-                id: noDeviceOverlay
-                anchors.fill: parent
-            }
-
-            HomeOverlay {
-                id: homeOverlay
-                anchors.fill: parent
-                opacity: 0
-            }
-
-            Image {
-                id: device
-
-                x: 216
-                y: 80
-
-                source: "qrc:/assets/gfx/images/flipper.svg"
-
-                Behavior on x {
-                    PropertyAnimation {
-                        easing.type: Easing.InOutQuad
-                        duration: 350
-                    }
-                }
-            }
-        }
-
-        RowLayout {
-            id: footerLayour
-            width: mainContent.width
-
-            height: 42
-            spacing: 15
-
-            anchors.horizontalCenter: mainContent.horizontalCenter
-            anchors.top: mainContent.bottom
-            anchors.topMargin: 13
-
-            Button {
-                id: logButton
-                text: qsTr("LOGS")
-
-                Layout.preferredWidth: 110
-                Layout.fillHeight: true
-
-                icon.source: checked ? "qrc:/assets/gfx/symbolic/arrow-up.svg" :
-                                       "qrc:/assets/gfx/symbolic/arrow-down.svg"
-                checkable: true
-                onCheckedChanged: {
-                    if(checked) {
-                        if(!logCollapse.running) {
-                            logExpand.start();
-                        } else {
-                            checked = false;
-                        }
-
-                    } else {
-                        if(!logExpand.running) {
-                            logCollapse.start();
-                        } else {
-                            checked = true;
-                        }
-                    }
-                }
-            }
-
-            Rectangle {
-                id: popupBg
-                color: Theme.color.darkorange1
-
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-
-                Text {
-                    id: popupText
-                    text: "New firmware release 0.42.1 is available"
-
-                    anchors.fill: parent
-                    anchors.leftMargin: 10
-                    color: Theme.color.orange
-
-                    font.capitalization: Font.AllUppercase
-                    verticalAlignment: Text.AlignVCenter
-                }
-            }
-        }
-
-        ScrollView {
-            anchors.top: footerLayour.bottom
-            anchors.left: mainContent.left
-            anchors.right: mainContent.right
-            anchors.bottom: parent.bottom
-
-            anchors.topMargin: 14
-            anchors.bottomMargin: 12
-
-            TextArea {
-                id: logText
-                padding: 0
-                anchors.fill: parent
-                color: Theme.color.orange
-            }
-        }
+    Component.onCompleted: {
+        mainWindow.controls.minimizeRequested.connect(root.showMinimized);
+        mainWindow.controls.closeRequested.connect(Qt.quit);
     }
 }
