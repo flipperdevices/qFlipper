@@ -29,7 +29,7 @@
         <file>assets/gfx/images/flipper.svg</file>
         <file>style/ColorGroup.qml</file>
         <file>components/UpdateButton.qml</file>
-        <file>components/MainBackground.qml</file>
+        <file>components/GridBackground.qml</file>
         <file>assets/gfx/images/typec.svg</file>
         <file>assets/gfx/symbolic/arrow-up.svg</file>
         <file>assets/gfx/symbolic/arrow-down.svg</file>
@@ -73,5 +73,7 @@
         <file>style/ScrollBar.qml</file>
         <file>style/ScrollView.qml</file>
         <file>components/MainWindow.qml</file>
+        <file>style/Dialog.qml</file>
+        <file>style/DialogButtonBox.qml</file>
     </qresource>
 </RCC>

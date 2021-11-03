@@ -19,6 +19,22 @@ Item {
         }
     }
 
+    Dialog {
+        id: confirmationDialog
+        anchors.centerIn: parent
+
+        title: "Update to version 0.69.4?"
+
+        contentItem: Text {
+            color: Theme.color.mediumorange1
+            text: "Mate this shit is gonna legit explode I'm proper warning you"
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
+
+        standardButtons: Dialog.Yes | Dialog.No
+    }
+
     TabPane {
         width: 322
 
@@ -97,7 +113,9 @@ Item {
         accent: UpdateButton.Green
 
         x: Math.round(centerX - width / 2)
-        y: 260
+        y: 265
+
+        onClicked: confirmationDialog.open()
     }
 
     LinkButton {
@@ -105,7 +123,7 @@ Item {
         x: centerX - width - 6
 
         anchors.top: updateButton.bottom
-        anchors.topMargin: 8
+        anchors.topMargin: 5
 
         linkColor: Theme.color.lightgreen
 
@@ -117,7 +135,7 @@ Item {
         x: centerX + 6
 
         anchors.top: updateButton.bottom
-        anchors.topMargin: 8
+        anchors.topMargin: 5
 
         text: "Install from file"
     }

@@ -20,7 +20,7 @@ Item {
         id: usbPlug
 
         x: parent.width - 200
-        y: 170
+        y: 175
 
         source: "qrc:/assets/gfx/images/typec.svg"
 

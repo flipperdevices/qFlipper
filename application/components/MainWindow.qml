@@ -117,7 +117,7 @@ Item {
         anchors.topMargin: bg.border.width
     }
 
-    MainBackground {
+    GridBackground {
         id: mainContent
 
         anchors.horizontalCenter: parent.horizontalCenter
@@ -168,7 +168,7 @@ Item {
             id: device
 
             x: 216
-            y: 80
+            y: 85
 
             source: "qrc:/assets/gfx/images/flipper.svg"
 
