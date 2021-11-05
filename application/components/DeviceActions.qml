@@ -17,6 +17,7 @@ ColumnLayout {
 
     ComboBox {
         model: firmwareUpdates.channelNames
+        delegate: ChannelDelegate {}
         Layout.fillWidth: true
     }
 

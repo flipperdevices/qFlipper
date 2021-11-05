@@ -75,5 +75,6 @@
         <file>components/MainWindow.qml</file>
         <file>style/Dialog.qml</file>
         <file>style/DialogButtonBox.qml</file>
+        <file>components/ChannelDelegate.qml</file>
     </qresource>
 </RCC>
