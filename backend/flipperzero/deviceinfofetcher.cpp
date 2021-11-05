@@ -75,6 +75,8 @@ void VCPDeviceInfoFetcher::onSerialPortFound(const QSerialPortInfo &portInfo)
     }
 
     m_deviceInfo.serialInfo = portInfo;
+    m_deviceInfo.systemLocation = portInfo.systemLocation();
+
     m_serialPort = new QSerialPort(portInfo, this);
 
     if(!m_serialPort->open(QIODevice::ReadWrite)) {
@@ -168,7 +170,15 @@ void VCPDeviceInfoFetcher::parseLine(const QByteArray &line)
     if(key == QByteArrayLiteral("hardware_name")) {
         m_deviceInfo.name = value;
     } else if(key == QByteArrayLiteral("hardware_target")) {
-        m_deviceInfo.target = QStringLiteral("f") + value;
+        m_deviceInfo.hardware.target = QStringLiteral("f") + value;
+    } else if(key == QByteArrayLiteral("hardware_ver")) {
+        m_deviceInfo.hardware.version = value;
+    } else if(key == QByteArrayLiteral("hardware_body")) {
+        m_deviceInfo.hardware.body = QStringLiteral("b") + value;
+    } else if(key == QByteArrayLiteral("hardware_connect")) {
+        m_deviceInfo.hardware.connect = QStringLiteral("c") + value;
+    } else if(key == QByteArrayLiteral("hardware_color")) {
+        m_deviceInfo.hardware.color = (HardwareInfo::Color)value.toInt();
     } else if(key == QByteArrayLiteral("firmware_version")) {
         m_deviceInfo.firmware.version = value;
     } else if(key == QByteArrayLiteral("firmware_commit")) {
@@ -216,6 +226,7 @@ DFUDeviceInfoFetcher::DFUDeviceInfoFetcher(const USBDeviceInfo &info, QObject *p
     AbstractDeviceInfoFetcher(parent)
 {
     m_deviceInfo.usbInfo = info;
+    m_deviceInfo.systemLocation = QStringLiteral("S/N:%1").arg(info.serialNumber());
 }
 
 void DFUDeviceInfoFetcher::fetch()
@@ -240,8 +251,11 @@ void DFUDeviceInfoFetcher::fetch()
     }
 
     m_deviceInfo.name = factoryInfo.name();
-    m_deviceInfo.target = QStringLiteral("f%1").arg(factoryInfo.target());
-    m_deviceInfo.color = (DeviceInfo::Color)factoryInfo.color();
+    m_deviceInfo.hardware.version = QString::number(factoryInfo.version());
+    m_deviceInfo.hardware.target = QStringLiteral("f%1").arg(factoryInfo.target());
+    m_deviceInfo.hardware.body = QStringLiteral("b%1").arg(factoryInfo.body());
+    m_deviceInfo.hardware.connect = QStringLiteral("c%1").arg(factoryInfo.connect());
+    m_deviceInfo.hardware.color = (HardwareInfo::Color)factoryInfo.color();
 
     finish();
 }

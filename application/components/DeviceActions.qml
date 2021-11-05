@@ -16,7 +16,7 @@ ColumnLayout {
     }
 
     ComboBox {
-        model: ["Release", "Release-candidate", "Development"]
+        model: firmwareUpdates.channelNames
         Layout.fillWidth: true
     }
 

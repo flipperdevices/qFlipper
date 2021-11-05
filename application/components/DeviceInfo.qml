@@ -5,6 +5,10 @@ RowLayout {
     id: control
     spacing: 30
 
+    readonly property var device: deviceRegistry.currentDevice
+    readonly property var deviceState: device ? device.state : undefined
+    readonly property var deviceInfo: deviceState ? deviceState.info : undefined
+
     Item {
         Layout.fillWidth: true
     }
@@ -13,13 +17,16 @@ RowLayout {
         id: keys
 
         TextLabel {
+            id: versionLabel
             text: qsTr("Version")
             Layout.alignment: Qt.AlignRight
+            visible: deviceState ? !deviceState.isRecoveryMode : visible
         }
 
         TextLabel {
             text: qsTr("Date")
             Layout.alignment: Qt.AlignRight
+            visible: versionLabel.visible
         }
 
         TextLabel {
@@ -30,6 +37,7 @@ RowLayout {
         TextLabel {
             text: qsTr("Battery")
             Layout.alignment: Qt.AlignRight
+            visible: versionLabel.visible
         }
     }
 
@@ -37,19 +45,35 @@ RowLayout {
         id: values
 
         TextLabel {
-            text: "0.42.0"
+            text: !deviceInfo ? text : deviceInfo.firmware.branch === "dev" ?
+                   deviceInfo.firmware.commit : deviceInfo.firmware.version
+
+            visible: versionLabel.visible
         }
 
         TextLabel {
-            text: "2021-09-15"
+            text: deviceInfo ? deviceInfo.firmware.date.toLocaleDateString(Qt.locale("C"), Locale.ShortFormat) : text
+            visible: versionLabel.visible
         }
 
         TextLabel {
-            text: "11.F7.B8.C3"
+            text: {
+                if(!deviceInfo) {
+                    return text;
+                } else {
+                    return [
+                        deviceInfo.hardware.version,
+                        deviceInfo.hardware.target,
+                        deviceInfo.hardware.body,
+                        deviceInfo.hardware.connect
+                    ].join(".")
+                }
+            }
         }
 
         TextLabel {
-            text: "69%"
+            text: "N/A"
+            visible: versionLabel.visible
         }
     }
 

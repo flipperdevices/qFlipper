@@ -131,24 +131,3 @@ const QString &DeviceState::name() const
 {
     return m_deviceInfo.name;
 }
-
-const QString &DeviceState::model() const
-{
-    const static QString model("Flipper Zero");
-    return model;
-}
-
-const QString &DeviceState::target() const
-{
-    return m_deviceInfo.target;
-}
-
-const QString &DeviceState::version() const
-{
-    if(m_deviceInfo.firmware.branch == QStringLiteral("dev")) {
-        return m_deviceInfo.firmware.commit;
-    } else {
-        return m_deviceInfo.firmware.version;
-    }
-}
-

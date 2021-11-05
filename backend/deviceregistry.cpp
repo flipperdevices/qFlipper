@@ -16,7 +16,7 @@
 using namespace Flipper;
 
 DeviceRegistry::DeviceRegistry(QObject *parent):
-    QAbstractListModel(parent)
+    QObject(parent)
 {
     connect(USBDeviceDetector::instance(), &USBDeviceDetector::devicePluggedIn, this, &DeviceRegistry::insertDevice);
     connect(USBDeviceDetector::instance(), &USBDeviceDetector::deviceUnplugged, this, &DeviceRegistry::removeDevice);
@@ -26,23 +26,12 @@ DeviceRegistry::DeviceRegistry(QObject *parent):
         USBDeviceInfo(FLIPPER_ZERO_VID, FLIPPER_ZERO_PID_VCP)
             .withManufacturer("Flipper Devices Inc.")
             .withProductDescription("Flipper Control Virtual ComPort")
-    });
+                                                    });
 }
 
-int DeviceRegistry::rowCount(const QModelIndex &parent) const
+FlipperZero *DeviceRegistry::currentDevice() const
 {
-    Q_UNUSED(parent);
-    return m_data.size();
-}
-
-QVariant DeviceRegistry::data(const QModelIndex &index, int role) const
-{
-    return (role == DeviceRole) ? QVariant::fromValue(m_data.at(index.row())) : QVariant();
-}
-
-QHash<int, QByteArray> DeviceRegistry::roleNames() const
-{
-    return { { DeviceRole, "device" } };
+    return m_devices.isEmpty() ? nullptr : m_devices.first();
 }
 
 void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
@@ -60,19 +49,18 @@ void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 
 void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
 {
-    const auto it = std::find_if(m_data.begin(), m_data.end(), [&](Flipper::FlipperZero *dev) {
+    const auto it = std::find_if(m_devices.begin(), m_devices.end(), [&](Flipper::FlipperZero *dev) {
         const auto &deviceInfo = dev->deviceState()->deviceInfo().usbInfo;
         return deviceInfo.backendData() == info.backendData();
     });
 
-    if(it != m_data.end()) {
-        const auto idx = std::distance(m_data.begin(), it);
-        auto *device = m_data.at(idx);
+    if(it != m_devices.end()) {
+        const auto idx = std::distance(m_devices.begin(), it);
+        auto *device = m_devices.at(idx);
 
         if(!device->deviceState()->isPersistent()) {
-            beginRemoveRows(QModelIndex(), idx, idx);
-            m_data.takeAt(idx)->deleteLater();
-            endRemoveRows();
+            m_devices.takeAt(idx)->deleteLater();
+            emit devicesChanged();
 
         } else {
             device->deviceState()->setOnline(false);
@@ -93,22 +81,20 @@ void DeviceRegistry::processDevice()
 
     const auto &info = fetcher->result();
 
-    const auto it = std::find_if(m_data.begin(), m_data.end(), [&info](Flipper::FlipperZero *arg) {
+    const auto it = std::find_if(m_devices.begin(), m_devices.end(), [&info](Flipper::FlipperZero *arg) {
         return info.name == arg->deviceState()->name();
     });
 
-    if(it != m_data.end()) {
+    if(it != m_devices.end()) {
         // Preserving the old instance
         (*it)->deviceState()->reset(info);
 
     } else {
         auto *device = new FlipperZero(info, this);
-
-        beginInsertRows(QModelIndex(), m_data.size(), m_data.size());
-        m_data.append(device);
-        endInsertRows();
+        m_devices.append(device);
 
         emit deviceConnected(device);
+        emit devicesChanged();
     }
 
 }

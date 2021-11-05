@@ -86,7 +86,7 @@ Item {
 
     states: State {
         name: "connected"
-        when: clicker.checked
+        when: deviceRegistry.currentDevice
 
         PropertyChanges {
             target: device

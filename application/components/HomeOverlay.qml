@@ -10,6 +10,11 @@ Item {
     id: overlay
 
     readonly property int centerX: 590
+
+    readonly property var device: deviceRegistry.currentDevice
+    readonly property var deviceState: device ? device.state : undefined
+    readonly property var deviceInfo: deviceState ? deviceState.info : undefined
+
     layer.enabled: true
 
     Behavior on opacity {
@@ -83,7 +88,7 @@ Item {
         font.family: "Born2bSportyV2"
         font.pixelSize: 48
 
-        text: "BabyYoda"
+        text: deviceInfo ? deviceInfo.name : text
     }
 
     ColumnLayout {
@@ -96,21 +101,34 @@ Item {
 
             font.capitalization: Font.AllUppercase
             icon.source: "qrc:/assets/gfx/symbolic/usb-connected.svg"
-            text: qsTr("Connected")
+
+            color: (!deviceState || !deviceState.isOnline) ? Theme.color.red : deviceState.isRecoveryMode ?
+                                           Theme.color.lightblue : Theme.color.lightgreen
+            text: (!deviceState || !deviceState.isOnline) ? qsTr("Disconnected") : deviceState.isRecoveryMode ?
+                                           qsTr("Recovery mode") : qsTr("Connected")
         }
 
         TransparentLabel {
             id: systemPathLabel
-            height: 14
-
-            text: "/dev/ttyACM3"
+            height: connectionLabel.height
+            color: connectionLabel.color
+            text: deviceInfo ? deviceInfo.systemLocation : text
         }
     }
 
     UpdateButton {
         id: updateButton
 
-        accent: UpdateButton.Green
+        accent: {
+            if(!deviceState || !deviceState.isOnline) {
+                return accent;
+            } else if(deviceState.isRecoveryMode) {
+                return UpdateButton.Blue;
+            } else {
+                // TODO: Check for updates
+                return UpdateButton.Green
+            }
+        }
 
         x: Math.round(centerX - width / 2)
         y: 265
