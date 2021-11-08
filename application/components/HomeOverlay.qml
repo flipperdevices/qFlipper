@@ -133,7 +133,15 @@ Item {
         x: Math.round(centerX - width / 2)
         y: 265
 
-        onClicked: confirmationDialog.open()
+        onClicked: {
+            if(!firmwareUpdates.isReady) {
+                return;
+            } else if(deviceState.isRecoveryMode) {
+                device.updater.fullRepair(firmwareUpdates.latestVersion);
+            } else {
+                device.updater.fullUpdate(firmwareUpdates.latestVersion);
+            }
+        }
     }
 
     LinkButton {
@@ -143,9 +151,37 @@ Item {
         anchors.top: updateButton.bottom
         anchors.topMargin: 5
 
-        linkColor: Theme.color.lightgreen
+        linkColor: {
+            if(!firmwareUpdates.isReady) {
+                return Theme.color.orange;
+            } else if(preferences.updateChannel === "development") {
+                return Theme.color.lightred2;
+            } else if(preferences.updateChannel === "release-candidate") {
+                return "blueviolet";
+            } else if(preferences.updateChannel === "release") {
+                return Theme.color.lightgreen;
+            } else {
+                return Theme.color.orange;
+            }
+        }
 
-        text: "Release 0.42.1"
+        text: {
+            let str;
+
+            if(!firmwareUpdates.isReady) {
+                return qsTr("No update data");
+            } else if(preferences.updateChannel === "development") {
+                str = "Dev";
+            } else if(preferences.updateChannel === "release-candidate") {
+                str = "RC";
+            } else if(preferences.updateChannel === "release") {
+                str = "Release";
+            } else {
+                str = "Unknown";
+            }
+
+            return "%1 %2".arg(str).arg(firmwareUpdates.latestVersion.number);
+        }
     }
 
     LinkButton {

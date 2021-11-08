@@ -76,5 +76,7 @@
         <file>style/Dialog.qml</file>
         <file>style/DialogButtonBox.qml</file>
         <file>components/ChannelDelegate.qml</file>
+        <file>components/UpdateOverlay.qml</file>
+        <file>style/ProgressBar.qml</file>
     </qresource>
 </RCC>

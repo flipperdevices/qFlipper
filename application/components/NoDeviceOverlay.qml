@@ -6,7 +6,7 @@ import QtGraphicalEffects 1.15
 import Theme 1.0
 
 Item {
-    id: noDeviceOverlay
+    id: overlay
     layer.enabled: true
 
     Behavior on opacity {

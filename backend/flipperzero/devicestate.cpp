@@ -8,14 +8,15 @@ DeviceState::DeviceState(const DeviceInfo &deviceInfo, QObject *parent):
     m_deviceInfo(deviceInfo),
     m_isPersistent(false),
     m_isOnline(true),
-    m_isError(false)
+    m_isError(false),
+    m_progress(-1.0)
 {}
 
 void DeviceState::reset(const DeviceInfo &newDeviceInfo)
 {
     setDeviceInfo(newDeviceInfo);
     setError(false);
-    setProgress(0.0);
+    setProgress(-1.0);
     setOnline(true);
 }
 

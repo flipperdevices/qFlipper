@@ -19,6 +19,14 @@ ColumnLayout {
         model: firmwareUpdates.channelNames
         delegate: ChannelDelegate {}
         Layout.fillWidth: true
+
+        onCountChanged: {
+            currentIndex = find(preferences.updateChannel);
+        }
+
+        onActivated: {
+            preferences.updateChannel = textAt(index);
+        }
     }
 
     TransparentLabel {

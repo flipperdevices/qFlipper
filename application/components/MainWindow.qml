@@ -19,6 +19,10 @@ Item {
     readonly property int shadowSize: 16
     readonly property int shadowOffset: 4
 
+    readonly property var device: deviceRegistry.currentDevice
+    readonly property var deviceState: device ? device.state : undefined
+    readonly property var deviceInfo: deviceState ? deviceState.info : undefined
+
     property alias controls: windowControls
 
     width: baseWidth
@@ -84,26 +88,6 @@ Item {
         }
     }
 
-    states: State {
-        name: "connected"
-        when: deviceRegistry.currentDevice
-
-        PropertyChanges {
-            target: device
-            x: Math.floor(mainContent.width / 2)
-        }
-
-        PropertyChanges {
-            target: noDeviceOverlay
-            opacity: 0
-        }
-
-        PropertyChanges {
-            target: homeOverlay
-            opacity: 1
-        }
-    }
-
     WindowControls {
         id: windowControls
 
@@ -156,18 +140,25 @@ Item {
         NoDeviceOverlay {
             id: noDeviceOverlay
             anchors.fill: parent
+            opacity: device ? 0 : 1
         }
 
         HomeOverlay {
             id: homeOverlay
             anchors.fill: parent
-            opacity: 0
+            opacity: deviceState && !deviceState.isPersistent ? 1 : 0
+        }
+
+        UpdateOverlay {
+            id: updateOverlay
+            anchors.fill: parent
+            opacity: deviceState && deviceState.isPersistent ? 1 : 0
         }
 
         Image {
-            id: device
+            id: deviceWidget
 
-            x: 216
+            x: deviceState && !deviceState.isPersistent ? Math.floor(mainContent.width / 2) : 216
             y: 85
 
             source: "qrc:/assets/gfx/images/flipper.svg"
