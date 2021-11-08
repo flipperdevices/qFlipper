@@ -16,17 +16,14 @@ ColumnLayout {
     }
 
     ComboBox {
+        id: channelComboBox
+
         model: firmwareUpdates.channelNames
         delegate: ChannelDelegate {}
         Layout.fillWidth: true
 
-        onCountChanged: {
-            currentIndex = find(preferences.updateChannel);
-        }
-
-        onActivated: {
-            preferences.updateChannel = textAt(index);
-        }
+        currentIndex: firmwareUpdates.isReady ? find(preferences.updateChannel) : -1
+        onActivated: preferences.updateChannel = textAt(index);
     }
 
     TransparentLabel {
