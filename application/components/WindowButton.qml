@@ -24,12 +24,17 @@ ToolButton {
 
         IconImage {
             id: iconNormal
+
             source: "%1/%2.svg".arg(iconPath).arg(iconName)
+            sourceSize: Qt.size(icon.width, icon.height)
         }
 
         IconImage {
             id: iconHover
+
             source: "%1/%2_hover.svg".arg(iconPath).arg(iconName)
+            sourceSize: Qt.size(icon.width, icon.height)
+
             opacity: control.hovered ? 1 : 0
 
             Behavior on opacity {
@@ -42,7 +47,10 @@ ToolButton {
 
         IconImage {
             id: iconDown
+
             source: "%1/%2_down.svg".arg(iconPath).arg(iconName)
+            sourceSize: Qt.size(control.icon.width, control.icon.height)
+
             opacity: control.down ? 1 : 0
         }
     }
