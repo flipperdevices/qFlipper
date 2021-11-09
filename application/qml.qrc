@@ -78,5 +78,7 @@
         <file>components/ChannelDelegate.qml</file>
         <file>components/UpdateOverlay.qml</file>
         <file>style/ProgressBar.qml</file>
+        <file>components/CustomDialog.qml</file>
+        <file>components/ConfirmationDialog.qml</file>
     </qresource>
 </RCC>

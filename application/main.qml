@@ -24,14 +24,6 @@ Window {
         target: null
     }
 
-//    Rectangle {
-//        id: bounds
-//        anchors.fill: parent
-//        color: "transparent"
-//        border.color: Qt.rgba(0, 1, 0, 0.3)
-//        border.width: 1
-//    }
-
     MainWindow {
         id: mainWindow
 

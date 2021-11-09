@@ -7,6 +7,7 @@ import Theme 1.0
 
 Item {
     id: overlay
+    visible: opacity > 0
     layer.enabled: true
 
     Behavior on opacity {
@@ -23,7 +24,7 @@ Item {
         y: 175
 
         source: "qrc:/assets/gfx/images/typec.svg"
-
+        sourceSize: Qt.size(160, 42)
     }
 
     Text {

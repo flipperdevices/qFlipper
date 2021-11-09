@@ -5,8 +5,10 @@ import Theme 1.0
 
 Item {
     id: overlay
-
+    visible: opacity > 0
     layer.enabled: true
+
+    property Rectangle backgroundRect
 
     readonly property var device: deviceRegistry.currentDevice
     readonly property var deviceState: device ? device.state : undefined

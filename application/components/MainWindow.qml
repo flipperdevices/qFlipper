@@ -141,21 +141,20 @@ Item {
             id: noDeviceOverlay
             anchors.fill: parent
             opacity: device ? 0 : 1
-            visible: opacity > 0
         }
 
         HomeOverlay {
             id: homeOverlay
+            backgroundRect: bg
             anchors.fill: parent
             opacity: deviceState && !deviceState.isPersistent ? 1 : 0
-            visible: opacity > 0
         }
 
         UpdateOverlay {
             id: updateOverlay
+            backgroundRect: bg
             anchors.fill: parent
             opacity: deviceState && deviceState.isPersistent ? 1 : 0
-            visible: opacity > 0
         }
 
         Image {
@@ -165,6 +164,7 @@ Item {
             y: 85
 
             source: "qrc:/assets/gfx/images/flipper.svg"
+            sourceSize: Qt.size(360, 156)
 
             Behavior on x {
                 PropertyAnimation {

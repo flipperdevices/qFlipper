@@ -8,14 +8,16 @@ import "../style"
 
 Item {
     id: overlay
+    visible: opacity > 0
+    layer.enabled: true
+
+    property Rectangle backgroundRect
 
     readonly property int centerX: 590
 
     readonly property var device: deviceRegistry.currentDevice
     readonly property var deviceState: device ? device.state : undefined
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
-
-    layer.enabled: true
 
     Behavior on opacity {
         PropertyAnimation {
@@ -24,21 +26,27 @@ Item {
         }
     }
 
-    Dialog {
+    ConfirmationDialog {
         id: confirmationDialog
-        anchors.centerIn: parent
-
-        title: "Update to version 0.69.4?"
-
-        contentItem: Text {
-            color: Theme.color.mediumorange1
-            text: "Mate this shit is gonna legit explode I'm proper warning you"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-        }
-
-        standardButtons: Dialog.Yes | Dialog.No
+        parent: backgroundRect
+        radius: backgroundRect.radius
     }
+
+//    Dialog {
+//        id: confirmationDialog
+//        anchors.centerIn: parent
+
+//        title: "Update to version 0.69.4?"
+
+//        contentItem: Text {
+//            color: Theme.color.mediumorange1
+//            text: "Mate this shit is gonna legit explode I'm proper warning you"
+//            horizontalAlignment: Text.AlignHCenter
+//            verticalAlignment: Text.AlignVCenter
+//        }
+
+//        standardButtons: Dialog.Yes | Dialog.No
+//    }
 
     TabPane {
         width: 322
@@ -192,5 +200,6 @@ Item {
         anchors.topMargin: 5
 
         text: "Install from file"
+        onClicked: confirmationDialog.open()
     }
 }
