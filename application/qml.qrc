@@ -80,5 +80,6 @@
         <file>style/ProgressBar.qml</file>
         <file>components/CustomDialog.qml</file>
         <file>components/ConfirmationDialog.qml</file>
+        <file>assets/gfx/symbolic/info-small.svg</file>
     </qresource>
 </RCC>

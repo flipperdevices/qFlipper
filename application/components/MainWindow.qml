@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
+import QtQuick.Controls.impl 2.15
 import QtGraphicalEffects 1.15
 
 import Theme 1.0
@@ -225,16 +226,29 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            Text {
-                id: popupText
-                text: "New firmware release 0.42.1 is available"
-
+            RowLayout {
                 anchors.fill: parent
                 anchors.leftMargin: 10
-                color: Theme.color.orange
+                spacing: 10
 
-                font.capitalization: Font.AllUppercase
-                verticalAlignment: Text.AlignVCenter
+                IconImage {
+                    width: 22
+                    height: 22
+
+                    color: Theme.color.orange
+                    source: "qrc:/assets/gfx/symbolic/info-small.svg"
+                }
+
+                Text {
+                    id: popupText
+                    text: !deviceState ? "Waiting for devices ..." : deviceState.isPersistent? "Do not unplug the device ..." : "Ready."
+
+                    color: Theme.color.orange
+
+                    font.capitalization: Font.AllUppercase
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.fillWidth: true
+                }
             }
         }
     }
@@ -247,6 +261,8 @@ Item {
 
         anchors.topMargin: 14
         anchors.bottomMargin: 12
+
+        visible: height > 0
 
         TextArea {
             id: logText
