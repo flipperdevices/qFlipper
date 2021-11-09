@@ -43,19 +43,28 @@ ColumnLayout {
         SmallButton {
             text: qsTr("Backup")
             Layout.fillWidth: true
+
             icon.source: "qrc:/assets/gfx/symbolic/backup-symbolic.svg"
+            icon.width: 18
+            icon.height: 20
         }
 
         SmallButton {
             text: qsTr("Restore")
             Layout.fillWidth: true
+
             icon.source: "qrc:/assets/gfx/symbolic/restore-symbolic.svg"
+            icon.width: 18
+            icon.height: 20
         }
 
         SmallButtonRed {
             text: qsTr("Erase")
             Layout.fillWidth: true
+
             icon.source: "qrc:/assets/gfx/symbolic/trashcan.svg"
+            icon.width: 18
+            icon.height: 20
         }
     }
 
@@ -69,6 +78,9 @@ ColumnLayout {
     Button {
         text: qsTr("Update qFlipper")
         Layout.fillWidth: true
+
         icon.source: "qrc:/assets/gfx/symbolic/update-symbolic.svg"
+        icon.width: 16
+        icon.height: 16
     }
 }

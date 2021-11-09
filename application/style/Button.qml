@@ -77,8 +77,6 @@ T.Button {
     horizontalPadding: padding + 2
     spacing: 6
 
-    icon.width: 16
-    icon.height: 16
     icon.color: !control.enabled ? foregroundColor.disabled : control.down ? foregroundColor.down :
                  control.hovered ? foregroundColor.hover : foregroundColor.normal
 
@@ -95,6 +93,8 @@ T.Button {
                 control.hovered ? foregroundColor.hover : foregroundColor.normal
 
         icon.source: control.icon.source
+        icon.sourceSize.width: control.icon.width
+        icon.sourceSize.height: control.icon.height
         icon.color: control.icon.color
 
         padding: control.padding

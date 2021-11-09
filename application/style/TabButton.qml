@@ -78,8 +78,8 @@ T.TabButton {
     padding: 6
     spacing: 6
 
-    icon.width: 24
-    icon.height: 24
+//    icon.width: 24
+//    icon.height: 24
     icon.color: !control.enabled ? foregroundColor.disabled : control.down || control.checked ? foregroundColor.down :
                  control.hovered ? foregroundColor.hover : foregroundColor.normal
 

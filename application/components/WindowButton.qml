@@ -19,8 +19,8 @@ ToolButton {
     background: Item {}
 
     contentItem: Item {
-        width: icon.width
-        height: icon.height
+        width: iconNormal.width
+        height: iconNormal.height
 
         IconImage {
             id: iconNormal
@@ -49,7 +49,7 @@ ToolButton {
             id: iconDown
 
             source: "%1/%2_down.svg".arg(iconPath).arg(iconName)
-            sourceSize: Qt.size(control.icon.width, control.icon.height)
+            sourceSize: Qt.size(icon.width, icon.height)
 
             opacity: control.down ? 1 : 0
         }

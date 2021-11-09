@@ -195,6 +195,9 @@ Item {
 
             icon.source: checked ? "qrc:/assets/gfx/symbolic/arrow-up.svg" :
                                    "qrc:/assets/gfx/symbolic/arrow-down.svg"
+            icon.width: 24
+            icon.height: 24
+
             checkable: true
 
             onCheckedChanged: {

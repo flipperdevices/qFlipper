@@ -44,6 +44,7 @@ Item {
         IconImage {
             id: icon
             color: control.color
+            sourceSize: Qt.size(width, height)
         }
     }
 }

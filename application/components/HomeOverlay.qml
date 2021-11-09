@@ -108,7 +108,10 @@ Item {
             height: 14
 
             font.capitalization: Font.AllUppercase
+
             icon.source: "qrc:/assets/gfx/symbolic/usb-connected.svg"
+            icon.width: 18
+            icon.height: 10
 
             color: (!deviceState || !deviceState.isOnline) ? Theme.color.red : deviceState.isRecoveryMode ?
                                            Theme.color.lightblue : Theme.color.lightgreen
