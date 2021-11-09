@@ -101,8 +101,8 @@ T.ComboBox {
     indicator: ColorImage {
         id: icon
 
-        width: 24
-        height: 24
+//        width: 24
+//        height: 24
 
         x: control.mirrored ? control.padding : control.width - width - 13
         y: control.topPadding + (control.availableHeight - height) / 2
@@ -111,6 +111,7 @@ T.ComboBox {
                 control.hovered ? foregroundColor.hover : foregroundColor.normal
         source: control.down ? "qrc:/assets/gfx/symbolic/arrow-up.svg" :
                                "qrc:/assets/gfx/symbolic/arrow-down.svg"
+        sourceSize: Qt.size(24, 24)
     }
 
     contentItem: T.TextField {
