@@ -232,11 +232,9 @@ Item {
                 spacing: 10
 
                 IconImage {
-                    width: 22
-                    height: 22
-
                     color: Theme.color.orange
                     source: "qrc:/assets/gfx/symbolic/info-small.svg"
+                    sourceSize: Qt.size(22, 22)
                 }
 
                 Text {
