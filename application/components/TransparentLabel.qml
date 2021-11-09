@@ -18,7 +18,7 @@ Item {
     font.family: "Terminus (TTF)"
     font.pixelSize: 12
 
-    width: layout.width + margins * 2
+    implicitWidth: layout.implicitWidth + margins * 2
 
     Rectangle {
         id: bg

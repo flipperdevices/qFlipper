@@ -141,18 +141,21 @@ Item {
             id: noDeviceOverlay
             anchors.fill: parent
             opacity: device ? 0 : 1
+            visible: opacity > 0
         }
 
         HomeOverlay {
             id: homeOverlay
             anchors.fill: parent
             opacity: deviceState && !deviceState.isPersistent ? 1 : 0
+            visible: opacity > 0
         }
 
         UpdateOverlay {
             id: updateOverlay
             anchors.fill: parent
             opacity: deviceState && deviceState.isPersistent ? 1 : 0
+            visible: opacity > 0
         }
 
         Image {
