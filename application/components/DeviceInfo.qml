@@ -1,6 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 
+import Theme 1.0
+
 RowLayout {
     id: control
     spacing: 30
@@ -8,36 +10,50 @@ RowLayout {
     readonly property var device: deviceRegistry.currentDevice
     readonly property var deviceState: device ? device.state : undefined
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
-
-    Item {
-        Layout.fillWidth: true
-    }
+    readonly property bool extraFields: deviceState ? !deviceState.isRecoveryMode : false
 
     ColumnLayout {
         id: keys
 
         TextLabel {
-            id: versionLabel
-            text: qsTr("Version")
-            Layout.alignment: Qt.AlignRight
-            visible: deviceState ? !deviceState.isRecoveryMode : visible
+            text: qsTr("Firmware")
+            visible: extraFields
+            horizontalAlignment: Text.AlignRight
+            Layout.fillWidth: true
         }
 
         TextLabel {
-            text: qsTr("Date")
-            Layout.alignment: Qt.AlignRight
-            visible: versionLabel.visible
+            text: qsTr("Build Date")
+            visible: extraFields
+            horizontalAlignment: Text.AlignRight
+            Layout.fillWidth: true
+        }
+
+        TextLabel {
+            text: qsTr("SD Card")
+            visible: extraFields
+            horizontalAlignment: Text.AlignRight
+            Layout.fillWidth: true
+        }
+
+        TextLabel {
+            text: qsTr("Databases")
+            visible: extraFields
+            horizontalAlignment: Text.AlignRight
+            Layout.fillWidth: true
         }
 
         TextLabel {
             text: qsTr("Hardware")
-            Layout.alignment: Qt.AlignRight
+            horizontalAlignment: Text.AlignRight
+            Layout.fillWidth: true
         }
 
         TextLabel {
-            text: qsTr("Battery")
-            Layout.alignment: Qt.AlignRight
-            visible: versionLabel.visible
+            text: qsTr("Radio FW")
+            visible: extraFields
+            horizontalAlignment: Text.AlignRight
+            Layout.fillWidth: true
         }
     }
 
@@ -48,12 +64,24 @@ RowLayout {
             text: !deviceInfo ? text : deviceInfo.firmware.branch === "dev" ?
                    deviceInfo.firmware.commit : deviceInfo.firmware.version
 
-            visible: versionLabel.visible
+            visible: extraFields
         }
 
         TextLabel {
             text: deviceInfo ? deviceInfo.firmware.date.toLocaleDateString(Qt.locale("C"), Locale.ShortFormat) : text
-            visible: versionLabel.visible
+            visible: extraFields
+        }
+
+        TextLabel {
+            text: qsTr("Not present")
+            color: Theme.color.lightred1
+            visible: extraFields
+        }
+
+        TextLabel {
+            text: qsTr("Not present")
+            color: Theme.color.lightred1
+            visible: extraFields
         }
 
         TextLabel {
@@ -69,15 +97,13 @@ RowLayout {
                     ].join(".")
                 }
             }
+
+            Layout.fillWidth: true
         }
 
         TextLabel {
-            text: "N/A"
-            visible: versionLabel.visible
+            text: deviceInfo ? deviceInfo.radioVersion : text
+            visible: extraFields
         }
-    }
-
-    Item {
-        Layout.fillWidth: true
     }
 }
