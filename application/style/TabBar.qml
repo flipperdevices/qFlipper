@@ -50,7 +50,7 @@ T.TabBar {
 
     background: Rectangle {
         radius: 4
-        color: Theme.color.orange
+        color: Theme.color.lightorange2
     }
 
     contentItem: ListView {

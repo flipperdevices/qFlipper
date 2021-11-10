@@ -7,7 +7,7 @@ Rectangle {
 
     radius: 9
     border.width: 3
-    border.color: Theme.color.orange
+    border.color: Theme.color.lightorange2
 
     gradient: Gradient {
         GradientStop { position: 0; color: "#090400" }

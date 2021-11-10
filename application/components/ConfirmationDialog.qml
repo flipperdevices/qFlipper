@@ -18,7 +18,7 @@ CustomDialog {
             border.width: 2
 
             color: "black"
-            border.color: Theme.color.orange
+            border.color: Theme.color.lightorange2
         }
     }
 }

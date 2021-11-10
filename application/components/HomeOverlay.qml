@@ -91,7 +91,7 @@ Item {
         x: centerX - width - 4
         y: 24
 
-        color: Theme.color.orange
+        color: Theme.color.lightorange2
 
         font.family: "Born2bSportyV2"
         font.pixelSize: 48
@@ -113,7 +113,7 @@ Item {
             icon.width: 18
             icon.height: 10
 
-            color: (!deviceState || !deviceState.isOnline) ? Theme.color.red : deviceState.isRecoveryMode ?
+            color: (!deviceState || !deviceState.isOnline) ? Theme.color.lightred1 : deviceState.isRecoveryMode ?
                                            Theme.color.lightblue : Theme.color.lightgreen
             text: (!deviceState || !deviceState.isOnline) ? qsTr("Disconnected") : deviceState.isRecoveryMode ?
                                            qsTr("Recovery mode") : qsTr("Connected")
@@ -164,7 +164,7 @@ Item {
 
         linkColor: {
             if(!firmwareUpdates.isReady) {
-                return Theme.color.orange;
+                return Theme.color.lightorange2;
             } else if(preferences.updateChannel === "development") {
                 return Theme.color.lightred2;
             } else if(preferences.updateChannel === "release-candidate") {
@@ -172,7 +172,7 @@ Item {
             } else if(preferences.updateChannel === "release") {
                 return Theme.color.lightgreen;
             } else {
-                return Theme.color.orange;
+                return Theme.color.lightorange2;
             }
         }
 

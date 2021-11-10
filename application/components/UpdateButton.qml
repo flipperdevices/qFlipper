@@ -39,8 +39,8 @@ Button {
 
             PropertyChanges {
                 target: backgroundColor
-                normal: Theme.color.green
-                hover: Theme.color.mediumgreen
+                normal: Theme.color.mediumgreen2
+                hover: Theme.color.mediumgreen1
                 down: Theme.color.lightgreen
             }
 

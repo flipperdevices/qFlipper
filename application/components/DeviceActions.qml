@@ -10,7 +10,7 @@ ColumnLayout {
 
     TransparentLabel {
         height: 14
-        color: Theme.color.orange
+        color: Theme.color.lightorange2
         text: qsTr("Firmware update channel")
         font.capitalization: Font.AllUppercase
     }
@@ -28,7 +28,7 @@ ColumnLayout {
 
     TransparentLabel {
         height: 14
-        color: Theme.color.orange
+        color: Theme.color.lightorange2
         text: qsTr("Backup & Restore")
         font.capitalization: Font.AllUppercase
     }
@@ -70,7 +70,7 @@ ColumnLayout {
 
     TransparentLabel {
         height: 14
-        color: Theme.color.orange
+        color: Theme.color.lightorange2
         text: qsTr("Application update")
         font.capitalization: Font.AllUppercase
     }

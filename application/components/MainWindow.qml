@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
-import QtQuick.Controls.impl 2.15
 import QtGraphicalEffects 1.15
 
 import Theme 1.0
@@ -119,7 +118,7 @@ Item {
             anchors.margins: 10
             anchors.rightMargin: 16
 
-            color: Theme.color.orange
+            color: Theme.color.lightorange2
             opacity: 0.5
 
             font.family: "Terminus (TTF)"
@@ -219,35 +218,12 @@ Item {
             }
         }
 
-        Rectangle {
-            id: popupBg
-            color: Theme.color.darkorange1
+        StatusBar {
+            id: statusBar
+            deviceState: mainWindow.deviceState
 
             Layout.fillWidth: true
             Layout.fillHeight: true
-
-            RowLayout {
-                anchors.fill: parent
-                anchors.leftMargin: 10
-                spacing: 10
-
-                IconImage {
-                    color: Theme.color.orange
-                    source: "qrc:/assets/gfx/symbolic/info-small.svg"
-                    sourceSize: Qt.size(22, 22)
-                }
-
-                Text {
-                    id: popupText
-                    text: !deviceState ? "Waiting for devices ..." : deviceState.isPersistent? "Do not unplug the device ..." : "Ready."
-
-                    color: Theme.color.orange
-
-                    font.capitalization: Font.AllUppercase
-                    verticalAlignment: Text.AlignVCenter
-                    Layout.fillWidth: true
-                }
-            }
         }
     }
 
@@ -266,7 +242,7 @@ Item {
             id: logText
             padding: 0
             anchors.fill: parent
-            color: Theme.color.orange
+            color: Theme.color.lightorange2
             text: "qFlipper version 0.5.3 commit deadba0bab."
         }
     }

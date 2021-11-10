@@ -60,7 +60,7 @@ T.ToolTip {
         text: control.text
         font: control.font
         wrapMode: Text.Wrap
-        color: Theme.color.orange
+        color: Theme.color.lightorange2
     }
 
     background: Rectangle {

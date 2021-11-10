@@ -29,13 +29,13 @@ ItemDelegate {
 
         Text {
             text: control.text
-            color: control.down ? Theme.color.darkorange1 : control.hovered ? Theme.color.lightorange : Theme.color.orange
+            color: control.down ? Theme.color.darkorange1 : control.hovered ? Theme.color.lightorange1 : Theme.color.lightorange2
             font.capitalization: Font.AllUppercase
             Layout.fillWidth: true
         }
     }
 
     background: Rectangle {
-        color: control.down ? Theme.color.orange : control.hovered ? Theme.color.mediumorange2 : Theme.color.darkorange1
+        color: control.down ? Theme.color.lightorange2 : control.hovered ? Theme.color.mediumorange2 : Theme.color.darkorange1
     }
 }

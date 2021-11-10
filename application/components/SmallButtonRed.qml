@@ -11,7 +11,7 @@ SmallButton {
     foregroundColor: ColorGroup {
         normal: Theme.color.lightred2
         hover: Theme.color.lightred1
-        down: Theme.color.darkred
+        down: Theme.color.darkred1
         disabled: Theme.color.mediumred1
     }
 

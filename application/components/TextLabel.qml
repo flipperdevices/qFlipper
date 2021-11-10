@@ -4,6 +4,6 @@ import Theme 1.0
 Text {
     property bool capitalized: true
 
-    color: Theme.color.orange
+    color: Theme.color.lightorange2
     font.capitalization: capitalized ? Font.AllUppercase : Font.MixedCase
 }

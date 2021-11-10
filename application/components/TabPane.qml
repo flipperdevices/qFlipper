@@ -31,7 +31,7 @@ ColumnLayout {
                 color: "transparent"
                 width: parent.width + border.width
                 height: control.radius + control.borderWidth * 2
-                border.color: Theme.color.orange
+                border.color: Theme.color.lightorange2
                 border.width: borderWidth
             }
         }
@@ -41,7 +41,7 @@ ColumnLayout {
             width: parent.width + control.radius
             height: control.radius * 2 + control.borderWidth * 2
             radius: control.radius
-            border.color: Theme.color.orange
+            border.color: Theme.color.lightorange2
             border.width: borderWidth
             anchors.right: parent.right
         }
@@ -61,7 +61,7 @@ ColumnLayout {
 
                 ctx.globalAlpha = 0.5;
                 ctx.lineDashOffset = 0.5;
-                ctx.strokeStyle = Theme.color.orange;
+                ctx.strokeStyle = Theme.color.lightorange2;
                 ctx.lineWidth = control.borderWidth * 2;
                 ctx.setLineDash([0.5, 1.25]);
 
@@ -110,7 +110,7 @@ ColumnLayout {
             width: parent.width
             height: control.radius * 2 + control.borderWidth * 2
             radius: control.radius
-            border.color: Theme.color.orange
+            border.color: Theme.color.lightorange2
             border.width: borderWidth
             anchors.bottom: parent.bottom
         }

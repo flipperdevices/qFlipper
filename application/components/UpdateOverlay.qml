@@ -26,7 +26,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         y: 24
 
-        color: Theme.color.orange
+        color: Theme.color.lightorange2
 
         font.family: "Born2bSportyV2"
         font.pixelSize: 48
@@ -57,6 +57,6 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         text: !deviceState ? text : deviceState.isError ? deviceState.errorString : deviceState.statusString
         font.capitalization: Font.AllUppercase
-        color: Theme.color.orange
+        color: Theme.color.lightorange2
     }
 }

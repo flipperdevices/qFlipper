@@ -58,7 +58,7 @@ T.ScrollBar {
         implicitWidth: control.interactive ? 4 : 2
         implicitHeight: control.interactive ? 4 : 2
 
-        color: control.pressed ? Theme.color.lightorange : Theme.color.orange
+        color: control.pressed ? Theme.color.lightorange1 : Theme.color.lightorange2
         opacity: 0.0
 
         states: State {

@@ -12,7 +12,7 @@ Button {
     padding: 0
     font.capitalization: Font.MixedCase
 
-    property color linkColor: Theme.color.orange
+    property color linkColor: Theme.color.lightorange2
 
     foregroundColor: ColorGroup {
         normal: linkColor

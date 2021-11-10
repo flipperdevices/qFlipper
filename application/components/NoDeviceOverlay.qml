@@ -32,7 +32,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         y: 264
 
-        color: Theme.color.orange
+        color: Theme.color.lightorange2
         text: qsTr("Connect your Flipper")
 
         font.capitalization: Font.AllUppercase

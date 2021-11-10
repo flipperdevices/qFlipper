@@ -45,8 +45,8 @@ T.Button {
     id: control
 
     property var foregroundColor: ColorGroup {
-        normal: Theme.color.orange
-        hover: Theme.color.lightorange
+        normal: Theme.color.lightorange2
+        hover: Theme.color.lightorange1
         down: Theme.color.darkorange1
         disabled: Theme.color.mediumorange1
     }
@@ -54,14 +54,14 @@ T.Button {
     property var backgroundColor: ColorGroup {
         normal: Theme.color.darkorange1
         hover: Theme.color.mediumorange2
-        down: Theme.color.orange
+        down: Theme.color.lightorange2
         disabled: Theme.color.darkorange2
     }
 
     property var strokeColor: ColorGroup {
-        normal: Theme.color.orange
-        hover: Theme.color.lightorange
-        down: Theme.color.orange
+        normal: Theme.color.lightorange2
+        hover: Theme.color.lightorange1
+        down: Theme.color.lightorange2
         disabled: Theme.color.darkorange2
     }
 

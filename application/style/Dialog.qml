@@ -61,14 +61,14 @@ T.Dialog {
         radius: 9
         color: "black"
         border.width: 3
-        border.color: Theme.color.orange
+        border.color: Theme.color.lightorange2
     }
 
     header: Text {
         text: control.title
         visible: control.title
         padding: control.padding
-        color: Theme.color.orange
+        color: Theme.color.lightorange2
         horizontalAlignment: Text.AlignHCenter
         font.pixelSize: 48
     }

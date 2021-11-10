@@ -20,7 +20,7 @@ T.ProgressBar {
         Text {
             id: brightText
             visible: !control.indeterminate
-            color: Theme.color.orange
+            color: Theme.color.lightorange2
             text:  Math.round(control.value) + "%"
             anchors.centerIn: parent
             font.pixelSize: 48
@@ -30,7 +30,7 @@ T.ProgressBar {
         Text {
             id: animationText
             visible: control.indeterminate
-            color: Theme.color.orange
+            color: Theme.color.lightorange2
             anchors.centerIn: parent
             font.pixelSize: 48
 
@@ -54,7 +54,7 @@ T.ProgressBar {
             id: barFill
             clip: true
             visible: !control.indeterminate
-            color: Theme.color.orange
+            color: Theme.color.lightorange2
             width: visualPosition * parent.width
             height: parent.height
 
@@ -78,7 +78,7 @@ T.ProgressBar {
         id: bg
         anchors.fill: parent
         color: Theme.color.transparent
-        border.color: Theme.color.orange
+        border.color: Theme.color.lightorange2
         border.width: 3
         radius: 9
     }
