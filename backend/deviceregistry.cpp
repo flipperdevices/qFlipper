@@ -2,7 +2,7 @@
 
 #include <QMetaObject>
 
-#include "flipperzero/deviceinfofetcher.h"
+#include "flipperzero/helper/deviceinfohelper.h"
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/devicestate.h"
 
@@ -39,8 +39,8 @@ void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
     check_return_void(info.isValid(), "A new invalid device has been detected, skipping...");
 
     if(info.vendorID() == FLIPPER_ZERO_VID) {
-        auto *fetcher = Zero::AbstractDeviceInfoFetcher::create(info, this);
-        connect(fetcher, &Zero::AbstractDeviceInfoFetcher::finished, this, &DeviceRegistry::processDevice);
+        auto *fetcher = Zero::AbstractDeviceInfoHelper::create(info, this);
+        connect(fetcher, &Zero::AbstractDeviceInfoHelper::finished, this, &DeviceRegistry::processDevice);
 
     } else {
         error_msg("Unexpected device VID and PID.");
@@ -70,7 +70,7 @@ void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
 
 void DeviceRegistry::processDevice()
 {
-    auto *fetcher = qobject_cast<Zero::AbstractDeviceInfoFetcher*>(sender());
+    auto *fetcher = qobject_cast<Zero::AbstractDeviceInfoHelper*>(sender());
 
     fetcher->deleteLater();
 

@@ -73,14 +73,14 @@ RowLayout {
         }
 
         TextLabel {
-            text: qsTr("Not present")
-            color: Theme.color.lightred1
+            text: deviceInfo && deviceInfo.storage.isExternalPresent ? deviceInfo.storage.externalFree + qsTr("% Free") : qsTr("Not present")
+            color: deviceInfo && deviceInfo.storage.isExternalPresent ? Theme.color.lightorange2 : Theme.color.lightred1
             visible: extraFields
         }
 
         TextLabel {
-            text: qsTr("Not present")
-            color: Theme.color.lightred1
+            text: deviceInfo && deviceInfo.storage.isAssetsInstalled ? qsTr("Installed") : qsTr("Missing")
+            color: deviceInfo && deviceInfo.storage.isAssetsInstalled ? Theme.color.lightorange2 : Theme.color.lightred1
             visible: extraFields
         }
 

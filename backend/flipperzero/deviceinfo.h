@@ -57,13 +57,13 @@ struct StorageInfo {
     Q_PROPERTY(int internalFree MEMBER internalFree)
     Q_PROPERTY(int externalFree MEMBER externalFree)
     Q_PROPERTY(bool isExternalPresent MEMBER isExternalPresent)
-    Q_PROPERTY(bool isAssetsPresent MEMBER isAssetsPresent)
+    Q_PROPERTY(bool isAssetsInstalled MEMBER isAssetsInstalled)
 
 public:
     int internalFree;
     int externalFree;
     bool isExternalPresent;
-    bool isAssetsPresent;
+    bool isAssetsInstalled;
 
     // Needed in order to work with QVariant
     bool operator !=(const StorageInfo &other) const { Q_UNUSED(other) return true; }
@@ -80,6 +80,7 @@ struct DeviceInfo {
     Q_PROPERTY(Flipper::Zero::HardwareInfo hardware MEMBER hardware)
     Q_PROPERTY(Flipper::Zero::SoftwareInfo bootloader MEMBER bootloader)
     Q_PROPERTY(Flipper::Zero::SoftwareInfo firmware MEMBER firmware)
+    Q_PROPERTY(Flipper::Zero::StorageInfo storage MEMBER storage)
 
 public:
 

@@ -22,11 +22,11 @@ SOURCES += \
     flipperzero/cli/rebootoperation.cpp \
     flipperzero/commandinterface.cpp \
     flipperzero/cli/skipmotdoperation.cpp \
-    flipperzero/deviceinfofetcher.cpp \
     flipperzero/devicestate.cpp \
     flipperzero/factoryinfo.cpp \
     flipperzero/firmwareupdater.cpp \
     flipperzero/flipperzero.cpp \
+    flipperzero/helper/deviceinfohelper.cpp \
     flipperzero/helper/firmwarehelper.cpp \
     flipperzero/helper/radiomanifesthelper.cpp \
     flipperzero/helper/scriptshelper.cpp \
@@ -89,11 +89,11 @@ HEADERS += \
     flipperzero/commandinterface.h \
     flipperzero/cli/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
-    flipperzero/deviceinfofetcher.h \
     flipperzero/devicestate.h \
     flipperzero/factoryinfo.h \
     flipperzero/firmwareupdater.h \
     flipperzero/flipperzero.h \
+    flipperzero/helper/deviceinfohelper.h \
     flipperzero/helper/firmwarehelper.h \
     flipperzero/helper/radiomanifesthelper.h \
     flipperzero/helper/scriptshelper.h \
