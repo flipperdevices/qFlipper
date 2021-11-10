@@ -159,7 +159,6 @@ Item {
 
         DeviceWidget {
             id: deviceWidget
-            recoveryMode: (deviceState !== undefined) && deviceState.isRecoveryMode
             x: deviceState && !deviceState.isPersistent ? Math.round(mainContent.width / 2) : 216
             y: 85
         }

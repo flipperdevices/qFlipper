@@ -6,7 +6,9 @@ import Theme 1.0
 Image {
     id: control
 
-    property bool recoveryMode: false
+    readonly property var device: deviceRegistry.currentDevice
+    readonly property var deviceState: device ? device.state : undefined
+    readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
     source: "qrc:/assets/gfx/images/flipper.svg"
     sourceSize: Qt.size(360, 156)
@@ -20,7 +22,7 @@ Image {
 
     Rectangle {
         id: blueLed
-        visible: recoveryMode
+        visible: deviceState ? deviceState.isRecoveryMode : false
 
         x: 234
         y: 90
@@ -30,5 +32,14 @@ Image {
 
         radius: Math.round(width / 2)
         color: Theme.color.lightblue
+    }
+
+    Image {
+        x: 93
+        y: 26
+
+        visible: !deviceState || deviceState.isRecoveryMode
+        source: !deviceState ? "" : "qrc:/assets/gfx/images/recovery.svg"
+        sourceSize: Qt.size(128, 64)
     }
 }
