@@ -25,6 +25,7 @@ QFlipperBackend::QFlipperBackend():
     qRegisterMetaType<Flipper::Zero::DeviceInfo>("Flipper::Zero::DeviceInfo");
     qRegisterMetaType<Flipper::Zero::HardwareInfo>("Flipper::Zero::HardwareInfo");
     qRegisterMetaType<Flipper::Zero::SoftwareInfo>("Flipper::Zero::SoftwareInfo");
+    qRegisterMetaType<Flipper::Zero::StorageInfo>("Flipper::Zero::StorageInfo");
 
     qRegisterMetaType<Flipper::FlipperZero*>("Flipper::FlipperZero*");
     qRegisterMetaType<Flipper::Zero::DeviceState*>("Flipper::Zero::DeviceState*");

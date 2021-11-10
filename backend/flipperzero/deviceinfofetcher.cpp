@@ -227,6 +227,8 @@ DFUDeviceInfoFetcher::DFUDeviceInfoFetcher(const USBDeviceInfo &info, QObject *p
 {
     m_deviceInfo.usbInfo = info;
     m_deviceInfo.systemLocation = QStringLiteral("S/N:%1").arg(info.serialNumber());
+    m_deviceInfo.storage.isExternalPresent = false;
+    m_deviceInfo.storage.isAssetsPresent = false;
 }
 
 void DFUDeviceInfoFetcher::fetch()

@@ -52,6 +52,23 @@ public:
     bool operator !=(const SoftwareInfo &other) const { Q_UNUSED(other) return true; }
 };
 
+struct StorageInfo {
+    Q_GADGET
+    Q_PROPERTY(int internalFree MEMBER internalFree)
+    Q_PROPERTY(int externalFree MEMBER externalFree)
+    Q_PROPERTY(bool isExternalPresent MEMBER isExternalPresent)
+    Q_PROPERTY(bool isAssetsPresent MEMBER isAssetsPresent)
+
+public:
+    int internalFree;
+    int externalFree;
+    bool isExternalPresent;
+    bool isAssetsPresent;
+
+    // Needed in order to work with QVariant
+    bool operator !=(const StorageInfo &other) const { Q_UNUSED(other) return true; }
+};
+
 struct DeviceInfo {
     Q_GADGET
     Q_PROPERTY(QString name MEMBER name)
@@ -81,6 +98,7 @@ public:
     HardwareInfo hardware;
     SoftwareInfo bootloader;
     SoftwareInfo firmware;
+    StorageInfo storage;
 
     QString systemLocation;
 
@@ -94,3 +112,4 @@ public:
 Q_DECLARE_METATYPE(Flipper::Zero::HardwareInfo)
 Q_DECLARE_METATYPE(Flipper::Zero::SoftwareInfo)
 Q_DECLARE_METATYPE(Flipper::Zero::DeviceInfo)
+Q_DECLARE_METATYPE(Flipper::Zero::StorageInfo)
