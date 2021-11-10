@@ -82,5 +82,6 @@
         <file>components/ConfirmationDialog.qml</file>
         <file>assets/gfx/symbolic/info-small.svg</file>
         <file>components/StatusBar.qml</file>
+        <file>components/DeviceWidget.qml</file>
     </qresource>
 </RCC>

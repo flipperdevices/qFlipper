@@ -157,21 +157,11 @@ Item {
             opacity: deviceState && deviceState.isPersistent ? 1 : 0
         }
 
-        Image {
+        DeviceWidget {
             id: deviceWidget
-
-            x: deviceState && !deviceState.isPersistent ? Math.floor(mainContent.width / 2) : 216
+            recoveryMode: (deviceState !== undefined) && deviceState.isRecoveryMode
+            x: deviceState && !deviceState.isPersistent ? Math.round(mainContent.width / 2) : 216
             y: 85
-
-            source: "qrc:/assets/gfx/images/flipper.svg"
-            sourceSize: Qt.size(360, 156)
-
-            Behavior on x {
-                PropertyAnimation {
-                    easing.type: Easing.InOutQuad
-                    duration: 350
-                }
-            }
         }
     }
 
