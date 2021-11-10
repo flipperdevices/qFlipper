@@ -22,7 +22,7 @@ Image {
 
     Rectangle {
         id: blueLed
-        visible: deviceState ? deviceState.isRecoveryMode : false
+        visible: !!deviceState && deviceState.isRecoveryMode
 
         x: 234
         y: 90
@@ -38,8 +38,7 @@ Image {
         x: 93
         y: 26
 
-        visible: !deviceState || deviceState.isRecoveryMode
-        source: !deviceState ? "" : "qrc:/assets/gfx/images/recovery.svg"
+        source: deviceState && deviceState.isRecoveryMode ? "qrc:/assets/gfx/images/recovery.svg" : "qrc:/assets/gfx/images/default.svg"
         sourceSize: Qt.size(128, 64)
     }
 }
