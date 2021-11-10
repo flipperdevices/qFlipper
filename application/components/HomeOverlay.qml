@@ -9,7 +9,6 @@ import "../style"
 Item {
     id: overlay
     visible: opacity > 0
-    layer.enabled: true
 
     property Rectangle backgroundRect
 
@@ -68,6 +67,7 @@ Item {
         x: 28
         y: 28
 
+        layer.enabled: true
 
         TabButton {
             icon.source: "qrc:/assets/gfx/symbolic/info.svg"
