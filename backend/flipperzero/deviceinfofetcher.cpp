@@ -1,17 +1,16 @@
 #include "deviceinfofetcher.h"
 
 #include <QTimer>
-#include <QBuffer>
 #include <QSerialPort>
 
+#include "cli/deviceinfooperation.h"
 #include "cli/skipmotdoperation.h"
+
 #include "device/stm32wb55.h"
+
 #include "serialfinder.h"
 #include "factoryinfo.h"
 #include "macros.h"
-
-#define RESPONSE_TIMEOUT_MS 5000
-#define PROMPT_READY "\r\n>: \a"
 
 using namespace Flipper;
 using namespace Zero;
@@ -48,12 +47,9 @@ void AbstractDeviceInfoFetcher::finishWithError(const QString &errorString)
 
 VCPDeviceInfoFetcher::VCPDeviceInfoFetcher(const USBDeviceInfo &info, QObject *parent):
     AbstractDeviceInfoFetcher(parent),
-    m_responseTimer(new QTimer(this)),
     m_serialPort(nullptr)
 {
     m_deviceInfo.usbInfo = info;
-    m_responseTimer->setSingleShot(true);
-    connect(m_responseTimer, &QTimer::timeout, this, &VCPDeviceInfoFetcher::onResponseTimeout);
 }
 
 void VCPDeviceInfoFetcher::fetch()
@@ -84,34 +80,41 @@ void VCPDeviceInfoFetcher::onSerialPortFound(const QSerialPortInfo &portInfo)
         return;
     }
 
-    auto *skipper = new SkipMOTDOperation(m_serialPort, this);
-
-    connect(skipper, &AbstractOperation::finished, this, [=]() {
-
-        if(skipper->isError()) {
-            finishWithError(skipper->errorString());
-        } else if(m_serialPort->write("\rdevice_info\r\n") < 0) {
-            finishWithError(m_serialPort->errorString());
-        } else {
-            connect(m_serialPort, &QSerialPort::readyRead, this, &VCPDeviceInfoFetcher::onSerialPortReadyRead);
-            connect(m_serialPort, &QSerialPort::errorOccurred, this, &VCPDeviceInfoFetcher::onSerialPortErrorOccured);
-
-            m_responseTimer->start(RESPONSE_TIMEOUT_MS);
-        }
-
-        skipper->deleteLater();
-    });
-
-    skipper->start();
+    auto *skipMotd = new SkipMOTDOperation(m_serialPort, this);
+    connect(skipMotd, &AbstractOperation::finished, this, &VCPDeviceInfoFetcher::onMOTDSkipped);
+    skipMotd->start();
 }
 
-void VCPDeviceInfoFetcher::onSerialPortReadyRead()
+void VCPDeviceInfoFetcher::onMOTDSkipped()
 {
-    m_responseTimer->start(RESPONSE_TIMEOUT_MS);
-    m_receivedData += m_serialPort->readAll();
+    auto *skipMotd = qobject_cast<SkipMOTDOperation*>(sender());
 
-    if(m_receivedData.endsWith(PROMPT_READY)) {
-        parseReceivedData();
+    if(skipMotd->isError()) {
+        finishWithError(skipMotd->errorString());
+    } else {
+        auto *getInfo = new DeviceInfoOperation(m_serialPort, this);
+        connect(getInfo, &AbstractOperation::finished, this, &VCPDeviceInfoFetcher::onDeviceInfoRead);
+        getInfo->start();
+    }
+
+    skipMotd->deleteLater();
+}
+
+void VCPDeviceInfoFetcher::onDeviceInfoRead()
+{
+    auto *getInfo = qobject_cast<DeviceInfoOperation*>(sender());
+
+    if(getInfo->isError()) {
+        finishWithError(getInfo->errorString());
+    } else {
+        // TODO: Is there a better way to do this?
+        const auto &info = getInfo->result();
+        m_deviceInfo.name = info.name;
+        m_deviceInfo.bootloader = info.bootloader;
+        m_deviceInfo.firmware = info.firmware;
+        m_deviceInfo.hardware = info.hardware;
+        m_deviceInfo.fusVersion = info.fusVersion;
+        m_deviceInfo.radioVersion = info.radioVersion;
 
         if(m_deviceInfo.name.isEmpty()) {
             finishWithError(QStringLiteral("Failed to read device factory information"));
@@ -119,105 +122,13 @@ void VCPDeviceInfoFetcher::onSerialPortReadyRead()
             finish();
         }
     }
-}
 
-void VCPDeviceInfoFetcher::onSerialPortErrorOccured()
-{
-    finishWithError(m_serialPort->errorString());
-}
-
-void VCPDeviceInfoFetcher::onResponseTimeout()
-{
-    finishWithError(QStringLiteral("Operation timeout"));
+    getInfo->deleteLater();
 }
 
 void VCPDeviceInfoFetcher::finish()
 {
-    m_responseTimer->stop();
     emit finished();
-}
-
-void VCPDeviceInfoFetcher::parseReceivedData()
-{
-    QBuffer buf(&m_receivedData, this);
-
-    if(!buf.open(QIODevice::ReadOnly)) {
-        finishWithError(buf.errorString());
-        return;
-    }
-
-    m_deviceInfo.fusVersion = QStringLiteral("0.0.0");
-    m_deviceInfo.radioVersion = QStringLiteral("0.0.0");
-
-    while(buf.canReadLine()) {
-        parseLine(buf.readLine());
-    }
-
-    buf.close();
-}
-
-void VCPDeviceInfoFetcher::parseLine(const QByteArray &line)
-{
-    // TODO: Add more fields
-    if(line.count(':') != 1) {
-        return;
-    }
-
-    const auto validx = line.indexOf(':');
-    const auto key = line.left(validx).trimmed();
-    const auto value = line.mid(validx + 1).trimmed();
-
-    if(key == QByteArrayLiteral("hardware_name")) {
-        m_deviceInfo.name = value;
-    } else if(key == QByteArrayLiteral("hardware_target")) {
-        m_deviceInfo.hardware.target = QStringLiteral("f") + value;
-    } else if(key == QByteArrayLiteral("hardware_ver")) {
-        m_deviceInfo.hardware.version = value;
-    } else if(key == QByteArrayLiteral("hardware_body")) {
-        m_deviceInfo.hardware.body = QStringLiteral("b") + value;
-    } else if(key == QByteArrayLiteral("hardware_connect")) {
-        m_deviceInfo.hardware.connect = QStringLiteral("c") + value;
-    } else if(key == QByteArrayLiteral("hardware_color")) {
-        m_deviceInfo.hardware.color = (HardwareInfo::Color)value.toInt();
-    } else if(key == QByteArrayLiteral("firmware_version")) {
-        m_deviceInfo.firmware.version = value;
-    } else if(key == QByteArrayLiteral("firmware_commit")) {
-        m_deviceInfo.firmware.commit = value;
-    } else if(key == QByteArrayLiteral("firmware_branch")) {
-        m_deviceInfo.firmware.branch = value;
-    } else if(key == QByteArrayLiteral("firmware_build_date")) {
-        m_deviceInfo.firmware.date = QDateTime::fromString(value, QStringLiteral("dd-MM-yyyy"));
-
-    } else if(key == QByteArrayLiteral("radio_stack_major")) {
-        auto fields = m_deviceInfo.radioVersion.split('.');
-        fields.replace(0, value);
-        m_deviceInfo.radioVersion = fields.join('.');
-
-    } else if(key == QByteArrayLiteral("radio_stack_minor")) {
-        auto fields = m_deviceInfo.radioVersion.split('.');
-        fields.replace(1, value);
-        m_deviceInfo.radioVersion = fields.join('.');
-
-    } else if(key == QByteArrayLiteral("radio_stack_sub")) {
-        auto fields = m_deviceInfo.radioVersion.split('.');
-        fields.replace(2, value);
-        m_deviceInfo.radioVersion = fields.join('.');
-
-    } else if(key == QByteArrayLiteral("radio_fus_major")) {
-        auto fields = m_deviceInfo.fusVersion.split('.');
-        fields.replace(0, value);
-        m_deviceInfo.fusVersion = fields.join('.');
-
-    } else if(key == QByteArrayLiteral("radio_fus_minor")) {
-        auto fields = m_deviceInfo.fusVersion.split('.');
-        fields.replace(1, value);
-        m_deviceInfo.fusVersion = fields.join('.');
-
-    } else if(key == QByteArrayLiteral("radio_fus_sub")) {
-        auto fields = m_deviceInfo.fusVersion.split('.');
-        fields.replace(2, value);
-        m_deviceInfo.fusVersion = fields.join('.');
-    } else {}
 }
 
 using namespace STM32;

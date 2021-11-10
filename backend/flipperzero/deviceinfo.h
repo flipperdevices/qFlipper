@@ -75,10 +75,7 @@ struct DeviceInfo {
     Q_PROPERTY(QString model MEMBER model)
     Q_PROPERTY(QString fusVersion MEMBER fusVersion)
     Q_PROPERTY(QString radioVersion MEMBER radioVersion)
-    Q_PROPERTY(QString bluetoothMac MEMBER bluetoothMac)
     Q_PROPERTY(QString systemLocation MEMBER systemLocation)
-
-    Q_PROPERTY(int batteryLevel MEMBER batteryLevel)
 
     Q_PROPERTY(Flipper::Zero::HardwareInfo hardware MEMBER hardware)
     Q_PROPERTY(Flipper::Zero::SoftwareInfo bootloader MEMBER bootloader)
@@ -91,9 +88,6 @@ public:
 
     QString fusVersion;
     QString radioVersion;
-
-    QString bluetoothMac;
-    int batteryLevel;
 
     HardwareInfo hardware;
     SoftwareInfo bootloader;

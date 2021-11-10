@@ -46,18 +46,13 @@ public:
 private slots:
     void fetch() override;
     void onSerialPortFound(const QSerialPortInfo &portInfo);
-    void onSerialPortReadyRead();
-    void onSerialPortErrorOccured();
-    void onResponseTimeout();
+    void onMOTDSkipped();
+    void onDeviceInfoRead();
 
 private:
     void finish() override;
-    void parseReceivedData();
-    void parseLine(const QByteArray &line);
 
-    QTimer *m_responseTimer;
     QSerialPort *m_serialPort;
-    QByteArray m_receivedData;
     DeviceInfo m_deviceInfo;
 };
 

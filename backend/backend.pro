@@ -17,6 +17,7 @@ SOURCES += \
     filenode.cpp \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
+    flipperzero/cli/deviceinfooperation.cpp \
     flipperzero/cli/dfuoperation.cpp \
     flipperzero/cli/rebootoperation.cpp \
     flipperzero/commandinterface.cpp \
@@ -82,6 +83,7 @@ HEADERS += \
     filenode.h \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
+    flipperzero/cli/deviceinfooperation.h \
     flipperzero/cli/dfuoperation.h \
     flipperzero/cli/rebootoperation.h \
     flipperzero/commandinterface.h \
