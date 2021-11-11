@@ -133,13 +133,14 @@ Item {
         x: Math.round(centerX - width / 2)
         y: 265
 
-        enabled: firmwareUpdates.isReady && !!deviceState
+        enabled: firmwareUpdates.isReady && !!deviceState &&
+                (deviceState.isRecoveryMode || device.updater.canUpdate(firmwareUpdates.latestVersion) || device.updater.canInstall())
 
-        text: !enabled ? qsTr("No data") : deviceState.isRecoveryMode ? qsTr("Repair") :
+        text: !(firmwareUpdates.isReady && deviceState) ? qsTr("No data") : deviceState.isRecoveryMode ? qsTr("Repair") :
                device.updater.canUpdate(firmwareUpdates.latestVersion) ? qsTr("Update") :
                device.updater.canInstall() ? qsTr("Install") : qsTr("No updates")
 
-        accent: !enabled ? accent : deviceState.isRecoveryMode ? UpdateButton.Blue :
+        accent: !(firmwareUpdates.isReady && deviceState) ? accent : deviceState.isRecoveryMode ? UpdateButton.Blue :
                  device.updater.canUpdate(firmwareUpdates.latestVersion) ? UpdateButton.Green : UpdateButton.Default
 
         onClicked: {

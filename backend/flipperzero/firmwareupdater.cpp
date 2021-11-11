@@ -59,6 +59,11 @@ void FirmwareUpdater::localWirelessStackUpdate(const QUrl &fileUrl)
 
 bool FirmwareUpdater::canUpdate(const Updates::VersionInfo &versionInfo) const
 {
+    const auto &storageInfo = m_state->deviceInfo().storage;
+    if(storageInfo.isExternalPresent && !storageInfo.isAssetsInstalled) {
+        return true;
+    }
+
     const auto &deviceChannel = branchToChannelName();
     const auto &deviceVersion = (deviceChannel == channelName(ChannelType::Development)) ?
                 m_state->deviceInfo().firmware.commit :
