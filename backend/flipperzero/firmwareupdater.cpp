@@ -90,9 +90,9 @@ bool FirmwareUpdater::canUpdate(const Updates::VersionInfo &versionInfo) const
 
     } else if(deviceChannel == channelName(ChannelType::Development)) {
         if(serverChannel == channelName(ChannelType::Release)) {
-            return deviceDate < serverDate;
+            return deviceDate <= serverDate;
         } else if(serverChannel == channelName(ChannelType::ReleaseCandidate)) {
-            return deviceDate < serverDate;
+            return deviceDate <= serverDate;
         } else if(serverChannel == channelName(ChannelType::Development)) {
             return (deviceVersion != serverVersion) && (deviceDate <= serverDate);
         }
