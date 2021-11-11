@@ -40,13 +40,13 @@ struct SoftwareInfo {
     Q_PROPERTY(QString version MEMBER version)
     Q_PROPERTY(QString commit MEMBER commit)
     Q_PROPERTY(QString branch MEMBER branch)
-    Q_PROPERTY(QDateTime date MEMBER date)
+    Q_PROPERTY(QDate date MEMBER date)
 
 public:
     QString version;
     QString commit;
     QString branch;
-    QDateTime date;
+    QDate date;
 
     // Needed in order to work with QVariant
     bool operator !=(const SoftwareInfo &other) const { Q_UNUSED(other) return true; }

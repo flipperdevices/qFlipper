@@ -17,13 +17,18 @@ using namespace Flipper;
 UpdateRegistry::UpdateRegistry(const QString &directoryUrl, QObject *parent):
     QObject(parent)
 {
+    connect(this, &UpdateRegistry::channelsChanged, this, &UpdateRegistry::latestVersionChanged);
+
     auto *fetcher = new RemoteFileFetcher(this);
     auto *buf = new QBuffer(this);
 
     fetcher->connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
         if(buf->open(QIODevice::ReadOnly)) {
             info_msg(QStringLiteral("Fetched update directory from %1.").arg(directoryUrl));
-            fillFromJson(buf->readAll());
+
+            if(fillFromJson(buf->readAll())) {
+                emit channelsChanged();
+            }
 
         } else {
             info_msg(QStringLiteral("Failed to open a buffer for reading: %1.").arg(buf->errorString()));
@@ -60,13 +65,12 @@ bool UpdateRegistry::fillFromJson(const QByteArray &text)
             m_channels.insert(info.name(), info);
         }
 
+        return true;
+
     } catch(std::runtime_error &e) {
         error_msg(e.what());
         return false;
     }
-
-    emit channelsChanged();
-    return true;
 }
 
 const QStringList UpdateRegistry::channelNames() const
@@ -89,9 +93,21 @@ Updates::ChannelInfo UpdateRegistry::channel(const QString &channelName) const
     return m_channels.value(channelName);
 }
 
+FirmwareUpdates::FirmwareUpdates(const QString &directoryUrl, QObject *parent):
+    UpdateRegistry(directoryUrl, parent)
+{
+    connect(globalPrefs(), &Preferences::firmwareUpdateChannelChanged, this, &UpdateRegistry::latestVersionChanged);
+}
+
 const QString FirmwareUpdates::updateChannel() const
 {
     return globalPrefs()->firmwareUpdateChannel();
+}
+
+ApplicationUpdates::ApplicationUpdates(const QString &directoryUrl, QObject *parent):
+    UpdateRegistry(directoryUrl, parent)
+{
+    connect(globalPrefs(), &Preferences::applicationUpdateChannelChanged, this, &UpdateRegistry::latestVersionChanged);
 }
 
 const QString ApplicationUpdates::updateChannel() const

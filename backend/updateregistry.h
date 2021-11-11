@@ -10,7 +10,7 @@ class UpdateRegistry : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList channelNames READ channelNames NOTIFY channelsChanged)
-    Q_PROPERTY(Flipper::Updates::VersionInfo latestVersion READ latestVersion NOTIFY channelsChanged)
+    Q_PROPERTY(Flipper::Updates::VersionInfo latestVersion READ latestVersion NOTIFY latestVersionChanged)
     Q_PROPERTY(bool isReady READ isReady NOTIFY channelsChanged)
 
 public:
@@ -27,6 +27,7 @@ public slots:
 
 signals:
     void channelsChanged();
+    void latestVersionChanged();
 
 private:
     virtual const QString updateChannel() const = 0;
@@ -37,8 +38,7 @@ class FirmwareUpdates : public UpdateRegistry {
     Q_OBJECT
 
 public:
-    FirmwareUpdates(const QString &directoryUrl, QObject *parent = nullptr):
-        UpdateRegistry(directoryUrl, parent) {}
+    FirmwareUpdates(const QString &directoryUrl, QObject *parent = nullptr);
 
 private:
     const QString updateChannel() const override;
@@ -48,8 +48,7 @@ class ApplicationUpdates : public UpdateRegistry {
     Q_OBJECT
 
 public:
-    ApplicationUpdates(const QString &directoryUrl, QObject *parent = nullptr):
-        UpdateRegistry(directoryUrl, parent) {}
+    ApplicationUpdates(const QString &directoryUrl, QObject *parent = nullptr);
 
 private:
     const QString updateChannel() const override;

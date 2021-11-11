@@ -25,8 +25,7 @@ public:
 
 public slots:
     bool canUpdate(const Flipper::Updates::VersionInfo &versionInfo) const;
-    bool canRollback(const Flipper::Updates::VersionInfo &versionInfo) const;
-    bool canChangeChannel() const;
+    bool canInstall() const;
 
     void fullUpdate(const Flipper::Updates::VersionInfo &versionInfo);
     void fullRepair(const Flipper::Updates::VersionInfo &versionInfo);
@@ -38,6 +37,7 @@ public slots:
 private:
     static const QString &channelName(ChannelType channelType);
     const QString &branchToChannelName() const;
+    ChannelType branchToChannelType() const;
 
     DeviceState *m_state;
     RecoveryInterface *m_recovery;

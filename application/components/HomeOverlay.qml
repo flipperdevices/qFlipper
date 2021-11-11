@@ -130,19 +130,17 @@ Item {
     UpdateButton {
         id: updateButton
 
-        accent: {
-            if(!deviceState || !deviceState.isOnline) {
-                return accent;
-            } else if(deviceState.isRecoveryMode) {
-                return UpdateButton.Blue;
-            } else {
-                // TODO: Check for updates
-                return UpdateButton.Green
-            }
-        }
-
         x: Math.round(centerX - width / 2)
         y: 265
+
+        enabled: firmwareUpdates.isReady && !!deviceState
+
+        text: !enabled ? qsTr("No data") : deviceState.isRecoveryMode ? qsTr("Repair") :
+               device.updater.canUpdate(firmwareUpdates.latestVersion) ? qsTr("Update") :
+               device.updater.canInstall() ? qsTr("Install") : qsTr("No updates")
+
+        accent: !enabled ? accent : deviceState.isRecoveryMode ? UpdateButton.Blue :
+                 device.updater.canUpdate(firmwareUpdates.latestVersion) ? UpdateButton.Green : UpdateButton.Default
 
         onClicked: {
             if(!firmwareUpdates.isReady) {

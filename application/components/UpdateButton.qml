@@ -22,7 +22,6 @@ Button {
     radius: 7
     borderWidth: 3
 
-    text: qsTr("No updates")
     font.family: "Born2bSportyV2"
     font.pixelSize: 48
 
@@ -50,11 +49,6 @@ Button {
                 hover: Theme.color.lightgreen
                 down: Theme.color.lightgreen
             }
-
-            PropertyChanges {
-                target: control
-                text: qsTr("Update")
-            }
         },
 
         State {
@@ -79,11 +73,6 @@ Button {
                 normal: Theme.color.lightblue
                 hover: Theme.color.lightblue
                 down: Theme.color.lightblue
-            }
-
-            PropertyChanges {
-                target: control
-                text: qsTr("Repair")
             }
         }
     ]

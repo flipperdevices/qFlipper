@@ -83,7 +83,7 @@ void DeviceInfoOperation::parseLine(const QByteArray &line)
     } else if(key == QByteArrayLiteral("firmware_branch")) {
         m_deviceInfo.firmware.branch = value;
     } else if(key == QByteArrayLiteral("firmware_build_date")) {
-        m_deviceInfo.firmware.date = QDateTime::fromString(value, QStringLiteral("dd-MM-yyyy"));
+        m_deviceInfo.firmware.date = QDate::fromString(value, QStringLiteral("dd-MM-yyyy"));
 
     } else if(key == QByteArrayLiteral("radio_stack_major")) {
         auto fields = m_deviceInfo.radioVersion.split('.');
