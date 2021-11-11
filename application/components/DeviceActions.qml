@@ -66,6 +66,15 @@ ColumnLayout {
             icon.width: 18
             icon.height: 20
         }
+
+        SmallButtonRed {
+            text: qsTr("Reinstall")
+            Layout.fillWidth: true
+
+            icon.source: "qrc:/assets/gfx/symbolic/update-symbolic.svg"
+            icon.width: 16
+            icon.height: 16
+        }
     }
 
     TransparentLabel {
