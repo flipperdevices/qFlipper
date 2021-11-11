@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QSettings>
+#include <QStandardPaths>
 
 class Preferences : public QObject
 {
