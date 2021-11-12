@@ -4,7 +4,7 @@ import QtQuick.Controls 2.15
 
 import Theme 1.0
 
-import "../style"
+//import "../style"
 
 Item {
     id: overlay
@@ -27,6 +27,12 @@ Item {
 
     ConfirmationDialog {
         id: confirmationDialog
+        parent: backgroundRect
+        radius: backgroundRect.radius
+    }
+
+    ChangelogDialog {
+        id: changelogDialog
         parent: backgroundRect
         radius: backgroundRect.radius
     }
@@ -197,6 +203,10 @@ Item {
             }
 
             return "%1 %2".arg(str).arg(firmwareUpdates.latestVersion.number);
+        }
+
+        onClicked: {
+            changelogDialog.open()
         }
     }
 

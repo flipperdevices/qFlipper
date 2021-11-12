@@ -85,5 +85,6 @@
         <file>components/DeviceWidget.qml</file>
         <file>assets/gfx/images/recovery.svg</file>
         <file>assets/gfx/images/default.svg</file>
+        <file>components/ChangelogDialog.qml</file>
     </qresource>
 </RCC>
