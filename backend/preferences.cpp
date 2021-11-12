@@ -1,20 +1,11 @@
 #include "preferences.h"
 
-#include <QDir>
-#include <QStandardPaths>
-#include <QCoreApplication>
-
-#define CONFIG_FILE_NAME (qApp->applicationName() + QStringLiteral(".ini"))
-#define CONFIG_PATH (QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation))
-#define CONFIG_FILE (QDir(CONFIG_PATH).absoluteFilePath(CONFIG_FILE_NAME))
-
 #define FIRMWARE_UPDATE_CHANNEL_KEY (QStringLiteral("FirmwareUpdateChannel"))
 #define APPLICATION_UPDATE_CHANNEL_KEY (QStringLiteral("ApplicationUpdateChannel"))
 #define CHECK_APPLICATION_UPDATES_KEY (QStringLiteral("CheckApplicatonUpdates"))
 
 Preferences::Preferences(QObject *parent):
-    QObject(parent),
-    m_settings(CONFIG_FILE, QSettings::IniFormat, this)
+    QObject(parent)
 {
     if(!m_settings.contains(FIRMWARE_UPDATE_CHANNEL_KEY)) {
         m_settings.setValue(FIRMWARE_UPDATE_CHANNEL_KEY, QStringLiteral("development"));

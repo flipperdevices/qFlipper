@@ -20,7 +20,6 @@ Application::Application(int &argc, char **argv):
     debug_msg(QString("%1 version %2 commit %3.").arg(APP_NAME, APP_VERSION, APP_COMMIT));
 
     initQmlTypes();
-    initInstanceProperties();
     initContextProperties();
     initTranslations();
     initImports();
@@ -53,14 +52,6 @@ void Application::initContextProperties()
     m_engine.rootContext()->setContextProperty("deviceRegistry", &m_backend.deviceRegistry);
     m_engine.rootContext()->setContextProperty("firmwareUpdates", &m_backend.firmwareUpdates);
     m_engine.rootContext()->setContextProperty("applicationUpdates", &m_backend.applicationUpdates);
-}
-
-void Application::initInstanceProperties()
-{
-    setApplicationName(APP_NAME);
-    setApplicationVersion(APP_VERSION);
-    setOrganizationName("Flipper Devices Inc");
-    setOrganizationDomain("flipperdevices.com");
 }
 
 void Application::initTranslations()
