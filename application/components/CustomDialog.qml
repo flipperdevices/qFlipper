@@ -6,6 +6,9 @@ import Theme 1.0
 Popup {
     id: dialog
 
+    signal accepted
+    signal rejected
+
     width: parent.width
     height: parent.height
 
@@ -14,6 +17,11 @@ Popup {
     background: Rectangle {
         id: bg
         color: "black"
-        opacity: 0.8
+        opacity: 0.85
+    }
+
+    Component.onCompleted: {
+        accepted.connect(close)
+        rejected.connect(close)
     }
 }

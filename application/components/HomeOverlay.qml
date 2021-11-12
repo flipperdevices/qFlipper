@@ -31,22 +31,6 @@ Item {
         radius: backgroundRect.radius
     }
 
-//    Dialog {
-//        id: confirmationDialog
-//        anchors.centerIn: parent
-
-//        title: "Update to version 0.69.4?"
-
-//        contentItem: Text {
-//            color: Theme.color.mediumorange1
-//            text: "Mate this shit is gonna legit explode I'm proper warning you"
-//            horizontalAlignment: Text.AlignHCenter
-//            verticalAlignment: Text.AlignVCenter
-//        }
-
-//        standardButtons: Dialog.Yes | Dialog.No
-//    }
-
     TabPane {
         width: 322
 
@@ -144,13 +128,35 @@ Item {
                  device.updater.canUpdate(firmwareUpdates.latestVersion) ? UpdateButton.Green : UpdateButton.Default
 
         onClicked: {
-            if(!firmwareUpdates.isReady) {
-                return;
-            } else if(deviceState.isRecoveryMode) {
-                device.updater.fullRepair(firmwareUpdates.latestVersion);
+            const channelName = preferences.updateChannel;
+            const latestVersion = firmwareUpdates.latestVersion;
+
+            let messageObj, actionFunc;
+
+            if(deviceState.isRecoveryMode) {
+                messageObj = {
+                    title : qsTr("Repair %1?").arg(deviceInfo.name),
+                    message: "%1 %2".arg(channelName).arg(latestVersion.number),
+                    description: qsTr("User settings will be erased.")
+                };
+
+                actionFunc = function() {
+                    device.updater.fullRepair(latestVersion);
+                }
+
             } else {
-                device.updater.fullUpdate(firmwareUpdates.latestVersion);
+                messageObj = {
+                    title : qsTr("Update %1?").arg(deviceInfo.name),
+                    message: "Version %1".arg(latestVersion.number),
+                    description : qsTr("This will install the latest <font color=\"%1\">%2</font> version.").arg(releaseButton.linkColor).arg(channelName.toUpperCase())
+                };
+
+                actionFunc = function() {
+                    device.updater.fullUpdate(latestVersion);
+                }
             }
+
+            confirmationDialog.openWithMessage(actionFunc, messageObj);
         }
     }
 
@@ -202,6 +208,8 @@ Item {
         anchors.topMargin: 5
 
         text: "Install from file"
-        onClicked: confirmationDialog.open()
+        onClicked: {
+
+        }
     }
 }
