@@ -39,6 +39,7 @@ CustomDialog {
                         leftPadding: 10
                         Layout.fillWidth: true
                         text: firmwareUpdates.isReady ? qsTr("Version %1 changelog:").arg(firmwareUpdates.latestVersion.number) : qsTr("No data")
+                        horizontalAlignment: Text.AlignHCenter
                     }
 
                     WindowButton {
