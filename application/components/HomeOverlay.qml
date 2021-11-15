@@ -4,19 +4,17 @@ import QtQuick.Controls 2.15
 
 import Theme 1.0
 
-//import "../style"
-
 Item {
     id: overlay
-    visible: opacity > 0
 
     property Rectangle backgroundRect
-
     readonly property int centerX: 590
 
     readonly property var device: deviceRegistry.currentDevice
     readonly property var deviceState: device ? device.state : undefined
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
+
+    visible: opacity > 0
 
     Behavior on opacity {
         PropertyAnimation {

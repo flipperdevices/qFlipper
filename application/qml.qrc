@@ -86,5 +86,7 @@
         <file>assets/gfx/images/recovery.svg</file>
         <file>assets/gfx/images/default.svg</file>
         <file>components/ChangelogDialog.qml</file>
+        <file>components/ExpandWidget.qml</file>
+        <file>assets/gfx/symbolic/arrow-expand.svg</file>
     </qresource>
 </RCC>

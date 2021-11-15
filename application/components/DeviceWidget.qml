@@ -7,6 +7,8 @@ import Theme 1.0
 Image {
     id: control
 
+    signal screenStreamRequested
+
     readonly property var device: deviceRegistry.currentDevice
     readonly property var deviceState: device ? device.state : undefined
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
@@ -47,7 +49,6 @@ Image {
     }
 
     ScreenCanvas {
-        id: screenCanvas
         anchors.fill: defaultScreen
         visible: !!device && device.streamer.enabled
 
@@ -58,5 +59,18 @@ Image {
         canvasHeight: device ? device.streamer.screenHeight : 1
 
         data: device ? device.streamer.screenData : ""
+    }
+
+    ExpandWidget {
+        id: expandWidget
+
+        x: 89
+        y: 22
+
+        width: 136
+        height: 73
+
+        visible: !!device && device.streamer.enabled
+        onClicked: control.screenStreamRequested()
     }
 }
