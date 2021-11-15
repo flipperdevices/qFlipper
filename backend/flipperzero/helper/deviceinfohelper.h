@@ -48,6 +48,7 @@ private:
     void fetchDeviceInfo();
     void checkSDCard();
     void checkManifest();
+    void closePortAndFinish();
 
     QSerialPort *m_serialPort;
     DeviceInfo m_deviceInfo;

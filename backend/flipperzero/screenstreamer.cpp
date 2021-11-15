@@ -70,6 +70,7 @@ void ScreenStreamer::sendInputEvent(InputKey key, InputType type)
 void ScreenStreamer::createPort()
 {
     if(m_serialPort) {
+        setEnabled(false);
         m_serialPort->deleteLater();
     }
 

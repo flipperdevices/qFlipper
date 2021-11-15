@@ -10,7 +10,7 @@
 ScreenCanvas::ScreenCanvas(QQuickItem *parent):
     QQuickPaintedItem(parent),
     m_foreground(QColor(0x00, 0x00, 0x00)),
-    m_background(QColor(0xFF, 0x8B, 0x29)),
+    m_background(QColor(0xFF, 0xFF, 0xFF)),
     m_canvas(QImage(1, 1, QImage::Format_RGB32))
 {}
 
@@ -59,9 +59,7 @@ void ScreenCanvas::paint(QPainter *painter)
     const auto dh = (bh - h) / 2;
 
     const QRectF canvasRect(dw, dh, w, h);
-    painter->setPen(QColor(0x2E, 0x2E, 0x2E));
     painter->drawImage(canvasRect, m_canvas);
-    painter->drawRoundedRect(canvasRect.adjusted(-1, -1, 1, 1), 4, 4);
 }
 
 qreal ScreenCanvas::canvasWidth() const
@@ -108,6 +106,36 @@ qreal ScreenCanvas::renderWidth() const
 qreal ScreenCanvas::renderHeight() const
 {
     return m_renderHeight;
+}
+
+const QColor &ScreenCanvas::foregroundColor() const
+{
+    return m_foreground;
+}
+
+void ScreenCanvas::setForegroundColor(const QColor &color)
+{
+    if(color == m_foreground) {
+        return;
+    }
+
+    m_foreground = color;
+    emit foregroundColorChanged();
+}
+
+const QColor &ScreenCanvas::backgroundColor() const
+{
+    return m_background;
+}
+
+void ScreenCanvas::setBackgroundColor(const QColor &color)
+{
+    if(color == m_background) {
+        return;
+    }
+
+    m_background = color;
+    emit backgroundColorChanged();
 }
 
 void ScreenCanvas::saveImage(const QUrl &url, int scale)

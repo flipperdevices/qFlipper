@@ -23,6 +23,8 @@ Item {
     readonly property var deviceState: device ? device.state : undefined
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
+    readonly property bool streamingPossible: !!deviceState && !deviceState.isRecoveryMode && !deviceState.isPersistent
+
     property alias controls: windowControls
 
     width: baseWidth
@@ -30,6 +32,14 @@ Item {
 
     x: shadowSize
     y: shadowSize - shadowOffset
+
+    onStreamingPossibleChanged: {
+        if(!deviceState) {
+            return;
+        }
+
+        device.streamer.enabled = streamingPossible;
+    }
 
     PropertyAnimation {
         id: logExpand

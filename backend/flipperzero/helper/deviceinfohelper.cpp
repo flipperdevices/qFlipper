@@ -75,7 +75,7 @@ void VCPDeviceInfoHelper::nextStateLogic()
         checkManifest();
 
     } else if(state() == VCPDeviceInfoHelper::CheckingManifest) {
-        finish();
+        closePortAndFinish();
     }
 }
 
@@ -156,7 +156,7 @@ void VCPDeviceInfoHelper::checkSDCard()
         } else if(operation->type() != StatOperation::Type::Storage) {
             m_deviceInfo.storage.isExternalPresent = false;
             m_deviceInfo.storage.isAssetsInstalled = false;
-            finish();
+            closePortAndFinish();
 
         } else {
             m_deviceInfo.storage.isExternalPresent = true;
@@ -183,6 +183,12 @@ void VCPDeviceInfoHelper::checkManifest()
     });
 
     operation->start();
+}
+
+void VCPDeviceInfoHelper::closePortAndFinish()
+{
+    m_serialPort->close();
+    finish();
 }
 
 using namespace STM32;

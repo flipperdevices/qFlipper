@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
+import QFlipper 1.0
 import Theme 1.0
 
 Image {
@@ -35,10 +36,27 @@ Image {
     }
 
     Image {
+        id: defaultScreen
+
         x: 93
         y: 26
 
+        visible: !device || !device.streamer.enabled
         source: deviceState && deviceState.isRecoveryMode ? "qrc:/assets/gfx/images/recovery.svg" : "qrc:/assets/gfx/images/default.svg"
         sourceSize: Qt.size(128, 64)
+    }
+
+    ScreenCanvas {
+        id: screenCanvas
+        anchors.fill: defaultScreen
+        visible: !!device && device.streamer.enabled
+
+        foregroundColor: Theme.color.darkorange1
+        backgroundColor: Theme.color.lightorange2
+
+        canvasWidth: device ? device.streamer.screenWidth : 1
+        canvasHeight: device ? device.streamer.screenHeight : 1
+
+        data: device ? device.streamer.screenData : ""
     }
 }
