@@ -9,6 +9,8 @@ Popup {
     signal accepted
     signal rejected
 
+    padding: 0
+
     width: parent.width
     height: parent.height
 
@@ -17,7 +19,7 @@ Popup {
     background: Rectangle {
         id: bg
         color: "black"
-        opacity: 0.85
+        opacity: 0.8
     }
 
     Component.onCompleted: {

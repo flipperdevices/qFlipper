@@ -35,7 +35,10 @@ CustomDialog {
         Rectangle {
             anchors.fill: background
             anchors.margins: -3
-            color: Theme.color.mediumorange3
+
+            opacity: 0.5
+            color: "black"
+
             radius: background.radius - anchors.margins
         }
 
@@ -57,7 +60,7 @@ CustomDialog {
 
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 48
+                    Layout.preferredHeight: 42
 
                     color: Theme.color.lightorange2
                     radius: background.radius
@@ -73,7 +76,7 @@ CustomDialog {
                         id: titleLabel
                         anchors.fill: parent
                         color: Theme.color.darkorange1
-                        font.family: "Born2bSportyV2"
+                        font.bold: true
 
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
@@ -81,7 +84,7 @@ CustomDialog {
                 }
 
                 Item {
-                    Layout.fillHeight: true
+                    Layout.preferredHeight: 10
                 }
 
                 TextLabel {
@@ -94,6 +97,7 @@ CustomDialog {
                     bottomPadding: 0
 
                     Layout.fillWidth: true
+                    Layout.bottomMargin: 6
                 }
 
                 TextLabel {
@@ -110,7 +114,7 @@ CustomDialog {
                 }
 
                 Item {
-                    Layout.fillHeight: true
+                    Layout.preferredHeight: 10
                 }
 
                 DialogButtonBox {
@@ -120,8 +124,8 @@ CustomDialog {
 
                     delegate: SmallButton {
                         id: delegate
+                        font.bold: true
                         implicitHeight: 42
-                        font.family: "Born2bSportyV2"
                         highlighted: DialogButtonBox.buttonRole === DialogButtonBox.AcceptRole
                     }
 
