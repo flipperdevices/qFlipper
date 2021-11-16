@@ -101,9 +101,6 @@ T.ComboBox {
     indicator: ColorImage {
         id: icon
 
-//        width: 24
-//        height: 24
-
         x: control.mirrored ? control.padding : control.width - width - 13
         y: control.topPadding + (control.availableHeight - height) / 2
 
@@ -159,26 +156,14 @@ T.ComboBox {
                        control.hovered ? strokeColor.hover : strokeColor.normal
         border.width: 2
 
-        Item {
-            id: bgBottom
-            visible: control.popup.visible
+        Rectangle {
+            y: control.popup.y < 0 ? 0 : parent.height - height
 
             width: parent.width
             height: parent.radius
 
-            anchors.bottom: parent.bottom
-            clip: true
-
-            Rectangle {
-                height: bg.radius + bg.border.width
-                width: parent.width
-
-                anchors.bottom: parent.bottom
-
-                color: backgroundColor.down
-                border.color: strokeColor.down
-                border.width: bg.border.width
-            }
+            color: backgroundColor.down
+            visible: control.popup.visible
         }
 
         Behavior on color {

@@ -13,10 +13,18 @@ Image {
     readonly property var deviceState: device ? device.state : undefined
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
+    visible: opacity > 0
     source: "qrc:/assets/gfx/images/flipper.svg"
     sourceSize: Qt.size(360, 156)
 
     Behavior on x {
+        PropertyAnimation {
+            easing.type: Easing.InOutQuad
+            duration: 350
+        }
+    }
+
+    Behavior on opacity {
         PropertyAnimation {
             easing.type: Easing.InOutQuad
             duration: 350

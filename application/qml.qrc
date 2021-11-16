@@ -88,5 +88,7 @@
         <file>components/ChangelogDialog.qml</file>
         <file>components/ExpandWidget.qml</file>
         <file>assets/gfx/symbolic/arrow-expand.svg</file>
+        <file>components/StreamOverlay.qml</file>
+        <file>assets/gfx/symbolic/arrow-back.svg</file>
     </qresource>
 </RCC>

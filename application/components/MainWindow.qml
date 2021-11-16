@@ -23,7 +23,8 @@ Item {
     readonly property var deviceState: device ? device.state : undefined
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
-    readonly property bool streamingPossible: !!deviceState && !deviceState.isRecoveryMode && !deviceState.isPersistent
+    readonly property bool streamingEnabled: !!deviceState && !deviceState.isRecoveryMode && !deviceState.isPersistent
+    property bool streamingExpanded: false
 
     property alias controls: windowControls
 
@@ -33,12 +34,12 @@ Item {
     x: shadowSize
     y: shadowSize - shadowOffset
 
-    onStreamingPossibleChanged: {
+    onStreamingEnabledChanged: {
         if(!deviceState) {
             return;
         }
 
-        device.streamer.enabled = streamingPossible;
+        device.streamer.enabled = streamingEnabled;
     }
 
     PropertyAnimation {
@@ -147,6 +148,15 @@ Item {
             }
         }
 
+        DeviceWidget {
+            id: deviceWidget
+            opacity: streamingExpanded ? 0 : 1
+            x: deviceState && !deviceState.isPersistent && !streamingExpanded ? Math.round(mainContent.width / 2) : 216
+            y: 85
+
+            onScreenStreamRequested: streamingExpanded = true
+        }
+
         NoDeviceOverlay {
             id: noDeviceOverlay
             anchors.fill: parent
@@ -157,7 +167,7 @@ Item {
             id: homeOverlay
             backgroundRect: bg
             anchors.fill: parent
-            opacity: deviceState && !deviceState.isPersistent ? 1 : 0
+            opacity: deviceState && !deviceState.isPersistent && !streamingExpanded ? 1 : 0
         }
 
         UpdateOverlay {
@@ -167,10 +177,11 @@ Item {
             opacity: deviceState && deviceState.isPersistent ? 1 : 0
         }
 
-        DeviceWidget {
-            id: deviceWidget
-            x: deviceState && !deviceState.isPersistent ? Math.round(mainContent.width / 2) : 216
-            y: 85
+        StreamOverlay {
+            id: streamOverlay
+            anchors.fill: parent
+            opacity: streamingExpanded ? 1 : 0
+            onCloseRequested: streamingExpanded = false
         }
     }
 
