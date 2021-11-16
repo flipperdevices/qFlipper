@@ -70,7 +70,7 @@ CustomDialog {
                             Layout.fillHeight: true
                             Layout.preferredWidth: height - 6
 
-                            WindowButton {
+                            ImageButton {
                                 anchors.centerIn: parent
                                 iconName: "close"
                                 iconPath: "qrc:/assets/gfx/controls/windows"
