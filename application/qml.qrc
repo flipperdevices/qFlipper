@@ -56,7 +56,6 @@
         <file>assets/gfx/symbolic/restore-symbolic.svg</file>
         <file>style/IconLabelEx.qml</file>
         <file>components/SmallButtonRed.qml</file>
-        <file>components/WindowButton.qml</file>
         <file>components/WindowControls.qml</file>
         <file>assets/gfx/controls/mac/close.svg</file>
         <file>assets/gfx/controls/mac/minimize.svg</file>
@@ -90,5 +89,17 @@
         <file>assets/gfx/symbolic/arrow-expand.svg</file>
         <file>components/StreamOverlay.qml</file>
         <file>assets/gfx/symbolic/arrow-back.svg</file>
+        <file>components/DirectionalKeypad.qml</file>
+        <file>components/ImageButton.qml</file>
+        <file>assets/gfx/controls/dpad/circle.svg</file>
+        <file>assets/gfx/controls/dpad/circle_down.svg</file>
+        <file>assets/gfx/controls/dpad/circle_hover.svg</file>
+        <file>assets/gfx/controls/dpad/triangle.svg</file>
+        <file>assets/gfx/controls/dpad/triangle_down.svg</file>
+        <file>assets/gfx/controls/dpad/triangle_hover.svg</file>
+        <file>assets/gfx/controls/dpad/back_down.svg</file>
+        <file>assets/gfx/controls/dpad/back_hover.svg</file>
+        <file>assets/gfx/controls/dpad/back.svg</file>
+        <file>components/KeypadButton.qml</file>
     </qresource>
 </RCC>

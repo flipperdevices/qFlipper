@@ -61,7 +61,7 @@ RowLayout {
         Layout.fillWidth: true
     }
 
-    WindowButton {
+    ImageButton {
         id: minimizeButton
 
         iconPath: control.iconPath
@@ -70,7 +70,7 @@ RowLayout {
         onClicked: minimizeRequested()
     }
 
-    WindowButton {
+    ImageButton {
         id: closeButton
 
         iconPath: control.iconPath

@@ -12,8 +12,6 @@ Item {
     signal closeRequested
 
     readonly property var device: deviceRegistry.currentDevice
-    readonly property var deviceState: device ? device.state : undefined
-    readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
     visible: opacity > 0
     enabled: visible
@@ -113,6 +111,20 @@ Item {
 
         anchors.right: overlay.right
         anchors.rightMargin: canvasBg.x
+    }
+
+    DirectionalKeypad {
+        id: keypad
+
+        x: 590
+        y: 52
+
+        focus: enabled
+
+        onInputEvent: {
+            device.streamer.sendInputEvent(key, type);
+        }
+
     }
 
     Action {
