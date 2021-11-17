@@ -237,7 +237,9 @@ Item {
         }
     }
 
-    ScrollView {
+    TextView {
+        visible: height > 0
+
         anchors.top: footerLayour.bottom
         anchors.left: mainContent.left
         anchors.right: mainContent.right
@@ -246,14 +248,6 @@ Item {
         anchors.topMargin: 14
         anchors.bottomMargin: 12
 
-        visible: height > 0
-
-        TextArea {
-            id: logText
-            padding: 0
-            anchors.fill: parent
-            color: Theme.color.lightorange2
-            text: "qFlipper version 0.6.1 commit deadba0bab.\n\nLOGS ARE NOT IMPLEMENTED YET."
-        }
+        text: "qFlipper version 0.6.1 commit deadba0bab.\n\nLOGS ARE NOT IMPLEMENTED YET."
     }
 }

@@ -88,5 +88,7 @@
         <file>assets/gfx/controls/dpad/back.svg</file>
         <file>components/KeypadButton.qml</file>
         <file>assets/fonts/ProggySquare.ttf</file>
+        <file>assets/fonts/ShareTechMono-Regular.ttf</file>
+        <file>components/TextView.qml</file>
     </qresource>
 </RCC>

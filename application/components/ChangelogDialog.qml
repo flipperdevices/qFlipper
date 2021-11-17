@@ -8,25 +8,16 @@ CustomDialog {
     id: control
 
     closable: true
-    invertTitle: false
+    invertTitle: true
     title: firmwareUpdates.isReady ? qsTr("Version %1 changelog").arg(firmwareUpdates.latestVersion.number) : qsTr("No data")
 
-    contentWidget: ScrollView {
-        id: scrollView
-        clip: true
+    contentWidget: TextView {
+        text: firmwareUpdates.isReady ? firmwareUpdates.latestVersion.changelog : qsTr("No data")
+        textFormat: Text.MarkdownText
 
         implicitWidth: control.width - 70
-        implicitHeight: control.height - 168
+        implicitHeight: control.height - 160
 
         background.visible: false
-        contentWidth: availableWidth
-
-        Text {
-            width: scrollView.availableWidth
-            text: firmwareUpdates.isReady ? firmwareUpdates.latestVersion.changelog : qsTr("No data")
-            textFormat: Text.MarkdownText
-            color: Theme.color.lightorange2
-            wrapMode: Text.Wrap
-        }
     }
 }

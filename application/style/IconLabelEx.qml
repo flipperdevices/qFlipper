@@ -26,5 +26,7 @@ RowLayout {
 
         Layout.fillWidth: true
         Layout.rightMargin: control.padding
+
+        antialiasing: false
     }
 }

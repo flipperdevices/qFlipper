@@ -83,6 +83,8 @@ Popup {
                     font.bold: true
                     font.capitalization: Font.AllUppercase
 
+                    antialiasing: false
+
                     Item {
                         id: closeButton
                         visible: closable
