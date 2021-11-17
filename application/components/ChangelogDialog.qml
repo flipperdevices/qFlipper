@@ -53,32 +53,31 @@ CustomDialog {
                         anchors.bottom: parent.bottom
                     }
 
-                    RowLayout {
+                    TextLabel {
                         anchors.fill: parent
 
-                        TextLabel {
-                            font.bold: true
-                            text: firmwareUpdates.isReady ? qsTr("Version %1 changelog").arg(firmwareUpdates.latestVersion.number) : qsTr("No data")
+                        font.bold: true
+                        text: firmwareUpdates.isReady ? qsTr("Version %1 changelog").arg(firmwareUpdates.latestVersion.number) : qsTr("No data")
 
-                            Layout.fillWidth: true
+                        Layout.fillWidth: true
 
-                            verticalAlignment: Text.AlignVCenter
-                            horizontalAlignment: Text.AlignHCenter
-                        }
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
+                    }
 
-                        Item {
-                            Layout.fillHeight: true
-                            Layout.preferredWidth: height - 6
+                    Item {
+                        height: parent.height
+                        width: height - 6
+                        anchors.right: parent.right
 
-                            ImageButton {
-                                anchors.centerIn: parent
-                                iconName: "close"
-                                iconPath: "qrc:/assets/gfx/controls/windows"
+                        ImageButton {
+                            anchors.centerIn: parent
+                            iconName: "close"
+                            iconPath: "qrc:/assets/gfx/controls/windows"
 
-                                Layout.alignment: Qt.AlignVCenter
+                            Layout.alignment: Qt.AlignVCenter
 
-                                onClicked: control.close()
-                            }
+                            onClicked: control.close()
                         }
                     }
                 }
