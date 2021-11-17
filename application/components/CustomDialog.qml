@@ -3,6 +3,8 @@ import QtQuick.Controls 2.15
 
 import Theme 1.0
 
+import "../style"
+
 Popup {
     id: control
 
@@ -85,13 +87,24 @@ Popup {
                         id: closeButton
                         visible: closable
                         height: parent.height
-                        width: height - 4
+                        width: height
                         anchors.right: parent.right
 
-                        ImageButton {
+                        Button {
+                            flat: true
+                            padding: 0
+
+                            width: 24
+                            height: 24
+
+                            backgroundColor: ColorGroup {
+                                normal: Theme.color.darkorange1
+                                hover: Theme.color.mediumorange2
+                                down: Theme.color.lightred2
+                            }
+
                             anchors.centerIn: parent
-                            iconName: "close"
-                            iconPath: "qrc:/assets/gfx/controls/windows"
+                            icon.source: "qrc:/assets/gfx/controls/windows/close.svg"
                             onClicked: control.close()
                         }
                     }

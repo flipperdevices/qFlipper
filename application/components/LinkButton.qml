@@ -19,4 +19,10 @@ Button {
         hover: Qt.lighter(linkColor, 1.2)
         down: linkColor
     }
+
+    backgroundColor: ColorGroup {
+        normal: Theme.color.transparent
+        hover: Theme.color.transparent
+        down: Theme.color.transparent
+    }
 }

@@ -103,8 +103,6 @@ T.Button {
     background: Rectangle {
         id: bg
 
-        visible: !control.flat
-
         implicitWidth: 100
         implicitHeight: 42
 
@@ -114,7 +112,7 @@ T.Button {
                 control.hovered ? backgroundColor.hover : backgroundColor.normal
         border.color: !control.enabled ? strokeColor.disabled : control.down ? strokeColor.down :
                        control.hovered ? strokeColor.hover : strokeColor.normal
-        border.width: 2
+        border.width: control.flat ? 0 : 2
 
         Behavior on color {
             ColorAnimation {
