@@ -34,6 +34,7 @@ Item {
         anchors.top: control.top
         anchors.bottom: control.bottom
 
+
         Text {
             id: label
             color: control.color
@@ -46,5 +47,9 @@ Item {
             sourceSize: Qt.size(width, height)
             Layout.bottomMargin: 1
         }
+    }
+
+    Component.onCompleted: {
+        layout.spacing = icon.source != "" ? layout.spacing : 0
     }
 }
