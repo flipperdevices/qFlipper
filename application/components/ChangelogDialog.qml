@@ -7,100 +7,26 @@ import Theme 1.0
 CustomDialog {
     id: control
 
-    contentItem: Item {
-        Rectangle {
-            anchors.fill: background
-            anchors.margins: -3
+    closable: true
+    invertTitle: false
+    title: firmwareUpdates.isReady ? qsTr("Version %1 changelog").arg(firmwareUpdates.latestVersion.number) : qsTr("No data")
 
-            opacity: 0.5
-            color: "black"
+    contentWidget: ScrollView {
+        id: scrollView
+        clip: true
 
-            radius: background.radius - anchors.margins
-        }
+        implicitWidth: control.width - 70
+        implicitHeight: control.height - 168
 
-        Rectangle {
-            id: background
+        background.visible: false
+        contentWidth: availableWidth
 
-            anchors.fill: parent
-            anchors.topMargin: 60
-            anchors.leftMargin: 35
-            anchors.rightMargin: 35
-            anchors.bottomMargin: 60
-
-            radius: 8
-            border.width: 2
-
-            color: "black"
-            border.color: Theme.color.lightorange2
-
-            ColumnLayout {
-                anchors.fill: parent
-                spacing: 0
-
-                Rectangle {
-                    radius: background.radius - background.border.width
-                    color: Theme.color.darkorange1
-
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 42
-                    Layout.margins: background.border.width
-                    Layout.bottomMargin: 0
-
-                    Rectangle {
-                        color: parent.color
-                        width: parent.width
-                        height: parent.radius
-                        anchors.bottom: parent.bottom
-                    }
-
-                    TextLabel {
-                        anchors.fill: parent
-
-                        font.bold: true
-                        text: firmwareUpdates.isReady ? qsTr("Version %1 changelog").arg(firmwareUpdates.latestVersion.number) : qsTr("No data")
-
-                        Layout.fillWidth: true
-
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
-                    }
-
-                    Item {
-                        height: parent.height
-                        width: height - 6
-                        anchors.right: parent.right
-
-                        ImageButton {
-                            anchors.centerIn: parent
-                            iconName: "close"
-                            iconPath: "qrc:/assets/gfx/controls/windows"
-
-                            Layout.alignment: Qt.AlignVCenter
-
-                            onClicked: control.close()
-                        }
-                    }
-                }
-
-                ScrollView {
-                    id: scrollView
-                    clip: true
-
-                    Layout.fillHeight: true
-                    Layout.fillWidth: true
-
-                    background.visible: false
-                    contentWidth: availableWidth
-
-                    Text {
-                        width: scrollView.availableWidth
-                        text: firmwareUpdates.isReady ? firmwareUpdates.latestVersion.changelog : qsTr("No data")
-                        textFormat: Text.MarkdownText
-                        color: Theme.color.lightorange2
-                        wrapMode: Text.Wrap
-                    }
-                }
-            }
+        Text {
+            width: scrollView.availableWidth
+            text: firmwareUpdates.isReady ? firmwareUpdates.latestVersion.changelog : qsTr("No data")
+            textFormat: Text.MarkdownText
+            color: Theme.color.lightorange2
+            wrapMode: Text.Wrap
         }
     }
 }

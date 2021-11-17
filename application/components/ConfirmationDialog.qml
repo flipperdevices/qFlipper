@@ -7,7 +7,6 @@ import Theme 1.0
 CustomDialog {
     id: control
 
-    property alias title: titleLabel.text
     property alias message: messageLabel.text
     property alias description: descriptionLabel.text
 
@@ -31,107 +30,62 @@ CustomDialog {
         control.open();
     }
 
-    contentItem: Item {
-        Rectangle {
-            anchors.fill: background
-            anchors.margins: -3
+    contentWidget: Item {
+        implicitWidth: 400
+        implicitHeight: layout.implicitHeight
 
-            opacity: 0.5
-            color: "black"
+        ColumnLayout {
+            id: layout
+            width: parent.implicitWidth
 
-            radius: background.radius - anchors.margins
-        }
+            Item {
+                Layout.preferredHeight: 10
+            }
 
-        Rectangle {
-            id: background
-            implicitWidth: 400
-            implicitHeight: layout.implicitHeight
-            anchors.centerIn: parent
+            TextLabel {
+                id: messageLabel
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                wrapMode: Text.Wrap
 
-            radius: 7
-            border.width: 2
+                padding: 6
+                bottomPadding: 0
 
-            color: "black"
-            border.color: Theme.color.lightorange2
+                Layout.fillWidth: true
+                Layout.bottomMargin: 6
+            }
 
-            ColumnLayout {
-                id: layout
-                anchors.fill: parent
+            TextLabel {
+                id: descriptionLabel
+                color: Theme.color.mediumorange1
+                wrapMode: Text.Wrap
 
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 42
+                padding: 6
 
-                    color: Theme.color.lightorange2
-                    radius: background.radius
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
 
-                    Rectangle {
-                        width: parent.width
-                        height: parent.radius
-                        anchors.bottom: parent.bottom
-                        color: parent.color
-                    }
+                Layout.fillWidth: true
+            }
 
-                    TextLabel {
-                        id: titleLabel
-                        anchors.fill: parent
-                        color: Theme.color.darkorange1
-                        font.bold: true
+            Item {
+                Layout.preferredHeight: 10
+            }
 
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
+            DialogButtonBox {
+                topPadding: 0
+                Layout.fillWidth: true
+                standardButtons: Dialog.Ok | Dialog.Cancel
+
+                delegate: SmallButton {
+                    id: delegate
+                    font.bold: true
+                    implicitHeight: 42
+                    highlighted: DialogButtonBox.buttonRole === DialogButtonBox.AcceptRole
                 }
 
-                Item {
-                    Layout.preferredHeight: 10
-                }
-
-                TextLabel {
-                    id: messageLabel
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    wrapMode: Text.Wrap
-
-                    padding: 6
-                    bottomPadding: 0
-
-                    Layout.fillWidth: true
-                    Layout.bottomMargin: 6
-                }
-
-                TextLabel {
-                    id: descriptionLabel
-                    color: Theme.color.mediumorange1
-                    wrapMode: Text.Wrap
-
-                    padding: 6
-
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-
-                    Layout.fillWidth: true
-                }
-
-                Item {
-                    Layout.preferredHeight: 10
-                }
-
-                DialogButtonBox {
-                    topPadding: 0
-                    Layout.fillWidth: true
-                    standardButtons: Dialog.Ok | Dialog.Cancel
-
-                    delegate: SmallButton {
-                        id: delegate
-                        font.bold: true
-                        implicitHeight: 42
-                        highlighted: DialogButtonBox.buttonRole === DialogButtonBox.AcceptRole
-                    }
-
-                    onAccepted: control.accepted()
-                    onRejected: control.rejected()
-                }
+                onAccepted: control.accepted()
+                onRejected: control.rejected()
             }
         }
     }
