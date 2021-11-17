@@ -15,9 +15,10 @@ Item {
     property alias font: label.font
     property alias icon: icon
 
-    font.family: "Terminus (TTF)"
-    font.pixelSize: 12
+    font.family: "ProggySquareTT"
+    font.pixelSize: 16
 
+    implicitHeight: 15
     implicitWidth: layout.implicitWidth + margins * 2
 
     Rectangle {
@@ -36,15 +37,14 @@ Item {
         Text {
             id: label
             color: control.color
-
-            verticalAlignment: Qt.AlignVCenter
-            Layout.fillHeight: true
+            Layout.topMargin: 1
         }
 
         IconImage {
             id: icon
             color: control.color
             sourceSize: Qt.size(width, height)
+            Layout.bottomMargin: 1
         }
     }
 }

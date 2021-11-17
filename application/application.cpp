@@ -82,7 +82,7 @@ void Application::initFonts()
 {
     QFontDatabase::addApplicationFont(":/assets/fonts/haxrcorp-4089.ttf");
     QFontDatabase::addApplicationFont(":/assets/fonts/Born2bSportyV2.ttf");
-    QFontDatabase::addApplicationFont(":/assets/fonts/TerminusTTF.ttf");
+    QFontDatabase::addApplicationFont(":/assets/fonts/ProggySquare.ttf");
 
     QFont haxr("HaxrCorp 4089");
 

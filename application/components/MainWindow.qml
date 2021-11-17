@@ -132,8 +132,8 @@ Item {
             color: Theme.color.lightorange2
             opacity: 0.5
 
-            font.family: "Terminus (TTF)"
-            font.pixelSize: 12
+            font.family: "ProggySquareTT"
+            font.pixelSize: 16
 
             text: app.version
 
@@ -253,7 +253,7 @@ Item {
             padding: 0
             anchors.fill: parent
             color: Theme.color.lightorange2
-            text: "qFlipper version 0.5.3 commit deadba0bab."
+            text: "qFlipper version 0.6.1 commit deadba0bab.\n\nLOGS ARE NOT IMPLEMENTED YET."
         }
     }
 }

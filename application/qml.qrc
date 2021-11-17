@@ -44,7 +44,6 @@
         <file>assets/gfx/symbolic/wrench.svg</file>
         <file>components/TabPane.qml</file>
         <file>components/TextLabel.qml</file>
-        <file>assets/fonts/TerminusTTF.ttf</file>
         <file>components/DeviceInfo.qml</file>
         <file>components/DeviceActions.qml</file>
         <file>style/ComboBox.qml</file>
@@ -101,5 +100,6 @@
         <file>assets/gfx/controls/dpad/back_hover.svg</file>
         <file>assets/gfx/controls/dpad/back.svg</file>
         <file>components/KeypadButton.qml</file>
+        <file>assets/fonts/ProggySquare.ttf</file>
     </qresource>
 </RCC>
