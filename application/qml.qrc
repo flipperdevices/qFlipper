@@ -1,25 +1,12 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>components/StyledButton.qml</file>
-        <file>components/FlipperListDelegate.qml</file>
-        <file>components/StyledProgressBar.qml</file>
-        <file>components/StyledConfirmationDialog.qml</file>
-        <file>screens/versionscreen.qml</file>
-        <file>components/VersionListDelegate.qml</file>
-        <file>components/StyledChangelogDialog.qml</file>
         <file>assets/menu.svg</file>
-        <file>screens/homescreen.qml</file>
-        <file>screens/streamscreen.qml</file>
-        <file>components/StyledKeypad.qml</file>
         <file>assets/arrow-up.svg</file>
-        <file>components/StyledToolButton.qml</file>
         <file>assets/arrow-left.svg</file>
         <file>assets/arrow-right.svg</file>
         <file>assets/arrow-down.svg</file>
         <file>assets/symbol-back.svg</file>
-        <file>components/StyledRoundButton.qml</file>
-        <file>screens/prefscreen.qml</file>
         <file>assets/symbol-gear.svg</file>
         <file>assets/fonts/Born2bSportyV2.ttf</file>
         <file>assets/fonts/haxrcorp-4089.ttf</file>
