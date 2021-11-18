@@ -30,7 +30,7 @@ public slots:
     void fullUpdate(const Flipper::Updates::VersionInfo &versionInfo);
     void fullRepair(const Flipper::Updates::VersionInfo &versionInfo);
 
-    void localFirmwareUpdate(const QUrl &fileUrl);
+    void localFirmwareInstall(const QUrl &fileUrl);
     void localFUSUpdate(const QUrl &fileUrl);
     void localWirelessStackUpdate(const QUrl &fileUrl);
 

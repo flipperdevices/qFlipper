@@ -48,7 +48,7 @@ Item {
             };
 
             const actionFunc = function() {
-                device.updater.localFirmwareUpdate(fileUrl);
+                device.updater.localFirmwareInstall(fileUrl);
             }
 
             confirmationDialog.openWithMessage(actionFunc, messageObj);

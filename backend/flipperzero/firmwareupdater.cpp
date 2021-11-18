@@ -5,7 +5,7 @@
 #include "utilityinterface.h"
 
 #include "toplevel/wirelessstackupdateoperation.h"
-#include "toplevel/firmwareupdateoperation.h"
+#include "toplevel/firmwareinstalloperation.h"
 #include "toplevel/fullrepairoperation.h"
 #include "toplevel/fullupdateoperation.h"
 
@@ -41,9 +41,9 @@ void FirmwareUpdater::fullRepair(const Updates::VersionInfo &versionInfo)
     enqueueOperation(operation);
 }
 
-void FirmwareUpdater::localFirmwareUpdate(const QUrl &fileUrl)
+void FirmwareUpdater::localFirmwareInstall(const QUrl &fileUrl)
 {
-    enqueueOperation(new FirmwareUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
+    enqueueOperation(new FirmwareInstallOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
 }
 
 void FirmwareUpdater::localFUSUpdate(const QUrl &fileUrl)
