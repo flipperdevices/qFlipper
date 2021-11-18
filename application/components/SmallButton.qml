@@ -20,13 +20,13 @@ Button {
         normal: Theme.color.transparent
         hover: Theme.color.mediumorange2
         down: Theme.color.lightorange2
-        disabled: Theme.color.darkorange2
+        disabled: Theme.color.transparent
     }
 
     strokeColor: ColorGroup {
         normal: Theme.color.mediumorange1
         hover: Theme.color.lightorange1
         down: Theme.color.lightorange2
-        disabled: Theme.color.darkorange2
+        disabled: Theme.color.mediumorange1
     }
 }

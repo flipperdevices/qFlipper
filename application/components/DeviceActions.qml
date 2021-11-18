@@ -8,6 +8,9 @@ ColumnLayout {
     id: control
     spacing: 10
 
+    readonly property var device: deviceRegistry.currentDevice
+    readonly property var deviceState: device ? device.state : undefined
+
     TransparentLabel {
         color: Theme.color.lightorange2
         text: qsTr("Firmware update channel")
@@ -40,6 +43,7 @@ ColumnLayout {
 
         SmallButton {
             text: qsTr("Backup")
+            enabled: !!deviceState && !deviceState.isRecoveryMode
             Layout.fillWidth: true
 
             icon.source: "qrc:/assets/gfx/symbolic/backup-symbolic.svg"
@@ -49,6 +53,7 @@ ColumnLayout {
 
         SmallButton {
             text: qsTr("Restore")
+            enabled: !!deviceState && !deviceState.isRecoveryMode
             Layout.fillWidth: true
 
             icon.source: "qrc:/assets/gfx/symbolic/restore-symbolic.svg"
@@ -58,6 +63,7 @@ ColumnLayout {
 
         SmallButtonRed {
             text: qsTr("Erase")
+            enabled: !!deviceState && !deviceState.isRecoveryMode
             Layout.fillWidth: true
 
             icon.source: "qrc:/assets/gfx/symbolic/trashcan.svg"
@@ -67,6 +73,7 @@ ColumnLayout {
 
         SmallButtonRed {
             text: qsTr("Reinstall")
+            enabled: !!deviceState && !deviceState.isRecoveryMode
             Layout.fillWidth: true
 
             icon.source: "qrc:/assets/gfx/symbolic/update-symbolic.svg"

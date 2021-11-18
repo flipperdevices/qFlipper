@@ -20,6 +20,7 @@ Rectangle {
         IconImage {
             color: message.color
             source: "qrc:/assets/gfx/symbolic/info-small.svg"
+            rotation: deviceState && deviceState.isError ? 180 : 0
         }
 
         Text {
