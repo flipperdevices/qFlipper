@@ -107,6 +107,8 @@ Popup {
 
                             anchors.centerIn: parent
                             icon.source: "qrc:/assets/gfx/controls/windows/close.svg"
+                            icon.width: 20
+                            icon.height: 20
                             onClicked: control.close()
                         }
                     }
