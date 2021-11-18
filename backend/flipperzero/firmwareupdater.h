@@ -30,6 +30,10 @@ public slots:
     void fullUpdate(const Flipper::Updates::VersionInfo &versionInfo);
     void fullRepair(const Flipper::Updates::VersionInfo &versionInfo);
 
+    void backupInternalStorage(const QUrl &directoryUrl);
+    void restoreInternalStorage(const QUrl &directoryUrl);
+    void factoryReset();
+
     void localFirmwareInstall(const QUrl &fileUrl);
     void localFUSUpdate(const QUrl &fileUrl);
     void localWirelessStackUpdate(const QUrl &fileUrl);

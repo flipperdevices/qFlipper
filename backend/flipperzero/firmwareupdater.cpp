@@ -41,6 +41,21 @@ void FirmwareUpdater::fullRepair(const Updates::VersionInfo &versionInfo)
     enqueueOperation(operation);
 }
 
+void FirmwareUpdater::backupInternalStorage(const QUrl &directoryUrl)
+{
+    qDebug() << "Backup to" << directoryUrl << "...";
+}
+
+void FirmwareUpdater::restoreInternalStorage(const QUrl &directoryUrl)
+{
+    qDebug() << "Restore from" << directoryUrl << "...";
+}
+
+void FirmwareUpdater::factoryReset()
+{
+    qDebug() << "Factory reset!";
+}
+
 void FirmwareUpdater::localFirmwareInstall(const QUrl &fileUrl)
 {
     enqueueOperation(new FirmwareInstallOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));

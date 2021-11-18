@@ -8,6 +8,12 @@ ColumnLayout {
     id: control
     spacing: 10
 
+    property alias backupAction: backupAction
+    property alias restoreAction: restoreAction
+    property alias eraseAction: eraseAction
+    property alias reinstallAction: reinstallAction
+    property alias updateAppAction: updateAppAction
+
     readonly property var device: deviceRegistry.currentDevice
     readonly property var deviceState: device ? device.state : undefined
 
@@ -42,8 +48,7 @@ ColumnLayout {
         Layout.fillWidth: true
 
         SmallButton {
-            text: qsTr("Backup")
-            enabled: !!deviceState && !deviceState.isRecoveryMode
+            action: backupAction
             Layout.fillWidth: true
 
             icon.source: "qrc:/assets/gfx/symbolic/backup-symbolic.svg"
@@ -52,8 +57,7 @@ ColumnLayout {
         }
 
         SmallButton {
-            text: qsTr("Restore")
-            enabled: !!deviceState && !deviceState.isRecoveryMode
+            action: restoreAction
             Layout.fillWidth: true
 
             icon.source: "qrc:/assets/gfx/symbolic/restore-symbolic.svg"
@@ -62,8 +66,7 @@ ColumnLayout {
         }
 
         SmallButtonRed {
-            text: qsTr("Erase")
-            enabled: !!deviceState && !deviceState.isRecoveryMode
+            action: eraseAction
             Layout.fillWidth: true
 
             icon.source: "qrc:/assets/gfx/symbolic/trashcan.svg"
@@ -71,9 +74,8 @@ ColumnLayout {
             icon.height: 20
         }
 
-        SmallButtonRed {
-            text: qsTr("Reinstall")
-            enabled: !!deviceState && !deviceState.isRecoveryMode
+        SmallButton {
+            action: reinstallAction
             Layout.fillWidth: true
 
             icon.source: "qrc:/assets/gfx/symbolic/update-symbolic.svg"
@@ -89,11 +91,42 @@ ColumnLayout {
     }
 
     Button {
-        text: qsTr("Update qFlipper")
+        action: updateAppAction
         Layout.fillWidth: true
 
         icon.source: "qrc:/assets/gfx/symbolic/update-symbolic.svg"
         icon.width: 16
         icon.height: 16
+    }
+
+    Action {
+        id: backupAction
+        text: qsTr("Backup")
+        enabled: !!deviceState && !deviceState.isRecoveryMode
+    }
+
+    Action {
+        id: restoreAction
+        text: qsTr("Restore")
+        enabled: !!deviceState && !deviceState.isRecoveryMode
+    }
+
+    Action {
+        id: eraseAction
+        text: qsTr("Erase")
+        enabled: !!deviceState && !deviceState.isRecoveryMode
+    }
+
+    Action {
+        id: reinstallAction
+        text: qsTr("Reinstall")
+        enabled: firmwareUpdates.isReady && !!deviceState && !deviceState.isRecoveryMode &&
+                 !(device.updater.canUpdate(firmwareUpdates.latestVersion) || device.updater.canInstall())
+    }
+
+    Action {
+        id: updateAppAction
+        text: qsTr("Update qFlipper")
+        enabled: applicationUpdates.isReady
     }
 }
