@@ -48,7 +48,9 @@ CustomDialog {
                 verticalAlignment: Text.AlignVCenter
                 wrapMode: Text.Wrap
 
-                padding: 6
+                topPadding: 6
+                leftPadding: 15
+                rightPadding: 15
                 bottomPadding: 0
 
                 Layout.fillWidth: true
@@ -61,6 +63,8 @@ CustomDialog {
                 wrapMode: Text.Wrap
 
                 padding: 6
+                leftPadding: 15
+                rightPadding: 15
 
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter

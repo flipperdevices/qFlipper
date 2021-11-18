@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
+import QtQuick.Dialogs 1.2
 
 import Theme 1.0
 
@@ -16,10 +17,41 @@ Item {
 
     visible: opacity > 0
 
+    function baseName(fileUrl) {
+        const str = fileUrl.toString();
+        return str.slice(str.lastIndexOf("/") + 1);
+    }
+
     Behavior on opacity {
         PropertyAnimation {
             easing.type: Easing.InOutQuad
             duration: 350
+        }
+    }
+
+    FileDialog {
+        id: fileDialog
+
+        title: qsTr("Please choose a firmware file")
+        folder: shortcuts.home
+        selectMultiple: false
+        selectExisting: true
+
+        nameFilters: ["Firmware files (*.dfu)", "All files (*.*)"]
+
+        onAccepted: {
+            const messageObj = {
+                title : qsTr("Flash %1?").arg(deviceInfo.name),
+                message: baseName(fileUrl),
+                description : qsTr("Installing firmware from a file is <font color=\"%1\">not</font> recommended.")
+                              .arg(Theme.color.lightred3)
+            };
+
+            const actionFunc = function() {
+                device.updater.localFirmwareUpdate(fileUrl);
+            }
+
+            confirmationDialog.openWithMessage(actionFunc, messageObj);
         }
     }
 
@@ -152,7 +184,8 @@ Item {
                 messageObj = {
                     title : qsTr("Update %1?").arg(deviceInfo.name),
                     message: "Version %1".arg(latestVersion.number),
-                    description : qsTr("This will install the latest <font color=\"%1\">%2</font> version.").arg(releaseButton.linkColor).arg(channelName.toUpperCase())
+                    description : qsTr("This will install the latest <font color=\"%1\">%2</font> version.")
+                                  .arg(releaseButton.linkColor).arg(channelName.toUpperCase())
                 };
 
                 actionFunc = function() {
@@ -215,9 +248,15 @@ Item {
         anchors.top: updateButton.bottom
         anchors.topMargin: 5
 
-        text: "Install from file"
-        onClicked: {
+        action: installFromFileAction
+    }
 
-        }
+    Action {
+       id: installFromFileAction
+       text: qsTr("Install from file")
+
+       onTriggered: {
+            fileDialog.open();
+       }
     }
 }
