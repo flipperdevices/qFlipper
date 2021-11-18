@@ -35,11 +35,11 @@ Item {
     y: shadowSize - shadowOffset
 
     onStreamingEnabledChanged: {
-        if(!deviceState) {
-            return;
-        }
+        streamingExpanded &= streamingEnabled;
 
-        device.streamer.enabled = streamingEnabled;
+        if(deviceState) {
+            device.streamer.enabled = streamingEnabled;
+        }
     }
 
     PropertyAnimation {
