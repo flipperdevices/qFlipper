@@ -25,6 +25,7 @@ RowLayout {
         TextLabel {
             text: qsTr("Build Date")
             visible: extraFields
+            color: Theme.color.mediumorange4
             horizontalAlignment: Text.AlignRight
             Layout.fillWidth: true
         }
@@ -33,6 +34,7 @@ RowLayout {
             text: qsTr("SD Card")
             visible: extraFields
             horizontalAlignment: Text.AlignRight
+            color: Theme.color.mediumorange4
             Layout.fillWidth: true
         }
 
@@ -40,10 +42,12 @@ RowLayout {
             text: qsTr("Databases")
             visible: extraFields
             horizontalAlignment: Text.AlignRight
+            color: Theme.color.mediumorange4
             Layout.fillWidth: true
         }
 
         TextLabel {
+            color: extraFields ? Theme.color.mediumorange4 : Theme.color.lightorange2
             text: qsTr("Hardware")
             horizontalAlignment: Text.AlignRight
             Layout.fillWidth: true
@@ -53,6 +57,7 @@ RowLayout {
             text: qsTr("Radio FW")
             visible: extraFields
             horizontalAlignment: Text.AlignRight
+            color: Theme.color.mediumorange4
             Layout.fillWidth: true
         }
     }
@@ -69,22 +74,25 @@ RowLayout {
 
         TextLabel {
             text: deviceInfo ? deviceInfo.firmware.date.toLocaleDateString(Qt.locale("C"), Locale.ShortFormat) : text
+            color: Theme.color.lightorange3
             visible: extraFields
         }
 
         TextLabel {
             text: deviceInfo && deviceInfo.storage.isExternalPresent ? deviceInfo.storage.externalFree + qsTr("% Free") : qsTr("Not present")
-            color: deviceInfo && deviceInfo.storage.isExternalPresent ? Theme.color.lightorange2 : Theme.color.lightred1
+            color: deviceInfo && deviceInfo.storage.isExternalPresent ? Theme.color.lightorange3 : Theme.color.lightred3
             visible: extraFields
         }
 
         TextLabel {
             text: deviceInfo && deviceInfo.storage.isAssetsInstalled ? qsTr("Installed") : qsTr("Missing")
-            color: deviceInfo && deviceInfo.storage.isAssetsInstalled ? Theme.color.lightorange2 : Theme.color.lightred1
+            color: deviceInfo && deviceInfo.storage.isAssetsInstalled ? Theme.color.lightorange3 : Theme.color.lightred3
             visible: extraFields
         }
 
         TextLabel {
+            color: extraFields ? Theme.color.lightorange3 : Theme.color.lightorange2
+
             text: {
                 if(!deviceInfo) {
                     return text;
@@ -103,6 +111,7 @@ RowLayout {
 
         TextLabel {
             text: deviceInfo ? deviceInfo.radioVersion : text
+            color: Theme.color.lightorange3
             visible: extraFields
         }
     }
