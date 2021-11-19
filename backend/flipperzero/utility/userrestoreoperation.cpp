@@ -26,7 +26,7 @@ UserRestoreOperation::UserRestoreOperation(CommandInterface *cli, DeviceState *d
 
 const QString UserRestoreOperation::description() const
 {
-    return QStringLiteral("Restore user data @%1").arg(deviceState()->name());
+    return QStringLiteral("Restore %1 @%2").arg(m_deviceDirName, deviceState()->name());
 }
 
 void UserRestoreOperation::advanceOperationState()

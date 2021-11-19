@@ -52,6 +52,8 @@ SOURCES += \
     flipperzero/toplevel/firmwareinstalloperation.cpp \
     flipperzero/toplevel/fullrepairoperation.cpp \
     flipperzero/toplevel/fullupdateoperation.cpp \
+    flipperzero/toplevel/settingsbackupoperation.cpp \
+    flipperzero/toplevel/settingsrestoreoperation.cpp \
     flipperzero/toplevel/wirelessstackupdateoperation.cpp \
     flipperzero/utility/abstractutilityoperation.cpp \
     flipperzero/utility/assetsdownloadoperation.cpp \
@@ -119,6 +121,8 @@ HEADERS += \
     flipperzero/toplevel/firmwareinstalloperation.h \
     flipperzero/toplevel/fullrepairoperation.h \
     flipperzero/toplevel/fullupdateoperation.h \
+    flipperzero/toplevel/settingsbackupoperation.h \
+    flipperzero/toplevel/settingsrestoreoperation.h \
     flipperzero/toplevel/wirelessstackupdateoperation.h \
     flipperzero/utility/abstractutilityoperation.h \
     flipperzero/utility/assetsdownloadoperation.h \

@@ -24,7 +24,7 @@ UserBackupOperation::UserBackupOperation(CommandInterface *cli, DeviceState *dev
 
 const QString UserBackupOperation::description() const
 {
-    return QStringLiteral("Backup user data @%1 %2").arg(deviceState()->name());
+    return QStringLiteral("Backup %1 @%2").arg(m_deviceDirName, deviceState()->name());
 }
 
 void UserBackupOperation::advanceOperationState()

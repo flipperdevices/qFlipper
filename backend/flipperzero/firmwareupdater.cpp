@@ -8,6 +8,8 @@
 #include "toplevel/firmwareinstalloperation.h"
 #include "toplevel/fullrepairoperation.h"
 #include "toplevel/fullupdateoperation.h"
+#include "toplevel/settingsrestoreoperation.h"
+#include "toplevel/settingsbackupoperation.h"
 
 #include "preferences.h"
 
@@ -23,32 +25,30 @@ FirmwareUpdater::FirmwareUpdater(DeviceState *state, QObject *parent):
 
 void FirmwareUpdater::fullUpdate(const Updates::VersionInfo &versionInfo)
 {
-    if(m_state->isRecoveryMode()) {
-        return;
+    if(!m_state->isRecoveryMode()) {
+        enqueueOperation(new FullUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this));
     }
-
-    auto *operation = new FullUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this);
-    enqueueOperation(operation);
 }
 
 void FirmwareUpdater::fullRepair(const Updates::VersionInfo &versionInfo)
 {
-    if(!m_state->isRecoveryMode()) {
-        return;
+    if(m_state->isRecoveryMode()) {
+        enqueueOperation(new FullRepairOperation(m_recovery, m_utility, m_state, versionInfo, this));
     }
-
-    auto *operation = new FullRepairOperation(m_recovery, m_utility, m_state, versionInfo, this);
-    enqueueOperation(operation);
 }
 
 void FirmwareUpdater::backupInternalStorage(const QUrl &directoryUrl)
 {
-    qDebug() << "Backup to" << directoryUrl << "...";
+    if(!m_state->isRecoveryMode()) {
+        enqueueOperation(new SettingsBackupOperation(m_utility, m_state, directoryUrl, this));
+    }
 }
 
 void FirmwareUpdater::restoreInternalStorage(const QUrl &directoryUrl)
 {
-    qDebug() << "Restore from" << directoryUrl << "...";
+    if(!m_state->isRecoveryMode()) {
+        enqueueOperation(new SettingsRestoreOperation(m_utility, m_state, directoryUrl, this));
+    }
 }
 
 void FirmwareUpdater::factoryReset()
