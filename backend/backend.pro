@@ -19,6 +19,7 @@ SOURCES += \
     flipperzero/assetmanifest.cpp \
     flipperzero/cli/deviceinfooperation.cpp \
     flipperzero/cli/dfuoperation.cpp \
+    flipperzero/cli/factoryresetclioperation.cpp \
     flipperzero/cli/rebootoperation.cpp \
     flipperzero/commandinterface.cpp \
     flipperzero/cli/skipmotdoperation.cpp \
@@ -49,6 +50,7 @@ SOURCES += \
     flipperzero/cli/writeoperation.cpp \
     flipperzero/screenstreamer.cpp \
     flipperzero/toplevel/abstracttopleveloperation.cpp \
+    flipperzero/toplevel/factoryresetoperation.cpp \
     flipperzero/toplevel/firmwareinstalloperation.cpp \
     flipperzero/toplevel/fullrepairoperation.cpp \
     flipperzero/toplevel/fullupdateoperation.cpp \
@@ -57,6 +59,7 @@ SOURCES += \
     flipperzero/toplevel/wirelessstackupdateoperation.cpp \
     flipperzero/utility/abstractutilityoperation.cpp \
     flipperzero/utility/assetsdownloadoperation.cpp \
+    flipperzero/utility/factoryresetutiloperation.cpp \
     flipperzero/utility/getfiletreeoperation.cpp \
     flipperzero/utility/restartoperation.cpp \
     flipperzero/utility/startrecoveryoperation.cpp \
@@ -87,6 +90,7 @@ HEADERS += \
     flipperzero/assetmanifest.h \
     flipperzero/cli/deviceinfooperation.h \
     flipperzero/cli/dfuoperation.h \
+    flipperzero/cli/factoryresetclioperation.h \
     flipperzero/cli/rebootoperation.h \
     flipperzero/commandinterface.h \
     flipperzero/cli/skipmotdoperation.h \
@@ -118,6 +122,7 @@ HEADERS += \
     flipperzero/cli/writeoperation.h \
     flipperzero/screenstreamer.h \
     flipperzero/toplevel/abstracttopleveloperation.h \
+    flipperzero/toplevel/factoryresetoperation.h \
     flipperzero/toplevel/firmwareinstalloperation.h \
     flipperzero/toplevel/fullrepairoperation.h \
     flipperzero/toplevel/fullupdateoperation.h \
@@ -126,6 +131,7 @@ HEADERS += \
     flipperzero/toplevel/wirelessstackupdateoperation.h \
     flipperzero/utility/abstractutilityoperation.h \
     flipperzero/utility/assetsdownloadoperation.h \
+    flipperzero/utility/factoryresetutiloperation.h \
     flipperzero/utility/getfiletreeoperation.h \
     flipperzero/utility/restartoperation.h \
     flipperzero/utility/startrecoveryoperation.h \

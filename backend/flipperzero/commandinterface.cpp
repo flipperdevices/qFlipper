@@ -4,6 +4,7 @@
 
 #include "flipperzero/devicestate.h"
 
+#include "cli/factoryresetclioperation.h"
 #include "cli/skipmotdoperation.h"
 #include "cli/rebootoperation.h"
 #include "cli/removeoperation.h"
@@ -43,9 +44,6 @@ CommandInterface::CommandInterface(DeviceState *state, QObject *parent):
     createSerialPort();
 }
 
-CommandInterface::~CommandInterface()
-{}
-
 RebootOperation *CommandInterface::reboot()
 {
     auto *op = new RebootOperation(m_serialPort, this);
@@ -56,6 +54,13 @@ RebootOperation *CommandInterface::reboot()
 DFUOperation *CommandInterface::startRecoveryMode()
 {
     auto *op = new DFUOperation(m_serialPort, this);
+    enqueueOperation(op);
+    return op;
+}
+
+FactoryResetCliOperation *CommandInterface::factoryReset()
+{
+    auto *op = new FactoryResetCliOperation(m_serialPort, this);
     enqueueOperation(op);
     return op;
 }

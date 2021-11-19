@@ -19,6 +19,7 @@ class MkDirOperation;
 class WriteOperation;
 class RemoveOperation;
 class RebootOperation;
+class FactoryResetCliOperation;
 
 class CommandInterface : public AbstractOperationRunner
 {
@@ -26,10 +27,10 @@ class CommandInterface : public AbstractOperationRunner
 
 public:
     CommandInterface(DeviceState *state, QObject *parent = nullptr);
-    ~CommandInterface();
 
     RebootOperation *reboot();
     DFUOperation *startRecoveryMode();
+    FactoryResetCliOperation *factoryReset();
 
     ListOperation *list(const QByteArray &dirName);
     StatOperation *stat(const QByteArray &fileName);

@@ -6,10 +6,11 @@
 
 #include "toplevel/wirelessstackupdateoperation.h"
 #include "toplevel/firmwareinstalloperation.h"
-#include "toplevel/fullrepairoperation.h"
-#include "toplevel/fullupdateoperation.h"
 #include "toplevel/settingsrestoreoperation.h"
 #include "toplevel/settingsbackupoperation.h"
+#include "toplevel/factoryresetoperation.h"
+#include "toplevel/fullrepairoperation.h"
+#include "toplevel/fullupdateoperation.h"
 
 #include "preferences.h"
 
@@ -53,7 +54,9 @@ void FirmwareUpdater::restoreInternalStorage(const QUrl &directoryUrl)
 
 void FirmwareUpdater::factoryReset()
 {
-    qDebug() << "Factory reset!";
+    if(!m_state->isRecoveryMode()) {
+        enqueueOperation(new FactoryResetOperation(m_utility, m_state, this));
+    }
 }
 
 void FirmwareUpdater::localFirmwareInstall(const QUrl &fileUrl)
