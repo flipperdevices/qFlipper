@@ -19,6 +19,7 @@ Rectangle {
 
         IconImage {
             color: message.color
+            sourceSize: Qt.size(22, 22)
             source: "qrc:/assets/gfx/symbolic/info-small.svg"
             rotation: deviceState && deviceState.isError ? 180 : 0
         }
