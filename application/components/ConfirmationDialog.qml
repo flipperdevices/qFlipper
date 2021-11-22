@@ -7,8 +7,14 @@ import Theme 1.0
 CustomDialog {
     id: control
 
+    enum SuggestedButton {
+        AcceptRole,
+        RejectRole
+    }
+
+    property string customText
+    property int suggestedRole: ConfirmationDialog.AcceptRole
     property alias message: messageLabel.text
-    property alias description: descriptionLabel.text
 
     function openWithMessage(onAcceptedFunc, messageObj = {}) {
         const onDialogRejected = function() {
@@ -21,9 +27,10 @@ CustomDialog {
             onAcceptedFunc();
         }
 
-        control.title = messageObj.title ? messageObj.title : qsTr("Proceed?");
-        control.message = messageObj.message ? messageObj.message : qsTr("Operation message");
-        control.description = messageObj.description ? messageObj.description : qsTr("Operation short description");
+        control.title = messageObj.title ? messageObj.title : control.title;
+        control.message = messageObj.message ? messageObj.message : control.message;
+        control.suggestedRole = messageObj.suggestedRole ?  messageObj.suggestedRole :control.suggestedRole
+        control.customText = messageObj.customText ? messageObj.customText : control.customText
 
         control.rejected.connect(onDialogRejected);
         control.accepted.connect(onDialogAccepted);
@@ -31,61 +38,47 @@ CustomDialog {
     }
 
     contentWidget: Item {
-        implicitWidth: 400
+        implicitWidth: 430
         implicitHeight: layout.implicitHeight
 
         ColumnLayout {
             id: layout
             width: parent.implicitWidth
 
-            Item {
-                Layout.preferredHeight: 10
-            }
-
             TextLabel {
                 id: messageLabel
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
+
+                lineHeight: 1.4
                 wrapMode: Text.Wrap
 
-                topPadding: 6
-                leftPadding: 15
-                rightPadding: 15
-                bottomPadding: 0
-
+                Layout.topMargin: 24
+                Layout.bottomMargin: -8
                 Layout.fillWidth: true
-                Layout.bottomMargin: 6
-            }
-
-            TextLabel {
-                id: descriptionLabel
-                color: Theme.color.mediumorange1
-                wrapMode: Text.Wrap
-
-                padding: 6
-                leftPadding: 15
-                rightPadding: 15
-
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-
-                Layout.fillWidth: true
-            }
-
-            Item {
-                Layout.preferredHeight: 10
             }
 
             DialogButtonBox {
-                topPadding: 0
                 Layout.fillWidth: true
                 standardButtons: Dialog.Ok | Dialog.Cancel
 
                 delegate: SmallButton {
                     id: delegate
-                    font.bold: true
+
                     implicitHeight: 42
-                    highlighted: DialogButtonBox.buttonRole === DialogButtonBox.AcceptRole
+                    // TODO: fix the button width
+//                    text: customText && (DialogButtonBox.buttonRole === DialogButtonBox.AcceptRole) ? customText : text
+
+                    highlighted: {
+                        switch(control.suggestedRole) {
+                        case ConfirmationDialog.AcceptRole:
+                            return DialogButtonBox.buttonRole === DialogButtonBox.AcceptRole;
+                        case ConfirmationDialog.RejectRole:
+                            return DialogButtonBox.buttonRole === DialogButtonBox.RejectRole;
+                        default:
+                            return false;
+                        }
+                    }
                 }
 
                 onAccepted: control.accepted()

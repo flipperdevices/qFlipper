@@ -72,16 +72,13 @@ Popup {
                     visible: parent.radius > 0
                 }
 
-                Text {
+                TextLabel {
                     id: titleLabel
                     anchors.fill: parent
                     color: invertTitle ? Theme.color.darkorange1 : Theme.color.lightorange2
 
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-
-                    font.bold: true
-                    font.capitalization: Font.AllUppercase
 
                     antialiasing: false
 

@@ -203,7 +203,7 @@ Item {
                 str = "Unknown";
             }
 
-            return "%1 %2".arg(str).arg(firmwareUpdates.latestVersion.number);
+            return "%1 %2".arg(str).arg(firmwareUpdates.latestVersion.number.split("-")[0]);
         }
 
         onTriggered: changelogDialog.open()
@@ -223,9 +223,11 @@ Item {
 
         if(deviceState.isRecoveryMode) {
             messageObj = {
-                title : qsTr("Repair %1?").arg(deviceInfo.name),
-                message: "%1 %2".arg(channelName).arg(latestVersion.number),
-                description: qsTr("User settings will be erased.")
+                title : qsTr("Repair Device?"),
+                customText: qsTr("Repair"),
+                message : qsTr("Firmware <font color=\"%1\">%2</font><br/>will be installed")
+                          .arg(releaseButton.linkColor)
+                          .arg(releaseButton.text)
             };
 
             actionFunc = function() {
@@ -234,10 +236,11 @@ Item {
 
         } else {
             messageObj = {
-                title : qsTr("Update %1?").arg(deviceInfo.name),
-                message: "Version %1".arg(latestVersion.number),
-                description : qsTr("This will install the latest <font color=\"%1\">%2</font> version.")
-                              .arg(releaseButton.linkColor).arg(channelName.toUpperCase())
+                title : qsTr("Update firmware?"),
+                customText: qsTr("Update"),
+                message: qsTr("New firmware <font color=\"%1\">%2</font><br/>will be installed")
+                         .arg(releaseButton.linkColor)
+                         .arg(releaseButton.text),
             };
 
             actionFunc = function() {
@@ -254,10 +257,9 @@ Item {
         fileDialog.nameFilters = ["Firmware files (*.dfu)", "All files (*.*)"];
         fileDialog.onAcceptedFunc = function() {
             const messageObj = {
-                title : qsTr("Flash %1?").arg(deviceInfo.name),
-                message: baseName(fileDialog.fileUrl),
-                description : qsTr("Installing firmware from a file is <font color=\"%1\">not</font> recommended.")
-                              .arg(Theme.color.lightred3)
+                title : qsTr("Install from file?"),
+                customText: qsTr("Install"),
+                message: qsTr("Firmware from fiel %1<br/>will be installed").arg(baseName(fileDialog.fileUrl))
             };
 
             const actionFunc = function() {
@@ -276,9 +278,9 @@ Item {
 
         fileDialog.onAcceptedFunc = function() {
             const messageObj = {
-                title : qsTr("Backup %1?").arg(deviceInfo.name),
-                message: qsTr("Internal storage backup"),
-                description : qsTr("This will backup your device settings.")
+                title : qsTr("Backup device?"),
+                customText: qsTr("Backup"),
+                message: qsTr("Device settings will be backed up")
             };
 
             const actionFunc = function() {
@@ -297,9 +299,9 @@ Item {
 
         fileDialog.onAcceptedFunc = function() {
             const messageObj = {
-                title : qsTr("Restore %1?").arg(deviceInfo.name),
-                message: qsTr("Internal storage restore"),
-                description : qsTr("This will restore your device settings.")
+                title : qsTr("Restore backup?"),
+                customText: qsTr("Restore"),
+                message: qsTr("Device settings will be restored<br/>from selected backup")
             };
 
             const actionFunc = function() {
@@ -314,11 +316,10 @@ Item {
 
     function eraseDevice() {
         const messageObj = {
-            title : qsTr("Erase %1?").arg(deviceInfo.name),
-            message: qsTr("Erase device settings"),
-            description : "<font color=\"%1\">%2</font>"
-                          .arg(Theme.color.lightred3)
-                          .arg(qsTr("Warning! This will reset your device settings to factory defaults!"))
+            title : qsTr("Erase device?"),
+            message: qsTr("Device settings will be fully erased"),
+            suggestedRole: ConfirmationDialog.RejectRole,
+            customText: qsTr("Erase")
         };
 
         const actionFunc = function() {
@@ -330,9 +331,9 @@ Item {
 
     function reinstallFirmware() {
         const messageObj = {
-            title : qsTr("Reinstall %1?").arg(deviceInfo.name),
-            message: qsTr("Reinstall current firmware"),
-            description : qsTr("This will install the currently installed version again.")
+            title : qsTr("Reinstall firmware?"),
+            customText: qsTr("Reinstall"),
+            message: qsTr("Current firmware version will be reinstalled")
         };
 
         const actionFunc = function() {

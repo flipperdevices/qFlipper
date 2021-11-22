@@ -81,7 +81,7 @@ T.Button {
                  control.hovered ? foregroundColor.hover : foregroundColor.normal
 
     font.capitalization: Font.AllUppercase
-    font.underline: highlighted || flat
+    font.underline: flat
 
     contentItem: IconLabelEx {
         id: content
