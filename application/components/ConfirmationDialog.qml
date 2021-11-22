@@ -13,7 +13,7 @@ CustomDialog {
     }
 
     property string customText
-    property int suggestedRole: ConfirmationDialog.AcceptRole
+    property int suggestedRole
     property alias message: messageLabel.text
 
     function openWithMessage(onAcceptedFunc, messageObj = {}) {
@@ -27,10 +27,10 @@ CustomDialog {
             onAcceptedFunc();
         }
 
-        control.title = messageObj.title ? messageObj.title : control.title;
-        control.message = messageObj.message ? messageObj.message : control.message;
-        control.suggestedRole = messageObj.suggestedRole ?  messageObj.suggestedRole :control.suggestedRole
-        control.customText = messageObj.customText ? messageObj.customText : control.customText
+        control.title = messageObj.title ? messageObj.title : "";
+        control.message = messageObj.message ? messageObj.message : "";
+        control.suggestedRole = messageObj.suggestedRole ?  messageObj.suggestedRole : ConfirmationDialog.AcceptRole
+        control.customText = messageObj.customText ? messageObj.customText : ""
 
         control.rejected.connect(onDialogRejected);
         control.accepted.connect(onDialogAccepted);
@@ -58,31 +58,32 @@ CustomDialog {
                 Layout.fillWidth: true
             }
 
-            DialogButtonBox {
+            // TODO: Find a way to use a DialogButtonBox properly
+
+            RowLayout {
+                spacing: 30
+                Layout.margins: 20
                 Layout.fillWidth: true
-                standardButtons: Dialog.Ok | Dialog.Cancel
+                Layout.preferredHeight: 42
+                layoutDirection: Qt.platform.os === "osx" ? Qt.RightToLeft : Qt.LeftToRight
 
-                delegate: SmallButton {
-                    id: delegate
-
-                    implicitHeight: 42
-                    // TODO: fix the button width
-//                    text: customText && (DialogButtonBox.buttonRole === DialogButtonBox.AcceptRole) ? customText : text
-
-                    highlighted: {
-                        switch(control.suggestedRole) {
-                        case ConfirmationDialog.AcceptRole:
-                            return DialogButtonBox.buttonRole === DialogButtonBox.AcceptRole;
-                        case ConfirmationDialog.RejectRole:
-                            return DialogButtonBox.buttonRole === DialogButtonBox.RejectRole;
-                        default:
-                            return false;
-                        }
-                    }
+                SmallButton {
+                    radius: 7
+                    text: customText.length ? customText : qsTr("Ok")
+                    highlighted: control.suggestedRole === ConfirmationDialog.AcceptRole
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    onClicked: control.accepted()
                 }
 
-                onAccepted: control.accepted()
-                onRejected: control.rejected()
+                SmallButton {
+                    radius: 7
+                    text: qsTr("Cancel")
+                    highlighted: control.suggestedRole === ConfirmationDialog.RejectRole
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    onClicked: control.rejected()
+                }
             }
         }
     }
