@@ -90,6 +90,11 @@ bool UserBackupOperation::createBackupDirectory()
 
 bool UserBackupOperation::readFiles()
 {
+    // Temporary fix: do not read files of size 0
+    m_fileList.erase(std::remove_if(m_fileList.begin(), m_fileList.end(), [](const FileInfo &arg) {
+        return (arg.type == FileType::RegularFile) && (arg.size == 0);
+    }));
+
     auto numFiles = std::count_if(m_fileList.cbegin(), m_fileList.cend(), [](const FileInfo &arg) {
         return arg.type == FileType::RegularFile;
     });
