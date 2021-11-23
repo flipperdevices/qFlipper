@@ -22,6 +22,10 @@ const QByteArray &ScreenCanvas::data() const
 
 void ScreenCanvas::setData(const QByteArray &data)
 {
+    if(data.isEmpty()) {
+        return;
+    }
+
     for (auto x = 0; x < canvasWidth(); x++) {
         for (auto y = 0; y < canvasHeight(); y++) {
             const auto i = y / 8 * canvasWidth() + x;
