@@ -11,7 +11,6 @@ Image {
 
     readonly property var device: deviceRegistry.currentDevice
     readonly property var deviceState: device ? device.state : undefined
-    readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
     visible: opacity > 0
     source: "qrc:/assets/gfx/images/flipper.svg"

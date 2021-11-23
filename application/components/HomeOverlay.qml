@@ -5,25 +5,12 @@ import QtQuick.Dialogs 1.2
 
 import Theme 1.0
 
-Item {
+AbstractOverlay {
     id: overlay
-
-    property Rectangle backgroundRect
 
     readonly property int centerX: 590
 
-    readonly property var device: deviceRegistry.currentDevice
-    readonly property var deviceState: device ? device.state : undefined
-    readonly property var deviceInfo: deviceState ? deviceState.info : undefined
-
-    visible: opacity > 0
-
-    Behavior on opacity {
-        PropertyAnimation {
-            easing.type: Easing.InOutQuad
-            duration: 350
-        }
-    }
+    fadeAnimation.duration: 350
 
     FileDialog {
         id: fileDialog
@@ -96,6 +83,7 @@ Item {
         font.family: "Born2bSportyV2"
         font.pixelSize: 48
 
+        capitalized: false
         text: deviceInfo ? deviceInfo.name : text
     }
 

@@ -6,22 +6,10 @@ import QtQuick.Dialogs 1.2
 import QFlipper 1.0
 import Theme 1.0
 
-Item {
+AbstractOverlay {
     id: overlay
 
     signal closeRequested
-
-    readonly property var device: deviceRegistry.currentDevice
-
-    visible: opacity > 0
-    enabled: visible
-
-    Behavior on opacity {
-        PropertyAnimation {
-            easing.type: Easing.InOutQuad
-            duration: 150
-        }
-    }
 
     FileDialog {
         id: fileDialog
@@ -131,7 +119,7 @@ Item {
         id: backAction
         text: qsTr("Back")
         enabled: overlay.enabled
-        onTriggered: closeRequested()
+        onTriggered: opacity = 0
     }
 
     Action {

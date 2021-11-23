@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 import Theme 1.0
+import QFlipper 1.0
 
 AbstractOverlay {
     id: overlay
@@ -17,7 +18,7 @@ AbstractOverlay {
         font.family: "Born2bSportyV2"
         font.pixelSize: 48
 
-        text: qsTr("Updating your Flipper")
+        text: qsTr("Updating qFlipper")
     }
 
     ProgressBar {
@@ -32,8 +33,8 @@ AbstractOverlay {
         x: Math.round((parent.width - width) / 2)
         y: 265
 
-        value: deviceState ? deviceState.progress : 0
-        indeterminate: !deviceState ? true : deviceState.progress < 0
+        value: app.updater.progress
+        indeterminate: value < 0
     }
 
     TextLabel {
@@ -41,7 +42,19 @@ AbstractOverlay {
         anchors.top: progressBar.bottom
         anchors.topMargin: 20
         anchors.horizontalCenter: parent.horizontalCenter
-        text: !deviceState ? text : deviceState.isError ? deviceState.errorString : deviceState.statusString
+
+        text: {
+            switch(app.updater.state) {
+            case AppUpdater.Downloading:
+                return qsTr("Downloading latest version...");
+            case AppUpdater.Updating:
+                return qsTr("Starting update process...");
+            case AppUpdater.ErrorOccured:
+                return qsTr("Update failed");
+            default:
+                return qsTr("Preparing...");
+            }
+        }
         color: Theme.color.lightorange2
     }
 }

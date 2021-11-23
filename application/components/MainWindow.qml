@@ -4,14 +4,25 @@ import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.15
 
 import Theme 1.0
+import QFlipper 1.0
 
 Item {
     id: mainWindow
+
+    enum WindowState {
+        NoDevice,
+        Ready,
+        Updating,
+        Streaming,
+        SelfUpdating
+    }
 
     signal expandStarted
     signal expandFinished
     signal collapseStarted
     signal collapseFinished
+
+    property alias controls: windowControls
 
     readonly property int baseWidth: 830
     readonly property int baseHeight: 500
@@ -23,24 +34,35 @@ Item {
     readonly property var deviceState: device ? device.state : undefined
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
-    readonly property bool streamingEnabled: !!deviceState && !deviceState.isRecoveryMode && !deviceState.isPersistent
-    property bool streamingExpanded: false
+    readonly property int windowState: {
+        if(!deviceState) {
+            MainWindow.NoDevice
+        } else if(deviceState.isPersistent) {
+            MainWindow.Updating
+        } else if(app.updater.state != AppUpdater.Idle) {
+            MainWindow.SelfUpdating
+        } else if(streamOverlay.visible) {
+            MainWindow.Streaming
+        } else {
+            MainWindow.Ready
+        }
+    }
 
-    property alias controls: windowControls
+    onWindowStateChanged: {
+        if(windowState !== MainWindow.NoDevice) {
+            device.streamer.enabled = (windowState === MainWindow.Ready) ||
+                                      (windowState === MainWindow.Streaming);
+        } else {
+            streamOverlay.opacity = 0;
+        }
+    }
+
 
     width: baseWidth
     height: baseHeight
 
     x: shadowSize
     y: shadowSize - shadowOffset
-
-    onStreamingEnabledChanged: {
-        streamingExpanded &= streamingEnabled;
-
-        if(deviceState) {
-            device.streamer.enabled = streamingEnabled;
-        }
-    }
 
     PropertyAnimation {
         id: logExpand
@@ -150,38 +172,44 @@ Item {
 
         DeviceWidget {
             id: deviceWidget
-            opacity: streamingExpanded ? 0 : 1
-            x: deviceState && !deviceState.isPersistent && !streamingExpanded ? Math.round(mainContent.width / 2) : 216
+            opacity: (windowState === MainWindow.Streaming) || (windowState === MainWindow.SelfUpdating) ? 0 : 1
+            x: windowState === MainWindow.Ready ? Math.round(mainContent.width / 2) : 216
             y: 85
 
-            onScreenStreamRequested: streamingExpanded = true
+            onScreenStreamRequested: streamOverlay.opacity = 1
         }
 
         NoDeviceOverlay {
             id: noDeviceOverlay
             anchors.fill: parent
-            opacity: device ? 0 : 1
+            opacity: windowState === MainWindow.NoDevice ? 1 : 0
         }
 
         HomeOverlay {
             id: homeOverlay
             backgroundRect: bg
             anchors.fill: parent
-            opacity: deviceState && !deviceState.isPersistent && !streamingExpanded ? 1 : 0
+            opacity: windowState === MainWindow.Ready ? 1 : 0
         }
 
         UpdateOverlay {
             id: updateOverlay
             backgroundRect: bg
             anchors.fill: parent
-            opacity: deviceState && deviceState.isPersistent ? 1 : 0
+            opacity: windowState === MainWindow.Updating ? 1 : 0
         }
 
         StreamOverlay {
             id: streamOverlay
             anchors.fill: parent
-            opacity: streamingExpanded ? 1 : 0
-            onCloseRequested: streamingExpanded = false
+            opacity: 0
+        }
+
+        SelfUpdateOverlay {
+            id: selfUpdateOverlay
+            backgroundRect: bg
+            anchors.fill: parent
+            opacity: app.updater.state == AppUpdater.Idle ? 0 : 1
         }
     }
 

@@ -36,11 +36,9 @@ bool ScreenStreamer::isEnabled() const
 
 void ScreenStreamer::setEnabled(bool enabled)
 {
-    if (m_isEnabled == enabled) {
+    if(!m_serialPort || (m_isEnabled == enabled)) {
         return;
-    }
-
-    if(enabled) {
+    } else if(enabled) {
         check_return_void(openPort(), "Failed to open serial port");
     } else {
         closePort();
