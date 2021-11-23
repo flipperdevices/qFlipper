@@ -24,7 +24,7 @@ Rectangle {
             rotation: deviceState && deviceState.isError ? 180 : 0
         }
 
-        Text {
+        TextLabel {
             id: message
             text: !deviceState ? qsTr("Waiting for devices ...") :
                    deviceState.isError ? qsTr("Something went wrong. Check logs for details.") :
@@ -32,7 +32,6 @@ Rectangle {
 
             color: (deviceState && deviceState.isError) ? Theme.color.lightred1 : Theme.color.lightorange2
 
-            font.capitalization: Font.AllUppercase
             verticalAlignment: Text.AlignVCenter
             Layout.fillWidth: true
         }

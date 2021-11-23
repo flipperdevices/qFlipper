@@ -84,11 +84,6 @@ void Application::initFonts()
     QFontDatabase::addApplicationFont(":/assets/fonts/Born2bSportyV2.ttf");
     QFontDatabase::addApplicationFont(":/assets/fonts/ProggySquare.ttf");
     QFontDatabase::addApplicationFont(":/assets/fonts/ShareTechMono-Regular.ttf");
-
-    // TODO: Move the font definition into respective widgets
-    QFont haxr("HaxrCorp 4089");
-    haxr.setPixelSize(32);
-    qApp->setFont(haxr);
 }
 
 void Application::initGUI()

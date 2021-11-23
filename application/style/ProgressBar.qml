@@ -19,12 +19,14 @@ T.ProgressBar {
 
         Text {
             id: brightText
+            antialiasing: false
             visible: !control.indeterminate
             color: Theme.color.lightorange2
             text:  Math.round(control.value) + "%"
             anchors.centerIn: parent
-            font.pixelSize: 48
 
+            font.pixelSize: 48
+            font.family: "HaxrCorp 4089"
         }
 
         Text {
@@ -70,6 +72,7 @@ T.ProgressBar {
                 color: Theme.color.darkorange1
                 text: brightText.text
                 font: brightText.font
+                antialiasing: false
             }
         }
     }

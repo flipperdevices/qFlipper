@@ -86,7 +86,7 @@ Item {
         }
     }
 
-    Text {
+    TextLabel {
         id: nameLabel
         x: centerX - width - 4
         y: 24
@@ -107,8 +107,6 @@ Item {
             id: connectionLabel
             height: 14
 
-            font.capitalization: Font.AllUppercase
-
             icon.source: "qrc:/assets/gfx/symbolic/usb-connected.svg"
             icon.width: 18
             icon.height: 10
@@ -124,6 +122,7 @@ Item {
             height: connectionLabel.height
             color: connectionLabel.color
             text: deviceInfo ? deviceInfo.systemLocation : text
+            capitalized: false
         }
     }
 

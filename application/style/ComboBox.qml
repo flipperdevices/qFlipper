@@ -69,6 +69,8 @@ T.ComboBox {
     property alias radius: bg.radius
     property alias borderWidth: bg.border.width
 
+    font.pixelSize: 32
+    font.family: "HaxrCorp 4089"
     font.capitalization: Font.AllUppercase
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,

@@ -27,10 +27,9 @@ ItemDelegate {
                    text === "release-candidate" ? "blueviolet" : "limegreen"
         }
 
-        Text {
+        TextLabel {
             text: control.text
             color: control.down ? Theme.color.darkorange1 : control.hovered ? Theme.color.lightorange1 : Theme.color.lightorange2
-            font.capitalization: Font.AllUppercase
             Layout.fillWidth: true
         }
     }

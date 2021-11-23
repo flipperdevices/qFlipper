@@ -26,7 +26,7 @@ Item {
         sourceSize: Qt.size(160, 42)
     }
 
-    Text {
+    TextLabel {
         id: connectMsg
         anchors.horizontalCenter: parent.horizontalCenter
         y: 264
@@ -34,7 +34,6 @@ Item {
         color: Theme.color.lightorange2
         text: qsTr("Connect your Flipper")
 
-        font.capitalization: Font.AllUppercase
         font.family: "Born2bSportyV2"
         font.pixelSize: 48
     }

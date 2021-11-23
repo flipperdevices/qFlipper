@@ -80,6 +80,8 @@ T.Button {
     icon.color: !control.enabled ? foregroundColor.disabled : control.down ? foregroundColor.down :
                  control.hovered ? foregroundColor.hover : foregroundColor.normal
 
+    font.pixelSize: 32
+    font.family: "HaxrCorp 4089"
     font.capitalization: Font.AllUppercase
     font.underline: flat
 

@@ -20,7 +20,6 @@ ColumnLayout {
     TransparentLabel {
         color: Theme.color.lightorange2
         text: qsTr("Firmware update channel")
-        font.capitalization: Font.AllUppercase
     }
 
     ComboBox {
@@ -37,7 +36,6 @@ ColumnLayout {
     TransparentLabel {
         color: Theme.color.lightorange2
         text: qsTr("Backup & Restore")
-        font.capitalization: Font.AllUppercase
     }
 
     GridLayout {
@@ -87,7 +85,6 @@ ColumnLayout {
     TransparentLabel {
         color: Theme.color.lightorange2
         text: qsTr("Application update")
-        font.capitalization: Font.AllUppercase
     }
 
     Button {

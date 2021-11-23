@@ -11,6 +11,7 @@ Item {
     property int margins: 3
     property color color: Theme.color.lightgreen
 
+    property alias capitalized: label.capitalized
     property alias text: label.text
     property alias font: label.font
     property alias icon: icon
@@ -35,7 +36,7 @@ Item {
         anchors.bottom: control.bottom
 
 
-        Text {
+        TextLabel {
             id: label
             color: control.color
             Layout.topMargin: 1

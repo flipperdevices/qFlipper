@@ -20,7 +20,7 @@ Item {
         }
     }
 
-    Text {
+    TextLabel {
         id: updateLabel
         anchors.horizontalCenter: parent.horizontalCenter
         y: 24
@@ -49,13 +49,12 @@ Item {
         indeterminate: !deviceState ? true : deviceState.progress < 0
     }
 
-    Text {
+    TextLabel {
         id: messageLabel
         anchors.top: progressBar.bottom
         anchors.topMargin: 20
         anchors.horizontalCenter: parent.horizontalCenter
         text: !deviceState ? text : deviceState.isError ? deviceState.errorString : deviceState.statusString
-        font.capitalization: Font.AllUppercase
         color: Theme.color.lightorange2
     }
 }

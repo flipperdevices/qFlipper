@@ -121,7 +121,7 @@ Item {
         width: 800 + border.width * 2
         height: 390 + border.width * 2
 
-        Text {
+        TextLabel {
             id: versionLabel
 
             anchors.top: parent.top
