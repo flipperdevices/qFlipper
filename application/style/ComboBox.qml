@@ -115,6 +115,7 @@ T.ComboBox {
 
     contentItem: T.TextField {
         id: content
+        antialiasing: false
         leftPadding: !control.mirrored ? 12 : control.editable && activeFocus ? 3 : 1
         rightPadding: control.mirrored ? 12 : control.editable && activeFocus ? 3 : 1
         topPadding: 6 - control.padding
