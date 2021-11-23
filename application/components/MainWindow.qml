@@ -199,17 +199,17 @@ Item {
             opacity: windowState === MainWindow.Updating ? 1 : 0
         }
 
-        StreamOverlay {
-            id: streamOverlay
-            anchors.fill: parent
-            opacity: 0
-        }
-
         SelfUpdateOverlay {
             id: selfUpdateOverlay
             backgroundRect: bg
             anchors.fill: parent
-            opacity: app.updater.state == AppUpdater.Idle ? 0 : 1
+            opacity: windowState === MainWindow.SelfUpdating ? 1 : 0
+        }
+
+        StreamOverlay {
+            id: streamOverlay
+            anchors.fill: parent
+            opacity: 0
         }
     }
 

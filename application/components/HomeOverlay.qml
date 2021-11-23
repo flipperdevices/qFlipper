@@ -10,8 +10,6 @@ AbstractOverlay {
 
     readonly property int centerX: 590
 
-    fadeAnimation.duration: 350
-
     FileDialog {
         id: fileDialog
         folder: shortcuts.home
