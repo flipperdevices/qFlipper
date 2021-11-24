@@ -26,6 +26,8 @@ Item {
 
     readonly property int baseWidth: 830
     readonly property int baseHeight: 500
+    // TODO: remember log height
+    readonly property int logHeight: 200
 
     readonly property int shadowSize: 16
     readonly property int shadowOffset: 4
@@ -79,8 +81,7 @@ Item {
         target: mainWindow
         property: "height"
 
-        from: target.baseHeight
-        to: target.baseHeight * 2
+        to: target.baseHeight + logHeight
         easing.type: Easing.InOutQuad
 
         onStarted: mainWindow.expandStarted()
@@ -94,8 +95,7 @@ Item {
         duration: logExpand.duration
         property: logExpand.property
 
-        from: logExpand.to
-        to: logExpand.from
+        to: target.baseHeight
 
         onStarted: mainWindow.collapseStarted()
         onFinished: mainWindow.collapseFinished()
@@ -280,6 +280,7 @@ Item {
     }
 
     TextView {
+        id: logView
         visible: height > 0
 
         anchors.top: footerLayour.bottom
@@ -291,6 +292,22 @@ Item {
         anchors.bottomMargin: 12
 
         text: "qFlipper version 0.6.1 commit deadba0bab.\n\nLOGS ARE NOT IMPLEMENTED YET."
+    }
+
+    MouseArea {
+        width: 20
+        height: 20
+
+        visible: logView.visible
+        cursorShape: Qt.SizeFDiagCursor
+
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+
+        DragHandler {
+            target: null
+            onActiveChanged: if(active) startSystemResize(Qt.BottomEdge | Qt.RightEdge)
+        }
     }
 
     function askForSelfUpdate() {

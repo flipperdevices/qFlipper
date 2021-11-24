@@ -26,18 +26,20 @@ Window {
 
     MainWindow {
         id: mainWindow
+        anchors.margins: shadowSize
+        anchors.top: root.contentItem.top
 
         onExpandStarted: {
-            root.maximumHeight = baseHeight * 2 + shadowSize * 2;
-            root.height = root.maximumHeight;
+            root.maximumHeight = 16384;
+            root.height = baseHeight + logHeight + shadowSize * 2;
         }
 
         onExpandFinished: {
-            root.minimumHeight = root.maximumHeight;
+            anchors.bottom = root.contentItem.bottom
         }
 
         onCollapseStarted: {
-            root.minimumHeight = baseHeight + shadowSize * 2;
+            anchors.bottom = undefined;
         }
 
         onCollapseFinished: {
