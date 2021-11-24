@@ -113,7 +113,7 @@ T.ComboBox {
         sourceSize: Qt.size(24, 24)
     }
 
-    contentItem: T.TextField {
+    contentItem: Text {
         id: content
         antialiasing: false
         leftPadding: !control.mirrored ? 12 : control.editable && activeFocus ? 3 : 1
@@ -121,30 +121,13 @@ T.ComboBox {
         topPadding: 6 - control.padding
         bottomPadding: 6 - control.padding
 
-        text: control.editable ? control.editText : control.displayText
-
-        enabled: control.editable
-        autoScroll: control.editable
-        readOnly: control.down
-        inputMethodHints: control.inputMethodHints
-        validator: control.validator
-        selectByMouse: control.selectTextByMouse
-
+        text: control.displayText
         font: control.font
 
         color: !control.enabled ? foregroundColor.disabled : control.down ? foregroundColor.down :
                 control.hovered ? foregroundColor.hover : foregroundColor.normal
 
-        selectionColor: control.palette.highlight
-        selectedTextColor: control.palette.highlightedText
         verticalAlignment: Text.AlignVCenter
-
-        background: Rectangle {
-            visible: control.enabled && control.editable && !control.flat
-            border.width: parent && parent.activeFocus ? 2 : 1
-            border.color: parent && parent.activeFocus ? control.palette.highlight : control.palette.button
-            color: control.palette.base
-        }
     }
 
     background: Rectangle {
