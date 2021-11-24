@@ -12,7 +12,7 @@ Preferences::Preferences(QObject *parent):
     }
 
     if(!m_settings.contains(APPLICATION_UPDATE_CHANNEL_KEY)) {
-        m_settings.setValue(APPLICATION_UPDATE_CHANNEL_KEY, QStringLiteral("development"));
+        m_settings.setValue(APPLICATION_UPDATE_CHANNEL_KEY, QStringLiteral("release"));
     }
 
     if(!m_settings.contains(CHECK_APPLICATION_UPDATES_KEY)) {
