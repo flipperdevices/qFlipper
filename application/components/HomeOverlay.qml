@@ -10,6 +10,7 @@ AbstractOverlay {
 
     signal selfUpdateRequested
     readonly property int centerX: 590
+    readonly property int centerOffset: Math.min(overlay.width - (centerX + systemPathLabel.width + 12), 0)
 
     FileDialog {
         id: fileDialog
@@ -74,7 +75,7 @@ AbstractOverlay {
 
     TextLabel {
         id: nameLabel
-        x: centerX - width - 4
+        x: centerX + centerOffset - width - 4
         y: 24
 
         color: Theme.color.lightorange2
@@ -87,7 +88,7 @@ AbstractOverlay {
     }
 
     ColumnLayout {
-        x: centerX + 4
+        x: centerX + centerOffset + 4
         anchors.bottom: nameLabel.baseline
 
         TransparentLabel {
