@@ -12,7 +12,7 @@ ColumnLayout {
     property alias restoreAction: restoreAction
     property alias eraseAction: eraseAction
     property alias reinstallAction: reinstallAction
-    property alias updateAppAction: updateAppAction
+    property alias selfUpdateAction: selfUpdateAction
 
     readonly property var device: deviceRegistry.currentDevice
     readonly property var deviceState: device ? device.state : undefined
@@ -88,7 +88,7 @@ ColumnLayout {
     }
 
     Button {
-        action: updateAppAction
+        action: selfUpdateAction
         Layout.fillWidth: true
 
         icon.source: "qrc:/assets/gfx/symbolic/update-symbolic.svg"
@@ -122,8 +122,8 @@ ColumnLayout {
     }
 
     Action {
-        id: updateAppAction
+        id: selfUpdateAction
         text: qsTr("Update qFlipper")
-        enabled: applicationUpdates.isReady
+        enabled: applicationUpdates.isReady && app.updater.canUpdate(applicationUpdates.latestVersion)
     }
 }

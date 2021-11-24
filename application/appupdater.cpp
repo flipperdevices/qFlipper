@@ -35,8 +35,9 @@ bool AppUpdater::canUpdate(const Flipper::Updates::VersionInfo &versionInfo)
     if(!globalPrefs()->checkApplicationUpdates()) {
         return false;
     } else if(globalPrefs()->applicationUpdateChannel() == QStringLiteral("development")) {
-        return versionInfo.number() != APP_COMMIT;
-    } else{
+        const auto appDate = QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).date();
+        return (versionInfo.date() > appDate) || ((versionInfo.date() == appDate) && (versionInfo.number() != APP_COMMIT));
+    } else {
         return versionInfo.number() > APP_VERSION;
     }
 }

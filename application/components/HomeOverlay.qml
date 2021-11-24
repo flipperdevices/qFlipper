@@ -8,6 +8,7 @@ import Theme 1.0
 AbstractOverlay {
     id: overlay
 
+    signal selfUpdateRequested
     readonly property int centerX: 590
 
     FileDialog {
@@ -338,5 +339,6 @@ AbstractOverlay {
         deviceActions.restoreAction.triggered.connect(restoreDevice);
         deviceActions.eraseAction.triggered.connect(eraseDevice);
         deviceActions.reinstallAction.triggered.connect(reinstallFirmware);
+        deviceActions.selfUpdateAction.triggered.connect(selfUpdateRequested)
     }
 }

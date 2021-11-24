@@ -57,6 +57,14 @@ Item {
         }
     }
 
+    Component.onCompleted: {
+        if(applicationUpdates.isReady) {
+            askForSelfUpdate();
+        } else {
+            applicationUpdates.channelsChanged.connect(askForSelfUpdate);
+            homeOverlay.selfUpdateRequested.connect(askForSelfUpdate);
+        }
+    }
 
     width: baseWidth
     height: baseHeight
@@ -91,6 +99,12 @@ Item {
 
         onStarted: mainWindow.collapseStarted()
         onFinished: mainWindow.collapseFinished()
+    }
+
+    ConfirmationDialog {
+        id: confirmationDialog
+        radius: bg.radius
+        parent: bg
     }
 
     Rectangle {
@@ -278,4 +292,19 @@ Item {
 
         text: "qFlipper version 0.6.1 commit deadba0bab.\n\nLOGS ARE NOT IMPLEMENTED YET."
     }
+
+    function askForSelfUpdate() {
+        if(app.updater.canUpdate(applicationUpdates.latestVersion)) {
+            const messageObj = {
+                title : qsTr("Update qFlipper?"),
+                message: qsTr("Newer version of qFlipper<br/>will be installed"),
+                customText: qsTr("Update")
+            };
+
+            confirmationDialog.openWithMessage(function() {
+                app.updater.installUpdate(applicationUpdates.latestVersion);
+            }, messageObj);
+        }
+    }
+
 }
