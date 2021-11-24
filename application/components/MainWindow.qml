@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQuick.Window 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.15
@@ -298,6 +299,7 @@ Item {
         width: 20
         height: 20
 
+
         visible: logView.visible
         cursorShape: Qt.SizeFDiagCursor
 
@@ -306,7 +308,25 @@ Item {
 
         DragHandler {
             target: null
-            onActiveChanged: if(active) startSystemResize(Qt.BottomEdge | Qt.RightEdge)
+
+            property int startHeight
+            property bool systemResizeSupported
+
+            // TODO: Make it work better
+            onActiveChanged: {
+                if(active) {
+                    systemResizeSupported = startSystemResize(Qt.BottomEdge | Qt.RightEdge);
+                    if(!systemResizeSupported) {
+                        startHeight = mainWindow.Window.height;
+                    }
+                }
+            }
+
+            onTranslationChanged: {
+                if(!systemResizeSupported) {
+                    mainWindow.Window.window.setHeight(startHeight + translation.y)
+                }
+            }
         }
     }
 
