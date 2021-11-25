@@ -26,25 +26,34 @@ Window {
 
     MainWindow {
         id: mainWindow
-        anchors.margins: shadowSize
-        anchors.top: root.contentItem.top
 
         onExpandStarted: {
-            root.maximumHeight = 16384;
-            root.height = baseHeight + logHeight + shadowSize * 2;
+            root.maximumHeight = baseHeight + logHeight + shadowSize * 2;
+            root.height = root.maximumHeight;
         }
 
         onExpandFinished: {
-            anchors.bottom = root.contentItem.bottom
+            root.minimumHeight = root.maximumHeight;
         }
 
         onCollapseStarted: {
-            anchors.bottom = undefined;
+            root.minimumHeight = baseHeight + shadowSize * 2;
         }
 
         onCollapseFinished: {
-            root.height = baseHeight + shadowSize * 2;
+            root.height = root.minimumHeight;
+            root.maximumHeight = root.minimumHeight;
+        }
+
+        onResizeStarted: {
+            root.maximumHeight = root.Screen.desktopAvailableHeight - root.y;
+            root.height = root.maximumHeight;
+        }
+
+        onResizeFinished: {
+            root.height = mainWindow.height + mainWindow.shadowSize * 2;
             root.maximumHeight = root.height;
+            root.minimumHeight = root.height;
         }
     }
 

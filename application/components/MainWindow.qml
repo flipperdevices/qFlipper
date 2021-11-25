@@ -22,6 +22,8 @@ Item {
     signal expandFinished
     signal collapseStarted
     signal collapseFinished
+    signal resizeStarted
+    signal resizeFinished
 
     property alias controls: windowControls
 
@@ -296,37 +298,30 @@ Item {
     }
 
     MouseArea {
-        width: 20
+        id: resizer
+
+        property int prevMouseY
+
+        width: parent.width
         height: 20
 
+        visible: logView.visible && !logCollapse.running && !logExpand.running
+        cursorShape: Qt.SizeVerCursor
 
-        visible: logView.visible
-        cursorShape: Qt.SizeFDiagCursor
-
-        anchors.right: parent.right
         anchors.bottom: parent.bottom
 
-        DragHandler {
-            target: null
+        preventStealing: true
 
-            property int startHeight
-            property bool systemResizeSupported
+        onPressed: {
+            prevMouseY = mouseY;
+            mainWindow.resizeStarted();
+        }
 
-            // TODO: Make it work better
-            onActiveChanged: {
-                if(active) {
-                    systemResizeSupported = startSystemResize(Qt.BottomEdge | Qt.RightEdge);
-                    if(!systemResizeSupported) {
-                        startHeight = mainWindow.Window.height;
-                    }
-                }
-            }
+        onReleased: mainWindow.resizeFinished()
 
-            onTranslationChanged: {
-                if(!systemResizeSupported) {
-                    mainWindow.Window.window.setHeight(startHeight + translation.y)
-                }
-            }
+        onMouseYChanged: {
+            const dy = mouseY - prevMouseY;
+            mainWindow.height += dy;
         }
     }
 
