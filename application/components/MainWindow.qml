@@ -31,6 +31,7 @@ Item {
     readonly property int baseHeight: 500
     // TODO: remember log height
     readonly property int logHeight: 200
+    readonly property int minimumLogHeight: 200
 
     readonly property int shadowSize: 16
     readonly property int shadowOffset: 4
@@ -321,7 +322,7 @@ Item {
 
         onMouseYChanged: {
             const dy = mouseY - prevMouseY;
-            mainWindow.height += dy;
+            mainWindow.height = Math.max(mainWindow.height + dy, mainWindow.baseHeight + mainWindow.minimumLogHeight);
         }
     }
 

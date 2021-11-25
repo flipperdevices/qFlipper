@@ -6,7 +6,7 @@ import "components"
 Window {
     id: root
     visible: true
-    flags: Qt.Window | Qt.FramelessWindowHint
+    flags: Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint
     title: Qt.application.displayName
 
     height: mainWindow.baseHeight + mainWindow.shadowSize * 2
@@ -46,7 +46,7 @@ Window {
         }
 
         onResizeStarted: {
-            root.maximumHeight = root.Screen.desktopAvailableHeight - root.y;
+            root.maximumHeight = root.Screen.height - root.y;
             root.height = root.maximumHeight;
         }
 
