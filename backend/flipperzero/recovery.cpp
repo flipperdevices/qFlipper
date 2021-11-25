@@ -218,7 +218,7 @@ bool Recovery::downloadFirmware(QIODevice *file)
         return false;
 
     } else {
-        m_deviceState->setStatusString("Downloading firmware, please wait...");
+        m_deviceState->setStatusString("Downloading firmware...");
     }
 
     DfuseFile fw(file);

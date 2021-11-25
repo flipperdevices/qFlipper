@@ -1,10 +1,16 @@
 #include "application.h"
 
+#include <QSettings>
+
 int main(int argc, char *argv[])
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+
+    QCoreApplication::setApplicationName(APP_NAME);
+    QCoreApplication::setApplicationVersion(APP_VERSION);
+    QCoreApplication::setOrganizationName(QStringLiteral("Flipper Devices Inc"));
+    QCoreApplication::setOrganizationDomain(QStringLiteral("flipperdevices.com"));
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
 
     Application app(argc, argv);
     return app.exec();

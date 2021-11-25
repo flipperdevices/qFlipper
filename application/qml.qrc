@@ -1,25 +1,96 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>components/StyledButton.qml</file>
-        <file>components/FlipperListDelegate.qml</file>
-        <file>components/StyledProgressBar.qml</file>
-        <file>components/StyledConfirmationDialog.qml</file>
-        <file>screens/versionscreen.qml</file>
-        <file>components/VersionListDelegate.qml</file>
-        <file>components/StyledChangelogDialog.qml</file>
         <file>assets/menu.svg</file>
-        <file>screens/homescreen.qml</file>
-        <file>screens/streamscreen.qml</file>
-        <file>components/StyledKeypad.qml</file>
         <file>assets/arrow-up.svg</file>
-        <file>components/StyledToolButton.qml</file>
         <file>assets/arrow-left.svg</file>
         <file>assets/arrow-right.svg</file>
         <file>assets/arrow-down.svg</file>
         <file>assets/symbol-back.svg</file>
-        <file>components/StyledRoundButton.qml</file>
-        <file>screens/prefscreen.qml</file>
         <file>assets/symbol-gear.svg</file>
+        <file>assets/fonts/Born2bSportyV2.ttf</file>
+        <file>assets/fonts/haxrcorp-4089.ttf</file>
+        <file>imports/Theme/Theme.qml</file>
+        <file>style/Button.qml</file>
+        <file>imports/Theme/qmldir</file>
+        <file>assets/gfx/images/flipper.svg</file>
+        <file>style/ColorGroup.qml</file>
+        <file>components/UpdateButton.qml</file>
+        <file>components/GridBackground.qml</file>
+        <file>assets/gfx/images/typec.svg</file>
+        <file>assets/gfx/symbolic/arrow-up.svg</file>
+        <file>assets/gfx/symbolic/arrow-down.svg</file>
+        <file>components/HomeOverlay.qml</file>
+        <file>components/NoDeviceOverlay.qml</file>
+        <file>components/LinkButton.qml</file>
+        <file>components/TransparentLabel.qml</file>
+        <file>assets/gfx/symbolic/usb-connected.svg</file>
+        <file>style/TabButton.qml</file>
+        <file>style/TabBar.qml</file>
+        <file>assets/gfx/symbolic/info.svg</file>
+        <file>assets/gfx/symbolic/wrench.svg</file>
+        <file>components/TabPane.qml</file>
+        <file>components/TextLabel.qml</file>
+        <file>components/DeviceInfo.qml</file>
+        <file>components/DeviceActions.qml</file>
+        <file>style/ComboBox.qml</file>
+        <file>style/ToolTip.qml</file>
+        <file>components/SmallButton.qml</file>
+        <file>assets/gfx/symbolic/trashcan.svg</file>
+        <file>assets/gfx/symbolic/update-symbolic.svg</file>
+        <file>assets/gfx/symbolic/backup-symbolic.svg</file>
+        <file>assets/gfx/symbolic/restore-symbolic.svg</file>
+        <file>style/IconLabelEx.qml</file>
+        <file>components/SmallButtonRed.qml</file>
+        <file>components/WindowControls.qml</file>
+        <file>assets/gfx/controls/mac/close.svg</file>
+        <file>assets/gfx/controls/mac/minimize.svg</file>
+        <file>assets/gfx/controls/mac/close_down.svg</file>
+        <file>assets/gfx/controls/mac/close_hover.svg</file>
+        <file>assets/gfx/controls/mac/minimize_down.svg</file>
+        <file>assets/gfx/controls/mac/minimize_hover.svg</file>
+        <file>assets/gfx/controls/windows/close_down.svg</file>
+        <file>assets/gfx/controls/windows/close_hover.svg</file>
+        <file>assets/gfx/controls/windows/close.svg</file>
+        <file>assets/gfx/controls/windows/minimize_down.svg</file>
+        <file>assets/gfx/controls/windows/minimize_hover.svg</file>
+        <file>assets/gfx/controls/windows/minimize.svg</file>
+        <file>style/ScrollBar.qml</file>
+        <file>style/ScrollView.qml</file>
+        <file>components/MainWindow.qml</file>
+        <file>style/Dialog.qml</file>
+        <file>style/DialogButtonBox.qml</file>
+        <file>components/ChannelDelegate.qml</file>
+        <file>components/UpdateOverlay.qml</file>
+        <file>style/ProgressBar.qml</file>
+        <file>components/CustomDialog.qml</file>
+        <file>components/ConfirmationDialog.qml</file>
+        <file>assets/gfx/symbolic/info-small.svg</file>
+        <file>components/StatusBar.qml</file>
+        <file>components/DeviceWidget.qml</file>
+        <file>assets/gfx/images/recovery.svg</file>
+        <file>assets/gfx/images/default.svg</file>
+        <file>components/ChangelogDialog.qml</file>
+        <file>components/ExpandWidget.qml</file>
+        <file>assets/gfx/symbolic/arrow-expand.svg</file>
+        <file>components/StreamOverlay.qml</file>
+        <file>assets/gfx/symbolic/arrow-back.svg</file>
+        <file>components/DirectionalKeypad.qml</file>
+        <file>components/ImageButton.qml</file>
+        <file>assets/gfx/controls/dpad/circle.svg</file>
+        <file>assets/gfx/controls/dpad/circle_down.svg</file>
+        <file>assets/gfx/controls/dpad/circle_hover.svg</file>
+        <file>assets/gfx/controls/dpad/triangle.svg</file>
+        <file>assets/gfx/controls/dpad/triangle_down.svg</file>
+        <file>assets/gfx/controls/dpad/triangle_hover.svg</file>
+        <file>assets/gfx/controls/dpad/back_down.svg</file>
+        <file>assets/gfx/controls/dpad/back_hover.svg</file>
+        <file>assets/gfx/controls/dpad/back.svg</file>
+        <file>components/KeypadButton.qml</file>
+        <file>assets/fonts/ProggySquare.ttf</file>
+        <file>assets/fonts/ShareTechMono-Regular.ttf</file>
+        <file>components/TextView.qml</file>
+        <file>components/SelfUpdateOverlay.qml</file>
+        <file>components/AbstractOverlay.qml</file>
     </qresource>
 </RCC>

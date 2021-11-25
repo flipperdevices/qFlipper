@@ -8,6 +8,7 @@
 #include "flipperzero/utility/userrestoreoperation.h"
 #include "flipperzero/utility/startrecoveryoperation.h"
 #include "flipperzero/utility/assetsdownloadoperation.h"
+#include "flipperzero/utility/factoryresetutiloperation.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -49,6 +50,13 @@ UserRestoreOperation *UtilityInterface::restoreInternalStorage(const QString &ba
 RestartOperation *UtilityInterface::restartDevice()
 {
     auto *operation = new RestartOperation(m_cli, m_deviceState, this);
+    enqueueOperation(operation);
+    return operation;
+}
+
+FactoryResetUtilOperation *UtilityInterface::factoryReset()
+{
+    auto *operation = new FactoryResetUtilOperation(m_cli, m_deviceState, this);
     enqueueOperation(operation);
     return operation;
 }

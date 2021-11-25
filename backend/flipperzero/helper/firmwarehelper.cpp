@@ -74,7 +74,7 @@ void FirmwareHelper::nextStateLogic()
 void FirmwareHelper::fetchFirmware()
 {
     m_deviceState->setStatusString(QStringLiteral("Fetching application firmware..."));
-    const auto &fileInfo = m_versionInfo.fileInfo(QStringLiteral("full_dfu"), m_deviceState->deviceInfo().target);
+    const auto &fileInfo = m_versionInfo.fileInfo(QStringLiteral("full_dfu"), m_deviceState->deviceInfo().hardware.target);
     fetchFile(FileIndex::Firmware, fileInfo);
 }
 

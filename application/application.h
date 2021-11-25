@@ -25,9 +25,10 @@ public:
 private:
     void initStyles();
     void initContextProperties();
-    void initInstanceProperties();
     void initTranslations();
     void initQmlTypes();
+    void initImports();
+    void initFonts();
     void initGUI();
 
     AppUpdater m_updater;

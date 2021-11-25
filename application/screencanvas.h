@@ -13,6 +13,8 @@ class ScreenCanvas : public QQuickPaintedItem
     Q_PROPERTY(qreal canvasHeight READ canvasHeight WRITE setCanvasHeight NOTIFY canvasHeightChanged)
     Q_PROPERTY(qreal renderWidth READ renderWidth NOTIFY renderWidthChanged)
     Q_PROPERTY(qreal renderHeight READ renderHeight NOTIFY renderHeightChanged)
+    Q_PROPERTY(QColor foregroundColor READ foregroundColor WRITE setForegroundColor NOTIFY foregroundColorChanged)
+    Q_PROPERTY(QColor backgroundColor READ backgroundColor WRITE setBackgroundColor NOTIFY backgroundColorChanged)
     Q_PROPERTY(QByteArray data READ data WRITE setData)
 
 public:
@@ -32,6 +34,12 @@ public:
     qreal renderWidth() const;
     qreal renderHeight() const;
 
+    const QColor &foregroundColor() const;
+    void setForegroundColor(const QColor &color);
+
+    const QColor &backgroundColor() const;
+    void setBackgroundColor(const QColor &color);
+
 public slots:
     void saveImage(const QUrl &url, int scale = 0);
     void copyToClipboard(int scale = 0);
@@ -42,6 +50,9 @@ signals:
 
     void renderWidthChanged();
     void renderHeightChanged();
+
+    void foregroundColorChanged();
+    void backgroundColorChanged();
 
 private:
     void setRenderHeight(qreal h);

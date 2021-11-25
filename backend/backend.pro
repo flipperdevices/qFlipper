@@ -17,15 +17,17 @@ SOURCES += \
     filenode.cpp \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
+    flipperzero/cli/deviceinfooperation.cpp \
     flipperzero/cli/dfuoperation.cpp \
+    flipperzero/cli/factoryresetclioperation.cpp \
     flipperzero/cli/rebootoperation.cpp \
     flipperzero/commandinterface.cpp \
     flipperzero/cli/skipmotdoperation.cpp \
-    flipperzero/deviceinfofetcher.cpp \
     flipperzero/devicestate.cpp \
     flipperzero/factoryinfo.cpp \
     flipperzero/firmwareupdater.cpp \
     flipperzero/flipperzero.cpp \
+    flipperzero/helper/deviceinfohelper.cpp \
     flipperzero/helper/firmwarehelper.cpp \
     flipperzero/helper/radiomanifesthelper.cpp \
     flipperzero/helper/scriptshelper.cpp \
@@ -48,12 +50,16 @@ SOURCES += \
     flipperzero/cli/writeoperation.cpp \
     flipperzero/screenstreamer.cpp \
     flipperzero/toplevel/abstracttopleveloperation.cpp \
-    flipperzero/toplevel/firmwareupdateoperation.cpp \
+    flipperzero/toplevel/factoryresetoperation.cpp \
+    flipperzero/toplevel/firmwareinstalloperation.cpp \
     flipperzero/toplevel/fullrepairoperation.cpp \
     flipperzero/toplevel/fullupdateoperation.cpp \
+    flipperzero/toplevel/settingsbackupoperation.cpp \
+    flipperzero/toplevel/settingsrestoreoperation.cpp \
     flipperzero/toplevel/wirelessstackupdateoperation.cpp \
     flipperzero/utility/abstractutilityoperation.cpp \
     flipperzero/utility/assetsdownloadoperation.cpp \
+    flipperzero/utility/factoryresetutiloperation.cpp \
     flipperzero/utility/getfiletreeoperation.cpp \
     flipperzero/utility/restartoperation.cpp \
     flipperzero/utility/startrecoveryoperation.cpp \
@@ -82,16 +88,18 @@ HEADERS += \
     filenode.h \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
+    flipperzero/cli/deviceinfooperation.h \
     flipperzero/cli/dfuoperation.h \
+    flipperzero/cli/factoryresetclioperation.h \
     flipperzero/cli/rebootoperation.h \
     flipperzero/commandinterface.h \
     flipperzero/cli/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
-    flipperzero/deviceinfofetcher.h \
     flipperzero/devicestate.h \
     flipperzero/factoryinfo.h \
     flipperzero/firmwareupdater.h \
     flipperzero/flipperzero.h \
+    flipperzero/helper/deviceinfohelper.h \
     flipperzero/helper/firmwarehelper.h \
     flipperzero/helper/radiomanifesthelper.h \
     flipperzero/helper/scriptshelper.h \
@@ -114,12 +122,16 @@ HEADERS += \
     flipperzero/cli/writeoperation.h \
     flipperzero/screenstreamer.h \
     flipperzero/toplevel/abstracttopleveloperation.h \
-    flipperzero/toplevel/firmwareupdateoperation.h \
+    flipperzero/toplevel/factoryresetoperation.h \
+    flipperzero/toplevel/firmwareinstalloperation.h \
     flipperzero/toplevel/fullrepairoperation.h \
     flipperzero/toplevel/fullupdateoperation.h \
+    flipperzero/toplevel/settingsbackupoperation.h \
+    flipperzero/toplevel/settingsrestoreoperation.h \
     flipperzero/toplevel/wirelessstackupdateoperation.h \
     flipperzero/utility/abstractutilityoperation.h \
     flipperzero/utility/assetsdownloadoperation.h \
+    flipperzero/utility/factoryresetutiloperation.h \
     flipperzero/utility/getfiletreeoperation.h \
     flipperzero/utility/restartoperation.h \
     flipperzero/utility/startrecoveryoperation.h \

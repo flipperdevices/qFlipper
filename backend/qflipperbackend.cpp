@@ -22,6 +22,12 @@ QFlipperBackend::QFlipperBackend():
     qRegisterMetaType<Flipper::Updates::VersionInfo>("Flipper::Updates::VersionInfo");
     qRegisterMetaType<Flipper::Updates::ChannelInfo>("Flipper::Updates::ChannelInfo");
 
+    qRegisterMetaType<Flipper::Zero::DeviceInfo>("Flipper::Zero::DeviceInfo");
+    qRegisterMetaType<Flipper::Zero::HardwareInfo>("Flipper::Zero::HardwareInfo");
+    qRegisterMetaType<Flipper::Zero::SoftwareInfo>("Flipper::Zero::SoftwareInfo");
+    qRegisterMetaType<Flipper::Zero::StorageInfo>("Flipper::Zero::StorageInfo");
+
+    qRegisterMetaType<Flipper::FlipperZero*>("Flipper::FlipperZero*");
     qRegisterMetaType<Flipper::Zero::DeviceState*>("Flipper::Zero::DeviceState*");
     qRegisterMetaType<Flipper::Zero::FirmwareUpdater*>("Flipper::Zero::FirmwareUpdater*");
     qRegisterMetaType<Flipper::Zero::ScreenStreamer*>("Flipper::Zero::ScreenStreamer*");

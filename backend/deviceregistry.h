@@ -1,9 +1,7 @@
-#ifndef FLIPPERREGISTRY_H
-#define FLIPPERREGISTRY_H
+#pragma once
 
-#include <QAbstractListModel>
+#include <QObject>
 #include <QVector>
-#include <QQueue>
 
 #include "usbdeviceinfo.h"
 
@@ -11,23 +9,21 @@ namespace Flipper {
 
 class FlipperZero;
 
-class DeviceRegistry : public QAbstractListModel
+class DeviceRegistry : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(Flipper::FlipperZero* currentDevice READ currentDevice NOTIFY devicesChanged)
+
+    using DeviceList = QVector<FlipperZero*>;
 
 public:
     DeviceRegistry(QObject *parent = nullptr);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    QHash<int, QByteArray> roleNames() const override;
-
-    enum Role {
-        DeviceRole = Qt::UserRole + 1
-    };
+    FlipperZero *currentDevice() const;
 
 signals:
-    void deviceConnected(Flipper::FlipperZero*);
+    void deviceConnected(FlipperZero*);
+    void devicesChanged();
 
 public slots:
     void insertDevice(const USBDeviceInfo &info);
@@ -37,9 +33,7 @@ private slots:
     void processDevice();
 
 private:
-    QVector<Flipper::FlipperZero*> m_data;
+    DeviceList m_devices;
 };
 
 }
-
-#endif // FLIPPERREGISTRY_H

@@ -10,6 +10,7 @@ namespace Zero {
 class DeviceState;
 class CommandInterface;
 
+class FactoryResetUtilOperation;
 class StartRecoveryOperation;
 class AssetsDownloadOperation;
 class UserBackupOperation;
@@ -28,6 +29,7 @@ public:
     UserBackupOperation *backupInternalStorage(const QString &backupPath);
     UserRestoreOperation *restoreInternalStorage(const QString &backupPath);
     RestartOperation *restartDevice();
+    FactoryResetUtilOperation *factoryReset();
 
 private:
     DeviceState *m_deviceState;

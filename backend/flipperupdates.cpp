@@ -68,9 +68,7 @@ VersionInfo::VersionInfo(const QJsonValue &val)
 
     m_number = json["version"].toString();
     m_changelog = json["changelog"].toString();
-    m_timestamp = json["timestamp"].toVariant().toULongLong();
-
-    m_date = QDateTime::fromSecsSinceEpoch(m_timestamp).date().toString();
+    m_date = QDateTime::fromSecsSinceEpoch(json["timestamp"].toVariant().toULongLong()).date();
 
     const auto &filesArray = json["files"].toArray();
     for(const auto &file : filesArray) {
@@ -88,7 +86,7 @@ const QString &VersionInfo::changelog() const
     return m_changelog;
 }
 
-const QString &VersionInfo::date() const
+const QDate &VersionInfo::date() const
 {
     return m_date;
 }

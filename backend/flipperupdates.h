@@ -36,7 +36,7 @@ class VersionInfo
     Q_GADGET
     Q_PROPERTY(QString number READ number CONSTANT)
     Q_PROPERTY(QString changelog READ changelog CONSTANT)
-    Q_PROPERTY(QString date READ date CONSTANT)
+    Q_PROPERTY(QDate date READ date CONSTANT)
     Q_PROPERTY(QVector<Flipper::Updates::FileInfo> files READ files CONSTANT)
 
 public:
@@ -45,18 +45,15 @@ public:
 
     const QString &number() const;
     const QString &changelog() const;
-    const QString &date() const;
+    const QDate &date() const;
     const QVector<Flipper::Updates::FileInfo> &files() const;
-
-    time_t timestamp() const;
 
     Q_INVOKABLE const Flipper::Updates::FileInfo fileInfo(const QString &type, const QString &target) const;
 
 private:
     QString m_number;
     QString m_changelog;
-    QString m_date;
-    time_t m_timestamp;
+    QDate m_date;
     QVector<FileInfo> m_files;
 };
 

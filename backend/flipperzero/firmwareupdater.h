@@ -25,19 +25,23 @@ public:
 
 public slots:
     bool canUpdate(const Flipper::Updates::VersionInfo &versionInfo) const;
-    bool canRollback(const Flipper::Updates::VersionInfo &versionInfo) const;
-    bool canChangeChannel() const;
+    bool canInstall() const;
 
     void fullUpdate(const Flipper::Updates::VersionInfo &versionInfo);
     void fullRepair(const Flipper::Updates::VersionInfo &versionInfo);
 
-    void localFirmwareUpdate(const QUrl &fileUrl);
+    void backupInternalStorage(const QUrl &directoryUrl);
+    void restoreInternalStorage(const QUrl &directoryUrl);
+    void factoryReset();
+
+    void localFirmwareInstall(const QUrl &fileUrl);
     void localFUSUpdate(const QUrl &fileUrl);
     void localWirelessStackUpdate(const QUrl &fileUrl);
 
 private:
     static const QString &channelName(ChannelType channelType);
     const QString &branchToChannelName() const;
+    ChannelType branchToChannelType() const;
 
     DeviceState *m_state;
     RecoveryInterface *m_recovery;

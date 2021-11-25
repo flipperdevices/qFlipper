@@ -8,14 +8,15 @@ DeviceState::DeviceState(const DeviceInfo &deviceInfo, QObject *parent):
     m_deviceInfo(deviceInfo),
     m_isPersistent(false),
     m_isOnline(true),
-    m_isError(false)
+    m_isError(false),
+    m_progress(-1.0)
 {}
 
 void DeviceState::reset(const DeviceInfo &newDeviceInfo)
 {
     setDeviceInfo(newDeviceInfo);
     setError(false);
-    setProgress(0.0);
+    setProgress(-1.0);
     setOnline(true);
 }
 
@@ -131,24 +132,3 @@ const QString &DeviceState::name() const
 {
     return m_deviceInfo.name;
 }
-
-const QString &DeviceState::model() const
-{
-    const static QString model("Flipper Zero");
-    return model;
-}
-
-const QString &DeviceState::target() const
-{
-    return m_deviceInfo.target;
-}
-
-const QString &DeviceState::version() const
-{
-    if(m_deviceInfo.firmware.branch == QStringLiteral("dev")) {
-        return m_deviceInfo.firmware.commit;
-    } else {
-        return m_deviceInfo.firmware.version;
-    }
-}
-

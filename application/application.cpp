@@ -4,6 +4,7 @@
 #include <QTranslator>
 #include <QQmlContext>
 #include <QQuickWindow>
+#include <QFontDatabase>
 #include <QtQuickControls2/QQuickStyle>
 
 #include "qflipperbackend.h"
@@ -19,10 +20,11 @@ Application::Application(int &argc, char **argv):
     debug_msg(QString("%1 version %2 commit %3.").arg(APP_NAME, APP_VERSION, APP_COMMIT));
 
     initQmlTypes();
-    initInstanceProperties();
     initContextProperties();
     initTranslations();
+    initImports();
     initStyles();
+    initFonts();
     initGUI();
 }
 
@@ -38,8 +40,9 @@ AppUpdater *Application::updater()
 
 void Application::initStyles()
 {
+    QQuickWindow::setDefaultAlphaBuffer(true);
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
-    QQuickStyle::setStyle("Universal");
+    QQuickStyle::setStyle(":/style");
 }
 
 void Application::initContextProperties()
@@ -49,14 +52,6 @@ void Application::initContextProperties()
     m_engine.rootContext()->setContextProperty("deviceRegistry", &m_backend.deviceRegistry);
     m_engine.rootContext()->setContextProperty("firmwareUpdates", &m_backend.firmwareUpdates);
     m_engine.rootContext()->setContextProperty("applicationUpdates", &m_backend.applicationUpdates);
-}
-
-void Application::initInstanceProperties()
-{
-    setApplicationName(APP_NAME);
-    setApplicationVersion(APP_VERSION);
-    setOrganizationName("Flipper Devices Inc");
-    setOrganizationDomain("flipperdevices.com");
 }
 
 void Application::initTranslations()
@@ -78,6 +73,19 @@ void Application::initQmlTypes()
     qmlRegisterType<AppUpdater>("QFlipper", 1, 0, "AppUpdater");
 }
 
+void Application::initImports()
+{
+    m_engine.addImportPath(":/imports");
+}
+
+void Application::initFonts()
+{
+    QFontDatabase::addApplicationFont(":/assets/fonts/haxrcorp-4089.ttf");
+    QFontDatabase::addApplicationFont(":/assets/fonts/Born2bSportyV2.ttf");
+    QFontDatabase::addApplicationFont(":/assets/fonts/ProggySquare.ttf");
+    QFontDatabase::addApplicationFont(":/assets/fonts/ShareTechMono-Regular.ttf");
+}
+
 void Application::initGUI()
 {
     const QUrl url(QStringLiteral("qrc:/main.qml"));
@@ -89,6 +97,5 @@ void Application::initGUI()
     };
 
     connect(&m_engine, &QQmlApplicationEngine::objectCreated, this, onObjectCreated, Qt::QueuedConnection);
-
     m_engine.load(url);
 }

@@ -33,4 +33,9 @@ GIT_COMMIT = $$system("git rev-parse --short=8 HEAD","lines", HAS_COMMIT)
     GIT_COMMIT = unknown
 }
 
-DEFINES += APP_NAME=\\\"$$NAME\\\" APP_VERSION=\\\"$$GIT_VERSION\\\" APP_COMMIT=\\\"$$GIT_COMMIT\\\"
+GIT_TIMESTAMP = $$system("git log -1 --pretty=format:%ct","lines", HAS_TIMESTAMP)
+!equals(HAS_TIMESTAMP, 0) {
+    GIT_TIMESTAMP = 0
+}
+
+DEFINES += APP_NAME=\\\"$$NAME\\\" APP_VERSION=\\\"$$GIT_VERSION\\\" APP_COMMIT=\\\"$$GIT_COMMIT\\\" APP_TIMESTAMP=$$GIT_TIMESTAMP

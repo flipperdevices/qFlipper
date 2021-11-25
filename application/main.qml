@@ -1,37 +1,64 @@
-import QtQml 2.12
-import QtQuick 2.12
-import QtQuick.Window 2.12
-import QtQuick.Controls.Universal 2.12
+import QtQuick 2.15
+import QtQuick.Window 2.15
 
-import "./screens"
+import "components"
 
 Window {
     id: root
+    visible: true
+    flags: Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint
     title: Qt.application.displayName
 
-    width: 800
-    height: 480
-    visible: true
+    height: mainWindow.baseHeight + mainWindow.shadowSize * 2
 
-    minimumWidth: 800
-    minimumHeight: 480
+    minimumWidth: mainWindow.baseWidth + mainWindow.shadowSize * 2
+    minimumHeight: mainWindow.baseHeight + mainWindow.shadowSize * 2
 
-    color: "black"
-    Universal.theme: "Dark"
+    maximumWidth: minimumWidth
+    maximumHeight: minimumHeight
 
-    Loader {
-        id: mainLoader
-        anchors.fill: parent
-        source: "qrc:/screens/homescreen.qml"
+    color: "transparent"
+
+    DragHandler {
+        onActiveChanged: if(active) { root.startSystemMove(); }
+        target: null
     }
 
-    Connections {
-        target: mainLoader.item
-        ignoreUnknownSignals: true
+    MainWindow {
+        id: mainWindow
 
-        function onHomeRequested() { mainLoader.setSource("qrc:/screens/homescreen.qml"); }
-        function onVersionsRequested(device) { mainLoader.setSource("qrc:/screens/versionscreen.qml", {device: device}); }
-        function onStreamRequested(device) { mainLoader.setSource("qrc:/screens/streamscreen.qml", {device: device}); }
-        function onPrefsRequested() { mainLoader.setSource("qrc:/screens/prefscreen.qml") }
+        onExpandStarted: {
+            root.maximumHeight = baseHeight + logHeight + shadowSize * 2;
+            root.height = root.maximumHeight;
+        }
+
+        onExpandFinished: {
+            root.minimumHeight = root.maximumHeight;
+        }
+
+        onCollapseStarted: {
+            root.minimumHeight = baseHeight + shadowSize * 2;
+        }
+
+        onCollapseFinished: {
+            root.height = root.minimumHeight;
+            root.maximumHeight = root.minimumHeight;
+        }
+
+        onResizeStarted: {
+            root.maximumHeight = root.Screen.height - root.y;
+            root.height = root.maximumHeight;
+        }
+
+        onResizeFinished: {
+            root.height = mainWindow.height + mainWindow.shadowSize * 2;
+            root.maximumHeight = root.height;
+            root.minimumHeight = root.height;
+        }
+    }
+
+    Component.onCompleted: {
+        mainWindow.controls.minimizeRequested.connect(root.showMinimized);
+        mainWindow.controls.closeRequested.connect(Qt.quit);
     }
 }
