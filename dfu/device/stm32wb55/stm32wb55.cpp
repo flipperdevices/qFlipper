@@ -2,7 +2,7 @@
 
 #include <QBuffer>
 
-#include "macros.h"
+#include "debug.h"
 
 #define OTP_ADDR 0x1FFF7000UL
 #define OTP_MAX_SIZE 1024

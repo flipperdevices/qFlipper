@@ -1,6 +1,7 @@
 #include "commandinterface.h"
 
 #include <QSerialPort>
+#include <QLoggingCategory>
 
 #include "flipperzero/devicestate.h"
 
@@ -15,7 +16,9 @@
 #include "cli/listoperation.h"
 #include "cli/dfuoperation.h"
 
-#include "macros.h"
+#include "debug.h"
+
+Q_LOGGING_CATEGORY(CATEGORY_CLI, "CLI");
 
 using namespace Flipper;
 using namespace Zero;
@@ -120,4 +123,9 @@ bool CommandInterface::onQueueFinished()
 {
     m_serialPort->close();
     return true;
+}
+
+const QLoggingCategory &CommandInterface::loggingCategory() const
+{
+    return CATEGORY_CLI();
 }

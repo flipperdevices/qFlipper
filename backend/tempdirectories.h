@@ -23,4 +23,4 @@ private:
     QTemporaryDir m_root;
 };
 
-#define tempDirs() (TempDirectories::instance())
+#define globalTempDirs (TempDirectories::instance())

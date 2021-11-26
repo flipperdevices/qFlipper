@@ -4,7 +4,7 @@
 
 #include <libusb.h>
 
-#include "macros.h"
+#include "debug.h"
 
 static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
 
@@ -94,7 +94,7 @@ static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb
     } else if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT) {
         emit detector->deviceUnplugged(info);
     } else {
-        info_msg("Unhandled libusb event");
+        debug_msg("Unhandled libusb event");
     }
 
     return 0;

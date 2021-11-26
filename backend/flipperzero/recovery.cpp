@@ -2,7 +2,7 @@
 
 #include "devicestate.h"
 #include "dfusefile.h"
-#include "macros.h"
+#include "debug.h"
 
 #include "device/stm32wb55.h"
 
@@ -90,35 +90,35 @@ bool Recovery::setBootMode(BootMode mode)
 
 Recovery::WirelessStatus Recovery::wirelessStatus()
 {
-    info_msg("Getting Co-Processor (Wireless) status...");
+    debug_msg("Getting Co-Processor (Wireless) status...");
 
     if(!m_deviceState->isOnline()) {
-        info_msg("Failed to get FUS status. The device is offline at the moment.");
+        debug_msg("Failed to get FUS status. The device is offline at the moment.");
         return WirelessStatus::Invalid;
     }
 
     STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
     if(!device.beginTransaction()) {
-        info_msg("Failed to get FUS status. This is normal if the device has just rebooted.");
+        debug_msg("Failed to get FUS status. This is normal if the device has just rebooted.");
         return WirelessStatus::Invalid;
     }
 
     const auto state = device.FUSGetState();
     if(!state.isValid()) {
-        info_msg("Failed to get FUS status. This is normal if the device has just rebooted.");
+        debug_msg("Failed to get FUS status. This is normal if the device has just rebooted.");
         return WirelessStatus::Invalid;
     }
 
     if(!device.endTransaction()) {
-        info_msg("Failed to get FUS status. This is normal if the device has just rebooted.");
+        debug_msg("Failed to get FUS status. This is normal if the device has just rebooted.");
         return WirelessStatus::Invalid;
     }
 
     const auto status = state.status();
     const auto error = state.error();
 
-    info_msg(QStringLiteral("Current FUS state: %1, %2.").arg(state.statusString(), state.errorString()));
+    debug_msg(QStringLiteral("Current FUS state: %1, %2.").arg(state.statusString(), state.errorString()));
 
     if((status == FUSState::Idle) && (error == FUSState::NoError)) {
         return WirelessStatus::FUSRunning;
@@ -151,11 +151,11 @@ bool Recovery::startFUS()
         setError("Can't start FUS: Failed to get FUS state.");
 
     } else if((state.status() == FUSState::Idle) && (state.error() == FUSState::NoError)) {
-        info_msg("FUS is already RUNNING, rebooting for consistency...");
+        debug_msg("FUS is already RUNNING, rebooting for consistency...");
         success = device.leave();
 
     } else if((state.status() == FUSState::ErrorOccured) && (state.error() == FUSState::NotRunning)) {
-        info_msg(QString("FUS appears NOT to be running: %1, %2.").arg(state.statusString(), state.errorString()));
+        debug_msg(QString("FUS appears NOT to be running: %1, %2.").arg(state.statusString(), state.errorString()));
 
         // Send a second GET_STATE to actually start FUS
         begin_ignore_block();
@@ -241,7 +241,7 @@ bool Recovery::downloadFirmware(QIODevice *file)
 
 bool Recovery::downloadWirelessStack(QIODevice *file, uint32_t addr)
 {
-    info_msg("Attempting to download CO-PROCESSOR firmware image...");
+    debug_msg("Attempting to download CO-PROCESSOR firmware image...");
 
     if(!file->open(QIODevice::ReadOnly)) {
         setError("Can't download co-processor firmware image: Failed to open file.");
@@ -275,11 +275,11 @@ bool Recovery::downloadWirelessStack(QIODevice *file, uint32_t addr)
 
         addr = (origin + (pageSize * ob.value("SFSA")) - file->bytesAvailable()) & (~(pageSize - 1));
 
-        info_msg(QString("SFSA value is 0x%1").arg(QString::number(ob.value("SFSA"), 16)));
-        info_msg(QString("Target address for co-processor firmware image is 0x%1").arg(QString::number(addr, 16)));
+        debug_msg(QString("SFSA value is 0x%1").arg(QString::number(ob.value("SFSA"), 16)));
+        debug_msg(QString("Target address for co-processor firmware image is 0x%1").arg(QString::number(addr, 16)));
 
     } else {
-        info_msg(QString("Target address for co-processor firmware image has been OVERRIDDEN to 0x%1").arg(QString::number(addr, 16)));
+        debug_msg(QString("Target address for co-processor firmware image has been OVERRIDDEN to 0x%1").arg(QString::number(addr, 16)));
     }
 
     connect(&device, &DfuseDevice::progressChanged, this, [=](int operation, double progress) {
@@ -303,7 +303,7 @@ bool Recovery::downloadWirelessStack(QIODevice *file, uint32_t addr)
 
 bool Recovery::upgradeWirelessStack()
 {
-    info_msg("Sending FW_UPGRADE command...");
+    debug_msg("Sending FW_UPGRADE command...");
 
     STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
@@ -339,7 +339,7 @@ bool Recovery::downloadOptionBytes(QIODevice *file)
     bool success = false;
 
     if(diff.isEmpty()) {
-        info_msg("Option Bytes OK");
+        debug_msg("Option Bytes OK");
 
         success = device.leave();
 
@@ -349,11 +349,11 @@ bool Recovery::downloadOptionBytes(QIODevice *file)
 
     } else {
         for(auto it = diff.constKeyValueBegin(); it != diff.constKeyValueEnd(); ++it) {
-            info_msg(QString("Option Bytes mismatch @%1: this: 0x%2, other: 0x%3")
+            debug_msg(QString("Option Bytes mismatch @%1: this: 0x%2, other: 0x%3")
                      .arg((*it).first, to_hex_str(actual.value((*it).first)), to_hex_str((*it).second)));
         }
 
-        info_msg("Writing corrected Option Bytes...");
+        debug_msg("Writing corrected Option Bytes...");
 
         success = device.setOptionBytes(actual.corrected(diff));
 

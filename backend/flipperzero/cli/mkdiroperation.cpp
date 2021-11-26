@@ -1,5 +1,5 @@
 #include "mkdiroperation.h"
-#include "macros.h"
+#include "debug.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -36,7 +36,7 @@ bool MkDirOperation::parseReceivedData()
         } else if(!msg.endsWith(QByteArrayLiteral("file/dir already exist"))) {
             setError(msg);
         } else {
-            info_msg(QStringLiteral("Warning: directory %1 already exists.").arg(QString(m_dirName)));
+            debug_msg(QStringLiteral("Warning: directory %1 already exists.").arg(QString(m_dirName)));
         }
 
         return true;

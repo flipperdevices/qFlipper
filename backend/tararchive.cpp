@@ -2,7 +2,7 @@
 
 #include <QIODevice>
 
-#include "macros.h"
+#include "debug.h"
 
 #define BLOCK_SIZE 512
 

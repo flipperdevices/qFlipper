@@ -2,7 +2,7 @@
 
 #include <QBuffer>
 
-#include "macros.h"
+#include "debug.h"
 
 #define FILE_PREFIX QByteArrayLiteral("[F]")
 #define DIRECTORY_PREFIX QByteArrayLiteral("[D]")

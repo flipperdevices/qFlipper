@@ -10,7 +10,7 @@
 #include "flipperzero/cli/writeoperation.h"
 #include "flipperzero/cli/removeoperation.h"
 
-#include "macros.h"
+#include "debug.h"
 
 using namespace Flipper;
 using namespace Zero;

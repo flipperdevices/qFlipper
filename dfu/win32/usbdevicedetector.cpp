@@ -4,7 +4,7 @@
 #include <setupapi.h>
 #include <dbt.h>
 
-#include "macros.h"
+#include "debug.h"
 
 static LRESULT CALLBACK hotplugWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

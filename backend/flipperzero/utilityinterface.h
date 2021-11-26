@@ -32,6 +32,8 @@ public:
     FactoryResetUtilOperation *factoryReset();
 
 private:
+    const QLoggingCategory &loggingCategory() const override;
+
     DeviceState *m_deviceState;
     CommandInterface *m_cli;
 };

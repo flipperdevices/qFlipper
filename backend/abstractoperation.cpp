@@ -2,7 +2,7 @@
 
 #include <QTimer>
 
-#include "macros.h"
+#include "debug.h"
 
 AbstractOperation::AbstractOperation(QObject *parent):
     QObject(parent),

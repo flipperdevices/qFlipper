@@ -6,6 +6,7 @@ CONFIG += staticlib c++11
 include(../qflipper_common.pri)
 
 SOURCES += \
+    debug.cpp \
     device/stm32wb55/fusstate.cpp \
     device/stm32wb55/optionbytes.cpp \
     device/stm32wb55/stm32wb55.cpp \
@@ -15,6 +16,7 @@ SOURCES += \
     usbdeviceinfo.cpp
 
 HEADERS += \
+    debug.h \
     device/stm32wb55.h \
     device/stm32wb55/fusstate.h \
     device/stm32wb55/optionbytes.h \
@@ -22,7 +24,6 @@ HEADERS += \
     dfumemorylayout.h \
     dfusedevice.h \
     dfusefile.h \
-    macros.h \
     usbdevice.h \
     usbdeviceinfo.h
 

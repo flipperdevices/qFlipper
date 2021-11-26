@@ -8,7 +8,7 @@
 #include <QCoreApplication>
 #include <QStandardPaths>
 
-#include "macros.h"
+#include "debug.h"
 #include "preferences.h"
 #include "remotefilefetcher.h"
 
@@ -32,9 +32,9 @@ double AppUpdater::progress() const
 
 bool AppUpdater::canUpdate(const Flipper::Updates::VersionInfo &versionInfo)
 {
-    if(!globalPrefs()->checkApplicationUpdates()) {
+    if(!globalPrefs->checkApplicationUpdates()) {
         return false;
-    } else if(globalPrefs()->applicationUpdateChannel() == QStringLiteral("development")) {
+    } else if(globalPrefs->applicationUpdateChannel() == QStringLiteral("development")) {
         const auto appDate = QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).date();
         return (versionInfo.date() > appDate) || ((versionInfo.date() == appDate) && (versionInfo.number() != APP_COMMIT));
     } else {
@@ -73,7 +73,7 @@ void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
     };
 
     connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
-        info_msg("Application update download has finished.");
+        debug_msg("Application update download has finished.");
         setState(State::Updating);
 
         // IMPORTANT -- The file is closed automatically before renaming (https://doc.qt.io/qt-5/qfile.html#rename)
@@ -113,7 +113,7 @@ void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
         cleanup();
 
     } else {
-        info_msg("Downloading the application update...");
+        debug_msg("Downloading the application update...");
         setState(State::Downloading);
     }
 }
@@ -141,7 +141,7 @@ void AppUpdater::setProgress(double progress)
 bool AppUpdater::performUpdate(const QString &path)
 {
     const auto exitApplication = []() {
-        info_msg("Update started, exiting the application...");
+        debug_msg("Update started, exiting the application...");
         QCoreApplication::exit(0);
     };
 

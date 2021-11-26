@@ -2,7 +2,7 @@
 
 #include <QQueue>
 
-#include "macros.h"
+#include "debug.h"
 
 FileNode::FileNode():
     m_parent(nullptr)

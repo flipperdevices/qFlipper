@@ -4,7 +4,7 @@
 #include "firmwareupdater.h"
 #include "screenstreamer.h"
 
-#include "macros.h"
+#include "debug.h"
 
 using namespace Flipper;
 using namespace Zero;

@@ -4,7 +4,7 @@
 #include <QBuffer>
 #include <QByteArray>
 
-#include "macros.h"
+#include "debug.h"
 #include "dfumemorylayout.h"
 
 #define REQUEST_OUT (USBRequest::ENDPOINT_OUT | USBRequest::REQUEST_TYPE_CLASS | USBRequest::RECIPIENT_INTERFACE)
@@ -50,10 +50,10 @@ bool DfuseDevice::erase(uint32_t addr, size_t maxSize)
         const auto progress = (pageAddress - addr) * 100.0 / maxSize;
         emit progressChanged(Operation::Erase, progress);
 
-        info_msg(QString("Erasing memory: %1%").arg(progress));
+        debug_msg(QString("Erasing memory: %1%").arg(progress));
     }
 
-    info_msg("Erase done.");
+    debug_msg("Erase done.");
 
     return true;
 }
@@ -110,7 +110,7 @@ bool DfuseDevice::download(QIODevice *file, uint32_t addr, uint8_t alt)
     check_return_bool(extra.size() >= DFU_DESCRIPTOR_LENGTH, "No functional DFU descriptor");
 
     const auto maxTransferSize = *((uint16_t*)(extra.data() + 5));
-    info_msg(QString("Device reported transfer size: %1").arg(maxTransferSize));
+    debug_msg(QString("Device reported transfer size: %1").arg(maxTransferSize));
 
     StatusType status;
 
@@ -131,10 +131,10 @@ bool DfuseDevice::download(QIODevice *file, uint32_t addr, uint8_t alt)
         const auto progress = totalSize * 100.0 / file->size();
         emit progressChanged(Operation::Download, progress);
 
-        info_msg(QString("Bytes downloaded: %1 %2%").arg(totalSize).arg(progress));
+        debug_msg(QString("Bytes downloaded: %1 %2%").arg(totalSize).arg(progress));
     }
 
-    info_msg("Download has finished.");
+    debug_msg("Download has finished.");
 
     return true;
 }
@@ -151,7 +151,7 @@ bool DfuseDevice::upload(QIODevice *file, uint32_t addr, size_t maxSize, uint8_t
 
     const auto maxTransferSize = *((uint16_t*)(extra.data() + 5));
 
-    info_msg(QString("Device reported transfer size: %1").arg(maxTransferSize));
+    debug_msg(QString("Device reported transfer size: %1").arg(maxTransferSize));
 
     for(size_t totalSize = 0, transaction = 2; totalSize < maxSize; ++transaction) {
 
@@ -166,17 +166,17 @@ bool DfuseDevice::upload(QIODevice *file, uint32_t addr, size_t maxSize, uint8_t
 
         const auto progress = totalSize * 100.0 / maxSize;
         emit progressChanged(Operation::Upload, progress);
-        info_msg(QString("Bytes uploaded: %1 %2%").arg(totalSize).arg(progress));
+        debug_msg(QString("Bytes uploaded: %1 %2%").arg(totalSize).arg(progress));
 
         // TODO: Better error checks
         // Correctly process the end of memory condition?
         if((size_t)buf.size() < transferSize) {
-            info_msg("End of transmission.");
+            debug_msg("End of transmission.");
             break;
         }
     }
 
-    info_msg("Upload has finished.");
+    debug_msg("Upload has finished.");
 
     return true;
 }
@@ -274,11 +274,11 @@ bool DfuseDevice::prepare()
     const auto status = getStatus();
 
     if(status.bStatus != StatusType::OK) {
-        info_msg("Device is in error state, resetting...");
+        debug_msg("Device is in error state, resetting...");
         check_return_bool(clearStatus(), "Failed to clear device status");
 
     } else if(status.bState != StatusType::DFU_IDLE) {
-        info_msg("Device is not idle, resetting...");
+        debug_msg("Device is not idle, resetting...");
         check_return_bool(abort(), "Failed to abort to idle");
     }
 

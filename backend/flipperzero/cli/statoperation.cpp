@@ -3,7 +3,7 @@
 #include <QRegExp>
 #include <QSerialPort>
 
-#include "macros.h"
+#include "debug.h"
 
 using namespace Flipper;
 using namespace Zero;

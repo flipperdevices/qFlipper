@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-#include "macros.h"
+#include "debug.h"
 
 // TODO: Try optimising it
 DFUMemoryLayout DFUMemoryLayout::fromStringDescriptor(const QByteArray &desc)

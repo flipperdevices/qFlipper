@@ -6,7 +6,7 @@
 #include "flipperzero/commandinterface.h"
 #include "flipperzero/cli/listoperation.h"
 
-#include "macros.h"
+#include "debug.h"
 
 using namespace Flipper;
 using namespace Zero;

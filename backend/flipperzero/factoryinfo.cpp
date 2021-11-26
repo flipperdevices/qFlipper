@@ -1,7 +1,7 @@
 #include "factoryinfo.h"
 
 #include <QRegExp>
-#include "macros.h"
+#include "debug.h"
 
 #define FACTORYINFO_NAME_SIZE 8
 #define FACTORYINFO_V1_MAGIC 0xbabe

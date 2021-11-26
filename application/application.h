@@ -23,6 +23,7 @@ public:
     AppUpdater *updater();
 
 private:
+    void initLogger();
     void initStyles();
     void initContextProperties();
     void initTranslations();

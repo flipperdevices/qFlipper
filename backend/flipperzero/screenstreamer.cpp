@@ -3,7 +3,7 @@
 #include <QSerialPort>
 
 #include "devicestate.h"
-#include "macros.h"
+#include "debug.h"
 
 using namespace Flipper;
 using namespace Zero;

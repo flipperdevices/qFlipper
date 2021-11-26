@@ -39,6 +39,8 @@ public slots:
     void localWirelessStackUpdate(const QUrl &fileUrl);
 
 private:
+    const QLoggingCategory &loggingCategory() const override;
+
     static const QString &channelName(ChannelType channelType);
     const QString &branchToChannelName() const;
     ChannelType branchToChannelType() const;

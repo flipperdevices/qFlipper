@@ -7,7 +7,7 @@
 
 #include <QThread>
 
-#include "macros.h"
+#include "debug.h"
 
 #define RETRY_COUNT 5
 #define RETRY_INTERVAL_MS 50
@@ -147,7 +147,7 @@ QByteArray USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint
 
     } else if(size != length) {
        buf.resize(size);
-       info_msg("Requested and transferred data size differ");
+       debug_msg("Requested and transferred data size differ");
 
     } else {}
 

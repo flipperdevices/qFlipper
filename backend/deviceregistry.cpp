@@ -7,7 +7,7 @@
 #include "flipperzero/devicestate.h"
 
 #include "usbdevice.h"
-#include "macros.h"
+#include "debug.h"
 
 #define FLIPPER_ZERO_VID 0x0483
 #define FLIPPER_ZERO_PID_VCP 0x5740

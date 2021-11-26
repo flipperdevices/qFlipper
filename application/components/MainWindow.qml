@@ -295,7 +295,13 @@ Item {
         anchors.topMargin: 14
         anchors.bottomMargin: 12
 
-        text: "qFlipper version 0.6.1 commit deadba0bab.\n\nLOGS ARE NOT IMPLEMENTED YET."
+        content.selectByMouse: true
+        content.selectByKeyboard: true
+
+        Component.onCompleted: {
+            Logger.messageArrived.connect(logView.content.append);
+            Logger.messageArrived.connect(logView.ScrollBar.vertical.increase);
+        }
     }
 
     MouseArea {

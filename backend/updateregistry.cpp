@@ -8,7 +8,7 @@
 #include <QDateTime>
 #include <QBuffer>
 
-#include "macros.h"
+#include "debug.h"
 #include "preferences.h"
 #include "remotefilefetcher.h"
 
@@ -24,14 +24,14 @@ UpdateRegistry::UpdateRegistry(const QString &directoryUrl, QObject *parent):
 
     fetcher->connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
         if(buf->open(QIODevice::ReadOnly)) {
-            info_msg(QStringLiteral("Fetched update directory from %1.").arg(directoryUrl));
+            debug_msg(QStringLiteral("Fetched update directory from %1.").arg(directoryUrl));
 
             if(fillFromJson(buf->readAll())) {
                 emit channelsChanged();
             }
 
         } else {
-            info_msg(QStringLiteral("Failed to open a buffer for reading: %1.").arg(buf->errorString()));
+            debug_msg(QStringLiteral("Failed to open a buffer for reading: %1.").arg(buf->errorString()));
         }
 
         fetcher->deleteLater();
@@ -96,21 +96,21 @@ Updates::ChannelInfo UpdateRegistry::channel(const QString &channelName) const
 FirmwareUpdates::FirmwareUpdates(const QString &directoryUrl, QObject *parent):
     UpdateRegistry(directoryUrl, parent)
 {
-    connect(globalPrefs(), &Preferences::firmwareUpdateChannelChanged, this, &UpdateRegistry::latestVersionChanged);
+    connect(globalPrefs, &Preferences::firmwareUpdateChannelChanged, this, &UpdateRegistry::latestVersionChanged);
 }
 
 const QString FirmwareUpdates::updateChannel() const
 {
-    return globalPrefs()->firmwareUpdateChannel();
+    return globalPrefs->firmwareUpdateChannel();
 }
 
 ApplicationUpdates::ApplicationUpdates(const QString &directoryUrl, QObject *parent):
     UpdateRegistry(directoryUrl, parent)
 {
-    connect(globalPrefs(), &Preferences::applicationUpdateChannelChanged, this, &UpdateRegistry::latestVersionChanged);
+    connect(globalPrefs, &Preferences::applicationUpdateChannelChanged, this, &UpdateRegistry::latestVersionChanged);
 }
 
 const QString ApplicationUpdates::updateChannel() const
 {
-    return globalPrefs()->applicationUpdateChannel();
+    return globalPrefs->applicationUpdateChannel();
 }

@@ -9,7 +9,7 @@
 #include "flipperzero/cli/readoperation.h"
 
 #include "getfiletreeoperation.h"
-#include "macros.h"
+#include "debug.h"
 
 #define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
 

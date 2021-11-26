@@ -115,7 +115,7 @@ void FullUpdateOperation::fetchFirmware()
 
 void FullUpdateOperation::saveBackup()
 {
-    registerOperation(m_utility->backupInternalStorage(tempDirs()->root().absolutePath()));
+    registerOperation(m_utility->backupInternalStorage(globalTempDirs->root().absolutePath()));
 }
 
 void FullUpdateOperation::startRecovery()
@@ -159,7 +159,7 @@ void FullUpdateOperation::downloadAssets()
 
 void FullUpdateOperation::restoreBackup()
 {
-    registerOperation(m_utility->restoreInternalStorage(tempDirs()->root().absolutePath()));
+    registerOperation(m_utility->restoreInternalStorage(globalTempDirs->root().absolutePath()));
 }
 
 void FullUpdateOperation::restartDevice()

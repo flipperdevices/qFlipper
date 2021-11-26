@@ -27,6 +27,8 @@ protected:
     virtual void onOperationStarted(AbstractOperation *operation);
     virtual void onOperationFinished(AbstractOperation *operation);
 
+    virtual const QLoggingCategory &loggingCategory() const;
+
     void enqueueOperation(AbstractOperation *operation);
 
 private slots:

@@ -13,7 +13,7 @@
 #include "device/stm32wb55.h"
 
 #include "serialfinder.h"
-#include "macros.h"
+#include "debug.h"
 
 using namespace Flipper;
 using namespace Zero;

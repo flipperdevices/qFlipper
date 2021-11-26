@@ -1,6 +1,6 @@
 #include "removeoperation.h"
 
-#include "macros.h"
+#include "debug.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -37,7 +37,7 @@ bool RemoveOperation::parseReceivedData()
         } else if(!msg.endsWith(QByteArrayLiteral("file/dir not exist"))) {
             setError(msg);
         } else {
-            info_msg(QStringLiteral("Warning: file %1 does not exist.").arg(QString(m_fileName)));
+            debug_msg(QStringLiteral("Warning: file %1 does not exist.").arg(QString(m_fileName)));
         }
 
         return true;

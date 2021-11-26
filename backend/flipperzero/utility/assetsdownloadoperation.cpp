@@ -19,7 +19,7 @@
 #include "tempdirectories.h"
 #include "tararchive.h"
 
-#include "macros.h"
+#include "debug.h"
 
 #define RESOURCES_PREFIX QByteArrayLiteral("resources")
 #define DEVICE_MANIFEST QByteArrayLiteral("/ext/Manifest")
@@ -41,7 +41,7 @@ static void print_file_list(const QString &header, const FileNode::FileInfoList 
 AssetsDownloadOperation::AssetsDownloadOperation(CommandInterface *cli, DeviceState *deviceState, QIODevice *compressedFile, QObject *parent):
     AbstractUtilityOperation(cli, deviceState, parent),
     m_compressedFile(compressedFile),
-    m_uncompressedFile(new QFile(tempDirs()->root().absoluteFilePath(QStringLiteral("qFlipper-databases.tar")), this)),
+    m_uncompressedFile(new QFile(globalTempDirs->root().absoluteFilePath(QStringLiteral("qFlipper-databases.tar")), this)),
     m_isDeviceManifestPresent(false)
 {}
 
@@ -101,14 +101,14 @@ void AssetsDownloadOperation::checkForExtStorage()
         if(op->isError()) {
             finishWithError("Failed to perform stat operation");
         } else if(op->type() == StatOperation::Type::InternalError) {
-            info_msg("No external storage found, finishing early.");
+            debug_msg("No external storage found, finishing early.");
             finish();
 
         } else if(op->type() != StatOperation::Type::Storage) {
             finishWithError("/ext is not a storage");
 
         } else {
-            info_msg(QStringLiteral("External storage is present, %1 bytes free.").arg(op->sizeFree()));
+            debug_msg(QStringLiteral("External storage is present, %1 bytes free.").arg(op->sizeFree()));
             advanceOperationState();
         }
     });
@@ -204,7 +204,7 @@ void AssetsDownloadOperation::buildFileLists()
     print_file_list("<<<<< Local manifest:", m_localManifest.tree()->toPreOrderList());
 
     if(!m_isDeviceManifestPresent || m_deviceManifest.isError()) {
-        info_msg("Device manifest not present or corrupt, assumimg fresh install...");
+        debug_msg("Device manifest not present or corrupt, assumimg fresh install...");
 
         changed.append(manifestInfo);
         added.append(m_localManifest.tree()->toPreOrderList().mid(1));
@@ -256,7 +256,7 @@ void AssetsDownloadOperation::buildFileLists()
 void AssetsDownloadOperation::deleteFiles()
 {
     if(m_deleteList.isEmpty()) {
-        info_msg("No files to delete, skipping to write");
+        debug_msg("No files to delete, skipping to write");
         QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
     }
 
@@ -283,7 +283,7 @@ void AssetsDownloadOperation::deleteFiles()
 void AssetsDownloadOperation::writeFiles()
 {
     if(m_writeList.isEmpty()) {
-        info_msg("No files to write, skipping to the end");
+        debug_msg("No files to write, skipping to the end");
         QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
     }
 

@@ -104,7 +104,7 @@ void FirmwareHelper::prepareRadioFirmware()
         m_hasRadioUpdate = currentRadioVersion.isEmpty() ? true : currentRadioVersion < newRadioVersion;
 
         if(m_hasRadioUpdate) {
-            auto *file = tempDirs()->createTempFile();
+            auto *file = globalTempDirs->createTempFile();
             m_files.insert(FileIndex::RadioFirmware, file);
 
             if(!file->open(QIODevice::WriteOnly)) {
@@ -142,7 +142,7 @@ void FirmwareHelper::prepareOptionBytes()
             return;
         }
 
-        auto *file = tempDirs()->createTempFile();
+        auto *file = globalTempDirs->createTempFile();
         m_files.insert(FileIndex::OptionBytes, file);
 
         if(!file->open(QIODevice::WriteOnly)) {
@@ -167,7 +167,7 @@ void FirmwareHelper::fetchFile(FileIndex index, const Updates::FileInfo &fileInf
 {
     const auto fileName = QUrl(fileInfo.url()).fileName();
 
-    auto *file = tempDirs()->createFile(fileName, this);
+    auto *file = globalTempDirs->createFile(fileName, this);
     auto *fetcher = new RemoteFileFetcher(fileInfo, file, this);
 
     if(fetcher->isError()) {

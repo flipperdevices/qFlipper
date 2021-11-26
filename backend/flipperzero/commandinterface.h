@@ -43,6 +43,8 @@ private:
     bool onQueueStarted() override;
     bool onQueueFinished() override;
 
+    const QLoggingCategory &loggingCategory() const override;
+
     QSerialPort *m_serialPort;
 };
 

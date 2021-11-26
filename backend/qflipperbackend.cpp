@@ -9,7 +9,7 @@
 #include "flipperzero/firmwareupdater.h"
 #include "flipperzero/screenstreamer.h"
 
-#include "macros.h"
+#include "debug.h"
 
 using namespace Flipper;
 

@@ -3,7 +3,7 @@
 #include <QTimer>
 #include <QSerialPort>
 
-#include "macros.h"
+#include "debug.h"
 
 #define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
 

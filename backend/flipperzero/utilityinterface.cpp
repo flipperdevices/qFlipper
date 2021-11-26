@@ -1,5 +1,7 @@
 #include "utilityinterface.h"
 
+#include <QLoggingCategory>
+
 #include "devicestate.h"
 #include "commandinterface.h"
 
@@ -9,6 +11,8 @@
 #include "flipperzero/utility/startrecoveryoperation.h"
 #include "flipperzero/utility/assetsdownloadoperation.h"
 #include "flipperzero/utility/factoryresetutiloperation.h"
+
+Q_LOGGING_CATEGORY(CATEGORY_UTILITY, "UTILITY")
 
 using namespace Flipper;
 using namespace Zero;
@@ -59,4 +63,9 @@ FactoryResetUtilOperation *UtilityInterface::factoryReset()
     auto *operation = new FactoryResetUtilOperation(m_cli, m_deviceState, this);
     enqueueOperation(operation);
     return operation;
+}
+
+const QLoggingCategory &UtilityInterface::loggingCategory() const
+{
+    return CATEGORY_UTILITY();
 }

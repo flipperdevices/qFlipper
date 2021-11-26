@@ -2,10 +2,13 @@
 
 #include <QTimer>
 #include <QDebug>
+#include <QLoggingCategory>
 
 #include "abstractoperation.h"
 
 #define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
+
+Q_LOGGING_CATEGORY(CATEGORY_DEFAULT, "DEFAULT")
 
 AbstractOperationRunner::AbstractOperationRunner(QObject *parent):
     SignalingFailable(parent),
@@ -34,6 +37,11 @@ void AbstractOperationRunner::onOperationFinished(AbstractOperation *operation)
 {
     Q_UNUSED(operation);
     //Default empty implementation
+}
+
+const QLoggingCategory &AbstractOperationRunner::loggingCategory() const
+{
+    return CATEGORY_DEFAULT();
 }
 
 void AbstractOperationRunner::enqueueOperation(AbstractOperation *operation)
@@ -77,13 +85,15 @@ void AbstractOperationRunner::processQueue()
             CALL_LATER(this, &AbstractOperationRunner::processQueue);
         }
 
-        qDebug() << "[Operation Runner]" << operation->description() << "finished with status:" << operation->errorString();
+        qCInfo(loggingCategory()).noquote() << operation->description() << (operation->isError() ? QStringLiteral("ERROR: ") + operation->errorString() : QStringLiteral("SUCCESS"));
 
         onOperationFinished(operation);
         operation->deleteLater();
     });
 
-    onOperationFinished(operation);
+    qCInfo(loggingCategory()).noquote() << operation->description() << "START";
+
+    onOperationStarted(operation);
     operation->start();
 }
 

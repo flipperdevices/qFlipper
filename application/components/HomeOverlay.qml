@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Dialogs 1.2
 
 import Theme 1.0
+import QFlipper 1.0
 
 AbstractOverlay {
     id: overlay
@@ -136,11 +137,11 @@ AbstractOverlay {
         linkColor: {
             if(!firmwareUpdates.isReady) {
                 return Theme.color.lightorange2;
-            } else if(preferences.updateChannel === "development") {
+            } else if(Preferences.updateChannel === "development") {
                 return Theme.color.lightred2;
-            } else if(preferences.updateChannel === "release-candidate") {
+            } else if(Preferences.updateChannel === "release-candidate") {
                 return "blueviolet";
-            } else if(preferences.updateChannel === "release") {
+            } else if(Preferences.updateChannel === "release") {
                 return Theme.color.lightgreen;
             } else {
                 return Theme.color.lightorange2;
@@ -180,11 +181,11 @@ AbstractOverlay {
 
             if(!firmwareUpdates.isReady) {
                 return qsTr("No data");
-            } else if(preferences.updateChannel === "development") {
+            } else if(Preferences.updateChannel === "development") {
                 str = "Dev";
-            } else if(preferences.updateChannel === "release-candidate") {
+            } else if(Preferences.updateChannel === "release-candidate") {
                 str = "RC";
-            } else if(preferences.updateChannel === "release") {
+            } else if(Preferences.updateChannel === "release") {
                 str = "Release";
             } else {
                 str = "Unknown";
@@ -203,7 +204,7 @@ AbstractOverlay {
     }
 
     function updateButtonFunc() {
-        const channelName = preferences.updateChannel;
+        const channelName = Preferences.updateChannel;
         const latestVersion = firmwareUpdates.latestVersion;
 
         let messageObj, actionFunc;

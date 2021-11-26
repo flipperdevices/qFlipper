@@ -38,6 +38,8 @@ public:
     CorrectOptionBytesOperation *fixOptionBytes(QIODevice *file);
 
 private:
+    const QLoggingCategory &loggingCategory() const override;
+
     Recovery *m_recovery;
 };
 

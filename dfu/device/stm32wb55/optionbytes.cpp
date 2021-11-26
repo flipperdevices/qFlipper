@@ -3,7 +3,7 @@
 #include <QRegExp>
 #include <QIODevice>
 
-#include "macros.h"
+#include "debug.h"
 
 #define OPTION_BYTES_SIZE 128
 

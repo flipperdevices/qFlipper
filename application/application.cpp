@@ -1,24 +1,28 @@
 #include "application.h"
 
 #include <QLocale>
+#include <QDateTime>
 #include <QTranslator>
 #include <QQmlContext>
 #include <QQuickWindow>
 #include <QFontDatabase>
+#include <QLoggingCategory>
 #include <QtQuickControls2/QQuickStyle>
 
 #include "qflipperbackend.h"
 #include "updateregistry.h"
 #include "screencanvas.h"
 #include "preferences.h"
+#include "logger.h"
 
-#include "macros.h"
+#include "debug.h"
+
+Q_LOGGING_CATEGORY(CATEGORY_APP, "APP")
 
 Application::Application(int &argc, char **argv):
     QApplication(argc, argv)
 {
-    debug_msg(QString("%1 version %2 commit %3.").arg(APP_NAME, APP_VERSION, APP_COMMIT));
-
+    initLogger();
     initQmlTypes();
     initContextProperties();
     initTranslations();
@@ -26,6 +30,9 @@ Application::Application(int &argc, char **argv):
     initStyles();
     initFonts();
     initGUI();
+
+    qCInfo(CATEGORY_APP).noquote() << APP_NAME << "version" << APP_VERSION << "commit"
+                                   << APP_COMMIT << QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).toString();
 }
 
 const QString Application::commitNumber()
@@ -38,6 +45,11 @@ AppUpdater *Application::updater()
     return &m_updater;
 }
 
+void Application::initLogger()
+{
+    qInstallMessageHandler(Logger::messageOutput);
+}
+
 void Application::initStyles()
 {
     QQuickWindow::setDefaultAlphaBuffer(true);
@@ -47,8 +59,8 @@ void Application::initStyles()
 
 void Application::initContextProperties()
 {
+    //TODO: Replace context properties with QML singletons
     m_engine.rootContext()->setContextProperty("app", this);
-    m_engine.rootContext()->setContextProperty("preferences", globalPrefs());
     m_engine.rootContext()->setContextProperty("deviceRegistry", &m_backend.deviceRegistry);
     m_engine.rootContext()->setContextProperty("firmwareUpdates", &m_backend.firmwareUpdates);
     m_engine.rootContext()->setContextProperty("applicationUpdates", &m_backend.applicationUpdates);
@@ -71,6 +83,9 @@ void Application::initQmlTypes()
 {
     qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
     qmlRegisterType<AppUpdater>("QFlipper", 1, 0, "AppUpdater");
+
+    qmlRegisterSingletonInstance("QFlipper", 1, 0, "Logger", globalLogger);
+    qmlRegisterSingletonInstance("QFlipper", 1, 0, "Preferences", globalPrefs);
 }
 
 void Application::initImports()

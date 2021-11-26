@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-#include "macros.h"
+#include "debug.h"
 
 static const auto DFUSE_SUFFIX_SIZE = 16;
 

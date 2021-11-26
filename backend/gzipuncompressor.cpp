@@ -6,7 +6,7 @@
 
 #include <zlib.h>
 
-#include "macros.h"
+#include "debug.h"
 
 #define CHUNK_SIZE 1024
 
@@ -28,7 +28,7 @@ GZipUncompressor::GZipUncompressor(QIODevice *in, QIODevice *out, QObject *paren
     auto *watcher = new QFutureWatcher<void>(this);
 
     connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
-        info_msg(QStringLiteral("Uncompression finished : %1.").arg(errorString()));
+        debug_msg(QStringLiteral("Uncompression finished : %1.").arg(errorString()));
         watcher->deleteLater();
         emit finished();
     });
@@ -62,7 +62,7 @@ void GZipUncompressor::doUncompress()
     }
 
     const auto totalSize = m_in->bytesAvailable();
-    info_msg(QStringLiteral("Uncompressing file with size of %1 bytes...").arg(totalSize));
+    debug_msg(QStringLiteral("Uncompressing file with size of %1 bytes...").arg(totalSize));
 
     z_stream stream;
     stream.zalloc = Z_NULL;

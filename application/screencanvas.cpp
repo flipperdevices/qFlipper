@@ -5,7 +5,7 @@
 #include <QClipboard>
 #include <QGuiApplication>
 
-#include "macros.h"
+#include "debug.h"
 
 ScreenCanvas::ScreenCanvas(QQuickItem *parent):
     QQuickPaintedItem(parent),

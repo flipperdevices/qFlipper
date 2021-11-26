@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
 import Theme 1.0
+import QFlipper 1.0
 
 ColumnLayout {
     id: control
@@ -29,8 +30,8 @@ ColumnLayout {
         delegate: ChannelDelegate {}
         Layout.fillWidth: true
 
-        currentIndex: firmwareUpdates.isReady ? find(preferences.updateChannel) : -1
-        onActivated: preferences.updateChannel = textAt(index);
+        currentIndex: firmwareUpdates.isReady ? find(Preferences.updateChannel) : -1
+        onActivated: Preferences.updateChannel = textAt(index);
     }
 
     TransparentLabel {

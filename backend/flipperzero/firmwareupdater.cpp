@@ -1,5 +1,7 @@
 #include "firmwareupdater.h"
 
+#include <QLoggingCategory>
+
 #include "devicestate.h"
 #include "recoveryinterface.h"
 #include "utilityinterface.h"
@@ -13,6 +15,8 @@
 #include "toplevel/fullupdateoperation.h"
 
 #include "preferences.h"
+
+Q_LOGGING_CATEGORY(CATEGORY_TOPLEVEL, "TOPLEVEL")
 
 using namespace Flipper;
 using namespace Zero;
@@ -75,6 +79,11 @@ void FirmwareUpdater::localWirelessStackUpdate(const QUrl &fileUrl)
     enqueueOperation(new WirelessStackUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
 }
 
+const QLoggingCategory &FirmwareUpdater::loggingCategory() const
+{
+    return CATEGORY_TOPLEVEL();
+}
+
 bool FirmwareUpdater::canUpdate(const Updates::VersionInfo &versionInfo) const
 {
     const auto &storageInfo = m_state->deviceInfo().storage;
@@ -89,7 +98,7 @@ bool FirmwareUpdater::canUpdate(const Updates::VersionInfo &versionInfo) const
 
     const auto &deviceDate = m_state->deviceInfo().firmware.date;
 
-    const auto &serverChannel = globalPrefs()->firmwareUpdateChannel();
+    const auto &serverChannel = globalPrefs->firmwareUpdateChannel();
     const auto &serverVersion = versionInfo.number();
     const auto &serverDate = versionInfo.date();
 
@@ -127,7 +136,7 @@ bool FirmwareUpdater::canUpdate(const Updates::VersionInfo &versionInfo) const
 bool FirmwareUpdater::canInstall() const
 {
     const auto &deviceChannel = branchToChannelName();
-    const auto &serverChannel = globalPrefs()->firmwareUpdateChannel();
+    const auto &serverChannel = globalPrefs->firmwareUpdateChannel();
 
     return deviceChannel != serverChannel;
 }

@@ -3,7 +3,7 @@
 #include <QIODevice>
 #include <QSerialPort>
 
-#include "macros.h"
+#include "debug.h"
 
 #define READY_PROMPT QByteArrayLiteral("\r\nReady\r\n")
 #define FINISH_PROMPT QByteArrayLiteral("\r\n>: ")

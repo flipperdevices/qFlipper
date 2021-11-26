@@ -6,7 +6,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-#include "macros.h"
+#include "debug.h"
 
 using namespace Flipper::Updates;
 

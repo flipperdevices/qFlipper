@@ -4,7 +4,7 @@
 #include <QCryptographicHash>
 #include <QNetworkReply>
 
-#include "macros.h"
+#include "debug.h"
 
 using namespace Flipper;
 

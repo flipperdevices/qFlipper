@@ -3,7 +3,7 @@
 #include <libusb.h>
 #include <QThread>
 
-#include "macros.h"
+#include "debug.h"
 
 #define RETRY_COUNT 25
 #define RETRY_INTERVAL_MS 50
@@ -95,7 +95,7 @@ bool USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint16_t v
     if(res < 0) {
         error_msg(QString("Failed to perform control transfer: %1").arg(libusb_error_name(res)));
     } else if(res != buf.size()) {
-        info_msg("Requested and transferred data size differ");
+        debug_msg("Requested and transferred data size differ");
     } else {}
 
     return res == buf.size();
@@ -116,7 +116,7 @@ QByteArray USBDevice::controlTransfer(uint8_t requestType, uint8_t request, uint
         error_msg(QString("Failed to perform control transfer: %1").arg(libusb_error_name(res)));
     } else if(res != length) {
         buf.resize(res);
-        info_msg("Requested and transferred data size differ");
+        debug_msg("Requested and transferred data size differ");
     } else {}
 
     return buf;
