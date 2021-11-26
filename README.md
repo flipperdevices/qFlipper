@@ -2,12 +2,17 @@
 
 Flipper companion application (desktop)
 
+**WARNING!** This software is still a work in progress. Some features may be missing or not properly implemented, and the code might contain bugs or sub-optimal solutions.
+
+![qFlipper screenshot](screenshot.png)
+
 ## Build:
 ### Windows:
 
 Build requirements:
 - MS Visual Studio 2019 or newer
 - Qt (MSVC build) >= 5.15.0
+- Windows Driver Kit (to build libwdi)
 
 Edit `build_windows.bat` to adjust to your build environment and then run:
 ```cmd
@@ -46,11 +51,13 @@ Resulting image can be found in: `build_mac/qFlipper.dmg`
 ```
 
 or just launch the file above from your favourite file manager.
+You will likely need to set up udev rules in order to use qFlipper as a normal user. It can be done automatically by running [this script](setup_rules.sh):
+```sh
+chmod +x setup_rules.sh
+./setup_rules.sh
+```
 
-## Usage:
+## Known bugs:
 
-Please take a look at the new [qFlipper wiki](https://github.com/Flipper-Zero/qFlipper/wiki)!
-
-## Limitations:
-
-* Some run-time errors are not handled correctly
+* Sometimes Flipper's serial port doesn't get recognised by the OS, which leads to firmware update errors. This is a firmware issue.
+* On some systems, there is noticeable flicker during opening, closing or resizing of the log area
