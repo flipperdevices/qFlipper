@@ -92,5 +92,6 @@
         <file>components/TextView.qml</file>
         <file>components/SelfUpdateOverlay.qml</file>
         <file>components/AbstractOverlay.qml</file>
+        <file>components/ScanlineOverlay.qml</file>
     </qresource>
 </RCC>
