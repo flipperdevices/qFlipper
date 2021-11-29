@@ -41,12 +41,12 @@ Item {
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
     readonly property int windowState: {
-        if(!deviceState) {
+        if(app.updater.state != AppUpdater.Idle) {
+            MainWindow.SelfUpdating
+        } else if(!deviceState ) {
             MainWindow.NoDevice
         } else if(deviceState.isPersistent) {
             MainWindow.Updating
-        } else if(app.updater.state != AppUpdater.Idle) {
-            MainWindow.SelfUpdating
         } else if(streamOverlay.visible) {
             MainWindow.Streaming
         } else {
