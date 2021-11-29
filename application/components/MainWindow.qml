@@ -295,12 +295,30 @@ Item {
         anchors.topMargin: 14
         anchors.bottomMargin: 12
 
-        content.selectByMouse: true
-        content.selectByKeyboard: true
+        menu: Menu {
+            id: logMenu
+
+            MenuItem {
+                text: "Select all"
+                onTriggered: logView.content.selectAll()
+            }
+
+            MenuItem {
+                text: "Copy to clipboard"
+                onTriggered: logView.content.copy()
+            }
+
+            MenuSeparator {}
+
+            MenuItem {
+                text: "Open logs directory..."
+                onTriggered: Qt.openUrlExternally(Logger.logsPath)
+            }
+        }
 
         Component.onCompleted: {
             Logger.messageArrived.connect(logView.content.append);
-            Logger.messageArrived.connect(logView.ScrollBar.vertical.increase);
+            Logger.messageArrived.connect(logView.scrollToBottom);
         }
     }
 

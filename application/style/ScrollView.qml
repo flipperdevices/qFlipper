@@ -52,9 +52,10 @@ T.ScrollView {
 
     background: Rectangle {
         radius: 7
-        color: "black"
-        border.width: 2
+        color: Theme.color.transparent
         border.color: Theme.color.mediumorange3
+        border.width: 2
+        z: control.children.length //Make the border go over the text
     }
 
     ScrollBar.vertical: ScrollBar {

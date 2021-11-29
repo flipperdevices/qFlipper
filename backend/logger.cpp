@@ -43,6 +43,7 @@ void Logger::messageOutput(QtMsgType type, const QMessageLogContext &context, co
 
     QTextStream out(stderr, QIODevice::WriteOnly);
 
+    // TODO: Distinguish between severity levels in the log file?
     switch(type) {
     case QtFatalMsg:
         break;
@@ -61,4 +62,9 @@ void Logger::messageOutput(QtMsgType type, const QMessageLogContext &context, co
     }
 
     out << text << Qt::endl;
+}
+
+const QUrl Logger::logsPath() const
+{
+    return QUrl::fromLocalFile(m_logDir.absolutePath());
 }
