@@ -2,15 +2,19 @@
 
 #include <stdexcept>
 
+#include <QLoggingCategory>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDateTime>
 #include <QBuffer>
+#include <QDebug>
 
 #include "debug.h"
 #include "preferences.h"
 #include "remotefilefetcher.h"
+
+Q_LOGGING_CATEGORY(CATEGORY_UPDATES, "UPDATES")
 
 using namespace Flipper;
 
@@ -23,15 +27,17 @@ UpdateRegistry::UpdateRegistry(const QString &directoryUrl, QObject *parent):
     auto *buf = new QBuffer(this);
 
     fetcher->connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
-        if(buf->open(QIODevice::ReadOnly)) {
-            debug_msg(QStringLiteral("Fetched update directory from %1.").arg(directoryUrl));
+        if(fetcher->isError()) {
+
+        } else if(buf->open(QIODevice::ReadOnly)) {
+            qCDebug(CATEGORY_UPDATES).noquote() << "Fetched update directory from" << directoryUrl;
 
             if(fillFromJson(buf->readAll())) {
                 emit channelsChanged();
             }
 
         } else {
-            debug_msg(QStringLiteral("Failed to open a buffer for reading: %1.").arg(buf->errorString()));
+            qCCritical(CATEGORY_UPDATES).noquote() << "Failed to open a buffer for reading:" << buf->errorString();
         }
 
         fetcher->deleteLater();

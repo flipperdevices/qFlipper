@@ -1,9 +1,11 @@
 #include "assetsdownloadoperation.h"
 
 #include <QFile>
+#include <QDebug>
 #include <QTimer>
 #include <QBuffer>
 #include <QFileInfo>
+#include <QLoggingCategory>
 
 #include "flipperzero/cli/removeoperation.h"
 #include "flipperzero/cli/mkdiroperation.h"
@@ -19,7 +21,7 @@
 #include "tempdirectories.h"
 #include "tararchive.h"
 
-#include "debug.h"
+Q_LOGGING_CATEGORY(CATEGORY_ASSETS, "ASSETS")
 
 #define RESOURCES_PREFIX QByteArrayLiteral("resources")
 #define DEVICE_MANIFEST QByteArrayLiteral("/ext/Manifest")
@@ -27,14 +29,14 @@
 using namespace Flipper;
 using namespace Zero;
 
-static void print_file_list(const QString &header, const FileNode::FileInfoList &list)
+static void print_file_list(const char *header, const FileNode::FileInfoList &list)
 {
-    qDebug() << header;
+    qCDebug(CATEGORY_ASSETS).noquote() << header;
 
     for(const auto &e : list) {
         const auto icon = QStringLiteral("[%1]").arg(e.type == FileNode::Type::RegularFile ? 'F' :
                                                      e.type == FileNode::Type::Directory   ? 'D' : '?');
-        qDebug() << icon << e.absolutePath;
+        qCDebug(CATEGORY_ASSETS).noquote() << icon << e.absolutePath;
     }
 }
 
@@ -101,14 +103,14 @@ void AssetsDownloadOperation::checkForExtStorage()
         if(op->isError()) {
             finishWithError("Failed to perform stat operation");
         } else if(op->type() == StatOperation::Type::InternalError) {
-            debug_msg("No external storage found, finishing early.");
+            qCDebug(CATEGORY_ASSETS) << "No external storage found, finishing early.";
             finish();
 
         } else if(op->type() != StatOperation::Type::Storage) {
             finishWithError("/ext is not a storage");
 
         } else {
-            debug_msg(QStringLiteral("External storage is present, %1 bytes free.").arg(op->sizeFree()));
+            qCDebug(CATEGORY_ASSETS) << "External storage is present," << op->sizeFree() << "bytes free.";
             advanceOperationState();
         }
     });
@@ -204,7 +206,7 @@ void AssetsDownloadOperation::buildFileLists()
     print_file_list("<<<<< Local manifest:", m_localManifest.tree()->toPreOrderList());
 
     if(!m_isDeviceManifestPresent || m_deviceManifest.isError()) {
-        debug_msg("Device manifest not present or corrupt, assumimg fresh install...");
+        qCDebug(CATEGORY_ASSETS) << "Device manifest not present or corrupt, assumimg fresh install...";
 
         changed.append(manifestInfo);
         added.append(m_localManifest.tree()->toPreOrderList().mid(1));
@@ -256,7 +258,7 @@ void AssetsDownloadOperation::buildFileLists()
 void AssetsDownloadOperation::deleteFiles()
 {
     if(m_deleteList.isEmpty()) {
-        debug_msg("No files to delete, skipping to write");
+        qCDebug(CATEGORY_ASSETS) << "No files to delete, skipping to write";
         QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
     }
 
@@ -283,7 +285,7 @@ void AssetsDownloadOperation::deleteFiles()
 void AssetsDownloadOperation::writeFiles()
 {
     if(m_writeList.isEmpty()) {
-        debug_msg("No files to write, skipping to the end");
+        qCDebug(CATEGORY_ASSETS) << "No files to write, skipping to the end";
         QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
     }
 

@@ -1,5 +1,7 @@
 #include "dfusedevice.h"
 
+#include <cmath>
+
 #include <QThread>
 #include <QBuffer>
 #include <QByteArray>
@@ -45,12 +47,18 @@ bool DfuseDevice::erase(uint32_t addr, size_t maxSize)
 
     check_return_bool(!pageAddresses.isEmpty(), "Address list is empty");
 
+    size_t prevProgress = std::numeric_limits<size_t>::max();
+
     for(const auto pageAddress: pageAddresses) {
         check_return_bool(erasePage(pageAddress), "Failed to erase page");
         const auto progress = (pageAddress - addr) * 100.0 / maxSize;
         emit progressChanged(Operation::Erase, progress);
 
-        debug_msg(QString("Erasing memory: %1%").arg(progress));
+        if(floor(progress) != prevProgress) {
+            prevProgress = progress;
+            debug_msg(QString("Erasing memory: %1%").arg(prevProgress));
+        }
+
     }
 
     debug_msg("Erase done.");
@@ -114,7 +122,7 @@ bool DfuseDevice::download(QIODevice *file, uint32_t addr, uint8_t alt)
 
     StatusType status;
 
-    for(size_t totalSize = 0, transaction = 2; !file->atEnd(); ++transaction) {
+    for(size_t totalSize = 0, transaction = 2, prevProgress = std::numeric_limits<size_t>::max(); !file->atEnd(); ++transaction) {
         const auto buf = file->read(maxTransferSize);
         check_return_bool(controlTransfer(REQUEST_OUT, DFU_DNLOAD, (uint16_t)transaction, 0, buf), "Failed to perform DFU_DNLOAD transfer");
 
@@ -131,7 +139,10 @@ bool DfuseDevice::download(QIODevice *file, uint32_t addr, uint8_t alt)
         const auto progress = totalSize * 100.0 / file->size();
         emit progressChanged(Operation::Download, progress);
 
-        debug_msg(QString("Bytes downloaded: %1 %2%").arg(totalSize).arg(progress));
+        if(floor(progress) != prevProgress) {
+            prevProgress = progress;
+            debug_msg(QString("Bytes downloaded: %1 %2%").arg(totalSize).arg(prevProgress));
+        }
     }
 
     debug_msg("Download has finished.");
@@ -153,7 +164,7 @@ bool DfuseDevice::upload(QIODevice *file, uint32_t addr, size_t maxSize, uint8_t
 
     debug_msg(QString("Device reported transfer size: %1").arg(maxTransferSize));
 
-    for(size_t totalSize = 0, transaction = 2; totalSize < maxSize; ++transaction) {
+    for(size_t totalSize = 0, transaction = 2, prevProgress = std::numeric_limits<size_t>::max(); totalSize < maxSize; ++transaction) {
 
         const auto transferSize = qMin<size_t>(maxTransferSize, maxSize - totalSize);
         const auto buf = controlTransfer(REQUEST_IN, DFU_UPLOAD, (uint16_t)transaction, 0, (uint16_t)transferSize);
@@ -166,7 +177,11 @@ bool DfuseDevice::upload(QIODevice *file, uint32_t addr, size_t maxSize, uint8_t
 
         const auto progress = totalSize * 100.0 / maxSize;
         emit progressChanged(Operation::Upload, progress);
-        debug_msg(QString("Bytes uploaded: %1 %2%").arg(totalSize).arg(progress));
+
+        if(floor(progress) != prevProgress) {
+            prevProgress = progress;
+            debug_msg(QString("Bytes uploaded: %1 %2%").arg(totalSize).arg(prevProgress));
+        }
 
         // TODO: Better error checks
         // Correctly process the end of memory condition?

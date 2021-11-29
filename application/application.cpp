@@ -1,5 +1,6 @@
 #include "application.h"
 
+#include <QDebug>
 #include <QLocale>
 #include <QDateTime>
 #include <QTranslator>
@@ -14,8 +15,6 @@
 #include "screencanvas.h"
 #include "preferences.h"
 #include "logger.h"
-
-#include "debug.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_APP, "APP")
 
@@ -33,6 +32,11 @@ Application::Application(int &argc, char **argv):
 
     qCInfo(CATEGORY_APP).noquote() << APP_NAME << "version" << APP_VERSION << "commit"
                                    << APP_COMMIT << QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).toString();
+}
+
+Application::~Application()
+{
+    qCInfo(CATEGORY_APP).noquote() << APP_NAME << "exited";
 }
 
 const QString Application::commitNumber()
