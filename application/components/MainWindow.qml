@@ -308,6 +308,8 @@ Item {
                 onTriggered: logView.content.copy()
             }
 
+            MenuSeparator {}
+
             MenuItem {
                 text: "Open logs directory..."
                 onTriggered: Qt.openUrlExternally(Logger.logsPath)

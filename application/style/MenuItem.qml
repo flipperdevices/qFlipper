@@ -67,9 +67,6 @@ T.MenuItem {
         disabled: Theme.color.darkorange2
     }
 
-    property bool isFirst: false
-    property bool isLast: false
-
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -79,6 +76,9 @@ T.MenuItem {
     spacing: 6
 
     horizontalPadding: 16
+
+    topInset: 0
+    bottomInset: 0
 
     icon.width: 24
     icon.height: 24
@@ -141,5 +141,12 @@ T.MenuItem {
 
         topRadius: control.ObjectModel.index === 0 ? 5 : 0
         bottomRadius: control.ObjectModel.index === control.ListView.view.model.count - 1 ? 5 : 0
+
+        Behavior on color {
+            ColorAnimation {
+                duration: 150
+                easing.type: Easing.OutQuad
+            }
+        }
     }
 }

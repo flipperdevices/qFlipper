@@ -24,6 +24,7 @@ Item {
             width: scrollView.availableWidth
 
             cursorVisible: false
+            persistentSelection: true
 
             font.pixelSize: 16
             font.letterSpacing: -1

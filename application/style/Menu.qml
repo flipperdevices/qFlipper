@@ -48,15 +48,18 @@ T.Menu {
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
-                             contentHeight + topPadding + bottomPadding + bg.border.width)
+                             contentHeight + topPadding + bottomPadding)
 
     margins: 0
     overlap: 1
 
+    topPadding: 4
+    bottomPadding: 4
+
     delegate: MenuItem {}
 
     contentItem: ListView {
-        implicitHeight: contentHeight + 2
+        implicitHeight: contentHeight
         model: control.contentModel
         interactive: Window.window
                         ? contentHeight + control.topPadding + control.bottomPadding > Window.window.height
@@ -67,21 +70,25 @@ T.Menu {
         ScrollIndicator.vertical: ScrollIndicator {}
     }
 
-    background: Rectangle {
-        id: bg
+    background: Item {
         implicitWidth: 250
         implicitHeight: 42
 
-        color: "black"
-        radius: 9
+        Rectangle {
+            id: stroke
+            anchors.fill: parent
+            color: "black"
+            opacity: 0.5
+            radius: 9
+        }
 
         Rectangle {
             anchors.fill: parent
             anchors.margins: 2
             color: Theme.color.darkorange1
-            border.color: Theme.color.lightorange2
             border.width: 2
-            radius: parent.radius - anchors.margins
+            border.color: Theme.color.lightorange2
+            radius: stroke.radius - anchors.margins
         }
     }
 
