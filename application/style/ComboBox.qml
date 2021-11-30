@@ -41,6 +41,7 @@ import QtQuick.Controls.impl 2.15
 import QtQuick.Templates 2.15 as T
 
 import Theme 1.0
+import Primitives 1.0
 
 T.ComboBox {
     id: control
@@ -175,7 +176,7 @@ T.ComboBox {
             currentIndex: control.highlightedIndex
             highlightMoveDuration: 0
 
-            Rectangle {
+            AdvancedRectangle {
                 z: 10
                 width: parent.width
                 height: parent.height

@@ -38,8 +38,10 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.impl 2.15
 import QtQuick.Templates 2.15 as T
+import QtQml.Models 2.15
 
 import Theme 1.0
+import Primitives 1.0
 
 T.MenuItem {
     id: control
@@ -65,11 +67,14 @@ T.MenuItem {
         disabled: Theme.color.darkorange2
     }
 
+    property bool isFirst: false
+    property bool isLast: false
+
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
-                             implicitIndicatorHeight + topPadding + bottomPadding)
+                             implicitIndicatorHeight + topPadding + bottomPadding) + 5
     padding: 6
     spacing: 6
 
@@ -124,14 +129,17 @@ T.MenuItem {
         defaultColor: foregroundColor.normal
     }
 
-    background: Rectangle {
+    background: AdvancedRectangle {
         implicitWidth: 200
         implicitHeight: 42
-        x: 2
-        y: 2
-        width: control.width - 4
+        x: 4
+        y: 4
+        width: control.width - 8
 
         color: !control.enabled ? backgroundColor.disabled : control.down ? backgroundColor.down :
                 control.hovered ? backgroundColor.hover : backgroundColor.normal
+
+        topRadius: control.ObjectModel.index === 0 ? 5 : 0
+        bottomRadius: control.ObjectModel.index === control.ListView.view.model.count - 1 ? 5 : 0
     }
 }

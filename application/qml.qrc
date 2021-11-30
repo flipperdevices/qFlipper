@@ -95,5 +95,7 @@
         <file>style/Menu.qml</file>
         <file>style/MenuItem.qml</file>
         <file>style/MenuSeparator.qml</file>
+        <file>imports/Primitives/qmldir</file>
+        <file>imports/Primitives/AdvancedRectangle.qml</file>
     </qresource>
 </RCC>

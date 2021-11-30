@@ -53,7 +53,7 @@ T.Menu {
     margins: 0
     overlap: 1
 
-    delegate: MenuItem { }
+    delegate: MenuItem {}
 
     contentItem: ListView {
         implicitHeight: contentHeight + 2
@@ -72,9 +72,17 @@ T.Menu {
         implicitWidth: 250
         implicitHeight: 42
 
-        color: Theme.color.darkorange1
-        border.color: Theme.color.lightorange2
-        border.width: 2
+        color: "black"
+        radius: 9
+
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: 2
+            color: Theme.color.darkorange1
+            border.color: Theme.color.lightorange2
+            border.width: 2
+            radius: parent.radius - anchors.margins
+        }
     }
 
     T.Overlay.modal: Rectangle {
