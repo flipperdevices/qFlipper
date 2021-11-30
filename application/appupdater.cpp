@@ -12,7 +12,10 @@
 #include "preferences.h"
 #include "remotefilefetcher.h"
 
-// TODO Refactor all this conditional compilation, it's ugly! (and inflexible).
+static const QString chopRcSuffix(const QString &str) {
+    const auto suffixIdx = str.indexOf("-rc");
+    return suffixIdx < 0 ? str : str.chopped(str.length() - suffixIdx);
+}
 
 AppUpdater::AppUpdater(QObject *parent):
     QObject(parent),
@@ -32,13 +35,27 @@ double AppUpdater::progress() const
 
 bool AppUpdater::canUpdate(const Flipper::Updates::VersionInfo &versionInfo)
 {
+    const auto appDate = QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).date();
+    const auto appVersion = QStringLiteral(APP_VERSION);
+    const auto appCommit = QStringLiteral(APP_COMMIT);
+
+    const auto isReleaseCandidate = appVersion.contains("-rc");
+
     if(!globalPrefs->checkApplicationUpdates()) {
         return false;
+    } else if(versionInfo.date() > appDate) {
+        return true;
     } else if(globalPrefs->applicationUpdateChannel() == QStringLiteral("development")) {
-        const auto appDate = QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).date();
-        return (versionInfo.date() > appDate) || ((versionInfo.date() == appDate) && (versionInfo.number() != APP_COMMIT));
+        return (versionInfo.date() == appDate) && (versionInfo.number() != appCommit);
+    } else if(globalPrefs->applicationUpdateChannel() == QStringLiteral("release-candidate")) {
+        return isReleaseCandidate ? versionInfo.number() > appVersion : // Handle multiple release candidates, e.g. rc1, rc2 etc
+                                    chopRcSuffix(versionInfo.number()) > appVersion;
+
+    } else if(globalPrefs->applicationUpdateChannel() == QStringLiteral("release")) {
+        return isReleaseCandidate ?  versionInfo.number() >= chopRcSuffix(appVersion) :
+                                     versionInfo.number() > appVersion;
     } else {
-        return versionInfo.number() > APP_VERSION;
+        return false;
     }
 }
 
