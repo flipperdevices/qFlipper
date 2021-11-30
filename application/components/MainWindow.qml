@@ -161,12 +161,6 @@ Item {
         width: 800 + border.width * 2
         height: 390 + border.width * 2
 
-        ScanlineOverlay {
-            id: scanlineOverlay
-            anchors.fill: parent
-            anchors.margins: mainContent.border.width
-        }
-
         TextLabel {
             id: versionLabel
 
