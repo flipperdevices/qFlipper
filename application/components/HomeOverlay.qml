@@ -62,7 +62,10 @@ AbstractOverlay {
             icon.width: 25
             icon.height: 25
 
-            ToolTip.text: qsTr("Device information")
+            ToolTip {
+                text: qsTr("Device information")
+                visible: parent.hovered
+            }
         }
 
         TabButton {
@@ -70,7 +73,10 @@ AbstractOverlay {
             icon.width: 27
             icon.height: 27
 
-            ToolTip.text: qsTr("Avdanced controls")
+            ToolTip {
+                text: qsTr("Avdanced controls")
+                visible: parent.hovered
+            }
         }
     }
 

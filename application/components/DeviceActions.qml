@@ -57,6 +57,12 @@ ColumnLayout {
             icon.source: "qrc:/assets/gfx/symbolic/backup-symbolic.svg"
             icon.width: 18
             icon.height: 20
+
+            ToolTip {
+                visible: parent.hovered
+                text: qsTr("Save the contents of Flipper's internal storage to this computer's disk.")
+                implicitWidth: 250
+            }
         }
 
         SmallButton {
@@ -66,6 +72,12 @@ ColumnLayout {
             icon.source: "qrc:/assets/gfx/symbolic/restore-symbolic.svg"
             icon.width: 18
             icon.height: 20
+
+            ToolTip {
+                visible: parent.hovered
+                text: qsTr("Download the contents of a backup directory to Flipper's internal storage.")
+                implicitWidth: 250
+            }
         }
 
         SmallButtonRed {
@@ -75,6 +87,12 @@ ColumnLayout {
             icon.source: "qrc:/assets/gfx/symbolic/trashcan.svg"
             icon.width: 18
             icon.height: 20
+
+            ToolTip {
+                visible: parent.hovered
+                text: qsTr("Revert Flipper to its default settings. WARNING! All progress will be lost!")
+                implicitWidth: 250
+            }
         }
 
         SmallButton {
@@ -84,6 +102,12 @@ ColumnLayout {
             icon.source: "qrc:/assets/gfx/symbolic/update-symbolic.svg"
             icon.width: 16
             icon.height: 16
+
+            ToolTip {
+                visible: parent.hovered
+                text: qsTr("Install the current firmware version again. Not for everyday use.")
+                implicitWidth: 250
+            }
         }
     }
 

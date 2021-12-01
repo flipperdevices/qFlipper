@@ -108,8 +108,13 @@ AbstractOverlay {
 
             ToolTip {
                 delay: 100
+                timeout: -1
                 visible: parent.hovered
-                text: qsTr("Hello there!")
+
+                contentItem: Image {
+                    source: "qrc:/assets/gfx/images/streaming-help.svg"
+                    sourceSize: Qt.size(207, 80)
+                }
             }
         }
     }

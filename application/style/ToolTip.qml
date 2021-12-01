@@ -58,6 +58,9 @@ T.ToolTip {
     font.letterSpacing: -1
     font.family: "Share Tech Mono"
 
+    delay: 500
+    timeout: Math.log(text.length) * 1800
+
     closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutsideParent | T.Popup.CloseOnReleaseOutsideParent
 
     enter: Transition {
