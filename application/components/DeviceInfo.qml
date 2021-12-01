@@ -95,14 +95,12 @@ RowLayout {
 
             text: {
                 if(!deviceInfo) {
-                    return text;
+                    text
                 } else {
-                    return [
-                        deviceInfo.hardware.version,
-                        deviceInfo.hardware.target,
-                        deviceInfo.hardware.body,
-                        deviceInfo.hardware.connect
-                    ].join(".")
+                    deviceInfo.hardware.version + "." +
+                    deviceInfo.hardware.target +
+                    deviceInfo.hardware.body +
+                    deviceInfo.hardware.connect
                 }
             }
 
