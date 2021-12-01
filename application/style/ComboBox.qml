@@ -131,7 +131,7 @@ T.ComboBox {
         verticalAlignment: Text.AlignVCenter
     }
 
-    background: Rectangle {
+    background: AdvancedRectangle {
         id: bg
 
         implicitWidth: 140
@@ -143,15 +143,8 @@ T.ComboBox {
                        control.hovered ? strokeColor.hover : strokeColor.normal
         border.width: 2
 
-        Rectangle {
-            y: control.popup.y < 0 ? 0 : parent.height - height
-
-            width: parent.width
-            height: parent.radius
-
-            color: backgroundColor.down
-            visible: control.popup.visible
-        }
+        topRadius: control.popup.visible && control.popup.y < 0 ? 0 : radius
+        bottomRadius: control.popup.visible && control.popup.y >= 0 ? 0 : radius
 
         Behavior on color {
             ColorAnimation {
@@ -165,7 +158,7 @@ T.ComboBox {
         y: control.height
         width: control.width
 
-        height: Math.min(contentItem.implicitHeight, control.Window.height - topMargin - bottomMargin)
+        height: Math.min(contentItem.implicitHeight + 2, control.Window.height - topMargin - bottomMargin)
         topMargin: 6
         bottomMargin: 6
 
@@ -176,20 +169,16 @@ T.ComboBox {
             currentIndex: control.highlightedIndex
             highlightMoveDuration: 0
 
-            AdvancedRectangle {
-                z: 10
-                width: parent.width
-                height: parent.height
-                color: "transparent"
-                border.width: bg.border.width
-                border.color: strokeColor.normal
-            }
-
             T.ScrollIndicator.vertical: ScrollIndicator {}
         }
 
-        background: Rectangle {
+        background: AdvancedRectangle {
             color: backgroundColor.normal
+            border.width: bg.border.width
+            border.color: strokeColor.normal
+
+            bottomRadius: control.popup.y < 0 ? 0 : 7
+            topRadius: control.popup.y < 0 ? 7 : 0
         }
     }
 }

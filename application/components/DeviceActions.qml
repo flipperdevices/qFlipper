@@ -27,7 +27,11 @@ ColumnLayout {
         id: channelComboBox
 
         model: firmwareUpdates.channelNames
-        delegate: ChannelDelegate {}
+
+        delegate: ChannelDelegate {
+            objectName: index === channelComboBox.model.length - 1 ? "last" : ""
+        }
+
         Layout.fillWidth: true
 
         currentIndex: firmwareUpdates.isReady ? find(Preferences.updateChannel) : -1

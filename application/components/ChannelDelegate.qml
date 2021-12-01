@@ -1,8 +1,10 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtQml.Models 2.15
 
 import Theme 1.0
+import Primitives 1.0
 
 ItemDelegate {
     id: control
@@ -34,7 +36,18 @@ ItemDelegate {
         }
     }
 
-    background: Rectangle {
+    background: AdvancedRectangle {
+        x: 2
+        width: parent.width - 4
         color: control.down ? Theme.color.lightorange2 : control.hovered ? Theme.color.mediumorange2 : Theme.color.darkorange1
+
+        bottomRadius: control.objectName === "last" ? 5 : 0
+
+        Behavior on color {
+            ColorAnimation {
+                duration: 150
+                easing.type: Easing.OutQuad
+            }
+        }
     }
 }
