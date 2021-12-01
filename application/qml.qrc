@@ -97,5 +97,7 @@
         <file>style/MenuSeparator.qml</file>
         <file>imports/Primitives/qmldir</file>
         <file>imports/Primitives/AdvancedRectangle.qml</file>
+        <file>assets/gfx/symbolic/save-symbolic.svg</file>
+        <file>assets/gfx/symbolic/info-big.svg</file>
     </qresource>
 </RCC>

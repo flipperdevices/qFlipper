@@ -75,7 +75,7 @@ T.MenuItem {
     padding: 6
     spacing: 6
 
-    horizontalPadding: 16
+    horizontalPadding: 20
 
     topInset: 0
     bottomInset: 0
@@ -89,6 +89,7 @@ T.MenuItem {
     font.capitalization: Font.AllUppercase
 
     contentItem: IconLabel {
+        antialiasing: false
         readonly property real arrowPadding: control.subMenu && control.arrow ? control.arrow.width + control.spacing : 0
         readonly property real indicatorPadding: control.checkable && control.indicator ? control.indicator.width + control.spacing : 0
         leftPadding: !control.mirrored ? indicatorPadding : arrowPadding
@@ -139,8 +140,8 @@ T.MenuItem {
         color: !control.enabled ? backgroundColor.disabled : control.down ? backgroundColor.down :
                 control.hovered ? backgroundColor.hover : backgroundColor.normal
 
-        topRadius: control.ObjectModel.index === 0 ? 5 : 0
-        bottomRadius: control.ObjectModel.index === control.ListView.view.model.count - 1 ? 5 : 0
+        topRadius: control.ObjectModel.index === 0 ? 3 : 0
+        bottomRadius: control.ObjectModel.index === control.ListView.view.model.count - 1 ? 3 : 0
 
         Behavior on color {
             ColorAnimation {

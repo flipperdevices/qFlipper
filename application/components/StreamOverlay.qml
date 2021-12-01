@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Controls.impl 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Dialogs 1.2
 
@@ -19,7 +20,7 @@ AbstractOverlay {
         selectExisting: false
 
         nameFilters: ["PNG images (*.png)", "JPEG images (*.jpg)"]
-        onAccepted: canvas.saveImage(fileUrl, resolutionCombo.currentValue)
+        onAccepted: canvas.saveImage(fileUrl, 4)
     }
 
     Rectangle {
@@ -72,33 +73,11 @@ AbstractOverlay {
         Button {
             action: saveAction
             Layout.alignment: Qt.AlignRight
+
+            icon.height: 20
+            icon.width: 20
+            icon.source: "qrc:/assets/gfx/symbolic/save-symbolic.svg"
         }
-
-        Button {
-            action: copyAction
-            Layout.alignment: Qt.AlignRight
-        }
-    }
-
-    ComboBox {
-        id: resolutionCombo
-
-        model: [
-            { scale: 1, text: qsTr("128x64 px") },
-            { scale: 5, text: qsTr("640x320 px") },
-            { scale: 20, text: qsTr("2560x1280 px") }
-        ]
-
-        textRole: "text"
-        valueRole: "scale"
-
-        anchors.top: buttonLayout.top
-
-        anchors.left: buttonLayout.right
-        anchors.leftMargin: buttonLayout.spacing
-
-        anchors.right: overlay.right
-        anchors.rightMargin: canvasBg.x
     }
 
     DirectionalKeypad {
@@ -115,6 +94,23 @@ AbstractOverlay {
 
     }
 
+    IconImage {
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: 14
+
+        color: Theme.color.lightorange2
+        source: "qrc:/assets/gfx/symbolic/info-big.svg"
+        sourceSize: Qt.size(32, 32)
+
+        Control {
+            anchors.fill: parent
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Hello there!")
+            ToolTip.delay: 100
+        }
+    }
+
     Action {
         id: backAction
         text: qsTr("Back")
@@ -124,18 +120,18 @@ AbstractOverlay {
 
     Action {
         id: saveAction
-        text: qsTr("Save as")
+        text: qsTr("Save Screenshot")
         shortcut: "Ctrl+S"
         enabled: overlay.enabled
         onTriggered: fileDialog.open()
     }
 
-    Action {
-        id: copyAction
-        text: qsTr("Copy to clipboard")
-        shortcut: "Ctrl+C"
-        enabled: overlay.enabled
-        onTriggered: canvas.copyToClipboard(resolutionCombo.currentValue)
-    }
+//    Action {
+//        id: copyAction
+//        text: qsTr("Copy to clipboard")
+//        shortcut: "Ctrl+C"
+//        enabled: overlay.enabled
+//        onTriggered: canvas.copyToClipboard(resolutionCombo.currentValue)
+//    }
 
 }

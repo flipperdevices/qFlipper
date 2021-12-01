@@ -297,6 +297,7 @@ Item {
 
         menu: Menu {
             id: logMenu
+            width: 300
 
             MenuItem {
                 text: "Select all"
@@ -307,8 +308,6 @@ Item {
                 text: "Copy to clipboard"
                 onTriggered: logView.content.copy()
             }
-
-            MenuSeparator {}
 
             MenuItem {
                 text: "Open logs directory..."

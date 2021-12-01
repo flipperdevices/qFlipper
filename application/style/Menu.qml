@@ -79,7 +79,7 @@ T.Menu {
             anchors.fill: parent
             color: "black"
             opacity: 0.5
-            radius: 9
+            radius: 7
         }
 
         Rectangle {
