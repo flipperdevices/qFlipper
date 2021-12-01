@@ -105,9 +105,12 @@ AbstractOverlay {
 
         Control {
             anchors.fill: parent
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Hello there!")
-            ToolTip.delay: 100
+
+            ToolTip {
+                delay: 100
+                visible: parent.hovered
+                text: qsTr("Hello there!")
+            }
         }
     }
 

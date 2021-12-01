@@ -23,6 +23,18 @@ Popup {
     property bool invertTitle: true
     property Item contentWidget: Item {}
 
+    enter: Transition {
+        PropertyAnimation {
+            property: "opacity"; duration: 150; easing.type: Easing.InOutQuad; from: 0; to: 1
+        }
+    }
+
+    exit: Transition {
+        PropertyAnimation {
+            property: "opacity"; duration: 150; easing.type: Easing.InOutQuad; from: 1; to: 0
+        }
+    }
+
     background: Rectangle {
         id: shadow
         color: "black"

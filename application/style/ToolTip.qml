@@ -60,6 +60,18 @@ T.ToolTip {
 
     closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutsideParent | T.Popup.CloseOnReleaseOutsideParent
 
+    enter: Transition {
+        PropertyAnimation {
+            property: "opacity"; duration: 150; easing.type: Easing.InOutQuad; from: 0; to: 1
+        }
+    }
+
+    exit: Transition {
+        PropertyAnimation {
+            property: "opacity"; duration: 150; easing.type: Easing.InOutQuad; from: 1; to: 0
+        }
+    }
+
     contentItem: Text {
         text: control.text
         font: control.font

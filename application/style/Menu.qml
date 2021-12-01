@@ -56,6 +56,18 @@ T.Menu {
     topPadding: 4
     bottomPadding: 4
 
+    enter: Transition {
+        PropertyAnimation {
+            property: "opacity"; duration: 150; easing.type: Easing.InOutQuad; from: 0; to: 1
+        }
+    }
+
+    exit: Transition {
+        PropertyAnimation {
+            property: "opacity"; duration: 150; easing.type: Easing.InOutQuad; from: 1; to: 0
+        }
+    }
+
     delegate: MenuItem {}
 
     contentItem: ListView {
