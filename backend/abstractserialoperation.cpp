@@ -3,27 +3,26 @@
 #include <QTimer>
 #include <QSerialPort>
 
-#include "debug.h"
-
-#define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
-
 AbstractSerialOperation::AbstractSerialOperation(QSerialPort *serialPort, QObject *parent):
     AbstractOperation(parent),
-    m_serialPort(serialPort)
+    m_serialPort(serialPort),
+    m_totalBytesWritten(0)
 {}
 
 void AbstractSerialOperation::start()
 {
     connect(m_serialPort, &QSerialPort::readyRead, this, &AbstractSerialOperation::onSerialPortReadyRead);
     connect(m_serialPort, &QSerialPort::errorOccurred, this, &AbstractSerialOperation::onSerialPortError);
+    connect(m_serialPort, &QSerialPort::bytesWritten, this, &AbstractSerialOperation::onSerialPortBytesWritten);
 
-    CALL_LATER(this, &AbstractSerialOperation::begin);
+    QTimer::singleShot(0, this, &AbstractSerialOperation::begin);
 }
 
 void AbstractSerialOperation::finish()
 {
     disconnect(m_serialPort, &QSerialPort::readyRead, this, &AbstractSerialOperation::onSerialPortReadyRead);
     disconnect(m_serialPort, &QSerialPort::errorOccurred, this, &AbstractSerialOperation::onSerialPortError);
+    disconnect(m_serialPort, &QSerialPort::bytesWritten, this, &AbstractSerialOperation::onSerialPortBytesWritten);
 
     AbstractOperation::finish();
 }
@@ -31,6 +30,27 @@ void AbstractSerialOperation::finish()
 QSerialPort *AbstractSerialOperation::serialPort() const
 {
     return m_serialPort;
+}
+
+qint64 AbstractSerialOperation::totalBytesWritten() const
+{
+    return m_totalBytesWritten;
+}
+
+void AbstractSerialOperation::resetTotalBytesWritten()
+{
+    m_totalBytesWritten = 0;
+}
+
+void AbstractSerialOperation::onSerialPortReadyRead()
+{
+    // Empty default implementation
+}
+
+void AbstractSerialOperation::onSerialPortBytesWritten(qint64 numBytes)
+{
+    m_totalBytesWritten += numBytes;
+    emit totalBytesWrittenChanged();
 }
 
 void AbstractSerialOperation::onSerialPortError()

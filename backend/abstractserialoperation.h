@@ -15,15 +15,24 @@ public:
     void start() override;
     void finish() override;
 
+signals:
+    void totalBytesWrittenChanged();
+
 protected:
     QSerialPort *serialPort() const;
 
+    qint64 totalBytesWritten() const;
+    void resetTotalBytesWritten();
+
 private slots:
-    virtual void onSerialPortReadyRead() = 0;
+    virtual void onSerialPortReadyRead();
+
+    void onSerialPortBytesWritten(qint64 numBytes);
     void onSerialPortError();
 
 private:
     virtual bool begin() = 0;
 
     QSerialPort *m_serialPort;
+    qint64 m_totalBytesWritten;
 };
