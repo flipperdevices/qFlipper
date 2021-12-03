@@ -6,6 +6,7 @@
 #include "flipperzero/devicestate.h"
 
 #include "cli/factoryresetclioperation.h"
+#include "cli/startrpcoperation.h"
 #include "cli/skipmotdoperation.h"
 #include "cli/rebootoperation.h"
 #include "cli/removeoperation.h"
@@ -15,8 +16,6 @@
 #include "cli/statoperation.h"
 #include "cli/listoperation.h"
 #include "cli/dfuoperation.h"
-
-#include "debug.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_CLI, "CLI");
 
@@ -30,7 +29,10 @@ CommandInterface::CommandInterface(DeviceState *state, QObject *parent):
     // Automatically re-create serial port instance when a persistent device reconnects
     const auto createSerialPort = [=]() {
         if(m_serialPort) {
-            check_continue(!m_serialPort->isOpen(), "Deleting a Serial Port instance that is still open.");
+            if(m_serialPort->isOpen()) {
+                qCDebug(CATEGORY_CLI) << "Deleting a Serial Port instance that is still open.";
+            }
+
             m_serialPort->deleteLater();
             m_serialPort = nullptr;
         }
@@ -59,6 +61,13 @@ DFUOperation *CommandInterface::startRecoveryMode()
     auto *op = new DFUOperation(m_serialPort, this);
     enqueueOperation(op);
     return op;
+}
+
+StartRPCOperation *CommandInterface::startRPCSession()
+{
+    auto *operation = new StartRPCOperation(m_serialPort, this);
+    enqueueOperation(operation);
+    return operation;
 }
 
 FactoryResetCliOperation *CommandInterface::factoryReset()
@@ -113,10 +122,14 @@ RemoveOperation *CommandInterface::remove(const QByteArray &fileName)
 bool CommandInterface::onQueueStarted()
 {
     const auto success = m_serialPort->open(QIODevice::ReadWrite);
-    check_return_bool(success, QStringLiteral("Serial port error: %1").arg(m_serialPort->errorString()));
 
-    enqueueOperation(new SkipMOTDOperation(m_serialPort, this));
-    return true;
+    if(!success) {
+        qCCritical(CATEGORY_CLI).noquote() <<  "Serial port error:" << m_serialPort->errorString();
+    } else {
+        enqueueOperation(new SkipMOTDOperation(m_serialPort, this));
+    }
+
+    return success;
 }
 
 bool CommandInterface::onQueueFinished()

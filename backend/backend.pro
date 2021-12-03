@@ -21,6 +21,7 @@ SOURCES += \
     flipperzero/cli/dfuoperation.cpp \
     flipperzero/cli/factoryresetclioperation.cpp \
     flipperzero/cli/rebootoperation.cpp \
+    flipperzero/cli/startrpcoperation.cpp \
     flipperzero/commandinterface.cpp \
     flipperzero/cli/skipmotdoperation.cpp \
     flipperzero/devicestate.cpp \
@@ -98,6 +99,7 @@ HEADERS += \
     flipperzero/cli/dfuoperation.h \
     flipperzero/cli/factoryresetclioperation.h \
     flipperzero/cli/rebootoperation.h \
+    flipperzero/cli/startrpcoperation.h \
     flipperzero/commandinterface.h \
     flipperzero/cli/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
