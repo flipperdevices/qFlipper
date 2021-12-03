@@ -31,6 +31,11 @@ SOURCES += \
     flipperzero/helper/firmwarehelper.cpp \
     flipperzero/helper/radiomanifesthelper.cpp \
     flipperzero/helper/scriptshelper.cpp \
+    flipperzero/protobuf/application.pb.c \
+    flipperzero/protobuf/flipper.pb.c \
+    flipperzero/protobuf/gui.pb.c \
+    flipperzero/protobuf/status.pb.c \
+    flipperzero/protobuf/storage.pb.c \
     flipperzero/radiomanifest.cpp \
     flipperzero/recovery.cpp \
     flipperzero/recovery/abstractrecoveryoperation.cpp \
@@ -104,6 +109,11 @@ HEADERS += \
     flipperzero/helper/firmwarehelper.h \
     flipperzero/helper/radiomanifesthelper.h \
     flipperzero/helper/scriptshelper.h \
+    flipperzero/protobuf/application.pb.h \
+    flipperzero/protobuf/flipper.pb.h \
+    flipperzero/protobuf/gui.pb.h \
+    flipperzero/protobuf/status.pb.h \
+    flipperzero/protobuf/storage.pb.h \
     flipperzero/radiomanifest.h \
     flipperzero/recovery.h \
     flipperzero/recovery/abstractrecoveryoperation.h \
@@ -153,15 +163,23 @@ HEADERS += \
     updateregistry.h
 
 unix|win32 {
-    LIBS += -L$$OUT_PWD/../dfu/ -ldfu
+    LIBS += -L$$OUT_PWD/../dfu/ -ldfu \
+            -L$$OUT_PWD/../3rdparty/ -l3rdparty
 }
 
 win32:!win32-g++ {
-    PRE_TARGETDEPS += $$OUT_PWD/../dfu/dfu.lib
+    PRE_TARGETDEPS += $$OUT_PWD/../dfu/dfu.lib \
+                      $$OUT_PWD/../3rdparty/3rdparty.lib
+
 } else:unix|win32-g++ {
-    PRE_TARGETDEPS += $$OUT_PWD/../dfu/libdfu.a
+    PRE_TARGETDEPS += $$OUT_PWD/../dfu/libdfu.a \
+                      $$OUT_PWD/../3rdparty/lib3rdparty.a
 }
 
-INCLUDEPATH += $$PWD/../dfu
-DEPENDPATH += $$PWD/../dfu
+INCLUDEPATH += $$PWD/../dfu \
+               $$PWD/../3rdparty \
+               $$PWD/../3rdparty/nanopb
+
+DEPENDPATH += $$PWD/../dfu \
+              $$PWD/../3rdparty
 
