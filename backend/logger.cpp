@@ -26,7 +26,7 @@ Logger::Logger(QObject *parent):
 
     m_logFile->setFileName(m_logDir.absoluteFilePath(QStringLiteral("%1.log").arg(APP_NAME)));
 
-    if(!m_logFile->open(QIODevice::WriteOnly)) {
+    if(!m_logFile->open(QIODevice::WriteOnly | QIODevice::Append)) {
         qCWarning(CATEGORY_LOGGER).noquote() << "Failed to open log file:" << m_logFile->errorString();
     }
 }
