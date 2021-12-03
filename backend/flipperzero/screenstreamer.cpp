@@ -1,9 +1,12 @@
 #include "screenstreamer.h"
 
+#include <QDebug>
 #include <QSerialPort>
+#include <QLoggingCategory>
 
 #include "devicestate.h"
-#include "debug.h"
+
+Q_LOGGING_CATEGORY(CATEGORY_SCREEN, "SCREEN")
 
 using namespace Flipper;
 using namespace Zero;
@@ -39,7 +42,7 @@ void ScreenStreamer::setEnabled(bool enabled)
     if(!m_serialPort || (m_isEnabled == enabled)) {
         return;
     } else if(enabled) {
-        check_return_void(openPort(), "Failed to open serial port");
+        if(!openPort()) return;
     } else {
         closePort();
     }
@@ -112,7 +115,7 @@ void ScreenStreamer::onPortErrorOccured()
         return;
     }
 
-    error_msg(QString("Serial port error occured: %1").arg(m_serialPort->errorString()));
+    qCDebug(CATEGORY_SCREEN).noquote() << "Serial port error occured:" << m_serialPort->errorString();
     setEnabled(false);
 }
 
@@ -128,7 +131,7 @@ bool ScreenStreamer::openPort()
         m_serialPort->write("\rscreen_stream\r");
 
     } else {
-        error_msg(QString("Failed to open serial port: %1").arg(m_serialPort->errorString()));
+        qCDebug(CATEGORY_SCREEN).noquote() << "Failed to open serial port:" << m_serialPort->errorString();
     }
 
     return success;
