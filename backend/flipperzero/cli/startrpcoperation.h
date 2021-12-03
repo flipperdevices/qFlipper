@@ -1,11 +1,11 @@
 #pragma once
 
-#include "abstractserialoperation.h"
+#include "simpleserialoperation.h"
 
 namespace Flipper {
 namespace Zero {
 
-class StartRPCOperation : public AbstractSerialOperation
+class StartRPCOperation : public SimpleSerialOperation
 {
     Q_OBJECT
 
@@ -13,11 +13,9 @@ public:
     StartRPCOperation(QSerialPort *serialPort, QObject *parent = nullptr);
     const QString description() const override;
 
-private slots:
-    void onSerialPortReadyRead() override;
-
 private:
-    bool begin() override;
+    QByteArray endOfMessageToken() const override;
+    QByteArray commandLine() const override;
 };
 
 }

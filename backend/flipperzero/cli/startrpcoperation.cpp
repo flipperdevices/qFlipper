@@ -7,7 +7,7 @@ using namespace Flipper;
 using namespace Zero;
 
 StartRPCOperation::StartRPCOperation(QSerialPort *serialPort, QObject *parent):
-    AbstractSerialOperation(serialPort, parent)
+    SimpleSerialOperation(serialPort, parent)
 {}
 
 const QString StartRPCOperation::description() const
@@ -15,19 +15,12 @@ const QString StartRPCOperation::description() const
     return QStringLiteral("Start RPC session @%1").arg(QString(serialPort()->portName()));
 }
 
-void StartRPCOperation::onSerialPortReadyRead()
+QByteArray StartRPCOperation::endOfMessageToken() const
 {
-    // This operation does not need serial output, discarding it
-    serialPort()->clear();
+    return commandLine() + QByteArrayLiteral("\n");
 }
 
-bool StartRPCOperation::begin()
+QByteArray StartRPCOperation::commandLine() const
 {
-    const auto success = (serialPort()->write("start_rpc_session\r") > 0) && serialPort()->flush();
-
-    if(success) {
-        QTimer::singleShot(0, this, &AbstractOperation::finish);
-    }
-
-    return success;
+    return QByteArrayLiteral("start_rpc_session\r");
 }

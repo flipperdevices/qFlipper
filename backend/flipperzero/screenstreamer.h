@@ -68,6 +68,10 @@ private:
     bool openPort();
     void closePort();
 
+    void skipMOTD();
+    void startRPCSession();
+    void startScreenStream();
+
     DeviceState *m_deviceState;
     QSerialPort *m_serialPort;
 

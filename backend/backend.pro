@@ -12,6 +12,7 @@ SOURCES += \
     abstractoperation.cpp \
     abstractoperationhelper.cpp \
     abstractoperationrunner.cpp \
+    abstractprotobufoperation.cpp \
     abstractserialoperation.cpp \
     deviceregistry.cpp \
     filenode.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
     flipperzero/cli/factoryresetclioperation.cpp \
     flipperzero/cli/rebootoperation.cpp \
     flipperzero/cli/startrpcoperation.cpp \
+    flipperzero/cli/startstreampboperation.cpp \
     flipperzero/commandinterface.cpp \
     flipperzero/cli/skipmotdoperation.cpp \
     flipperzero/devicestate.cpp \
@@ -88,6 +90,7 @@ HEADERS += \
     abstractoperation.h \
     abstractoperationhelper.h \
     abstractoperationrunner.h \
+    abstractprotobufoperation.h \
     abstractserialoperation.h \
     deviceregistry.h \
     failable.h \
@@ -100,6 +103,7 @@ HEADERS += \
     flipperzero/cli/factoryresetclioperation.h \
     flipperzero/cli/rebootoperation.h \
     flipperzero/cli/startrpcoperation.h \
+    flipperzero/cli/startstreampboperation.h \
     flipperzero/commandinterface.h \
     flipperzero/cli/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
