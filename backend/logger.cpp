@@ -54,14 +54,14 @@ void Logger::messageOutput(QtMsgType type, const QMessageLogContext &context, co
     // TODO: Distinguish between severity levels in the log file?
     switch(type) {
     case QtFatalMsg:
-        break;
     case QtDebugMsg:
-        break;
     case QtCriticalMsg:
         break;
     case QtInfoMsg:
     case QtWarningMsg:
-        emit globalLogger->messageArrived(text);
+        if(strcmp(context.category, "default")) {
+            emit globalLogger->messageArrived(text);
+        }
     }
 
     if(globalLogger->m_logFile->isOpen()) {
