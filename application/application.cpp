@@ -31,13 +31,12 @@ Application::Application(int &argc, char **argv):
     initGUI();
 
     qCInfo(CATEGORY_APP).noquote() << APP_NAME << "version" << APP_VERSION << "commit"
-                                   << APP_COMMIT << QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).toString(Qt::DefaultLocaleShortDate)
-                                   << "started on" << QDateTime::currentDateTime().toString(Qt::DefaultLocaleShortDate);
+                                   << APP_COMMIT << QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).toString();
 }
 
 Application::~Application()
 {
-    qCInfo(CATEGORY_APP).noquote() << APP_NAME << "exited on" << QDateTime::currentDateTime().toString(Qt::DefaultLocaleShortDate) << Qt::endl;
+    qCInfo(CATEGORY_APP).noquote() << APP_NAME << "exited";
 }
 
 const QString Application::commitNumber()
