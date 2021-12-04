@@ -83,18 +83,30 @@ void Logger::fallbackMessageOutput(const QString &msg)
 
 bool Logger::removeOldFiles()
 {
-    const auto files = m_logDir.entryInfoList(QDir::Files, QDir::Time | QDir::Reversed);
-    constexpr auto expiryDays = 30;
+    auto files = m_logDir.entryInfoList(QDir::Files, QDir::Time | QDir::Reversed);
 
-    for(const auto &fileInfo : files) {
-        if(fileInfo.lastModified().daysTo(m_startTime) >= expiryDays) {
+    constexpr auto expiryDays = 30;
+    constexpr auto maxFileCount = 100;
+
+    for(const auto &fileInfo : qAsConst(files)) {
+        if(fileInfo.lastModified().daysTo(m_startTime) > expiryDays) {
             if(!m_logDir.remove(fileInfo.fileName())) {
                 fallbackMessageOutput(QStringLiteral("Failed to remove file: %1").arg(fileInfo.fileName()));
                 return false;
             }
-
         } else {
             break;
+        }
+    }
+
+    files = m_logDir.entryInfoList(QDir::Files, QDir::Time | QDir::Reversed);
+    const auto excessFileCount = files.size() - maxFileCount;
+
+    for(auto i = 0; i < excessFileCount; ++i) {
+        const auto &fileInfo = files.at(i);
+        if(!m_logDir.remove(fileInfo.fileName())) {
+            fallbackMessageOutput(QStringLiteral("Failed to remove file: %1").arg(fileInfo.fileName()));
+            return false;
         }
     }
 
