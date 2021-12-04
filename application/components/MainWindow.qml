@@ -310,7 +310,7 @@ Item {
             }
 
             MenuItem {
-                text: "Open logs directory..."
+                text: "Browse all logs..."
                 onTriggered: Qt.openUrlExternally(Logger.logsPath)
             }
         }
