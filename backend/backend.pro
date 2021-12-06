@@ -188,4 +188,3 @@ INCLUDEPATH += $$PWD/../dfu \
 
 DEPENDPATH += $$PWD/../dfu \
               $$PWD/../3rdparty
-

@@ -4,9 +4,13 @@
 #include <QSerialPort>
 #include <QLoggingCategory>
 
+#include <pb_decode.h>
+
 #include "cli/skipmotdoperation.h"
 #include "cli/startrpcoperation.h"
 #include "cli/startstreampboperation.h"
+
+#include "protobuf/flipper.pb.h"
 
 #include "devicestate.h"
 
@@ -19,8 +23,7 @@ ScreenStreamer::ScreenStreamer(DeviceState *deviceState, QObject *parent):
     QObject(parent),
     m_deviceState(deviceState),
     m_serialPort(nullptr),
-    m_isEnabled(false),
-    m_isHeaderFound(false)
+    m_isEnabled(false)
 {
     connect(m_deviceState, &DeviceState::deviceInfoChanged, this, &ScreenStreamer::createPort);
     createPort();
@@ -90,30 +93,29 @@ void ScreenStreamer::createPort()
 
 void ScreenStreamer::onPortReadyRead()
 {
-    qDebug() << "PB data:" << m_serialPort->readAll();
-//    static const auto header = QByteArrayLiteral("\xf0\xe1\xd2\xc3");
+    PB_Main msg = PB_Main_init_default;
 
-//    m_dataBuffer += m_serialPort->readAll();
+    if(!receiveMessage(&PB_Main_msg, &msg)) {
+        // TODO: Distinguish incomplete mesages and broken session
+        return;
 
-//    if (!m_isHeaderFound) {
-//        const int pos = m_dataBuffer.indexOf(header);
-//        if (pos >= 0) {
-//            m_dataBuffer = m_dataBuffer.right(m_dataBuffer.length() - pos - header.size());
-//            m_isHeaderFound = true;
-//        }
-//    }
+    } else if(msg.command_status != PB_CommandStatus_OK) {
+        qCCritical(CATEGORY_SCREEN) << "Device replied with error:" << msg.command_status;
+        setEnabled(false);
 
-//    if(m_isHeaderFound) {
-//        const auto bufSize = screenWidth() * screenHeight() / 8;
+    } else if(msg.which_content != PB_Main_gui_screen_frame_tag) {
+        qCCritical(CATEGORY_SCREEN) << "Expected screen frame, got something else:" << msg.which_content;
+        setEnabled(false);
 
-//        if(m_dataBuffer.size() >= bufSize) {
-//            m_screenData = m_dataBuffer.left(bufSize);
-//            m_dataBuffer = m_dataBuffer.right(m_dataBuffer.length() - bufSize);
-//            m_isHeaderFound = false;
+    } else {
+        const auto *data = msg.content.gui_screen_frame.data;
 
-//            emit screenDataChanged();
-//        }
-//    }
+        QByteArray newScreenData((const char*)data->bytes, data->size);
+        m_screenData.swap(newScreenData);
+
+        pb_release(&PB_Main_msg, &msg);
+        emit screenDataChanged();
+    }
 }
 
 void ScreenStreamer::onPortErrorOccured()
@@ -144,7 +146,6 @@ void ScreenStreamer::closePort()
     disconnect(m_serialPort, &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
     disconnect(m_serialPort, &QSerialPort::errorOccurred, this, &ScreenStreamer::onPortErrorOccured);
 
-//    m_serialPort->write("\x01\r\n");
     m_serialPort->clear();
     m_serialPort->close();
 }
@@ -191,7 +192,6 @@ void ScreenStreamer::startScreenStream()
         if(operation->isError()) {
             qCDebug(CATEGORY_SCREEN).noquote() << "Failed to initiate Screen Streaming:" << operation->errorString();
         } else {
-            qDebug() << "Screen streaming should be started now";
             connect(m_serialPort, &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
             connect(m_serialPort, &QSerialPort::errorOccurred, this, &ScreenStreamer::onPortErrorOccured);
         }
@@ -200,4 +200,32 @@ void ScreenStreamer::startScreenStream()
     });
 
     operation->start();
+}
+
+// TODO: Move these 2 methods to a class common with AbstractProtobufOperation
+bool ScreenStreamer::receiveMessage(const pb_msgdesc_t *fields, void *msg)
+{
+    pb_istream_t istream {
+        .callback = inputCallback,
+        .state = m_serialPort,
+        .bytes_left = (size_t)m_serialPort->bytesAvailable(),
+        .errmsg = nullptr
+    };
+
+    m_serialPort->startTransaction();
+    const auto success = pb_decode_ex(&istream, fields, msg, PB_DECODE_DELIMITED);
+
+    if(success) {
+        m_serialPort->commitTransaction();
+    } else {
+        m_serialPort->rollbackTransaction();
+    }
+
+    return success;
+}
+
+bool ScreenStreamer::inputCallback(pb_istream_t *stream, pb_byte_t *buf, size_t count)
+{
+    auto *serialPort = (QSerialPort*)stream->state;
+    return serialPort->read((char*)buf, count) == (qint64)count;
 }

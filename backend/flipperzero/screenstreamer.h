@@ -4,6 +4,8 @@
 #include <QByteArray>
 #include <QSerialPortInfo>
 
+#include <pb.h>
+
 class QSerialPort;
 
 namespace Flipper {
@@ -72,14 +74,15 @@ private:
     void startRPCSession();
     void startScreenStream();
 
+    // TODO: Move these 2 methods to a class common with AbstractProtobufOperation
+    bool receiveMessage(const pb_msgdesc_t *fields, void *msg);
+    static bool inputCallback(pb_istream_t *stream, pb_byte_t *buf, size_t count);
+
     DeviceState *m_deviceState;
     QSerialPort *m_serialPort;
 
-    QByteArray m_dataBuffer;
     QByteArray m_screenData;
-
     bool m_isEnabled;
-    bool m_isHeaderFound;
 };
 
 }

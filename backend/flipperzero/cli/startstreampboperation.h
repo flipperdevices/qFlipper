@@ -18,8 +18,6 @@ private slots:
 
 private:
     bool begin() override;
-
-    QByteArray m_receivedData;
 };
 
 }
