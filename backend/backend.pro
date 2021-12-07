@@ -23,7 +23,7 @@ SOURCES += \
     flipperzero/cli/factoryresetclioperation.cpp \
     flipperzero/cli/rebootoperation.cpp \
     flipperzero/cli/startrpcoperation.cpp \
-    flipperzero/cli/startstreampboperation.cpp \
+    flipperzero/cli/startstreamoperation.cpp \
     flipperzero/commandinterface.cpp \
     flipperzero/cli/skipmotdoperation.cpp \
     flipperzero/devicestate.cpp \
@@ -39,6 +39,7 @@ SOURCES += \
     flipperzero/protobuf/gui.pb.c \
     flipperzero/protobuf/status.pb.c \
     flipperzero/protobuf/storage.pb.c \
+    flipperzero/protobufmessage.cpp \
     flipperzero/radiomanifest.cpp \
     flipperzero/recovery.cpp \
     flipperzero/recovery/abstractrecoveryoperation.cpp \
@@ -90,6 +91,7 @@ HEADERS += \
     abstractoperation.h \
     abstractoperationhelper.h \
     abstractoperationrunner.h \
+    abstractprotobufmessage.h \
     abstractprotobufoperation.h \
     abstractserialoperation.h \
     deviceregistry.h \
@@ -103,7 +105,7 @@ HEADERS += \
     flipperzero/cli/factoryresetclioperation.h \
     flipperzero/cli/rebootoperation.h \
     flipperzero/cli/startrpcoperation.h \
-    flipperzero/cli/startstreampboperation.h \
+    flipperzero/cli/startstreamoperation.h \
     flipperzero/commandinterface.h \
     flipperzero/cli/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
@@ -120,6 +122,7 @@ HEADERS += \
     flipperzero/protobuf/gui.pb.h \
     flipperzero/protobuf/status.pb.h \
     flipperzero/protobuf/storage.pb.h \
+    flipperzero/protobufmessage.h \
     flipperzero/radiomanifest.h \
     flipperzero/recovery.h \
     flipperzero/recovery/abstractrecoveryoperation.h \

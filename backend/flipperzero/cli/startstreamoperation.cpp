@@ -1,4 +1,4 @@
-#include "startstreampboperation.h"
+#include "startstreamoperation.h"
 
 #include <QDebug>
 #include <QTimer>
@@ -11,16 +11,16 @@
 using namespace Flipper;
 using namespace Zero;
 
-StartStreamPBOperation::StartStreamPBOperation(QSerialPort *serialPort, QObject *parent):
+StartStreamOperation::StartStreamOperation(QSerialPort *serialPort, QObject *parent):
     AbstractProtobufOperation(serialPort, parent)
 {}
 
-const QString StartStreamPBOperation::description() const
+const QString StartStreamOperation::description() const
 {
     return QStringLiteral("Start Screen Streaming (protobuf) @%1").arg(serialPort()->portName());
 }
 
-void StartStreamPBOperation::onSerialPortReadyRead()
+void StartStreamOperation::onSerialPortReadyRead()
 {
     PB_Main msg = PB_Main_init_default;
 
@@ -38,7 +38,7 @@ void StartStreamPBOperation::onSerialPortReadyRead()
     pb_release(&PB_Main_msg, &msg);
 }
 
-bool StartStreamPBOperation::begin()
+bool StartStreamOperation::begin()
 {
     PB_Main msg = PB_Main_init_default;
     msg.which_content = PB_Main_gui_start_screen_stream_request_tag;

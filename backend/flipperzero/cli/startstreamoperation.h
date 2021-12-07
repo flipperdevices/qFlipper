@@ -5,12 +5,12 @@
 namespace Flipper {
 namespace Zero {
 
-class StartStreamPBOperation : public AbstractProtobufOperation
+class StartStreamOperation : public AbstractProtobufOperation
 {
     Q_OBJECT
 
 public:
-    StartStreamPBOperation(QSerialPort *serialPort, QObject *parent = nullptr);
+    StartStreamOperation(QSerialPort *serialPort, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:

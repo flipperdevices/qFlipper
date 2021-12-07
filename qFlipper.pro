@@ -7,4 +7,4 @@ SUBDIRS += \
     dfu \
 
 backend.depends = dfu 3rdparty
-application.depends = dfu backend 3rdparty
+application.depends = dfu 3rdparty backend
