@@ -1,9 +1,9 @@
-#include "protobufmessage.h"
+#include "mainprotobufmessage.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-ProtobufMessage::ProtobufMessage(QSerialPort *serialPort):
+MainProtobufMessage::MainProtobufMessage(QSerialPort *serialPort):
     AbstractProtobufMessage<PB_Main>(&PB_Main_msg, PB_Main_init_default, serialPort)
 {}
 
@@ -11,27 +11,27 @@ ProtobufMessage::ProtobufMessage(QSerialPort *serialPort):
 //{
 //}
 
-bool ProtobufMessage::hasNext() const
+bool MainProtobufMessage::hasNext() const
 {
     return payload()->has_next;
 }
 
-uint32_t ProtobufMessage::commandId() const
+uint32_t MainProtobufMessage::commandId() const
 {
     return payload()->command_id;
 }
 
-pb_size_t ProtobufMessage::whichContent() const
+pb_size_t MainProtobufMessage::whichContent() const
 {
     return payload()->which_content;
 }
 
-PB_CommandStatus ProtobufMessage::commandStatus() const
+PB_CommandStatus MainProtobufMessage::commandStatus() const
 {
     return payload()->command_status;
 }
 
-const QByteArray ProtobufMessage::screenFrame() const
+const QByteArray MainProtobufMessage::screenFrame() const
 {
     const auto *data = payload()->content.gui_screen_frame.data;
     return QByteArray((const char*)data->bytes, data->size);

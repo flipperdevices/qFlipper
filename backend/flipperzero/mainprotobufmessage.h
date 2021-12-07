@@ -7,10 +7,10 @@
 namespace Flipper {
 namespace Zero {
 
-class ProtobufMessage : public AbstractProtobufMessage<PB_Main>
+class MainProtobufMessage : public AbstractProtobufMessage<PB_Main>
 {
 public:
-    ProtobufMessage(QSerialPort *serialPort);
+    MainProtobufMessage(QSerialPort *serialPort);
 
 //    static ProtobufMessage startScreenStream();
 

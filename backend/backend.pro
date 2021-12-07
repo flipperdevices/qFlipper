@@ -34,12 +34,12 @@ SOURCES += \
     flipperzero/helper/firmwarehelper.cpp \
     flipperzero/helper/radiomanifesthelper.cpp \
     flipperzero/helper/scriptshelper.cpp \
+    flipperzero/mainprotobufmessage.cpp \
     flipperzero/protobuf/application.pb.c \
     flipperzero/protobuf/flipper.pb.c \
     flipperzero/protobuf/gui.pb.c \
     flipperzero/protobuf/status.pb.c \
     flipperzero/protobuf/storage.pb.c \
-    flipperzero/protobufmessage.cpp \
     flipperzero/radiomanifest.cpp \
     flipperzero/recovery.cpp \
     flipperzero/recovery/abstractrecoveryoperation.cpp \
@@ -117,12 +117,12 @@ HEADERS += \
     flipperzero/helper/firmwarehelper.h \
     flipperzero/helper/radiomanifesthelper.h \
     flipperzero/helper/scriptshelper.h \
+    flipperzero/mainprotobufmessage.h \
     flipperzero/protobuf/application.pb.h \
     flipperzero/protobuf/flipper.pb.h \
     flipperzero/protobuf/gui.pb.h \
     flipperzero/protobuf/status.pb.h \
     flipperzero/protobuf/storage.pb.h \
-    flipperzero/protobufmessage.h \
     flipperzero/radiomanifest.h \
     flipperzero/recovery.h \
     flipperzero/recovery/abstractrecoveryoperation.h \

@@ -8,7 +8,7 @@
 #include "cli/startrpcoperation.h"
 #include "cli/startstreamoperation.h"
 
-#include "protobufmessage.h"
+#include "mainprotobufmessage.h"
 #include "devicestate.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_SCREEN, "SCREEN")
@@ -90,7 +90,7 @@ void ScreenStreamer::createPort()
 
 void ScreenStreamer::onPortReadyRead()
 {
-    ProtobufMessage msg(m_serialPort);
+    MainProtobufMessage msg(m_serialPort);
 
     if(!msg.receive()) {
         // TODO: Distinguish incomplete mesages and broken session
