@@ -40,6 +40,7 @@ SOURCES += \
     flipperzero/protobuf/gui.pb.c \
     flipperzero/protobuf/status.pb.c \
     flipperzero/protobuf/storage.pb.c \
+    flipperzero/protobuf/system.pb.c \
     flipperzero/radiomanifest.cpp \
     flipperzero/recovery.cpp \
     flipperzero/recovery/abstractrecoveryoperation.cpp \
@@ -123,6 +124,7 @@ HEADERS += \
     flipperzero/protobuf/gui.pb.h \
     flipperzero/protobuf/status.pb.h \
     flipperzero/protobuf/storage.pb.h \
+    flipperzero/protobuf/system.pb.h \
     flipperzero/radiomanifest.h \
     flipperzero/recovery.h \
     flipperzero/recovery/abstractrecoveryoperation.h \
