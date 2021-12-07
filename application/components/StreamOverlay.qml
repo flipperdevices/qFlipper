@@ -134,12 +134,12 @@ AbstractOverlay {
         onTriggered: fileDialog.open()
     }
 
-//    Action {
-//        id: copyAction
-//        text: qsTr("Copy to clipboard")
-//        shortcut: "Ctrl+C"
-//        enabled: overlay.enabled
-//        onTriggered: canvas.copyToClipboard(resolutionCombo.currentValue)
-//    }
+    Action {
+        id: copyAction
+        text: qsTr("Copy to clipboard")
+        shortcut: "Ctrl+C"
+        enabled: overlay.enabled
+        onTriggered: canvas.copyToClipboard(4)
+    }
 
 }
