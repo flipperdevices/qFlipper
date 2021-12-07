@@ -3,36 +3,65 @@
 using namespace Flipper;
 using namespace Zero;
 
-MainProtobufMessage::MainProtobufMessage(QSerialPort *serialPort):
-    AbstractProtobufMessage<PB_Main>(&PB_Main_msg, PB_Main_init_default, serialPort)
+AbstractMainProtobufRequest::AbstractMainProtobufRequest(QSerialPort *serialPort):
+    AbstractProtobufRequest<PB_Main>(&PB_Main_msg, serialPort)
 {}
 
-//ProtobufMessage ProtobufMessage::startScreenStream()
-//{
-//}
+AbstractMainProtobufResponse::AbstractMainProtobufResponse(QSerialPort *serialPort):
+    AbstractProtobufResponse<PB_Main>(&PB_Main_msg, serialPort)
+{}
 
-bool MainProtobufMessage::hasNext() const
+AbstractMainProtobufResponse::~AbstractMainProtobufResponse()
+{}
+
+bool AbstractMainProtobufResponse::hasNext() const
 {
-    return payload()->has_next;
+    return pbMessage()->has_next;
 }
 
-uint32_t MainProtobufMessage::commandId() const
+PB_CommandStatus AbstractMainProtobufResponse::commandStatus() const
 {
-    return payload()->command_id;
+    return pbMessage()->command_status;
 }
 
-pb_size_t MainProtobufMessage::whichContent() const
+quint32 AbstractMainProtobufResponse::whichContent() const
 {
-    return payload()->which_content;
+    return pbMessage()->which_content;
 }
 
-PB_CommandStatus MainProtobufMessage::commandStatus() const
+bool AbstractMainProtobufResponse::isOk() const
 {
-    return payload()->command_status;
+    return commandStatus() == PB_CommandStatus_OK;
 }
 
-const QByteArray MainProtobufMessage::screenFrame() const
+EmptyResponse::EmptyResponse(QSerialPort *serialPort):
+    AbstractMainProtobufResponse(serialPort)
+{}
+
+bool EmptyResponse::isValidType() const
 {
-    const auto *data = payload()->content.gui_screen_frame.data;
+    return whichContent() == PB_Main_empty_tag;
+}
+
+GuiScreenFrameResponse::GuiScreenFrameResponse(QSerialPort *serialPort):
+    AbstractMainProtobufResponse(serialPort)
+{}
+
+const QByteArray GuiScreenFrameResponse::screenFrame() const
+{
+    const auto *data = pbMessage()->content.gui_screen_frame.data;
     return QByteArray((const char*)data->bytes, data->size);
 }
+
+bool GuiScreenFrameResponse::isValidType() const
+{
+    return whichContent() == PB_Main_gui_screen_frame_tag;
+}
+
+GuiStartScreenStreamRequest::GuiStartScreenStreamRequest(QSerialPort *serialPort):
+    AbstractMainProtobufRequest(serialPort)
+{
+    pbMessage()->which_content = PB_Main_gui_start_screen_stream_request_tag;
+    pbMessage()->content.gui_start_screen_stream_request = PB_Gui_StartScreenStreamRequest_init_default;
+}
+

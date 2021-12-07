@@ -1,6 +1,5 @@
 #include "startrpcoperation.h"
 
-#include <QTimer>
 #include <QSerialPort>
 
 using namespace Flipper;

@@ -90,17 +90,17 @@ void ScreenStreamer::createPort()
 
 void ScreenStreamer::onPortReadyRead()
 {
-    MainProtobufMessage msg(m_serialPort);
+    GuiScreenFrameResponse msg(m_serialPort);
 
     if(!msg.receive()) {
         // TODO: Distinguish incomplete mesages and broken session
         return;
 
-    } else if(msg.commandStatus() != PB_CommandStatus_OK) {
+    } else if(!msg.isOk()) {
         qCCritical(CATEGORY_SCREEN) << "Device replied with error:" << msg.commandStatus();
         setEnabled(false);
 
-    } else if(msg.whichContent() != PB_Main_gui_screen_frame_tag) {
+    } else if(!msg.isValidType()) {
         qCCritical(CATEGORY_SCREEN) << "Expected screen frame, got something else:" << msg.whichContent();
         setEnabled(false);
 
