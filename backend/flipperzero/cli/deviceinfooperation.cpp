@@ -2,7 +2,7 @@
 
 #include <QSerialPort>
 
-#include "flipperzero/mainprotobufmessage.h"
+#include "flipperzero/protobuf/systemprotobufmessage.h"
 
 using namespace Flipper;
 using namespace Zero;

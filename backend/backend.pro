@@ -24,6 +24,7 @@ SOURCES += \
     flipperzero/cli/rebootoperation.cpp \
     flipperzero/cli/startrpcoperation.cpp \
     flipperzero/cli/startstreamoperation.cpp \
+    flipperzero/cli/stoprpcoperation.cpp \
     flipperzero/commandinterface.cpp \
     flipperzero/cli/skipmotdoperation.cpp \
     flipperzero/devicestate.cpp \
@@ -34,13 +35,16 @@ SOURCES += \
     flipperzero/helper/firmwarehelper.cpp \
     flipperzero/helper/radiomanifesthelper.cpp \
     flipperzero/helper/scriptshelper.cpp \
-    flipperzero/mainprotobufmessage.cpp \
-    flipperzero/protobuf/application.pb.c \
-    flipperzero/protobuf/flipper.pb.c \
-    flipperzero/protobuf/gui.pb.c \
-    flipperzero/protobuf/status.pb.c \
-    flipperzero/protobuf/storage.pb.c \
-    flipperzero/protobuf/system.pb.c \
+    flipperzero/protobuf/guiprotobufmessage.cpp \
+    flipperzero/protobuf/mainprotobufmessage.cpp \
+    flipperzero/protobuf/messages/application.pb.c \
+    flipperzero/protobuf/messages/flipper.pb.c \
+    flipperzero/protobuf/messages/gui.pb.c \
+    flipperzero/protobuf/messages/status.pb.c \
+    flipperzero/protobuf/messages/storage.pb.c \
+    flipperzero/protobuf/messages/system.pb.c \
+    flipperzero/protobuf/storageprotobufmessage.cpp \
+    flipperzero/protobuf/systemprotobufmessage.cpp \
     flipperzero/radiomanifest.cpp \
     flipperzero/recovery.cpp \
     flipperzero/recovery/abstractrecoveryoperation.cpp \
@@ -107,6 +111,7 @@ HEADERS += \
     flipperzero/cli/rebootoperation.h \
     flipperzero/cli/startrpcoperation.h \
     flipperzero/cli/startstreamoperation.h \
+    flipperzero/cli/stoprpcoperation.h \
     flipperzero/commandinterface.h \
     flipperzero/cli/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
@@ -118,13 +123,16 @@ HEADERS += \
     flipperzero/helper/firmwarehelper.h \
     flipperzero/helper/radiomanifesthelper.h \
     flipperzero/helper/scriptshelper.h \
-    flipperzero/mainprotobufmessage.h \
-    flipperzero/protobuf/application.pb.h \
-    flipperzero/protobuf/flipper.pb.h \
-    flipperzero/protobuf/gui.pb.h \
-    flipperzero/protobuf/status.pb.h \
-    flipperzero/protobuf/storage.pb.h \
-    flipperzero/protobuf/system.pb.h \
+    flipperzero/protobuf/guiprotobufmessage.h \
+    flipperzero/protobuf/mainprotobufmessage.h \
+    flipperzero/protobuf/messages/application.pb.h \
+    flipperzero/protobuf/messages/flipper.pb.h \
+    flipperzero/protobuf/messages/gui.pb.h \
+    flipperzero/protobuf/messages/status.pb.h \
+    flipperzero/protobuf/messages/storage.pb.h \
+    flipperzero/protobuf/messages/system.pb.h \
+    flipperzero/protobuf/storageprotobufmessage.h \
+    flipperzero/protobuf/systemprotobufmessage.h \
     flipperzero/radiomanifest.h \
     flipperzero/recovery.h \
     flipperzero/recovery/abstractrecoveryoperation.h \

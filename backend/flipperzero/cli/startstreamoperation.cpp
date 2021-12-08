@@ -2,7 +2,7 @@
 
 #include <QSerialPort>
 
-#include "flipperzero/mainprotobufmessage.h"
+#include "flipperzero/protobuf/guiprotobufmessage.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -18,7 +18,7 @@ const QString StartStreamOperation::description() const
 
 void StartStreamOperation::onSerialPortReadyRead()
 {
-    EmptyResponse response(serialPort());
+    MainEmptyResponse response(serialPort());
 
     if(!response.receive()) {
         return;

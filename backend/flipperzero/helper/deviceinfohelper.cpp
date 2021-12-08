@@ -8,6 +8,7 @@
 #include "flipperzero/cli/deviceinfooperation.h"
 #include "flipperzero/cli/skipmotdoperation.h"
 #include "flipperzero/cli/startrpcoperation.h"
+#include "flipperzero/cli/stoprpcoperation.h"
 #include "flipperzero/cli/statoperation.h"
 #include "flipperzero/factoryinfo.h"
 
@@ -72,9 +73,9 @@ void VCPDeviceInfoHelper::nextStateLogic()
         fetchDeviceInfo();
 
     } else if(state() == VCPDeviceInfoHelper::FetchingDeviceInfo) {
-        setState(VCPDeviceInfoHelper::CheckingSDCard);
-        qDebug() << "Hello there!";
-        closePortAndFinish();
+        setState(VCPDeviceInfoHelper::StoppingRPCSession);
+        stopRPCSession();
+//        setState(VCPDeviceInfoHelper::CheckingSDCard);
 //        checkSDCard();
 
     } else if(state() == VCPDeviceInfoHelper::CheckingSDCard) {
@@ -82,6 +83,10 @@ void VCPDeviceInfoHelper::nextStateLogic()
         checkManifest();
 
     } else if(state() == VCPDeviceInfoHelper::CheckingManifest) {
+        setState(VCPDeviceInfoHelper::StoppingRPCSession);
+        stopRPCSession();
+
+    } else if(state() == VCPDeviceInfoHelper::StoppingRPCSession) {
         closePortAndFinish();
     }
 }
@@ -118,6 +123,8 @@ void VCPDeviceInfoHelper::skipMOTD()
         } else {
             advanceState();
         }
+
+        operation->deleteLater();
     });
 
     operation->start();
@@ -132,6 +139,8 @@ void VCPDeviceInfoHelper::startRPCSession()
         } else {
             advanceState();
         }
+
+        operation->deleteLater();
     });
 
     operation->start();
@@ -190,6 +199,8 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
         } else {
             advanceState();
         }
+
+        operation->deleteLater();
     });
 
     operation->start();
@@ -213,6 +224,8 @@ void VCPDeviceInfoHelper::checkSDCard()
             m_deviceInfo.storage.externalFree = floor((double)operation->sizeFree() * 100.0 / (double)operation->size());
             advanceState();
         }
+
+        operation->deleteLater();
     });
 
     operation->start();
@@ -230,6 +243,25 @@ void VCPDeviceInfoHelper::checkManifest()
             m_deviceInfo.storage.isAssetsInstalled = (operation->type() == StatOperation::Type::RegularFile);
             advanceState();
         }
+
+        operation->deleteLater();
+    });
+
+    operation->start();
+}
+
+void VCPDeviceInfoHelper::stopRPCSession()
+{
+    auto *operation = new StopRPCOperation(m_serialPort, this);
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(operation->errorString());
+        } else {
+            advanceState();
+        }
+
+        operation->deleteLater();
     });
 
     operation->start();

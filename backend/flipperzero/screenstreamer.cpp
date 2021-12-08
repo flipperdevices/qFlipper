@@ -8,7 +8,7 @@
 #include "cli/startrpcoperation.h"
 #include "cli/startstreamoperation.h"
 
-#include "mainprotobufmessage.h"
+#include "protobuf/guiprotobufmessage.h"
 #include "devicestate.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_SCREEN, "SCREEN")
@@ -148,7 +148,7 @@ void ScreenStreamer::skipMOTD()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            qCDebug(CATEGORY_SCREEN).noquote() << "Failed to initiate Screen Streaming:" << operation->errorString();
+            qCDebug(CATEGORY_SCREEN).noquote() << "Failed to initiate screen streaming: Failed to skip MOTD:" << operation->errorString();
         } else {
             startRPCSession();
         }
@@ -165,7 +165,7 @@ void ScreenStreamer::startRPCSession()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            qCDebug(CATEGORY_SCREEN).noquote() << "Failed to initiate Screen Streaming:" << operation->errorString();
+            qCDebug(CATEGORY_SCREEN).noquote() << "Failed to initiate screen streaming: Failed to start RPC session:" << operation->errorString();
         } else {
             startScreenStream();
         }
@@ -182,7 +182,7 @@ void ScreenStreamer::startScreenStream()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            qCDebug(CATEGORY_SCREEN).noquote() << "Failed to initiate Screen Streaming:" << operation->errorString();
+            qCDebug(CATEGORY_SCREEN).noquote() << "Failed to initiate Screen Streaming: Failed to execute StartStreamOperation:" << operation->errorString();
         } else {
             connect(m_serialPort, &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
             connect(m_serialPort, &QSerialPort::errorOccurred, this, &ScreenStreamer::onPortErrorOccured);
