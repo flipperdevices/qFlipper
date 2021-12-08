@@ -31,6 +31,7 @@ class VCPDeviceInfoHelper : public AbstractDeviceInfoHelper
     enum OperationState {
         FindingSerialPort = AbstractOperationHelper::User,
         SkippingMOTD,
+        StartingRPCSession,
         FetchingDeviceInfo,
         CheckingSDCard,
         CheckingManifest
@@ -45,6 +46,7 @@ private:
 
     void findSerialPort();
     void skipMOTD();
+    void startRPCSession();
     void fetchDeviceInfo();
     void checkSDCard();
     void checkManifest();

@@ -7,6 +7,7 @@
 
 #include "flipperzero/cli/deviceinfooperation.h"
 #include "flipperzero/cli/skipmotdoperation.h"
+#include "flipperzero/cli/startrpcoperation.h"
 #include "flipperzero/cli/statoperation.h"
 #include "flipperzero/factoryinfo.h"
 
@@ -63,12 +64,18 @@ void VCPDeviceInfoHelper::nextStateLogic()
         skipMOTD();
 
     } else if(state() == VCPDeviceInfoHelper::SkippingMOTD) {
+        setState(VCPDeviceInfoHelper::StartingRPCSession);
+        startRPCSession();
+
+    } else if(state() == VCPDeviceInfoHelper::StartingRPCSession) {
         setState(VCPDeviceInfoHelper::FetchingDeviceInfo);
         fetchDeviceInfo();
 
     } else if(state() == VCPDeviceInfoHelper::FetchingDeviceInfo) {
         setState(VCPDeviceInfoHelper::CheckingSDCard);
-        checkSDCard();
+        qDebug() << "Hello there!";
+        closePortAndFinish();
+//        checkSDCard();
 
     } else if(state() == VCPDeviceInfoHelper::CheckingSDCard) {
         setState(VCPDeviceInfoHelper::CheckingManifest);
@@ -116,6 +123,20 @@ void VCPDeviceInfoHelper::skipMOTD()
     operation->start();
 }
 
+void VCPDeviceInfoHelper::startRPCSession()
+{
+    auto *operation = new StartRPCOperation(m_serialPort, this);
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(operation->errorString());
+        } else {
+            advanceState();
+        }
+    });
+
+    operation->start();
+}
+
 void VCPDeviceInfoHelper::fetchDeviceInfo()
 {
     auto *operation = new DeviceInfoOperation(m_serialPort, this);
@@ -123,22 +144,51 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(operation->errorString());
+            return;
+        }
 
+        m_deviceInfo.name = operation->result(QByteArrayLiteral("hardware_name"));
+
+        m_deviceInfo.bootloader = {
+            .version = operation->result(QByteArrayLiteral("bootloader_version")),
+            .commit = operation->result(QByteArrayLiteral("bootloader_commit")),
+            .branch = operation->result(QByteArrayLiteral("bootloader_branch")),
+            .date = QDateTime::fromString(operation->result(QByteArrayLiteral("bootloader_build_date")), "MM-dd-yyyy").date()
+        };
+
+        m_deviceInfo.firmware = {
+            .version = operation->result(QByteArrayLiteral("firmware_version")),
+            .commit = operation->result(QByteArrayLiteral("firmware_commit")),
+            .branch = operation->result(QByteArrayLiteral("firmware_branch")),
+            .date = QDateTime::fromString(operation->result(QByteArrayLiteral("firmware_build_date")), "MM-dd-yyyy").date()
+        };
+
+        m_deviceInfo.hardware = {
+            .version = operation->result(QByteArrayLiteral("hardware_ver")),
+            .target = QByteArrayLiteral("f") + operation->result(QByteArrayLiteral("hardware_target")),
+            .body = QByteArrayLiteral("b") + operation->result(QByteArrayLiteral("hardware_body")),
+            .connect = QByteArrayLiteral("c") + operation->result(QByteArrayLiteral("hardware_connect")),
+            .color = (HardwareInfo::Color)operation->result(QByteArrayLiteral("hardware_color")).toInt(),
+        };
+
+        m_deviceInfo.fusVersion = QStringLiteral("%1.%2.%3").arg(
+            operation->result(QByteArrayLiteral("radio_fus_major")),
+            operation->result(QByteArrayLiteral("radio_fus_minor")),
+            operation->result(QByteArrayLiteral("radio_fus_sub")));
+
+        m_deviceInfo.radioVersion = QStringLiteral("%1.%2.%3").arg(
+            operation->result(QByteArrayLiteral("radio_stack_major")),
+            operation->result(QByteArrayLiteral("radio_stack_minor")),
+            operation->result(QByteArrayLiteral("radio_stack_sub")));
+
+        // Temporary
+        m_deviceInfo.storage.isExternalPresent = false;
+        m_deviceInfo.storage.isAssetsInstalled = false;
+
+        if(m_deviceInfo.name.isEmpty()) {
+            finishWithError(QStringLiteral("Failed to read device information"));
         } else {
-            // TODO: Is there a better way to do this?
-            const auto &info = operation->result();
-            m_deviceInfo.name = info.name;
-            m_deviceInfo.bootloader = info.bootloader;
-            m_deviceInfo.firmware = info.firmware;
-            m_deviceInfo.hardware = info.hardware;
-            m_deviceInfo.fusVersion = info.fusVersion;
-            m_deviceInfo.radioVersion = info.radioVersion;
-
-            if(m_deviceInfo.name.isEmpty()) {
-                finishWithError(QStringLiteral("Failed to read device factory information"));
-            } else {
-                advanceState();
-            }
+            advanceState();
         }
     });
 

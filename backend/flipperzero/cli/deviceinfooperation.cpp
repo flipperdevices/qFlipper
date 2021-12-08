@@ -1,13 +1,14 @@
 #include "deviceinfooperation.h"
 
-#include <QBuffer>
 #include <QSerialPort>
+
+#include "flipperzero/mainprotobufmessage.h"
 
 using namespace Flipper;
 using namespace Zero;
 
 DeviceInfoOperation::DeviceInfoOperation(QSerialPort *serialPort, QObject *parent):
-    SimpleSerialOperation(serialPort, parent)
+    AbstractProtobufOperation(serialPort, parent)
 {}
 
 const QString DeviceInfoOperation::description() const
@@ -15,104 +16,37 @@ const QString DeviceInfoOperation::description() const
     return QStringLiteral("Device Info @%1").arg(QString(serialPort()->portName()));
 }
 
-const DeviceInfo &DeviceInfoOperation::result() const
+const QByteArray DeviceInfoOperation::result(const QByteArray &key) const
 {
-    return m_deviceInfo;
+    return m_data.value(key);
 }
 
-QByteArray DeviceInfoOperation::endOfMessageToken() const
+void DeviceInfoOperation::onSerialPortReadyRead()
 {
-    return QByteArrayLiteral("\r\n\r\n>: \a");
-}
+    for(;;) {
+        SystemDeviceInfoResponse response(serialPort());
 
-QByteArray DeviceInfoOperation::commandLine() const
-{
-    return QByteArrayLiteral("device_info\r\n");
-}
+        if(!response.receive()) {
+            return;
+        } else if(!response.isOk()) {
+            finishWithError(QStringLiteral("Device replied with an error response"));
+            return;
+        } else if(!response.isValidType()) {
+            finishWithError(QStringLiteral("Expected empty reply, got something else"));
+            return;
+        }
 
-bool DeviceInfoOperation::parseReceivedData()
-{
-    QBuffer buf;
+        m_data.insert(response.key(), response.value());
 
-    if(!buf.open(QIODevice::ReadWrite)) {
-        finishWithError(buf.errorString());
-        return false;
+        if(!response.hasNext()) {
+            finish();
+            return;
+        }
     }
-
-    buf.write(receivedData());
-    buf.seek(0);
-
-    m_deviceInfo.fusVersion = QStringLiteral("0.0.0");
-    m_deviceInfo.radioVersion = QStringLiteral("0.0.0");
-
-    while(buf.canReadLine()) {
-        parseLine(buf.readLine());
-    }
-
-    buf.close();
-    return true;
 }
 
-void DeviceInfoOperation::parseLine(const QByteArray &line)
+bool DeviceInfoOperation::begin()
 {
-    // TODO: Add more fields
-    if(line.count(':') != 1) {
-        return;
-    }
-
-    const auto validx = line.indexOf(':');
-    const auto key = line.left(validx).trimmed();
-    const auto value = line.mid(validx + 1).trimmed();
-
-    if(key == QByteArrayLiteral("hardware_name")) {
-        m_deviceInfo.name = value;
-    } else if(key == QByteArrayLiteral("hardware_target")) {
-        m_deviceInfo.hardware.target = QStringLiteral("f") + value;
-    } else if(key == QByteArrayLiteral("hardware_ver")) {
-        m_deviceInfo.hardware.version = value;
-    } else if(key == QByteArrayLiteral("hardware_body")) {
-        m_deviceInfo.hardware.body = QStringLiteral("b") + value;
-    } else if(key == QByteArrayLiteral("hardware_connect")) {
-        m_deviceInfo.hardware.connect = QStringLiteral("c") + value;
-    } else if(key == QByteArrayLiteral("hardware_color")) {
-        m_deviceInfo.hardware.color = (HardwareInfo::Color)value.toInt();
-    } else if(key == QByteArrayLiteral("firmware_version")) {
-        m_deviceInfo.firmware.version = value;
-    } else if(key == QByteArrayLiteral("firmware_commit")) {
-        m_deviceInfo.firmware.commit = value;
-    } else if(key == QByteArrayLiteral("firmware_branch")) {
-        m_deviceInfo.firmware.branch = value;
-    } else if(key == QByteArrayLiteral("firmware_build_date")) {
-        m_deviceInfo.firmware.date = QDate::fromString(value, QStringLiteral("dd-MM-yyyy"));
-
-    } else if(key == QByteArrayLiteral("radio_stack_major")) {
-        auto fields = m_deviceInfo.radioVersion.split('.');
-        fields.replace(0, value);
-        m_deviceInfo.radioVersion = fields.join('.');
-
-    } else if(key == QByteArrayLiteral("radio_stack_minor")) {
-        auto fields = m_deviceInfo.radioVersion.split('.');
-        fields.replace(1, value);
-        m_deviceInfo.radioVersion = fields.join('.');
-
-    } else if(key == QByteArrayLiteral("radio_stack_sub")) {
-        auto fields = m_deviceInfo.radioVersion.split('.');
-        fields.replace(2, value);
-        m_deviceInfo.radioVersion = fields.join('.');
-
-    } else if(key == QByteArrayLiteral("radio_fus_major")) {
-        auto fields = m_deviceInfo.fusVersion.split('.');
-        fields.replace(0, value);
-        m_deviceInfo.fusVersion = fields.join('.');
-
-    } else if(key == QByteArrayLiteral("radio_fus_minor")) {
-        auto fields = m_deviceInfo.fusVersion.split('.');
-        fields.replace(1, value);
-        m_deviceInfo.fusVersion = fields.join('.');
-
-    } else if(key == QByteArrayLiteral("radio_fus_sub")) {
-        auto fields = m_deviceInfo.fusVersion.split('.');
-        fields.replace(2, value);
-        m_deviceInfo.fusVersion = fields.join('.');
-    } else {}
+    SystemDeviceInfoRequest request(serialPort());
+    return request.send();
 }
