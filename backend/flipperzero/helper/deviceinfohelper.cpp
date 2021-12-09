@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QSerialPort>
 
+#include "flipperzero/cli/storageinfooperation.h"
 #include "flipperzero/cli/deviceinfooperation.h"
 #include "flipperzero/cli/skipmotdoperation.h"
 #include "flipperzero/cli/startrpcoperation.h"
@@ -73,14 +74,16 @@ void VCPDeviceInfoHelper::nextStateLogic()
         fetchDeviceInfo();
 
     } else if(state() == VCPDeviceInfoHelper::FetchingDeviceInfo) {
-        setState(VCPDeviceInfoHelper::StoppingRPCSession);
-        stopRPCSession();
-//        setState(VCPDeviceInfoHelper::CheckingSDCard);
-//        checkSDCard();
+//        setState(VCPDeviceInfoHelper::StoppingRPCSession);
+//        stopRPCSession();
+        setState(VCPDeviceInfoHelper::CheckingSDCard);
+        checkSDCard();
 
     } else if(state() == VCPDeviceInfoHelper::CheckingSDCard) {
-        setState(VCPDeviceInfoHelper::CheckingManifest);
-        checkManifest();
+//        setState(VCPDeviceInfoHelper::CheckingManifest);
+//        checkManifest();
+        setState(VCPDeviceInfoHelper::StoppingRPCSession);
+        stopRPCSession();
 
     } else if(state() == VCPDeviceInfoHelper::CheckingManifest) {
         setState(VCPDeviceInfoHelper::StoppingRPCSession);
@@ -208,20 +211,21 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
 
 void VCPDeviceInfoHelper::checkSDCard()
 {
-    auto *operation = new StatOperation(m_serialPort, QByteArrayLiteral("/ext"), this);
+    auto *operation = new StorageInfoOperation(m_serialPort, QByteArrayLiteral("/ext"), this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(operation->errorString());
 
-        } else if(operation->type() != StatOperation::Type::Storage) {
+        } else if(!operation->isPresent()) {
             m_deviceInfo.storage.isExternalPresent = false;
             m_deviceInfo.storage.isAssetsInstalled = false;
             closePortAndFinish();
 
         } else {
             m_deviceInfo.storage.isExternalPresent = true;
-            m_deviceInfo.storage.externalFree = floor((double)operation->sizeFree() * 100.0 / (double)operation->size());
+            m_deviceInfo.storage.externalFree = floor((double)operation->sizeFree() * 100.0 /
+                                                      (double)operation->sizeTotal());
             advanceState();
         }
 

@@ -19,6 +19,7 @@ class MkDirOperation;
 class WriteOperation;
 class RemoveOperation;
 class RebootOperation;
+class StopRPCOperation;
 class StartRPCOperation;
 class FactoryResetCliOperation;
 
@@ -31,6 +32,7 @@ public:
 
     RebootOperation *reboot();
     DFUOperation *startRecoveryMode();
+    StopRPCOperation *stopRPCSession();
     StartRPCOperation *startRPCSession();
     FactoryResetCliOperation *factoryReset();
 
@@ -40,7 +42,6 @@ public:
     MkDirOperation *mkdir(const QByteArray &dirName);
     WriteOperation *write(const QByteArray &fileName, QIODevice *file);
     RemoveOperation *remove(const QByteArray &fileName);
-
 
 private:
     bool onQueueStarted() override;

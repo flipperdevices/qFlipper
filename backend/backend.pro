@@ -25,6 +25,7 @@ SOURCES += \
     flipperzero/cli/startrpcoperation.cpp \
     flipperzero/cli/startstreamoperation.cpp \
     flipperzero/cli/stoprpcoperation.cpp \
+    flipperzero/cli/storageinfooperation.cpp \
     flipperzero/commandinterface.cpp \
     flipperzero/cli/skipmotdoperation.cpp \
     flipperzero/devicestate.cpp \
@@ -112,6 +113,7 @@ HEADERS += \
     flipperzero/cli/startrpcoperation.h \
     flipperzero/cli/startstreamoperation.h \
     flipperzero/cli/stoprpcoperation.h \
+    flipperzero/cli/storageinfooperation.h \
     flipperzero/commandinterface.h \
     flipperzero/cli/skipmotdoperation.h \
     flipperzero/deviceinfo.h \

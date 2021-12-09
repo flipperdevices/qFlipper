@@ -127,6 +127,7 @@ bool CommandInterface::onQueueStarted()
         qCCritical(CATEGORY_CLI).noquote() <<  "Serial port error:" << m_serialPort->errorString();
     } else {
         enqueueOperation(new SkipMOTDOperation(m_serialPort, this));
+//        enqueueOperation(new StartRPCOperation(m_serialPort, this));
     }
 
     return success;

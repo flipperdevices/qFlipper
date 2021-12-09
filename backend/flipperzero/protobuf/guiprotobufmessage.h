@@ -5,22 +5,23 @@
 namespace Flipper {
 namespace Zero {
 
-class GuiStartScreenStreamRequest : public AbstractMainProtobufRequest
+class GuiStartScreenStreamRequest:
+public AbstractMainProtobufRequest<PB_Main_gui_start_screen_stream_request_tag>
 {
 public:
     GuiStartScreenStreamRequest(QSerialPort *serialPort);
 };
 
-class GuiScreenFrameResponse : public AbstractMainProtobufResponse
+class GuiScreenFrameResponse:
+public AbstractMainProtobufResponse<PB_Main_gui_screen_frame_tag>
 {
 public:
     GuiScreenFrameResponse(QSerialPort *serialPort);
     const QByteArray screenFrame() const;
-
-    bool isValidType() const override;
 };
 
-class GuiSendInputRequest : public AbstractMainProtobufRequest
+class GuiSendInputRequest:
+public AbstractMainProtobufRequest<PB_Main_gui_send_input_event_request_tag>
 {
 public:
     GuiSendInputRequest(QSerialPort *serialPort);

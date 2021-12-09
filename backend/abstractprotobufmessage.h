@@ -13,8 +13,8 @@ template<typename Msg>
 class AbstractProtobufMessage : public Failable
 {
 public:
-    AbstractProtobufMessage(const pb_msgdesc_t *msgDesc, QSerialPort *serialPort);
-    AbstractProtobufMessage(const pb_msgdesc_t *msgDesc, const Msg &msgInit, QSerialPort *serialPort);
+    AbstractProtobufMessage(QSerialPort *serialPort);
+    AbstractProtobufMessage(const Msg &msgInit, QSerialPort *serialPort);
     virtual ~AbstractProtobufMessage() {}
 
 protected:
@@ -22,34 +22,31 @@ protected:
 
     Msg *pbMessage();
     const Msg *pbMessage() const;
-    const pb_msgdesc_t *pbMessageDesc() const;
 
 private:
     QSerialPort *m_serialPort;
-    const pb_msgdesc_t *m_msgDesc;
     Msg m_message;
 };
 
-template<typename Msg>
+template<const pb_msgdesc_t *MsgDesc, typename Msg>
 class AbstractProtobufRequest : public AbstractProtobufMessage<Msg>
 {
 public:
-    AbstractProtobufRequest(const pb_msgdesc_t *msgDesc, QSerialPort *serialPort);
-    AbstractProtobufRequest(const pb_msgdesc_t *msgDesc, const Msg &msgInit, QSerialPort *serialPort);
+    AbstractProtobufRequest(QSerialPort *serialPort);
+    AbstractProtobufRequest(const Msg &msgInit, QSerialPort *serialPort);
     virtual ~AbstractProtobufRequest() {}
 
     bool send();
 
 private:
     static bool outputCallback(pb_ostream_t *stream, const pb_byte_t *buf, size_t count);
-
 };
 
-template<typename Msg>
+template<const pb_msgdesc_t *MsgDesc, typename Msg>
 class AbstractProtobufResponse : public AbstractProtobufMessage<Msg>
 {
 public:
-    AbstractProtobufResponse(const pb_msgdesc_t *msgDesc, QSerialPort *serialPort);
+    AbstractProtobufResponse(QSerialPort *serialPort);
     virtual ~AbstractProtobufResponse();
 
     bool receive();
@@ -61,17 +58,15 @@ private:
 };
 
 template<typename Msg>
-AbstractProtobufMessage<Msg>::AbstractProtobufMessage(const pb_msgdesc_t *msgDesc, QSerialPort *serialPort):
-    m_serialPort(serialPort),
-    m_msgDesc(msgDesc)
+AbstractProtobufMessage<Msg>::AbstractProtobufMessage(QSerialPort *serialPort):
+    m_serialPort(serialPort)
 {
     memset(&m_message, 0, sizeof(Msg));
 }
 
 template<typename Msg>
-AbstractProtobufMessage<Msg>::AbstractProtobufMessage(const pb_msgdesc_t *msgDesc, const Msg &msgInit, QSerialPort *serialPort):
+AbstractProtobufMessage<Msg>::AbstractProtobufMessage(const Msg &msgInit, QSerialPort *serialPort):
     m_serialPort(serialPort),
-    m_msgDesc(msgDesc),
     m_message(msgInit)
 {}
 
@@ -93,24 +88,18 @@ const Msg *AbstractProtobufMessage<Msg>::pbMessage() const
     return &m_message;
 }
 
-template<typename Msg>
-const pb_msgdesc_t *AbstractProtobufMessage<Msg>::pbMessageDesc() const
-{
-    return m_msgDesc;
-}
-
-template<typename Msg>
-AbstractProtobufRequest<Msg>::AbstractProtobufRequest(const pb_msgdesc_t *msgDesc, QSerialPort *serialPort):
-    AbstractProtobufMessage<Msg> (msgDesc, serialPort)
+template<const pb_msgdesc_t *MsgDesc, typename Msg>
+AbstractProtobufRequest<MsgDesc, Msg>::AbstractProtobufRequest(QSerialPort *serialPort):
+    AbstractProtobufMessage<Msg>(serialPort)
 {}
 
-template<typename Msg>
-AbstractProtobufRequest<Msg>::AbstractProtobufRequest(const pb_msgdesc_t *msgDesc, const Msg &msgInit, QSerialPort *serialPort):
-    AbstractProtobufMessage<Msg> (msgDesc, msgInit, serialPort)
+template<const pb_msgdesc_t *MsgDesc, typename Msg>
+AbstractProtobufRequest<MsgDesc, Msg>::AbstractProtobufRequest(const Msg &msgInit, QSerialPort *serialPort):
+    AbstractProtobufMessage<Msg>(msgInit, serialPort)
 {}
 
-template<typename Msg>
-bool AbstractProtobufRequest<Msg>::send()
+template<const pb_msgdesc_t *MsgDesc, typename Msg>
+bool AbstractProtobufRequest<MsgDesc, Msg>::send()
 {
     pb_ostream_t ostream {
         .callback = outputCallback,
@@ -120,9 +109,8 @@ bool AbstractProtobufRequest<Msg>::send()
                 .errmsg = nullptr
     };
 
-    const auto success = pb_encode_ex(&ostream, AbstractProtobufMessage<Msg>::pbMessageDesc(),
-                                                AbstractProtobufMessage<Msg>::pbMessage(), PB_DECODE_DELIMITED) &&
-                                                AbstractProtobufMessage<Msg>::serialPort()->flush();
+    const auto success = pb_encode_ex(&ostream, MsgDesc, AbstractProtobufMessage<Msg>::pbMessage(), PB_DECODE_DELIMITED) &&
+                                                         AbstractProtobufMessage<Msg>::serialPort()->flush();
     if(!success) {
         Failable::setError(PB_GET_ERROR(&ostream));
     }
@@ -130,41 +118,39 @@ bool AbstractProtobufRequest<Msg>::send()
     return success;
 }
 
-template<typename Msg>
-bool AbstractProtobufRequest<Msg>::outputCallback(pb_ostream_t *stream, const pb_byte_t *buf, size_t count)
+template<const pb_msgdesc_t *MsgDesc, typename Msg>
+bool AbstractProtobufRequest<MsgDesc, Msg>::outputCallback(pb_ostream_t *stream, const pb_byte_t *buf, size_t count)
 {
     auto *serialPort = (QSerialPort*)stream->state;
     return serialPort->write((const char*)buf, count) == (qint64)count;
 }
 
-template<typename Msg>
-AbstractProtobufResponse<Msg>::AbstractProtobufResponse(const pb_msgdesc_t *msgDesc, QSerialPort *serialPort):
-    AbstractProtobufMessage<Msg> (msgDesc, serialPort),
+template<const pb_msgdesc_t *MsgDesc, typename Msg>
+AbstractProtobufResponse<MsgDesc, Msg>::AbstractProtobufResponse(QSerialPort *serialPort):
+    AbstractProtobufMessage<Msg> (serialPort),
     m_isComplete(false)
 {}
 
-template<typename Msg>
-AbstractProtobufResponse<Msg>::~AbstractProtobufResponse()
+template<const pb_msgdesc_t *MsgDesc, typename Msg>
+AbstractProtobufResponse<MsgDesc, Msg>::~AbstractProtobufResponse()
 {
     if(m_isComplete) {
-        pb_release(AbstractProtobufMessage<Msg>::pbMessageDesc(),
-                   AbstractProtobufMessage<Msg>::pbMessage());
+        pb_release(MsgDesc, AbstractProtobufMessage<Msg>::pbMessage());
     }
 }
 
-template<typename Msg>
-bool AbstractProtobufResponse<Msg>::receive()
+template<const pb_msgdesc_t *MsgDesc, typename Msg>
+bool AbstractProtobufResponse<MsgDesc, Msg>::receive()
 {
     pb_istream_t istream {
         .callback = inputCallback,
         .state = AbstractProtobufMessage<Msg>::serialPort(),
-        .bytes_left = (size_t)this->serialPort()->bytesAvailable(),
+        .bytes_left = (size_t)AbstractProtobufMessage<Msg>::serialPort()->bytesAvailable(),
         .errmsg = nullptr
     };
 
     AbstractProtobufMessage<Msg>::serialPort()->startTransaction();
-    m_isComplete = pb_decode_ex(&istream, AbstractProtobufMessage<Msg>::pbMessageDesc(),
-                                          AbstractProtobufMessage<Msg>::pbMessage(), PB_DECODE_DELIMITED);
+    m_isComplete = pb_decode_ex(&istream, MsgDesc, AbstractProtobufMessage<Msg>::pbMessage(), PB_DECODE_DELIMITED);
 
     if(m_isComplete) {
         AbstractProtobufMessage<Msg>::serialPort()->commitTransaction();
@@ -177,14 +163,14 @@ bool AbstractProtobufResponse<Msg>::receive()
     return m_isComplete;
 }
 
-template<typename Msg>
-bool AbstractProtobufResponse<Msg>::isComplete() const
+template<const pb_msgdesc_t *MsgDesc, typename Msg>
+bool AbstractProtobufResponse<MsgDesc, Msg>::isComplete() const
 {
     return m_isComplete;
 }
 
-template<typename Msg>
-bool AbstractProtobufResponse<Msg>::inputCallback(pb_istream_t *stream, pb_byte_t *buf, size_t count)
+template<const pb_msgdesc_t *MsgDesc, typename Msg>
+bool AbstractProtobufResponse<MsgDesc, Msg>::inputCallback(pb_istream_t *stream, pb_byte_t *buf, size_t count)
 {
     auto *serialPort = (QSerialPort*)stream->state;
     return serialPort->read((char*)buf, count) == (qint64)count;
