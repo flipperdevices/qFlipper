@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QDebug>
 #include <QSerialPort>
 
 #include <pb.h>

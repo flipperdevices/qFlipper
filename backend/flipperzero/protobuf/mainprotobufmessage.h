@@ -29,6 +29,8 @@ public:
 
     bool isOk() const;
     bool isValidType() const;
+
+    static pb_size_t tag();
 };
 
 template<const pb_size_t Tag>
@@ -67,6 +69,12 @@ template<const pb_size_t Tag>
 bool AbstractMainProtobufResponse<Tag>::isValidType() const
 {
     return pbMessage()->which_content == Tag;
+}
+
+template<const pb_size_t Tag>
+pb_size_t AbstractMainProtobufResponse<Tag>::tag()
+{
+    return Tag;
 }
 
 class MainStopSessionRequest : public AbstractMainProtobufRequest<PB_Main_stop_session_tag>

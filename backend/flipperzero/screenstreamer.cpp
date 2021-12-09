@@ -87,23 +87,29 @@ void ScreenStreamer::createPort()
 
 void ScreenStreamer::onPortReadyRead()
 {
-    GuiScreenFrameResponse msg(m_serialPort);
+    for(;;) {
+        GuiScreenFrameResponse msg(m_serialPort);
 
-    if(!msg.receive()) {
-        // TODO: Distinguish incomplete mesages and broken session
-        return;
+        if(!msg.receive()) {
+            // TODO: Distinguish incomplete mesages and broken session
+            return;
 
-    } else if(!msg.isOk()) {
-        qCCritical(CATEGORY_SCREEN) << "Device replied with error:" << msg.commandStatus();
-        setEnabled(false);
+        } else if(!msg.isOk()) {
+            qCCritical(CATEGORY_SCREEN) << "Device replied with error:" << msg.commandStatus();
+            setEnabled(false);
+            return;
 
-    } else if(!msg.isValidType()) {
-        qCCritical(CATEGORY_SCREEN) << "Expected screen frame, got something else:" << msg.whichContent();
-        setEnabled(false);
+        } else if(!msg.isValidType()) {
+            if(msg.whichContent() != MainEmptyResponse::tag()) {
+                qCCritical(CATEGORY_SCREEN) << "Expected screen frame or empty, got something else:" << msg.whichContent();
+                setEnabled(false);
+                return;
+            }
 
-    } else {
-        m_screenData = msg.screenFrame();
-        emit screenDataChanged();
+        } else {
+            m_screenData = msg.screenFrame();
+            emit screenDataChanged();
+        }
     }
 }
 
