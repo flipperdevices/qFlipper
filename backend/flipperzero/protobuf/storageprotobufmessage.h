@@ -25,6 +25,26 @@ public:
     quint64 sizeTotal() const;
 };
 
+class StorageStatRequest:
+public AbstractMainProtobufRequest<PB_Main_storage_stat_request_tag>
+{
+public:
+    StorageStatRequest(QSerialPort *serialPort, const QByteArray &fileName);
+
+private:
+    QByteArray m_fileName;
+};
+
+class StorageStatResponse:
+public AbstractMainProtobufResponse<PB_Main_storage_stat_response_tag>
+{
+public:
+    StorageStatResponse(QSerialPort *serialPort);
+
+    bool isPresent() const;
+    const PB_Storage_File fileInfo() const;
+};
+
 }
 }
 

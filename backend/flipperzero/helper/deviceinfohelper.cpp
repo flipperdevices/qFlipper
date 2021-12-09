@@ -10,7 +10,7 @@
 #include "flipperzero/cli/skipmotdoperation.h"
 #include "flipperzero/cli/startrpcoperation.h"
 #include "flipperzero/cli/stoprpcoperation.h"
-#include "flipperzero/cli/statoperation.h"
+#include "flipperzero/cli/storagestatoperation.h"
 #include "flipperzero/factoryinfo.h"
 
 #include "device/stm32wb55.h"
@@ -74,16 +74,12 @@ void VCPDeviceInfoHelper::nextStateLogic()
         fetchDeviceInfo();
 
     } else if(state() == VCPDeviceInfoHelper::FetchingDeviceInfo) {
-//        setState(VCPDeviceInfoHelper::StoppingRPCSession);
-//        stopRPCSession();
         setState(VCPDeviceInfoHelper::CheckingSDCard);
         checkSDCard();
 
     } else if(state() == VCPDeviceInfoHelper::CheckingSDCard) {
-//        setState(VCPDeviceInfoHelper::CheckingManifest);
-//        checkManifest();
-        setState(VCPDeviceInfoHelper::StoppingRPCSession);
-        stopRPCSession();
+        setState(VCPDeviceInfoHelper::CheckingManifest);
+        checkManifest();
 
     } else if(state() == VCPDeviceInfoHelper::CheckingManifest) {
         setState(VCPDeviceInfoHelper::StoppingRPCSession);
@@ -193,10 +189,6 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
             operation->result(QByteArrayLiteral("radio_stack_minor")),
             operation->result(QByteArrayLiteral("radio_stack_sub")));
 
-        // Temporary
-        m_deviceInfo.storage.isExternalPresent = false;
-        m_deviceInfo.storage.isAssetsInstalled = false;
-
         if(m_deviceInfo.name.isEmpty()) {
             finishWithError(QStringLiteral("Failed to read device information"));
         } else {
@@ -237,14 +229,14 @@ void VCPDeviceInfoHelper::checkSDCard()
 
 void VCPDeviceInfoHelper::checkManifest()
 {
-    auto *operation = new StatOperation(m_serialPort, QByteArrayLiteral("/ext/Manifest"), this);
+    auto *operation = new StorageStatOperation(m_serialPort, QByteArrayLiteral("/ext/Manifest"), this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(operation->errorString());
 
         } else {
-            m_deviceInfo.storage.isAssetsInstalled = (operation->type() == StatOperation::Type::RegularFile);
+            m_deviceInfo.storage.isAssetsInstalled = operation->isPresent() && (operation->type() == StorageStatOperation::Type::RegularFile);
             advanceState();
         }
 

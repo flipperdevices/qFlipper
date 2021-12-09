@@ -11,7 +11,8 @@
 #include "flipperzero/cli/mkdiroperation.h"
 #include "flipperzero/cli/writeoperation.h"
 #include "flipperzero/cli/readoperation.h"
-#include "flipperzero/cli/statoperation.h"
+#include "flipperzero/cli/storageinfooperation.h"
+#include "flipperzero/cli/storagestatoperation.h"
 
 #include "flipperzero/commandinterface.h"
 #include "flipperzero/assetmanifest.h"
@@ -29,7 +30,7 @@ Q_LOGGING_CATEGORY(CATEGORY_ASSETS, "ASSETS")
 using namespace Flipper;
 using namespace Zero;
 
-static void print_file_list(const char *header, const FileNode::FileInfoList &list)
+static void printFileList(const char *header, const FileNode::FileInfoList &list)
 {
     qCDebug(CATEGORY_ASSETS).noquote() << header;
 
@@ -97,18 +98,14 @@ void AssetsDownloadOperation::advanceOperationState()
 
 void AssetsDownloadOperation::checkForExtStorage()
 {
-    auto *op = cli()->stat(QByteArrayLiteral("/ext"));
+    auto *op = cli()->storageInfo(QByteArrayLiteral("/ext"));
 
     connect(op, &AbstractOperation::finished, this, [=]() {
         if(op->isError()) {
             finishWithError("Failed to perform stat operation");
-        } else if(op->type() == StatOperation::Type::InternalError) {
+        } else if(!op->isPresent()) {
             qCDebug(CATEGORY_ASSETS) << "No external storage found, finishing early.";
             finish();
-
-        } else if(op->type() != StatOperation::Type::Storage) {
-            finishWithError("/ext is not a storage");
-
         } else {
             qCDebug(CATEGORY_ASSETS) << "External storage is present," << op->sizeFree() << "bytes free.";
             advanceOperationState();
@@ -160,12 +157,12 @@ void AssetsDownloadOperation::readLocalManifest()
 
 void AssetsDownloadOperation::checkForDeviceManifest()
 {
-    auto *operation = cli()->stat(DEVICE_MANIFEST);
+    auto *operation = cli()->storageStat(DEVICE_MANIFEST);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             return finishWithError(operation->errorString());
-        } else if(operation->type() != StatOperation::Type::RegularFile) {
+        } else if(operation->type() != StorageStatOperation::Type::RegularFile) {
             setOperationState(State::ReadingDeviceManifest);
         } else {
             m_isDeviceManifestPresent = true;
@@ -203,7 +200,7 @@ void AssetsDownloadOperation::buildFileLists()
     manifestInfo.absolutePath = manifestInfo.name;
     manifestInfo.type = FileNode::Type::RegularFile;
 
-    print_file_list("<<<<< Local manifest:", m_localManifest.tree()->toPreOrderList());
+    printFileList("<<<<< Local manifest:", m_localManifest.tree()->toPreOrderList());
 
     if(!m_isDeviceManifestPresent || m_deviceManifest.isError()) {
         qCDebug(CATEGORY_ASSETS) << "Device manifest not present or corrupt, assumimg fresh install...";
@@ -216,7 +213,7 @@ void AssetsDownloadOperation::buildFileLists()
         });
 
     } else {
-        print_file_list(">>>>> Device manifest:", m_deviceManifest.tree()->toPreOrderList());
+        printFileList(">>>>> Device manifest:", m_deviceManifest.tree()->toPreOrderList());
 
         deleted.append(m_localManifest.tree()->difference(m_deviceManifest.tree()));
         added.append(m_deviceManifest.tree()->difference(m_localManifest.tree()));
@@ -232,15 +229,15 @@ void AssetsDownloadOperation::buildFileLists()
     }
 
     if(!deleted.isEmpty()) {
-        print_file_list("----- Files deleted:", deleted);
+        printFileList("----- Files deleted:", deleted);
     }
 
     if(!added.isEmpty()) {
-        print_file_list("+++++ Files added:", added);
+        printFileList("+++++ Files added:", added);
     }
 
     if(!changed.isEmpty()) {
-        print_file_list("***** Files changed:", changed);
+        printFileList("***** Files changed:", changed);
     }
 
     m_deleteList.append(deleted);

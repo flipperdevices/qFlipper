@@ -13,7 +13,8 @@ class DeviceState;
 
 class DFUOperation;
 class ListOperation;
-class StatOperation;
+class StorageInfoOperation;
+class StorageStatOperation;
 class ReadOperation;
 class MkDirOperation;
 class WriteOperation;
@@ -37,7 +38,8 @@ public:
     FactoryResetCliOperation *factoryReset();
 
     ListOperation *list(const QByteArray &dirName);
-    StatOperation *stat(const QByteArray &fileName);
+    StorageInfoOperation *storageInfo(const QByteArray &path);
+    StorageStatOperation *storageStat(const QByteArray &fileName);
     ReadOperation *read(const QByteArray &fileName, QIODevice *file);
     MkDirOperation *mkdir(const QByteArray &dirName);
     WriteOperation *write(const QByteArray &fileName, QIODevice *file);

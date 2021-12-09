@@ -12,7 +12,8 @@ class AbstractOperationRunner : public SignalingFailable
 
     enum class State {
         Idle,
-        Running
+        Running,
+        Finishing
     };
 
     using OperationQueue = QQueue<AbstractOperation*>;
@@ -21,6 +22,9 @@ public:
     AbstractOperationRunner(QObject *parent = nullptr);
 
 protected:
+    template<class T>
+    T* registerOperation(T* operation);
+
     virtual bool onQueueStarted();
     virtual bool onQueueFinished();
 
@@ -39,4 +43,11 @@ private:
     State m_state;
     OperationQueue m_queue;
 };
+
+template<class T>
+T *AbstractOperationRunner::registerOperation(T *operation)
+{
+    enqueueOperation(operation);
+    return operation;
+}
 

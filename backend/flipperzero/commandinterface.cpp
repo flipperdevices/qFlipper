@@ -6,16 +6,19 @@
 #include "flipperzero/devicestate.h"
 
 #include "cli/factoryresetclioperation.h"
-#include "cli/startrpcoperation.h"
 #include "cli/skipmotdoperation.h"
+#include "cli/startrpcoperation.h"
+#include "cli/stoprpcoperation.h"
 #include "cli/rebootoperation.h"
 #include "cli/removeoperation.h"
 #include "cli/mkdiroperation.h"
 #include "cli/writeoperation.h"
 #include "cli/readoperation.h"
-#include "cli/statoperation.h"
 #include "cli/listoperation.h"
 #include "cli/dfuoperation.h"
+
+#include "cli/storagestatoperation.h"
+#include "cli/storageinfooperation.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_CLI, "CLI");
 
@@ -84,11 +87,14 @@ ListOperation *CommandInterface::list(const QByteArray &dirName)
     return op;
 }
 
-StatOperation *CommandInterface::stat(const QByteArray &fileName)
+StorageInfoOperation *CommandInterface::storageInfo(const QByteArray &path)
 {
-    auto *op = new StatOperation(m_serialPort, fileName, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new StorageInfoOperation(m_serialPort, path, this));
+}
+
+StorageStatOperation *CommandInterface::storageStat(const QByteArray &fileName)
+{
+    return registerOperation(new StorageStatOperation(m_serialPort, fileName, this));
 }
 
 ReadOperation *CommandInterface::read(const QByteArray &fileName, QIODevice *file)
@@ -127,7 +133,7 @@ bool CommandInterface::onQueueStarted()
         qCCritical(CATEGORY_CLI).noquote() <<  "Serial port error:" << m_serialPort->errorString();
     } else {
         enqueueOperation(new SkipMOTDOperation(m_serialPort, this));
-//        enqueueOperation(new StartRPCOperation(m_serialPort, this));
+        enqueueOperation(new StartRPCOperation(m_serialPort, this));
     }
 
     return success;
@@ -135,7 +141,9 @@ bool CommandInterface::onQueueStarted()
 
 bool CommandInterface::onQueueFinished()
 {
-    m_serialPort->close();
+    connect(registerOperation(new StopRPCOperation(m_serialPort, this)), &AbstractOperation::finished,
+            m_serialPort, &QSerialPort::close);
+
     return true;
 }
 

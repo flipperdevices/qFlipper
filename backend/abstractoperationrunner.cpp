@@ -63,13 +63,21 @@ void AbstractOperationRunner::enqueueOperation(AbstractOperation *operation)
 void AbstractOperationRunner::processQueue()
 {
     if(m_queue.isEmpty()) {
-        m_state = State::Idle;
+        if(m_state == State::Finishing) {
+            m_state = State::Idle;
+            return;
+        }
+
+        m_state = State::Finishing;
 
         if(!onQueueFinished()) {
             setError(QStringLiteral("Failed to finish the operation queue"));
-        }
+            return;
 
-        return;
+        } else if(m_queue.isEmpty()) { //onQueueFinished() might add additional operations to the queue
+            m_state = State::Idle;
+            return;
+        }
     }
 
     auto *operation = m_queue.dequeue();
