@@ -23,12 +23,11 @@ const QByteArray DeviceInfoOperation::result(const QByteArray &key) const
 
 void DeviceInfoOperation::onSerialPortReadyRead()
 {
-    for(;;) {
-        SystemDeviceInfoResponse response(serialPort());
+    SystemDeviceInfoResponse response(serialPort());
 
-        if(!response.receive()) {
-            return;
-        } else if(!response.isOk()) {
+    while(response.receive()) {
+
+        if(!response.isOk()) {
             finishWithError(QStringLiteral("Device replied with an error response"));
             return;
         } else if(!response.isValidType()) {

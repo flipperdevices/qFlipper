@@ -87,14 +87,11 @@ void ScreenStreamer::createPort()
 
 void ScreenStreamer::onPortReadyRead()
 {
-    for(;;) {
-        GuiScreenFrameResponse msg(m_serialPort);
+    GuiScreenFrameResponse msg(m_serialPort);
 
-        if(!msg.receive()) {
-            // TODO: Distinguish incomplete mesages and broken session
-            return;
+    while(msg.receive()) {
 
-        } else if(!msg.isOk()) {
+        if(!msg.isOk()) {
             qCCritical(CATEGORY_SCREEN) << "Device replied with error:" << msg.commandStatus();
             setEnabled(false);
             return;

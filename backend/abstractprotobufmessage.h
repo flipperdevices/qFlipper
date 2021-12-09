@@ -50,6 +50,7 @@ public:
 
     bool receive();
     bool isComplete() const;
+    void release();
 
 private:
     static bool inputCallback(pb_istream_t *stream, pb_byte_t *buf, size_t count);
@@ -133,14 +134,15 @@ AbstractProtobufResponse<MsgDesc, Msg>::AbstractProtobufResponse(QSerialPort *se
 template<const pb_msgdesc_t *MsgDesc, typename Msg>
 AbstractProtobufResponse<MsgDesc, Msg>::~AbstractProtobufResponse()
 {
-    if(m_isComplete) {
-        pb_release(MsgDesc, AbstractProtobufMessage<Msg>::pbMessage());
-    }
+    release();
 }
 
 template<const pb_msgdesc_t *MsgDesc, typename Msg>
 bool AbstractProtobufResponse<MsgDesc, Msg>::receive()
 {
+    // Allow for re-use: release any previously allocated data
+    release();
+
     pb_istream_t istream {
         .callback = inputCallback,
         .state = AbstractProtobufMessage<Msg>::serialPort(),
@@ -166,6 +168,14 @@ template<const pb_msgdesc_t *MsgDesc, typename Msg>
 bool AbstractProtobufResponse<MsgDesc, Msg>::isComplete() const
 {
     return m_isComplete;
+}
+
+template<const pb_msgdesc_t *MsgDesc, typename Msg>
+void AbstractProtobufResponse<MsgDesc, Msg>::release()
+{
+    if(m_isComplete) {
+        pb_release(MsgDesc, AbstractProtobufMessage<Msg>::pbMessage());
+    }
 }
 
 template<const pb_msgdesc_t *MsgDesc, typename Msg>
