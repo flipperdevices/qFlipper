@@ -24,7 +24,7 @@ class GuiSendInputRequest:
 public AbstractMainProtobufRequest<PB_Main_gui_send_input_event_request_tag>
 {
 public:
-    GuiSendInputRequest(QSerialPort *serialPort);
+    GuiSendInputRequest(QSerialPort *serialPort, PB_Gui_InputKey key, PB_Gui_InputType type);
 };
 
 }

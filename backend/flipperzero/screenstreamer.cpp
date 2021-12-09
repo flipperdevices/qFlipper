@@ -67,11 +67,8 @@ int ScreenStreamer::screenHeight()
 
 void ScreenStreamer::sendInputEvent(InputKey key, InputType type)
 {
-    Q_UNUSED(key)
-    Q_UNUSED(type)
-//    const char input[] = { 27, 'i', (char)key, (char)type };
-//    m_serialPort->write(input, sizeof(input));
-//    m_serialPort->flush();
+    GuiSendInputRequest request(m_serialPort, (PB_Gui_InputKey)key, (PB_Gui_InputType)type);
+    request.send();
 }
 
 void ScreenStreamer::createPort()

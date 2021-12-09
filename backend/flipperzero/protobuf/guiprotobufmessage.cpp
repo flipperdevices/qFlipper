@@ -18,3 +18,10 @@ const QByteArray GuiScreenFrameResponse::screenFrame() const
     const auto *data = pbMessage()->content.gui_screen_frame.data;
     return QByteArray((const char*)data->bytes, data->size);
 }
+
+GuiSendInputRequest::GuiSendInputRequest(QSerialPort *serialPort, PB_Gui_InputKey key, PB_Gui_InputType type):
+    AbstractMainProtobufRequest(serialPort)
+{
+    pbMessage()->content.gui_send_input_event_request.key = key;
+    pbMessage()->content.gui_send_input_event_request.type = type;
+}
