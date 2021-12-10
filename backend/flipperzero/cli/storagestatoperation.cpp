@@ -59,8 +59,8 @@ void StorageStatOperation::onSerialPortReadyRead()
 
     } else {
         m_isPresent = response.isPresent();
-        m_type = (response.fileInfo().type == PB_Storage_File_FileType_FILE) ? Type::RegularFile : Type::Directory;
-        m_size = response.fileInfo().size;
+        m_type = (response.file().type == PB_Storage_File_FileType_FILE) ? Type::RegularFile : Type::Directory;
+        m_size = response.file().size;
 
         finish();
     }

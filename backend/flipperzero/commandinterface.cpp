@@ -14,7 +14,7 @@
 #include "cli/mkdiroperation.h"
 #include "cli/writeoperation.h"
 #include "cli/readoperation.h"
-#include "cli/listoperation.h"
+#include "cli/storagelistoperation.h"
 #include "cli/dfuoperation.h"
 
 #include "cli/storagestatoperation.h"
@@ -80,11 +80,9 @@ FactoryResetCliOperation *CommandInterface::factoryReset()
     return op;
 }
 
-ListOperation *CommandInterface::list(const QByteArray &dirName)
+StorageListOperation *CommandInterface::storageList(const QByteArray &path)
 {
-    auto *op = new ListOperation(m_serialPort, dirName, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new StorageListOperation(m_serialPort, path, this));
 }
 
 StorageInfoOperation *CommandInterface::storageInfo(const QByteArray &path)

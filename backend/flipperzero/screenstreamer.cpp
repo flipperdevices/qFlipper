@@ -4,6 +4,7 @@
 #include <QSerialPort>
 #include <QLoggingCategory>
 
+#include "cli/stoprpcoperation.h"
 #include "cli/skipmotdoperation.h"
 #include "cli/startrpcoperation.h"
 #include "cli/startstreamoperation.h"
@@ -45,14 +46,13 @@ void ScreenStreamer::setEnabled(bool enabled)
 {
     if(!m_serialPort || (m_isEnabled == enabled)) {
         return;
-    } else if(enabled) {
-        if(!openPort()) return;
+    }
+
+    if(enabled) {
+        openPort();
     } else {
         closePort();
     }
-
-    m_isEnabled = enabled;
-    emit enabledChanged();
 }
 
 int ScreenStreamer::screenWidth()
@@ -138,8 +138,24 @@ void ScreenStreamer::closePort()
     disconnect(m_serialPort, &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
     disconnect(m_serialPort, &QSerialPort::errorOccurred, this, &ScreenStreamer::onPortErrorOccured);
 
-    m_serialPort->clear();
-    m_serialPort->close();
+    auto *operation = new StopRPCOperation(m_serialPort, this);
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            qCDebug(CATEGORY_SCREEN).noquote() << "Failed to stop screen streaming: Failed to stop RPC session:" << operation->errorString();
+        }
+
+        m_serialPort->clear();
+        m_serialPort->close();
+
+        m_isEnabled = false;
+        emit enabledChanged();
+
+        operation->deleteLater();
+    });
+
+    operation->start();
+
 }
 
 void ScreenStreamer::skipMOTD()
@@ -186,6 +202,9 @@ void ScreenStreamer::startScreenStream()
         } else {
             connect(m_serialPort, &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
             connect(m_serialPort, &QSerialPort::errorOccurred, this, &ScreenStreamer::onPortErrorOccured);
+
+            m_isEnabled = true;
+            emit enabledChanged();
         }
 
         operation->deleteLater();

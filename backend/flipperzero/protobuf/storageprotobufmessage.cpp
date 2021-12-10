@@ -40,7 +40,32 @@ bool StorageStatResponse::isPresent() const
     return pbMessage()->content.storage_stat_response.has_file;
 }
 
-const PB_Storage_File StorageStatResponse::fileInfo() const
+const PB_Storage_File StorageStatResponse::file() const
 {
     return pbMessage()->content.storage_stat_response.file;
+}
+
+StorageListRequest::StorageListRequest(QSerialPort *serialPort, const QByteArray &path):
+    AbstractMainProtobufRequest(serialPort),
+    m_path(path)
+{
+    pbMessage()->content.storage_list_request.path = m_path.data();
+}
+
+StorageListResponse::StorageListResponse(QSerialPort *serialPort):
+    AbstractMainProtobufResponse(serialPort)
+{}
+
+QVector<PB_Storage_File> StorageListResponse::files() const
+{
+    const auto count = pbMessage()->content.storage_list_response.file_count;
+
+    QVector<PB_Storage_File> ret;
+    ret.reserve(count);
+
+    for(auto i = 0; i < count ; ++i) {
+        ret.append(pbMessage()->content.storage_list_response.file[i]);
+    }
+
+    return ret;
 }

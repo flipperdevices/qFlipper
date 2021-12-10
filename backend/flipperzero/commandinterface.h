@@ -12,7 +12,7 @@ namespace Zero {
 class DeviceState;
 
 class DFUOperation;
-class ListOperation;
+class StorageListOperation;
 class StorageInfoOperation;
 class StorageStatOperation;
 class ReadOperation;
@@ -37,7 +37,7 @@ public:
     StartRPCOperation *startRPCSession();
     FactoryResetCliOperation *factoryReset();
 
-    ListOperation *list(const QByteArray &dirName);
+    StorageListOperation *storageList(const QByteArray &path);
     StorageInfoOperation *storageInfo(const QByteArray &path);
     StorageStatOperation *storageStat(const QByteArray &fileName);
     ReadOperation *read(const QByteArray &fileName, QIODevice *file);

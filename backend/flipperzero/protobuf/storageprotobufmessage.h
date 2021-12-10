@@ -42,7 +42,25 @@ public:
     StorageStatResponse(QSerialPort *serialPort);
 
     bool isPresent() const;
-    const PB_Storage_File fileInfo() const;
+    const PB_Storage_File file() const;
+};
+
+class StorageListRequest:
+public AbstractMainProtobufRequest<PB_Main_storage_list_request_tag>
+{
+public:
+    StorageListRequest(QSerialPort *serialPort, const QByteArray &path);
+
+private:
+    QByteArray m_path;
+};
+
+class StorageListResponse:
+public AbstractMainProtobufResponse<PB_Main_storage_list_response_tag>
+{
+public:
+    StorageListResponse(QSerialPort *serialPort);
+    QVector<PB_Storage_File> files() const;
 };
 
 }

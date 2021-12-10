@@ -51,7 +51,7 @@ void UserBackupOperation::advanceOperationState()
             if(op->isError()) {
                 finishWithError(op->errorString());
             } else {
-                m_fileList = op->result();
+                m_fileList = op->files();
                 CALL_LATER(this, &UserBackupOperation::advanceOperationState);
             }
 
@@ -63,9 +63,10 @@ void UserBackupOperation::advanceOperationState()
     } else if(operationState() == State::GettingFileTree) {
         setOperationState(State::ReadingFiles);
 
-        if(!readFiles()) {
-            finishWithError(QStringLiteral("Failed to read files from device"));
-        }
+        finish();
+//        if(!readFiles()) {
+//            finishWithError(QStringLiteral("Failed to read files from device"));
+//        }
     }
 }
 
