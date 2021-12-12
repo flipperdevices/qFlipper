@@ -39,7 +39,7 @@ public:
 
     StorageListOperation *storageList(const QByteArray &path);
     StorageInfoOperation *storageInfo(const QByteArray &path);
-    StorageStatOperation *storageStat(const QByteArray &fileName);
+    StorageStatOperation *storageStat(const QByteArray &path);
     ReadOperation *read(const QByteArray &fileName, QIODevice *file);
     MkDirOperation *mkdir(const QByteArray &dirName);
     WriteOperation *write(const QByteArray &fileName, QIODevice *file);

@@ -22,3 +22,15 @@ const QByteArray SystemDeviceInfoResponse::value() const
 {
     return QByteArray(pbMessage()->content.system_device_info_response.value);
 }
+
+SystemRebootRequest::SystemRebootRequest(QSerialPort *serialPort, PB_System_RebootRequest_RebootMode mode):
+    AbstractMainProtobufRequest(serialPort)
+{
+    pbMessage()->content.system_reboot_request.mode = mode;
+}
+
+SystemFactoryResetRequest::SystemFactoryResetRequest(QSerialPort *serialPort):
+    AbstractMainProtobufRequest(serialPort)
+{
+    pbMessage()->content.system_factory_reset_request = PB_System_FactoryResetRequest_init_default;
+}

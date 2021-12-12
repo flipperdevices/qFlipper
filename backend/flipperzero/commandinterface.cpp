@@ -90,9 +90,9 @@ StorageInfoOperation *CommandInterface::storageInfo(const QByteArray &path)
     return registerOperation(new StorageInfoOperation(m_serialPort, path, this));
 }
 
-StorageStatOperation *CommandInterface::storageStat(const QByteArray &fileName)
+StorageStatOperation *CommandInterface::storageStat(const QByteArray &path)
 {
-    return registerOperation(new StorageStatOperation(m_serialPort, fileName, this));
+    return registerOperation(new StorageStatOperation(m_serialPort, path, this));
 }
 
 ReadOperation *CommandInterface::read(const QByteArray &fileName, QIODevice *file)

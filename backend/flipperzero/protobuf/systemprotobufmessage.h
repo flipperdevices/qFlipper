@@ -23,6 +23,20 @@ public:
 
 };
 
+class SystemRebootRequest:
+public AbstractMainProtobufRequest<PB_Main_system_reboot_request_tag>
+{
+public:
+    SystemRebootRequest(QSerialPort *serialPort, PB_System_RebootRequest_RebootMode mode);
+};
+
+class SystemFactoryResetRequest:
+public AbstractMainProtobufRequest<PB_Main_system_factory_reset_request_tag>
+{
+public:
+    SystemFactoryResetRequest(QSerialPort *serialPort);
+};
+
 }
 }
 
