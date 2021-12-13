@@ -12,7 +12,7 @@ StorageRemoveOperation::StorageRemoveOperation(QSerialPort *serialPort, const QB
 
 const QString StorageRemoveOperation::description() const
 {
-    return QStringLiteral("Storage Remove @%1").arg(QString(m_path));
+    return QStringLiteral("Storage remove @%1").arg(QString(m_path));
 }
 
 void StorageRemoveOperation::onSerialPortReadyRead()
@@ -22,7 +22,7 @@ void StorageRemoveOperation::onSerialPortReadyRead()
     if(!response.receive()) {
         return;
     } else if(!response.isOk()) {
-        finishWithError(QStringLiteral("Cannot remove file/directory: %1").arg(response.commandStatusString()));
+        finishWithError(QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
     } else if(!response.isValidType()) {
         finishWithError(QStringLiteral("Expected empty response, got something else"));
     } else {

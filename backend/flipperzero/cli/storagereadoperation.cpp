@@ -12,7 +12,7 @@ StorageReadOperation::StorageReadOperation(QSerialPort *serialPort, const QByteA
 
 const QString StorageReadOperation::description() const
 {
-    return QStringLiteral("Storage Read @%1").arg(QString(m_path));
+    return QStringLiteral("Storage read @%1").arg(QString(m_path));
 }
 
 void StorageReadOperation::onSerialPortReadyRead()
@@ -22,15 +22,15 @@ void StorageReadOperation::onSerialPortReadyRead()
     while(response.receive()) {
 
         if(!response.isOk()) {
-            finishWithError(QStringLiteral("Error reading chunk: device replied with error"));
+            finishWithError(QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
         } else if(!response.isValidType()) {
-            finishWithError(QStringLiteral("Expected storage read response, got something else"));
+            finishWithError(QStringLiteral("Expected StorageRead response, got something else"));
         } else {
             const auto &data = response.data();
             const auto bytesWritten = m_file->write(response.data());
 
             if(bytesWritten != data.size()) {
-                finishWithError(QStringLiteral("Failed to write to the output file: %1").arg(m_file->errorString()));
+                finishWithError(QStringLiteral("Error writing to output device: %1").arg(m_file->errorString()));
             } else if(!response.hasNext()) {
                 finish();
             } else {

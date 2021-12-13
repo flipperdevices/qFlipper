@@ -15,7 +15,7 @@ StorageInfoOperation::StorageInfoOperation(QSerialPort *serialPort, const QByteA
 
 const QString StorageInfoOperation::description() const
 {
-    return QStringLiteral("Storage Info @%1").arg(QString(m_path));
+    return QStringLiteral("Storage info @%1").arg(QString(m_path));
 }
 
 bool StorageInfoOperation::isPresent() const
@@ -46,11 +46,11 @@ void StorageInfoOperation::onSerialPortReadyRead()
         if(status == PB_CommandStatus_ERROR_STORAGE_INTERNAL) {
             finish();
         } else{
-            finishWithError(QStringLiteral("Device replied with an error response"));
+            finishWithError(QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
         }
 
     } else if(!response.isValidType()) {
-        finishWithError(QStringLiteral("Expected %1 reply, got something else").arg(description()));
+        finishWithError(QStringLiteral("Expected StorageInfo response, got something else"));
 
     } else {
         m_isPresent = true;

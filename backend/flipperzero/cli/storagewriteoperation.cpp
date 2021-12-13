@@ -19,7 +19,7 @@ StorageWriteOperation::StorageWriteOperation(QSerialPort *serialPort, const QByt
 
 const QString StorageWriteOperation::description() const
 {
-    return QStringLiteral("Storage Write @%1").arg(QString(m_path));
+    return QStringLiteral("Storage write @%1").arg(QString(m_path));
 }
 
 void StorageWriteOperation::onSerialPortReadyRead()
@@ -28,9 +28,9 @@ void StorageWriteOperation::onSerialPortReadyRead()
 
     while(response.receive()) {
         if(!response.isOk()) {
-            finishWithError(QStringLiteral("Failed to write data: device replied with an error"));
+            finishWithError(QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
         } else if(!response.isValidType()) {
-            finishWithError(QStringLiteral("Expected to get an empty response, got something else"));
+            finishWithError(QStringLiteral("Expected empty response, got something else"));
         } else if(!response.hasNext()) {
             finish();
         } else {

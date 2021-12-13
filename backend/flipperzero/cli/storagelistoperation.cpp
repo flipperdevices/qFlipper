@@ -12,7 +12,7 @@ StorageListOperation::StorageListOperation(QSerialPort *serialPort, const QByteA
 
 const QString StorageListOperation::description() const
 {
-    return QStringLiteral("Storage List @%1").arg(QString(m_path));
+    return QStringLiteral("Storage list @%1").arg(QString(m_path));
 }
 
 const FileInfoList &StorageListOperation::files() const
@@ -28,11 +28,11 @@ void StorageListOperation::onSerialPortReadyRead()
     while(response.receive()) {
 
         if(!response.isOk()) {
-            finishWithError(QStringLiteral("Device replied with an error response"));
+            finishWithError(QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
             return;
 
         } else if(!response.isValidType()) {
-            finishWithError(QStringLiteral("Expected STORAGE LIST reply, got something else"));
+            finishWithError(QStringLiteral("Expected StorageList response, got something else"));
             return;
         }
 

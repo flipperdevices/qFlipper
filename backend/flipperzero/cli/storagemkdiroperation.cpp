@@ -11,7 +11,7 @@ StorageMkdirOperation::StorageMkdirOperation(QSerialPort *serialPort, const QByt
 
 const QString StorageMkdirOperation::description() const
 {
-    return QStringLiteral("Storage Mkdir @%1").arg(QString(m_path));
+    return QStringLiteral("Storage mkdir @%1").arg(QString(m_path));
 }
 
 void StorageMkdirOperation::onSerialPortReadyRead()
@@ -21,9 +21,9 @@ void StorageMkdirOperation::onSerialPortReadyRead()
     if(!response.receive()) {
         return;
     } else if(!response.isOk()) {
-        finishWithError(QStringLiteral("Device replied with an error response: %1").arg(response.commandStatusString()));
+        finishWithError(QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
     } else if(!response.isValidType()) {
-        finishWithError(QStringLiteral("Expected Empty response, got something else"));
+        finishWithError(QStringLiteral("Expected empty response, got something else"));
     } else {
         finish();
     }

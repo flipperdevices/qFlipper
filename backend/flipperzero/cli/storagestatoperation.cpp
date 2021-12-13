@@ -15,7 +15,7 @@ StorageStatOperation::StorageStatOperation(QSerialPort *serialPort, const QByteA
 
 const QString StorageStatOperation::description() const
 {
-    return QStringLiteral("Storage Stat @%1").arg(QString(m_fileName));
+    return QStringLiteral("Storage stat @%1").arg(QString(m_fileName));
 }
 
 const QByteArray &StorageStatOperation::fileName() const
@@ -51,11 +51,11 @@ void StorageStatOperation::onSerialPortReadyRead()
         if(status == PB_CommandStatus_ERROR_STORAGE_NOT_EXIST) {
             finish();
         } else{
-            finishWithError(QStringLiteral("Device replied with an error response"));
+            finishWithError(QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
         }
 
     } else if(!response.isValidType()) {
-        finishWithError(QStringLiteral("Expected %1 reply, got something else").arg(description()));
+        finishWithError(QStringLiteral("Expected StorageStat response, got something else"));
 
     } else {
         m_isPresent = response.isPresent();
