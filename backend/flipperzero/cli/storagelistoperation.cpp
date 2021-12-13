@@ -38,11 +38,10 @@ void StorageListOperation::onSerialPortReadyRead()
 
         const auto &files = response.files();
         for(auto &file : files) {
-            qDebug() << file.name;
 
             FileInfo fileInfo {
                 .name = QByteArray(file.name),
-                .absolutePath = QByteArray(),
+                .absolutePath = m_path + QByteArrayLiteral("/") + QByteArray(file.name),
                 .type = file.type == PB_Storage_File_FileType_FILE ? FileType::RegularFile : FileType::Directory,
                 .size = file.size
             };

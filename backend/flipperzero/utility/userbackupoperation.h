@@ -27,8 +27,9 @@ private slots:
     void advanceOperationState() override;
 
 private:
-    bool createBackupDirectory();
-    bool readFiles();
+    void createBackupDirectory();
+    void getFileTree();
+    void readFiles();
 
     QDir m_backupDir;
     QByteArray m_deviceDirName;

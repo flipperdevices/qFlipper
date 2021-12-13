@@ -104,7 +104,7 @@ bool StorageReadResponse::isPresent() const
 const QByteArray StorageReadResponse::data() const
 {
     const auto &file = pbMessage()->content.storage_read_response.file;
-    return QByteArray((const char*)file.data, file.size);
+    return QByteArray((const char*)file.data->bytes, file.data->size);
 }
 
 StorageWriteRequest::StorageWriteRequest(QSerialPort *serialPort, const QByteArray &path, const QByteArray &buf, bool hasNext):

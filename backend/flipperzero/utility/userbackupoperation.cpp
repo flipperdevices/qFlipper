@@ -9,9 +9,6 @@
 #include "flipperzero/cli/storagereadoperation.h"
 
 #include "getfiletreeoperation.h"
-#include "debug.h"
-
-#define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
 
 using namespace Flipper;
 using namespace Zero;
@@ -30,48 +27,28 @@ const QString UserBackupOperation::description() const
 void UserBackupOperation::advanceOperationState()
 {
     if(operationState() == BasicOperationState::Ready) {
-        setOperationState(State::CreatingDirectory);
-
         deviceState()->setStatusString(QStringLiteral("Backing up internal storage..."));
 
-        if(!m_deviceDirName.startsWith('/')) {
-            finishWithError(QStringLiteral("Expecting absolute path for device directory"));
-        } else if(!createBackupDirectory()) {
-            finishWithError(QStringLiteral("Failed to create backup directory"));
-        } else {
-            CALL_LATER(this, &UserBackupOperation::advanceOperationState);
-        }
+        setOperationState(State::CreatingDirectory);
+        createBackupDirectory();
 
     } else if(operationState() == State::CreatingDirectory) {
         setOperationState(State::GettingFileTree);
-
-        auto *op = new GetFileTreeOperation(cli(), deviceState(), m_deviceDirName, this);
-
-        connect(op, &AbstractOperation::finished, this, [=]() {
-            if(op->isError()) {
-                finishWithError(op->errorString());
-            } else {
-                m_fileList = op->files();
-                CALL_LATER(this, &UserBackupOperation::advanceOperationState);
-            }
-
-            op->deleteLater();
-        });
-
-        op->start();
+        getFileTree();
 
     } else if(operationState() == State::GettingFileTree) {
         setOperationState(State::ReadingFiles);
-
-        finish();
-//        if(!readFiles()) {
-//            finishWithError(QStringLiteral("Failed to read files from device"));
-//        }
+        readFiles();
     }
 }
 
-bool UserBackupOperation::createBackupDirectory()
+void UserBackupOperation::createBackupDirectory()
 {
+    if(!m_deviceDirName.startsWith('/')) {
+        finishWithError(QStringLiteral("Expecting absolute path for device directory"));
+        return;
+    }
+
     const auto &subdir = deviceState()->deviceInfo().name;
     const QFileInfo targetDirInfo(m_backupDir, subdir);
 
@@ -79,17 +56,38 @@ bool UserBackupOperation::createBackupDirectory()
         QDir d(targetDirInfo.absoluteFilePath());
 
         if(!d.removeRecursively()) {
-            return false;
+            finishWithError(QStringLiteral("Failed to remove old directory"));
+            return;
         }
 
     } else if(targetDirInfo.exists()) {
-        return false;
+        finishWithError(QStringLiteral("Failed to remove old directory"));
+    } else if(!m_backupDir.mkpath(subdir + m_deviceDirName) || !m_backupDir.cd(subdir)) {
+        finishWithError(QStringLiteral("Failed to create backup directory"));
+    } else{
+        QTimer::singleShot(0, this, &UserBackupOperation::advanceOperationState);
     }
-
-    return m_backupDir.mkpath(subdir + m_deviceDirName) && m_backupDir.cd(subdir);
 }
 
-bool UserBackupOperation::readFiles()
+void UserBackupOperation::getFileTree()
+{
+    auto *operation = new GetFileTreeOperation(cli(), deviceState(), m_deviceDirName, this);
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(operation->errorString());
+        } else {
+            m_fileList = operation->files();
+            QTimer::singleShot(0, this, &UserBackupOperation::advanceOperationState);
+        }
+
+        operation->deleteLater();
+    });
+
+    operation->start();
+}
+
+void UserBackupOperation::readFiles()
 {
     // Temporary fix: do not read files of size 0
     m_fileList.erase(std::remove_if(m_fileList.begin(), m_fileList.end(), [](const FileInfo &arg) {
@@ -105,7 +103,8 @@ bool UserBackupOperation::readFiles()
 
         if(fileInfo.type == FileType::Directory) {
             if(!m_backupDir.mkdir(filePath)) {
-                return false;
+                finishWithError(QStringLiteral("Failed to create directory: %1").arg(QString(filePath)));
+                return;
             }
 
         } else if(fileInfo.type == FileType::RegularFile) {
@@ -114,7 +113,8 @@ bool UserBackupOperation::readFiles()
             auto *file = new QFile(m_backupDir.absoluteFilePath(filePath), this);
             if(!file->open(QIODevice::WriteOnly)) {
                 file->deleteLater();
-                return false;
+                finishWithError(QStringLiteral("Failed to open file for writing: %1").arg(QString(filePath)));
+                return;
             }
 
             auto *op = cli()->storageRead(fileInfo.absolutePath, file);
@@ -130,6 +130,4 @@ bool UserBackupOperation::readFiles()
             });
         }
     }
-
-    return true;
 }

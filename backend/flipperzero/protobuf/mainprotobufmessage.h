@@ -25,6 +25,7 @@ public:
 
     bool hasNext() const;
     PB_CommandStatus commandStatus() const;
+    const QString &commandStatusString() const;
     quint32 whichContent() const;
 
     bool isOk() const;
