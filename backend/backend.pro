@@ -28,6 +28,7 @@ SOURCES += \
     flipperzero/cli/storageinfooperation.cpp \
     flipperzero/cli/storagelistoperation.cpp \
     flipperzero/cli/storagestatoperation.cpp \
+    flipperzero/cli/storagewriteoperation.cpp \
     flipperzero/commandinterface.cpp \
     flipperzero/cli/skipmotdoperation.cpp \
     flipperzero/devicestate.cpp \
@@ -62,7 +63,6 @@ SOURCES += \
     flipperzero/cli/mkdiroperation.cpp \
     flipperzero/cli/readoperation.cpp \
     flipperzero/cli/removeoperation.cpp \
-    flipperzero/cli/writeoperation.cpp \
     flipperzero/screenstreamer.cpp \
     flipperzero/toplevel/abstracttopleveloperation.cpp \
     flipperzero/toplevel/factoryresetoperation.cpp \
@@ -116,6 +116,7 @@ HEADERS += \
     flipperzero/cli/storageinfooperation.h \
     flipperzero/cli/storagelistoperation.h \
     flipperzero/cli/storagestatoperation.h \
+    flipperzero/cli/storagewriteoperation.h \
     flipperzero/commandinterface.h \
     flipperzero/cli/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
@@ -151,7 +152,6 @@ HEADERS += \
     flipperzero/cli/mkdiroperation.h \
     flipperzero/cli/readoperation.h \
     flipperzero/cli/removeoperation.h \
-    flipperzero/cli/writeoperation.h \
     flipperzero/screenstreamer.h \
     flipperzero/toplevel/abstracttopleveloperation.h \
     flipperzero/toplevel/factoryresetoperation.h \

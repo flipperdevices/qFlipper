@@ -107,14 +107,18 @@ const QByteArray StorageReadResponse::data() const
     return QByteArray((const char*)file.data, file.size);
 }
 
-StorageWriteRequest::StorageWriteRequest(QSerialPort *serialPort, const QByteArray &path, const QByteArray &buf):
-    AbstractMainProtobufRequest(serialPort),
+StorageWriteRequest::StorageWriteRequest(QSerialPort *serialPort, const QByteArray &path, const QByteArray &buf, bool hasNext):
+    AbstractMainProtobufRequest(serialPort, hasNext),
     m_path(path)
 {
+    pbMessage()->has_next = hasNext;
+
     auto &request = pbMessage()->content.storage_write_request;
+
     request.path = m_path.data();
     request.file.data = (pb_bytes_array_t*)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(buf.size()));
     request.file.data->size = buf.size();
+
     memcpy(request.file.data->bytes, buf.data(), buf.size());
 }
 

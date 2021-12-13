@@ -107,7 +107,7 @@ class StorageWriteRequest:
 public AbstractMainProtobufRequest<PB_Main_storage_write_request_tag>
 {
 public:
-    StorageWriteRequest(QSerialPort *serialPort, const QByteArray &path, const QByteArray &buf);
+    StorageWriteRequest(QSerialPort *serialPort, const QByteArray &path, const QByteArray &buf, bool hasNext = false);
     ~StorageWriteRequest();
 
 private:

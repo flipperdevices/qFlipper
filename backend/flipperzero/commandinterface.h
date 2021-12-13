@@ -17,7 +17,7 @@ class StorageInfoOperation;
 class StorageStatOperation;
 class ReadOperation;
 class MkDirOperation;
-class WriteOperation;
+class StorageWriteOperation;
 class RemoveOperation;
 class RebootOperation;
 class StopRPCOperation;
@@ -42,7 +42,7 @@ public:
     StorageStatOperation *storageStat(const QByteArray &path);
     ReadOperation *read(const QByteArray &fileName, QIODevice *file);
     MkDirOperation *mkdir(const QByteArray &dirName);
-    WriteOperation *write(const QByteArray &fileName, QIODevice *file);
+    StorageWriteOperation *storageWrite(const QByteArray &fileName, QIODevice *file);
     RemoveOperation *remove(const QByteArray &fileName);
 
 private:

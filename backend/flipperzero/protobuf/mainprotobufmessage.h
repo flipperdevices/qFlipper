@@ -10,7 +10,7 @@ template<const pb_size_t Tag>
 class AbstractMainProtobufRequest : public AbstractProtobufRequest<&PB_Main_msg, PB_Main>
 {
 public:
-    AbstractMainProtobufRequest(QSerialPort *serialPort);
+    AbstractMainProtobufRequest(QSerialPort *serialPort, bool hasNext = false);
 };
 
 template<const pb_size_t Tag>
@@ -34,10 +34,11 @@ public:
 };
 
 template<const pb_size_t Tag>
-AbstractMainProtobufRequest<Tag>::AbstractMainProtobufRequest(QSerialPort *serialPort):
+AbstractMainProtobufRequest<Tag>::AbstractMainProtobufRequest(QSerialPort *serialPort, bool hasNext):
     AbstractProtobufRequest<&PB_Main_msg, PB_Main>(serialPort)
 {
     pbMessage()->which_content = Tag;
+    pbMessage()->has_next = hasNext;
 }
 
 

@@ -7,7 +7,7 @@
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
 #include "flipperzero/cli/mkdiroperation.h"
-#include "flipperzero/cli/writeoperation.h"
+#include "flipperzero/cli/storagewriteoperation.h"
 #include "flipperzero/cli/removeoperation.h"
 
 #include "debug.h"
@@ -120,7 +120,7 @@ bool UserRestoreOperation::writeFiles()
                 return false;
             }
 
-            op = cli()->write(filePath, file);
+            op = cli()->storageWrite(filePath, file);
             connect(op, &AbstractOperation::finished, this, [=]() {
                 file->close();
                 file->deleteLater();

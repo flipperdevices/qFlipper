@@ -9,7 +9,7 @@
 
 #include "flipperzero/cli/removeoperation.h"
 #include "flipperzero/cli/mkdiroperation.h"
-#include "flipperzero/cli/writeoperation.h"
+#include "flipperzero/cli/storagewriteoperation.h"
 #include "flipperzero/cli/readoperation.h"
 #include "flipperzero/cli/storageinfooperation.h"
 #include "flipperzero/cli/storagestatoperation.h"
@@ -310,7 +310,7 @@ void AssetsDownloadOperation::writeFiles()
                 return finishWithError(buf->errorString());
             }
 
-            op = cli()->write(filePath, buf);
+            op = cli()->storageWrite(filePath, buf);
 
         } else {
             return finishWithError(QStringLiteral("Unexpected file type"));

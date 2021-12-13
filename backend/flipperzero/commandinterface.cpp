@@ -12,7 +12,7 @@
 #include "cli/rebootoperation.h"
 #include "cli/removeoperation.h"
 #include "cli/mkdiroperation.h"
-#include "cli/writeoperation.h"
+#include "cli/storagewriteoperation.h"
 #include "cli/readoperation.h"
 #include "cli/storagelistoperation.h"
 #include "cli/dfuoperation.h"
@@ -109,9 +109,9 @@ MkDirOperation *CommandInterface::mkdir(const QByteArray &dirName)
     return op;
 }
 
-WriteOperation *CommandInterface::write(const QByteArray &fileName, QIODevice *file)
+StorageWriteOperation *CommandInterface::storageWrite(const QByteArray &fileName, QIODevice *file)
 {
-    auto *op = new WriteOperation(m_serialPort, fileName, file, this);
+    auto *op = new StorageWriteOperation(m_serialPort, fileName, file, this);
     enqueueOperation(op);
     return op;
 }
