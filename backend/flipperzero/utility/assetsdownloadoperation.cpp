@@ -7,7 +7,7 @@
 #include <QFileInfo>
 #include <QLoggingCategory>
 
-#include "flipperzero/cli/removeoperation.h"
+#include "flipperzero/cli/storageremoveoperation.h"
 #include "flipperzero/cli/mkdiroperation.h"
 #include "flipperzero/cli/storagewriteoperation.h"
 #include "flipperzero/cli/storagereadoperation.h"
@@ -267,7 +267,7 @@ void AssetsDownloadOperation::deleteFiles()
         const auto isLastFile = (--numFiles == 0);
         const auto fileName = QByteArrayLiteral("/ext/") + fileInfo.absolutePath.toLocal8Bit();
 
-        auto *operation = cli()->remove(fileName);
+        auto *operation = cli()->storageRemove(fileName);
 
         connect(operation, &AbstractOperation::finished, this, [=]() {
             if(operation->isError()) {

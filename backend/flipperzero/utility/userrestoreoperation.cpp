@@ -8,7 +8,7 @@
 #include "flipperzero/commandinterface.h"
 #include "flipperzero/cli/mkdiroperation.h"
 #include "flipperzero/cli/storagewriteoperation.h"
-#include "flipperzero/cli/removeoperation.h"
+#include "flipperzero/cli/storageremoveoperation.h"
 
 #include "debug.h"
 
@@ -86,7 +86,7 @@ bool UserRestoreOperation::deleteFiles()
         const auto filePath = m_deviceDirName + QByteArrayLiteral("/") + m_backupDir.relativeFilePath(it->absoluteFilePath()).toLocal8Bit();
         const auto isLastFile = (--numFiles == 0);
 
-        auto *op = cli()->remove(filePath);
+        auto *op = cli()->storageRemove(filePath);
         connect(op, &AbstractOperation::finished, this, [=](){
             if(op->isError()) {
                 finishWithError(op->errorString());

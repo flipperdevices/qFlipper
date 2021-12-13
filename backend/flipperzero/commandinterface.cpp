@@ -10,7 +10,7 @@
 #include "cli/startrpcoperation.h"
 #include "cli/stoprpcoperation.h"
 #include "cli/rebootoperation.h"
-#include "cli/removeoperation.h"
+#include "cli/storageremoveoperation.h"
 #include "cli/mkdiroperation.h"
 #include "cli/storagewriteoperation.h"
 #include "cli/storagereadoperation.h"
@@ -113,11 +113,9 @@ StorageWriteOperation *CommandInterface::storageWrite(const QByteArray &path, QI
     return registerOperation(new StorageWriteOperation(m_serialPort, path, file, this));
 }
 
-RemoveOperation *CommandInterface::remove(const QByteArray &fileName)
+StorageRemoveOperation *CommandInterface::storageRemove(const QByteArray &fileName)
 {
-    auto *op = new RemoveOperation(m_serialPort, fileName, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new StorageRemoveOperation(m_serialPort, fileName, this));
 }
 
 bool CommandInterface::onQueueStarted()

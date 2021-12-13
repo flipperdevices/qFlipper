@@ -18,7 +18,7 @@ class StorageStatOperation;
 class StorageReadOperation;
 class MkDirOperation;
 class StorageWriteOperation;
-class RemoveOperation;
+class StorageRemoveOperation;
 class RebootOperation;
 class StopRPCOperation;
 class StartRPCOperation;
@@ -43,7 +43,7 @@ public:
     StorageReadOperation *storageRead(const QByteArray &path, QIODevice *file);
     MkDirOperation *mkdir(const QByteArray &dirName);
     StorageWriteOperation *storageWrite(const QByteArray &path, QIODevice *file);
-    RemoveOperation *remove(const QByteArray &fileName);
+    StorageRemoveOperation *storageRemove(const QByteArray &fileName);
 
 private:
     bool onQueueStarted() override;

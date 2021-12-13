@@ -77,7 +77,7 @@ class StorageRemoveRequest:
 public AbstractMainProtobufRequest<PB_Main_storage_delete_request_tag>
 {
 public:
-    StorageRemoveRequest(QSerialPort *serialPort, const QByteArray &path, bool recursive);
+    StorageRemoveRequest(QSerialPort *serialPort, const QByteArray &path, bool recursive = false);
 
 private:
     QByteArray m_path;
