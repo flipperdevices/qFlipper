@@ -161,14 +161,14 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
             .version = operation->result(QByteArrayLiteral("bootloader_version")),
             .commit = operation->result(QByteArrayLiteral("bootloader_commit")),
             .branch = operation->result(QByteArrayLiteral("bootloader_branch")),
-            .date = QDateTime::fromString(operation->result(QByteArrayLiteral("bootloader_build_date")), "MM-dd-yyyy").date()
+            .date = QDateTime::fromString(operation->result(QByteArrayLiteral("bootloader_build_date")), "dd-MM-yyyy").date()
         };
 
         m_deviceInfo.firmware = {
             .version = operation->result(QByteArrayLiteral("firmware_version")),
             .commit = operation->result(QByteArrayLiteral("firmware_commit")),
             .branch = operation->result(QByteArrayLiteral("firmware_branch")),
-            .date = QDateTime::fromString(operation->result(QByteArrayLiteral("firmware_build_date")), "MM-dd-yyyy").date()
+            .date = QDateTime::fromString(operation->result(QByteArrayLiteral("firmware_build_date")), "dd-MM-yyyy").date()
         };
 
         m_deviceInfo.hardware = {
