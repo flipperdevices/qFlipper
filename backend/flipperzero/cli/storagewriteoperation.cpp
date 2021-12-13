@@ -1,8 +1,6 @@
 #include "storagewriteoperation.h"
 
-#include <QDebug>
 #include <QIODevice>
-#include <QSerialPort>
 
 #include "flipperzero/protobuf/storageprotobufmessage.h"
 
@@ -43,11 +41,18 @@ void StorageWriteOperation::onSerialPortReadyRead()
 
 void StorageWriteOperation::onTotalBytesWrittenChanged()
 {
-#warning This is obviously wrong. What was I thinking?
-    if((totalBytesWritten() == m_file->pos()) && (m_file->bytesAvailable() > 0)) {
+    const auto bytesAvailable = m_file->bytesAvailable();
+
+    if(bytesAvailable < 0) {
+        finishWithError(QStringLiteral("Failed to read from input device: %1").arg(m_file->errorString()));
+
+    } else if(bytesAvailable > 0) {
         if(!writeChunk()) {
             finishWithError(QStringLiteral("Failed to write chunk"));
         }
+
+    } else {
+        finish();
     }
 }
 
