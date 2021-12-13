@@ -43,6 +43,7 @@ void StorageWriteOperation::onSerialPortReadyRead()
 
 void StorageWriteOperation::onTotalBytesWrittenChanged()
 {
+#warning This is obviously wrong. What was I thinking?
     if((totalBytesWritten() == m_file->pos()) && (m_file->bytesAvailable() > 0)) {
         if(!writeChunk()) {
             finishWithError(QStringLiteral("Failed to write chunk"));

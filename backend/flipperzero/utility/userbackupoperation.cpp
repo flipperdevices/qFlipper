@@ -6,7 +6,7 @@
 
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
-#include "flipperzero/cli/readoperation.h"
+#include "flipperzero/cli/storagereadoperation.h"
 
 #include "getfiletreeoperation.h"
 #include "debug.h"
@@ -117,7 +117,7 @@ bool UserBackupOperation::readFiles()
                 return false;
             }
 
-            auto *op = cli()->read(fileInfo.absolutePath, file);
+            auto *op = cli()->storageRead(fileInfo.absolutePath, file);
             connect(op, &AbstractOperation::finished, this, [=]() {
                 if(op->isError()) {
                     finishWithError(op->errorString());

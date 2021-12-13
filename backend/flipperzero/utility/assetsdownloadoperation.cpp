@@ -10,7 +10,7 @@
 #include "flipperzero/cli/removeoperation.h"
 #include "flipperzero/cli/mkdiroperation.h"
 #include "flipperzero/cli/storagewriteoperation.h"
-#include "flipperzero/cli/readoperation.h"
+#include "flipperzero/cli/storagereadoperation.h"
 #include "flipperzero/cli/storageinfooperation.h"
 #include "flipperzero/cli/storagestatoperation.h"
 
@@ -180,7 +180,7 @@ void AssetsDownloadOperation::readDeviceManifest()
         return finishWithError(buf->errorString());
     }
 
-    auto *operation = cli()->read(QByteArrayLiteral("/ext/Manifest"), buf);
+    auto *operation = cli()->storageRead(QByteArrayLiteral("/ext/Manifest"), buf);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(!operation->isError()) {

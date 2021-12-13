@@ -13,7 +13,7 @@
 #include "cli/removeoperation.h"
 #include "cli/mkdiroperation.h"
 #include "cli/storagewriteoperation.h"
-#include "cli/readoperation.h"
+#include "cli/storagereadoperation.h"
 #include "cli/storagelistoperation.h"
 #include "cli/dfuoperation.h"
 
@@ -30,6 +30,7 @@ CommandInterface::CommandInterface(DeviceState *state, QObject *parent):
     m_serialPort(nullptr)
 {
     // Automatically re-create serial port instance when a persistent device reconnects
+    // TODO: move serial port instance to DeviceState
     const auto createSerialPort = [=]() {
         if(m_serialPort) {
             if(m_serialPort->isOpen()) {
@@ -95,11 +96,9 @@ StorageStatOperation *CommandInterface::storageStat(const QByteArray &path)
     return registerOperation(new StorageStatOperation(m_serialPort, path, this));
 }
 
-ReadOperation *CommandInterface::read(const QByteArray &fileName, QIODevice *file)
+StorageReadOperation *CommandInterface::storageRead(const QByteArray &path, QIODevice *file)
 {
-    auto *op = new ReadOperation(m_serialPort, fileName, file, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new StorageReadOperation(m_serialPort, path, file, this));
 }
 
 MkDirOperation *CommandInterface::mkdir(const QByteArray &dirName)
@@ -109,11 +108,9 @@ MkDirOperation *CommandInterface::mkdir(const QByteArray &dirName)
     return op;
 }
 
-StorageWriteOperation *CommandInterface::storageWrite(const QByteArray &fileName, QIODevice *file)
+StorageWriteOperation *CommandInterface::storageWrite(const QByteArray &path, QIODevice *file)
 {
-    auto *op = new StorageWriteOperation(m_serialPort, fileName, file, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new StorageWriteOperation(m_serialPort, path, file, this));
 }
 
 RemoveOperation *CommandInterface::remove(const QByteArray &fileName)

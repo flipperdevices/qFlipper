@@ -27,6 +27,7 @@ SOURCES += \
     flipperzero/cli/stoprpcoperation.cpp \
     flipperzero/cli/storageinfooperation.cpp \
     flipperzero/cli/storagelistoperation.cpp \
+    flipperzero/cli/storagereadoperation.cpp \
     flipperzero/cli/storagestatoperation.cpp \
     flipperzero/cli/storagewriteoperation.cpp \
     flipperzero/commandinterface.cpp \
@@ -61,7 +62,6 @@ SOURCES += \
     flipperzero/recovery/wirelessstackdownloadoperation.cpp \
     flipperzero/recoveryinterface.cpp \
     flipperzero/cli/mkdiroperation.cpp \
-    flipperzero/cli/readoperation.cpp \
     flipperzero/cli/removeoperation.cpp \
     flipperzero/screenstreamer.cpp \
     flipperzero/toplevel/abstracttopleveloperation.cpp \
@@ -115,6 +115,7 @@ HEADERS += \
     flipperzero/cli/stoprpcoperation.h \
     flipperzero/cli/storageinfooperation.h \
     flipperzero/cli/storagelistoperation.h \
+    flipperzero/cli/storagereadoperation.h \
     flipperzero/cli/storagestatoperation.h \
     flipperzero/cli/storagewriteoperation.h \
     flipperzero/commandinterface.h \
@@ -150,7 +151,6 @@ HEADERS += \
     flipperzero/recovery/wirelessstackdownloadoperation.h \
     flipperzero/recoveryinterface.h \
     flipperzero/cli/mkdiroperation.h \
-    flipperzero/cli/readoperation.h \
     flipperzero/cli/removeoperation.h \
     flipperzero/screenstreamer.h \
     flipperzero/toplevel/abstracttopleveloperation.h \

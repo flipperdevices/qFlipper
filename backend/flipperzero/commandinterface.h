@@ -15,7 +15,7 @@ class DFUOperation;
 class StorageListOperation;
 class StorageInfoOperation;
 class StorageStatOperation;
-class ReadOperation;
+class StorageReadOperation;
 class MkDirOperation;
 class StorageWriteOperation;
 class RemoveOperation;
@@ -40,9 +40,9 @@ public:
     StorageListOperation *storageList(const QByteArray &path);
     StorageInfoOperation *storageInfo(const QByteArray &path);
     StorageStatOperation *storageStat(const QByteArray &path);
-    ReadOperation *read(const QByteArray &fileName, QIODevice *file);
+    StorageReadOperation *storageRead(const QByteArray &path, QIODevice *file);
     MkDirOperation *mkdir(const QByteArray &dirName);
-    StorageWriteOperation *storageWrite(const QByteArray &fileName, QIODevice *file);
+    StorageWriteOperation *storageWrite(const QByteArray &path, QIODevice *file);
     RemoveOperation *remove(const QByteArray &fileName);
 
 private:
