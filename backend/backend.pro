@@ -27,6 +27,7 @@ SOURCES += \
     flipperzero/cli/stoprpcoperation.cpp \
     flipperzero/cli/storageinfooperation.cpp \
     flipperzero/cli/storagelistoperation.cpp \
+    flipperzero/cli/storagemkdiroperation.cpp \
     flipperzero/cli/storagereadoperation.cpp \
     flipperzero/cli/storageremoveoperation.cpp \
     flipperzero/cli/storagestatoperation.cpp \
@@ -62,7 +63,6 @@ SOURCES += \
     flipperzero/recovery/setbootmodeoperation.cpp \
     flipperzero/recovery/wirelessstackdownloadoperation.cpp \
     flipperzero/recoveryinterface.cpp \
-    flipperzero/cli/mkdiroperation.cpp \
     flipperzero/screenstreamer.cpp \
     flipperzero/toplevel/abstracttopleveloperation.cpp \
     flipperzero/toplevel/factoryresetoperation.cpp \
@@ -115,6 +115,7 @@ HEADERS += \
     flipperzero/cli/stoprpcoperation.h \
     flipperzero/cli/storageinfooperation.h \
     flipperzero/cli/storagelistoperation.h \
+    flipperzero/cli/storagemkdiroperation.h \
     flipperzero/cli/storagereadoperation.h \
     flipperzero/cli/storageremoveoperation.h \
     flipperzero/cli/storagestatoperation.h \
@@ -151,7 +152,6 @@ HEADERS += \
     flipperzero/recovery/setbootmodeoperation.h \
     flipperzero/recovery/wirelessstackdownloadoperation.h \
     flipperzero/recoveryinterface.h \
-    flipperzero/cli/mkdiroperation.h \
     flipperzero/screenstreamer.h \
     flipperzero/toplevel/abstracttopleveloperation.h \
     flipperzero/toplevel/factoryresetoperation.h \

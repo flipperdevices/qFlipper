@@ -8,7 +8,7 @@
 #include <QLoggingCategory>
 
 #include "flipperzero/cli/storageremoveoperation.h"
-#include "flipperzero/cli/mkdiroperation.h"
+#include "flipperzero/cli/storagemkdiroperation.h"
 #include "flipperzero/cli/storagewriteoperation.h"
 #include "flipperzero/cli/storagereadoperation.h"
 #include "flipperzero/cli/storageinfooperation.h"
@@ -297,7 +297,7 @@ void AssetsDownloadOperation::writeFiles()
         const auto filePath = QByteArrayLiteral("/ext/") + fileInfo.absolutePath.toLocal8Bit();
 
         if(fileInfo.type == FileNode::Type::Directory) {
-            op = cli()->mkdir(filePath);
+            op = cli()->storageMkdir(filePath);
 
         } else if(fileInfo.type == FileNode::Type::RegularFile) {
             auto *buf = new QBuffer(this);

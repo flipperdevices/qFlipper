@@ -11,7 +11,7 @@
 #include "cli/stoprpcoperation.h"
 #include "cli/rebootoperation.h"
 #include "cli/storageremoveoperation.h"
-#include "cli/mkdiroperation.h"
+#include "cli/storagemkdiroperation.h"
 #include "cli/storagewriteoperation.h"
 #include "cli/storagereadoperation.h"
 #include "cli/storagelistoperation.h"
@@ -101,11 +101,9 @@ StorageReadOperation *CommandInterface::storageRead(const QByteArray &path, QIOD
     return registerOperation(new StorageReadOperation(m_serialPort, path, file, this));
 }
 
-MkDirOperation *CommandInterface::mkdir(const QByteArray &dirName)
+StorageMkdirOperation *CommandInterface::storageMkdir(const QByteArray &path)
 {
-    auto *op = new MkDirOperation(m_serialPort, dirName, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new StorageMkdirOperation(m_serialPort, path, this));
 }
 
 StorageWriteOperation *CommandInterface::storageWrite(const QByteArray &path, QIODevice *file)
@@ -113,9 +111,9 @@ StorageWriteOperation *CommandInterface::storageWrite(const QByteArray &path, QI
     return registerOperation(new StorageWriteOperation(m_serialPort, path, file, this));
 }
 
-StorageRemoveOperation *CommandInterface::storageRemove(const QByteArray &fileName)
+StorageRemoveOperation *CommandInterface::storageRemove(const QByteArray &path)
 {
-    return registerOperation(new StorageRemoveOperation(m_serialPort, fileName, this));
+    return registerOperation(new StorageRemoveOperation(m_serialPort, path, this));
 }
 
 bool CommandInterface::onQueueStarted()

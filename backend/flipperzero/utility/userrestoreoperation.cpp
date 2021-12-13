@@ -6,7 +6,7 @@
 
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
-#include "flipperzero/cli/mkdiroperation.h"
+#include "flipperzero/cli/storagemkdiroperation.h"
 #include "flipperzero/cli/storagewriteoperation.h"
 #include "flipperzero/cli/storageremoveoperation.h"
 
@@ -127,7 +127,7 @@ bool UserRestoreOperation::writeFiles()
             });
 
         } else if(fileInfo.isDir()) {
-            op = cli()->mkdir(filePath);
+            op = cli()->storageMkdir(filePath);
         } else {
             return false;
         }
