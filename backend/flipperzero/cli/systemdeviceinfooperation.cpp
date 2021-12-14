@@ -1,4 +1,4 @@
-#include "deviceinfooperation.h"
+#include "systemdeviceinfooperation.h"
 
 #include <QSerialPort>
 
@@ -7,21 +7,21 @@
 using namespace Flipper;
 using namespace Zero;
 
-DeviceInfoOperation::DeviceInfoOperation(QSerialPort *serialPort, QObject *parent):
+SystemDeviceInfoOperation::SystemDeviceInfoOperation(QSerialPort *serialPort, QObject *parent):
     AbstractProtobufOperation(serialPort, parent)
 {}
 
-const QString DeviceInfoOperation::description() const
+const QString SystemDeviceInfoOperation::description() const
 {
     return QStringLiteral("Device Info @%1").arg(QString(serialPort()->portName()));
 }
 
-const QByteArray DeviceInfoOperation::result(const QByteArray &key) const
+const QByteArray SystemDeviceInfoOperation::result(const QByteArray &key) const
 {
     return m_data.value(key);
 }
 
-void DeviceInfoOperation::onSerialPortReadyRead()
+void SystemDeviceInfoOperation::onSerialPortReadyRead()
 {
     SystemDeviceInfoResponse response(serialPort());
 
@@ -44,7 +44,7 @@ void DeviceInfoOperation::onSerialPortReadyRead()
     }
 }
 
-bool DeviceInfoOperation::begin()
+bool SystemDeviceInfoOperation::begin()
 {
     SystemDeviceInfoRequest request(serialPort());
     return request.send();

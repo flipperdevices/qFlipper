@@ -13,7 +13,7 @@ StartStreamOperation::StartStreamOperation(QSerialPort *serialPort, QObject *par
 
 const QString StartStreamOperation::description() const
 {
-    return QStringLiteral("Start Screen Streaming (protobuf) @%1").arg(serialPort()->portName());
+    return QStringLiteral("Start screen streaming @%1").arg(serialPort()->portName());
 }
 
 void StartStreamOperation::onSerialPortReadyRead()

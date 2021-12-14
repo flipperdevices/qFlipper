@@ -10,12 +10,12 @@
 namespace Flipper {
 namespace Zero {
 
-class DeviceInfoOperation : public AbstractProtobufOperation
+class SystemDeviceInfoOperation : public AbstractProtobufOperation
 {
     Q_OBJECT
 
 public:
-    DeviceInfoOperation(QSerialPort *serialPort, QObject *parent = nullptr);
+    SystemDeviceInfoOperation(QSerialPort *serialPort, QObject *parent = nullptr);
     const QString description() const override;
     const QByteArray result(const QByteArray &key) const;
 

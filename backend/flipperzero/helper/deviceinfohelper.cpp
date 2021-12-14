@@ -6,7 +6,7 @@
 #include <QSerialPort>
 
 #include "flipperzero/cli/storageinfooperation.h"
-#include "flipperzero/cli/deviceinfooperation.h"
+#include "flipperzero/cli/systemdeviceinfooperation.h"
 #include "flipperzero/cli/skipmotdoperation.h"
 #include "flipperzero/cli/startrpcoperation.h"
 #include "flipperzero/cli/stoprpcoperation.h"
@@ -147,7 +147,7 @@ void VCPDeviceInfoHelper::startRPCSession()
 
 void VCPDeviceInfoHelper::fetchDeviceInfo()
 {
-    auto *operation = new DeviceInfoOperation(m_serialPort, this);
+    auto *operation = new SystemDeviceInfoOperation(m_serialPort, this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
