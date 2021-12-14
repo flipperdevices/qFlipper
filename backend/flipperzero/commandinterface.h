@@ -15,7 +15,7 @@ class DFUOperation;
 class RebootOperation;
 class StopRPCOperation;
 class StartRPCOperation;
-class FactoryResetCliOperation;
+class SystemFactoryResetOperation;
 
 class StorageListOperation;
 class StorageInfoOperation;
@@ -36,7 +36,7 @@ public:
     DFUOperation *startRecoveryMode();
     StopRPCOperation *stopRPCSession();
     StartRPCOperation *startRPCSession();
-    FactoryResetCliOperation *factoryReset();
+    SystemFactoryResetOperation *factoryReset();
 
     StorageListOperation *storageList(const QByteArray &path);
     StorageInfoOperation *storageInfo(const QByteArray &path);

@@ -5,7 +5,7 @@
 
 #include "flipperzero/devicestate.h"
 
-#include "cli/factoryresetclioperation.h"
+#include "cli/systemfactoryresetoperation.h"
 #include "cli/skipmotdoperation.h"
 #include "cli/startrpcoperation.h"
 #include "cli/stoprpcoperation.h"
@@ -74,9 +74,9 @@ StartRPCOperation *CommandInterface::startRPCSession()
     return operation;
 }
 
-FactoryResetCliOperation *CommandInterface::factoryReset()
+SystemFactoryResetOperation *CommandInterface::factoryReset()
 {
-    auto *op = new FactoryResetCliOperation(m_serialPort, this);
+    auto *op = new SystemFactoryResetOperation(m_serialPort, this);
     enqueueOperation(op);
     return op;
 }
