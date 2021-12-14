@@ -25,6 +25,7 @@ public:
     virtual void finish();
 
     int operationState() const;
+    void setTimeout(int msec);
 
 signals:
     void started();
@@ -33,14 +34,14 @@ signals:
 protected slots:
     virtual void onOperationTimeout();
 
+    void startTimeout();
+    void stopTimeout();
+
 protected:
     void setOperationState(int state);
     void finishWithError(const QString &errorMsg);
 
-    void startTimeout(int msec = 10000);
-    void stopTimeout();
-
 private:
-    QTimer *m_timeout;
+    QTimer *m_timeoutTimer;
     int m_operationState;
 };

@@ -11,15 +11,23 @@ AbstractSerialOperation::AbstractSerialOperation(QSerialPort *serialPort, QObjec
 
 void AbstractSerialOperation::start()
 {
+    connect(m_serialPort, &QSerialPort::readyRead, this, &AbstractSerialOperation::startTimeout);
     connect(m_serialPort, &QSerialPort::readyRead, this, &AbstractSerialOperation::onSerialPortReadyRead);
     connect(m_serialPort, &QSerialPort::errorOccurred, this, &AbstractSerialOperation::onSerialPortError);
     connect(m_serialPort, &QSerialPort::bytesWritten, this, &AbstractSerialOperation::onSerialPortBytesWritten);
 
-    QTimer::singleShot(0, this, &AbstractSerialOperation::begin);
+    QTimer::singleShot(0, this, [=]() {
+        if(!begin()) {
+            finishWithError(QStringLiteral("Failed to begin operation"));
+        } else {
+            startTimeout();
+        }
+    });
 }
 
 void AbstractSerialOperation::finish()
 {
+    disconnect(m_serialPort, &QSerialPort::readyRead, this, &AbstractSerialOperation::startTimeout);
     disconnect(m_serialPort, &QSerialPort::readyRead, this, &AbstractSerialOperation::onSerialPortReadyRead);
     disconnect(m_serialPort, &QSerialPort::errorOccurred, this, &AbstractSerialOperation::onSerialPortError);
     disconnect(m_serialPort, &QSerialPort::bytesWritten, this, &AbstractSerialOperation::onSerialPortBytesWritten);
