@@ -49,6 +49,7 @@ void StorageWriteOperation::onTotalBytesWrittenChanged()
         finishWithError(QStringLiteral("Failed to read from input device: %1").arg(m_file->errorString()));
 
     } else if(bytesAvailable > 0) {
+        // Must write the chunk asynchronously in order to receive this signal
         QTimer::singleShot(0, this, [=]() {
             if(!writeChunk()) {
                 finishWithError(QStringLiteral("Failed to write chunk"));
