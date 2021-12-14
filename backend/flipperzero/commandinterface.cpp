@@ -9,14 +9,12 @@
 #include "cli/skipmotdoperation.h"
 #include "cli/startrpcoperation.h"
 #include "cli/stoprpcoperation.h"
-#include "cli/rebootoperation.h"
+#include "cli/systemrebootoperation.h"
 #include "cli/storageremoveoperation.h"
 #include "cli/storagemkdiroperation.h"
 #include "cli/storagewriteoperation.h"
 #include "cli/storagereadoperation.h"
 #include "cli/storagelistoperation.h"
-#include "cli/dfuoperation.h"
-
 #include "cli/storagestatoperation.h"
 #include "cli/storageinfooperation.h"
 
@@ -53,32 +51,29 @@ CommandInterface::CommandInterface(DeviceState *state, QObject *parent):
     createSerialPort();
 }
 
-RebootOperation *CommandInterface::reboot()
+StopRPCOperation *CommandInterface::stopRPCSession()
 {
-    auto *op = new RebootOperation(m_serialPort, this);
-    enqueueOperation(op);
-    return op;
-}
-
-DFUOperation *CommandInterface::startRecoveryMode()
-{
-    auto *op = new DFUOperation(m_serialPort, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new StopRPCOperation(m_serialPort, this));
 }
 
 StartRPCOperation *CommandInterface::startRPCSession()
 {
-    auto *operation = new StartRPCOperation(m_serialPort, this);
-    enqueueOperation(operation);
-    return operation;
+    return registerOperation(new StartRPCOperation(m_serialPort, this));
+}
+
+SystemRebootOperation *CommandInterface::rebootToOS()
+{
+    return registerOperation(new SystemRebootOperation(m_serialPort, SystemRebootOperation::RebootType::OS, this));
+}
+
+SystemRebootOperation *CommandInterface::rebootToRecovery()
+{
+    return registerOperation(new SystemRebootOperation(m_serialPort, SystemRebootOperation::RebootType::Recovery, this));
 }
 
 SystemFactoryResetOperation *CommandInterface::factoryReset()
 {
-    auto *op = new SystemFactoryResetOperation(m_serialPort, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new SystemFactoryResetOperation(m_serialPort, this));
 }
 
 StorageListOperation *CommandInterface::storageList(const QByteArray &path)

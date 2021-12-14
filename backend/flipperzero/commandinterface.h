@@ -4,17 +4,16 @@
 
 class QIODevice;
 class QSerialPort;
-class QSerialPortInfo;
 
 namespace Flipper {
 namespace Zero {
 
 class DeviceState;
 
-class DFUOperation;
-class RebootOperation;
 class StopRPCOperation;
 class StartRPCOperation;
+
+class SystemRebootOperation;
 class SystemFactoryResetOperation;
 
 class StorageListOperation;
@@ -32,19 +31,20 @@ class CommandInterface : public AbstractOperationRunner
 public:
     CommandInterface(DeviceState *state, QObject *parent = nullptr);
 
-    RebootOperation *reboot();
-    DFUOperation *startRecoveryMode();
     StopRPCOperation *stopRPCSession();
     StartRPCOperation *startRPCSession();
+
+    SystemRebootOperation *rebootToOS();
+    SystemRebootOperation *rebootToRecovery();
     SystemFactoryResetOperation *factoryReset();
 
     StorageListOperation *storageList(const QByteArray &path);
     StorageInfoOperation *storageInfo(const QByteArray &path);
     StorageStatOperation *storageStat(const QByteArray &path);
-    StorageReadOperation *storageRead(const QByteArray &path, QIODevice *file);
     StorageMkdirOperation *storageMkdir(const QByteArray &path);
-    StorageWriteOperation *storageWrite(const QByteArray &path, QIODevice *file);
     StorageRemoveOperation *storageRemove(const QByteArray &path);
+    StorageReadOperation *storageRead(const QByteArray &path, QIODevice *file);
+    StorageWriteOperation *storageWrite(const QByteArray &path, QIODevice *file);
 
 private:
     bool onQueueStarted() override;

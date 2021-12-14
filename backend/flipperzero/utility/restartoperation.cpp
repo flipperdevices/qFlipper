@@ -4,7 +4,7 @@
 
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
-#include "flipperzero/cli/rebootoperation.h"
+#include "flipperzero/cli/systemrebootoperation.h"
 
 #define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
 
@@ -53,7 +53,7 @@ void RestartOperation::rebootDevice()
 
     connect(deviceState(), &DeviceState::isOnlineChanged, this, &RestartOperation::onDeviceOnlineChanged);
 
-    auto *operation = cli()->reboot();
+    auto *operation = cli()->rebootToOS();
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {

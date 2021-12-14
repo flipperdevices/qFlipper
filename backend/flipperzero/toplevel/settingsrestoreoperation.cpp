@@ -37,8 +37,7 @@ void SettingsRestoreOperation::nextStateLogic()
 
     } else if(operationState() == SettingsRestoreOperation::Waiting) {
         setOperationState(SettingsRestoreOperation::RestartingDevice);
-        finish();
-//        restartDevice();
+        restartDevice();
 
     } else if(operationState() == SettingsRestoreOperation::RestartingDevice) {
         finish();

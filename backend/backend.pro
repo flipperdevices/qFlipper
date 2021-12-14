@@ -19,8 +19,6 @@ SOURCES += \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
     flipperzero/cli/deviceinfooperation.cpp \
-    flipperzero/cli/dfuoperation.cpp \
-    flipperzero/cli/rebootoperation.cpp \
     flipperzero/cli/startrpcoperation.cpp \
     flipperzero/cli/startstreamoperation.cpp \
     flipperzero/cli/stoprpcoperation.cpp \
@@ -32,6 +30,7 @@ SOURCES += \
     flipperzero/cli/storagestatoperation.cpp \
     flipperzero/cli/storagewriteoperation.cpp \
     flipperzero/cli/systemfactoryresetoperation.cpp \
+    flipperzero/cli/systemrebootoperation.cpp \
     flipperzero/commandinterface.cpp \
     flipperzero/cli/skipmotdoperation.cpp \
     flipperzero/devicestate.cpp \
@@ -107,8 +106,6 @@ HEADERS += \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
     flipperzero/cli/deviceinfooperation.h \
-    flipperzero/cli/dfuoperation.h \
-    flipperzero/cli/rebootoperation.h \
     flipperzero/cli/startrpcoperation.h \
     flipperzero/cli/startstreamoperation.h \
     flipperzero/cli/stoprpcoperation.h \
@@ -120,6 +117,7 @@ HEADERS += \
     flipperzero/cli/storagestatoperation.h \
     flipperzero/cli/storagewriteoperation.h \
     flipperzero/cli/systemfactoryresetoperation.h \
+    flipperzero/cli/systemrebootoperation.h \
     flipperzero/commandinterface.h \
     flipperzero/cli/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
