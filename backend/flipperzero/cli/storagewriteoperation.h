@@ -19,7 +19,7 @@ public:
 
 private slots:
     void onSerialPortReadyRead() override;
-    void onTotalBytesWrittenChanged();
+    void onTotalBytesWrittenChanged() override;
 
 private:
     bool begin() override;

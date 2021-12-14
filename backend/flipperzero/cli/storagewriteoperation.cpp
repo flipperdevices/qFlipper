@@ -15,9 +15,7 @@ StorageWriteOperation::StorageWriteOperation(QSerialPort *serialPort, const QByt
     m_path(path),
     m_file(file),
     m_byteCount(0)
-{
-    connect(this, &AbstractSerialOperation::totalBytesWrittenChanged, this, &StorageWriteOperation::onTotalBytesWrittenChanged);
-}
+{}
 
 const QString StorageWriteOperation::description() const
 {

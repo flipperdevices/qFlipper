@@ -15,9 +15,6 @@ public:
     void start() override;
     void finish() override;
 
-signals:
-    void totalBytesWrittenChanged();
-
 protected:
     QSerialPort *serialPort() const;
 
@@ -26,6 +23,7 @@ protected:
 
 private slots:
     virtual void onSerialPortReadyRead();
+    virtual void onTotalBytesWrittenChanged();
 
     void onSerialPortBytesWritten(qint64 numBytes);
     void onSerialPortError();

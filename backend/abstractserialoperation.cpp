@@ -47,10 +47,15 @@ void AbstractSerialOperation::onSerialPortReadyRead()
     // Empty default implementation
 }
 
+void AbstractSerialOperation::onTotalBytesWrittenChanged()
+{
+    // Empty default implementation
+}
+
 void AbstractSerialOperation::onSerialPortBytesWritten(qint64 numBytes)
 {
     m_totalBytesWritten += numBytes;
-    emit totalBytesWrittenChanged();
+    onTotalBytesWrittenChanged();
 }
 
 void AbstractSerialOperation::onSerialPortError()
