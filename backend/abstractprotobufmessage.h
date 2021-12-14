@@ -6,14 +6,11 @@
 #include <pb_encode.h>
 #include <pb_decode.h>
 
-#include "failable.h"
-
 template<typename Msg>
-class AbstractProtobufMessage : public Failable
+class AbstractProtobufMessage
 {
 public:
     AbstractProtobufMessage(QSerialPort *serialPort);
-    AbstractProtobufMessage(const Msg &msgInit, QSerialPort *serialPort);
     virtual ~AbstractProtobufMessage() {}
 
 protected:
@@ -32,13 +29,14 @@ class AbstractProtobufRequest : public AbstractProtobufMessage<Msg>
 {
 public:
     AbstractProtobufRequest(QSerialPort *serialPort);
-    AbstractProtobufRequest(const Msg &msgInit, QSerialPort *serialPort);
     virtual ~AbstractProtobufRequest() {}
 
     bool send();
+    qint64 bytesWritten() const;
 
 private:
     static bool outputCallback(pb_ostream_t *stream, const pb_byte_t *buf, size_t count);
+    qint64 m_bytesWritten;
 };
 
 template<const pb_msgdesc_t *MsgDesc, typename Msg>
@@ -65,12 +63,6 @@ AbstractProtobufMessage<Msg>::AbstractProtobufMessage(QSerialPort *serialPort):
 }
 
 template<typename Msg>
-AbstractProtobufMessage<Msg>::AbstractProtobufMessage(const Msg &msgInit, QSerialPort *serialPort):
-    m_serialPort(serialPort),
-    m_message(msgInit)
-{}
-
-template<typename Msg>
 QSerialPort *AbstractProtobufMessage<Msg>::serialPort() const
 {
     return m_serialPort;
@@ -90,37 +82,42 @@ const Msg *AbstractProtobufMessage<Msg>::pbMessage() const
 
 template<const pb_msgdesc_t *MsgDesc, typename Msg>
 AbstractProtobufRequest<MsgDesc, Msg>::AbstractProtobufRequest(QSerialPort *serialPort):
-    AbstractProtobufMessage<Msg>(serialPort)
-{}
-
-template<const pb_msgdesc_t *MsgDesc, typename Msg>
-AbstractProtobufRequest<MsgDesc, Msg>::AbstractProtobufRequest(const Msg &msgInit, QSerialPort *serialPort):
-    AbstractProtobufMessage<Msg>(msgInit, serialPort)
+    AbstractProtobufMessage<Msg>(serialPort),
+    m_bytesWritten(0)
 {}
 
 template<const pb_msgdesc_t *MsgDesc, typename Msg>
 bool AbstractProtobufRequest<MsgDesc, Msg>::send()
 {
+    auto *serialPort = AbstractProtobufMessage<Msg>::serialPort();
+
     pb_ostream_t ostream {
         .callback = outputCallback,
-                .state = AbstractProtobufMessage<Msg>::serialPort(),
-                .max_size = SIZE_MAX,
-                .bytes_written = 0,
-                .errmsg = nullptr
+            .state = serialPort,
+            .max_size = SIZE_MAX,
+            .bytes_written = 0,
+            .errmsg = nullptr
     };
 
-    const auto success = pb_encode_ex(&ostream, MsgDesc, AbstractProtobufMessage<Msg>::pbMessage(), PB_DECODE_DELIMITED) &&
-                                                         AbstractProtobufMessage<Msg>::serialPort()->flush();
-    if(!success) {
-        Failable::setError(PB_GET_ERROR(&ostream));
-    }
+    const auto success = pb_encode_ex(&ostream, MsgDesc, AbstractProtobufMessage<Msg>::pbMessage(),
+                                      PB_ENCODE_DELIMITED) && serialPort->flush();
 
+    m_bytesWritten = success ? ostream.bytes_written : -1;
     return success;
 }
 
 template<const pb_msgdesc_t *MsgDesc, typename Msg>
+qint64 AbstractProtobufRequest<MsgDesc, Msg>::bytesWritten() const
+{
+    return m_bytesWritten;
+}
+
+//#include <QDebug>
+template<const pb_msgdesc_t *MsgDesc, typename Msg>
 bool AbstractProtobufRequest<MsgDesc, Msg>::outputCallback(pb_ostream_t *stream, const pb_byte_t *buf, size_t count)
 {
+//    qDebug() << "Callback!" << QByteArray((char*)buf, count);
+
     auto *serialPort = (QSerialPort*)stream->state;
     return serialPort->write((const char*)buf, count) == (qint64)count;
 }
@@ -143,22 +140,23 @@ bool AbstractProtobufResponse<MsgDesc, Msg>::receive()
     // Allow for re-use: release any previously allocated data
     release();
 
+    auto *serialPort = AbstractProtobufMessage<Msg>::serialPort();
+
     pb_istream_t istream {
         .callback = inputCallback,
-        .state = AbstractProtobufMessage<Msg>::serialPort(),
-        .bytes_left = (size_t)AbstractProtobufMessage<Msg>::serialPort()->bytesAvailable(),
+        .state = serialPort,
+        .bytes_left = (size_t)serialPort->bytesAvailable(),
         .errmsg = nullptr
     };
 
-    AbstractProtobufMessage<Msg>::serialPort()->startTransaction();
+    serialPort->startTransaction();
+
     m_isComplete = pb_decode_ex(&istream, MsgDesc, AbstractProtobufMessage<Msg>::pbMessage(), PB_DECODE_DELIMITED);
 
     if(m_isComplete) {
-        AbstractProtobufMessage<Msg>::serialPort()->commitTransaction();
-
+        serialPort->commitTransaction();
     } else {
-        AbstractProtobufMessage<Msg>::serialPort()->rollbackTransaction();
-        Failable::setError(PB_GET_ERROR(&istream));
+        serialPort->rollbackTransaction();
     }
 
     return m_isComplete;

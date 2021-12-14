@@ -115,7 +115,9 @@ StorageWriteRequest::StorageWriteRequest(QSerialPort *serialPort, const QByteArr
 
     auto &request = pbMessage()->content.storage_write_request;
 
+    request.has_file = true;
     request.path = m_path.data();
+
     request.file.data = (pb_bytes_array_t*)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(buf.size()));
     request.file.data->size = buf.size();
 

@@ -27,6 +27,7 @@ private:
 
     QByteArray m_path;
     QIODevice *m_file;
+    qint64 m_byteCount;
 };
 
 }
