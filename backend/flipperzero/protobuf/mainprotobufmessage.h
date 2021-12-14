@@ -58,6 +58,7 @@ PB_CommandStatus AbstractMainProtobufResponse<Tag>::commandStatus() const
 template<const pb_size_t Tag>
 const QString &AbstractMainProtobufResponse<Tag>::commandStatusString() const
 {
+#warning Fix the string order
     static const QString statusStrings[] = {
         QStringLiteral("No error"),
         // Common errors

@@ -34,8 +34,7 @@ class VCPDeviceInfoHelper : public AbstractDeviceInfoHelper
         StartingRPCSession,
         FetchingDeviceInfo,
         CheckingSDCard,
-        CheckingManifest,
-        StoppingRPCSession
+        CheckingManifest
     };
 
 public:
@@ -51,10 +50,7 @@ private:
     void fetchDeviceInfo();
     void checkSDCard();
     void checkManifest();
-    void stopRPCSession();
-    void closePortAndFinish();
 
-    QSerialPort *m_serialPort;
     DeviceInfo m_deviceInfo;
 };
 

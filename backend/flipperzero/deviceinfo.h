@@ -98,7 +98,7 @@ public:
     QString systemLocation;
 
     USBDeviceInfo usbInfo;
-    QSerialPortInfo serialInfo;
+    QSerialPort *serialPort;
 };
 
 }

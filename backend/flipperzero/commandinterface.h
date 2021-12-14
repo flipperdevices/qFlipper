@@ -47,12 +47,8 @@ public:
     StorageWriteOperation *storageWrite(const QByteArray &path, QIODevice *file);
 
 private:
-    bool onQueueStarted() override;
-    bool onQueueFinished() override;
-
     const QLoggingCategory &loggingCategory() const override;
-
-    QSerialPort *m_serialPort;
+    DeviceState *m_deviceState;
 };
 
 }

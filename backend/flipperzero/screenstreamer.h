@@ -60,13 +60,12 @@ signals:
     void enabledChanged();
 
 private slots:
-    void createPort();
     void onPortReadyRead();
     void onPortErrorOccured();
 
 private:
-    bool openPort();
-    void closePort();
+//    bool openPort();
+//    void closePort();
 
     void skipMOTD();
     void startRPCSession();
