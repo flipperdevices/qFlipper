@@ -24,6 +24,9 @@ class StorageMkdirOperation;
 class StorageWriteOperation;
 class StorageRemoveOperation;
 
+class GuiStartStreamOperation;
+class GuiStopStreamOperation;
+
 class CommandInterface : public AbstractOperationRunner
 {
     Q_OBJECT
@@ -45,6 +48,9 @@ public:
     StorageRemoveOperation *storageRemove(const QByteArray &path);
     StorageReadOperation *storageRead(const QByteArray &path, QIODevice *file);
     StorageWriteOperation *storageWrite(const QByteArray &path, QIODevice *file);
+
+    GuiStartStreamOperation *guiStartStreaming();
+    GuiStopStreamOperation *guiStopStreaming();
 
 private:
     const QLoggingCategory &loggingCategory() const override;

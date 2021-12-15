@@ -5,11 +5,14 @@
 
 #include "flipperzero/devicestate.h"
 
-#include "cli/systemfactoryresetoperation.h"
 #include "cli/skipmotdoperation.h"
+
 #include "cli/startrpcoperation.h"
 #include "cli/stoprpcoperation.h"
+
 #include "cli/systemrebootoperation.h"
+#include "cli/systemfactoryresetoperation.h"
+
 #include "cli/storageremoveoperation.h"
 #include "cli/storagemkdiroperation.h"
 #include "cli/storagewriteoperation.h"
@@ -17,6 +20,9 @@
 #include "cli/storagelistoperation.h"
 #include "cli/storagestatoperation.h"
 #include "cli/storageinfooperation.h"
+
+#include "cli/guistartstreamoperation.h"
+#include "cli/guistopstreamoperation.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_RPC, "RPC");
 
@@ -81,6 +87,16 @@ StorageMkdirOperation *CommandInterface::storageMkdir(const QByteArray &path)
 StorageWriteOperation *CommandInterface::storageWrite(const QByteArray &path, QIODevice *file)
 {
     return registerOperation(new StorageWriteOperation(serialPort(), path, file, this));
+}
+
+GuiStartStreamOperation *CommandInterface::guiStartStreaming()
+{
+    return registerOperation(new GuiStartStreamOperation(serialPort(), this));
+}
+
+GuiStopStreamOperation *CommandInterface::guiStopStreaming()
+{
+    return registerOperation(new GuiStopStreamOperation(serialPort(), this));
 }
 
 StorageRemoveOperation *CommandInterface::storageRemove(const QByteArray &path)
