@@ -18,7 +18,7 @@
 #include "cli/storagestatoperation.h"
 #include "cli/storageinfooperation.h"
 
-Q_LOGGING_CATEGORY(CATEGORY_CLI, "CLI");
+Q_LOGGING_CATEGORY(CATEGORY_RPC, "RPC");
 
 using namespace Flipper;
 using namespace Zero;
@@ -90,5 +90,5 @@ StorageRemoveOperation *CommandInterface::storageRemove(const QByteArray &path)
 
 const QLoggingCategory &CommandInterface::loggingCategory() const
 {
-    return CATEGORY_CLI();
+    return CATEGORY_RPC();
 }

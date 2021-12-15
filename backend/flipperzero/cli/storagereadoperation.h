@@ -22,6 +22,7 @@ private slots:
 
 private:
     bool begin() override;
+    void rewindAndFinish();
 
     QByteArray m_path;
     QIODevice *m_file;

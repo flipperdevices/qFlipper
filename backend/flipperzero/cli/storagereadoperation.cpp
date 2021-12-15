@@ -32,7 +32,7 @@ void StorageReadOperation::onSerialPortReadyRead()
             if(bytesWritten != data.size()) {
                 finishWithError(QStringLiteral("Error writing to output device: %1").arg(m_file->errorString()));
             } else if(!response.hasNext()) {
-                finish();
+                rewindAndFinish();
             } else {
                 continue;
             }
@@ -46,4 +46,13 @@ bool StorageReadOperation::begin()
 {
     StorageReadRequest request(serialPort(), m_path);
     return request.send();
+}
+
+void StorageReadOperation::rewindAndFinish()
+{
+    if(!m_file->seek(0)) {
+        finishWithError(QStringLiteral("Failed to rewind output device: %1").arg(m_file->errorString()));
+    } else {
+        finish();
+    }
 }
