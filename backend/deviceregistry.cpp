@@ -26,7 +26,7 @@ DeviceRegistry::DeviceRegistry(QObject *parent):
         USBDeviceInfo(FLIPPER_ZERO_VID, FLIPPER_ZERO_PID_VCP)
             .withManufacturer("Flipper Devices Inc.")
             .withProductDescription("Flipper Control Virtual ComPort")
-                                                    });
+    });
 }
 
 FlipperZero *DeviceRegistry::currentDevice() const
@@ -87,7 +87,7 @@ void DeviceRegistry::processDevice()
 
     if(it != m_devices.end()) {
         // Preserving the old instance
-        (*it)->deviceState()->reset(info);
+        (*it)->deviceState()->setDeviceInfo(info);
 
     } else {
         auto *device = new FlipperZero(info, this);

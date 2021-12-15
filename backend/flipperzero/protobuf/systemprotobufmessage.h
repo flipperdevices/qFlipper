@@ -5,6 +5,20 @@
 namespace Flipper {
 namespace Zero {
 
+class SystemPingRequest:
+public AbstractMainProtobufRequest<PB_Main_system_ping_request_tag>
+{
+public:
+    SystemPingRequest(QSerialPort *serialPort);
+};
+
+class SystemPingResponse:
+public AbstractMainProtobufResponse<PB_Main_system_ping_response_tag>
+{
+public:
+    SystemPingResponse(QSerialPort *serialPort);
+};
+
 class SystemDeviceInfoRequest:
 public AbstractMainProtobufRequest<PB_Main_system_device_info_request_tag>
 {

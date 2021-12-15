@@ -12,6 +12,13 @@ public:
     GuiStartScreenStreamRequest(QSerialPort *serialPort);
 };
 
+class GuiStopScreenStreamRequest:
+public AbstractMainProtobufRequest<PB_Main_gui_stop_screen_stream_request_tag>
+{
+public:
+    GuiStopScreenStreamRequest(QSerialPort *serialPort);
+};
+
 class GuiScreenFrameResponse:
 public AbstractMainProtobufResponse<PB_Main_gui_screen_frame_tag>
 {

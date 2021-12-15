@@ -24,12 +24,16 @@ class StorageMkdirOperation;
 class StorageWriteOperation;
 class StorageRemoveOperation;
 
+class GuiStartStreamOperation;
+class GuiStopStreamOperation;
+
 class CommandInterface : public AbstractOperationRunner
 {
     Q_OBJECT
 
 public:
-    CommandInterface(DeviceState *state, QObject *parent = nullptr);
+    CommandInterface(DeviceState *deviceState, QObject *parent = nullptr);
+    QSerialPort *serialPort() const;
 
     StopRPCOperation *stopRPCSession();
     StartRPCOperation *startRPCSession();
@@ -46,13 +50,12 @@ public:
     StorageReadOperation *storageRead(const QByteArray &path, QIODevice *file);
     StorageWriteOperation *storageWrite(const QByteArray &path, QIODevice *file);
 
+    GuiStartStreamOperation *guiStartStreaming();
+    GuiStopStreamOperation *guiStopStreaming();
+
 private:
-    bool onQueueStarted() override;
-    bool onQueueFinished() override;
-
     const QLoggingCategory &loggingCategory() const override;
-
-    QSerialPort *m_serialPort;
+    DeviceState *m_deviceState;
 };
 
 }

@@ -3,8 +3,7 @@
 #include "devicestate.h"
 #include "firmwareupdater.h"
 #include "screenstreamer.h"
-
-#include "debug.h"
+#include "commandinterface.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -12,8 +11,9 @@ using namespace Zero;
 FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     QObject(parent),
     m_state(new DeviceState(info, this)),
-    m_updater(new FirmwareUpdater(m_state, this)),
-    m_streamer(new ScreenStreamer(m_state, this))
+    m_rpc(new CommandInterface(m_state, this)),
+    m_updater(new FirmwareUpdater(m_state, m_rpc, this)),
+    m_streamer(new ScreenStreamer(m_rpc, this))
 {
     connect(m_updater, &SignalingFailable::errorOccured, this, &FlipperZero::onErrorOccured);
 }

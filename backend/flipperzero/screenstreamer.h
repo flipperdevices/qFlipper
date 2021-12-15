@@ -2,14 +2,13 @@
 
 #include <QObject>
 #include <QByteArray>
-#include <QSerialPortInfo>
 
 class QSerialPort;
 
 namespace Flipper {
 namespace Zero {
 
-class DeviceState;
+class CommandInterface;
 
 class ScreenStreamer : public QObject
 {
@@ -41,8 +40,16 @@ public:
 
     Q_ENUM(InputType)
 
-    ScreenStreamer(DeviceState *deviceState, QObject *parent = nullptr);
-    ~ScreenStreamer();
+    enum class State {
+        Starting,
+        Running,
+        Stopping,
+        Stopped
+    };
+
+    Q_ENUM(State)
+
+    ScreenStreamer(CommandInterface *rpc, QObject *parent = nullptr);
 
     const QByteArray &screenData() const;
 
@@ -60,23 +67,18 @@ signals:
     void enabledChanged();
 
 private slots:
-    void createPort();
     void onPortReadyRead();
-    void onPortErrorOccured();
 
 private:
-    bool openPort();
-    void closePort();
+    void start();
+    void stop();
+    void setState(State newState);
 
-    void skipMOTD();
-    void startRPCSession();
-    void startScreenStream();
+    QSerialPort *serialPort() const;
 
-    DeviceState *m_deviceState;
-    QSerialPort *m_serialPort;
-
+    CommandInterface *m_rpc;
     QByteArray m_screenData;
-    bool m_isEnabled;
+    State m_state;
 };
 
 }

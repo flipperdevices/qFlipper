@@ -18,8 +18,9 @@ SOURCES += \
     filenode.cpp \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
+    flipperzero/cli/guistartstreamoperation.cpp \
+    flipperzero/cli/guistopstreamoperation.cpp \
     flipperzero/cli/startrpcoperation.cpp \
-    flipperzero/cli/startstreamoperation.cpp \
     flipperzero/cli/stoprpcoperation.cpp \
     flipperzero/cli/storageinfooperation.cpp \
     flipperzero/cli/storagelistoperation.cpp \
@@ -105,8 +106,9 @@ HEADERS += \
     filenode.h \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
+    flipperzero/cli/guistartstreamoperation.h \
+    flipperzero/cli/guistopstreamoperation.h \
     flipperzero/cli/startrpcoperation.h \
-    flipperzero/cli/startstreamoperation.h \
     flipperzero/cli/stoprpcoperation.h \
     flipperzero/cli/storageinfooperation.h \
     flipperzero/cli/storagelistoperation.h \

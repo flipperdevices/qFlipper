@@ -12,11 +12,10 @@ DeviceState::DeviceState(const DeviceInfo &deviceInfo, QObject *parent):
     m_progress(-1.0)
 {}
 
-void DeviceState::reset(const DeviceInfo &newDeviceInfo)
+void DeviceState::reset()
 {
-    setDeviceInfo(newDeviceInfo);
-    setError(false);
     setProgress(-1.0);
+    setError(false);
     setOnline(true);
 }
 
@@ -29,6 +28,7 @@ void DeviceState::setDeviceInfo(const DeviceInfo &newDeviceInfo)
 {
     m_deviceInfo = newDeviceInfo;
     emit deviceInfoChanged();
+    reset();
 }
 
 bool DeviceState::isPersistent() const

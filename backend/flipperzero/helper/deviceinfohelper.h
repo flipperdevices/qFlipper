@@ -21,7 +21,10 @@ public:
     virtual ~AbstractDeviceInfoHelper();
 
     static AbstractDeviceInfoHelper *create(const USBDeviceInfo &info, QObject *parent = nullptr);
-    virtual const DeviceInfo &result() const = 0;
+    const DeviceInfo &result() const;
+
+protected:
+    DeviceInfo m_deviceInfo;
 };
 
 class VCPDeviceInfoHelper : public AbstractDeviceInfoHelper
@@ -34,13 +37,11 @@ class VCPDeviceInfoHelper : public AbstractDeviceInfoHelper
         StartingRPCSession,
         FetchingDeviceInfo,
         CheckingSDCard,
-        CheckingManifest,
-        StoppingRPCSession
+        CheckingManifest
     };
 
 public:
     VCPDeviceInfoHelper(const USBDeviceInfo &info, QObject *parent = nullptr);
-    const DeviceInfo &result() const override;
 
 private:
     void nextStateLogic() override;
@@ -51,11 +52,9 @@ private:
     void fetchDeviceInfo();
     void checkSDCard();
     void checkManifest();
-    void stopRPCSession();
-    void closePortAndFinish();
 
-    QSerialPort *m_serialPort;
-    DeviceInfo m_deviceInfo;
+private:
+    QSerialPort *serialPort() const;
 };
 
 class DFUDeviceInfoHelper : public AbstractDeviceInfoHelper
@@ -64,12 +63,9 @@ class DFUDeviceInfoHelper : public AbstractDeviceInfoHelper
 
 public:
     DFUDeviceInfoHelper(const USBDeviceInfo &info, QObject *parent = nullptr);
-    const DeviceInfo &result() const override;
 
 private:
     void nextStateLogic() override;
-
-    DeviceInfo m_deviceInfo;
 };
 
 }
