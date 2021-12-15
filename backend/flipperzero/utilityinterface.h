@@ -22,7 +22,7 @@ class UtilityInterface : public AbstractOperationRunner
     Q_OBJECT
 
 public:
-    UtilityInterface(DeviceState *deviceState, QObject *parent = nullptr);
+    UtilityInterface(DeviceState *deviceState, CommandInterface *rpc, QObject *parent = nullptr);
 
     StartRecoveryOperation *startRecoveryMode();
     AssetsDownloadOperation *downloadAssets(QIODevice *compressedFile);
@@ -35,7 +35,7 @@ private:
     const QLoggingCategory &loggingCategory() const override;
 
     DeviceState *m_deviceState;
-    CommandInterface *m_cli;
+    CommandInterface *m_rpc;
 };
 
 }

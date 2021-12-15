@@ -32,7 +32,8 @@ class CommandInterface : public AbstractOperationRunner
     Q_OBJECT
 
 public:
-    CommandInterface(DeviceState *state, QObject *parent = nullptr);
+    CommandInterface(DeviceState *deviceState, QObject *parent = nullptr);
+    QSerialPort *serialPort() const;
 
     StopRPCOperation *stopRPCSession();
     StartRPCOperation *startRPCSession();
@@ -54,7 +55,6 @@ public:
 
 private:
     const QLoggingCategory &loggingCategory() const override;
-    QSerialPort *serialPort() const;
     DeviceState *m_deviceState;
 };
 

@@ -8,6 +8,7 @@ namespace Flipper {
 
 namespace Zero {
     class DeviceState;
+    class CommandInterface;
     class ScreenStreamer;
     class FirmwareUpdater;
 }
@@ -32,6 +33,7 @@ private slots:
 
 private:
     Zero::DeviceState *m_state;
+    Zero::CommandInterface *m_rpc;
     Zero::FirmwareUpdater *m_updater;
     Zero::ScreenStreamer *m_streamer;
 };

@@ -9,6 +9,7 @@ namespace Zero {
 class DeviceState;
 class RecoveryInterface;
 class UtilityInterface;
+class CommandInterface;
 
 class FirmwareUpdater : public AbstractOperationRunner
 {
@@ -21,7 +22,7 @@ class FirmwareUpdater : public AbstractOperationRunner
     };
 
 public:
-    FirmwareUpdater(DeviceState *state, QObject *parent = nullptr);
+    FirmwareUpdater(DeviceState *state, CommandInterface *rpc, QObject *parent = nullptr);
 
 public slots:
     bool canUpdate(const Flipper::Updates::VersionInfo &versionInfo) const;

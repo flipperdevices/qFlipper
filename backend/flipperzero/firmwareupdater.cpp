@@ -21,11 +21,11 @@ Q_LOGGING_CATEGORY(CATEGORY_TOPLEVEL, "TOPLEVEL")
 using namespace Flipper;
 using namespace Zero;
 
-FirmwareUpdater::FirmwareUpdater(DeviceState *state, QObject *parent):
+FirmwareUpdater::FirmwareUpdater(DeviceState *state, CommandInterface *rpc, QObject *parent):
     AbstractOperationRunner(parent),
     m_state(state),
     m_recovery(new RecoveryInterface(state, this)),
-    m_utility(new UtilityInterface(state, this))
+    m_utility(new UtilityInterface(state, rpc, this))
 {}
 
 void FirmwareUpdater::fullUpdate(const Updates::VersionInfo &versionInfo)

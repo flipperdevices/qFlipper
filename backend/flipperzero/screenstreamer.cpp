@@ -3,29 +3,23 @@
 #include <QDebug>
 #include <QLoggingCategory>
 
-#include "cli/stoprpcoperation.h"
-#include "cli/skipmotdoperation.h"
-#include "cli/startrpcoperation.h"
+#include "commandinterface.h"
+
 #include "cli/guistartstreamoperation.h"
+#include "cli/guistopstreamoperation.h"
 
 #include "protobuf/guiprotobufmessage.h"
-#include "devicestate.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_SCREEN, "SCREEN")
 
 using namespace Flipper;
 using namespace Zero;
 
-ScreenStreamer::ScreenStreamer(DeviceState *deviceState, QObject *parent):
+ScreenStreamer::ScreenStreamer(CommandInterface *rpc, QObject *parent):
     QObject(parent),
-    m_deviceState(deviceState),
-    m_isEnabled(false)
+    m_rpc(rpc),
+    m_state(State::Stopped)
 {}
-
-ScreenStreamer::~ScreenStreamer()
-{
-    setEnabled(false);
-}
 
 const QByteArray &ScreenStreamer::screenData() const
 {
@@ -34,17 +28,16 @@ const QByteArray &ScreenStreamer::screenData() const
 
 bool ScreenStreamer::isEnabled() const
 {
-    return m_isEnabled;
+    return m_state != State::Stopped;
 }
 
 void ScreenStreamer::setEnabled(bool enabled)
 {
-    if(m_isEnabled == enabled) {
-        return;
-    } else if(m_isEnabled) {
+    if(enabled && m_state == State::Stopped) {
         start();
-    } else {
-        stop();
+
+    } else if(!enabled && m_state == State::Running) {
+        setState(State::Stopping);
     }
 }
 
@@ -76,42 +69,67 @@ void ScreenStreamer::onPortReadyRead()
             return;
 
         } else if(!msg.isValidType()) {
-            qCCritical(CATEGORY_SCREEN) << "Expected screen frame or empty, got something else";
-            return;
+            if(msg.tag() != MainEmptyResponse::tag()) {
+                qCCritical(CATEGORY_SCREEN) << "Expected screen frame or empty, got something else";
+                return;
+            }
 
         } else {
             m_screenData = msg.screenFrame();
             emit screenDataChanged();
         }
     }
+
+    if(m_state == State::Stopping) {
+        // Stop only after processing all of the messages
+        stop();
+    }
 }
 
 void ScreenStreamer::start()
 {
-    auto *operation = new GuiStartStreamOperation(serialPort(), this);
+    setState(State::Starting);
+
+    auto *operation = m_rpc->guiStartStreaming();
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
+            setState(State::Stopped);
             qCDebug(CATEGORY_SCREEN).noquote() << "Failed to initiate screen streaming: " << operation->errorString();
+
         } else {
+            setState(State::Running);
             connect(serialPort(), &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
-
-            m_isEnabled = true;
-            emit enabledChanged();
         }
-
-        operation->deleteLater();
     });
-
-    operation->start();
 }
 
 void ScreenStreamer::stop()
 {
+    disconnect(serialPort(), &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
 
+    auto *operation = m_rpc->guiStopStreaming();
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            qCDebug(CATEGORY_SCREEN).noquote() << "Failed to stop screen streaming: " << operation->errorString();
+        }
+
+        setState(State::Stopped);
+    });
+}
+
+void ScreenStreamer::setState(State newState)
+{
+    if(newState == m_state) {
+        return;
+    }
+
+    m_state = newState;
+    emit enabledChanged();
 }
 
 QSerialPort *ScreenStreamer::serialPort() const
 {
-    return m_deviceState->deviceInfo().serialPort.get();
+    return m_rpc->serialPort();
 }

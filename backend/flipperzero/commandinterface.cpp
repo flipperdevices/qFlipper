@@ -1,6 +1,5 @@
 #include "commandinterface.h"
 
-#include <QSerialPort>
 #include <QLoggingCategory>
 
 #include "flipperzero/devicestate.h"
@@ -29,10 +28,15 @@ Q_LOGGING_CATEGORY(CATEGORY_RPC, "RPC");
 using namespace Flipper;
 using namespace Zero;
 
-CommandInterface::CommandInterface(DeviceState *state, QObject *parent):
+CommandInterface::CommandInterface(DeviceState *deviceState, QObject *parent):
     AbstractOperationRunner(parent),
-    m_deviceState(state)
+    m_deviceState(deviceState)
 {}
+
+QSerialPort *CommandInterface::serialPort() const
+{
+    return m_deviceState->deviceInfo().serialPort.get();
+}
 
 StopRPCOperation *CommandInterface::stopRPCSession()
 {
@@ -107,9 +111,4 @@ StorageRemoveOperation *CommandInterface::storageRemove(const QByteArray &path)
 const QLoggingCategory &CommandInterface::loggingCategory() const
 {
     return CATEGORY_RPC();
-}
-
-QSerialPort *CommandInterface::serialPort() const
-{
-    return m_deviceState->deviceInfo().serialPort.get();
 }
