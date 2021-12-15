@@ -185,7 +185,6 @@ void AssetsDownloadOperation::readDeviceManifest()
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(!operation->isError()) {
             const auto test = buf->readAll();
-            qDebug() << Qt::endl << "Manifext:" << Qt::endl << test << Qt::endl;
             m_deviceManifest = AssetManifest(test);
         }
 
