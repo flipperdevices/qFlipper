@@ -2,9 +2,10 @@
 
 #include <QString>
 #include <QDateTime>
-#include <QSerialPortInfo>
 
 #include "usbdeviceinfo.h"
+
+class QSerialPort;
 
 namespace Flipper {
 namespace Zero {
@@ -83,7 +84,6 @@ struct DeviceInfo {
     Q_PROPERTY(Flipper::Zero::StorageInfo storage MEMBER storage)
 
 public:
-
     QString name;
     QString model;
 
@@ -98,7 +98,7 @@ public:
     QString systemLocation;
 
     USBDeviceInfo usbInfo;
-    QSerialPort *serialPort;
+    QSerialPort *serialPort = nullptr;
 };
 
 }

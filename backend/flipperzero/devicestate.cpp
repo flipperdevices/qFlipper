@@ -1,7 +1,5 @@
 #include "devicestate.h"
 
-#include <QSerialPort>
-
 using namespace Flipper;
 using namespace Zero;
 
@@ -12,10 +10,13 @@ DeviceState::DeviceState(const DeviceInfo &deviceInfo, QObject *parent):
     m_isOnline(true),
     m_isError(false),
     m_progress(-1.0)
+{}
+
+void DeviceState::reset()
 {
-    if(m_deviceInfo.serialPort) {
-        m_deviceInfo.serialPort->setParent(this);
-    }
+    setProgress(-1.0);
+    setError(false);
+    setOnline(true);
 }
 
 const DeviceInfo &DeviceState::deviceInfo() const
@@ -25,21 +26,9 @@ const DeviceInfo &DeviceState::deviceInfo() const
 
 void DeviceState::setDeviceInfo(const DeviceInfo &newDeviceInfo)
 {
-    if(m_deviceInfo.serialPort) {
-       m_deviceInfo.serialPort->deleteLater();
-    }
-
     m_deviceInfo = newDeviceInfo;
-
-    if(m_deviceInfo.serialPort) {
-        m_deviceInfo.serialPort->setParent(this);
-    }
-
     emit deviceInfoChanged();
-
-    setError(false);
-    setProgress(-1.0);
-    setOnline(true);
+    reset();
 }
 
 bool DeviceState::isPersistent() const

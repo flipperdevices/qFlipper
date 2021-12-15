@@ -2,6 +2,7 @@
 
 #include <cmath>
 
+#include <QDebug>
 #include <QTimer>
 #include <QSerialPort>
 
@@ -14,9 +15,7 @@
 #include "flipperzero/factoryinfo.h"
 
 #include "device/stm32wb55.h"
-
 #include "serialfinder.h"
-#include "debug.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -37,10 +36,9 @@ AbstractDeviceInfoHelper *AbstractDeviceInfoHelper::create(const USBDeviceInfo &
     } else if(pid == 0xdf11) {
         return new DFUDeviceInfoHelper(info, parent);
     } else {
-        error_msg("Not a Flipper Zero device.")
+        qCritical() << "Not a Flipper Zero device";
+        return nullptr;
     }
-
-    return nullptr;
 }
 
 VCPDeviceInfoHelper::VCPDeviceInfoHelper(const USBDeviceInfo &info, QObject *parent):
@@ -94,7 +92,7 @@ void VCPDeviceInfoHelper::findSerialPort()
             finishWithError(QStringLiteral("Invalid serial port info."));
 
         } else {
-            m_deviceInfo.serialPort = new QSerialPort(portInfo, this);
+            m_deviceInfo.serialPort = new QSerialPort(portInfo);
             m_deviceInfo.systemLocation = portInfo.systemLocation();
 
             if(!m_deviceInfo.serialPort->open(QIODevice::ReadWrite)) {
@@ -246,7 +244,6 @@ DFUDeviceInfoHelper::DFUDeviceInfoHelper(const USBDeviceInfo &info, QObject *par
     AbstractDeviceInfoHelper(parent)
 {
     m_deviceInfo.usbInfo = info;
-    m_deviceInfo.serialPort = nullptr;
     m_deviceInfo.systemLocation = QStringLiteral("S/N:%1").arg(info.serialNumber());
     m_deviceInfo.storage.isExternalPresent = false;
     m_deviceInfo.storage.isAssetsInstalled = false;

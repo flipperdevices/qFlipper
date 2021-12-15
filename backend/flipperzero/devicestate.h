@@ -26,6 +26,8 @@ class DeviceState : public QObject
 public:
     DeviceState(const DeviceInfo &deviceInfo, QObject *parent = nullptr);
 
+    void reset();
+
     const DeviceInfo &deviceInfo() const;
     void setDeviceInfo(const DeviceInfo &newDeviceInfo);
 
