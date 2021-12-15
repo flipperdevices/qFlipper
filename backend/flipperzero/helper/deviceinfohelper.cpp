@@ -41,15 +41,15 @@ AbstractDeviceInfoHelper *AbstractDeviceInfoHelper::create(const USBDeviceInfo &
     }
 }
 
+const DeviceInfo &AbstractDeviceInfoHelper::result() const
+{
+    return m_deviceInfo;
+}
+
 VCPDeviceInfoHelper::VCPDeviceInfoHelper(const USBDeviceInfo &info, QObject *parent):
     AbstractDeviceInfoHelper(parent)
 {
     m_deviceInfo.usbInfo = info;
-}
-
-const DeviceInfo &VCPDeviceInfoHelper::result() const
-{
-    return m_deviceInfo;
 }
 
 void VCPDeviceInfoHelper::nextStateLogic()
@@ -247,11 +247,6 @@ DFUDeviceInfoHelper::DFUDeviceInfoHelper(const USBDeviceInfo &info, QObject *par
     m_deviceInfo.systemLocation = QStringLiteral("S/N:%1").arg(info.serialNumber());
     m_deviceInfo.storage.isExternalPresent = false;
     m_deviceInfo.storage.isAssetsInstalled = false;
-}
-
-const DeviceInfo &DFUDeviceInfoHelper::result() const
-{
-    return m_deviceInfo;
 }
 
 void DFUDeviceInfoHelper::nextStateLogic()
