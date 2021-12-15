@@ -27,6 +27,7 @@ void AbstractOperationRunner::enqueueOperation(AbstractOperation *operation)
         CALL_LATER(this, &AbstractOperationRunner::processQueue);
     }
 
+    qDebug(loggingCategory()) << "----- Enqueued operation:" << operation->description();
     m_queue.enqueue(operation);
 }
 
