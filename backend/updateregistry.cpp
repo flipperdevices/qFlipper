@@ -90,7 +90,7 @@ void UpdateRegistry::check()
 
     fetcher->connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
         if(fetcher->isError()) {
-
+            qCWarning(CATEGORY_UPDATES).noquote() << "Failed to fetch update list:" << fetcher->errorString();
         } else if(buf->open(QIODevice::ReadOnly)) {
             qCDebug(CATEGORY_UPDATES).noquote() << "Fetched update directory from" << m_directoryUrl;
 
