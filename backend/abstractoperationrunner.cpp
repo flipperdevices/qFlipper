@@ -6,8 +6,6 @@
 
 #include "abstractoperation.h"
 
-#define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
-
 Q_LOGGING_CATEGORY(CATEGORY_DEFAULT, "DEFAULT")
 
 AbstractOperationRunner::AbstractOperationRunner(QObject *parent):
@@ -24,10 +22,10 @@ void AbstractOperationRunner::enqueueOperation(AbstractOperation *operation)
 {
     if(m_state == State::Idle) {
         m_state = State::Running;
-        CALL_LATER(this, &AbstractOperationRunner::processQueue);
+        QTimer::singleShot(0, this, &AbstractOperationRunner::processQueue);
     }
 
-    qDebug(loggingCategory()) << "----- Enqueued operation:" << operation->description();
+    qDebug(loggingCategory()) << "------- Enqueued operation:" << operation->description();
     m_queue.enqueue(operation);
 }
 
@@ -48,7 +46,7 @@ void AbstractOperationRunner::processQueue()
             processQueue();
 
         } else {
-            CALL_LATER(this, &AbstractOperationRunner::processQueue);
+            QTimer::singleShot(0, this, &AbstractOperationRunner::processQueue);
         }
 
         qCInfo(loggingCategory()).noquote() << operation->description() << (operation->isError() ? QStringLiteral("ERROR: ") + operation->errorString() : QStringLiteral("SUCCESS"));

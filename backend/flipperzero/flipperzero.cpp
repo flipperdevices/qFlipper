@@ -13,7 +13,7 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     m_state(new DeviceState(info, this)),
     m_rpc(new CommandInterface(m_state, this)),
     m_updater(new FirmwareUpdater(m_state, m_rpc, this)),
-    m_streamer(new ScreenStreamer(m_rpc, this))
+    m_streamer(new ScreenStreamer(m_state, m_rpc, this))
 {
     connect(m_updater, &SignalingFailable::errorOccured, this, &FlipperZero::onErrorOccured);
 }
