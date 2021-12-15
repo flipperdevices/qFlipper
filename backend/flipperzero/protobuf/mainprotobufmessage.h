@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QHash>
+
 #include "abstractprotobufmessage.h"
 #include "messages/flipper.pb.h"
 
@@ -25,7 +27,7 @@ public:
 
     bool hasNext() const;
     PB_CommandStatus commandStatus() const;
-    const QString &commandStatusString() const;
+    const QString commandStatusString() const;
     quint32 whichContent() const;
 
     bool isOk() const;
@@ -56,35 +58,34 @@ PB_CommandStatus AbstractMainProtobufResponse<Tag>::commandStatus() const
 }
 
 template<const pb_size_t Tag>
-const QString &AbstractMainProtobufResponse<Tag>::commandStatusString() const
+const QString AbstractMainProtobufResponse<Tag>::commandStatusString() const
 {
-#warning Fix the string order
-    static const QString statusStrings[] = {
-        QStringLiteral("No error"),
+    static const QHash<PB_CommandStatus, QString> statusStrings = {
+       {PB_CommandStatus_OK, QStringLiteral("No error")},
         // Common errors
-        QStringLiteral("Unknown"),
-        QStringLiteral("Decode failure"),
-        QStringLiteral("Commant not implemented"),
-        QStringLiteral("Device is busy"),
-        QStringLiteral("Continuous command interrupted"),
-        QStringLiteral("Invalid parameters"),
+       {PB_CommandStatus_ERROR, QStringLiteral("Unknown")},
+       {PB_CommandStatus_ERROR_DECODE, QStringLiteral("Decode failure")},
+       {PB_CommandStatus_ERROR_NOT_IMPLEMENTED, QStringLiteral("Commant not implemented")},
+       {PB_CommandStatus_ERROR_BUSY, QStringLiteral("Device is busy")},
+       {PB_CommandStatus_ERROR_CONTINUOUS_COMMAND_INTERRUPTED, QStringLiteral("Continuous command interrupted")},
+       {PB_CommandStatus_ERROR_INVALID_PARAMETERS, QStringLiteral("Invalid parameters")},
         // Storage errors
-        QStringLiteral("Storage not ready"),
-        QStringLiteral("File/directory already exists"),
-        QStringLiteral("File/directory does not exist"),
-        QStringLiteral("Invalid storage API parameter"),
-        QStringLiteral("Access denied"),
-        QStringLiteral("Invalid name/path"),
-        QStringLiteral("Internal error"),
-        QStringLiteral("Storage command not implemented"),
-        QStringLiteral("File/directory is already open"),
-        QStringLiteral("Directory is not empty"),
+       {PB_CommandStatus_ERROR_STORAGE_NOT_READY, QStringLiteral("Storage not ready")},
+       {PB_CommandStatus_ERROR_STORAGE_EXIST, QStringLiteral("File/directory already exists")},
+       {PB_CommandStatus_ERROR_STORAGE_NOT_EXIST, QStringLiteral("File/directory does not exist")},
+       {PB_CommandStatus_ERROR_STORAGE_INVALID_PARAMETER, QStringLiteral("Invalid storage API parameter")},
+       {PB_CommandStatus_ERROR_STORAGE_DENIED, QStringLiteral("Access denied")},
+       {PB_CommandStatus_ERROR_STORAGE_INVALID_NAME, QStringLiteral("Invalid name/path")},
+       {PB_CommandStatus_ERROR_STORAGE_INTERNAL, QStringLiteral("Internal error")},
+       {PB_CommandStatus_ERROR_STORAGE_NOT_IMPLEMENTED, QStringLiteral("Storage command not implemented")},
+       {PB_CommandStatus_ERROR_STORAGE_ALREADY_OPEN, QStringLiteral("File/directory is already open")},
+       {PB_CommandStatus_ERROR_STORAGE_DIR_NOT_EMPTY, QStringLiteral("Directory is not empty")},
         // Application errors
-        QStringLiteral("Cannot start the application"),
-        QStringLiteral("Another application is already running"),
+       {PB_CommandStatus_ERROR_APP_CANT_START, QStringLiteral("Cannot start the application")},
+       {PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED, QStringLiteral("Another application is already running")},
         // Virtual display errors
-        QStringLiteral("Virtual display session has already been started"),
-        QStringLiteral("No virtual display session running")
+       {PB_CommandStatus_ERROR_VIRTUAL_DISPLAY_ALREADY_STARTED, QStringLiteral("Virtual display session has already been started")},
+       {PB_CommandStatus_ERROR_VIRTUAL_DISPLAY_NOT_STARTED, QStringLiteral("No virtual display session running")}
     };
 
     return statusStrings[commandStatus()];
