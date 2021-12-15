@@ -34,8 +34,8 @@ void AbstractOperationRunner::enqueueOperation(AbstractOperation *operation)
 void AbstractOperationRunner::processQueue()
 {
     if(m_queue.isEmpty()) {
-            m_state = State::Idle;
-            return;
+        m_state = State::Idle;
+        return;
     }
 
     auto *operation = m_queue.dequeue();

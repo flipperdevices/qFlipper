@@ -3,6 +3,7 @@
 #include <QUrl>
 #include <QFile>
 #include <QTimer>
+#include <QDebug>
 
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
@@ -50,18 +51,29 @@ void UserBackupOperation::createBackupDirectory()
     }
 
     const auto &subdir = deviceState()->deviceInfo().name;
-    const QFileInfo targetDirInfo(m_backupDir, subdir);
+    QFileInfo targetDirInfo(m_backupDir, subdir);
 
     if(targetDirInfo.isDir()) {
         QDir d(targetDirInfo.absoluteFilePath());
-
         if(!d.removeRecursively()) {
-            finishWithError(QStringLiteral("Failed to remove old directory"));
+            finishWithError(QStringLiteral("Failed to remove old directory (1)"));
             return;
         }
 
-    } else if(targetDirInfo.exists()) {
-        finishWithError(QStringLiteral("Failed to remove old directory"));
+    } else if(targetDirInfo.isFile()) {
+        qWarning() << "Deleting a conflicting regular file";
+
+        QFile f(targetDirInfo.absoluteFilePath());
+        if(!f.remove()) {
+            finishWithError(QStringLiteral("Failed to remove old directory (2)"));
+            return;
+        }
+    }
+
+    targetDirInfo.refresh();
+
+    if(targetDirInfo.exists()) {
+        finishWithError(QStringLiteral("Failed to remove old directory (3)"));
     } else if(!m_backupDir.mkpath(subdir + m_deviceDirName) || !m_backupDir.cd(subdir)) {
         finishWithError(QStringLiteral("Failed to create backup directory"));
     } else{

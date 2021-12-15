@@ -3,6 +3,16 @@
 using namespace Flipper;
 using namespace Zero;
 
+SystemPingRequest::SystemPingRequest(QSerialPort *serialPort):
+    AbstractMainProtobufRequest(serialPort)
+{
+    pbMessage()->content.system_ping_request = PB_System_PingRequest_init_default;
+}
+
+SystemPingResponse::SystemPingResponse(QSerialPort *serialPort):
+    AbstractMainProtobufResponse(serialPort)
+{}
+
 SystemDeviceInfoRequest::SystemDeviceInfoRequest(QSerialPort *serialPort):
     AbstractMainProtobufRequest(serialPort)
 {
