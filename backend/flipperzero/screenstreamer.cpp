@@ -69,7 +69,7 @@ void ScreenStreamer::onPortReadyRead()
             return;
 
         } else if(!msg.isValidType()) {
-            if(msg.tag() != MainEmptyResponse::tag()) {
+            if(msg.whichContent() != MainEmptyResponse::tag()) {
                 qCCritical(CATEGORY_SCREEN) << "Expected screen frame or empty, got something else";
                 return;
             }

@@ -56,8 +56,8 @@ Item {
 
     onWindowStateChanged: {
         if(windowState !== MainWindow.NoDevice) {
-//            device.streamer.enabled = (windowState === MainWindow.Ready) ||
-//                                      (windowState === MainWindow.Streaming);
+            device.streamer.enabled = (windowState === MainWindow.Ready) ||
+                                      (windowState === MainWindow.Streaming);
         } else {
             streamOverlay.opacity = 0;
         }

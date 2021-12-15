@@ -25,7 +25,7 @@ void GuiStopStreamOperation::onSerialPortReadyRead()
             finishWithError(QStringLiteral("Device replied with an error response: %1").arg(response.commandStatusString()));
 
         } else if(!response.isValidType()) {
-            if(response.tag() != GuiScreenFrameResponse::tag()) {
+            if(response.whichContent() != GuiScreenFrameResponse::tag()) {
                 finishWithError(QStringLiteral("Expected empty or screen frame reply, got something else"));
             } else {
                 continue;
