@@ -1,4 +1,4 @@
-#include "startstreamoperation.h"
+#include "guistartstreamoperation.h"
 
 #include <QSerialPort>
 
@@ -7,23 +7,23 @@
 using namespace Flipper;
 using namespace Zero;
 
-StartStreamOperation::StartStreamOperation(QSerialPort *serialPort, QObject *parent):
+GuiStartStreamOperation::GuiStartStreamOperation(QSerialPort *serialPort, QObject *parent):
     AbstractProtobufOperation(serialPort, parent)
 {}
 
-const QString StartStreamOperation::description() const
+const QString GuiStartStreamOperation::description() const
 {
     return QStringLiteral("Start screen streaming @%1").arg(serialPort()->portName());
 }
 
-void StartStreamOperation::onSerialPortReadyRead()
+void GuiStartStreamOperation::onSerialPortReadyRead()
 {
     MainEmptyResponse response(serialPort());
 
     if(!response.receive()) {
         return;
     } else if(!response.isOk()) {
-        finishWithError(QStringLiteral("Device replied with an error response"));
+        finishWithError(QStringLiteral("Device replied with an error response: %1").arg(response.commandStatusString()));
     } else if(!response.isValidType()) {
         finishWithError(QStringLiteral("Expected empty reply, got something else"));
     } else {
@@ -31,7 +31,7 @@ void StartStreamOperation::onSerialPortReadyRead()
     }
 }
 
-bool StartStreamOperation::begin()
+bool GuiStartStreamOperation::begin()
 {
     GuiStartScreenStreamRequest request(serialPort());
     return request.send();

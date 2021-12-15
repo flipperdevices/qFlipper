@@ -6,7 +6,7 @@
 #include "cli/stoprpcoperation.h"
 #include "cli/skipmotdoperation.h"
 #include "cli/startrpcoperation.h"
-#include "cli/startstreamoperation.h"
+#include "cli/guistartstreamoperation.h"
 
 #include "protobuf/guiprotobufmessage.h"
 #include "devicestate.h"
@@ -76,11 +76,8 @@ void ScreenStreamer::onPortReadyRead()
             return;
 
         } else if(!msg.isValidType()) {
-            if(msg.whichContent() != MainEmptyResponse::tag()) {
-                qCCritical(CATEGORY_SCREEN) << "Expected screen frame or empty, got something else";
-                setEnabled(false);
-                return;
-            }
+            qCCritical(CATEGORY_SCREEN) << "Expected screen frame or empty, got something else";
+            return;
 
         } else {
             m_screenData = msg.screenFrame();
@@ -91,11 +88,11 @@ void ScreenStreamer::onPortReadyRead()
 
 void ScreenStreamer::start()
 {
-    auto *operation = new StartStreamOperation(serialPort(), this);
+    auto *operation = new GuiStartStreamOperation(serialPort(), this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            qCDebug(CATEGORY_SCREEN).noquote() << "Failed to initiate Screen Streaming: Failed to execute StartStreamOperation:" << operation->errorString();
+            qCDebug(CATEGORY_SCREEN).noquote() << "Failed to initiate screen streaming: " << operation->errorString();
         } else {
             connect(serialPort(), &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
 

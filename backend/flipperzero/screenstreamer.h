@@ -52,7 +52,7 @@ public:
     static int screenHeight();
 
 public slots:
-    void sendInputEvent(InputKey key, InputType type);
+    void sendInputEvent(ScreenStreamer::InputKey key, ScreenStreamer::InputType type);
 
 signals:
     void screenDataChanged();

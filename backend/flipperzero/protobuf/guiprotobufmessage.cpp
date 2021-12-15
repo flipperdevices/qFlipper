@@ -9,6 +9,12 @@ GuiStartScreenStreamRequest::GuiStartScreenStreamRequest(QSerialPort *serialPort
     pbMessage()->content.gui_start_screen_stream_request = PB_Gui_StartScreenStreamRequest_init_default;
 }
 
+GuiStopScreenStreamRequest::GuiStopScreenStreamRequest(QSerialPort *serialPort):
+    AbstractMainProtobufRequest(serialPort)
+{
+    pbMessage()->content.gui_start_screen_stream_request = PB_Gui_StopScreenStreamRequest_init_default;
+}
+
 GuiScreenFrameResponse::GuiScreenFrameResponse(QSerialPort *serialPort):
     AbstractMainProtobufResponse(serialPort)
 {}
