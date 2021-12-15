@@ -4,7 +4,6 @@
 
 #include <QDebug>
 #include <QTimer>
-#include <QSerialPort>
 
 #include "flipperzero/cli/storageinfooperation.h"
 #include "flipperzero/cli/systemdeviceinfooperation.h"
@@ -92,11 +91,11 @@ void VCPDeviceInfoHelper::findSerialPort()
             finishWithError(QStringLiteral("Invalid serial port info."));
 
         } else {
-            m_deviceInfo.serialPort = new QSerialPort(portInfo);
+            m_deviceInfo.serialPort.reset(new QSerialPort(portInfo));
             m_deviceInfo.systemLocation = portInfo.systemLocation();
 
-            if(!m_deviceInfo.serialPort->open(QIODevice::ReadWrite)) {
-                finishWithError(m_deviceInfo.serialPort->errorString());
+            if(!serialPort()->open(QIODevice::ReadWrite)) {
+                finishWithError(serialPort()->errorString());
             } else {
                 advanceState();
             }
@@ -106,7 +105,7 @@ void VCPDeviceInfoHelper::findSerialPort()
 
 void VCPDeviceInfoHelper::skipMOTD()
 {
-    auto *operation = new SkipMOTDOperation(m_deviceInfo.serialPort, this);
+    auto *operation = new SkipMOTDOperation(serialPort(), this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -123,7 +122,7 @@ void VCPDeviceInfoHelper::skipMOTD()
 
 void VCPDeviceInfoHelper::startRPCSession()
 {
-    auto *operation = new StartRPCOperation(m_deviceInfo.serialPort, this);
+    auto *operation = new StartRPCOperation(serialPort(), this);
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(operation->errorString());
@@ -139,7 +138,7 @@ void VCPDeviceInfoHelper::startRPCSession()
 
 void VCPDeviceInfoHelper::fetchDeviceInfo()
 {
-    auto *operation = new SystemDeviceInfoOperation(m_deviceInfo.serialPort, this);
+    auto *operation = new SystemDeviceInfoOperation(serialPort(), this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -195,7 +194,7 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
 
 void VCPDeviceInfoHelper::checkSDCard()
 {
-    auto *operation = new StorageInfoOperation(m_deviceInfo.serialPort, QByteArrayLiteral("/ext"), this);
+    auto *operation = new StorageInfoOperation(serialPort(), QByteArrayLiteral("/ext"), this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -221,7 +220,7 @@ void VCPDeviceInfoHelper::checkSDCard()
 
 void VCPDeviceInfoHelper::checkManifest()
 {
-    auto *operation = new StorageStatOperation(m_deviceInfo.serialPort, QByteArrayLiteral("/ext/Manifest"), this);
+    auto *operation = new StorageStatOperation(serialPort(), QByteArrayLiteral("/ext/Manifest"), this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -236,6 +235,11 @@ void VCPDeviceInfoHelper::checkManifest()
     });
 
     operation->start();
+}
+
+QSerialPort *VCPDeviceInfoHelper::serialPort() const
+{
+    return m_deviceInfo.serialPort.get();
 }
 
 using namespace STM32;

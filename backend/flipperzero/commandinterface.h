@@ -48,6 +48,7 @@ public:
 
 private:
     const QLoggingCategory &loggingCategory() const override;
+    QSerialPort *serialPort() const;
     DeviceState *m_deviceState;
 };
 

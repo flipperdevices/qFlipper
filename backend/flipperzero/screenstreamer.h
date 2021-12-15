@@ -2,7 +2,6 @@
 
 #include <QObject>
 #include <QByteArray>
-#include <QSerialPortInfo>
 
 class QSerialPort;
 
@@ -61,19 +60,14 @@ signals:
 
 private slots:
     void onPortReadyRead();
-    void onPortErrorOccured();
 
 private:
-//    bool openPort();
-//    void closePort();
+    void start();
+    void stop();
 
-    void skipMOTD();
-    void startRPCSession();
-    void startScreenStream();
+    QSerialPort *serialPort() const;
 
     DeviceState *m_deviceState;
-    QSerialPort *m_serialPort;
-
     QByteArray m_screenData;
     bool m_isEnabled;
 };

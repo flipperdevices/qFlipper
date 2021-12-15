@@ -30,65 +30,70 @@ CommandInterface::CommandInterface(DeviceState *state, QObject *parent):
 
 StopRPCOperation *CommandInterface::stopRPCSession()
 {
-    return registerOperation(new StopRPCOperation(m_deviceState->deviceInfo().serialPort, this));
+    return registerOperation(new StopRPCOperation(serialPort(), this));
 }
 
 StartRPCOperation *CommandInterface::startRPCSession()
 {
-    return registerOperation(new StartRPCOperation(m_deviceState->deviceInfo().serialPort, this));
+    return registerOperation(new StartRPCOperation(serialPort(), this));
 }
 
 SystemRebootOperation *CommandInterface::rebootToOS()
 {
-    return registerOperation(new SystemRebootOperation(m_deviceState->deviceInfo().serialPort, SystemRebootOperation::RebootType::OS, this));
+    return registerOperation(new SystemRebootOperation(serialPort(), SystemRebootOperation::RebootType::OS, this));
 }
 
 SystemRebootOperation *CommandInterface::rebootToRecovery()
 {
-    return registerOperation(new SystemRebootOperation(m_deviceState->deviceInfo().serialPort, SystemRebootOperation::RebootType::Recovery, this));
+    return registerOperation(new SystemRebootOperation(serialPort(), SystemRebootOperation::RebootType::Recovery, this));
 }
 
 SystemFactoryResetOperation *CommandInterface::factoryReset()
 {
-    return registerOperation(new SystemFactoryResetOperation(m_deviceState->deviceInfo().serialPort, this));
+    return registerOperation(new SystemFactoryResetOperation(serialPort(), this));
 }
 
 StorageListOperation *CommandInterface::storageList(const QByteArray &path)
 {
-    return registerOperation(new StorageListOperation(m_deviceState->deviceInfo().serialPort, path, this));
+    return registerOperation(new StorageListOperation(serialPort(), path, this));
 }
 
 StorageInfoOperation *CommandInterface::storageInfo(const QByteArray &path)
 {
-    return registerOperation(new StorageInfoOperation(m_deviceState->deviceInfo().serialPort, path, this));
+    return registerOperation(new StorageInfoOperation(serialPort(), path, this));
 }
 
 StorageStatOperation *CommandInterface::storageStat(const QByteArray &path)
 {
-    return registerOperation(new StorageStatOperation(m_deviceState->deviceInfo().serialPort, path, this));
+    return registerOperation(new StorageStatOperation(serialPort(), path, this));
 }
 
 StorageReadOperation *CommandInterface::storageRead(const QByteArray &path, QIODevice *file)
 {
-    return registerOperation(new StorageReadOperation(m_deviceState->deviceInfo().serialPort, path, file, this));
+    return registerOperation(new StorageReadOperation(serialPort(), path, file, this));
 }
 
 StorageMkdirOperation *CommandInterface::storageMkdir(const QByteArray &path)
 {
-    return registerOperation(new StorageMkdirOperation(m_deviceState->deviceInfo().serialPort, path, this));
+    return registerOperation(new StorageMkdirOperation(serialPort(), path, this));
 }
 
 StorageWriteOperation *CommandInterface::storageWrite(const QByteArray &path, QIODevice *file)
 {
-    return registerOperation(new StorageWriteOperation(m_deviceState->deviceInfo().serialPort, path, file, this));
+    return registerOperation(new StorageWriteOperation(serialPort(), path, file, this));
 }
 
 StorageRemoveOperation *CommandInterface::storageRemove(const QByteArray &path)
 {
-    return registerOperation(new StorageRemoveOperation(m_deviceState->deviceInfo().serialPort, path, this));
+    return registerOperation(new StorageRemoveOperation(serialPort(), path, this));
 }
 
 const QLoggingCategory &CommandInterface::loggingCategory() const
 {
     return CATEGORY_RPC();
+}
+
+QSerialPort *CommandInterface::serialPort() const
+{
+    return m_deviceState->deviceInfo().serialPort.get();
 }

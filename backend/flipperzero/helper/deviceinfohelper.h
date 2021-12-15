@@ -52,6 +52,9 @@ private:
     void fetchDeviceInfo();
     void checkSDCard();
     void checkManifest();
+
+private:
+    QSerialPort *serialPort() const;
 };
 
 class DFUDeviceInfoHelper : public AbstractDeviceInfoHelper
