@@ -23,10 +23,18 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     QObject(parent),
     m_deviceRegistry(new DeviceRegistry(this)),
     m_firmwareUpdates(new FirmwareUpdates("https://update.flipperzero.one/firmware/directory.json", this)),
-    m_applicationUpdates(new ApplicationUpdates("https://update.flipperzero.one/qFlipper/directory.json", this))
+    m_applicationUpdates(new ApplicationUpdates("https://update.flipperzero.one/qFlipper/directory.json", this)),
+    m_state(State::WaitingForDevices)
 {
     registerMetaTypes();
     registerComparators();
+
+    initConnections();
+}
+
+ApplicationBackend::State ApplicationBackend::state() const
+{
+    return m_state;
 }
 
 void ApplicationBackend::mainAction()
@@ -34,14 +42,14 @@ void ApplicationBackend::mainAction()
     qCInfo(LOG_BACKEND) << "Performing main action...";
 }
 
-void ApplicationBackend::createBackup()
+void ApplicationBackend::createBackup(const QUrl &directoryUrl)
 {
-    qCInfo(LOG_BACKEND) << "Creating backup...";
+    qCInfo(LOG_BACKEND).noquote() << "Creating backup in" << directoryUrl << "...";
 }
 
-void ApplicationBackend::restoreBackup()
+void ApplicationBackend::restoreBackup(const QUrl &directoryUrl)
 {
-    qCInfo(LOG_BACKEND) << "Restoring backup...";
+    qCInfo(LOG_BACKEND).noquote() << "Restoring backup from" << directoryUrl << "...";
 }
 
 void ApplicationBackend::factoryReset()
@@ -62,6 +70,23 @@ void ApplicationBackend::installWirelessStack(const QUrl &fileUrl)
 void ApplicationBackend::installFUS(const QUrl &fileUrl, uint32_t address)
 {
     qCInfo(LOG_BACKEND).noquote().nospace() << "Installing FUS from " << fileUrl << " at the address 0x" << QString::number(address, 16) << "...";
+}
+
+void ApplicationBackend::onDevicesChanged()
+{
+    if(m_deviceRegistry->currentDevice()) {
+        setState(m_state == State::WaitingForDevices ? State::Ready : m_state);
+    } else {
+        // TODO: Doesn't cover all of the cases, add currentDeviceChanged() signal to DeviceRegistry
+        setState(m_state == State::Ready ? State::WaitingForDevices : State::OperationInterrupted);
+    }
+
+    qCInfo(LOG_BACKEND) << "State changed, current state:" << m_state;
+}
+
+void ApplicationBackend::onFirmwareChanged()
+{
+    qCInfo(LOG_BACKEND) << "Firmware update data changed";
 }
 
 void ApplicationBackend::registerMetaTypes()
@@ -87,6 +112,22 @@ void ApplicationBackend::registerMetaTypes()
 void ApplicationBackend::registerComparators()
 {
     QMetaType::registerComparators<Flipper::Zero::AssetManifest::FileInfo>();
+}
+
+void ApplicationBackend::initConnections()
+{
+    connect(m_deviceRegistry, &DeviceRegistry::devicesChanged, this, &ApplicationBackend::onDevicesChanged);
+    connect(m_firmwareUpdates, &UpdateRegistry::channelsChanged, this, &ApplicationBackend::onFirmwareChanged);
+}
+
+void ApplicationBackend::setState(State newState)
+{
+    if(m_state == newState) {
+        return;
+    }
+
+    m_state = newState;
+    emit stateChanged();
 }
 
 DeviceRegistry *ApplicationBackend::deviceRegistry() const

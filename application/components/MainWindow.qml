@@ -10,14 +10,6 @@ import QFlipper 1.0
 Item {
     id: mainWindow
 
-    enum WindowState {
-        NoDevice,
-        Ready,
-        Updating,
-        Streaming,
-        SelfUpdating
-    }
-
     signal expandStarted
     signal expandFinished
     signal collapseStarted
@@ -29,7 +21,7 @@ Item {
 
     readonly property int baseWidth: 830
     readonly property int baseHeight: 500
-    // TODO: remember log height
+
     readonly property int logHeight: 200
     readonly property int minimumLogHeight: 200
 
@@ -40,37 +32,14 @@ Item {
     readonly property var deviceState: device ? device.state : undefined
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
-    readonly property int windowState: {
-        if(app.updater.state != AppUpdater.Idle) {
-            MainWindow.SelfUpdating
-        } else if(!deviceState ) {
-            MainWindow.NoDevice
-        } else if(deviceState.isPersistent) {
-            MainWindow.Updating
-        } else if(streamOverlay.visible) {
-            MainWindow.Streaming
-        } else {
-            MainWindow.Ready
-        }
-    }
-
-    onWindowStateChanged: {
-        if(windowState !== MainWindow.NoDevice) {
-//            device.streamer.enabled = (windowState === MainWindow.Ready) ||
-//                                      (windowState === MainWindow.Streaming);
-        } else {
-            streamOverlay.opacity = 0;
-        }
-    }
-
-    Component.onCompleted: {
-        if(applicationUpdates.isReady) {
-            askForSelfUpdate();
-        } else {
-            applicationUpdates.channelsChanged.connect(askForSelfUpdate);
-            homeOverlay.selfUpdateRequested.connect(askForSelfUpdate);
-        }
-    }
+//    Component.onCompleted: {
+//        if(applicationUpdates.isReady) {
+//            askForSelfUpdate();
+//        } else {
+//            applicationUpdates.channelsChanged.connect(askForSelfUpdate);
+//            homeOverlay.selfUpdateRequested.connect(askForSelfUpdate);
+//        }
+//    }
 
     width: baseWidth
     height: baseHeight
@@ -190,39 +159,40 @@ Item {
 
         DeviceWidget {
             id: deviceWidget
-            opacity: (windowState === MainWindow.Streaming) || (windowState === MainWindow.SelfUpdating) ? 0 : 1
-            x: windowState === MainWindow.Ready ? Math.round(mainContent.width / 2) : 216
+//            opacity: (windowState === MainWindow.Streaming) || (windowState === MainWindow.SelfUpdating) ? 0 : 1
+            x: Backend.state === Backend.Ready ? Math.round(mainContent.width / 2) : 216
             y: 85
 
-            onScreenStreamRequested: streamOverlay.opacity = 1
+//            onScreenStreamRequested: streamOverlay.opacity = 1
         }
 
         NoDeviceOverlay {
             id: noDeviceOverlay
             anchors.fill: parent
-            opacity: windowState === MainWindow.NoDevice ? 1 : 0
+            opacity: Backend.state === Backend.WaitingForDevices ? 1 : 0
         }
 
         HomeOverlay {
             id: homeOverlay
             backgroundRect: bg
             anchors.fill: parent
-            opacity: windowState === MainWindow.Ready ? 1 : 0
+            opacity: Backend.state === Backend.Ready ? 1 : 0
         }
 
         UpdateOverlay {
             id: updateOverlay
             backgroundRect: bg
             anchors.fill: parent
-            opacity: windowState === MainWindow.Updating ? 1 : 0
+            opacity: (Backend.state > Backend.Ready) &&
+                     (Backend.state < Backend.OperationInterrupted) ? 1 : 0
         }
 
-        SelfUpdateOverlay {
-            id: selfUpdateOverlay
-            backgroundRect: bg
-            anchors.fill: parent
-            opacity: windowState === MainWindow.SelfUpdating ? 1 : 0
-        }
+//        SelfUpdateOverlay {
+//            id: selfUpdateOverlay
+//            backgroundRect: bg
+//            anchors.fill: parent
+//            opacity: windowState === MainWindow.SelfUpdating ? 1 : 0
+//        }
 
         StreamOverlay {
             id: streamOverlay
@@ -349,18 +319,18 @@ Item {
         }
     }
 
-    function askForSelfUpdate() {
-        if(app.updater.canUpdate(applicationUpdates.latestVersion)) {
-            const messageObj = {
-                title : qsTr("Update qFlipper?"),
-                message: qsTr("Newer version of qFlipper<br/>will be installed"),
-                customText: qsTr("Update")
-            };
+//    function askForSelfUpdate() {
+//        if(app.updater.canUpdate(applicationUpdates.latestVersion)) {
+//            const messageObj = {
+//                title : qsTr("Update qFlipper?"),
+//                message: qsTr("Newer version of qFlipper<br/>will be installed"),
+//                customText: qsTr("Update")
+//            };
 
-            confirmationDialog.openWithMessage(function() {
-                app.updater.installUpdate(applicationUpdates.latestVersion);
-            }, messageObj);
-        }
-    }
+//            confirmationDialog.openWithMessage(function() {
+//                app.updater.installUpdate(applicationUpdates.latestVersion);
+//            }, messageObj);
+//        }
+//    }
 
 }
