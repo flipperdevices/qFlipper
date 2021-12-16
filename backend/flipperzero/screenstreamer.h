@@ -50,7 +50,7 @@ public:
 
     Q_ENUM(State)
 
-    ScreenStreamer(DeviceState *deviceState, CommandInterface *rpc, QObject *parent = nullptr);
+    ScreenStreamer(CommandInterface *rpc, QObject *parent = nullptr);
 
     const QByteArray &screenData() const;
 
@@ -63,24 +63,20 @@ public:
 public slots:
     void sendInputEvent(InputKey key, InputType type);
 
+private slots:
+    void onPortReadyRead();
+
 signals:
     void screenDataChanged();
     void enabledChanged();
-
-private slots:
-    void onPortReadyRead();
-    void onDeviceStateChanged();
 
 private:
     void start();
     void stop();
     void setState(State newState);
-
     QSerialPort *serialPort() const;
 
-    DeviceState *m_deviceState;
     CommandInterface *m_rpc;
-
     QByteArray m_screenData;
     State m_state;
 };

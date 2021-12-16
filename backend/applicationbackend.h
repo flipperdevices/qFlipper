@@ -56,7 +56,6 @@ signals:
 
 private slots:
     void onDevicesChanged();
-    void onFirmwareChanged();
 
 private:
     static void registerMetaTypes();

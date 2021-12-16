@@ -15,9 +15,14 @@
 #include "flipperzero/firmwareupdater.h"
 #include "flipperzero/screenstreamer.h"
 
+#include "flipperzero/helper/toplevelhelper.h"
+
 Q_LOGGING_CATEGORY(LOG_BACKEND, "BACKEND")
 
 using namespace Flipper;
+
+// BIG TODO: Abstract away all mentions on Flipper Zero internals into common API
+// (to facilitate other devices support)
 
 ApplicationBackend::ApplicationBackend(QObject *parent):
     QObject(parent),
@@ -39,37 +44,49 @@ ApplicationBackend::State ApplicationBackend::state() const
 
 void ApplicationBackend::mainAction()
 {
-    qCInfo(LOG_BACKEND) << "Performing main action...";
+    setState(State::UpdatingDevice);
+
+    auto *helper = new Zero::UpdateTopLevelHelper(m_firmwareUpdates, m_deviceRegistry->currentDevice(), this);
+
+    connect(helper, &AbstractOperationHelper::finished, this, [=]() {
+        if(helper->isError()) {
+            qCCritical(LOG_BACKEND).noquote() << "Failed to complete the operation:" << helper->errorString();
+        } else {
+            setState(State::Ready);
+        }
+
+        helper->deleteLater();
+    });
 }
 
 void ApplicationBackend::createBackup(const QUrl &directoryUrl)
 {
-    qCInfo(LOG_BACKEND).noquote() << "Creating backup in" << directoryUrl << "...";
+    qCDebug(LOG_BACKEND).noquote() << "Creating backup in" << directoryUrl << "...";
 }
 
 void ApplicationBackend::restoreBackup(const QUrl &directoryUrl)
 {
-    qCInfo(LOG_BACKEND).noquote() << "Restoring backup from" << directoryUrl << "...";
+    qCDebug(LOG_BACKEND).noquote() << "Restoring backup from" << directoryUrl << "...";
 }
 
 void ApplicationBackend::factoryReset()
 {
-    qCInfo(LOG_BACKEND) << "Executing factory reset...";
+    qCDebug(LOG_BACKEND) << "Executing factory reset...";
 }
 
 void ApplicationBackend::installFirmware(const QUrl &fileUrl)
 {
-    qCInfo(LOG_BACKEND).noquote() << "Installing firmware from" << fileUrl << "...";
+    qCDebug(LOG_BACKEND).noquote() << "Installing firmware from" << fileUrl << "...";
 }
 
 void ApplicationBackend::installWirelessStack(const QUrl &fileUrl)
 {
-    qCInfo(LOG_BACKEND).noquote() << "Installing wireless stack from" << fileUrl << "...";
+    qCDebug(LOG_BACKEND).noquote() << "Installing wireless stack from" << fileUrl << "...";
 }
 
 void ApplicationBackend::installFUS(const QUrl &fileUrl, uint32_t address)
 {
-    qCInfo(LOG_BACKEND).noquote().nospace() << "Installing FUS from " << fileUrl << " at the address 0x" << QString::number(address, 16) << "...";
+    qCDebug(LOG_BACKEND).noquote().nospace() << "Installing FUS from " << fileUrl << " at the address 0x" << QString::number(address, 16) << "...";
 }
 
 void ApplicationBackend::onDevicesChanged()
@@ -81,12 +98,7 @@ void ApplicationBackend::onDevicesChanged()
         setState(m_state == State::Ready ? State::WaitingForDevices : State::OperationInterrupted);
     }
 
-    qCInfo(LOG_BACKEND) << "State changed, current state:" << m_state;
-}
-
-void ApplicationBackend::onFirmwareChanged()
-{
-    qCInfo(LOG_BACKEND) << "Firmware update data changed";
+    qCDebug(LOG_BACKEND) << "State changed, current state:" << m_state;
 }
 
 void ApplicationBackend::registerMetaTypes()
@@ -117,7 +129,6 @@ void ApplicationBackend::registerComparators()
 void ApplicationBackend::initConnections()
 {
     connect(m_deviceRegistry, &DeviceRegistry::devicesChanged, this, &ApplicationBackend::onDevicesChanged);
-    connect(m_firmwareUpdates, &UpdateRegistry::channelsChanged, this, &ApplicationBackend::onFirmwareChanged);
 }
 
 void ApplicationBackend::setState(State newState)

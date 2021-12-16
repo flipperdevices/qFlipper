@@ -28,55 +28,45 @@ FirmwareUpdater::FirmwareUpdater(DeviceState *state, CommandInterface *rpc, QObj
     m_utility(new UtilityInterface(state, rpc, this))
 {}
 
-void FirmwareUpdater::fullUpdate(const Updates::VersionInfo &versionInfo)
+AbstractTopLevelOperation *FirmwareUpdater::fullUpdate(const Updates::VersionInfo &versionInfo)
 {
-    if(!m_state->isRecoveryMode()) {
-        enqueueOperation(new FullUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this));
-    }
+    return registerOperation(new FullUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this));
 }
 
-void FirmwareUpdater::fullRepair(const Updates::VersionInfo &versionInfo)
+AbstractTopLevelOperation *FirmwareUpdater::fullRepair(const Updates::VersionInfo &versionInfo)
 {
-    if(m_state->isRecoveryMode()) {
-        enqueueOperation(new FullRepairOperation(m_recovery, m_utility, m_state, versionInfo, this));
-    }
+    return registerOperation(new FullRepairOperation(m_recovery, m_utility, m_state, versionInfo, this));
 }
 
-void FirmwareUpdater::backupInternalStorage(const QUrl &directoryUrl)
+AbstractTopLevelOperation *FirmwareUpdater::backupInternalStorage(const QUrl &directoryUrl)
 {
-    if(!m_state->isRecoveryMode()) {
-        enqueueOperation(new SettingsBackupOperation(m_utility, m_state, directoryUrl, this));
-    }
+    return registerOperation(new SettingsBackupOperation(m_utility, m_state, directoryUrl, this));
 }
 
-void FirmwareUpdater::restoreInternalStorage(const QUrl &directoryUrl)
+AbstractTopLevelOperation *FirmwareUpdater::restoreInternalStorage(const QUrl &directoryUrl)
 {
-    if(!m_state->isRecoveryMode()) {
-        enqueueOperation(new SettingsRestoreOperation(m_utility, m_state, directoryUrl, this));
-    }
+    return registerOperation(new SettingsRestoreOperation(m_utility, m_state, directoryUrl, this));
 }
 
-void FirmwareUpdater::factoryReset()
+AbstractTopLevelOperation *FirmwareUpdater::factoryReset()
 {
-    if(!m_state->isRecoveryMode()) {
-        enqueueOperation(new FactoryResetOperation(m_utility, m_state, this));
-    }
+    return registerOperation(new FactoryResetOperation(m_utility, m_state, this));
 }
 
-void FirmwareUpdater::localFirmwareInstall(const QUrl &fileUrl)
+AbstractTopLevelOperation *FirmwareUpdater::localFirmwareInstall(const QUrl &fileUrl)
 {
-    enqueueOperation(new FirmwareInstallOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
+    return registerOperation(new FirmwareInstallOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
 }
 
-void FirmwareUpdater::localFUSUpdate(const QUrl &fileUrl)
+AbstractTopLevelOperation *FirmwareUpdater::localFUSUpdate(const QUrl &fileUrl, uint32_t address)
 {
-    //TODO: User-settable address
-    enqueueOperation(new FUSUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), 0x080EC000, this));
+    //TODO: User-settable address 0x080EC000
+    return registerOperation(new FUSUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), address, this));
 }
 
-void FirmwareUpdater::localWirelessStackUpdate(const QUrl &fileUrl)
+AbstractTopLevelOperation *FirmwareUpdater::localWirelessStackUpdate(const QUrl &fileUrl)
 {
-    enqueueOperation(new WirelessStackUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
+    return registerOperation(new WirelessStackUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
 }
 
 const QLoggingCategory &FirmwareUpdater::loggingCategory() const

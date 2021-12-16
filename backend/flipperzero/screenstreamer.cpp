@@ -3,7 +3,6 @@
 #include <QDebug>
 #include <QLoggingCategory>
 
-#include "devicestate.h"
 #include "commandinterface.h"
 
 #include "cli/guistartstreamoperation.h"
@@ -16,15 +15,11 @@ Q_LOGGING_CATEGORY(CATEGORY_SCREEN, "SCREEN")
 using namespace Flipper;
 using namespace Zero;
 
-ScreenStreamer::ScreenStreamer(DeviceState *deviceState, CommandInterface *rpc, QObject *parent):
+ScreenStreamer::ScreenStreamer(CommandInterface *rpc, QObject *parent):
     QObject(parent),
-    m_deviceState(deviceState),
     m_rpc(rpc),
     m_state(State::Stopped)
-{
-    connect(m_deviceState, &DeviceState::isPersistentChanged, this, &ScreenStreamer::onDeviceStateChanged);
-    onDeviceStateChanged();
-}
+{}
 
 const QByteArray &ScreenStreamer::screenData() const
 {
@@ -89,11 +84,6 @@ void ScreenStreamer::onPortReadyRead()
         // Stop only after processing all of the messages
         stop();
     }
-}
-
-void ScreenStreamer::onDeviceStateChanged()
-{
-    setEnabled(!m_deviceState->isRecoveryMode() && !m_deviceState->isPersistent());
 }
 
 void ScreenStreamer::start()

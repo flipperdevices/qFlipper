@@ -10,6 +10,7 @@ class DeviceState;
 class RecoveryInterface;
 class UtilityInterface;
 class CommandInterface;
+class AbstractTopLevelOperation;
 
 class FirmwareUpdater : public AbstractOperationRunner
 {
@@ -24,20 +25,19 @@ class FirmwareUpdater : public AbstractOperationRunner
 public:
     FirmwareUpdater(DeviceState *state, CommandInterface *rpc, QObject *parent = nullptr);
 
-public slots:
-    bool canUpdate(const Flipper::Updates::VersionInfo &versionInfo) const;
-    bool canInstall() const;
+    Q_INVOKABLE bool canUpdate(const Flipper::Updates::VersionInfo &versionInfo) const;
+    Q_INVOKABLE bool canInstall() const;
 
-    void fullUpdate(const Flipper::Updates::VersionInfo &versionInfo);
-    void fullRepair(const Flipper::Updates::VersionInfo &versionInfo);
+    AbstractTopLevelOperation *fullUpdate(const Flipper::Updates::VersionInfo &versionInfo);
+    AbstractTopLevelOperation *fullRepair(const Flipper::Updates::VersionInfo &versionInfo);
 
-    void backupInternalStorage(const QUrl &directoryUrl);
-    void restoreInternalStorage(const QUrl &directoryUrl);
-    void factoryReset();
+    AbstractTopLevelOperation *backupInternalStorage(const QUrl &directoryUrl);
+    AbstractTopLevelOperation *restoreInternalStorage(const QUrl &directoryUrl);
+    AbstractTopLevelOperation *factoryReset();
 
-    void localFirmwareInstall(const QUrl &fileUrl);
-    void localFUSUpdate(const QUrl &fileUrl);
-    void localWirelessStackUpdate(const QUrl &fileUrl);
+    AbstractTopLevelOperation *localFirmwareInstall(const QUrl &fileUrl);
+    AbstractTopLevelOperation *localFUSUpdate(const QUrl &fileUrl, uint32_t address);
+    AbstractTopLevelOperation *localWirelessStackUpdate(const QUrl &fileUrl);
 
 private:
     const QLoggingCategory &loggingCategory() const override;
