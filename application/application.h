@@ -1,10 +1,10 @@
 #pragma once
 
 #include <QApplication>
+#include <QQmlApplicationEngine>
 
-class ApplicationUpdater;
-class ApplicationBackend;
-class QQmlApplicationEngine;
+#include "applicationupdater.h"
+#include "applicationbackend.h"
 
 class Application : public QApplication
 {
@@ -31,8 +31,8 @@ private:
     void initFonts();
     void initGUI();
 
-    ApplicationUpdater *m_updater;
-    ApplicationBackend *m_backend;
-    QQmlApplicationEngine *m_engine;
+    ApplicationUpdater m_updater;
+    ApplicationBackend m_backend;
+    QQmlApplicationEngine m_engine;
 };
 
