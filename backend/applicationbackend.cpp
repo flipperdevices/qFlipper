@@ -1,5 +1,8 @@
 #include "applicationbackend.h"
 
+#include <QDebug>
+#include <QLoggingCategory>
+
 #include "deviceregistry.h"
 #include "updateregistry.h"
 
@@ -11,6 +14,8 @@
 #include "flipperzero/assetmanifest.h"
 #include "flipperzero/firmwareupdater.h"
 #include "flipperzero/screenstreamer.h"
+
+Q_LOGGING_CATEGORY(LOG_BACKEND, "BACKEND")
 
 using namespace Flipper;
 
@@ -41,7 +46,37 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
 
 void ApplicationBackend::mainAction()
 {
-    applicationUpdates()->check();
+    qCInfo(LOG_BACKEND) << "Performing main action...";
+}
+
+void ApplicationBackend::createBackup()
+{
+    qCInfo(LOG_BACKEND) << "Creating backup...";
+}
+
+void ApplicationBackend::restoreBackup()
+{
+    qCInfo(LOG_BACKEND) << "Restoring backup...";
+}
+
+void ApplicationBackend::factoryReset()
+{
+    qCInfo(LOG_BACKEND) << "Executing factory reset...";
+}
+
+void ApplicationBackend::installFirmware(const QUrl &fileUrl)
+{
+    qCInfo(LOG_BACKEND).noquote() << "Installing firmware from" << fileUrl << "...";
+}
+
+void ApplicationBackend::installWirelessStack(const QUrl &fileUrl)
+{
+    qCInfo(LOG_BACKEND).noquote() << "Installing wireless stack from" << fileUrl << "...";
+}
+
+void ApplicationBackend::installFUS(const QUrl &fileUrl, uint32_t address)
+{
+    qCInfo(LOG_BACKEND).noquote().nospace() << "Installing FUS from " << fileUrl << " at the address 0x" << QString::number(address, 16) << "...";
 }
 
 DeviceRegistry *ApplicationBackend::deviceRegistry() const
