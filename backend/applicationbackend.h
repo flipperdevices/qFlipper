@@ -2,8 +2,12 @@
 
 #include <QObject>
 
-#include "deviceregistry.h"
-#include "updateregistry.h"
+namespace Flipper {
+    class DeviceRegistry;
+    class UpdateRegistry;
+    class FirmwareUpdates;
+    class ApplicationUpdates;
+}
 
 class ApplicationBackend : public QObject
 {
@@ -11,11 +15,15 @@ class ApplicationBackend : public QObject
 
 public:
     ApplicationBackend(QObject *parent = nullptr);
-    ~ApplicationBackend();
 
-public:
-    // TODO: Make these private
-    Flipper::DeviceRegistry deviceRegistry;
-    Flipper::FirmwareUpdates firmwareUpdates;
-    Flipper::ApplicationUpdates applicationUpdates;
+    Q_INVOKABLE void mainAction();
+
+    Flipper::DeviceRegistry *deviceRegistry() const;
+    Flipper::UpdateRegistry *firmwareUpdates() const;
+    Flipper::UpdateRegistry *applicationUpdates() const;
+
+private:
+    Flipper::DeviceRegistry *m_deviceRegistry;
+    Flipper::FirmwareUpdates *m_firmwareUpdates;
+    Flipper::ApplicationUpdates *m_applicationUpdates;
 };

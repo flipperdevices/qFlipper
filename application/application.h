@@ -1,11 +1,10 @@
 #pragma once
 
 #include <QApplication>
-#include <QQmlApplicationEngine>
 
-#include "applicationupdater.h"
-#include "flipperupdates.h"
-#include "applicationbackend.h"
+class ApplicationUpdater;
+class ApplicationBackend;
+class QQmlApplicationEngine;
 
 class Application : public QApplication
 {
@@ -20,7 +19,6 @@ public:
     ~Application();
 
     static const QString commitNumber();
-
     ApplicationUpdater *updater();
 
 private:
@@ -33,8 +31,8 @@ private:
     void initFonts();
     void initGUI();
 
-    ApplicationUpdater m_updater;
-    ApplicationBackend m_backend;
-    QQmlApplicationEngine m_engine;
+    ApplicationUpdater *m_updater;
+    ApplicationBackend *m_backend;
+    QQmlApplicationEngine *m_engine;
 };
 

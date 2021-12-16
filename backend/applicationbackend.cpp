@@ -1,5 +1,8 @@
 #include "applicationbackend.h"
 
+#include "deviceregistry.h"
+#include "updateregistry.h"
+
 #include "preferences.h"
 #include "flipperupdates.h"
 
@@ -13,8 +16,9 @@ using namespace Flipper;
 
 ApplicationBackend::ApplicationBackend(QObject *parent):
     QObject(parent),
-    firmwareUpdates("https://update.flipperzero.one/firmware/directory.json"),
-    applicationUpdates("https://update.flipperzero.one/qFlipper/directory.json")
+    m_deviceRegistry(new DeviceRegistry(this)),
+    m_firmwareUpdates(new FirmwareUpdates("https://update.flipperzero.one/firmware/directory.json", this)),
+    m_applicationUpdates(new ApplicationUpdates("https://update.flipperzero.one/qFlipper/directory.json", this))
 {
     qRegisterMetaType<Preferences*>("Preferences*");
     qRegisterMetaType<Flipper::Updates::FileInfo>("Flipper::Updates::FileInfo");
@@ -35,5 +39,22 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     QMetaType::registerComparators<Flipper::Zero::AssetManifest::FileInfo>();
 }
 
-ApplicationBackend::~ApplicationBackend()
-{}
+void ApplicationBackend::mainAction()
+{
+    applicationUpdates()->check();
+}
+
+DeviceRegistry *ApplicationBackend::deviceRegistry() const
+{
+    return m_deviceRegistry;
+}
+
+UpdateRegistry *ApplicationBackend::firmwareUpdates() const
+{
+    return m_firmwareUpdates;
+}
+
+UpdateRegistry *ApplicationBackend::applicationUpdates() const
+{
+    return m_applicationUpdates;
+}

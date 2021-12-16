@@ -8,10 +8,13 @@
 #include <QQuickWindow>
 #include <QFontDatabase>
 #include <QLoggingCategory>
+#include <QQmlApplicationEngine>
 #include <QtQuickControls2/QQuickStyle>
 
+#include "applicationupdater.h"
 #include "applicationbackend.h"
 #include "updateregistry.h"
+#include "deviceregistry.h"
 #include "screencanvas.h"
 #include "preferences.h"
 #include "logger.h"
@@ -20,9 +23,9 @@ Q_LOGGING_CATEGORY(CATEGORY_APP, "APP")
 
 Application::Application(int &argc, char **argv):
     QApplication(argc, argv),
-    m_updater(this),
-    m_backend(this),
-    m_engine(this)
+    m_updater(new ApplicationUpdater(this)),
+    m_backend(new ApplicationBackend(this)),
+    m_engine(new QQmlApplicationEngine(this))
 {
     initLogger();
     initQmlTypes();
@@ -49,7 +52,7 @@ const QString Application::commitNumber()
 
 ApplicationUpdater *Application::updater()
 {
-    return &m_updater;
+    return m_updater;
 }
 
 void Application::initLogger()
@@ -67,10 +70,10 @@ void Application::initStyles()
 void Application::initContextProperties()
 {
     //TODO: Replace context properties with QML singletons
-    m_engine.rootContext()->setContextProperty("app", this);
-    m_engine.rootContext()->setContextProperty("deviceRegistry", &m_backend.deviceRegistry);
-    m_engine.rootContext()->setContextProperty("firmwareUpdates", &m_backend.firmwareUpdates);
-    m_engine.rootContext()->setContextProperty("applicationUpdates", &m_backend.applicationUpdates);
+    m_engine->rootContext()->setContextProperty("app", this);
+    m_engine->rootContext()->setContextProperty("deviceRegistry", m_backend->deviceRegistry());
+    m_engine->rootContext()->setContextProperty("firmwareUpdates", m_backend->firmwareUpdates());
+    m_engine->rootContext()->setContextProperty("applicationUpdates",m_backend->applicationUpdates());
 }
 
 void Application::initTranslations()
@@ -93,12 +96,12 @@ void Application::initQmlTypes()
 
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Logger", globalLogger);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Preferences", globalPrefs);
-    qmlRegisterSingletonInstance("QFlipper", 1, 0, "Backend", &m_backend);
+    qmlRegisterSingletonInstance("QFlipper", 1, 0, "Backend", m_backend);
 }
 
 void Application::initImports()
 {
-    m_engine.addImportPath(":/imports");
+    m_engine->addImportPath(":/imports");
 }
 
 void Application::initFonts()
@@ -119,6 +122,6 @@ void Application::initGUI()
         }
     };
 
-    connect(&m_engine, &QQmlApplicationEngine::objectCreated, this, onObjectCreated, Qt::QueuedConnection);
-    m_engine.load(url);
+    connect(m_engine, &QQmlApplicationEngine::objectCreated, this, onObjectCreated, Qt::QueuedConnection);
+    m_engine->load(url);
 }
