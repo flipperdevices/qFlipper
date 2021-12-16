@@ -25,23 +25,8 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     m_firmwareUpdates(new FirmwareUpdates("https://update.flipperzero.one/firmware/directory.json", this)),
     m_applicationUpdates(new ApplicationUpdates("https://update.flipperzero.one/qFlipper/directory.json", this))
 {
-    qRegisterMetaType<Preferences*>("Preferences*");
-    qRegisterMetaType<Flipper::Updates::FileInfo>("Flipper::Updates::FileInfo");
-    qRegisterMetaType<Flipper::Updates::VersionInfo>("Flipper::Updates::VersionInfo");
-    qRegisterMetaType<Flipper::Updates::ChannelInfo>("Flipper::Updates::ChannelInfo");
-
-    qRegisterMetaType<Flipper::Zero::DeviceInfo>("Flipper::Zero::DeviceInfo");
-    qRegisterMetaType<Flipper::Zero::HardwareInfo>("Flipper::Zero::HardwareInfo");
-    qRegisterMetaType<Flipper::Zero::SoftwareInfo>("Flipper::Zero::SoftwareInfo");
-    qRegisterMetaType<Flipper::Zero::StorageInfo>("Flipper::Zero::StorageInfo");
-
-    qRegisterMetaType<Flipper::FlipperZero*>("Flipper::FlipperZero*");
-    qRegisterMetaType<Flipper::Zero::DeviceState*>("Flipper::Zero::DeviceState*");
-    qRegisterMetaType<Flipper::Zero::FirmwareUpdater*>("Flipper::Zero::FirmwareUpdater*");
-    qRegisterMetaType<Flipper::Zero::ScreenStreamer*>("Flipper::Zero::ScreenStreamer*");
-
-    qRegisterMetaType<Flipper::Zero::AssetManifest::FileInfo>();
-    QMetaType::registerComparators<Flipper::Zero::AssetManifest::FileInfo>();
+    registerMetaTypes();
+    registerComparators();
 }
 
 void ApplicationBackend::mainAction()
@@ -77,6 +62,31 @@ void ApplicationBackend::installWirelessStack(const QUrl &fileUrl)
 void ApplicationBackend::installFUS(const QUrl &fileUrl, uint32_t address)
 {
     qCInfo(LOG_BACKEND).noquote().nospace() << "Installing FUS from " << fileUrl << " at the address 0x" << QString::number(address, 16) << "...";
+}
+
+void ApplicationBackend::registerMetaTypes()
+{
+    qRegisterMetaType<Preferences*>("Preferences*");
+    qRegisterMetaType<Flipper::Updates::FileInfo>("Flipper::Updates::FileInfo");
+    qRegisterMetaType<Flipper::Updates::VersionInfo>("Flipper::Updates::VersionInfo");
+    qRegisterMetaType<Flipper::Updates::ChannelInfo>("Flipper::Updates::ChannelInfo");
+
+    qRegisterMetaType<Flipper::Zero::DeviceInfo>("Flipper::Zero::DeviceInfo");
+    qRegisterMetaType<Flipper::Zero::HardwareInfo>("Flipper::Zero::HardwareInfo");
+    qRegisterMetaType<Flipper::Zero::SoftwareInfo>("Flipper::Zero::SoftwareInfo");
+    qRegisterMetaType<Flipper::Zero::StorageInfo>("Flipper::Zero::StorageInfo");
+
+    qRegisterMetaType<Flipper::FlipperZero*>("Flipper::FlipperZero*");
+    qRegisterMetaType<Flipper::Zero::DeviceState*>("Flipper::Zero::DeviceState*");
+    qRegisterMetaType<Flipper::Zero::FirmwareUpdater*>("Flipper::Zero::FirmwareUpdater*");
+    qRegisterMetaType<Flipper::Zero::ScreenStreamer*>("Flipper::Zero::ScreenStreamer*");
+
+    qRegisterMetaType<Flipper::Zero::AssetManifest::FileInfo>();
+}
+
+void ApplicationBackend::registerComparators()
+{
+    QMetaType::registerComparators<Flipper::Zero::AssetManifest::FileInfo>();
 }
 
 DeviceRegistry *ApplicationBackend::deviceRegistry() const

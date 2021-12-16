@@ -34,6 +34,9 @@ public:
     Q_INVOKABLE void installFUS(const QUrl &fileUrl, uint32_t address);
 
 private:
+    static void registerMetaTypes();
+    static void registerComparators();
+
     Flipper::DeviceRegistry *m_deviceRegistry;
     Flipper::FirmwareUpdates *m_firmwareUpdates;
     Flipper::ApplicationUpdates *m_applicationUpdates;
