@@ -14,6 +14,7 @@ SOURCES += \
     abstractoperationrunner.cpp \
     abstractprotobufoperation.cpp \
     abstractserialoperation.cpp \
+    applicationbackend.cpp \
     deviceregistry.cpp \
     filenode.cpp \
     flipperupdates.cpp \
@@ -84,7 +85,6 @@ SOURCES += \
     gzipuncompressor.cpp \
     logger.cpp \
     preferences.cpp \
-    qflipperbackend.cpp \
     remotefilefetcher.cpp \
     serialfinder.cpp \
     simpleserialoperation.cpp \
@@ -100,6 +100,7 @@ HEADERS += \
     abstractprotobufmessage.h \
     abstractprotobufoperation.h \
     abstractserialoperation.h \
+    applicationbackend.h \
     deviceregistry.h \
     failable.h \
     fileinfo.h \
@@ -173,7 +174,6 @@ HEADERS += \
     gzipuncompressor.h \
     logger.h \
     preferences.h \
-    qflipperbackend.h \
     remotefilefetcher.h \
     serialfinder.h \
     signalingfailable.h \

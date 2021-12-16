@@ -1,4 +1,4 @@
-#include "qflipperbackend.h"
+#include "applicationbackend.h"
 
 #include "preferences.h"
 #include "flipperupdates.h"
@@ -11,7 +11,7 @@
 
 using namespace Flipper;
 
-QFlipperBackend::QFlipperBackend(QObject *parent):
+ApplicationBackend::ApplicationBackend(QObject *parent):
     QObject(parent),
     firmwareUpdates("https://update.flipperzero.one/firmware/directory.json"),
     applicationUpdates("https://update.flipperzero.one/qFlipper/directory.json")
@@ -35,5 +35,5 @@ QFlipperBackend::QFlipperBackend(QObject *parent):
     QMetaType::registerComparators<Flipper::Zero::AssetManifest::FileInfo>();
 }
 
-QFlipperBackend::~QFlipperBackend()
+ApplicationBackend::~ApplicationBackend()
 {}

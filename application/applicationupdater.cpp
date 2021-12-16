@@ -1,4 +1,4 @@
-#include "appupdater.h"
+#include "applicationupdater.h"
 
 #include <QDir>
 #include <QFile>
@@ -19,23 +19,23 @@ static const QString chopRcSuffix(const QString &str) {
     return suffixIdx < 0 ? str : str.chopped(str.length() - suffixIdx);
 }
 
-AppUpdater::AppUpdater(QObject *parent):
+ApplicationUpdater::ApplicationUpdater(QObject *parent):
     QObject(parent),
     m_state(State::Idle),
     m_progress(0)
 {}
 
-AppUpdater::State AppUpdater::state() const
+ApplicationUpdater::State ApplicationUpdater::state() const
 {
     return m_state;
 }
 
-double AppUpdater::progress() const
+double ApplicationUpdater::progress() const
 {
     return m_progress;
 }
 
-bool AppUpdater::canUpdate(const Flipper::Updates::VersionInfo &versionInfo)
+bool ApplicationUpdater::canUpdate(const Flipper::Updates::VersionInfo &versionInfo)
 {
     const auto appDate = QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).date();
     const auto appVersion = QStringLiteral(APP_VERSION);
@@ -61,7 +61,7 @@ bool AppUpdater::canUpdate(const Flipper::Updates::VersionInfo &versionInfo)
     }
 }
 
-void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
+void ApplicationUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
 {
 #ifdef Q_OS_WINDOWS
     const auto fileInfo = versionInfo.fileInfo(QStringLiteral("installer"), QStringLiteral("windows/amd64"));
@@ -138,7 +138,7 @@ void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
         }
     });
 
-    connect(fetcher, &RemoteFileFetcher::progressChanged, this, &AppUpdater::setProgress);
+    connect(fetcher, &RemoteFileFetcher::progressChanged, this, &ApplicationUpdater::setProgress);
 
     if(!fetcher->fetch(fileInfo, file)) {
         qCWarning(CATEGORY_SELFUPDATES) << "Failed to start downloading the update package.";
@@ -153,7 +153,7 @@ void AppUpdater::installUpdate(const Flipper::Updates::VersionInfo &versionInfo)
     }
 }
 
-void AppUpdater::setState(State state)
+void ApplicationUpdater::setState(State state)
 {
     if(m_state == state) {
         return;
@@ -163,7 +163,7 @@ void AppUpdater::setState(State state)
     emit stateChanged();
 }
 
-void AppUpdater::setProgress(double progress)
+void ApplicationUpdater::setProgress(double progress)
 {
     if(qFuzzyCompare(m_progress, progress)) {
         return;
@@ -173,7 +173,7 @@ void AppUpdater::setProgress(double progress)
     emit progressChanged();
 }
 
-bool AppUpdater::performUpdate(const QString &path)
+bool ApplicationUpdater::performUpdate(const QString &path)
 {
     const auto exitApplication = []() {
         qCInfo(CATEGORY_SELFUPDATES) << "Update started, exiting the application...";

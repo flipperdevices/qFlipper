@@ -3,9 +3,9 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 
-#include "appupdater.h"
+#include "applicationupdater.h"
 #include "flipperupdates.h"
-#include "qflipperbackend.h"
+#include "applicationbackend.h"
 
 class Application : public QApplication
 {
@@ -13,7 +13,7 @@ class Application : public QApplication
     Q_PROPERTY(QString name READ applicationName NOTIFY applicationNameChanged)
     Q_PROPERTY(QString version READ applicationVersion NOTIFY applicationVersionChanged)
     Q_PROPERTY(QString commit READ commitNumber CONSTANT)
-    Q_PROPERTY(AppUpdater* updater READ updater CONSTANT)
+    Q_PROPERTY(ApplicationUpdater* updater READ updater CONSTANT)
 
 public:
     Application(int &argc, char **argv);
@@ -21,7 +21,7 @@ public:
 
     static const QString commitNumber();
 
-    AppUpdater *updater();
+    ApplicationUpdater *updater();
 
 private:
     void initLogger();
@@ -33,8 +33,8 @@ private:
     void initFonts();
     void initGUI();
 
-    AppUpdater m_updater;
-    QFlipperBackend m_backend;
+    ApplicationUpdater m_updater;
+    ApplicationBackend m_backend;
     QQmlApplicationEngine m_engine;
 };
 

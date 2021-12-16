@@ -10,7 +10,7 @@
 #include <QLoggingCategory>
 #include <QtQuickControls2/QQuickStyle>
 
-#include "qflipperbackend.h"
+#include "applicationbackend.h"
 #include "updateregistry.h"
 #include "screencanvas.h"
 #include "preferences.h"
@@ -47,7 +47,7 @@ const QString Application::commitNumber()
     return APP_COMMIT;
 }
 
-AppUpdater *Application::updater()
+ApplicationUpdater *Application::updater()
 {
     return &m_updater;
 }
@@ -89,10 +89,11 @@ void Application::initTranslations()
 void Application::initQmlTypes()
 {
     qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
-    qmlRegisterType<AppUpdater>("QFlipper", 1, 0, "AppUpdater");
+    qmlRegisterType<ApplicationUpdater>("QFlipper", 1, 0, "AppUpdater");
 
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Logger", globalLogger);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Preferences", globalPrefs);
+    qmlRegisterSingletonInstance("QFlipper", 1, 0, "Backend", &m_backend);
 }
 
 void Application::initImports()

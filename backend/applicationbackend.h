@@ -5,14 +5,16 @@
 #include "deviceregistry.h"
 #include "updateregistry.h"
 
-class QFlipperBackend : public QObject
+class ApplicationBackend : public QObject
 {
     Q_OBJECT
 
 public:
-    QFlipperBackend(QObject *parent = nullptr);
-    ~QFlipperBackend();
+    ApplicationBackend(QObject *parent = nullptr);
+    ~ApplicationBackend();
 
+public:
+    // TODO: Make these private
     Flipper::DeviceRegistry deviceRegistry;
     Flipper::FirmwareUpdates firmwareUpdates;
     Flipper::ApplicationUpdates applicationUpdates;

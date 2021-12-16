@@ -9,7 +9,7 @@ CONFIG += c++11
 
 SOURCES += \
         application.cpp \
-        appupdater.cpp \
+        applicationupdater.cpp \
         main.cpp \
         screencanvas.cpp
 
@@ -76,7 +76,7 @@ DEPENDPATH += \
 
 HEADERS += \
     application.h \
-    appupdater.h \
+    applicationupdater.h \
     screencanvas.h
 
 DISTFILES +=
