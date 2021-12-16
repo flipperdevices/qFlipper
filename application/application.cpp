@@ -19,7 +19,10 @@
 Q_LOGGING_CATEGORY(CATEGORY_APP, "APP")
 
 Application::Application(int &argc, char **argv):
-    QApplication(argc, argv)
+    QApplication(argc, argv),
+    m_updater(this),
+    m_backend(this),
+    m_engine(this)
 {
     initLogger();
     initQmlTypes();

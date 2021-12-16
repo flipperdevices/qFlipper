@@ -1,11 +1,16 @@
 #pragma once
 
+#include <QObject>
+
 #include "deviceregistry.h"
 #include "updateregistry.h"
 
-struct QFlipperBackend
+class QFlipperBackend : public QObject
 {
-    QFlipperBackend();
+    Q_OBJECT
+
+public:
+    QFlipperBackend(QObject *parent = nullptr);
     ~QFlipperBackend();
 
     Flipper::DeviceRegistry deviceRegistry;

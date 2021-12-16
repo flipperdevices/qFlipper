@@ -9,11 +9,10 @@
 #include "flipperzero/firmwareupdater.h"
 #include "flipperzero/screenstreamer.h"
 
-#include "debug.h"
-
 using namespace Flipper;
 
-QFlipperBackend::QFlipperBackend():
+QFlipperBackend::QFlipperBackend(QObject *parent):
+    QObject(parent),
     firmwareUpdates("https://update.flipperzero.one/firmware/directory.json"),
     applicationUpdates("https://update.flipperzero.one/qFlipper/directory.json")
 {
