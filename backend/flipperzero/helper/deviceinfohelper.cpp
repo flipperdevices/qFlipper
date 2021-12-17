@@ -184,7 +184,9 @@ void VCPDeviceInfoHelper::checkSDCard()
         } else if(!operation->isPresent()) {
             m_deviceInfo.storage.isExternalPresent = false;
             m_deviceInfo.storage.isAssetsInstalled = false;
-            finish();
+
+            setState(VCPDeviceInfoHelper::CheckingManifest);
+            advanceState();
 
         } else {
             m_deviceInfo.storage.isExternalPresent = true;
