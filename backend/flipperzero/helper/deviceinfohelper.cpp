@@ -149,25 +149,25 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
         m_deviceInfo.name = operation->result(QByteArrayLiteral("hardware_name"));
 
         m_deviceInfo.bootloader = {
-            .version = operation->result(QByteArrayLiteral("bootloader_version")),
-            .commit = operation->result(QByteArrayLiteral("bootloader_commit")),
-            .branch = operation->result(QByteArrayLiteral("bootloader_branch")),
-            .date = QDateTime::fromString(operation->result(QByteArrayLiteral("bootloader_build_date")), "dd-MM-yyyy").date()
+            operation->result(QByteArrayLiteral("bootloader_version")),
+            operation->result(QByteArrayLiteral("bootloader_commit")),
+            operation->result(QByteArrayLiteral("bootloader_branch")),
+            QDateTime::fromString(operation->result(QByteArrayLiteral("bootloader_build_date")), "dd-MM-yyyy").date()
         };
 
         m_deviceInfo.firmware = {
-            .version = operation->result(QByteArrayLiteral("firmware_version")),
-            .commit = operation->result(QByteArrayLiteral("firmware_commit")),
-            .branch = operation->result(QByteArrayLiteral("firmware_branch")),
-            .date = QDateTime::fromString(operation->result(QByteArrayLiteral("firmware_build_date")), "dd-MM-yyyy").date()
+            operation->result(QByteArrayLiteral("firmware_version")),
+            operation->result(QByteArrayLiteral("firmware_commit")),
+            operation->result(QByteArrayLiteral("firmware_branch")),
+            QDateTime::fromString(operation->result(QByteArrayLiteral("firmware_build_date")), "dd-MM-yyyy").date()
         };
 
         m_deviceInfo.hardware = {
-            .version = operation->result(QByteArrayLiteral("hardware_ver")),
-            .target = QByteArrayLiteral("f") + operation->result(QByteArrayLiteral("hardware_target")),
-            .body = QByteArrayLiteral("b") + operation->result(QByteArrayLiteral("hardware_body")),
-            .connect = QByteArrayLiteral("c") + operation->result(QByteArrayLiteral("hardware_connect")),
-            .color = (HardwareInfo::Color)operation->result(QByteArrayLiteral("hardware_color")).toInt(),
+            operation->result(QByteArrayLiteral("hardware_ver")),
+            QByteArrayLiteral("f") + operation->result(QByteArrayLiteral("hardware_target")),
+            QByteArrayLiteral("b") + operation->result(QByteArrayLiteral("hardware_body")),
+            QByteArrayLiteral("c") + operation->result(QByteArrayLiteral("hardware_connect")),
+            (HardwareInfo::Color)operation->result(QByteArrayLiteral("hardware_color")).toInt(),
         };
 
         m_deviceInfo.fusVersion = QStringLiteral("%1.%2.%3").arg(

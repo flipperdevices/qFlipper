@@ -92,11 +92,11 @@ bool AbstractProtobufRequest<MsgDesc, Msg>::send()
     auto *serialPort = AbstractProtobufMessage<Msg>::serialPort();
 
     pb_ostream_t ostream {
-        .callback = outputCallback,
-            .state = serialPort,
-            .max_size = SIZE_MAX,
-            .bytes_written = 0,
-            .errmsg = nullptr
+        outputCallback,
+        serialPort,
+        SIZE_MAX,
+        0,
+        nullptr
     };
 
     const auto success = pb_encode_ex(&ostream, MsgDesc, AbstractProtobufMessage<Msg>::pbMessage(),
@@ -112,12 +112,9 @@ qint64 AbstractProtobufRequest<MsgDesc, Msg>::bytesWritten() const
     return m_bytesWritten;
 }
 
-//#include <QDebug>
 template<const pb_msgdesc_t *MsgDesc, typename Msg>
 bool AbstractProtobufRequest<MsgDesc, Msg>::outputCallback(pb_ostream_t *stream, const pb_byte_t *buf, size_t count)
 {
-//    qDebug() << "Callback!" << QByteArray((char*)buf, count);
-
     auto *serialPort = (QSerialPort*)stream->state;
     return serialPort->write((const char*)buf, count) == (qint64)count;
 }
@@ -143,10 +140,10 @@ bool AbstractProtobufResponse<MsgDesc, Msg>::receive()
     auto *serialPort = AbstractProtobufMessage<Msg>::serialPort();
 
     pb_istream_t istream {
-        .callback = inputCallback,
-        .state = serialPort,
-        .bytes_left = (size_t)serialPort->bytesAvailable(),
-        .errmsg = nullptr
+        inputCallback,
+        serialPort,
+        (size_t)serialPort->bytesAvailable(),
+        nullptr
     };
 
     serialPort->startTransaction();

@@ -40,10 +40,10 @@ void StorageListOperation::onSerialPortReadyRead()
         for(auto &file : files) {
 
             FileInfo fileInfo {
-                .name = QByteArray(file.name),
-                .absolutePath = m_path + QByteArrayLiteral("/") + QByteArray(file.name),
-                .type = file.type == PB_Storage_File_FileType_FILE ? FileType::RegularFile : FileType::Directory,
-                .size = file.size
+                QByteArray(file.name),
+                m_path + QByteArrayLiteral("/") + QByteArray(file.name),
+                file.type == PB_Storage_File_FileType_FILE ? FileType::RegularFile : FileType::Directory,
+                file.size
             };
 
             m_result.append(fileInfo);
