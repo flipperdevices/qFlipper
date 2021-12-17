@@ -54,6 +54,8 @@ public:
     //TODO: Replace with deviceInfo().name
     const QString &name() const;
 
+    QSerialPort *serialPort() const;
+
 signals:
     void deviceInfoChanged();
     void isPersistentChanged();
@@ -67,7 +69,10 @@ signals:
     void progressChanged();
 
 private:
+    void initSerialPort();
+
     DeviceInfo m_deviceInfo;
+    QSerialPort *m_serialPort;
 
     bool m_isPersistent;
     bool m_isOnline;

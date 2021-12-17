@@ -16,7 +16,7 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     m_streamer(new ScreenStreamer(m_rpc, this))
 {
     connect(m_updater, &SignalingFailable::errorOccured, this, &FlipperZero::onErrorOccured);
-    m_streamer->setEnabled(!m_state->isRecoveryMode());
+    connect(m_state, &DeviceState::isOnlineChanged, this, &FlipperZero::onOnlineChanged);
 }
 
 FlipperZero::~FlipperZero()
@@ -37,6 +37,15 @@ Flipper::Zero::ScreenStreamer *FlipperZero::streamer() const
 FirmwareUpdater *FlipperZero::updater() const
 {
     return m_updater;
+}
+
+void FlipperZero::onOnlineChanged()
+{
+    if(!m_state->isOnline()) {
+        return;
+    } else {
+        m_streamer->setEnabled(!m_state->isRecoveryMode() && !m_state->isPersistent());
+    }
 }
 
 void FlipperZero::onErrorOccured()

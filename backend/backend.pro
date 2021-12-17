@@ -43,6 +43,7 @@ SOURCES += \
     flipperzero/helper/firmwarehelper.cpp \
     flipperzero/helper/radiomanifesthelper.cpp \
     flipperzero/helper/scriptshelper.cpp \
+    flipperzero/helper/serialinithelper.cpp \
     flipperzero/helper/toplevelhelper.cpp \
     flipperzero/protobuf/guiprotobufmessage.cpp \
     flipperzero/protobuf/mainprotobufmessage.cpp \
@@ -133,6 +134,7 @@ HEADERS += \
     flipperzero/helper/firmwarehelper.h \
     flipperzero/helper/radiomanifesthelper.h \
     flipperzero/helper/scriptshelper.h \
+    flipperzero/helper/serialinithelper.h \
     flipperzero/helper/toplevelhelper.h \
     flipperzero/protobuf/guiprotobufmessage.h \
     flipperzero/protobuf/mainprotobufmessage.h \

@@ -4,16 +4,19 @@
 
 #include <QDebug>
 #include <QTimer>
+#include <QSerialPort>
 
-#include "flipperzero/cli/storageinfooperation.h"
-#include "flipperzero/cli/systemdeviceinfooperation.h"
-#include "flipperzero/cli/skipmotdoperation.h"
-#include "flipperzero/cli/startrpcoperation.h"
-#include "flipperzero/cli/stoprpcoperation.h"
-#include "flipperzero/cli/storagestatoperation.h"
 #include "flipperzero/factoryinfo.h"
 
+#include "flipperzero/cli/stoprpcoperation.h"
+
+#include "flipperzero/cli/storagestatoperation.h"
+#include "flipperzero/cli/storageinfooperation.h"
+#include "flipperzero/cli/systemdeviceinfooperation.h"
+
 #include "device/stm32wb55.h"
+
+#include "serialinithelper.h"
 #include "serialfinder.h"
 
 using namespace Flipper;
@@ -46,7 +49,8 @@ const DeviceInfo &AbstractDeviceInfoHelper::result() const
 }
 
 VCPDeviceInfoHelper::VCPDeviceInfoHelper(const USBDeviceInfo &info, QObject *parent):
-    AbstractDeviceInfoHelper(parent)
+    AbstractDeviceInfoHelper(parent),
+    m_serialPort(nullptr)
 {
     m_deviceInfo.usbInfo = info;
 }
@@ -58,14 +62,10 @@ void VCPDeviceInfoHelper::nextStateLogic()
         findSerialPort();
 
     } else if(state() == VCPDeviceInfoHelper::FindingSerialPort) {
-        setState(VCPDeviceInfoHelper::SkippingMOTD);
-        skipMOTD();
+        setState(VCPDeviceInfoHelper::InitializingSerialPort);
+        initSerialPort();
 
-    } else if(state() == VCPDeviceInfoHelper::SkippingMOTD) {
-        setState(VCPDeviceInfoHelper::StartingRPCSession);
-        startRPCSession();
-
-    } else if(state() == VCPDeviceInfoHelper::StartingRPCSession) {
+    } else if(state() == VCPDeviceInfoHelper::InitializingSerialPort) {
         setState(VCPDeviceInfoHelper::FetchingDeviceInfo);
         fetchDeviceInfo();
 
@@ -78,7 +78,11 @@ void VCPDeviceInfoHelper::nextStateLogic()
         checkManifest();
 
     } else if(state() == VCPDeviceInfoHelper::CheckingManifest) {
-        finish();
+        setState(VCPDeviceInfoHelper::StoppingRPCSession);
+        stopRPCSession();
+
+    } else if(state() == VCPDeviceInfoHelper::StoppingRPCSession) {
+        closePortAndFinish();
     }
 }
 
@@ -91,54 +95,31 @@ void VCPDeviceInfoHelper::findSerialPort()
             finishWithError(QStringLiteral("Invalid serial port info."));
 
         } else {
-            m_deviceInfo.serialPort.reset(new QSerialPort(portInfo));
+            m_deviceInfo.portInfo = portInfo;
             m_deviceInfo.systemLocation = portInfo.systemLocation();
 
-            if(!serialPort()->open(QIODevice::ReadWrite)) {
-                finishWithError(serialPort()->errorString());
-            } else {
-                advanceState();
-            }
+            advanceState();
         }
     });
 }
 
-void VCPDeviceInfoHelper::skipMOTD()
+void VCPDeviceInfoHelper::initSerialPort()
 {
-    auto *operation = new SkipMOTDOperation(serialPort(), this);
+    auto *helper = new SerialInitHelper(m_deviceInfo.portInfo, this);
 
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            finishWithError(operation->errorString());
+    connect(helper, &AbstractOperationHelper::finished, this, [=]() {
+        if(helper->isError()) {
+            finishWithError(helper->errorString());
         } else {
+            m_serialPort = helper->serialPort();
             advanceState();
         }
-
-        operation->deleteLater();
     });
-
-    operation->start();
-}
-
-void VCPDeviceInfoHelper::startRPCSession()
-{
-    auto *operation = new StartRPCOperation(serialPort(), this);
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            finishWithError(operation->errorString());
-        } else {
-            advanceState();
-        }
-
-        operation->deleteLater();
-    });
-
-    operation->start();
 }
 
 void VCPDeviceInfoHelper::fetchDeviceInfo()
 {
-    auto *operation = new SystemDeviceInfoOperation(serialPort(), this);
+    auto *operation = new SystemDeviceInfoOperation(m_serialPort, this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -194,7 +175,7 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
 
 void VCPDeviceInfoHelper::checkSDCard()
 {
-    auto *operation = new StorageInfoOperation(serialPort(), QByteArrayLiteral("/ext"), this);
+    auto *operation = new StorageInfoOperation(m_serialPort, QByteArrayLiteral("/ext"), this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -220,7 +201,7 @@ void VCPDeviceInfoHelper::checkSDCard()
 
 void VCPDeviceInfoHelper::checkManifest()
 {
-    auto *operation = new StorageStatOperation(serialPort(), QByteArrayLiteral("/ext/Manifest"), this);
+    auto *operation = new StorageStatOperation(m_serialPort, QByteArrayLiteral("/ext/Manifest"), this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -237,9 +218,26 @@ void VCPDeviceInfoHelper::checkManifest()
     operation->start();
 }
 
-QSerialPort *VCPDeviceInfoHelper::serialPort() const
+void VCPDeviceInfoHelper::stopRPCSession()
 {
-    return m_deviceInfo.serialPort.get();
+    auto *operation = new StopRPCOperation(m_serialPort, this);
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(operation->errorString());
+        } else {
+            advanceState();
+        }
+
+        operation->deleteLater();
+    });
+
+    operation->start();
+}
+
+void VCPDeviceInfoHelper::closePortAndFinish()
+{
+    m_serialPort->close();
+    finish();
 }
 
 using namespace STM32;
