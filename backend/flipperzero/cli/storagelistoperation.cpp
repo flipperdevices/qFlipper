@@ -20,7 +20,6 @@ const FileInfoList &StorageListOperation::files() const
     return m_result;
 }
 
-#include <QDebug>
 void StorageListOperation::onSerialPortReadyRead()
 {
     StorageListResponse response(serialPort());
