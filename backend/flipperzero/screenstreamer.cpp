@@ -19,7 +19,9 @@ ScreenStreamer::ScreenStreamer(CommandInterface *rpc, QObject *parent):
     QObject(parent),
     m_rpc(rpc),
     m_state(State::Stopped)
-{}
+{
+    connect(this, &ScreenStreamer::stateChanged, this, &ScreenStreamer::onStateChanged);
+}
 
 const QByteArray &ScreenStreamer::screenData() const
 {
@@ -28,7 +30,12 @@ const QByteArray &ScreenStreamer::screenData() const
 
 bool ScreenStreamer::isEnabled() const
 {
-    return m_state != State::Stopped;
+    return m_state == State::Running;
+}
+
+ScreenStreamer::State ScreenStreamer::state() const
+{
+    return m_state;
 }
 
 int ScreenStreamer::screenWidth()
@@ -109,6 +116,15 @@ void ScreenStreamer::onPortReadyRead()
     }
 }
 
+void ScreenStreamer::onStateChanged()
+{
+    if(m_state == State::Running) {
+        emit started();
+    } else if(m_state == State::Stopped) {
+        emit stopped();
+    }
+}
+
 void ScreenStreamer::sendStopCommand()
 {
     disconnect(serialPort(), &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
@@ -131,7 +147,7 @@ void ScreenStreamer::setState(State newState)
     }
 
     m_state = newState;
-    emit isEnabledChanged();
+    emit stateChanged();
 }
 
 QSerialPort *ScreenStreamer::serialPort() const

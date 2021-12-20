@@ -41,7 +41,7 @@ void AbstractTopLevelHelper::onUpdatesChecked()
 
 void AbstractTopLevelHelper::onStreamStateChanged()
 {
-    disconnect(m_device->streamer(), &ScreenStreamer::isEnabledChanged, this, &AbstractTopLevelHelper::onStreamStateChanged);
+    disconnect(m_device->streamer(), &ScreenStreamer::stateChanged, this, &AbstractTopLevelHelper::onStreamStateChanged);
     advanceState();
 }
 
@@ -80,7 +80,7 @@ void AbstractTopLevelHelper::stopStreaming()
         return;
     }
 
-    connect(m_device->streamer(), &ScreenStreamer::isEnabledChanged, this, &AbstractTopLevelHelper::onStreamStateChanged);
+    connect(m_device->streamer(), &ScreenStreamer::stateChanged, this, &AbstractTopLevelHelper::onStreamStateChanged);
     m_device->streamer()->stop();
 }
 
