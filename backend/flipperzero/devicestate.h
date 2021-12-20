@@ -59,8 +59,6 @@ signals:
     void isPersistentChanged();
     void isOnlineChanged();
 
-    void updateInfoChanged();
-
     void statusChanged();
     void errorChanged();
 
