@@ -17,7 +17,6 @@ class AbstractTopLevelHelper : public AbstractOperationHelper
 public:
     enum State {
         CheckingForUpdates = AbstractOperationHelper::User,
-        StoppingStreaming,
         RunningCustomOperation,
         User
     };
@@ -35,9 +34,7 @@ private slots:
 
 private:
     void nextStateLogic() override;
-
     void checkForUpdates();
-    void stopStreaming();
 
     virtual void runCustomOperation() = 0;
 

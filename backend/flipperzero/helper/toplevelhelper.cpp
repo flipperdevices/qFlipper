@@ -16,7 +16,9 @@ AbstractTopLevelHelper::AbstractTopLevelHelper(UpdateRegistry *updateRegistry, F
     AbstractOperationHelper(parent),
     m_updateRegistry(updateRegistry),
     m_device(device)
-{}
+{
+    connect(m_device, &FlipperZero::operationFinished, this, &AbstractTopLevelHelper::finish);
+}
 
 UpdateRegistry *AbstractTopLevelHelper::updateRegistry()
 {
@@ -52,10 +54,6 @@ void AbstractTopLevelHelper::nextStateLogic()
         checkForUpdates();
 
     } else if(state() == AbstractTopLevelHelper::CheckingForUpdates) {
-        setState(AbstractTopLevelHelper::StoppingStreaming);
-        stopStreaming();
-
-    } else if(state() == AbstractTopLevelHelper::StoppingStreaming) {
         setState(AbstractTopLevelHelper::RunningCustomOperation);
         runCustomOperation();
 
@@ -72,39 +70,12 @@ void AbstractTopLevelHelper::checkForUpdates()
     m_updateRegistry->check();
 }
 
-void AbstractTopLevelHelper::stopStreaming()
-{
-    // Skip screen streaming in recovery mode
-    if(m_device->deviceState()->isRecoveryMode()) {
-        advanceState();
-        return;
-    }
-
-    connect(m_device->streamer(), &ScreenStreamer::stateChanged, this, &AbstractTopLevelHelper::onStreamStateChanged);
-    m_device->streamer()->stop();
-}
-
 UpdateTopLevelHelper::UpdateTopLevelHelper(UpdateRegistry *updateRegistry, FlipperZero *device, QObject *parent):
     AbstractTopLevelHelper(updateRegistry, device, parent)
 {}
 
 void UpdateTopLevelHelper::runCustomOperation()
 {
-    AbstractTopLevelOperation *operation;
-
     auto &versionInfo = updateRegistry()->latestVersion();
-
-    if(device()->deviceState()->isRecoveryMode()) {
-        operation = device()->updater()->fullRepair(versionInfo);
-    } else {
-        operation = device()->updater()->fullUpdate(versionInfo);
-    }
-
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-           finishWithError(operation->errorString());
-        } else {
-            advanceState();
-        }
-    });
+    device()->updateOrRepair(versionInfo);
 }

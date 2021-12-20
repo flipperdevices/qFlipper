@@ -1,78 +1,15 @@
 #include "firmwareupdater.h"
 
-#include <QLoggingCategory>
-
 #include "devicestate.h"
-#include "recoveryinterface.h"
-#include "utilityinterface.h"
-
-#include "toplevel/wirelessstackupdateoperation.h"
-#include "toplevel/firmwareinstalloperation.h"
-#include "toplevel/settingsrestoreoperation.h"
-#include "toplevel/settingsbackupoperation.h"
-#include "toplevel/factoryresetoperation.h"
-#include "toplevel/fullrepairoperation.h"
-#include "toplevel/fullupdateoperation.h"
-
 #include "preferences.h"
-
-Q_LOGGING_CATEGORY(CATEGORY_TOPLEVEL, "TOPLEVEL")
 
 using namespace Flipper;
 using namespace Zero;
 
-FirmwareUpdater::FirmwareUpdater(DeviceState *state, CommandInterface *rpc, QObject *parent):
-    AbstractOperationRunner(parent),
-    m_state(state),
-    m_recovery(new RecoveryInterface(state, this)),
-    m_utility(new UtilityInterface(state, rpc, this))
+FirmwareUpdater::FirmwareUpdater(DeviceState *state, QObject *parent):
+    QObject(parent),
+    m_state(state)
 {}
-
-AbstractTopLevelOperation *FirmwareUpdater::fullUpdate(const Updates::VersionInfo &versionInfo)
-{
-    return registerOperation(new FullUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this));
-}
-
-AbstractTopLevelOperation *FirmwareUpdater::fullRepair(const Updates::VersionInfo &versionInfo)
-{
-    return registerOperation(new FullRepairOperation(m_recovery, m_utility, m_state, versionInfo, this));
-}
-
-AbstractTopLevelOperation *FirmwareUpdater::backupInternalStorage(const QUrl &directoryUrl)
-{
-    return registerOperation(new SettingsBackupOperation(m_utility, m_state, directoryUrl, this));
-}
-
-AbstractTopLevelOperation *FirmwareUpdater::restoreInternalStorage(const QUrl &directoryUrl)
-{
-    return registerOperation(new SettingsRestoreOperation(m_utility, m_state, directoryUrl, this));
-}
-
-AbstractTopLevelOperation *FirmwareUpdater::factoryReset()
-{
-    return registerOperation(new FactoryResetOperation(m_utility, m_state, this));
-}
-
-AbstractTopLevelOperation *FirmwareUpdater::localFirmwareInstall(const QUrl &fileUrl)
-{
-    return registerOperation(new FirmwareInstallOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
-}
-
-AbstractTopLevelOperation *FirmwareUpdater::localFUSUpdate(const QUrl &fileUrl, uint32_t address)
-{
-    //TODO: User-settable address 0x080EC000
-    return registerOperation(new FUSUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), address, this));
-}
-
-AbstractTopLevelOperation *FirmwareUpdater::localWirelessStackUpdate(const QUrl &fileUrl)
-{
-    return registerOperation(new WirelessStackUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
-}
-
-const QLoggingCategory &FirmwareUpdater::loggingCategory() const
-{
-    return CATEGORY_TOPLEVEL();
-}
 
 bool FirmwareUpdater::canUpdate(const Updates::VersionInfo &versionInfo) const
 {

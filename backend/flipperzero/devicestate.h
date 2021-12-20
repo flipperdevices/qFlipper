@@ -56,6 +56,7 @@ public:
 
 signals:
     void deviceInfoChanged();
+    void currentOperationChanged();
     void isPersistentChanged();
     void isOnlineChanged();
 

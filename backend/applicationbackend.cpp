@@ -101,6 +101,11 @@ void ApplicationBackend::onDevicesChanged()
     qCDebug(LOG_BACKEND) << "State changed, current state:" << m_state;
 }
 
+void ApplicationBackend::onUpdatesChanged()
+{
+    qCDebug(LOG_BACKEND()) << "Update registry changed!";
+}
+
 void ApplicationBackend::registerMetaTypes()
 {
     qRegisterMetaType<Preferences*>("Preferences*");
@@ -129,6 +134,7 @@ void ApplicationBackend::registerComparators()
 void ApplicationBackend::initConnections()
 {
     connect(m_deviceRegistry, &DeviceRegistry::devicesChanged, this, &ApplicationBackend::onDevicesChanged);
+    connect(m_firmwareUpdates, &UpdateRegistry::channelsChanged, this, &ApplicationBackend::onUpdatesChanged);
 }
 
 void ApplicationBackend::setState(State newState)
