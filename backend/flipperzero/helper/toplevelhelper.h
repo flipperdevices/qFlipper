@@ -19,7 +19,6 @@ public:
         CheckingForUpdates = AbstractOperationHelper::User,
         StoppingStreaming,
         RunningCustomOperation,
-        ResumingStreaming,
         User
     };
 
@@ -38,7 +37,7 @@ private:
     void nextStateLogic() override;
 
     void checkForUpdates();
-    void enableStreaming(bool enable);
+    void stopStreaming();
 
     virtual void runCustomOperation() = 0;
 

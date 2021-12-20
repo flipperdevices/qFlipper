@@ -31,16 +31,6 @@ bool ScreenStreamer::isEnabled() const
     return m_state != State::Stopped;
 }
 
-void ScreenStreamer::setEnabled(bool enabled)
-{
-    if(enabled && m_state == State::Stopped) {
-        start();
-
-    } else if(!enabled && m_state == State::Running) {
-        setState(State::Stopping);
-    }
-}
-
 int ScreenStreamer::screenWidth()
 {
     return 128;
@@ -51,43 +41,13 @@ int ScreenStreamer::screenHeight()
     return 64;
 }
 
-void ScreenStreamer::sendInputEvent(InputKey key, InputType type)
-{
-    GuiSendInputRequest request(serialPort(), (PB_Gui_InputKey)key, (PB_Gui_InputType)type);
-    request.send();
-}
-
-void ScreenStreamer::onPortReadyRead()
-{
-    GuiScreenFrameResponse msg(serialPort());
-
-    while(msg.receive()) {
-
-        if(!msg.isOk()) {
-            qCCritical(CATEGORY_SCREEN) << "Device replied with error:" << msg.commandStatusString();
-            setEnabled(false);
-            return;
-
-        } else if(!msg.isValidType()) {
-            if(msg.whichContent() != MainEmptyResponse::tag()) {
-                qCCritical(CATEGORY_SCREEN) << "Expected screen frame or empty, got something else";
-                return;
-            }
-
-        } else {
-            m_screenData = msg.screenFrame();
-            emit screenDataChanged();
-        }
-    }
-
-    if(m_state == State::Stopping) {
-        // Stop only after processing all of the messages
-        stop();
-    }
-}
-
 void ScreenStreamer::start()
 {
+    if(m_state != State::Stopped) {
+        qCDebug(CATEGORY_SCREEN) << "Can't start while already running";
+        return;
+    }
+
     setState(State::Starting);
 
     auto *operation = m_rpc->guiStartStreaming();
@@ -105,6 +65,51 @@ void ScreenStreamer::start()
 }
 
 void ScreenStreamer::stop()
+{
+    if(m_state != State::Running) {
+        qCDebug(CATEGORY_SCREEN) << "Can't stop while not running";
+        return;
+    }
+
+    setState(State::Stopping);
+}
+
+
+void ScreenStreamer::sendInputEvent(InputKey key, InputType type)
+{
+    GuiSendInputRequest request(serialPort(), (PB_Gui_InputKey)key, (PB_Gui_InputType)type);
+    request.send();
+}
+
+void ScreenStreamer::onPortReadyRead()
+{
+    GuiScreenFrameResponse msg(serialPort());
+
+    while(msg.receive()) {
+
+        if(!msg.isOk()) {
+            qCCritical(CATEGORY_SCREEN) << "Device replied with error:" << msg.commandStatusString();
+            return;
+
+        } else if(!msg.isValidType()) {
+            if(msg.whichContent() != MainEmptyResponse::tag()) {
+                qCCritical(CATEGORY_SCREEN) << "Expected screen frame or empty, got something else";
+                return;
+            }
+
+        } else {
+            m_screenData = msg.screenFrame();
+            emit screenDataChanged();
+        }
+    }
+
+    if(m_state == State::Stopping) {
+        // Stop only after processing all of the messages
+        sendStopCommand();
+    }
+}
+
+void ScreenStreamer::sendStopCommand()
 {
     disconnect(serialPort(), &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
 
@@ -126,7 +131,7 @@ void ScreenStreamer::setState(State newState)
     }
 
     m_state = newState;
-    emit enabledChanged();
+    emit isEnabledChanged();
 }
 
 QSerialPort *ScreenStreamer::serialPort() const

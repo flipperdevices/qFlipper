@@ -29,7 +29,7 @@ public:
     Flipper::Zero::FirmwareUpdater *updater() const;
 
 private slots:
-    void onStateIsOnlineChanged();
+    void onStreamConditionChanged();
     void onUpdaterErrorOccured();
 
 private:

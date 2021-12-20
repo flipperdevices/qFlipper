@@ -15,7 +15,7 @@ class ScreenStreamer : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QByteArray screenData READ screenData NOTIFY screenDataChanged)
-    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY enabledChanged)
+    Q_PROPERTY(bool enabled READ isEnabled NOTIFY isEnabledChanged)
     Q_PROPERTY(int screenWidth READ screenWidth CONSTANT)
     Q_PROPERTY(int screenHeight READ screenHeight CONSTANT)
 
@@ -55,12 +55,14 @@ public:
     const QByteArray &screenData() const;
 
     bool isEnabled() const;
-    void setEnabled(bool enabled);
 
     static int screenWidth();
     static int screenHeight();
 
 public slots:
+    void start();
+    void stop();
+
     void sendInputEvent(InputKey key, InputType type);
 
 private slots:
@@ -68,12 +70,12 @@ private slots:
 
 signals:
     void screenDataChanged();
-    void enabledChanged();
+    void isEnabledChanged();
 
 private:
-    void start();
-    void stop();
+    void sendStopCommand();
     void setState(State newState);
+
     QSerialPort *serialPort() const;
 
     CommandInterface *m_rpc;

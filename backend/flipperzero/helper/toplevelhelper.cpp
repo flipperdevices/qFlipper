@@ -41,7 +41,7 @@ void AbstractTopLevelHelper::onUpdatesChecked()
 
 void AbstractTopLevelHelper::onStreamStateChanged()
 {
-    disconnect(m_device->streamer(), &ScreenStreamer::enabledChanged, this, &AbstractTopLevelHelper::onStreamStateChanged);
+    disconnect(m_device->streamer(), &ScreenStreamer::isEnabledChanged, this, &AbstractTopLevelHelper::onStreamStateChanged);
     advanceState();
 }
 
@@ -53,17 +53,13 @@ void AbstractTopLevelHelper::nextStateLogic()
 
     } else if(state() == AbstractTopLevelHelper::CheckingForUpdates) {
         setState(AbstractTopLevelHelper::StoppingStreaming);
-        enableStreaming(false);
+        stopStreaming();
 
     } else if(state() == AbstractTopLevelHelper::StoppingStreaming) {
         setState(AbstractTopLevelHelper::RunningCustomOperation);
         runCustomOperation();
 
     } else if(state() == AbstractTopLevelHelper::RunningCustomOperation) {
-        setState(AbstractTopLevelHelper::ResumingStreaming);
-        enableStreaming(true);
-
-    } else if(state() == AbstractTopLevelHelper::ResumingStreaming) {
         finish();
     }
 }
@@ -76,7 +72,7 @@ void AbstractTopLevelHelper::checkForUpdates()
     m_updateRegistry->check();
 }
 
-void AbstractTopLevelHelper::enableStreaming(bool enable)
+void AbstractTopLevelHelper::stopStreaming()
 {
     // Skip screen streaming in recovery mode
     if(m_device->deviceState()->isRecoveryMode()) {
@@ -84,8 +80,8 @@ void AbstractTopLevelHelper::enableStreaming(bool enable)
         return;
     }
 
-    connect(m_device->streamer(), &ScreenStreamer::enabledChanged, this, &AbstractTopLevelHelper::onStreamStateChanged);
-    m_device->streamer()->setEnabled(enable);
+    connect(m_device->streamer(), &ScreenStreamer::isEnabledChanged, this, &AbstractTopLevelHelper::onStreamStateChanged);
+    m_device->streamer()->stop();
 }
 
 UpdateTopLevelHelper::UpdateTopLevelHelper(UpdateRegistry *updateRegistry, FlipperZero *device, QObject *parent):

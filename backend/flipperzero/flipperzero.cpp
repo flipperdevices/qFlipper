@@ -16,7 +16,8 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     m_streamer(new ScreenStreamer(m_rpc, this))
 {
     connect(m_updater, &SignalingFailable::errorOccured, this, &FlipperZero::onUpdaterErrorOccured);
-    connect(m_state, &DeviceState::isOnlineChanged, this, &FlipperZero::onStateIsOnlineChanged);
+    connect(m_state, &DeviceState::isPersistentChanged, this, &FlipperZero::onStreamConditionChanged);
+    connect(m_state, &DeviceState::isOnlineChanged, this, &FlipperZero::onStreamConditionChanged);
 }
 
 FlipperZero::~FlipperZero()
@@ -39,12 +40,17 @@ FirmwareUpdater *FlipperZero::updater() const
     return m_updater;
 }
 
-void FlipperZero::onStateIsOnlineChanged()
+void FlipperZero::onStreamConditionChanged()
 {
-    if(!m_state->isOnline()) {
-        return;
-    } else {
-        m_streamer->setEnabled(!m_state->isRecoveryMode() && !m_state->isPersistent());
+    // Automatically start screen streaming if the conditions are right:
+    // 1. Device is online and connected in VCP mode
+    // 2. There is no ongoing operation
+
+    const auto streamCondition = m_state->isOnline() &&
+            !(m_state->isRecoveryMode() || m_state->isPersistent());
+
+    if(streamCondition) {
+        m_streamer->start();
     }
 }
 
