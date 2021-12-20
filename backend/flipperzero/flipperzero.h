@@ -29,8 +29,8 @@ public:
     Flipper::Zero::FirmwareUpdater *updater() const;
 
 private slots:
-    void onOnlineChanged();
-    void onErrorOccured();
+    void onStateIsOnlineChanged();
+    void onUpdaterErrorOccured();
 
 private:
     Zero::DeviceState *m_state;

@@ -15,8 +15,8 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     m_updater(new FirmwareUpdater(m_state, m_rpc, this)),
     m_streamer(new ScreenStreamer(m_rpc, this))
 {
-    connect(m_updater, &SignalingFailable::errorOccured, this, &FlipperZero::onErrorOccured);
-    connect(m_state, &DeviceState::isOnlineChanged, this, &FlipperZero::onOnlineChanged);
+    connect(m_updater, &SignalingFailable::errorOccured, this, &FlipperZero::onUpdaterErrorOccured);
+    connect(m_state, &DeviceState::isOnlineChanged, this, &FlipperZero::onStateIsOnlineChanged);
 }
 
 FlipperZero::~FlipperZero()
@@ -39,7 +39,7 @@ FirmwareUpdater *FlipperZero::updater() const
     return m_updater;
 }
 
-void FlipperZero::onOnlineChanged()
+void FlipperZero::onStateIsOnlineChanged()
 {
     if(!m_state->isOnline()) {
         return;
@@ -48,7 +48,7 @@ void FlipperZero::onOnlineChanged()
     }
 }
 
-void FlipperZero::onErrorOccured()
+void FlipperZero::onUpdaterErrorOccured()
 {
     auto *instance = qobject_cast<SignalingFailable*>(sender());
     m_state->setErrorString(instance->errorString());
