@@ -16,14 +16,10 @@ DeviceState::DeviceState(const DeviceInfo &deviceInfo, QObject *parent):
     m_isError(false),
     m_progress(-1.0)
 {
-    initSerialPort();
-}
+    connect(this, &DeviceState::deviceInfoChanged, this, &DeviceState::onDeviceInfoChanged);
+    connect(this, &DeviceState::isOnlineChanged, this, &DeviceState::onIsOnlineChanged);
 
-void DeviceState::reset()
-{
-    setError(false);
-    setProgress(-1.0);
-    initSerialPort();
+    onDeviceInfoChanged();
 }
 
 const DeviceInfo &DeviceState::deviceInfo() const
@@ -35,7 +31,6 @@ void DeviceState::setDeviceInfo(const DeviceInfo &newDeviceInfo)
 {
     m_deviceInfo = newDeviceInfo;
     emit deviceInfoChanged();
-    reset();
 }
 
 bool DeviceState::isPersistent() const
@@ -145,13 +140,10 @@ QSerialPort *DeviceState::serialPort() const
     return m_serialPort;
 }
 
-void DeviceState::initSerialPort()
+void DeviceState::onDeviceInfoChanged()
 {
-    if(m_serialPort) {
-        m_serialPort->close();
-        m_serialPort->deleteLater();
-        m_serialPort = nullptr;
-    }
+    setError(false);
+    setProgress(-1.0);
 
     if(isRecoveryMode()) {
         setOnline(true);
@@ -170,4 +162,12 @@ void DeviceState::initSerialPort()
 
         helper->deleteLater();
     });
+}
+
+void DeviceState::onIsOnlineChanged()
+{
+    if(!m_isOnline && m_serialPort) {
+        m_serialPort->deleteLater();
+        m_serialPort = nullptr;
+    }
 }
