@@ -18,7 +18,6 @@ public:
     enum State {
         CheckingForUpdates = AbstractOperationHelper::User,
         RunningCustomOperation,
-        User
     };
 
     AbstractTopLevelHelper(UpdateRegistry *updateRegistry, FlipperZero *device, QObject *parent = nullptr);
@@ -30,7 +29,6 @@ protected:
 
 private slots:
     void onUpdatesChecked();
-    void onStreamStateChanged();
 
 private:
     void nextStateLogic() override;
@@ -48,6 +46,17 @@ class UpdateTopLevelHelper : public AbstractTopLevelHelper
 
 public:
     UpdateTopLevelHelper(UpdateRegistry *updateRegistry, FlipperZero *device, QObject *parent = nullptr);
+
+private:
+    void runCustomOperation() override;
+};
+
+class RepairTopLevelHelper : public AbstractTopLevelHelper
+{
+    Q_OBJECT
+
+public:
+    RepairTopLevelHelper(UpdateRegistry *updateRegistry, FlipperZero *device, QObject *parent = nullptr);
 
 private:
     void runCustomOperation() override;

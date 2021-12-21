@@ -25,7 +25,6 @@ void AbstractOperationRunner::enqueueOperation(AbstractOperation *operation)
         QTimer::singleShot(0, this, &AbstractOperationRunner::processQueue);
     }
 
-    qDebug(loggingCategory()) << "------- Enqueued operation:" << operation->description();
     m_queue.enqueue(operation);
 }
 
@@ -49,8 +48,8 @@ void AbstractOperationRunner::processQueue()
             QTimer::singleShot(0, this, &AbstractOperationRunner::processQueue);
         }
 
-        qCInfo(loggingCategory()).noquote() << operation->description() << (operation->isError() ? QStringLiteral("ERROR: ") + operation->errorString() : QStringLiteral("SUCCESS"));
-
+        qCInfo(loggingCategory()).noquote() << operation->description() << (operation->isError() ? QStringLiteral("ERROR: ") +
+                                                                            operation->errorString() : QStringLiteral("SUCCESS"));
         operation->deleteLater();
     });
 

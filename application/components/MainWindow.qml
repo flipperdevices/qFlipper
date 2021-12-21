@@ -184,7 +184,7 @@ Item {
             backgroundRect: bg
             anchors.fill: parent
             opacity: (Backend.state > Backend.Ready) &&
-                     (Backend.state < Backend.OperationInterrupted) ? 1 : 0
+                     (Backend.state < Backend.Finished) ? 1 : 0
         }
 
 //        SelfUpdateOverlay {

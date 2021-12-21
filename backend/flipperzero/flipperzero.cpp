@@ -60,32 +60,32 @@ void FlipperZero::fullRepair(const Updates::VersionInfo &versionInfo)
 
 void FlipperZero::createBackup(const QUrl &directoryUrl)
 {
-    qDebug().noquote() << "Creating backup in" << directoryUrl << "...";
+    registerOperation(new SettingsBackupOperation(m_utility, m_state, directoryUrl, this));
 }
 
 void FlipperZero::restoreBackup(const QUrl &directoryUrl)
 {
-    qDebug().noquote() << "Restoring backup from" << directoryUrl << "...";
+    registerOperation(new SettingsRestoreOperation(m_utility, m_state, directoryUrl, this));
 }
 
 void FlipperZero::factoryReset()
 {
-    qDebug() << "Executing factory reset...";
+    registerOperation(new FactoryResetOperation(m_utility, m_state, this));
 }
 
 void FlipperZero::installFirmware(const QUrl &fileUrl)
 {
-    qDebug().noquote() << "Installing firmware from" << fileUrl << "...";
+    registerOperation(new FirmwareInstallOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
 }
 
 void FlipperZero::installWirelessStack(const QUrl &fileUrl)
 {
-    qDebug().noquote() << "Installing wireless stack from" << fileUrl << "...";
+    registerOperation(new WirelessStackUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
 }
 
 void FlipperZero::installFUS(const QUrl &fileUrl, uint32_t address)
 {
-    qDebug().noquote().nospace() << "Installing FUS from " << fileUrl << " at the address 0x" << QString::number(address, 16) << "...";
+    registerOperation(new FUSUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), address, this));
 }
 
 DeviceState *FlipperZero::deviceState() const
@@ -117,15 +117,8 @@ void FlipperZero::onStreamConditionChanged()
     }
 }
 
-void FlipperZero::onUpdaterErrorOccured()
+void FlipperZero::registerOperation(AbstractOperation *operation)
 {
-    auto *instance = qobject_cast<SignalingFailable*>(sender());
-    m_state->setErrorString(instance->errorString());
-}
-
-void FlipperZero::registerOperation(Zero::AbstractTopLevelOperation *operation)
-{
-    connect(m_streamer, &ScreenStreamer::stopped, operation, &AbstractOperation::start);
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             m_state->setErrorString(operation->errorString());
@@ -137,7 +130,13 @@ void FlipperZero::registerOperation(Zero::AbstractTopLevelOperation *operation)
 
     if(m_state->isRecoveryMode()) {
         operation->start();
+
     } else {
+        connect(m_streamer, &ScreenStreamer::stopped, operation, [=]() {
+            //TODO: Check that ScreenStreamer has correctly stopped
+            operation->start();
+        });
+
         m_streamer->stop();
     }
 }

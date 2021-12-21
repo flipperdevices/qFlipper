@@ -3,6 +3,7 @@
 #include <QObject>
 
 namespace Flipper {
+    class FlipperZero;
     class DeviceRegistry;
     class UpdateRegistry;
     class FirmwareUpdates;
@@ -13,6 +14,7 @@ class ApplicationBackend : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
+    Q_PROPERTY(Flipper::FlipperZero* currentDevice READ currentDevice NOTIFY currentDeviceChanged)
 
 public:
     enum class State {
@@ -26,6 +28,7 @@ public:
         InstallingFirmware,
         InstallingWirelessStack,
         InstallingFUS,
+        Finished,
         OperationInterrupted
     };
 
@@ -34,6 +37,7 @@ public:
     ApplicationBackend(QObject *parent = nullptr);
     State state() const;
 
+    Flipper::FlipperZero *currentDevice() const;
     Flipper::DeviceRegistry *deviceRegistry() const;
     Flipper::UpdateRegistry *firmwareUpdates() const;
     Flipper::UpdateRegistry *applicationUpdates() const;
@@ -53,10 +57,11 @@ public:
 
 signals:
     void stateChanged();
+    void currentDeviceChanged();
 
 private slots:
-    void onDevicesChanged();
-    void onUpdatesChanged();
+    void onCurrentDeviceChanged();
+    void onDeviceOperationFinished();
 
 private:
     static void registerMetaTypes();

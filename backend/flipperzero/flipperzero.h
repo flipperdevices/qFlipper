@@ -5,6 +5,8 @@
 #include "deviceinfo.h"
 #include "flipperupdates.h"
 
+class AbstractOperation;
+
 namespace Flipper {
 
 namespace Zero {
@@ -14,7 +16,6 @@ namespace Zero {
     class UtilityInterface;
     class ScreenStreamer;
     class FirmwareUpdater;
-    class AbstractTopLevelOperation;
 }
 
 class FlipperZero : public QObject
@@ -50,10 +51,9 @@ signals:
 
 private slots:
     void onStreamConditionChanged();
-    void onUpdaterErrorOccured();
 
 private:
-    void registerOperation(Zero::AbstractTopLevelOperation *operation);
+    void registerOperation(AbstractOperation *operation);
 
     Zero::DeviceState *m_state;
     Zero::CommandInterface *m_rpc;

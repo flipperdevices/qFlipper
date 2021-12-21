@@ -4,10 +4,6 @@
 
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/devicestate.h"
-#include "flipperzero/screenstreamer.h"
-#include "flipperzero/firmwareupdater.h"
-
-#include "flipperzero/toplevel/abstracttopleveloperation.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -41,12 +37,6 @@ void AbstractTopLevelHelper::onUpdatesChecked()
     }
 }
 
-void AbstractTopLevelHelper::onStreamStateChanged()
-{
-    disconnect(m_device->streamer(), &ScreenStreamer::stateChanged, this, &AbstractTopLevelHelper::onStreamStateChanged);
-    advanceState();
-}
-
 void AbstractTopLevelHelper::nextStateLogic()
 {
     if(state() == AbstractOperationHelper::Ready) {
@@ -77,5 +67,15 @@ UpdateTopLevelHelper::UpdateTopLevelHelper(UpdateRegistry *updateRegistry, Flipp
 void UpdateTopLevelHelper::runCustomOperation()
 {
     auto &versionInfo = updateRegistry()->latestVersion();
-    device()->updateOrRepair(versionInfo);
+    device()->fullUpdate(versionInfo);
+}
+
+RepairTopLevelHelper::RepairTopLevelHelper(UpdateRegistry *updateRegistry, FlipperZero *device, QObject *parent):
+    AbstractTopLevelHelper(updateRegistry, device, parent)
+{}
+
+void RepairTopLevelHelper::runCustomOperation()
+{
+    auto &versionInfo = updateRegistry()->latestVersion();
+    device()->fullRepair(versionInfo);
 }

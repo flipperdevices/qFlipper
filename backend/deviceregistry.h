@@ -12,7 +12,7 @@ class FlipperZero;
 class DeviceRegistry : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(Flipper::FlipperZero* currentDevice READ currentDevice NOTIFY devicesChanged)
+    Q_PROPERTY(Flipper::FlipperZero* currentDevice READ currentDevice NOTIFY currentDeviceChanged)
 
     using DeviceList = QVector<FlipperZero*>;
 
@@ -22,8 +22,8 @@ public:
     FlipperZero *currentDevice() const;
 
 signals:
-    void deviceConnected(FlipperZero*);
-    void devicesChanged();
+    void currentDeviceChanged();
+    void deviceCountChanged();
 
 public slots:
     void insertDevice(const USBDeviceInfo &info);

@@ -20,6 +20,7 @@
 Q_LOGGING_CATEGORY(LOG_BACKEND, "BACKEND")
 
 using namespace Flipper;
+using namespace Zero;
 
 // BIG TODO: Abstract away all mentions on Flipper Zero internals into common API
 // (to facilitate other devices support)
@@ -42,17 +43,27 @@ ApplicationBackend::State ApplicationBackend::state() const
     return m_state;
 }
 
+FlipperZero *ApplicationBackend::currentDevice() const
+{
+    return m_deviceRegistry->currentDevice();
+}
+
 void ApplicationBackend::mainAction()
 {
-    setState(State::UpdatingDevice);
+    AbstractOperationHelper *helper;
 
-    auto *helper = new Zero::UpdateTopLevelHelper(m_firmwareUpdates, m_deviceRegistry->currentDevice(), this);
+    if(currentDevice()->deviceState()->isRecoveryMode()) {
+        setState(State::RepairingDevice);
+        helper = new RepairTopLevelHelper(m_firmwareUpdates, currentDevice(), this);
+
+    } else {
+        setState(State::UpdatingDevice);
+        helper = new UpdateTopLevelHelper(m_firmwareUpdates, currentDevice(), this);
+    }
 
     connect(helper, &AbstractOperationHelper::finished, this, [=]() {
         if(helper->isError()) {
             qCCritical(LOG_BACKEND).noquote() << "Failed to complete the operation:" << helper->errorString();
-        } else {
-            setState(State::Ready);
         }
 
         helper->deleteLater();
@@ -61,80 +72,68 @@ void ApplicationBackend::mainAction()
 
 void ApplicationBackend::createBackup(const QUrl &directoryUrl)
 {
-    qCDebug(LOG_BACKEND).noquote() << "Creating backup in" << directoryUrl << "...";
+    setState(State::CreatingBackup);
+    currentDevice()->createBackup(directoryUrl);
 }
 
 void ApplicationBackend::restoreBackup(const QUrl &directoryUrl)
 {
-    qCDebug(LOG_BACKEND).noquote() << "Restoring backup from" << directoryUrl << "...";
+    setState(State::RestoringBackup);
+    currentDevice()->restoreBackup(directoryUrl);
 }
 
 void ApplicationBackend::factoryReset()
 {
-    qCDebug(LOG_BACKEND) << "Executing factory reset...";
+    setState(State::FactoryResetting);
+    currentDevice()->factoryReset();
 }
 
 void ApplicationBackend::installFirmware(const QUrl &fileUrl)
 {
-    qCDebug(LOG_BACKEND).noquote() << "Installing firmware from" << fileUrl << "...";
+    setState(State::InstallingFirmware);
+    currentDevice()->installFirmware(fileUrl);
 }
 
 void ApplicationBackend::installWirelessStack(const QUrl &fileUrl)
 {
-    qCDebug(LOG_BACKEND).noquote() << "Installing wireless stack from" << fileUrl << "...";
+    setState(State::InstallingWirelessStack);
+    currentDevice()->installWirelessStack(fileUrl);
 }
 
 void ApplicationBackend::installFUS(const QUrl &fileUrl, uint32_t address)
 {
-    qCDebug(LOG_BACKEND).noquote().nospace() << "Installing FUS from " << fileUrl << " at the address 0x" << QString::number(address, 16) << "...";
+    setState(State::InstallingFUS);
+    currentDevice()->installFUS(fileUrl, address);
 }
 
-void ApplicationBackend::onDevicesChanged()
+void ApplicationBackend::onCurrentDeviceChanged()
 {
-    if(m_deviceRegistry->currentDevice()) {
-        setState(m_state == State::WaitingForDevices ? State::Ready : m_state);
+    // Should not happen during an ongoing operation
+    if(m_state != State::Ready && m_state != State::WaitingForDevices &&
+       m_state != State::Finished) {
+        setState(State::OperationInterrupted);
+        qCCritical(LOG_BACKEND) << "Current operation was interrupted";
+
+    } else if(m_deviceRegistry->currentDevice()) {
+        // No need to disconnect the old device, as it has been destroyed at this point
+        connect(currentDevice(), &FlipperZero::operationFinished, this, &ApplicationBackend::onDeviceOperationFinished);
+        setState(State::Ready);
+
     } else {
-        // TODO: Doesn't cover all of the cases, add currentDeviceChanged() signal to DeviceRegistry
-        setState(m_state == State::Ready ? State::WaitingForDevices : State::OperationInterrupted);
+        setState(State::WaitingForDevices);
     }
-
-    qCDebug(LOG_BACKEND) << "State changed, current state:" << m_state;
 }
 
-void ApplicationBackend::onUpdatesChanged()
+void ApplicationBackend::onDeviceOperationFinished()
 {
-    qCDebug(LOG_BACKEND()) << "Update registry changed!";
-}
-
-void ApplicationBackend::registerMetaTypes()
-{
-    qRegisterMetaType<Preferences*>("Preferences*");
-    qRegisterMetaType<Flipper::Updates::FileInfo>("Flipper::Updates::FileInfo");
-    qRegisterMetaType<Flipper::Updates::VersionInfo>("Flipper::Updates::VersionInfo");
-    qRegisterMetaType<Flipper::Updates::ChannelInfo>("Flipper::Updates::ChannelInfo");
-
-    qRegisterMetaType<Flipper::Zero::DeviceInfo>("Flipper::Zero::DeviceInfo");
-    qRegisterMetaType<Flipper::Zero::HardwareInfo>("Flipper::Zero::HardwareInfo");
-    qRegisterMetaType<Flipper::Zero::SoftwareInfo>("Flipper::Zero::SoftwareInfo");
-    qRegisterMetaType<Flipper::Zero::StorageInfo>("Flipper::Zero::StorageInfo");
-
-    qRegisterMetaType<Flipper::FlipperZero*>("Flipper::FlipperZero*");
-    qRegisterMetaType<Flipper::Zero::DeviceState*>("Flipper::Zero::DeviceState*");
-    qRegisterMetaType<Flipper::Zero::FirmwareUpdater*>("Flipper::Zero::FirmwareUpdater*");
-    qRegisterMetaType<Flipper::Zero::ScreenStreamer*>("Flipper::Zero::ScreenStreamer*");
-
-    qRegisterMetaType<Flipper::Zero::AssetManifest::FileInfo>();
-}
-
-void ApplicationBackend::registerComparators()
-{
-    QMetaType::registerComparators<Flipper::Zero::AssetManifest::FileInfo>();
+    // TODO: Some error handling?
+    setState(State::Ready);
 }
 
 void ApplicationBackend::initConnections()
 {
-    connect(m_deviceRegistry, &DeviceRegistry::devicesChanged, this, &ApplicationBackend::onDevicesChanged);
-    connect(m_firmwareUpdates, &UpdateRegistry::channelsChanged, this, &ApplicationBackend::onUpdatesChanged);
+    connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::currentDeviceChanged);
+    connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::onCurrentDeviceChanged);
 }
 
 void ApplicationBackend::setState(State newState)
@@ -160,4 +159,29 @@ UpdateRegistry *ApplicationBackend::firmwareUpdates() const
 UpdateRegistry *ApplicationBackend::applicationUpdates() const
 {
     return m_applicationUpdates;
+}
+
+void ApplicationBackend::registerMetaTypes()
+{
+    qRegisterMetaType<Preferences*>("Preferences*");
+    qRegisterMetaType<Flipper::Updates::FileInfo>("Flipper::Updates::FileInfo");
+    qRegisterMetaType<Flipper::Updates::VersionInfo>("Flipper::Updates::VersionInfo");
+    qRegisterMetaType<Flipper::Updates::ChannelInfo>("Flipper::Updates::ChannelInfo");
+
+    qRegisterMetaType<Flipper::Zero::DeviceInfo>("Flipper::Zero::DeviceInfo");
+    qRegisterMetaType<Flipper::Zero::HardwareInfo>("Flipper::Zero::HardwareInfo");
+    qRegisterMetaType<Flipper::Zero::SoftwareInfo>("Flipper::Zero::SoftwareInfo");
+    qRegisterMetaType<Flipper::Zero::StorageInfo>("Flipper::Zero::StorageInfo");
+
+    qRegisterMetaType<Flipper::FlipperZero*>("Flipper::FlipperZero*");
+    qRegisterMetaType<Flipper::Zero::DeviceState*>("Flipper::Zero::DeviceState*");
+    qRegisterMetaType<Flipper::Zero::FirmwareUpdater*>("Flipper::Zero::FirmwareUpdater*");
+    qRegisterMetaType<Flipper::Zero::ScreenStreamer*>("Flipper::Zero::ScreenStreamer*");
+
+    qRegisterMetaType<Flipper::Zero::AssetManifest::FileInfo>();
+}
+
+void ApplicationBackend::registerComparators()
+{
+    QMetaType::registerComparators<Flipper::Zero::AssetManifest::FileInfo>();
 }
