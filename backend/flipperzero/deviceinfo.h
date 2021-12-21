@@ -2,8 +2,7 @@
 
 #include <QString>
 #include <QDateTime>
-#include <QSerialPort>
-#include <QSharedPointer>
+#include <QSerialPortInfo>
 
 #include "usbdeviceinfo.h"
 
@@ -86,8 +85,6 @@ struct DeviceInfo {
     Q_PROPERTY(Flipper::Zero::StorageInfo storage MEMBER storage)
 
 public:
-    using SerialPortPtr = QSharedPointer<QSerialPort>;
-
     QString name;
     QString model;
 
@@ -102,7 +99,7 @@ public:
     QString systemLocation;
 
     USBDeviceInfo usbInfo;
-    SerialPortPtr serialPort;
+    QSerialPortInfo portInfo;
 };
 
 }

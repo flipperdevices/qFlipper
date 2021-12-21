@@ -1,22 +1,25 @@
 #include "devicestate.h"
 
+#include <QSerialPort>
+
+#include "helper/serialinithelper.h"
+
 using namespace Flipper;
 using namespace Zero;
 
 DeviceState::DeviceState(const DeviceInfo &deviceInfo, QObject *parent):
     QObject(parent),
     m_deviceInfo(deviceInfo),
+    m_serialPort(nullptr),
     m_isPersistent(false),
-    m_isOnline(true),
+    m_isOnline(false),
     m_isError(false),
     m_progress(-1.0)
-{}
-
-void DeviceState::reset()
 {
-    setProgress(-1.0);
-    setError(false);
-    setOnline(true);
+    connect(this, &DeviceState::deviceInfoChanged, this, &DeviceState::onDeviceInfoChanged);
+    connect(this, &DeviceState::isOnlineChanged, this, &DeviceState::onIsOnlineChanged);
+
+    onDeviceInfoChanged();
 }
 
 const DeviceInfo &DeviceState::deviceInfo() const
@@ -28,7 +31,6 @@ void DeviceState::setDeviceInfo(const DeviceInfo &newDeviceInfo)
 {
     m_deviceInfo = newDeviceInfo;
     emit deviceInfoChanged();
-    reset();
 }
 
 bool DeviceState::isPersistent() const
@@ -131,4 +133,41 @@ void DeviceState::setErrorString(const QString &newErrorString)
 const QString &DeviceState::name() const
 {
     return m_deviceInfo.name;
+}
+
+QSerialPort *DeviceState::serialPort() const
+{
+    return m_serialPort;
+}
+
+void DeviceState::onDeviceInfoChanged()
+{
+    setError(false);
+    setProgress(-1.0);
+
+    if(isRecoveryMode()) {
+        setOnline(true);
+        return;
+    }
+
+    auto *helper = new SerialInitHelper(m_deviceInfo.portInfo, this);
+    connect(helper, &AbstractOperationHelper::finished, this, [=]() {
+        if(helper->isError()) {
+            setErrorString(tr("Failed to initialize serial port"));
+
+        } else {
+            m_serialPort = helper->serialPort();
+            setOnline(true);
+        }
+
+        helper->deleteLater();
+    });
+}
+
+void DeviceState::onIsOnlineChanged()
+{
+    if(!m_isOnline && m_serialPort) {
+        m_serialPort->deleteLater();
+        m_serialPort = nullptr;
+    }
 }

@@ -10,8 +10,8 @@
 #include <QLoggingCategory>
 #include <QtQuickControls2/QQuickStyle>
 
-#include "qflipperbackend.h"
 #include "updateregistry.h"
+#include "deviceregistry.h"
 #include "screencanvas.h"
 #include "preferences.h"
 #include "logger.h"
@@ -44,7 +44,7 @@ const QString Application::commitNumber()
     return APP_COMMIT;
 }
 
-AppUpdater *Application::updater()
+ApplicationUpdater *Application::updater()
 {
     return &m_updater;
 }
@@ -65,9 +65,8 @@ void Application::initContextProperties()
 {
     //TODO: Replace context properties with QML singletons
     m_engine.rootContext()->setContextProperty("app", this);
-    m_engine.rootContext()->setContextProperty("deviceRegistry", &m_backend.deviceRegistry);
-    m_engine.rootContext()->setContextProperty("firmwareUpdates", &m_backend.firmwareUpdates);
-    m_engine.rootContext()->setContextProperty("applicationUpdates", &m_backend.applicationUpdates);
+    m_engine.rootContext()->setContextProperty("firmwareUpdates", m_backend.firmwareUpdates());
+    m_engine.rootContext()->setContextProperty("applicationUpdates",m_backend.applicationUpdates());
 }
 
 void Application::initTranslations()
@@ -86,10 +85,12 @@ void Application::initTranslations()
 void Application::initQmlTypes()
 {
     qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
-    qmlRegisterType<AppUpdater>("QFlipper", 1, 0, "AppUpdater");
+    qmlRegisterType<ApplicationUpdater>("QFlipper", 1, 0, "AppUpdater");
 
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Logger", globalLogger);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Preferences", globalPrefs);
+    qmlRegisterSingletonInstance("QFlipper", 1, 0, "Backend", &m_backend);
+    qmlRegisterSingletonInstance("QFlipper", 1, 0, "Application", this);
 }
 
 void Application::initImports()

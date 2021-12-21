@@ -15,7 +15,7 @@ ColumnLayout {
     property alias reinstallAction: reinstallAction
     property alias selfUpdateAction: selfUpdateAction
 
-    readonly property var device: deviceRegistry.currentDevice
+    readonly property var device: Backend.currentDevice
     readonly property var deviceState: device ? device.state : undefined
 
     TransparentLabel {

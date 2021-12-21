@@ -26,8 +26,6 @@ class DeviceState : public QObject
 public:
     DeviceState(const DeviceInfo &deviceInfo, QObject *parent = nullptr);
 
-    void reset();
-
     const DeviceInfo &deviceInfo() const;
     void setDeviceInfo(const DeviceInfo &newDeviceInfo);
 
@@ -54,20 +52,26 @@ public:
     //TODO: Replace with deviceInfo().name
     const QString &name() const;
 
+    QSerialPort *serialPort() const;
+
 signals:
     void deviceInfoChanged();
+    void currentOperationChanged();
     void isPersistentChanged();
     void isOnlineChanged();
-
-    void updateInfoChanged();
 
     void statusChanged();
     void errorChanged();
 
     void progressChanged();
 
+private slots:
+    void onDeviceInfoChanged();
+    void onIsOnlineChanged();
+
 private:
     DeviceInfo m_deviceInfo;
+    QSerialPort *m_serialPort;
 
     bool m_isPersistent;
     bool m_isOnline;

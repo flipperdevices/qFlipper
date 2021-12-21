@@ -4,7 +4,7 @@
 
 #include "flipperupdates.h"
 
-class AppUpdater : public QObject
+class ApplicationUpdater : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
@@ -20,7 +20,7 @@ public:
 
     Q_ENUM(State)
 
-    AppUpdater(QObject *parent = nullptr);
+    ApplicationUpdater(QObject *parent = nullptr);
 
     State state() const;
     double progress() const;

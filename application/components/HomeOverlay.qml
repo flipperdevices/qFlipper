@@ -213,23 +213,13 @@ AbstractOverlay {
         const channelName = Preferences.updateChannel;
         const latestVersion = firmwareUpdates.latestVersion;
 
-        let messageObj, actionFunc;
-
-        if(deviceState.isRecoveryMode) {
-            messageObj = {
+        const messageObj = deviceState.isRecoveryMode ? {
                 title : qsTr("Repair Device?"),
                 customText: qsTr("Repair"),
                 message : qsTr("Firmware <font color=\"%1\">%2</font><br/>will be installed")
                           .arg(releaseButton.linkColor)
                           .arg(releaseButton.text)
-            };
-
-            actionFunc = function() {
-                device.updater.fullRepair(latestVersion);
-            }
-
-        } else {
-            messageObj = {
+            } : {
                 title : qsTr("Update firmware?"),
                 customText: qsTr("Update"),
                 message: qsTr("New firmware <font color=\"%1\">%2</font><br/>will be installed")
@@ -237,12 +227,7 @@ AbstractOverlay {
                          .arg(releaseButton.text),
             };
 
-            actionFunc = function() {
-                device.updater.fullUpdate(latestVersion);
-            }
-        }
-
-        confirmationDialog.openWithMessage(actionFunc, messageObj);
+        confirmationDialog.openWithMessage(Backend.mainAction, messageObj);
     }
 
     function installFromFile() {
@@ -257,7 +242,7 @@ AbstractOverlay {
             };
 
             const actionFunc = function() {
-                device.updater.localFirmwareInstall(fileDialog.fileUrl);
+                Backend.installFirmware(fileDialog.fileUrl);
             }
 
             confirmationDialog.openWithMessage(actionFunc, messageObj);
@@ -278,7 +263,7 @@ AbstractOverlay {
             };
 
             const actionFunc = function() {
-                device.updater.backupInternalStorage(fileDialog.fileUrl);
+                Backend.createBackup(fileDialog.fileUrl);
             }
 
             confirmationDialog.openWithMessage(actionFunc, messageObj);
@@ -299,7 +284,7 @@ AbstractOverlay {
             };
 
             const actionFunc = function() {
-                device.updater.restoreInternalStorage(fileDialog.fileUrl);
+                Backend.restoreBackup(fileDialog.fileUrl);
             }
 
             confirmationDialog.openWithMessage(actionFunc, messageObj);
@@ -316,11 +301,7 @@ AbstractOverlay {
             customText: qsTr("Erase")
         };
 
-        const actionFunc = function() {
-            device.updater.factoryReset();
-        }
-
-        confirmationDialog.openWithMessage(actionFunc, messageObj);
+        confirmationDialog.openWithMessage(Backend.factoryReset, messageObj);
     }
 
     function reinstallFirmware() {
@@ -330,11 +311,7 @@ AbstractOverlay {
             message: qsTr("Current firmware version will be reinstalled")
         };
 
-        const actionFunc = function() {
-            device.updater.fullUpdate(firmwareUpdates.latestVersion);
-        }
-
-        confirmationDialog.openWithMessage(actionFunc, messageObj);
+        confirmationDialog.openWithMessage(Backend.mainAction, messageObj);
     }
 
     function baseName(fileUrl) {

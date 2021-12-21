@@ -60,7 +60,8 @@ void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
 
         if(!device->deviceState()->isPersistent()) {
             m_devices.takeAt(idx)->deleteLater();
-            emit devicesChanged();
+            emit deviceCountChanged();
+            emit currentDeviceChanged();
 
         } else {
             device->deviceState()->setOnline(false);
@@ -93,8 +94,11 @@ void DeviceRegistry::processDevice()
         auto *device = new FlipperZero(info, this);
         m_devices.append(device);
 
-        emit deviceConnected(device);
-        emit devicesChanged();
+        emit deviceCountChanged();
+
+        if(m_devices.size() == 1) {
+            emit currentDeviceChanged();
+        }
     }
 
 }

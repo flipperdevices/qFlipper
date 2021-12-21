@@ -1,88 +1,15 @@
 #include "firmwareupdater.h"
 
-#include <QLoggingCategory>
-
 #include "devicestate.h"
-#include "recoveryinterface.h"
-#include "utilityinterface.h"
-
-#include "toplevel/wirelessstackupdateoperation.h"
-#include "toplevel/firmwareinstalloperation.h"
-#include "toplevel/settingsrestoreoperation.h"
-#include "toplevel/settingsbackupoperation.h"
-#include "toplevel/factoryresetoperation.h"
-#include "toplevel/fullrepairoperation.h"
-#include "toplevel/fullupdateoperation.h"
-
 #include "preferences.h"
-
-Q_LOGGING_CATEGORY(CATEGORY_TOPLEVEL, "TOPLEVEL")
 
 using namespace Flipper;
 using namespace Zero;
 
-FirmwareUpdater::FirmwareUpdater(DeviceState *state, CommandInterface *rpc, QObject *parent):
-    AbstractOperationRunner(parent),
-    m_state(state),
-    m_recovery(new RecoveryInterface(state, this)),
-    m_utility(new UtilityInterface(state, rpc, this))
+FirmwareUpdater::FirmwareUpdater(DeviceState *state, QObject *parent):
+    QObject(parent),
+    m_state(state)
 {}
-
-void FirmwareUpdater::fullUpdate(const Updates::VersionInfo &versionInfo)
-{
-    if(!m_state->isRecoveryMode()) {
-        enqueueOperation(new FullUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this));
-    }
-}
-
-void FirmwareUpdater::fullRepair(const Updates::VersionInfo &versionInfo)
-{
-    if(m_state->isRecoveryMode()) {
-        enqueueOperation(new FullRepairOperation(m_recovery, m_utility, m_state, versionInfo, this));
-    }
-}
-
-void FirmwareUpdater::backupInternalStorage(const QUrl &directoryUrl)
-{
-    if(!m_state->isRecoveryMode()) {
-        enqueueOperation(new SettingsBackupOperation(m_utility, m_state, directoryUrl, this));
-    }
-}
-
-void FirmwareUpdater::restoreInternalStorage(const QUrl &directoryUrl)
-{
-    if(!m_state->isRecoveryMode()) {
-        enqueueOperation(new SettingsRestoreOperation(m_utility, m_state, directoryUrl, this));
-    }
-}
-
-void FirmwareUpdater::factoryReset()
-{
-    if(!m_state->isRecoveryMode()) {
-        enqueueOperation(new FactoryResetOperation(m_utility, m_state, this));
-    }
-}
-
-void FirmwareUpdater::localFirmwareInstall(const QUrl &fileUrl)
-{
-    enqueueOperation(new FirmwareInstallOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
-}
-
-void FirmwareUpdater::localFUSUpdate(const QUrl &fileUrl)
-{
-    //TODO: User-settable address
-    enqueueOperation(new FUSUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), 0x080EC000, this));
-}
-
-void FirmwareUpdater::localWirelessStackUpdate(const QUrl &fileUrl)
-{
-    enqueueOperation(new WirelessStackUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
-}
-
-const QLoggingCategory &FirmwareUpdater::loggingCategory() const
-{
-    return CATEGORY_TOPLEVEL();
-}
 
 bool FirmwareUpdater::canUpdate(const Updates::VersionInfo &versionInfo) const
 {

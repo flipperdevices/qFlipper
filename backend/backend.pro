@@ -14,6 +14,7 @@ SOURCES += \
     abstractoperationrunner.cpp \
     abstractprotobufoperation.cpp \
     abstractserialoperation.cpp \
+    applicationbackend.cpp \
     deviceregistry.cpp \
     filenode.cpp \
     flipperupdates.cpp \
@@ -42,6 +43,8 @@ SOURCES += \
     flipperzero/helper/firmwarehelper.cpp \
     flipperzero/helper/radiomanifesthelper.cpp \
     flipperzero/helper/scriptshelper.cpp \
+    flipperzero/helper/serialinithelper.cpp \
+    flipperzero/helper/toplevelhelper.cpp \
     flipperzero/protobuf/guiprotobufmessage.cpp \
     flipperzero/protobuf/mainprotobufmessage.cpp \
     flipperzero/protobuf/messages/application.pb.c \
@@ -84,7 +87,6 @@ SOURCES += \
     gzipuncompressor.cpp \
     logger.cpp \
     preferences.cpp \
-    qflipperbackend.cpp \
     remotefilefetcher.cpp \
     serialfinder.cpp \
     simpleserialoperation.cpp \
@@ -100,6 +102,7 @@ HEADERS += \
     abstractprotobufmessage.h \
     abstractprotobufoperation.h \
     abstractserialoperation.h \
+    applicationbackend.h \
     deviceregistry.h \
     failable.h \
     fileinfo.h \
@@ -131,6 +134,8 @@ HEADERS += \
     flipperzero/helper/firmwarehelper.h \
     flipperzero/helper/radiomanifesthelper.h \
     flipperzero/helper/scriptshelper.h \
+    flipperzero/helper/serialinithelper.h \
+    flipperzero/helper/toplevelhelper.h \
     flipperzero/protobuf/guiprotobufmessage.h \
     flipperzero/protobuf/mainprotobufmessage.h \
     flipperzero/protobuf/messages/application.pb.h \
@@ -173,7 +178,6 @@ HEADERS += \
     gzipuncompressor.h \
     logger.h \
     preferences.h \
-    qflipperbackend.h \
     remotefilefetcher.h \
     serialfinder.h \
     signalingfailable.h \
