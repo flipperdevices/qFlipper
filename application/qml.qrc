@@ -100,5 +100,6 @@
         <file>assets/gfx/symbolic/save-symbolic.svg</file>
         <file>assets/gfx/symbolic/info-big.svg</file>
         <file>assets/gfx/images/streaming-help.svg</file>
+        <file>components/FinishOverlay.qml</file>
     </qresource>
 </RCC>

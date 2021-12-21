@@ -29,12 +29,13 @@ public:
         InstallingWirelessStack,
         InstallingFUS,
         Finished,
-        OperationInterrupted
+        ErrorOccured
     };
 
     Q_ENUM(State)
 
     ApplicationBackend(QObject *parent = nullptr);
+
     State state() const;
 
     Flipper::FlipperZero *currentDevice() const;
@@ -53,6 +54,8 @@ public:
     Q_INVOKABLE void installFirmware(const QUrl &fileUrl);
     Q_INVOKABLE void installWirelessStack(const QUrl &fileUrl);
     Q_INVOKABLE void installFUS(const QUrl &fileUrl, uint32_t address);
+
+    Q_INVOKABLE void finalizeOperation();
 
 signals:
     void stateChanged();

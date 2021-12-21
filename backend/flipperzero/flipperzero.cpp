@@ -106,11 +106,12 @@ FirmwareUpdater *FlipperZero::updater() const
 void FlipperZero::onStreamConditionChanged()
 {
     // Automatically start screen streaming if the conditions are right:
-    // 1. Device is online and connected in VCP mode
-    // 2. There is no ongoing operation
+    // 1. There is no error
+    // 2. Device is online and connected in VCP mode
+    // 3. There is no ongoing operation
 
     const auto streamCondition = m_state->isOnline() &&
-            !(m_state->isRecoveryMode() || m_state->isPersistent());
+            !(m_state->isError() || m_state->isRecoveryMode() || m_state->isPersistent());
 
     if(streamCondition) {
         m_streamer->start();

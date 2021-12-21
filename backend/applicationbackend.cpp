@@ -106,12 +106,22 @@ void ApplicationBackend::installFUS(const QUrl &fileUrl, uint32_t address)
     currentDevice()->installFUS(fileUrl, address);
 }
 
+void ApplicationBackend::finalizeOperation()
+{
+    //TODO: clean up all non-online devices here
+    if(currentDevice()) {
+        setState(State::Ready);
+    } else {
+        setState(State::WaitingForDevices);
+    }
+}
+
 void ApplicationBackend::onCurrentDeviceChanged()
 {
     // Should not happen during an ongoing operation
     if(m_state != State::Ready && m_state != State::WaitingForDevices &&
        m_state != State::Finished) {
-        setState(State::OperationInterrupted);
+        setState(State::ErrorOccured);
         qCCritical(LOG_BACKEND) << "Current operation was interrupted";
 
     } else if(m_deviceRegistry->currentDevice()) {
@@ -127,7 +137,11 @@ void ApplicationBackend::onCurrentDeviceChanged()
 void ApplicationBackend::onDeviceOperationFinished()
 {
     // TODO: Some error handling?
-    setState(State::Ready);
+    if(!currentDevice() || currentDevice()->deviceState()->isError()) {
+        setState(State::ErrorOccured);
+    } else {
+        setState(State::Finished);
+    }
 }
 
 void ApplicationBackend::initConnections()

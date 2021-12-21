@@ -187,12 +187,13 @@ Item {
                      (Backend.state < Backend.Finished) ? 1 : 0
         }
 
-//        SelfUpdateOverlay {
-//            id: selfUpdateOverlay
-//            backgroundRect: bg
-//            anchors.fill: parent
-//            opacity: windowState === MainWindow.SelfUpdating ? 1 : 0
-//        }
+        FinishOverlay {
+            id: finishOverlay
+            backgroundRect: bg
+            anchors.fill: parent
+            opacity: (Backend.state === Backend.Finished) ||
+                     (Backend.state === Backend.ErrorOccured) ? 1 : 0
+        }
 
         StreamOverlay {
             id: streamOverlay
