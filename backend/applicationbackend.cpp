@@ -146,11 +146,6 @@ void ApplicationBackend::setState(State newState)
     emit stateChanged();
 }
 
-DeviceRegistry *ApplicationBackend::deviceRegistry() const
-{
-    return m_deviceRegistry;
-}
-
 UpdateRegistry *ApplicationBackend::firmwareUpdates() const
 {
     return m_firmwareUpdates;

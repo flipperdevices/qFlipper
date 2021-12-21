@@ -65,7 +65,6 @@ void Application::initContextProperties()
 {
     //TODO: Replace context properties with QML singletons
     m_engine.rootContext()->setContextProperty("app", this);
-    m_engine.rootContext()->setContextProperty("deviceRegistry", m_backend.deviceRegistry());
     m_engine.rootContext()->setContextProperty("firmwareUpdates", m_backend.firmwareUpdates());
     m_engine.rootContext()->setContextProperty("applicationUpdates",m_backend.applicationUpdates());
 }
@@ -91,6 +90,7 @@ void Application::initQmlTypes()
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Logger", globalLogger);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Preferences", globalPrefs);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Backend", &m_backend);
+    qmlRegisterSingletonInstance("QFlipper", 1, 0, "Application", this);
 }
 
 void Application::initImports()

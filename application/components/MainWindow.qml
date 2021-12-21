@@ -28,7 +28,7 @@ Item {
     readonly property int shadowSize: 16
     readonly property int shadowOffset: 4
 
-    readonly property var device: deviceRegistry.currentDevice
+    readonly property var device: Backend.currentDevice
     readonly property var deviceState: device ? device.state : undefined
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 

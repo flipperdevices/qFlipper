@@ -38,7 +38,6 @@ public:
     State state() const;
 
     Flipper::FlipperZero *currentDevice() const;
-    Flipper::DeviceRegistry *deviceRegistry() const;
     Flipper::UpdateRegistry *firmwareUpdates() const;
     Flipper::UpdateRegistry *applicationUpdates() const;
 

@@ -1,11 +1,13 @@
 import QtQuick 2.15
 
+import QFlipper 1.0
+
 Item {
     id: overlay
 
     property Rectangle backgroundRect
 
-    readonly property var device: deviceRegistry.currentDevice
+    readonly property var device: Backend.currentDevice
     readonly property var deviceState: device ? device.state : undefined
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
