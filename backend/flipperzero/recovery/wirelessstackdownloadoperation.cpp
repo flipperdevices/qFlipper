@@ -49,9 +49,6 @@ void WirelessStackDownloadOperation::advanceOperationState()
         if(isWirelessStackUpgraded()) {
             finish();
         }
-
-    } else {
-        finishWithError(QStringLiteral("Unexpected state"));
     }
 }
 

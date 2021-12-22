@@ -9,7 +9,7 @@ Image {
 
     signal screenStreamRequested
 
-    readonly property var device: deviceRegistry.currentDevice
+    readonly property var device: Backend.currentDevice
     readonly property var deviceState: device ? device.state : undefined
 
     visible: opacity > 0

@@ -6,6 +6,8 @@
 
 #include "usbdeviceinfo.h"
 
+class QSerialPort;
+
 namespace Flipper {
 namespace Zero {
 
@@ -40,12 +42,14 @@ struct SoftwareInfo {
     Q_PROPERTY(QString version MEMBER version)
     Q_PROPERTY(QString commit MEMBER commit)
     Q_PROPERTY(QString branch MEMBER branch)
+    Q_PROPERTY(QString channel MEMBER channel)
     Q_PROPERTY(QDate date MEMBER date)
 
 public:
     QString version;
     QString commit;
     QString branch;
+    QString channel;
     QDate date;
 
     // Needed in order to work with QVariant
@@ -83,7 +87,6 @@ struct DeviceInfo {
     Q_PROPERTY(Flipper::Zero::StorageInfo storage MEMBER storage)
 
 public:
-
     QString name;
     QString model;
 
@@ -98,7 +101,7 @@ public:
     QString systemLocation;
 
     USBDeviceInfo usbInfo;
-    QSerialPortInfo serialInfo;
+    QSerialPortInfo portInfo;
 };
 
 }

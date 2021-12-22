@@ -18,12 +18,19 @@ public:
 protected:
     QSerialPort *serialPort() const;
 
+    qint64 totalBytesWritten() const;
+    void resetTotalBytesWritten();
+
 private slots:
-    virtual void onSerialPortReadyRead() = 0;
+    virtual void onSerialPortReadyRead();
+    virtual void onTotalBytesWrittenChanged();
+
+    void onSerialPortBytesWritten(qint64 numBytes);
     void onSerialPortError();
 
 private:
     virtual bool begin() = 0;
 
     QSerialPort *m_serialPort;
+    qint64 m_totalBytesWritten;
 };

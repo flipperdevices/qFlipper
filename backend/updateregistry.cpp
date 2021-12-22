@@ -8,6 +8,7 @@
 #include <QJsonArray>
 #include <QDateTime>
 #include <QBuffer>
+#include <QTimer>
 #include <QDebug>
 
 #include "debug.h"
@@ -19,39 +20,22 @@ Q_LOGGING_CATEGORY(CATEGORY_UPDATES, "UPDATES")
 using namespace Flipper;
 
 UpdateRegistry::UpdateRegistry(const QString &directoryUrl, QObject *parent):
-    QObject(parent)
+    QObject(parent),
+    m_directoryUrl(directoryUrl),
+    m_checkTimer(new QTimer(this))
 {
     connect(this, &UpdateRegistry::channelsChanged, this, &UpdateRegistry::latestVersionChanged);
+    connect(m_checkTimer, &QTimer::timeout, this, &UpdateRegistry::check);
 
-    auto *fetcher = new RemoteFileFetcher(this);
-    auto *buf = new QBuffer(this);
+    check();
 
-    fetcher->connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
-        if(fetcher->isError()) {
-
-        } else if(buf->open(QIODevice::ReadOnly)) {
-            qCDebug(CATEGORY_UPDATES).noquote() << "Fetched update directory from" << directoryUrl;
-
-            if(fillFromJson(buf->readAll())) {
-                emit channelsChanged();
-            }
-
-        } else {
-            qCCritical(CATEGORY_UPDATES).noquote() << "Failed to open a buffer for reading:" << buf->errorString();
-        }
-
-        fetcher->deleteLater();
-        buf->deleteLater();
-    });
-
-    if(!fetcher->fetch(directoryUrl, buf)) {
-        buf->deleteLater();
-    }
+    m_checkTimer->start(std::chrono::minutes(10));
 }
 
 bool UpdateRegistry::fillFromJson(const QByteArray &text)
 {
-    // TODO: Clear map first
+    m_channels.clear();
+
     const auto doc = QJsonDocument::fromJson(text);
 
     check_return_bool(!doc.isNull(), "Failed to parse the document");
@@ -97,6 +81,34 @@ const Updates::VersionInfo UpdateRegistry::latestVersion() const
 Updates::ChannelInfo UpdateRegistry::channel(const QString &channelName) const
 {
     return m_channels.value(channelName);
+}
+
+void UpdateRegistry::check()
+{
+    auto *fetcher = new RemoteFileFetcher(this);
+    auto *buf = new QBuffer(this);
+
+    fetcher->connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
+        if(fetcher->isError()) {
+            qCWarning(CATEGORY_UPDATES).noquote() << "Failed to fetch update list:" << fetcher->errorString();
+        } else if(buf->open(QIODevice::ReadOnly)) {
+            qCDebug(CATEGORY_UPDATES).noquote() << "Fetched update directory from" << m_directoryUrl;
+
+            if(fillFromJson(buf->readAll())) {
+                emit channelsChanged();
+            }
+
+        } else {
+            qCCritical(CATEGORY_UPDATES).noquote() << "Failed to open a buffer for reading:" << buf->errorString();
+        }
+
+        fetcher->deleteLater();
+        buf->deleteLater();
+    });
+
+    if(!fetcher->fetch(m_directoryUrl, buf)) {
+        buf->deleteLater();
+    }
 }
 
 FirmwareUpdates::FirmwareUpdates(const QString &directoryUrl, QObject *parent):

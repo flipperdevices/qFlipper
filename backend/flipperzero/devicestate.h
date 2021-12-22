@@ -15,18 +15,16 @@ class DeviceState : public QObject
 
     Q_PROPERTY(bool isPersistent READ isPersistent NOTIFY isPersistentChanged)
     Q_PROPERTY(bool isOnline READ isOnline NOTIFY isOnlineChanged)
-    Q_PROPERTY(bool isError READ isError NOTIFY errorChanged)
+    Q_PROPERTY(bool isError READ isError NOTIFY isErrorChanged)
     Q_PROPERTY(bool isRecoveryMode READ isRecoveryMode NOTIFY deviceInfoChanged)
 
-    Q_PROPERTY(QString statusString READ statusString NOTIFY statusChanged)
-    Q_PROPERTY(QString errorString READ errorString NOTIFY errorChanged)
+    Q_PROPERTY(QString statusString READ statusString NOTIFY statusStringChanged)
+    Q_PROPERTY(QString errorString READ errorString NOTIFY isErrorChanged)
 
     Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
 
 public:
     DeviceState(const DeviceInfo &deviceInfo, QObject *parent = nullptr);
-
-    void reset(const DeviceInfo &newDeviceInfo);
 
     const DeviceInfo &deviceInfo() const;
     void setDeviceInfo(const DeviceInfo &newDeviceInfo);
@@ -54,20 +52,25 @@ public:
     //TODO: Replace with deviceInfo().name
     const QString &name() const;
 
+    QSerialPort *serialPort() const;
+
 signals:
     void deviceInfoChanged();
     void isPersistentChanged();
     void isOnlineChanged();
 
-    void updateInfoChanged();
-
-    void statusChanged();
-    void errorChanged();
+    void statusStringChanged();
+    void isErrorChanged();
 
     void progressChanged();
 
+private slots:
+    void onDeviceInfoChanged();
+    void onIsOnlineChanged();
+
 private:
     DeviceInfo m_deviceInfo;
+    QSerialPort *m_serialPort;
 
     bool m_isPersistent;
     bool m_isOnline;

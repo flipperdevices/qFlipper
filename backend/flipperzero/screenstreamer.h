@@ -2,7 +2,6 @@
 
 #include <QObject>
 #include <QByteArray>
-#include <QSerialPortInfo>
 
 class QSerialPort;
 
@@ -10,12 +9,14 @@ namespace Flipper {
 namespace Zero {
 
 class DeviceState;
+class CommandInterface;
 
 class ScreenStreamer : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QByteArray screenData READ screenData NOTIFY screenDataChanged)
-    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY enabledChanged)
+    Q_PROPERTY(State state READ state NOTIFY stateChanged)
+    Q_PROPERTY(bool enabled READ isEnabled NOTIFY stateChanged)
     Q_PROPERTY(int screenWidth READ screenWidth CONSTANT)
     Q_PROPERTY(int screenHeight READ screenHeight CONSTANT)
 
@@ -41,41 +42,51 @@ public:
 
     Q_ENUM(InputType)
 
-    ScreenStreamer(DeviceState *deviceState, QObject *parent = nullptr);
-    ~ScreenStreamer();
+    enum class State {
+        Starting,
+        Running,
+        Stopping,
+        Stopped
+    };
+
+    Q_ENUM(State)
+
+    ScreenStreamer(CommandInterface *rpc, QObject *parent = nullptr);
 
     const QByteArray &screenData() const;
 
     bool isEnabled() const;
-    void setEnabled(bool enabled);
+    State state() const;
 
     static int screenWidth();
     static int screenHeight();
 
 public slots:
+    void start();
+    void stop();
+
     void sendInputEvent(InputKey key, InputType type);
 
-signals:
-    void screenDataChanged();
-    void enabledChanged();
-
 private slots:
-    void createPort();
     void onPortReadyRead();
-    void onPortErrorOccured();
+    void onStateChanged();
+
+signals:
+    void started();
+    void stopped();
+
+    void screenDataChanged();
+    void stateChanged();
 
 private:
-    bool openPort();
-    void closePort();
+    void sendStopCommand();
+    void setState(State newState);
 
-    DeviceState *m_deviceState;
-    QSerialPort *m_serialPort;
+    QSerialPort *serialPort() const;
 
-    QByteArray m_dataBuffer;
+    CommandInterface *m_rpc;
     QByteArray m_screenData;
-
-    bool m_isEnabled;
-    bool m_isHeaderFound;
+    State m_state;
 };
 
 }

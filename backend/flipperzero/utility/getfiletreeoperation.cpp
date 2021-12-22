@@ -4,7 +4,7 @@
 
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
-#include "flipperzero/cli/listoperation.h"
+#include "flipperzero/cli/storagelistoperation.h"
 
 #include "debug.h"
 
@@ -22,7 +22,7 @@ const QString GetFileTreeOperation::description() const
     return QStringLiteral("Get File Tree @%1").arg(deviceState()->name());
 }
 
-const FileInfoList &GetFileTreeOperation::result() const
+const FileInfoList &GetFileTreeOperation::files() const
 {
     return m_result;
 }
@@ -35,14 +35,14 @@ void GetFileTreeOperation::advanceOperationState()
 
     } else if(operationState() == State::Running) {
         --m_pendingCount;
-        auto *op = qobject_cast<ListOperation*>(sender());
+        auto *op = qobject_cast<StorageListOperation*>(sender());
 
         if(op->isError()) {
             finishWithError(op->errorString());
             return;
         }
 
-        for(const auto &fileInfo : qAsConst(op->result())) {
+        for(const auto &fileInfo : qAsConst(op->files())) {
             if(fileInfo.type == FileType::Directory) {
                 listDirectory(fileInfo.absolutePath);
             }
@@ -59,6 +59,6 @@ void GetFileTreeOperation::advanceOperationState()
 void GetFileTreeOperation::listDirectory(const QByteArray &path)
 {
     ++m_pendingCount;
-    auto *op = cli()->list(path);
+    auto *op = cli()->storageList(path);
     connect(op, &AbstractOperation::finished, this, &GetFileTreeOperation::advanceOperationState);
 }

@@ -63,6 +63,9 @@ AbstractOverlay {
 
         Button {
             action: backAction
+
+            icon.width: 24
+            icon.height: 24
             icon.source: "qrc:/assets/gfx/symbolic/arrow-back.svg"
         }
 
@@ -74,8 +77,8 @@ AbstractOverlay {
             action: saveAction
             Layout.alignment: Qt.AlignRight
 
-            icon.height: 20
             icon.width: 20
+            icon.height: 20
             icon.source: "qrc:/assets/gfx/symbolic/save-symbolic.svg"
         }
     }
@@ -123,7 +126,7 @@ AbstractOverlay {
         id: backAction
         text: qsTr("Back")
         enabled: overlay.enabled
-        onTriggered: opacity = 0
+        onTriggered: Backend.stopFullScreenStreaming()
     }
 
     Action {

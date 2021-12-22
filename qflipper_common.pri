@@ -38,4 +38,9 @@ GIT_TIMESTAMP = $$system("git log -1 --pretty=format:%ct","lines", HAS_TIMESTAMP
     GIT_TIMESTAMP = 0
 }
 
-DEFINES += APP_NAME=\\\"$$NAME\\\" APP_VERSION=\\\"$$GIT_VERSION\\\" APP_COMMIT=\\\"$$GIT_COMMIT\\\" APP_TIMESTAMP=$$GIT_TIMESTAMP
+DEFINES += APP_NAME=\\\"$$NAME\\\" \
+           APP_VERSION=\\\"$$GIT_VERSION\\\" \
+           APP_COMMIT=\\\"$$GIT_COMMIT\\\" \
+           APP_TIMESTAMP=$$GIT_TIMESTAMP \
+           PB_ENABLE_MALLOC
+

@@ -1,27 +1,26 @@
 #include "screenstreamer.h"
 
-#include <QSerialPort>
+#include <QDebug>
+#include <QLoggingCategory>
 
-#include "devicestate.h"
-#include "debug.h"
+#include "commandinterface.h"
+
+#include "cli/guistartstreamoperation.h"
+#include "cli/guistopstreamoperation.h"
+
+#include "protobuf/guiprotobufmessage.h"
+
+Q_LOGGING_CATEGORY(CATEGORY_SCREEN, "SCREEN")
 
 using namespace Flipper;
 using namespace Zero;
 
-ScreenStreamer::ScreenStreamer(DeviceState *deviceState, QObject *parent):
+ScreenStreamer::ScreenStreamer(CommandInterface *rpc, QObject *parent):
     QObject(parent),
-    m_deviceState(deviceState),
-    m_serialPort(nullptr),
-    m_isEnabled(false),
-    m_isHeaderFound(false)
+    m_rpc(rpc),
+    m_state(State::Stopped)
 {
-    connect(m_deviceState, &DeviceState::deviceInfoChanged, this, &ScreenStreamer::createPort);
-    createPort();
-}
-
-ScreenStreamer::~ScreenStreamer()
-{
-    setEnabled(false);
+    connect(this, &ScreenStreamer::stateChanged, this, &ScreenStreamer::onStateChanged);
 }
 
 const QByteArray &ScreenStreamer::screenData() const
@@ -31,21 +30,12 @@ const QByteArray &ScreenStreamer::screenData() const
 
 bool ScreenStreamer::isEnabled() const
 {
-    return m_isEnabled;
+    return m_state == State::Running;
 }
 
-void ScreenStreamer::setEnabled(bool enabled)
+ScreenStreamer::State ScreenStreamer::state() const
 {
-    if(!m_serialPort || (m_isEnabled == enabled)) {
-        return;
-    } else if(enabled) {
-        check_return_void(openPort(), "Failed to open serial port");
-    } else {
-        closePort();
-    }
-
-    m_isEnabled = enabled;
-    emit enabledChanged();
+    return m_state;
 }
 
 int ScreenStreamer::screenWidth()
@@ -58,88 +48,109 @@ int ScreenStreamer::screenHeight()
     return 64;
 }
 
-void ScreenStreamer::sendInputEvent(InputKey key, InputType type)
+void ScreenStreamer::start()
 {
-    const char input[] = { 27, 'i', (char)key, (char)type };
-    m_serialPort->write(input, sizeof(input));
-    m_serialPort->flush();
+    if(m_state != State::Stopped) {
+        qCDebug(CATEGORY_SCREEN) << "Can't start while already running";
+        return;
+    }
+
+    setState(State::Starting);
+
+    auto *operation = m_rpc->guiStartStreaming();
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            setState(State::Stopped);
+            qCDebug(CATEGORY_SCREEN).noquote() << "Failed to initiate screen streaming: " << operation->errorString();
+
+        } else {
+            setState(State::Running);
+            connect(serialPort(), &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
+        }
+    });
 }
 
-void ScreenStreamer::createPort()
+void ScreenStreamer::stop()
 {
-    if(m_serialPort) {
-        setEnabled(false);
-        m_serialPort->deleteLater();
+    if(m_state != State::Running) {
+        qCDebug(CATEGORY_SCREEN) << "Can't stop while not running";
+        return;
     }
 
-    if(!m_deviceState->isRecoveryMode()) {
-        m_serialPort = new QSerialPort(m_deviceState->deviceInfo().serialInfo, this);
-    } else{
-        m_serialPort = nullptr;
-    }
+    setState(State::Stopping);
+}
+
+
+void ScreenStreamer::sendInputEvent(InputKey key, InputType type)
+{
+    GuiSendInputRequest request(serialPort(), (PB_Gui_InputKey)key, (PB_Gui_InputType)type);
+    request.send();
 }
 
 void ScreenStreamer::onPortReadyRead()
 {
-    static const auto header = QByteArrayLiteral("\xf0\xe1\xd2\xc3");
+    GuiScreenFrameResponse msg(serialPort());
 
-    m_dataBuffer += m_serialPort->readAll();
+    while(msg.receive()) {
 
-    if (!m_isHeaderFound) {
-        const int pos = m_dataBuffer.indexOf(header);
-        if (pos >= 0) {
-            m_dataBuffer = m_dataBuffer.right(m_dataBuffer.length() - pos - header.size());
-            m_isHeaderFound = true;
-        }
-    }
+        if(!msg.isOk()) {
+            qCCritical(CATEGORY_SCREEN) << "Device replied with error:" << msg.commandStatusString();
+            return;
 
-    if(m_isHeaderFound) {
-        const auto bufSize = screenWidth() * screenHeight() / 8;
+        } else if(!msg.isValidType()) {
+            if(msg.whichContent() != MainEmptyResponse::tag()) {
+                qCCritical(CATEGORY_SCREEN) << "Expected screen frame or empty, got something else";
+                return;
+            }
 
-        if(m_dataBuffer.size() >= bufSize) {
-            m_screenData = m_dataBuffer.left(bufSize);
-            m_dataBuffer = m_dataBuffer.right(m_dataBuffer.length() - bufSize);
-            m_isHeaderFound = false;
-
+        } else {
+            m_screenData = msg.screenFrame();
             emit screenDataChanged();
         }
     }
+
+    if(m_state == State::Stopping) {
+        // Stop only after processing all of the messages
+        sendStopCommand();
+    }
 }
 
-void ScreenStreamer::onPortErrorOccured()
+void ScreenStreamer::onStateChanged()
 {
-    if(m_serialPort->error() == QSerialPort::ResourceError) {
+    if(m_state == State::Running) {
+        emit started();
+    } else if(m_state == State::Stopped) {
+        emit stopped();
+    }
+}
+
+void ScreenStreamer::sendStopCommand()
+{
+    disconnect(serialPort(), &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
+
+    auto *operation = m_rpc->guiStopStreaming();
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            qCDebug(CATEGORY_SCREEN).noquote() << "Failed to stop screen streaming: " << operation->errorString();
+        }
+
+        setState(State::Stopped);
+    });
+}
+
+void ScreenStreamer::setState(State newState)
+{
+    if(newState == m_state) {
         return;
     }
 
-    error_msg(QString("Serial port error occured: %1").arg(m_serialPort->errorString()));
-    setEnabled(false);
+    m_state = newState;
+    emit stateChanged();
 }
 
-bool ScreenStreamer::openPort()
+QSerialPort *ScreenStreamer::serialPort() const
 {
-    const auto success = m_serialPort->open(QIODevice::ReadWrite);
-
-    if(success) {
-        connect(m_serialPort, &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
-        connect(m_serialPort, &QSerialPort::errorOccurred, this, &ScreenStreamer::onPortErrorOccured);
-
-        m_serialPort->setDataTerminalReady(true);
-        m_serialPort->write("\rscreen_stream\r");
-
-    } else {
-        error_msg(QString("Failed to open serial port: %1").arg(m_serialPort->errorString()));
-    }
-
-    return success;
-}
-
-void ScreenStreamer::closePort()
-{
-    disconnect(m_serialPort, &QSerialPort::readyRead, this, &ScreenStreamer::onPortReadyRead);
-    disconnect(m_serialPort, &QSerialPort::errorOccurred, this, &ScreenStreamer::onPortErrorOccured);
-
-    m_serialPort->write("\x01\r\n");
-    m_serialPort->clear();
-    m_serialPort->close();
+    return m_rpc->serialPort();
 }

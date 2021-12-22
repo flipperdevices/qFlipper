@@ -15,7 +15,7 @@ ColumnLayout {
     property alias reinstallAction: reinstallAction
     property alias selfUpdateAction: selfUpdateAction
 
-    readonly property var device: deviceRegistry.currentDevice
+    readonly property var device: Backend.currentDevice
     readonly property var deviceState: device ? device.state : undefined
 
     TransparentLabel {
@@ -146,13 +146,12 @@ ColumnLayout {
     Action {
         id: reinstallAction
         text: qsTr("Reinstall")
-        enabled: firmwareUpdates.isReady && !!deviceState && !deviceState.isRecoveryMode &&
-                 !(device.updater.canUpdate(firmwareUpdates.latestVersion) || device.updater.canInstall())
+        enabled: Backend.updateStatus === Backend.NoUpdates
     }
 
     Action {
         id: selfUpdateAction
-        text: qsTr("Update qFlipper")
-        enabled: applicationUpdates.isReady && app.updater.canUpdate(applicationUpdates.latestVersion)
+        text: qsTr("Check app updates")
+        enabled: false//applicationUpdates.isReady && app.updater.canUpdate(applicationUpdates.latestVersion)
     }
 }

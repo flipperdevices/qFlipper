@@ -4,7 +4,7 @@
 
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
-#include "flipperzero/cli/dfuoperation.h"
+#include "flipperzero/cli/systemrebootoperation.h"
 
 #define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
 
@@ -53,7 +53,7 @@ void StartRecoveryOperation::startRecoveryMode()
 
     connect(deviceState(), &DeviceState::isOnlineChanged, this, &StartRecoveryOperation::onDeviceOnlineChanged);
 
-    auto *operation = cli()->startRecoveryMode();
+    auto *operation = cli()->rebootToRecovery();
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {

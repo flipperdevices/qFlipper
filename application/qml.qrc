@@ -90,7 +90,6 @@
         <file>assets/fonts/ProggySquare.ttf</file>
         <file>assets/fonts/ShareTechMono-Regular.ttf</file>
         <file>components/TextView.qml</file>
-        <file>components/SelfUpdateOverlay.qml</file>
         <file>components/AbstractOverlay.qml</file>
         <file>style/Menu.qml</file>
         <file>style/MenuItem.qml</file>
@@ -100,5 +99,7 @@
         <file>assets/gfx/symbolic/save-symbolic.svg</file>
         <file>assets/gfx/symbolic/info-big.svg</file>
         <file>assets/gfx/images/streaming-help.svg</file>
+        <file>components/FinishOverlay.qml</file>
+        <file>components/SelfUpdateDialog.qml</file>
     </qresource>
 </RCC>

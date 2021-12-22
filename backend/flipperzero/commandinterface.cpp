@@ -1,131 +1,114 @@
 #include "commandinterface.h"
 
-#include <QSerialPort>
 #include <QLoggingCategory>
 
 #include "flipperzero/devicestate.h"
 
-#include "cli/factoryresetclioperation.h"
 #include "cli/skipmotdoperation.h"
-#include "cli/rebootoperation.h"
-#include "cli/removeoperation.h"
-#include "cli/mkdiroperation.h"
-#include "cli/writeoperation.h"
-#include "cli/readoperation.h"
-#include "cli/statoperation.h"
-#include "cli/listoperation.h"
-#include "cli/dfuoperation.h"
 
-#include "debug.h"
+#include "cli/startrpcoperation.h"
+#include "cli/stoprpcoperation.h"
 
-Q_LOGGING_CATEGORY(CATEGORY_CLI, "CLI");
+#include "cli/systemrebootoperation.h"
+#include "cli/systemfactoryresetoperation.h"
+
+#include "cli/storageremoveoperation.h"
+#include "cli/storagemkdiroperation.h"
+#include "cli/storagewriteoperation.h"
+#include "cli/storagereadoperation.h"
+#include "cli/storagelistoperation.h"
+#include "cli/storagestatoperation.h"
+#include "cli/storageinfooperation.h"
+
+#include "cli/guistartstreamoperation.h"
+#include "cli/guistopstreamoperation.h"
+
+Q_LOGGING_CATEGORY(CATEGORY_RPC, "RPC");
 
 using namespace Flipper;
 using namespace Zero;
 
-CommandInterface::CommandInterface(DeviceState *state, QObject *parent):
+CommandInterface::CommandInterface(DeviceState *deviceState, QObject *parent):
     AbstractOperationRunner(parent),
-    m_serialPort(nullptr)
+    m_deviceState(deviceState)
+{}
+
+QSerialPort *CommandInterface::serialPort() const
 {
-    // Automatically re-create serial port instance when a persistent device reconnects
-    const auto createSerialPort = [=]() {
-        if(m_serialPort) {
-            check_continue(!m_serialPort->isOpen(), "Deleting a Serial Port instance that is still open.");
-            m_serialPort->deleteLater();
-            m_serialPort = nullptr;
-        }
-
-        const auto &portInfo = state->deviceInfo().serialInfo;
-
-        if(!portInfo.isNull()) {
-            m_serialPort = new QSerialPort(portInfo, this);
-        }
-    };
-
-    connect(state, &DeviceState::deviceInfoChanged, this, createSerialPort);
-
-    createSerialPort();
+    return m_deviceState->serialPort();
 }
 
-RebootOperation *CommandInterface::reboot()
+StopRPCOperation *CommandInterface::stopRPCSession()
 {
-    auto *op = new RebootOperation(m_serialPort, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new StopRPCOperation(serialPort(), this));
 }
 
-DFUOperation *CommandInterface::startRecoveryMode()
+StartRPCOperation *CommandInterface::startRPCSession()
 {
-    auto *op = new DFUOperation(m_serialPort, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new StartRPCOperation(serialPort(), this));
 }
 
-FactoryResetCliOperation *CommandInterface::factoryReset()
+SystemRebootOperation *CommandInterface::rebootToOS()
 {
-    auto *op = new FactoryResetCliOperation(m_serialPort, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new SystemRebootOperation(serialPort(), SystemRebootOperation::RebootType::OS, this));
 }
 
-ListOperation *CommandInterface::list(const QByteArray &dirName)
+SystemRebootOperation *CommandInterface::rebootToRecovery()
 {
-    auto *op = new ListOperation(m_serialPort, dirName, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new SystemRebootOperation(serialPort(), SystemRebootOperation::RebootType::Recovery, this));
 }
 
-StatOperation *CommandInterface::stat(const QByteArray &fileName)
+SystemFactoryResetOperation *CommandInterface::factoryReset()
 {
-    auto *op = new StatOperation(m_serialPort, fileName, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new SystemFactoryResetOperation(serialPort(), this));
 }
 
-ReadOperation *CommandInterface::read(const QByteArray &fileName, QIODevice *file)
+StorageListOperation *CommandInterface::storageList(const QByteArray &path)
 {
-    auto *op = new ReadOperation(m_serialPort, fileName, file, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new StorageListOperation(serialPort(), path, this));
 }
 
-MkDirOperation *CommandInterface::mkdir(const QByteArray &dirName)
+StorageInfoOperation *CommandInterface::storageInfo(const QByteArray &path)
 {
-    auto *op = new MkDirOperation(m_serialPort, dirName, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new StorageInfoOperation(serialPort(), path, this));
 }
 
-WriteOperation *CommandInterface::write(const QByteArray &fileName, QIODevice *file)
+StorageStatOperation *CommandInterface::storageStat(const QByteArray &path)
 {
-    auto *op = new WriteOperation(m_serialPort, fileName, file, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new StorageStatOperation(serialPort(), path, this));
 }
 
-RemoveOperation *CommandInterface::remove(const QByteArray &fileName)
+StorageReadOperation *CommandInterface::storageRead(const QByteArray &path, QIODevice *file)
 {
-    auto *op = new RemoveOperation(m_serialPort, fileName, this);
-    enqueueOperation(op);
-    return op;
+    return registerOperation(new StorageReadOperation(serialPort(), path, file, this));
 }
 
-bool CommandInterface::onQueueStarted()
+StorageMkdirOperation *CommandInterface::storageMkdir(const QByteArray &path)
 {
-    const auto success = m_serialPort->open(QIODevice::ReadWrite);
-    check_return_bool(success, QStringLiteral("Serial port error: %1").arg(m_serialPort->errorString()));
-
-    enqueueOperation(new SkipMOTDOperation(m_serialPort, this));
-    return true;
+    return registerOperation(new StorageMkdirOperation(serialPort(), path, this));
 }
 
-bool CommandInterface::onQueueFinished()
+StorageWriteOperation *CommandInterface::storageWrite(const QByteArray &path, QIODevice *file)
 {
-    m_serialPort->close();
-    return true;
+    return registerOperation(new StorageWriteOperation(serialPort(), path, file, this));
+}
+
+GuiStartStreamOperation *CommandInterface::guiStartStreaming()
+{
+    return registerOperation(new GuiStartStreamOperation(serialPort(), this));
+}
+
+GuiStopStreamOperation *CommandInterface::guiStopStreaming()
+{
+    return registerOperation(new GuiStopStreamOperation(serialPort(), this));
+}
+
+StorageRemoveOperation *CommandInterface::storageRemove(const QByteArray &path)
+{
+    return registerOperation(new StorageRemoveOperation(serialPort(), path, this));
 }
 
 const QLoggingCategory &CommandInterface::loggingCategory() const
 {
-    return CATEGORY_CLI();
+    return CATEGORY_RPC();
 }

@@ -21,11 +21,8 @@ public:
     AbstractOperationRunner(QObject *parent = nullptr);
 
 protected:
-    virtual bool onQueueStarted();
-    virtual bool onQueueFinished();
-
-    virtual void onOperationStarted(AbstractOperation *operation);
-    virtual void onOperationFinished(AbstractOperation *operation);
+    template<class T>
+    T* registerOperation(T* operation);
 
     virtual const QLoggingCategory &loggingCategory() const;
 
@@ -39,4 +36,11 @@ private:
     State m_state;
     OperationQueue m_queue;
 };
+
+template<class T>
+T *AbstractOperationRunner::registerOperation(T *operation)
+{
+    enqueueOperation(operation);
+    return operation;
+}
 

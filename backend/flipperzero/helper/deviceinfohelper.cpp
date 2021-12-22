@@ -2,18 +2,22 @@
 
 #include <cmath>
 
+#include <QDebug>
 #include <QTimer>
 #include <QSerialPort>
 
-#include "flipperzero/cli/deviceinfooperation.h"
-#include "flipperzero/cli/skipmotdoperation.h"
-#include "flipperzero/cli/statoperation.h"
 #include "flipperzero/factoryinfo.h"
+
+#include "flipperzero/cli/stoprpcoperation.h"
+
+#include "flipperzero/cli/storagestatoperation.h"
+#include "flipperzero/cli/storageinfooperation.h"
+#include "flipperzero/cli/systemdeviceinfooperation.h"
 
 #include "device/stm32wb55.h"
 
+#include "serialinithelper.h"
 #include "serialfinder.h"
-#include "debug.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -34,10 +38,14 @@ AbstractDeviceInfoHelper *AbstractDeviceInfoHelper::create(const USBDeviceInfo &
     } else if(pid == 0xdf11) {
         return new DFUDeviceInfoHelper(info, parent);
     } else {
-        error_msg("Not a Flipper Zero device.")
+        qCritical() << "Not a Flipper Zero device";
+        return nullptr;
     }
+}
 
-    return nullptr;
+const DeviceInfo &AbstractDeviceInfoHelper::result() const
+{
+    return m_deviceInfo;
 }
 
 VCPDeviceInfoHelper::VCPDeviceInfoHelper(const USBDeviceInfo &info, QObject *parent):
@@ -47,11 +55,6 @@ VCPDeviceInfoHelper::VCPDeviceInfoHelper(const USBDeviceInfo &info, QObject *par
     m_deviceInfo.usbInfo = info;
 }
 
-const DeviceInfo &VCPDeviceInfoHelper::result() const
-{
-    return m_deviceInfo;
-}
-
 void VCPDeviceInfoHelper::nextStateLogic()
 {
     if(state() == AbstractDeviceInfoHelper::Ready) {
@@ -59,10 +62,10 @@ void VCPDeviceInfoHelper::nextStateLogic()
         findSerialPort();
 
     } else if(state() == VCPDeviceInfoHelper::FindingSerialPort) {
-        setState(VCPDeviceInfoHelper::SkippingMOTD);
-        skipMOTD();
+        setState(VCPDeviceInfoHelper::InitializingSerialPort);
+        initSerialPort();
 
-    } else if(state() == VCPDeviceInfoHelper::SkippingMOTD) {
+    } else if(state() == VCPDeviceInfoHelper::InitializingSerialPort) {
         setState(VCPDeviceInfoHelper::FetchingDeviceInfo);
         fetchDeviceInfo();
 
@@ -75,6 +78,10 @@ void VCPDeviceInfoHelper::nextStateLogic()
         checkManifest();
 
     } else if(state() == VCPDeviceInfoHelper::CheckingManifest) {
+        setState(VCPDeviceInfoHelper::StoppingRPCSession);
+        stopRPCSession();
+
+    } else if(state() == VCPDeviceInfoHelper::StoppingRPCSession) {
         closePortAndFinish();
     }
 }
@@ -88,58 +95,81 @@ void VCPDeviceInfoHelper::findSerialPort()
             finishWithError(QStringLiteral("Invalid serial port info."));
 
         } else {
-            m_deviceInfo.serialInfo = portInfo;
+            m_deviceInfo.portInfo = portInfo;
             m_deviceInfo.systemLocation = portInfo.systemLocation();
 
-            m_serialPort = new QSerialPort(portInfo, this);
-            if(!m_serialPort->open(QIODevice::ReadWrite)) {
-                finishWithError(m_serialPort->errorString());
-            } else {
-                advanceState();
-            }
+            advanceState();
         }
     });
 }
 
-void VCPDeviceInfoHelper::skipMOTD()
+void VCPDeviceInfoHelper::initSerialPort()
 {
-    auto *operation = new SkipMOTDOperation(m_serialPort, this);
+    auto *helper = new SerialInitHelper(m_deviceInfo.portInfo, this);
 
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            finishWithError(operation->errorString());
+    connect(helper, &AbstractOperationHelper::finished, this, [=]() {
+        if(helper->isError()) {
+            finishWithError(helper->errorString());
         } else {
+            m_serialPort = helper->serialPort();
             advanceState();
         }
     });
-
-    operation->start();
 }
 
 void VCPDeviceInfoHelper::fetchDeviceInfo()
 {
-    auto *operation = new DeviceInfoOperation(m_serialPort, this);
+    auto *operation = new SystemDeviceInfoOperation(m_serialPort, this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(operation->errorString());
-
-        } else {
-            // TODO: Is there a better way to do this?
-            const auto &info = operation->result();
-            m_deviceInfo.name = info.name;
-            m_deviceInfo.bootloader = info.bootloader;
-            m_deviceInfo.firmware = info.firmware;
-            m_deviceInfo.hardware = info.hardware;
-            m_deviceInfo.fusVersion = info.fusVersion;
-            m_deviceInfo.radioVersion = info.radioVersion;
-
-            if(m_deviceInfo.name.isEmpty()) {
-                finishWithError(QStringLiteral("Failed to read device factory information"));
-            } else {
-                advanceState();
-            }
+            return;
         }
+
+        m_deviceInfo.name = operation->result(QByteArrayLiteral("hardware_name"));
+
+        m_deviceInfo.bootloader = {
+            operation->result(QByteArrayLiteral("bootloader_version")),
+            operation->result(QByteArrayLiteral("bootloader_commit")),
+            operation->result(QByteArrayLiteral("bootloader_branch")),
+            branchToChannelName(operation->result(QByteArrayLiteral("bootloader_branch"))),
+            QDateTime::fromString(operation->result(QByteArrayLiteral("bootloader_build_date")), "dd-MM-yyyy").date()
+        };
+
+        m_deviceInfo.firmware = {
+            operation->result(QByteArrayLiteral("firmware_version")),
+            operation->result(QByteArrayLiteral("firmware_commit")),
+            operation->result(QByteArrayLiteral("firmware_branch")),
+            branchToChannelName(operation->result(QByteArrayLiteral("firmware_branch"))),
+            QDateTime::fromString(operation->result(QByteArrayLiteral("firmware_build_date")), "dd-MM-yyyy").date()
+        };
+
+        m_deviceInfo.hardware = {
+            operation->result(QByteArrayLiteral("hardware_ver")),
+            QByteArrayLiteral("f") + operation->result(QByteArrayLiteral("hardware_target")),
+            QByteArrayLiteral("b") + operation->result(QByteArrayLiteral("hardware_body")),
+            QByteArrayLiteral("c") + operation->result(QByteArrayLiteral("hardware_connect")),
+            (HardwareInfo::Color)operation->result(QByteArrayLiteral("hardware_color")).toInt(),
+        };
+
+        m_deviceInfo.fusVersion = QStringLiteral("%1.%2.%3").arg(
+            operation->result(QByteArrayLiteral("radio_fus_major")),
+            operation->result(QByteArrayLiteral("radio_fus_minor")),
+            operation->result(QByteArrayLiteral("radio_fus_sub")));
+
+        m_deviceInfo.radioVersion = QStringLiteral("%1.%2.%3").arg(
+            operation->result(QByteArrayLiteral("radio_stack_major")),
+            operation->result(QByteArrayLiteral("radio_stack_minor")),
+            operation->result(QByteArrayLiteral("radio_stack_sub")));
+
+        if(m_deviceInfo.name.isEmpty()) {
+            finishWithError(QStringLiteral("Failed to read device information"));
+        } else {
+            advanceState();
+        }
+
+        operation->deleteLater();
     });
 
     operation->start();
@@ -147,22 +177,27 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
 
 void VCPDeviceInfoHelper::checkSDCard()
 {
-    auto *operation = new StatOperation(m_serialPort, QByteArrayLiteral("/ext"), this);
+    auto *operation = new StorageInfoOperation(m_serialPort, QByteArrayLiteral("/ext"), this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(operation->errorString());
 
-        } else if(operation->type() != StatOperation::Type::Storage) {
+        } else if(!operation->isPresent()) {
             m_deviceInfo.storage.isExternalPresent = false;
             m_deviceInfo.storage.isAssetsInstalled = false;
-            closePortAndFinish();
+
+            setState(VCPDeviceInfoHelper::CheckingManifest);
+            advanceState();
 
         } else {
             m_deviceInfo.storage.isExternalPresent = true;
-            m_deviceInfo.storage.externalFree = floor((double)operation->sizeFree() * 100.0 / (double)operation->size());
+            m_deviceInfo.storage.externalFree = floor((double)operation->sizeFree() * 100.0 /
+                                                      (double)operation->sizeTotal());
             advanceState();
         }
+
+        operation->deleteLater();
     });
 
     operation->start();
@@ -170,16 +205,34 @@ void VCPDeviceInfoHelper::checkSDCard()
 
 void VCPDeviceInfoHelper::checkManifest()
 {
-    auto *operation = new StatOperation(m_serialPort, QByteArrayLiteral("/ext/Manifest"), this);
+    auto *operation = new StorageStatOperation(m_serialPort, QByteArrayLiteral("/ext/Manifest"), this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(operation->errorString());
 
         } else {
-            m_deviceInfo.storage.isAssetsInstalled = (operation->type() == StatOperation::Type::RegularFile);
+            m_deviceInfo.storage.isAssetsInstalled = operation->isPresent() && (operation->type() == StorageStatOperation::Type::RegularFile);
             advanceState();
         }
+
+        operation->deleteLater();
+    });
+
+    operation->start();
+}
+
+void VCPDeviceInfoHelper::stopRPCSession()
+{
+    auto *operation = new StopRPCOperation(m_serialPort, this);
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(operation->errorString());
+        } else {
+            advanceState();
+        }
+
+        operation->deleteLater();
     });
 
     operation->start();
@@ -191,6 +244,21 @@ void VCPDeviceInfoHelper::closePortAndFinish()
     finish();
 }
 
+const QString &VCPDeviceInfoHelper::branchToChannelName(const QByteArray &branchName)
+{
+    static const auto DEVELOPMENT = QStringLiteral("development");
+    static const auto RELEASE_CANDIDATE = QStringLiteral("release-candidate");
+    static const auto RELEASE = QStringLiteral("release");
+
+    if(branchName == QByteArrayLiteral("dev")) {
+        return DEVELOPMENT;
+    } else if(branchName.contains(QByteArrayLiteral("-rc"))) {
+        return RELEASE_CANDIDATE;
+    } else {
+        return RELEASE;
+    }
+}
+
 using namespace STM32;
 
 DFUDeviceInfoHelper::DFUDeviceInfoHelper(const USBDeviceInfo &info, QObject *parent):
@@ -200,11 +268,6 @@ DFUDeviceInfoHelper::DFUDeviceInfoHelper(const USBDeviceInfo &info, QObject *par
     m_deviceInfo.systemLocation = QStringLiteral("S/N:%1").arg(info.serialNumber());
     m_deviceInfo.storage.isExternalPresent = false;
     m_deviceInfo.storage.isAssetsInstalled = false;
-}
-
-const DeviceInfo &DFUDeviceInfoHelper::result() const
-{
-    return m_deviceInfo;
 }
 
 void DFUDeviceInfoHelper::nextStateLogic()

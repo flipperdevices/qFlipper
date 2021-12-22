@@ -1,13 +1,14 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 
+import QFlipper 1.0
 import Theme 1.0
 
 RowLayout {
     id: control
     spacing: 30
 
-    readonly property var device: deviceRegistry.currentDevice
+    readonly property var device: Backend.currentDevice
     readonly property var deviceState: device ? device.state : undefined
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
     readonly property bool extraFields: deviceState ? !deviceState.isRecoveryMode : false

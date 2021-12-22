@@ -1,17 +1,20 @@
 #include "deviceregistry.h"
 
+#include <QDebug>
 #include <QMetaObject>
+#include <QLoggingCategory>
 
 #include "flipperzero/helper/deviceinfohelper.h"
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/devicestate.h"
 
 #include "usbdevice.h"
-#include "debug.h"
 
 #define FLIPPER_ZERO_VID 0x0483
 #define FLIPPER_ZERO_PID_VCP 0x5740
 #define FLIPPER_ZERO_PID_DFU 0xdf11
+
+Q_LOGGING_CATEGORY(CAT_DEVREG, "DEVREG");
 
 using namespace Flipper;
 
@@ -26,7 +29,7 @@ DeviceRegistry::DeviceRegistry(QObject *parent):
         USBDeviceInfo(FLIPPER_ZERO_VID, FLIPPER_ZERO_PID_VCP)
             .withManufacturer("Flipper Devices Inc.")
             .withProductDescription("Flipper Control Virtual ComPort")
-                                                    });
+    });
 }
 
 FlipperZero *DeviceRegistry::currentDevice() const
@@ -36,14 +39,15 @@ FlipperZero *DeviceRegistry::currentDevice() const
 
 void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 {
-    check_return_void(info.isValid(), "A new invalid device has been detected, skipping...");
+    if(!info.isValid()) {
+        qCCritical(CAT_DEVREG) << "A new invalid device has been detected, skipping...";
 
-    if(info.vendorID() == FLIPPER_ZERO_VID) {
-        auto *fetcher = Zero::AbstractDeviceInfoHelper::create(info, this);
-        connect(fetcher, &Zero::AbstractDeviceInfoHelper::finished, this, &DeviceRegistry::processDevice);
+    } else if(info.vendorID() != FLIPPER_ZERO_VID) {
+        qCCritical(CAT_DEVREG) << "Unexpected device VID and PID";
 
     } else {
-        error_msg("Unexpected device VID and PID.");
+        auto *fetcher = Zero::AbstractDeviceInfoHelper::create(info, this);
+        connect(fetcher, &Zero::AbstractDeviceInfoHelper::finished, this, &DeviceRegistry::processDevice);
     }
 }
 
@@ -60,11 +64,28 @@ void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
 
         if(!device->deviceState()->isPersistent()) {
             m_devices.takeAt(idx)->deleteLater();
-            emit devicesChanged();
+            emit deviceCountChanged();
+            emit currentDeviceChanged();
 
         } else {
             device->deviceState()->setOnline(false);
         }
+    }
+}
+
+void DeviceRegistry::cleanupOffline()
+{
+    auto it = std::remove_if(m_devices.begin(), m_devices.end(), [](Flipper::FlipperZero *arg) {
+        return !arg->deviceState()->isOnline();
+    });
+
+    for(const auto end = m_devices.end(); it != end; ++it) {
+        qCDebug(CAT_DEVREG).noquote() << "Removed zombie device:" << (*it)->deviceState()->name();
+
+        m_devices.erase(it);
+        emit deviceCountChanged();
+
+        (*it)->deleteLater();
     }
 }
 
@@ -75,7 +96,7 @@ void DeviceRegistry::processDevice()
     fetcher->deleteLater();
 
     if(fetcher->isError()) {
-        error_msg(QStringLiteral("An error has occured: %1").arg(fetcher->errorString()));
+        qCCritical(CAT_DEVREG).noquote() << QStringLiteral("An error has occured:") << fetcher->errorString();
         return;
     }
 
@@ -87,14 +108,17 @@ void DeviceRegistry::processDevice()
 
     if(it != m_devices.end()) {
         // Preserving the old instance
-        (*it)->deviceState()->reset(info);
+        (*it)->deviceState()->setDeviceInfo(info);
 
     } else {
         auto *device = new FlipperZero(info, this);
         m_devices.append(device);
 
-        emit deviceConnected(device);
-        emit devicesChanged();
+        emit deviceCountChanged();
+
+        if(m_devices.size() == 1) {
+            emit currentDeviceChanged();
+        }
     }
 
 }

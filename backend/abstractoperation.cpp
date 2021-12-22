@@ -2,15 +2,15 @@
 
 #include <QTimer>
 
-#include "debug.h"
-
 AbstractOperation::AbstractOperation(QObject *parent):
     QObject(parent),
-    m_timeout(new QTimer(this)),
+    m_timeoutTimer(new QTimer(this)),
     m_operationState(BasicOperationState::Ready)
 {
-    connect(m_timeout, &QTimer::timeout, this, &AbstractOperation::onOperationTimeout);
-    m_timeout->setSingleShot(true);
+    connect(m_timeoutTimer, &QTimer::timeout, this, &AbstractOperation::onOperationTimeout);
+
+    m_timeoutTimer->setSingleShot(true);
+    m_timeoutTimer->setInterval(10000);
 }
 
 void AbstractOperation::finish()
@@ -24,6 +24,11 @@ void AbstractOperation::finish()
 int AbstractOperation::operationState() const
 {
     return m_operationState;
+}
+
+void AbstractOperation::setTimeout(int msec)
+{
+    m_timeoutTimer->setInterval(msec);
 }
 
 void AbstractOperation::onOperationTimeout()
@@ -42,12 +47,12 @@ void AbstractOperation::finishWithError(const QString &errorMsg)
     finish();
 }
 
-void AbstractOperation::startTimeout(int msec)
+void AbstractOperation::startTimeout()
 {
-    m_timeout->start(msec);
+    m_timeoutTimer->start();
 }
 
 void AbstractOperation::stopTimeout()
 {
-    m_timeout->stop();
+    m_timeoutTimer->stop();
 }
