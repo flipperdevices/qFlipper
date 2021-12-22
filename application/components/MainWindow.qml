@@ -32,14 +32,14 @@ Item {
     readonly property var deviceState: device ? device.state : undefined
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
-//    Component.onCompleted: {
-//        if(applicationUpdates.isReady) {
-//            askForSelfUpdate();
-//        } else {
-//            applicationUpdates.channelsChanged.connect(askForSelfUpdate);
-//            homeOverlay.selfUpdateRequested.connect(askForSelfUpdate);
-//        }
-//    }
+    Component.onCompleted: {
+        if(applicationUpdates.isReady) {
+            askForSelfUpdate();
+        } else {
+            applicationUpdates.channelsChanged.connect(askForSelfUpdate);
+            homeOverlay.selfUpdateRequested.connect(askForSelfUpdate);
+        }
+    }
 
     width: baseWidth
     height: baseHeight
@@ -76,6 +76,12 @@ Item {
 
     ConfirmationDialog {
         id: confirmationDialog
+        radius: bg.radius
+        parent: bg
+    }
+
+    SelfUpdateDialog {
+        id: selfUpdateDialog
         radius: bg.radius
         parent: bg
     }
@@ -320,18 +326,9 @@ Item {
         }
     }
 
-//    function askForSelfUpdate() {
-//        if(app.updater.canUpdate(applicationUpdates.latestVersion)) {
-//            const messageObj = {
-//                title : qsTr("Update qFlipper?"),
-//                message: qsTr("Newer version of qFlipper<br/>will be installed"),
-//                customText: qsTr("Update")
-//            };
-
-//            confirmationDialog.openWithMessage(function() {
-//                app.updater.installUpdate(applicationUpdates.latestVersion);
-//            }, messageObj);
-//        }
-//    }
-
+    function askForSelfUpdate() {
+        if(app.updater.canUpdate(applicationUpdates.latestVersion)) {
+            selfUpdateDialog.open();
+        }
+    }
 }
