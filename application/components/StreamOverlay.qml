@@ -126,7 +126,7 @@ AbstractOverlay {
         id: backAction
         text: qsTr("Back")
         enabled: overlay.enabled
-        onTriggered: opacity = 0
+        onTriggered: Backend.stopFullScreenStreaming()
     }
 
     Action {

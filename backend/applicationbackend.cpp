@@ -122,6 +122,16 @@ void ApplicationBackend::installFUS(const QUrl &fileUrl, uint32_t address)
     currentDevice()->installFUS(fileUrl, address);
 }
 
+void ApplicationBackend::startFullScreenStreaming()
+{
+    setState(State::ScreenStreaming);
+}
+
+void ApplicationBackend::stopFullScreenStreaming()
+{
+    setState(State::Ready);
+}
+
 void ApplicationBackend::finalizeOperation()
 {
     //TODO: clean up all non-online devices here
@@ -135,8 +145,7 @@ void ApplicationBackend::finalizeOperation()
 void ApplicationBackend::onCurrentDeviceChanged()
 {
     // Should not happen during an ongoing operation
-    if(m_state != State::Ready && m_state != State::WaitingForDevices &&
-       m_state != State::Finished) {
+    if(m_state > State::ScreenStreaming && m_state != State::Finished) {
         setState(State::ErrorOccured);
         qCCritical(LOG_BACKEND) << "Current operation was interrupted";
 

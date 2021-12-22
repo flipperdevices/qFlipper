@@ -159,11 +159,11 @@ Item {
 
         DeviceWidget {
             id: deviceWidget
-//            opacity: (windowState === MainWindow.Streaming) || (windowState === MainWindow.SelfUpdating) ? 0 : 1
+            opacity: streamOverlay.visible ? 0 : 1
             x: Backend.state === Backend.Ready ? Math.round(mainContent.width / 2) : 216
             y: 85
 
-//            onScreenStreamRequested: streamOverlay.opacity = 1
+            onScreenStreamRequested: Backend.startFullScreenStreaming()
         }
 
         NoDeviceOverlay {
@@ -183,7 +183,7 @@ Item {
             id: updateOverlay
             backgroundRect: bg
             anchors.fill: parent
-            opacity: (Backend.state > Backend.Ready) &&
+            opacity: (Backend.state > Backend.ScreenStreaming) &&
                      (Backend.state < Backend.Finished) ? 1 : 0
         }
 
@@ -198,7 +198,7 @@ Item {
         StreamOverlay {
             id: streamOverlay
             anchors.fill: parent
-            opacity: 0
+            opacity: Backend.state === Backend.ScreenStreaming ? 1 : 0
         }
     }
 

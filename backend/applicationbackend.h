@@ -22,6 +22,7 @@ public:
     enum class State {
         WaitingForDevices,
         Ready,
+        ScreenStreaming,
         UpdatingDevice,
         RepairingDevice,
         CreatingBackup,
@@ -67,6 +68,9 @@ public:
     Q_INVOKABLE void installFirmware(const QUrl &fileUrl);
     Q_INVOKABLE void installWirelessStack(const QUrl &fileUrl);
     Q_INVOKABLE void installFUS(const QUrl &fileUrl, uint32_t address);
+
+    Q_INVOKABLE void startFullScreenStreaming();
+    Q_INVOKABLE void stopFullScreenStreaming();
 
     Q_INVOKABLE void finalizeOperation();
 
