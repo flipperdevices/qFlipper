@@ -15,11 +15,11 @@ class DeviceState : public QObject
 
     Q_PROPERTY(bool isPersistent READ isPersistent NOTIFY isPersistentChanged)
     Q_PROPERTY(bool isOnline READ isOnline NOTIFY isOnlineChanged)
-    Q_PROPERTY(bool isError READ isError NOTIFY errorChanged)
+    Q_PROPERTY(bool isError READ isError NOTIFY isErrorChanged)
     Q_PROPERTY(bool isRecoveryMode READ isRecoveryMode NOTIFY deviceInfoChanged)
 
-    Q_PROPERTY(QString statusString READ statusString NOTIFY statusChanged)
-    Q_PROPERTY(QString errorString READ errorString NOTIFY errorChanged)
+    Q_PROPERTY(QString statusString READ statusString NOTIFY statusStringChanged)
+    Q_PROPERTY(QString errorString READ errorString NOTIFY isErrorChanged)
 
     Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
 
@@ -56,12 +56,11 @@ public:
 
 signals:
     void deviceInfoChanged();
-    void currentOperationChanged();
     void isPersistentChanged();
     void isOnlineChanged();
 
-    void statusChanged();
-    void errorChanged();
+    void statusStringChanged();
+    void isErrorChanged();
 
     void progressChanged();
 

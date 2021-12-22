@@ -134,8 +134,6 @@ AbstractOverlay {
                 return UpdateButton.Blue;
             case Backend.CanUpdate:
                 return UpdateButton.Green;
-            case Backend.Unknown:
-            case Backend.NoUpdates:
             default:
                 return UpdateButton.Default;
             }
@@ -186,10 +184,11 @@ AbstractOverlay {
                 return qsTr("Repair");
             case Backend.CanUpdate:
                 return qsTr("Update");
+            case Backend.CanInstall:
+                return qsTr("Install");
             case Backend.NoUpdates:
                 return qsTr("No updates");
             case Backend.Unknown:
-            default:
                 return qsTr("No data");
             }
         }

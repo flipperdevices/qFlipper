@@ -133,6 +133,7 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
             operation->result(QByteArrayLiteral("bootloader_version")),
             operation->result(QByteArrayLiteral("bootloader_commit")),
             operation->result(QByteArrayLiteral("bootloader_branch")),
+            branchToChannelName(operation->result(QByteArrayLiteral("bootloader_branch"))),
             QDateTime::fromString(operation->result(QByteArrayLiteral("bootloader_build_date")), "dd-MM-yyyy").date()
         };
 
@@ -140,6 +141,7 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
             operation->result(QByteArrayLiteral("firmware_version")),
             operation->result(QByteArrayLiteral("firmware_commit")),
             operation->result(QByteArrayLiteral("firmware_branch")),
+            branchToChannelName(operation->result(QByteArrayLiteral("firmware_branch"))),
             QDateTime::fromString(operation->result(QByteArrayLiteral("firmware_build_date")), "dd-MM-yyyy").date()
         };
 
@@ -240,6 +242,21 @@ void VCPDeviceInfoHelper::closePortAndFinish()
 {
     m_serialPort->close();
     finish();
+}
+
+const QString &VCPDeviceInfoHelper::branchToChannelName(const QByteArray &branchName)
+{
+    static const auto DEVELOPMENT = QStringLiteral("development");
+    static const auto RELEASE_CANDIDATE = QStringLiteral("release-candidate");
+    static const auto RELEASE = QStringLiteral("release");
+
+    if(branchName == QByteArrayLiteral("dev")) {
+        return DEVELOPMENT;
+    } else if(branchName.contains(QByteArrayLiteral("-rc"))) {
+        return RELEASE_CANDIDATE;
+    } else {
+        return RELEASE;
+    }
 }
 
 using namespace STM32;

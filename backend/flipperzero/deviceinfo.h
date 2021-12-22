@@ -42,12 +42,14 @@ struct SoftwareInfo {
     Q_PROPERTY(QString version MEMBER version)
     Q_PROPERTY(QString commit MEMBER commit)
     Q_PROPERTY(QString branch MEMBER branch)
+    Q_PROPERTY(QString channel MEMBER channel)
     Q_PROPERTY(QDate date MEMBER date)
 
 public:
     QString version;
     QString commit;
     QString branch;
+    QString channel;
     QDate date;
 
     // Needed in order to work with QVariant

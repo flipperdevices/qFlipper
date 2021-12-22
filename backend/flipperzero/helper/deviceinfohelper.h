@@ -55,6 +55,8 @@ private:
     void closePortAndFinish();
 
 private:
+    static const QString &branchToChannelName(const QByteArray &branchName);
+
     QSerialPort *m_serialPort;
 };
 

@@ -37,7 +37,6 @@ SOURCES += \
     flipperzero/cli/skipmotdoperation.cpp \
     flipperzero/devicestate.cpp \
     flipperzero/factoryinfo.cpp \
-    flipperzero/firmwareupdater.cpp \
     flipperzero/flipperzero.cpp \
     flipperzero/helper/deviceinfohelper.cpp \
     flipperzero/helper/firmwarehelper.cpp \
@@ -128,7 +127,6 @@ HEADERS += \
     flipperzero/deviceinfo.h \
     flipperzero/devicestate.h \
     flipperzero/factoryinfo.h \
-    flipperzero/firmwareupdater.h \
     flipperzero/flipperzero.h \
     flipperzero/helper/deviceinfohelper.h \
     flipperzero/helper/firmwarehelper.h \

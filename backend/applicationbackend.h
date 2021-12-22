@@ -3,11 +3,12 @@
 #include <QObject>
 
 namespace Flipper {
-    class FlipperZero;
-    class DeviceRegistry;
-    class UpdateRegistry;
-    class FirmwareUpdates;
-    class ApplicationUpdates;
+
+class FlipperZero;
+class DeviceRegistry;
+class UpdateRegistry;
+class FirmwareUpdates;
+class ApplicationUpdates;
 }
 
 class ApplicationBackend : public QObject

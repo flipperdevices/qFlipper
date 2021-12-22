@@ -75,7 +75,7 @@ void DeviceState::setError(bool set)
     }
 
     m_isError = set;
-    emit errorChanged();
+    emit isErrorChanged();
 }
 
 bool DeviceState::isRecoveryMode() const
@@ -110,7 +110,7 @@ void DeviceState::setStatusString(const QString &newStatusString)
     }
 
     m_statusString = newStatusString;
-    emit statusChanged();
+    emit statusStringChanged();
 }
 
 const QString &DeviceState::errorString() const
@@ -127,7 +127,7 @@ void DeviceState::setErrorString(const QString &newErrorString)
     m_errorString = newErrorString;
     m_isError = true;
 
-    emit errorChanged();
+    emit isErrorChanged();
 }
 
 const QString &DeviceState::name() const

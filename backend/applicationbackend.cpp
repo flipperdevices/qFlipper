@@ -12,7 +12,6 @@
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/devicestate.h"
 #include "flipperzero/assetmanifest.h"
-#include "flipperzero/firmwareupdater.h"
 #include "flipperzero/screenstreamer.h"
 
 #include "flipperzero/helper/toplevelhelper.h"
@@ -21,9 +20,6 @@ Q_LOGGING_CATEGORY(LOG_BACKEND, "BACKEND")
 
 using namespace Flipper;
 using namespace Zero;
-
-// BIG TODO: Abstract away all mentions on Flipper Zero internals into common API
-// (to facilitate other devices support)
 
 ApplicationBackend::ApplicationBackend(QObject *parent):
     QObject(parent),
@@ -48,11 +44,15 @@ ApplicationBackend::UpdateStatus ApplicationBackend::updateStatus() const
 {
     if(!currentDevice() || !m_firmwareUpdates->isReady()) {
         return UpdateStatus::Unknown;
-    } else if (currentDevice()->deviceState()->isRecoveryMode()) {
+    }
+
+    const auto &latestVersion = m_firmwareUpdates->latestVersion();
+
+    if (currentDevice()->canRepair(latestVersion)) {
         return UpdateStatus::CanRepair;
-    } else if(currentDevice()->updater()->canUpdate(m_firmwareUpdates->latestVersion())) {
+    } else if(currentDevice()->canUpdate(latestVersion)) {
         return UpdateStatus::CanUpdate;
-    } else if(currentDevice()->updater()->canInstall()) {
+    } else if(currentDevice()->canInstall(latestVersion)) {
         return UpdateStatus::CanInstall;
     } else{
         return UpdateStatus::NoUpdates;
@@ -143,6 +143,7 @@ void ApplicationBackend::onCurrentDeviceChanged()
     } else if(m_deviceRegistry->currentDevice()) {
         // No need to disconnect the old device, as it has been destroyed at this point
         connect(currentDevice(), &FlipperZero::operationFinished, this, &ApplicationBackend::onDeviceOperationFinished);
+        connect(currentDevice(), &FlipperZero::stateChanged, this, &ApplicationBackend::updateStatusChanged);
         setState(State::Ready);
 
     } else {
@@ -203,7 +204,6 @@ void ApplicationBackend::registerMetaTypes()
 
     qRegisterMetaType<Flipper::FlipperZero*>("Flipper::FlipperZero*");
     qRegisterMetaType<Flipper::Zero::DeviceState*>("Flipper::Zero::DeviceState*");
-    qRegisterMetaType<Flipper::Zero::FirmwareUpdater*>("Flipper::Zero::FirmwareUpdater*");
     qRegisterMetaType<Flipper::Zero::ScreenStreamer*>("Flipper::Zero::ScreenStreamer*");
 
     qRegisterMetaType<Flipper::Zero::AssetManifest::FileInfo>();

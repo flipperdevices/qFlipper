@@ -1,8 +1,10 @@
 #include "flipperzero.h"
 
+#include "preferences.h"
+#include "flipperupdates.h"
+
 #include "devicestate.h"
 #include "screenstreamer.h"
-#include "firmwareupdater.h"
 
 #include "commandinterface.h"
 #include "utilityinterface.h"
@@ -18,6 +20,10 @@
 
 #include "preferences.h"
 
+#define CHANNEL_DEVELOPMENT "development"
+#define CHANNEL_RELEASE_CANDIDATE "release-candidate"
+#define CHANNEL_RELEASE "release"
+
 using namespace Flipper;
 using namespace Zero;
 
@@ -27,16 +33,89 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     m_rpc(new CommandInterface(m_state, this)),
     m_recovery(new RecoveryInterface(m_state, this)),
     m_utility(new UtilityInterface(m_state, m_rpc, this)),
-    m_updater(new FirmwareUpdater(m_state, this)),
     m_streamer(new ScreenStreamer(m_rpc, this))
 {
     connect(m_state, &DeviceState::isPersistentChanged, this, &FlipperZero::onStreamConditionChanged);
     connect(m_state, &DeviceState::isOnlineChanged, this, &FlipperZero::onStreamConditionChanged);
+
+    // Add other connections as necessary.
+    connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::stateChanged);
 }
 
 FlipperZero::~FlipperZero()
 {
     m_state->setOnline(false);
+}
+
+bool FlipperZero::canUpdate(const Updates::VersionInfo &versionInfo) const
+{
+    const auto &storageInfo = m_state->deviceInfo().storage;
+    if(storageInfo.isExternalPresent && !storageInfo.isAssetsInstalled) {
+        return true;
+    }
+
+    static const auto DEVELOPMENT = QStringLiteral("development");
+    static const auto RELEASE_CANDIDATE = QStringLiteral("release-candidate");
+    static const auto RELEASE = QStringLiteral("release");
+
+    const auto &firmwareInfo = m_state->deviceInfo().firmware;
+
+    const auto &deviceChannel = firmwareInfo.channel;
+    const auto &deviceVersion = (deviceChannel == QStringLiteral("development")) ?
+                firmwareInfo.commit :
+                firmwareInfo.version;
+
+    const auto &deviceDate = firmwareInfo.date;
+
+    const auto &serverChannel = globalPrefs->firmwareUpdateChannel();
+    const auto &serverVersion = versionInfo.number();
+    const auto &serverDate = versionInfo.date();
+
+    if(deviceChannel == RELEASE) {
+        if(serverChannel == RELEASE) {
+            return deviceVersion < serverVersion;
+        } else if(serverChannel == RELEASE_CANDIDATE) {
+            return deviceVersion < serverVersion.chopped(serverVersion.length() - deviceVersion.length());
+        } else if(serverChannel == DEVELOPMENT) {
+            return deviceDate <= serverDate;
+        }
+
+    } else if(deviceChannel == RELEASE_CANDIDATE) {
+        if(serverChannel == RELEASE) {
+            return deviceVersion.chopped(deviceVersion.length() - serverVersion.length()) <= serverVersion;
+        } else if(serverChannel == RELEASE_CANDIDATE) {
+            return deviceVersion < serverVersion;
+        } else if(serverChannel == DEVELOPMENT) {
+            return deviceDate <= serverDate;
+        }
+
+    } else if(deviceChannel == DEVELOPMENT) {
+        if(serverChannel == RELEASE) {
+            return deviceDate <= serverDate;
+        } else if(serverChannel == RELEASE_CANDIDATE) {
+            return deviceDate <= serverDate;
+        } else if(serverChannel == DEVELOPMENT) {
+            return (deviceVersion != serverVersion) && (deviceDate <= serverDate);
+        }
+    }
+
+    return false;
+}
+
+bool FlipperZero::canInstall(const Updates::VersionInfo &versionInfo) const
+{
+    Q_UNUSED(versionInfo)
+
+    const auto &deviceChannel = m_state->deviceInfo().firmware.channel;
+    const auto &serverChannel = globalPrefs->firmwareUpdateChannel();
+
+    return deviceChannel != serverChannel;
+}
+
+bool FlipperZero::canRepair(const Updates::VersionInfo &versionInfo) const
+{
+    Q_UNUSED(versionInfo)
+    return m_state->isRecoveryMode();
 }
 
 void FlipperZero::fullUpdate(const Updates::VersionInfo &versionInfo)
@@ -87,11 +166,6 @@ DeviceState *FlipperZero::deviceState() const
 Flipper::Zero::ScreenStreamer *FlipperZero::streamer() const
 {
     return m_streamer;
-}
-
-FirmwareUpdater *FlipperZero::updater() const
-{
-    return m_updater;
 }
 
 void FlipperZero::onStreamConditionChanged()

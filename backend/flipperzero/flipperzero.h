@@ -2,20 +2,20 @@
 
 #include <QObject>
 
-#include "deviceinfo.h"
-#include "flipperupdates.h"
-
 class AbstractOperation;
 
 namespace Flipper {
+namespace Updates {
+class VersionInfo;
+}
 
 namespace Zero {
+    struct DeviceInfo;
     class DeviceState;
     class CommandInterface;
     class RecoveryInterface;
     class UtilityInterface;
     class ScreenStreamer;
-    class FirmwareUpdater;
 }
 
 class FlipperZero : public QObject
@@ -27,6 +27,10 @@ class FlipperZero : public QObject
 public:
     FlipperZero(const Zero::DeviceInfo &info, QObject *parent = nullptr);
     ~FlipperZero();
+
+    bool canUpdate(const Flipper::Updates::VersionInfo &versionInfo) const;
+    bool canInstall(const Flipper::Updates::VersionInfo &versionInfo) const;
+    bool canRepair(const Flipper::Updates::VersionInfo &versionInfo) const;
 
     void fullUpdate(const Flipper::Updates::VersionInfo &versionInfo);
     void fullRepair(const Flipper::Updates::VersionInfo &versionInfo);
@@ -41,9 +45,9 @@ public:
 
     Flipper::Zero::DeviceState *deviceState() const;
     Flipper::Zero::ScreenStreamer *streamer() const;
-    Flipper::Zero::FirmwareUpdater *updater() const;
 
 signals:
+    void stateChanged();
     void operationFinished();
 
 private slots:
@@ -56,7 +60,6 @@ private:
     Zero::CommandInterface *m_rpc;
     Zero::RecoveryInterface *m_recovery;
     Zero::UtilityInterface *m_utility;
-    Zero::FirmwareUpdater *m_updater;
     Zero::ScreenStreamer *m_streamer;
 };
 
