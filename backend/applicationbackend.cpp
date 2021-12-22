@@ -135,6 +135,8 @@ void ApplicationBackend::stopFullScreenStreaming()
 void ApplicationBackend::finalizeOperation()
 {
     //TODO: clean up all non-online devices here
+    m_deviceRegistry->cleanupOffline();
+
     if(currentDevice()) {
         setState(State::Ready);
     } else {

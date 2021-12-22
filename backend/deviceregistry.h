@@ -28,6 +28,7 @@ signals:
 public slots:
     void insertDevice(const USBDeviceInfo &info);
     void removeDevice(const USBDeviceInfo &info);
+    void cleanupOffline();
 
 private slots:
     void processDevice();
