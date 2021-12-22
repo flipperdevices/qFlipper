@@ -39,15 +39,6 @@ FlipperZero::~FlipperZero()
     m_state->setOnline(false);
 }
 
-void FlipperZero::updateOrRepair(const Updates::VersionInfo &versionInfo)
-{
-    if(m_state->isRecoveryMode()) {
-        registerOperation(new FullRepairOperation(m_recovery, m_utility, m_state, versionInfo, this));
-    } else {
-        registerOperation(new FullUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this));
-    }
-}
-
 void FlipperZero::fullUpdate(const Updates::VersionInfo &versionInfo)
 {
     registerOperation(new FullUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this));

@@ -22,14 +22,11 @@ class FlipperZero : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(Flipper::Zero::DeviceState* state READ deviceState CONSTANT)
-    Q_PROPERTY(Flipper::Zero::FirmwareUpdater* updater READ updater CONSTANT)
     Q_PROPERTY(Flipper::Zero::ScreenStreamer* streamer READ streamer CONSTANT)
 
 public:
     FlipperZero(const Zero::DeviceInfo &info, QObject *parent = nullptr);
     ~FlipperZero();
-
-    void updateOrRepair(const Flipper::Updates::VersionInfo &versionInfo);
 
     void fullUpdate(const Flipper::Updates::VersionInfo &versionInfo);
     void fullRepair(const Flipper::Updates::VersionInfo &versionInfo);

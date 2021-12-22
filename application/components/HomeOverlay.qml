@@ -128,8 +128,18 @@ AbstractOverlay {
         x: Math.round(centerX - width / 2)
         y: 265
 
-        accent: !(firmwareUpdates.isReady && deviceState) ? accent : deviceState.isRecoveryMode ? UpdateButton.Blue :
-                 device.updater.canUpdate(firmwareUpdates.latestVersion) ? UpdateButton.Green : UpdateButton.Default
+        accent: {
+            switch(Backend.updateStatus) {
+            case Backend.CanRepair:
+                return UpdateButton.Blue;
+            case Backend.CanUpdate:
+                return UpdateButton.Green;
+            case Backend.Unknown:
+            case Backend.NoUpdates:
+            default:
+                return UpdateButton.Default;
+            }
+        }
     }
 
     LinkButton {
@@ -168,12 +178,21 @@ AbstractOverlay {
     Action {
         id: updateButtonAction
 
-        enabled: firmwareUpdates.isReady && !!deviceState &&
-                (deviceState.isRecoveryMode || device.updater.canUpdate(firmwareUpdates.latestVersion) || device.updater.canInstall())
-
-        text: !(firmwareUpdates.isReady && deviceState) ? qsTr("No data") : deviceState.isRecoveryMode ? qsTr("Repair") :
-               device.updater.canUpdate(firmwareUpdates.latestVersion) ? qsTr("Update") :
-               device.updater.canInstall() ? qsTr("Install") : qsTr("No updates")
+        enabled: (Backend.updateStatus !== Backend.Unknown) &&
+                 (Backend.updateStatus !== Backend.NoUpdates)
+        text: {
+            switch(Backend.updateStatus) {
+            case Backend.CanRepair:
+                return qsTr("Repair");
+            case Backend.CanUpdate:
+                return qsTr("Update");
+            case Backend.NoUpdates:
+                return qsTr("No updates");
+            case Backend.Unknown:
+            default:
+                return qsTr("No data");
+            }
+        }
 
         onTriggered: updateButtonFunc()
     }

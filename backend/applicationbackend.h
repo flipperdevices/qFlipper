@@ -14,6 +14,7 @@ class ApplicationBackend : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
+    Q_PROPERTY(UpdateStatus updateStatus READ updateStatus NOTIFY updateStatusChanged)
     Q_PROPERTY(Flipper::FlipperZero* currentDevice READ currentDevice NOTIFY currentDeviceChanged)
 
 public:
@@ -34,9 +35,20 @@ public:
 
     Q_ENUM(State)
 
+    enum class UpdateStatus {
+        Unknown,
+        CanUpdate,
+        CanInstall,
+        CanRepair,
+        NoUpdates
+    };
+
+    Q_ENUM(UpdateStatus)
+
     ApplicationBackend(QObject *parent = nullptr);
 
     State state() const;
+    UpdateStatus updateStatus() const;
 
     Flipper::FlipperZero *currentDevice() const;
     Flipper::UpdateRegistry *firmwareUpdates() const;
@@ -59,6 +71,7 @@ public:
 
 signals:
     void stateChanged();
+    void updateStatusChanged();
     void currentDeviceChanged();
 
 private slots:
@@ -70,6 +83,7 @@ private:
     static void registerComparators();
 
     void initConnections();
+
     void setState(State newState);
 
     Flipper::DeviceRegistry *m_deviceRegistry;
@@ -77,4 +91,5 @@ private:
     Flipper::ApplicationUpdates *m_applicationUpdates;
 
     State m_state;
+    UpdateStatus m_updateStatus;
 };

@@ -30,7 +30,8 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     m_deviceRegistry(new DeviceRegistry(this)),
     m_firmwareUpdates(new FirmwareUpdates("https://update.flipperzero.one/firmware/directory.json", this)),
     m_applicationUpdates(new ApplicationUpdates("https://update.flipperzero.one/qFlipper/directory.json", this)),
-    m_state(State::WaitingForDevices)
+    m_state(State::WaitingForDevices),
+    m_updateStatus(UpdateStatus::Unknown)
 {
     registerMetaTypes();
     registerComparators();
@@ -41,6 +42,21 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
 ApplicationBackend::State ApplicationBackend::state() const
 {
     return m_state;
+}
+
+ApplicationBackend::UpdateStatus ApplicationBackend::updateStatus() const
+{
+    if(!currentDevice() || !m_firmwareUpdates->isReady()) {
+        return UpdateStatus::Unknown;
+    } else if (currentDevice()->deviceState()->isRecoveryMode()) {
+        return UpdateStatus::CanRepair;
+    } else if(currentDevice()->updater()->canUpdate(m_firmwareUpdates->latestVersion())) {
+        return UpdateStatus::CanUpdate;
+    } else if(currentDevice()->updater()->canInstall()) {
+        return UpdateStatus::CanInstall;
+    } else{
+        return UpdateStatus::NoUpdates;
+    }
 }
 
 FlipperZero *ApplicationBackend::currentDevice() const
@@ -148,6 +164,9 @@ void ApplicationBackend::initConnections()
 {
     connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::currentDeviceChanged);
     connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::onCurrentDeviceChanged);
+
+    connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::updateStatusChanged);
+    connect(m_firmwareUpdates, &UpdateRegistry::latestVersionChanged, this, &ApplicationBackend::updateStatusChanged);
 }
 
 void ApplicationBackend::setState(State newState)
