@@ -104,7 +104,7 @@ Item {
             samples: shadowSize * 2 + 1
             horizontalOffset: 0
             verticalOffset: shadowOffset
-            color: Qt.rgba(0, 0, 0, 0.3)
+            color: Qt.rgba(0, 0, 0, 0.7)
         }
     }
 
