@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
 import Theme 1.0
@@ -43,5 +44,30 @@ AbstractOverlay {
         anchors.horizontalCenter: parent.horizontalCenter
         text: !deviceState ? text : deviceState.isError ? deviceState.errorString : deviceState.statusString
         color: Theme.color.lightorange2
+    }
+
+    ColumnLayout {
+        x: 620
+        y: 120
+
+        opacity: !deviceInfo ? 0 : !deviceState.isRecoveryMode && !deviceInfo.storage.isExternalPresent ? 1 : 0
+
+        Image {
+            source: "qrc:/assets/gfx/images/no-sd-card.svg"
+            sourceSize: Qt.size(44, 58)
+            Layout.alignment: Qt.AlignHCenter
+        }
+
+        TextLabel {
+            text: qsTr("No sd")
+            Layout.alignment: Qt.AlignHCenter
+        }
+
+        Behavior on opacity {
+            PropertyAnimation {
+                duration: 150
+                easing.type: Easing.InOutQuad
+            }
+        }
     }
 }

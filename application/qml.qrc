@@ -102,5 +102,6 @@
         <file>components/FinishOverlay.qml</file>
         <file>components/SelfUpdateDialog.qml</file>
         <file>assets/gfx/images/alert-badge.svg</file>
+        <file>assets/gfx/images/no-sd-card.svg</file>
     </qresource>
 </RCC>
