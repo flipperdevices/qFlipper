@@ -215,7 +215,7 @@ RadioManifest::FirmwareInfo::FirmwareInfo(const QJsonValue &json)
     }
 
     m_fus = Section(obj.value(QStringLiteral("fus")));
-    m_radio = Section(obj.value(QStringLiteral("radio")));
+    m_radio = RadioSection(obj.value(QStringLiteral("radio")));
 }
 
 const RadioManifest::Section &RadioManifest::FirmwareInfo::fus() const
@@ -223,7 +223,7 @@ const RadioManifest::Section &RadioManifest::FirmwareInfo::fus() const
     return m_fus;
 }
 
-const RadioManifest::Section &RadioManifest::FirmwareInfo::radio() const
+const RadioManifest::RadioSection &RadioManifest::FirmwareInfo::radio() const
 {
     return m_radio;
 }
@@ -267,4 +267,45 @@ const RadioManifest::Header &RadioManifest::header() const
 const RadioManifest::FirmwareInfo &RadioManifest::firmware() const
 {
     return m_firmware;
+}
+
+RadioManifest::RadioSection::RadioSection(const QJsonValue &json):
+    Section(json)
+{
+    const auto obj = json.toObject();
+    readVersion(obj.value(QStringLiteral("version")));
+}
+
+int RadioManifest::RadioSection::type() const
+{
+    return m_type;
+}
+
+int RadioManifest::RadioSection::branch() const
+{
+    return m_branch;
+}
+
+int RadioManifest::RadioSection::release() const
+{
+    return m_release;
+}
+
+void RadioManifest::RadioSection::readVersion(const QJsonValue &json)
+{
+    const auto obj = json.toObject();
+
+    const auto typeKey = QStringLiteral("type");
+    const auto branchKey = QStringLiteral("branch");
+    const auto releaseKey = QStringLiteral("release");
+
+    const auto canConstruct = obj.contains(typeKey) && obj.contains(branchKey) &&
+                              obj.contains(releaseKey);
+    if(!canConstruct) {
+        throw std::runtime_error("Malformed section version (RadioSection)");
+    }
+
+    m_type = obj.value(typeKey).toInt();
+    m_branch = obj.value(branchKey).toInt();
+    m_release = obj.value(releaseKey).toInt();
 }

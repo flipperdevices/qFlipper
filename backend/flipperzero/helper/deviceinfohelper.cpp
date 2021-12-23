@@ -163,6 +163,8 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
             operation->result(QByteArrayLiteral("radio_stack_minor")),
             operation->result(QByteArrayLiteral("radio_stack_sub")));
 
+        m_deviceInfo.stackType = operation->result(QByteArrayLiteral("radio_stack_type")).toInt();
+
         if(m_deviceInfo.name.isEmpty()) {
             finishWithError(QStringLiteral("Failed to read device information"));
         } else {

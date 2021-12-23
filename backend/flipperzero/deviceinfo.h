@@ -92,6 +92,7 @@ public:
 
     QString fusVersion;
     QString radioVersion;
+    int stackType;
 
     HardwareInfo hardware;
     SoftwareInfo bootloader;

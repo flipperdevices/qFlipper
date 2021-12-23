@@ -15,6 +15,11 @@ RadioManifestHelper::RadioManifestHelper(QFile *radioArchive, QObject *parent):
     m_compressedFile(radioArchive)
 {}
 
+int RadioManifestHelper::stackType() const
+{
+    return m_manifest.firmware().radio().type();
+}
+
 const QString &RadioManifestHelper::radioVersion() const
 {
     return m_manifest.firmware().radio().version();

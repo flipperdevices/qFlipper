@@ -99,9 +99,12 @@ void FirmwareHelper::prepareRadioFirmware()
         }
 
         const auto &newRadioVersion = helper->radioVersion();
-        const auto &currentRadioVersion = m_deviceState->deviceInfo().radioVersion;
+        const auto &newStackType = helper->stackType();
 
-        m_hasRadioUpdate = currentRadioVersion.isEmpty() ? true : currentRadioVersion < newRadioVersion;
+        const auto &currentRadioVersion = m_deviceState->deviceInfo().radioVersion;
+        const auto &currentStackType = m_deviceState->deviceInfo().stackType;
+
+        m_hasRadioUpdate = currentRadioVersion.isEmpty() || (currentStackType != newStackType) || (currentRadioVersion < newRadioVersion);
 
         if(m_hasRadioUpdate) {
             auto *file = globalTempDirs->createTempFile();

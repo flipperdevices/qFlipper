@@ -21,6 +21,7 @@ class RadioManifestHelper : public AbstractOperationHelper
 public:
     RadioManifestHelper(QFile *radioArchive, QObject *parent = nullptr);
 
+    int stackType() const;
     const QString &radioVersion() const;
     const QString &fusVersion() const;
 

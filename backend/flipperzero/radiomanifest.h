@@ -80,17 +80,34 @@ public:
         FileInfoMap m_files;
     };
 
+    class RadioSection : public Section {
+    public:
+        RadioSection() = default;
+        RadioSection(const QJsonValue &json);
+
+        int type() const;
+        int branch() const;
+        int release() const;
+
+    private:
+        void readVersion(const QJsonValue &json);
+
+        int m_type;
+        int m_branch;
+        int m_release;
+    };
+
     class FirmwareInfo {
     public:
         FirmwareInfo() = default;
         FirmwareInfo(const QJsonValue &json);
 
         const Section &fus() const;
-        const Section &radio() const;
+        const RadioSection &radio() const;
 
     private:
         Section m_fus;
-        Section m_radio;
+        RadioSection m_radio;
     };
 
     RadioManifest() = default;
