@@ -19,11 +19,11 @@ Item {
     Image {
         id: usbPlug
 
-        x: parent.width - 200
-        y: 175
+        x: parent.width - 216
+        y: 145
 
         source: "qrc:/assets/gfx/images/typec.svg"
-        sourceSize: Qt.size(160, 42)
+        sourceSize: Qt.size(159, 37)
     }
 
     TextLabel {
