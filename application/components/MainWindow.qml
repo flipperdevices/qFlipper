@@ -288,7 +288,7 @@ Item {
 
         menu: Menu {
             id: logMenu
-            width: 300
+            width: 170
 
             MenuItem {
                 text: "Select all"

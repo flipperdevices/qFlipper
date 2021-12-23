@@ -51,10 +51,10 @@ T.Menu {
                              contentHeight + topPadding + bottomPadding)
 
     margins: 0
-    overlap: 1
+    overlap: 0
 
-    topPadding: 4
-    bottomPadding: 4
+    topPadding: 1
+    bottomPadding: 1
 
     enter: Transition {
         PropertyAnimation {
@@ -82,26 +82,13 @@ T.Menu {
         ScrollIndicator.vertical: ScrollIndicator {}
     }
 
-    background: Item {
-        implicitWidth: 250
-        implicitHeight: 42
+    background: Rectangle {
+        implicitWidth: 150
+        implicitHeight: 24
+        border.width: 1
 
-        Rectangle {
-            id: stroke
-            anchors.fill: parent
-            color: "black"
-            opacity: 0.5
-            radius: 7
-        }
-
-        Rectangle {
-            anchors.fill: parent
-            anchors.margins: 2
-            color: Theme.color.darkorange1
-            border.width: 2
-            border.color: Theme.color.lightorange2
-            radius: stroke.radius - anchors.margins
-        }
+        color: Theme.color.darkorange1
+        border.color: Theme.color.lightorange2
     }
 
     T.Overlay.modal: Rectangle {

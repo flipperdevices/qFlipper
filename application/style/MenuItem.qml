@@ -72,10 +72,10 @@ T.MenuItem {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding) + 5
-    padding: 6
-    spacing: 6
+    padding: 0
+    spacing: 0
 
-    horizontalPadding: 20
+    horizontalPadding: 8
 
     topInset: 0
     bottomInset: 0
@@ -84,9 +84,9 @@ T.MenuItem {
     icon.height: 24
     icon.color: control.palette.windowText
 
-    font.pixelSize: 32
-    font.family: "HaxrCorp 4089"
-    font.capitalization: Font.AllUppercase
+    font.pixelSize: 16
+    font.letterSpacing: -1
+    font.family: "Share Tech Mono"
 
     contentItem: IconLabel {
         antialiasing: false
@@ -130,18 +130,16 @@ T.MenuItem {
         defaultColor: foregroundColor.normal
     }
 
-    background: AdvancedRectangle {
-        implicitWidth: 200
-        implicitHeight: 42
-        x: 4
-        y: 4
-        width: control.width - 8
+    background: Rectangle {
+        x: 1
+        y: 1
 
+        implicitWidth: 150
+        implicitHeight: 24
+
+        width: control.width - 2
         color: !control.enabled ? backgroundColor.disabled : control.down ? backgroundColor.down :
                 control.hovered ? backgroundColor.hover : backgroundColor.normal
-
-        topRadius: control.ObjectModel.index === 0 ? 3 : 0
-        bottomRadius: control.ObjectModel.index === control.ListView.view.model.count - 1 ? 3 : 0
 
         Behavior on color {
             ColorAnimation {
