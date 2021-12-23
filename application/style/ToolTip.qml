@@ -44,8 +44,8 @@ import Theme 1.0
 T.ToolTip {
     id: control
 
-    x: parent ? (parent.width - implicitWidth) / 2 : 0
-    y: -implicitHeight - 3
+    x: mouseArea.mouseX + 10
+    y: mouseArea.mouseY + 20
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding)
@@ -88,5 +88,14 @@ T.ToolTip {
         border.width: 1
         border.color: Theme.color.mediumorange3
         color: "black"
+    }
+
+    MouseArea {
+        id: mouseArea
+        parent: control.parent
+        anchors.fill: parent
+
+        hoverEnabled: !control.visible
+        acceptedButtons: Qt.NoButton
     }
 }
