@@ -15,7 +15,8 @@ Logger::Logger(QObject *parent):
     m_logFile(new QFile(this)),
     m_stderr(stderr, QIODevice::WriteOnly),
     m_fileOut(m_logFile),
-    m_startTime(QDateTime::currentDateTime())
+    m_startTime(QDateTime::currentDateTime()),
+    m_errorCount(0)
 {
     m_logDir.mkdir(APP_NAME);
 
@@ -50,18 +51,21 @@ Logger *Logger::instance()
 void Logger::messageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     const auto text = QStringLiteral("[%1] %2").arg(context.category, msg);
+    const auto criticalText = QStringLiteral("<font color=\"#ff1f00\">%1</font>");
 
-    // TODO: Distinguish between severity levels in the log file?
     switch(type) {
     case QtFatalMsg:
     case QtDebugMsg:
-    case QtCriticalMsg:
         break;
     case QtInfoMsg:
     case QtWarningMsg:
-        if(strcmp(context.category, "default")) {
-            emit globalLogger->messageArrived(text);
+    case QtCriticalMsg:
+        if(!strcmp(context.category, "default")) {
+            break;
         }
+
+        emit globalLogger->messageArrived(type == QtCriticalMsg ? criticalText.arg(text) : text);
+        globalLogger->setErrorCount(globalLogger->errorCount() + (type == QtCriticalMsg ? 1 : 0));
     }
 
     if(globalLogger->m_logFile->isOpen()) {
@@ -74,6 +78,21 @@ void Logger::messageOutput(QtMsgType type, const QMessageLogContext &context, co
 const QUrl Logger::logsPath() const
 {
     return QUrl::fromLocalFile(m_logDir.absolutePath());
+}
+
+int Logger::errorCount() const
+{
+    return m_errorCount;
+}
+
+void Logger::setErrorCount(int count)
+{
+    if(m_errorCount == count) {
+        return;
+    }
+
+    m_errorCount = count;
+    emit errorCountChanged();
 }
 
 void Logger::fallbackMessageOutput(const QString &msg)

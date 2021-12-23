@@ -233,7 +233,19 @@ Item {
 
             checkable: true
 
+            Image {
+                x: parent.width - width / 2 - 1
+                y: -height / 2 + 1
+
+                source: "qrc:/assets/gfx/images/alert-badge.svg"
+                sourceSize: Qt.size(18, 18)
+
+                visible: Logger.errorCount > 0 && !logButton.checked
+            }
+
             onCheckedChanged: {
+                Logger.errorCount = 0;
+
                 if(checked) {
                     if(!logCollapse.running) {
                         logExpand.start();
@@ -271,6 +283,8 @@ Item {
 
         anchors.topMargin: 14
         anchors.bottomMargin: 12
+
+        content.textFormat: TextArea.RichText
 
         menu: Menu {
             id: logMenu

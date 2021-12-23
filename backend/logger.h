@@ -12,6 +12,7 @@ class Logger : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QUrl logsPath READ logsPath CONSTANT)
+    Q_PROPERTY(int errorCount READ errorCount WRITE setErrorCount NOTIFY errorCountChanged)
 
     Logger(QObject *parent = nullptr);
 
@@ -21,8 +22,12 @@ public:
 
     const QUrl logsPath() const;
 
+    int errorCount() const;
+    void setErrorCount(int count);
+
 signals:
     void messageArrived(const QString&);
+    void errorCountChanged();
 
 private:
     void fallbackMessageOutput(const QString &msg);
@@ -35,6 +40,7 @@ private:
     QTextStream m_fileOut;
 
     QDateTime m_startTime;
+    int m_errorCount;
 };
 
 #define globalLogger (Logger::instance())

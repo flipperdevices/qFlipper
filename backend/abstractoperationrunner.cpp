@@ -39,17 +39,18 @@ void AbstractOperationRunner::processQueue()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
+            qCCritical(loggingCategory()).noquote() << operation->description() << "ERROR:" << operation->errorString();
+
             setError(operation->errorString());
 
             clearQueue();
             processQueue();
 
         } else {
+            qCInfo(loggingCategory()).noquote() << operation->description() << "SUCCESS";
             QTimer::singleShot(0, this, &AbstractOperationRunner::processQueue);
         }
 
-        qCInfo(loggingCategory()).noquote() << operation->description() << (operation->isError() ? QStringLiteral("ERROR: ") +
-                                                                            operation->errorString() : QStringLiteral("SUCCESS"));
         operation->deleteLater();
     });
 

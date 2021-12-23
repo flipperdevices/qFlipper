@@ -101,5 +101,6 @@
         <file>assets/gfx/images/streaming-help.svg</file>
         <file>components/FinishOverlay.qml</file>
         <file>components/SelfUpdateDialog.qml</file>
+        <file>assets/gfx/images/alert-badge.svg</file>
     </qresource>
 </RCC>
