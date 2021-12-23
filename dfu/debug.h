@@ -7,29 +7,29 @@ Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
 
 #define check_return_bool(condition, failMsg) \
     if(!(condition)) { \
-        qCCritical(CATEGORY_DEBUG).noquote() << (failMsg); \
+        qCDebug(CATEGORY_DEBUG).noquote() << (failMsg); \
         return false; \
     }
 
 #define check_return_void(condition, failMsg) \
     if(!(condition)) { \
-        qCCritical(CATEGORY_DEBUG).noquote() << (failMsg); \
+        qCDebug(CATEGORY_DEBUG).noquote() << (failMsg); \
         return; \
     }
 
 #define check_return_val(condition, failMsg, val) \
     if(!(condition)) { \
-        qCCritical(CATEGORY_DEBUG).noquote() << (failMsg); \
+        qCDebug(CATEGORY_DEBUG).noquote() << (failMsg); \
         return val; \
     }
 
 #define check_continue(condition, failMsg) \
     if(!(condition)) { \
-        qCCritical(CATEGORY_DEBUG).noquote() << (failMsg); \
+        qCDebug(CATEGORY_DEBUG).noquote() << (failMsg); \
     }
 
 #define error_msg(msg) \
-    qCCritical(CATEGORY_DEBUG).noquote() << (msg);
+    qCDebug(CATEGORY_DEBUG).noquote() << (msg);
 
 #define debug_msg(msg) \
     qCDebug(CATEGORY_DEBUG).noquote() << (msg);

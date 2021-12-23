@@ -40,10 +40,10 @@ FlipperZero *DeviceRegistry::currentDevice() const
 void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 {
     if(!info.isValid()) {
-        qCCritical(CAT_DEVREG) << "A new invalid device has been detected, skipping...";
+        qCDebug(CAT_DEVREG) << "A new invalid device has been detected, skipping...";
 
     } else if(info.vendorID() != FLIPPER_ZERO_VID) {
-        qCCritical(CAT_DEVREG) << "Unexpected device VID and PID";
+        qCDebug(CAT_DEVREG) << "Unexpected device VID and PID";
 
     } else {
         auto *fetcher = Zero::AbstractDeviceInfoHelper::create(info, this);
@@ -96,7 +96,7 @@ void DeviceRegistry::processDevice()
     fetcher->deleteLater();
 
     if(fetcher->isError()) {
-        qCCritical(CAT_DEVREG).noquote() << QStringLiteral("An error has occured:") << fetcher->errorString();
+        qCDebug(CAT_DEVREG).noquote() << QStringLiteral("An error has occured:") << fetcher->errorString();
         return;
     }
 

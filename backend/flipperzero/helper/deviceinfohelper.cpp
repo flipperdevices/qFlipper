@@ -38,7 +38,7 @@ AbstractDeviceInfoHelper *AbstractDeviceInfoHelper::create(const USBDeviceInfo &
     } else if(pid == 0xdf11) {
         return new DFUDeviceInfoHelper(info, parent);
     } else {
-        qCritical() << "Not a Flipper Zero device";
+        qDebug() << "Not a Flipper Zero device";
         return nullptr;
     }
 }

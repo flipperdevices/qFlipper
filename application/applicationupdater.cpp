@@ -106,14 +106,14 @@ void ApplicationUpdater::installUpdate(const Flipper::Updates::VersionInfo &vers
         // IMPORTANT -- The file is closed automatically before renaming (https://doc.qt.io/qt-5/qfile.html#rename)
         QFile oldFile(filePath);
         if(oldFile.exists() && !oldFile.remove()) {
-            qCCritical(CATEGORY_SELFUPDATES).noquote() << "Failed to remove old update package:" << oldFile.fileName();
+            qCDebug(CATEGORY_SELFUPDATES).noquote() << "Failed to remove old update package:" << oldFile.fileName();
             setState(State::ErrorOccured);
 
             cleanup();
             return;
 
         } else if(!file->rename(filePath)) {
-            qCCritical(CATEGORY_SELFUPDATES).noquote() << "Failed to rename .part file:" << file->fileName();
+            qCDebug(CATEGORY_SELFUPDATES).noquote() << "Failed to rename .part file:" << file->fileName();
             setState(State::ErrorOccured);
 
             file->remove();

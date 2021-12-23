@@ -79,7 +79,7 @@ void ApplicationBackend::mainAction()
 
     connect(helper, &AbstractOperationHelper::finished, this, [=]() {
         if(helper->isError()) {
-            qCCritical(LOG_BACKEND).noquote() << "Failed to complete the operation:" << helper->errorString();
+            qCDebug(LOG_BACKEND).noquote() << "Failed to complete the operation:" << helper->errorString();
         }
 
         helper->deleteLater();
@@ -149,7 +149,7 @@ void ApplicationBackend::onCurrentDeviceChanged()
     // Should not happen during an ongoing operation
     if(m_state > State::ScreenStreaming && m_state != State::Finished) {
         setState(State::ErrorOccured);
-        qCCritical(LOG_BACKEND) << "Current operation was interrupted";
+        qCDebug(LOG_BACKEND) << "Current operation was interrupted";
 
     } else if(m_deviceRegistry->currentDevice()) {
         // No need to disconnect the old device, as it has been destroyed at this point

@@ -95,12 +95,12 @@ void ScreenStreamer::onPortReadyRead()
     while(msg.receive()) {
 
         if(!msg.isOk()) {
-            qCCritical(CATEGORY_SCREEN) << "Device replied with error:" << msg.commandStatusString();
+            qCDebug(CATEGORY_SCREEN) << "Device replied with error:" << msg.commandStatusString();
             return;
 
         } else if(!msg.isValidType()) {
             if(msg.whichContent() != MainEmptyResponse::tag()) {
-                qCCritical(CATEGORY_SCREEN) << "Expected screen frame or empty, got something else";
+                qCDebug(CATEGORY_SCREEN) << "Expected screen frame or empty, got something else";
                 return;
             }
 

@@ -99,7 +99,7 @@ void UpdateRegistry::check()
             }
 
         } else {
-            qCCritical(CATEGORY_UPDATES).noquote() << "Failed to open a buffer for reading:" << buf->errorString();
+            qCDebug(CATEGORY_UPDATES).noquote() << "Failed to open a buffer for reading:" << buf->errorString();
         }
 
         fetcher->deleteLater();
