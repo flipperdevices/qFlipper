@@ -74,7 +74,7 @@ AbstractOverlay {
             icon.height: 27
 
             ToolTip {
-                text: qsTr("Avdanced controls")
+                text: qsTr("Advanced controls")
                 visible: parent.hovered
             }
         }

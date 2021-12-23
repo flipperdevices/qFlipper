@@ -52,13 +52,13 @@ T.ToolTip {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
     margins: 6
-    padding: 16
+    padding: 8
 
     font.pixelSize: 16
     font.letterSpacing: -1
     font.family: "Share Tech Mono"
 
-    delay: 500
+    delay: 1000
     timeout: Math.log(text.length) * 1800
 
     closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutsideParent | T.Popup.CloseOnReleaseOutsideParent
@@ -82,22 +82,11 @@ T.ToolTip {
         color: Theme.color.lightorange2
     }
 
-    background: Item {
-        Rectangle {
-            anchors.fill: parent
-            color: "black"
-            opacity: 0.5
-            radius: 12
-        }
+    background: Rectangle {
+        anchors.fill: parent
 
-        Rectangle {
-            anchors.fill: parent
-            anchors.margins: 2
-
-            radius: 10
-            border.width: 2
-            border.color: Theme.color.mediumorange3
-            color: "black"
-        }
+        border.width: 1
+        border.color: Theme.color.mediumorange3
+        color: "black"
     }
 }
