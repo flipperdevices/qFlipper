@@ -36,6 +36,7 @@ Item {
             color: Theme.color.lightorange2
             wrapMode: Text.Wrap
 
+            readOnly: true
             selectByMouse: true
             selectByKeyboard: true
         }
