@@ -77,13 +77,7 @@ void ApplicationBackend::mainAction()
         helper = new UpdateTopLevelHelper(m_firmwareUpdates, currentDevice(), this);
     }
 
-    connect(helper, &AbstractOperationHelper::finished, this, [=]() {
-        if(helper->isError()) {
-            qCDebug(LOG_BACKEND).noquote() << "Failed to complete the operation:" << helper->errorString();
-        }
-
-        helper->deleteLater();
-    });
+    connect(helper, &AbstractOperationHelper::finished, helper, &QObject::deleteLater);
 }
 
 void ApplicationBackend::createBackup(const QUrl &directoryUrl)
@@ -135,6 +129,8 @@ void ApplicationBackend::stopFullScreenStreaming()
 void ApplicationBackend::finalizeOperation()
 {
     //TODO: clean up all non-online devices here
+    qCDebug(LOG_BACKEND) << "Finalized current operation";
+
     m_deviceRegistry->cleanupOffline();
 
     if(currentDevice()) {
@@ -151,13 +147,15 @@ void ApplicationBackend::onCurrentDeviceChanged()
         setState(State::ErrorOccured);
         qCDebug(LOG_BACKEND) << "Current operation was interrupted";
 
-    } else if(m_deviceRegistry->currentDevice()) {
+    } else if(currentDevice()) {
+        qCDebug(LOG_BACKEND) << "Current device changed to" << currentDevice()->deviceState()->deviceInfo().name;
         // No need to disconnect the old device, as it has been destroyed at this point
         connect(currentDevice(), &FlipperZero::operationFinished, this, &ApplicationBackend::onDeviceOperationFinished);
         connect(currentDevice(), &FlipperZero::stateChanged, this, &ApplicationBackend::updateStatusChanged);
         setState(State::Ready);
 
     } else {
+        qCDebug(LOG_BACKEND) << "Last device was disconnected";
         setState(State::WaitingForDevices);
     }
 }
@@ -165,8 +163,14 @@ void ApplicationBackend::onCurrentDeviceChanged()
 void ApplicationBackend::onDeviceOperationFinished()
 {
     // TODO: Some error handling?
-    if(!currentDevice() || currentDevice()->deviceState()->isError()) {
+    if(!currentDevice()) {
+        qCDebug(LOG_BACKEND) << "Lost all connected devices";
         setState(State::ErrorOccured);
+
+    } else if(currentDevice()->deviceState()->isError()) {
+        qCDebug(LOG_BACKEND) << "Current operation finished with error:" << currentDevice()->deviceState()->errorString();
+        setState(State::ErrorOccured);
+
     } else {
         setState(State::Finished);
     }

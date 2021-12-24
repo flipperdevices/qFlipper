@@ -30,8 +30,12 @@ void AbstractTopLevelHelper::onUpdatesChecked()
 {
     disconnect(m_updateRegistry, &UpdateRegistry::channelsChanged, this, &AbstractTopLevelHelper::onUpdatesChecked);
 
+    // No timeout here, because it is handled by the update registry
     if(!m_updateRegistry->isReady()) {
-        finishWithError(QStringLiteral("Failed to retreive update information"));
+        // Maintaining the single point of exit (ugly)
+        m_device->deviceState()->setErrorString(QStringLiteral("Failed to retreive update information"));
+        emit m_device->operationFinished();
+
     } else{
         advanceState();
     }
@@ -46,9 +50,6 @@ void AbstractTopLevelHelper::nextStateLogic()
     } else if(state() == AbstractTopLevelHelper::CheckingForUpdates) {
         setState(AbstractTopLevelHelper::RunningCustomOperation);
         runCustomOperation();
-
-    } else if(state() == AbstractTopLevelHelper::RunningCustomOperation) {
-        finish();
     }
 }
 

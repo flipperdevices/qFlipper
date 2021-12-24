@@ -1,5 +1,8 @@
 #include "flipperzero.h"
 
+#include <QDebug>
+#include <QLoggingCategory>
+
 #include "preferences.h"
 #include "flipperupdates.h"
 
@@ -19,6 +22,8 @@
 #include "toplevel/fullupdateoperation.h"
 
 #include "preferences.h"
+
+Q_LOGGING_CATEGORY(CAT_DEVICE, "DEVICE")
 
 #define CHANNEL_DEVELOPMENT "development"
 #define CHANNEL_RELEASE_CANDIDATE "release-candidate"
@@ -187,12 +192,20 @@ void FlipperZero::registerOperation(AbstractOperation *operation)
 {
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            m_state->setErrorString(operation->errorString());
+            const auto &errorString = operation->errorString();
+
+            qCCritical(CAT_DEVICE).noquote() << operation->description() << "ERROR:" << errorString;
+            m_state->setErrorString(errorString);
+
+        } else {
+            qCInfo(CAT_DEVICE).noquote() << operation->description() << "SUCCESS";
         }
 
         operation->deleteLater();
         emit operationFinished();
     });
+
+    qCInfo(CAT_DEVICE).noquote() << operation->description() << "START";
 
     if(m_state->isRecoveryMode()) {
         operation->start();
