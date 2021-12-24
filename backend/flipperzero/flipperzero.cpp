@@ -123,6 +123,21 @@ bool FlipperZero::canRepair(const Updates::VersionInfo &versionInfo) const
     return m_state->isRecoveryMode();
 }
 
+void FlipperZero::restartSession()
+{
+    // TODO: write a better implementation that would:
+    // 1. Check if the port is open and functional
+    // 2. Test if the RPC session is up an running
+    // 3. Open RPC session if necessary
+    // 4. Start screen streaming
+
+    m_state->setError(false);
+
+    if(!m_state->isRecoveryMode()) {
+        m_streamer->start();
+    }
+}
+
 void FlipperZero::fullUpdate(const Updates::VersionInfo &versionInfo)
 {
     registerOperation(new FullUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this));

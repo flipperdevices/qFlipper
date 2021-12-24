@@ -32,6 +32,8 @@ public:
     bool canInstall(const Flipper::Updates::VersionInfo &versionInfo) const;
     bool canRepair(const Flipper::Updates::VersionInfo &versionInfo) const;
 
+    void restartSession();
+
     void fullUpdate(const Flipper::Updates::VersionInfo &versionInfo);
     void fullRepair(const Flipper::Updates::VersionInfo &versionInfo);
 

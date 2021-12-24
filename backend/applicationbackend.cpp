@@ -128,16 +128,19 @@ void ApplicationBackend::stopFullScreenStreaming()
 
 void ApplicationBackend::finalizeOperation()
 {
-    //TODO: clean up all non-online devices here
     qCDebug(LOG_BACKEND) << "Finalized current operation";
 
     m_deviceRegistry->cleanupOffline();
 
-    if(currentDevice()) {
-        setState(State::Ready);
-    } else {
+    if(!currentDevice()) {
         setState(State::WaitingForDevices);
+        return;
+
+    } else if(currentDevice()->deviceState()->isError()) {
+        currentDevice()->restartSession();
     }
+
+    setState(State::Ready);
 }
 
 void ApplicationBackend::onCurrentDeviceChanged()
