@@ -103,5 +103,6 @@
         <file>components/SelfUpdateDialog.qml</file>
         <file>assets/gfx/images/alert-badge.svg</file>
         <file>assets/gfx/images/no-sd-card.svg</file>
+        <file>assets/gfx/images/success.svg</file>
     </qresource>
 </RCC>

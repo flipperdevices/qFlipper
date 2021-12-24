@@ -50,14 +50,15 @@ Image {
         x: 93
         y: 26
 
-        visible: !device || !device.streamer.enabled
-        source: deviceState && deviceState.isRecoveryMode ? "qrc:/assets/gfx/images/recovery.svg" : "qrc:/assets/gfx/images/default.svg"
+        source: deviceState && deviceState.isRecoveryMode ? "qrc:/assets/gfx/images/recovery.svg" :
+                Backend.state === Backend.Finished ? "qrc:/assets/gfx/images/success.svg" : "qrc:/assets/gfx/images/default.svg"
+
         sourceSize: Qt.size(128, 64)
     }
 
     ScreenCanvas {
         anchors.fill: defaultScreen
-        visible: !!device && device.streamer.enabled
+        visible: Backend.state === Backend.Ready && device.streamer.enabled
 
         foregroundColor: Theme.color.darkorange1
         backgroundColor: Theme.color.lightorange2
