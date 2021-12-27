@@ -20,6 +20,7 @@ public:
 
 private slots:
     void onSerialPortReadyRead() override;
+    void onOperationTimeout() override;
 
 private:
     bool begin() override;

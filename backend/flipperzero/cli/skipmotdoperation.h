@@ -13,7 +13,7 @@ public:
     SkipMOTDOperation(QSerialPort *serialPort, QObject *parent = nullptr);
     const QString description() const override;
 
-protected:
+private:
     QByteArray endOfMessageToken() const override;
     uint32_t flags() const override;
 };

@@ -92,7 +92,7 @@ void VCPDeviceInfoHelper::findSerialPort()
 
     connect(finder, &SerialFinder::finished, this, [=](const QSerialPortInfo &portInfo) {
         if(portInfo.isNull()) {
-            finishWithError(QStringLiteral("Invalid serial port info."));
+            finishWithError(QStringLiteral("Failed to find a suitable serial port"));
 
         } else {
             m_deviceInfo.portInfo = portInfo;
@@ -109,7 +109,7 @@ void VCPDeviceInfoHelper::initSerialPort()
 
     connect(helper, &AbstractOperationHelper::finished, this, [=]() {
         if(helper->isError()) {
-            finishWithError(helper->errorString());
+            finishWithError(QStringLiteral("Failed to initialize serial port: %1").arg(helper->errorString()));
         } else {
             m_serialPort = helper->serialPort();
             advanceState();

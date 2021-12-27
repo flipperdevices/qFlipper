@@ -38,6 +38,11 @@ void SimpleSerialOperation::onSerialPortReadyRead()
     }
 }
 
+void SimpleSerialOperation::onOperationTimeout()
+{
+    finishWithError(QStringLiteral("Device is not responding"));
+}
+
 bool SimpleSerialOperation::begin()
 {
     auto success = true;

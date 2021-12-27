@@ -57,6 +57,15 @@ void StartRPCOperation::onSerialPortReadyRead()
     }
 }
 
+void StartRPCOperation::onOperationTimeout()
+{
+    if(operationState() == State::LeavingCli) {
+        finishWithError(QStringLiteral("Failed to start RPC session"));
+    } else if(operationState() == State::WaitingForPing) {
+        finishWithError(QStringLiteral("No ping response from device"));
+    }
+}
+
 bool StartRPCOperation::begin()
 {
     setOperationState(State::LeavingCli);
