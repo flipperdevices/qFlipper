@@ -123,7 +123,7 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->errorString());
+            finishWithError(QStringLiteral("Failed to get device information: %1").arg(operation->errorString()));
             return;
         }
 
@@ -166,7 +166,7 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
         m_deviceInfo.stackType = operation->result(QByteArrayLiteral("radio_stack_type")).toInt();
 
         if(m_deviceInfo.name.isEmpty()) {
-            finishWithError(QStringLiteral("Failed to read device information"));
+            finishWithError(QStringLiteral("Failed to read device information: required fields are not present"));
         } else {
             advanceState();
         }
@@ -183,7 +183,7 @@ void VCPDeviceInfoHelper::checkSDCard()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->errorString());
+            finishWithError(QStringLiteral("Failed to check SD card: %1").arg(operation->errorString()));
 
         } else if(!operation->isPresent()) {
             m_deviceInfo.storage.isExternalPresent = false;
@@ -211,7 +211,7 @@ void VCPDeviceInfoHelper::checkManifest()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->errorString());
+            finishWithError(QStringLiteral("Failed to check resource manifest: %1").arg(operation->errorString()));
 
         } else {
             m_deviceInfo.storage.isAssetsInstalled = operation->isPresent() && (operation->type() == StorageStatOperation::Type::RegularFile);
@@ -229,7 +229,7 @@ void VCPDeviceInfoHelper::stopRPCSession()
     auto *operation = new StopRPCOperation(m_serialPort, this);
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->errorString());
+            finishWithError(QStringLiteral("Failed to stop RPC session: %1").arg(operation->errorString()));
         } else {
             advanceState();
         }

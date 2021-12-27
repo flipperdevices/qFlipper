@@ -46,6 +46,9 @@ void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
         qCDebug(CAT_DEVREG) << "Unexpected device VID and PID";
 
     } else {
+        qCDebug(CAT_DEVREG).noquote().nospace()
+            << "Detected new device: VID_0x" << QString::number(info.vendorID(), 16) << ":PID_0x" << QString::number(info.productID(), 16);
+
         auto *fetcher = Zero::AbstractDeviceInfoHelper::create(info, this);
         connect(fetcher, &Zero::AbstractDeviceInfoHelper::finished, this, &DeviceRegistry::processDevice);
     }
@@ -96,7 +99,7 @@ void DeviceRegistry::processDevice()
     fetcher->deleteLater();
 
     if(fetcher->isError()) {
-        qCDebug(CAT_DEVREG).noquote() << QStringLiteral("An error has occured:") << fetcher->errorString();
+        qCDebug(CAT_DEVREG).noquote() << "Device initialization failed:" << fetcher->errorString();
         return;
     }
 
