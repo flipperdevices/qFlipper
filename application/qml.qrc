@@ -15,7 +15,7 @@
         <file>imports/Theme/qmldir</file>
         <file>assets/gfx/images/flipper.svg</file>
         <file>style/ColorGroup.qml</file>
-        <file>components/UpdateButton.qml</file>
+        <file>components/MainButton.qml</file>
         <file>components/GridBackground.qml</file>
         <file>assets/gfx/images/typec.svg</file>
         <file>assets/gfx/symbolic/arrow-up.svg</file>

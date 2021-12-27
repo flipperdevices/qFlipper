@@ -18,55 +18,52 @@ AbstractOverlay {
         font.family: "Born2bSportyV2"
         font.pixelSize: 48
 
-        text: Backend.state === Backend.ErrorOccured ? qsTr("Epic fail!"): qsTr("Success!")
-    }
-
-    TextLabel {
-        anchors.top: parent.top
-        anchors.left: parent.left
-
-        anchors.topMargin: 45
-        anchors.leftMargin: 35
-
-        text: "Work in progress"
-    }
-
-    TextLabel {
-        anchors.top: parent.top
-        anchors.right: parent.right
-
-        anchors.topMargin: 45
-        anchors.rightMargin: 35
-
-        text: "Work in progress"
+        text: Backend.state === Backend.ErrorOccured ? qsTr("Operation Error"): qsTr("Success!")
     }
 
     TextLabel {
         id: messageLabel
 
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 105
+        anchors.top: continueButton.bottom
+        anchors.topMargin: 20
 
-        text: Backend.state === Backend.Finished ? qsTr("You're good to go!") : deviceState ? deviceState.errorString : qsTr("Cannot connect to device")
+        text: deviceState ? deviceState.errorString : qsTr("Cannot connect to device")
+        visible: Backend.state === Backend.ErrorOccured
     }
 
     Button {
         id: backButton
         action: backAction
 
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.left: parent.left
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 35
+        anchors.margins: 25
 
         icon.width: 24
         icon.height: 24
         icon.source: "qrc:/assets/gfx/symbolic/arrow-back.svg"
+
+        visible: Backend.state === Backend.ErrorOccured
+    }
+
+    MainButton {
+        id: continueButton
+        action: continueAction
+        anchors.horizontalCenter: parent.horizontalCenter
+        visible: Backend.state === Backend.Finished
+        y: 265
     }
 
     Action {
         id: backAction
         text: qsTr("Back")
+        onTriggered: Backend.finalizeOperation()
+    }
+
+    Action {
+        id: continueAction
+        text: qsTr("Continue")
         onTriggered: Backend.finalizeOperation()
     }
 }

@@ -121,7 +121,7 @@ AbstractOverlay {
         }
     }
 
-    UpdateButton {
+    MainButton {
         id: updateButton
         action: updateButtonAction
 

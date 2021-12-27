@@ -132,6 +132,7 @@ void FlipperZero::restartSession()
     // 4. Start screen streaming
 
     m_state->setError(false);
+    m_state->setErrorString("");
 
     if(!m_state->isRecoveryMode()) {
         m_streamer->start();
