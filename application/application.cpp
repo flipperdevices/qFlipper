@@ -1,6 +1,7 @@
 #include "application.h"
 
 #include <QDebug>
+#include <QTimer>
 #include <QLocale>
 #include <QDateTime>
 #include <QTranslator>
@@ -19,7 +20,9 @@
 Q_LOGGING_CATEGORY(CATEGORY_APP, "APP")
 
 Application::Application(int &argc, char **argv):
-    QApplication(argc, argv)
+    QApplication(argc, argv),
+    m_dangerFeaturesEnabled(QGuiApplication::queryKeyboardModifiers() & Qt::KeyboardModifier::AltModifier)
+
 {
     initLogger();
     initQmlTypes();
@@ -32,6 +35,10 @@ Application::Application(int &argc, char **argv):
 
     qCInfo(CATEGORY_APP).noquote() << APP_NAME << "version" << APP_VERSION << "commit"
                                    << APP_COMMIT << QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).toString();
+
+    if(m_dangerFeaturesEnabled) {
+        qCCritical(CATEGORY_APP) << "Dangerous features enabled! Please be careful.";
+    }
 }
 
 Application::~Application()
@@ -47,6 +54,11 @@ const QString Application::commitNumber()
 ApplicationUpdater *Application::updater()
 {
     return &m_updater;
+}
+
+bool Application::isDangerousFeaturesEnabled() const
+{
+    return m_dangerFeaturesEnabled;
 }
 
 void Application::initLogger()
@@ -90,7 +102,7 @@ void Application::initQmlTypes()
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Logger", globalLogger);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Preferences", globalPrefs);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Backend", &m_backend);
-    qmlRegisterSingletonInstance("QFlipper", 1, 0, "Application", this);
+    qmlRegisterSingletonInstance("QFlipper", 1, 0, "App", this);
 }
 
 void Application::initImports()

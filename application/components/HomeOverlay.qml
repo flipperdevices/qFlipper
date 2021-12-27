@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import QtQuick.Dialogs 1.2
+import QtQml.Models 2.15
 
 import Theme 1.0
 import QFlipper 1.0
@@ -12,6 +13,21 @@ AbstractOverlay {
     signal selfUpdateRequested
     readonly property int centerX: 590
     readonly property int centerOffset: Math.min(overlay.width - (centerX + systemPathLabel.width + 12), 0)
+
+    TabButton {
+        id: dangerTab
+        icon.source: "qrc:/assets/gfx/symbolic/skull.svg"
+        icon.width: 27
+        icon.height: 27
+
+        enabled: App.dangerousFeatures
+        visible: App.dangerousFeatures
+
+        ToolTip {
+            text: qsTr("Wanna have a bad time?")
+            visible: parent.hovered
+        }
+    }
 
     FileDialog {
         id: fileDialog
@@ -46,7 +62,8 @@ AbstractOverlay {
 
         items: [
             DeviceInfo { id: deviceInfoPane },
-            DeviceActions { id: deviceActions }
+            DeviceActions { id: deviceActions },
+            AdvancedDeviceActions { id: advDeviceActions }
         ]
     }
 
@@ -256,7 +273,7 @@ AbstractOverlay {
             const messageObj = {
                 title : qsTr("Install from file?"),
                 customText: qsTr("Install"),
-                message: qsTr("Firmware from fiel %1<br/>will be installed").arg(baseName(fileDialog.fileUrl))
+                message: qsTr("Firmware from file %1<br/>will be installed").arg(baseName(fileDialog.fileUrl))
             };
 
             const actionFunc = function() {
@@ -332,6 +349,50 @@ AbstractOverlay {
         confirmationDialog.openWithMessage(Backend.mainAction, messageObj);
     }
 
+    function installWirelessStack() {
+        fileDialog.selectFolder = false;
+        fileDialog.title = qsTr("Please choose a firmware file");
+        fileDialog.nameFilters = ["Firmware files (*.bin)", "All files (*.*)"];
+        fileDialog.onAcceptedFunc = function() {
+            const messageObj = {
+                title : qsTr("Install wireless stack?"),
+                customText: qsTr("Install"),
+                suggestedRole: ConfirmationDialog.RejectRole,
+                message: qsTr("WARNING! This operaton can break your Flipper!")
+            };
+
+            const actionFunc = function() {
+                Backend.installWirelessStack(fileDialog.fileUrl);
+            }
+
+            confirmationDialog.openWithMessage(actionFunc, messageObj);
+        };
+
+        fileDialog.open();
+    }
+
+    function installFUSDangerDanger() {
+        fileDialog.selectFolder = false;
+        fileDialog.title = qsTr("Please choose a firmware file");
+        fileDialog.nameFilters = ["Firmware files (*.bin)", "All files (*.*)"];
+        fileDialog.onAcceptedFunc = function() {
+            const messageObj = {
+                title : qsTr("Install FUS?"),
+                customText: qsTr("Install"),
+                suggestedRole: ConfirmationDialog.RejectRole,
+                message: qsTr("LAST WARNING! This will invalidate your encryption keys! Please reconsider.")
+            };
+
+            const actionFunc = function() {
+                Backend.installFUS(fileDialog.fileUrl, 0x080ec00);
+            }
+
+            confirmationDialog.openWithMessage(actionFunc, messageObj);
+        };
+
+        fileDialog.open();
+    }
+
     function baseName(fileUrl) {
         const str = fileUrl.toString();
         return str.slice(str.lastIndexOf("/") + 1);
@@ -342,6 +403,12 @@ AbstractOverlay {
         deviceActions.restoreAction.triggered.connect(restoreDevice);
         deviceActions.eraseAction.triggered.connect(eraseDevice);
         deviceActions.reinstallAction.triggered.connect(reinstallFirmware);
-        deviceActions.selfUpdateAction.triggered.connect(selfUpdateRequested)
+        deviceActions.selfUpdateAction.triggered.connect(selfUpdateRequested);
+        advDeviceActions.installRadioAction.triggered.connect(installWirelessStack);
+        advDeviceActions.installFusAction.triggered.connect(installFUSDangerDanger);
+
+        if(App.dangerousFeatures) {
+            tabs.addItem(dangerTab);
+        }
     }
 }

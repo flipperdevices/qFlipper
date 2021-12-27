@@ -97,5 +97,7 @@
         <file>assets/gfx/images/alert-badge.svg</file>
         <file>assets/gfx/images/no-sd-card.svg</file>
         <file>assets/gfx/images/success.svg</file>
+        <file>assets/gfx/symbolic/skull.svg</file>
+        <file>components/AdvancedDeviceActions.qml</file>
     </qresource>
 </RCC>

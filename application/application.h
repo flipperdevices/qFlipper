@@ -13,6 +13,7 @@ class Application : public QApplication
     Q_PROPERTY(QString version READ applicationVersion NOTIFY applicationVersionChanged)
     Q_PROPERTY(QString commit READ commitNumber CONSTANT)
     Q_PROPERTY(ApplicationUpdater* updater READ updater CONSTANT)
+    Q_PROPERTY(bool dangerousFeatures READ isDangerousFeaturesEnabled CONSTANT)
 
 public:
     Application(int &argc, char **argv);
@@ -20,6 +21,8 @@ public:
 
     static const QString commitNumber();
     ApplicationUpdater *updater();
+
+    bool isDangerousFeaturesEnabled() const;
 
 private:
     void initLogger();
@@ -34,5 +37,7 @@ private:
     ApplicationUpdater m_updater;
     ApplicationBackend m_backend;
     QQmlApplicationEngine m_engine;
+
+    bool m_dangerFeaturesEnabled;
 };
 
