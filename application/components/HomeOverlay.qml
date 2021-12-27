@@ -131,11 +131,11 @@ AbstractOverlay {
         accent: {
             switch(Backend.updateStatus) {
             case Backend.CanRepair:
-                return UpdateButton.Blue;
+                return MainButton.Blue;
             case Backend.CanUpdate:
-                return UpdateButton.Green;
+                return MainButton.Green;
             default:
-                return UpdateButton.Default;
+                return MainButton.Default;
             }
         }
     }

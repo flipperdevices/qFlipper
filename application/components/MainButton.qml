@@ -14,7 +14,7 @@ Button {
         Blue
     }
 
-    property int accent: UpdateButton.Default
+    property int accent: MainButton.Default
 
     width: 280
     height: 56
@@ -27,7 +27,7 @@ Button {
 
     states: [
         State {
-            when: accent === UpdateButton.Green
+            when: accent === MainButton.Green
 
             PropertyChanges {
                 target: foregroundColor
@@ -52,7 +52,7 @@ Button {
         },
 
         State {
-            when: accent === UpdateButton.Blue
+            when: accent === MainButton.Blue
 
             PropertyChanges {
                 target: foregroundColor
