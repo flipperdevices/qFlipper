@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QLoggingCategory>
 
+#include "logger.h"
 #include "deviceregistry.h"
 #include "updateregistry.h"
 
@@ -130,6 +131,7 @@ void ApplicationBackend::finalizeOperation()
 {
     qCDebug(LOG_BACKEND) << "Finalized current operation";
 
+    globalLogger->setErrorCount(0);
     m_deviceRegistry->cleanupOffline();
 
     if(!currentDevice()) {

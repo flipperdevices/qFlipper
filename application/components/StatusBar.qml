@@ -9,7 +9,7 @@ import QFlipper 1.0
 Rectangle {
     id: control
 
-    readonly property bool errorOccured : Logger.errorCount > 0
+    readonly property bool errorOccured: Backend.state === Backend.ErrorOccured
     color: errorOccured ? Theme.color.darkred2 : Theme.color.darkorange1
 
     RowLayout {
@@ -29,7 +29,8 @@ Rectangle {
 
             text: control.errorOccured ? qsTr("Something went wrong. Check logs for details.") :
                   Backend.state === Backend.WaitingForDevices ? qsTr("Waiting for devices ...") :
-                  Backend.state > Backend.ScreenStreaming && Backend.state < Backend.Finished ? qsTr("Do not unplug the device ...") : qsTr("Ready.")
+                  Backend.state > Backend.ScreenStreaming && Backend.state < Backend.Finished ? qsTr("Do not unplug the device ...") :
+                  Backend.state === Backend.Finished ? qsTr("Operation has finished successfully.") : qsTr("Ready.")
 
             color: control.errorOccured ? Theme.color.lightred1 : Theme.color.lightorange2
 
