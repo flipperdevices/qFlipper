@@ -24,9 +24,13 @@ AbstractOverlay {
     TextLabel {
         id: messageLabel
 
+        width: 480
+        horizontalAlignment: Text.AlignHCenter
+        wrapMode: Text.Wrap
+
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: continueButton.bottom
-        anchors.topMargin: 20
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 33
 
         text: deviceState ? deviceState.errorString : qsTr("Cannot connect to device")
         visible: Backend.state === Backend.ErrorOccured
