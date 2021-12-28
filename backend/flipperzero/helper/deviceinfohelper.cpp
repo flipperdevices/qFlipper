@@ -241,27 +241,27 @@ void VCPDeviceInfoHelper::checkManifest()
 void VCPDeviceInfoHelper::getTimeSkew()
 {
     auto *operation = new SystemGetDateTimeOperation(m_serialPort, this);
+    operation->start();
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(QStringLiteral("Failed to check device time: %1").arg(operation->errorString()));
 
         } else {
-            const auto timeSkew = QDateTime::currentDateTime().secsTo(operation->dateTime());
-            qCDebug(CATEGORY_DEBUG) << "Flipper time skew is" << timeSkew << "seconds";
+            const auto timeSkew = QDateTime::currentDateTime().msecsTo(operation->dateTime());
+            qCDebug(CATEGORY_DEBUG) << "Flipper time skew is" << timeSkew << "milliseconds";
 
             advanceState();
         }
 
         operation->deleteLater();
     });
-
-    operation->start();
 }
 
 void VCPDeviceInfoHelper::syncTime()
 {
     auto *operation = new SystemSetDateTimeOperation(m_serialPort, QDateTime::currentDateTime(), this);
+    operation->start();
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -272,8 +272,6 @@ void VCPDeviceInfoHelper::syncTime()
 
         operation->deleteLater();
     });
-
-    operation->start();
 }
 
 void VCPDeviceInfoHelper::stopRPCSession()
