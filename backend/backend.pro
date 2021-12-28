@@ -32,7 +32,9 @@ SOURCES += \
     flipperzero/cli/storagewriteoperation.cpp \
     flipperzero/cli/systemdeviceinfooperation.cpp \
     flipperzero/cli/systemfactoryresetoperation.cpp \
+    flipperzero/cli/systemgetdatetimeoperation.cpp \
     flipperzero/cli/systemrebootoperation.cpp \
+    flipperzero/cli/systemsetdatetimeoperation.cpp \
     flipperzero/commandinterface.cpp \
     flipperzero/cli/skipmotdoperation.cpp \
     flipperzero/devicestate.cpp \
@@ -121,7 +123,9 @@ HEADERS += \
     flipperzero/cli/storagewriteoperation.h \
     flipperzero/cli/systemdeviceinfooperation.h \
     flipperzero/cli/systemfactoryresetoperation.h \
+    flipperzero/cli/systemgetdatetimeoperation.h \
     flipperzero/cli/systemrebootoperation.h \
+    flipperzero/cli/systemsetdatetimeoperation.h \
     flipperzero/commandinterface.h \
     flipperzero/cli/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
