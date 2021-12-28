@@ -204,8 +204,10 @@ Item {
         case Qt.Key_Return:
         case Qt.Key_Space:
         case Qt.Key_E:
+        case Qt.Key_Z:
             return buttonOk;
         case Qt.Key_E:
+        case Qt.Key_X:
         case Qt.Key_Escape:
         case Qt.Key_Backspace:
             return buttonBack;
