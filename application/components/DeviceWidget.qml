@@ -51,7 +51,8 @@ Image {
         y: 26
 
         source: deviceState && deviceState.isRecoveryMode ? "qrc:/assets/gfx/images/recovery.svg" :
-                Backend.state === Backend.Finished ? "qrc:/assets/gfx/images/success.svg" : "qrc:/assets/gfx/images/default.svg"
+                Backend.state === Backend.Finished ? "qrc:/assets/gfx/images/success.svg" :
+                Backend.state === Backend.ErrorOccured ? "qrc:/assets/gfx/images/error.svg" : "qrc:/assets/gfx/images/default.svg"
 
         sourceSize: Qt.size(128, 64)
     }
@@ -78,7 +79,7 @@ Image {
         width: 136
         height: 73
 
-        visible: !!device && device.streamer.enabled
+        visible: Backend.state === Backend.Ready && device.streamer.enabled
         onClicked: control.screenStreamRequested()
     }
 }
