@@ -37,6 +37,8 @@ class VCPDeviceInfoHelper : public AbstractDeviceInfoHelper
         FetchingDeviceInfo,
         CheckingSDCard,
         CheckingManifest,
+        GettingTimeSkew,
+        SyncingTime,
         StoppingRPCSession
     };
 
@@ -51,6 +53,8 @@ private:
     void fetchDeviceInfo();
     void checkSDCard();
     void checkManifest();
+    void getTimeSkew();
+    void syncTime();
     void stopRPCSession();
     void closePortAndFinish();
 

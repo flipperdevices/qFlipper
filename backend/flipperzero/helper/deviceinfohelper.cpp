@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QSerialPort>
+#include <QLoggingCategory>
 
 #include "flipperzero/factoryinfo.h"
 
@@ -12,12 +13,17 @@
 
 #include "flipperzero/cli/storagestatoperation.h"
 #include "flipperzero/cli/storageinfooperation.h"
+
 #include "flipperzero/cli/systemdeviceinfooperation.h"
+#include "flipperzero/cli/systemgetdatetimeoperation.h"
+#include "flipperzero/cli/systemsetdatetimeoperation.h"
 
 #include "device/stm32wb55.h"
 
 #include "serialinithelper.h"
 #include "serialfinder.h"
+
+Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
 
 using namespace Flipper;
 using namespace Zero;
@@ -38,7 +44,7 @@ AbstractDeviceInfoHelper *AbstractDeviceInfoHelper::create(const USBDeviceInfo &
     } else if(pid == 0xdf11) {
         return new DFUDeviceInfoHelper(info, parent);
     } else {
-        qDebug() << "Not a Flipper Zero device";
+        qCDebug(CATEGORY_DEBUG) << "Not a Flipper Zero device";
         return nullptr;
     }
 }
@@ -78,6 +84,14 @@ void VCPDeviceInfoHelper::nextStateLogic()
         checkManifest();
 
     } else if(state() == VCPDeviceInfoHelper::CheckingManifest) {
+        setState(VCPDeviceInfoHelper::GettingTimeSkew);
+        getTimeSkew();
+
+    } else if(state() == VCPDeviceInfoHelper::GettingTimeSkew) {
+        setState(VCPDeviceInfoHelper::SyncingTime);
+        syncTime();
+
+    } else if(state() == VCPDeviceInfoHelper::SyncingTime) {
         setState(VCPDeviceInfoHelper::StoppingRPCSession);
         stopRPCSession();
 
@@ -215,6 +229,44 @@ void VCPDeviceInfoHelper::checkManifest()
 
         } else {
             m_deviceInfo.storage.isAssetsInstalled = operation->isPresent() && (operation->type() == StorageStatOperation::Type::RegularFile);
+            advanceState();
+        }
+
+        operation->deleteLater();
+    });
+
+    operation->start();
+}
+
+void VCPDeviceInfoHelper::getTimeSkew()
+{
+    auto *operation = new SystemGetDateTimeOperation(m_serialPort, this);
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(QStringLiteral("Failed to check device time: %1").arg(operation->errorString()));
+
+        } else {
+            const auto timeSkew = QDateTime::currentDateTime().secsTo(operation->dateTime());
+            qCDebug(CATEGORY_DEBUG) << "Flipper time skew is" << timeSkew << "seconds";
+
+            advanceState();
+        }
+
+        operation->deleteLater();
+    });
+
+    operation->start();
+}
+
+void VCPDeviceInfoHelper::syncTime()
+{
+    auto *operation = new SystemSetDateTimeOperation(m_serialPort, QDateTime::currentDateTime(), this);
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(QStringLiteral("Failed to set device time: %1").arg(operation->errorString()));
+        } else {
             advanceState();
         }
 

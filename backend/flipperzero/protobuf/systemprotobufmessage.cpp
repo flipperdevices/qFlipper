@@ -76,7 +76,7 @@ SystemSetDateTimeRequest::SystemSetDateTimeRequest(QSerialPort *serialPort, cons
     auto &ts = pbMessage()->content.system_get_datetime_response.datetime;
 
     ts.day = dateTime.date().day();
-    ts.month = dateTime.date().day();
+    ts.month = dateTime.date().month();
     ts.weekday = dateTime.date().dayOfWeek();
     ts.year = dateTime.date().year();
 
