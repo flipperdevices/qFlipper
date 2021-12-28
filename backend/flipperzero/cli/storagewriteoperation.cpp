@@ -15,7 +15,10 @@ StorageWriteOperation::StorageWriteOperation(QSerialPort *serialPort, const QByt
     m_path(path),
     m_file(file),
     m_byteCount(0)
-{}
+{
+    // Write operations can be lenghty
+    setTimeout(30000);
+}
 
 const QString StorageWriteOperation::description() const
 {
