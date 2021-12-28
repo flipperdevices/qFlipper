@@ -265,8 +265,6 @@ Item {
 
         StatusBar {
             id: statusBar
-            deviceState: mainWindow.deviceState
-
             Layout.fillWidth: true
             Layout.fillHeight: true
         }
