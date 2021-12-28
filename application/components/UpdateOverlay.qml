@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
 import Theme 1.0
+import QFlipper 1.0
 
 AbstractOverlay {
     id: overlay
@@ -18,7 +19,28 @@ AbstractOverlay {
         font.family: "Born2bSportyV2"
         font.pixelSize: 48
 
-        text: qsTr("Updating your Flipper")
+        text: {
+            switch(Backend.state) {
+            case Backend.UpdatingDevice:
+                return qsTr("Updating your Flipper");
+            case Backend.RepairingDevice:
+                return qsTr("Repairing your Flipper");
+            case Backend.CreatingBackup:
+                return qsTr("Creating Backup");
+            case Backend.RestoringBackup:
+                return qsTr("Restoring Backup");
+            case Backend.FactoryResetting:
+                return qsTr("Performing Factory Reset");
+            case Backend.InstallingFirmware:
+                return qsTr("Installing Firmware");
+            case Backend.InstallingWirelessStack:
+                return qsTr("Installing Wireless Firmware");
+            case Backend.InstallingFUS:
+                return qsTr("Installing FUS Firmware");
+            default:
+                return text;
+            }
+        }
     }
 
     ProgressBar {
