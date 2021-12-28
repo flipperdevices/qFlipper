@@ -29,7 +29,15 @@ const DeviceInfo &DeviceState::deviceInfo() const
 
 void DeviceState::setDeviceInfo(const DeviceInfo &newDeviceInfo)
 {
-    m_deviceInfo = newDeviceInfo;
+    if(newDeviceInfo.usbInfo.productID() == 0xdf11) {
+        // Keep most of the data from previous session
+        m_deviceInfo.usbInfo = newDeviceInfo.usbInfo;
+        m_deviceInfo.portInfo = newDeviceInfo.portInfo;
+
+    } else {
+        m_deviceInfo = newDeviceInfo;
+    }
+
     emit deviceInfoChanged();
 }
 

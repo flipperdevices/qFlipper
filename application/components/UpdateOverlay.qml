@@ -68,21 +68,39 @@ AbstractOverlay {
         color: Theme.color.lightorange2
     }
 
-    ColumnLayout {
+    MouseArea {
         x: 620
         y: 120
 
-        opacity: !deviceInfo ? 0 : !deviceState.isRecoveryMode && !deviceInfo.storage.isExternalPresent ? 1 : 0
+        hoverEnabled: true
 
-        Image {
-            source: "qrc:/assets/gfx/images/no-sd-card.svg"
-            sourceSize: Qt.size(44, 58)
-            Layout.alignment: Qt.AlignHCenter
+        width: layout.implicitWidth
+        height: layout.implicitHeight
+
+        opacity: Backend.state === Backend.UpdatingDevice ? !!deviceInfo && !deviceInfo.storage.isExternalPresent :
+                 Backend.state === Backend.RepairingDevice ? !!deviceInfo && !deviceState.isRecoveryMode && !deviceInfo.storage.isExternalPresent : 0
+
+        enabled: opacity > 0
+
+        ColumnLayout {
+            id: layout
+
+            Image {
+                source: "qrc:/assets/gfx/images/no-sd-card.svg"
+                sourceSize: Qt.size(44, 58)
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            TextLabel {
+                text: qsTr("No SD")
+                Layout.alignment: Qt.AlignHCenter
+            }
         }
 
-        TextLabel {
-            text: qsTr("No sd")
-            Layout.alignment: Qt.AlignHCenter
+        ToolTip {
+            implicitWidth: 250
+            text: qsTr("SD Card is not installed. Some functionality will not be available.")
+            visible: parent.containsMouse
         }
 
         Behavior on opacity {
@@ -92,4 +110,5 @@ AbstractOverlay {
             }
         }
     }
+
 }
