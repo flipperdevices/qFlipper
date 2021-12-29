@@ -19,7 +19,7 @@ void AbstractSerialOperation::start()
 
     QTimer::singleShot(0, this, [=]() {
         if(!begin()) {
-            finishWithError(QStringLiteral("Failed to begin operation"));
+            finishWithError(QStringLiteral("Failed to begin operation: %1").arg(m_serialPort->errorString()));
         } else {
             startTimeout();
         }

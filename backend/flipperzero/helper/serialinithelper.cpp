@@ -52,7 +52,7 @@ void SerialInitHelper::skipMOTD()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->errorString());
+            finishWithError(QStringLiteral("Failed to begin CLI session: %1").arg(operation->errorString()));
         } else {
             advanceState();
         }
@@ -68,7 +68,7 @@ void SerialInitHelper::startRPCSession()
     auto *operation = new StartRPCOperation(m_serialPort, this);
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->errorString());
+            finishWithError(QStringLiteral("Failed to start RPC session: %1").arg(operation->errorString()));
         } else {
             advanceState();
         }
