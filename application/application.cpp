@@ -36,7 +36,7 @@ Application::Application(int &argc, char **argv):
     initGUI();
 
     qCInfo(CATEGORY_APP).noquote() << APP_NAME << "version" << APP_VERSION << "commit"
-                                   << APP_COMMIT << QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).toString();
+                                   << APP_COMMIT << QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).toString(Qt::ISODate);
     if(m_dangerFeaturesEnabled) {
         qCCritical(CATEGORY_APP) << "Dangerous features enabled! Please be careful.";
     }

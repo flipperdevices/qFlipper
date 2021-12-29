@@ -40,7 +40,7 @@ FlipperZero *DeviceRegistry::currentDevice() const
 void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 {
     if(!info.isValid()) {
-        qCCritical(CAT_DEVREG).noquote().nospace()
+        qCDebug(CAT_DEVREG).noquote().nospace()
             << "Invalid device detected: VID_0x" << QString::number(info.vendorID(), 16) << ":PID_0x"
             << QString::number(info.productID(), 16) << ", ignoring it";
 
@@ -101,7 +101,7 @@ void DeviceRegistry::processDevice()
     fetcher->deleteLater();
 
     if(fetcher->isError()) {
-        qCCritical(CAT_DEVREG).noquote() << "Device initialization failed:" << fetcher->errorString();
+        qCDebug(CAT_DEVREG).noquote() << "Device initialization failed:" << fetcher->errorString();
         return;
     }
 
