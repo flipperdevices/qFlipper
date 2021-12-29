@@ -29,6 +29,11 @@ const DeviceInfo &DeviceState::deviceInfo() const
 
 void DeviceState::setDeviceInfo(const DeviceInfo &newDeviceInfo)
 {
+    if(m_isOnline) {
+        m_queue.enqueue(newDeviceInfo);
+        return;
+    }
+
     if(newDeviceInfo.usbInfo.productID() == 0xdf11) {
         // Keep most of the data from previous session
         m_deviceInfo.usbInfo = newDeviceInfo.usbInfo;
@@ -158,6 +163,17 @@ void DeviceState::onDeviceInfoChanged()
         return;
     }
 
+    createSerialPort();
+}
+
+void DeviceState::onIsOnlineChanged()
+{
+    deleteSerialPort();
+    processQueue();
+}
+
+void DeviceState::createSerialPort()
+{
     auto *helper = new SerialInitHelper(m_deviceInfo.portInfo, this);
     connect(helper, &AbstractOperationHelper::finished, this, [=]() {
         if(helper->isError()) {
@@ -172,10 +188,18 @@ void DeviceState::onDeviceInfoChanged()
     });
 }
 
-void DeviceState::onIsOnlineChanged()
+void DeviceState::deleteSerialPort()
 {
     if(!m_isOnline && m_serialPort) {
         m_serialPort->deleteLater();
         m_serialPort = nullptr;
+    }
+}
+
+void DeviceState::processQueue()
+{
+    if(!m_isOnline && !m_queue.isEmpty()) {
+        setDeviceInfo(m_queue.takeLast());
+        m_queue.clear();
     }
 }

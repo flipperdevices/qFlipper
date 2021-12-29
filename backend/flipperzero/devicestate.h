@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QQueue>
 #include <QObject>
 
 #include "deviceinfo.h"
@@ -69,8 +70,13 @@ private slots:
     void onIsOnlineChanged();
 
 private:
+    void createSerialPort();
+    void deleteSerialPort();
+    void processQueue();
+
     DeviceInfo m_deviceInfo;
     QSerialPort *m_serialPort;
+    QQueue<DeviceInfo> m_queue;
 
     bool m_isPersistent;
     bool m_isOnline;

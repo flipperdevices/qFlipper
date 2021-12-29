@@ -14,6 +14,8 @@ class Application : public QApplication
     Q_PROPERTY(QString version READ applicationVersion NOTIFY applicationVersionChanged)
     Q_PROPERTY(QString commit READ commitNumber CONSTANT)
 
+    Q_PROPERTY(ApplicationUpdater* updater READ updater CONSTANT)
+
     Q_PROPERTY(bool dangerousFeatures READ isDangerousFeaturesEnabled CONSTANT)
     Q_PROPERTY(UpdateStatus updateStatus READ updateStatus NOTIFY updateStatusChanged)
 
@@ -28,6 +30,8 @@ public:
 
     Application(int &argc, char **argv);
     ~Application();
+
+    ApplicationUpdater *updater();
 
     static const QString commitNumber();
     bool isDangerousFeaturesEnabled() const;

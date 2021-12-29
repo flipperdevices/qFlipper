@@ -47,6 +47,11 @@ Application::~Application()
     qCInfo(CATEGORY_APP).noquote() << APP_NAME << "exited";
 }
 
+ApplicationUpdater *Application::updater()
+{
+    return &m_updater;
+}
+
 const QString Application::commitNumber()
 {
     return APP_COMMIT;
@@ -125,6 +130,7 @@ void Application::initTranslations()
 void Application::initQmlTypes()
 {
     qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
+    qmlRegisterType<ApplicationUpdater>("QFlipper", 1, 0, "AppUpdater");
 
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Logger", globalLogger);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Preferences", globalPrefs);

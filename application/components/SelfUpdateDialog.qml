@@ -53,7 +53,7 @@ CustomDialog {
                     highlighted: true
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    onClicked:  App.updater.installUpdate(applicationUpdates.latestVersion);
+                    onClicked: App.selfUpdate();
                 }
 
                 SmallButton {
