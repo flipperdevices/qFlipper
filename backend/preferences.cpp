@@ -58,7 +58,11 @@ void Preferences::setApplicationUpdateChannel(const QString &newUpdateChannel)
 
 bool Preferences::checkApplicationUpdates() const
 {
+#ifndef DISABLE_APPLICATION_UPDATES
     return m_settings.value(CHECK_APPLICATION_UPDATES_KEY).toBool();
+#else
+    return false;
+#endif
 }
 
 void Preferences::setCheckApplicationUpdates(bool set)

@@ -26,7 +26,6 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     QObject(parent),
     m_deviceRegistry(new DeviceRegistry(this)),
     m_firmwareUpdates(new FirmwareUpdates("https://update.flipperzero.one/firmware/directory.json", this)),
-    m_applicationUpdates(new ApplicationUpdates("https://update.flipperzero.one/qFlipper/directory.json", this)),
     m_state(State::WaitingForDevices),
     m_updateStatus(UpdateStatus::Unknown)
 {
@@ -203,11 +202,6 @@ void ApplicationBackend::setState(State newState)
 UpdateRegistry *ApplicationBackend::firmwareUpdates() const
 {
     return m_firmwareUpdates;
-}
-
-UpdateRegistry *ApplicationBackend::applicationUpdates() const
-{
-    return m_applicationUpdates;
 }
 
 void ApplicationBackend::registerMetaTypes()

@@ -33,11 +33,10 @@ Item {
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
     Component.onCompleted: {
-        if(applicationUpdates.isReady) {
+        if(App.updateable) {
             askForSelfUpdate();
         } else {
-            applicationUpdates.channelsChanged.connect(askForSelfUpdate);
-            homeOverlay.selfUpdateRequested.connect(askForSelfUpdate);
+            App.isUpdateable.connect(askForSelfUpdate);
         }
     }
 
@@ -150,7 +149,7 @@ Item {
             font.family: "ProggySquareTT"
             font.pixelSize: 16
 
-            text: app.version
+            text: App.version
 
             MouseArea {
                 id: clicker
@@ -339,7 +338,7 @@ Item {
     }
 
     function askForSelfUpdate() {
-        if(app.updater.canUpdate(applicationUpdates.latestVersion)) {
+        if(App.updateable) {
             selfUpdateDialog.open();
         }
     }

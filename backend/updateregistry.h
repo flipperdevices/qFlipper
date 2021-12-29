@@ -19,10 +19,12 @@ class UpdateRegistry : public QObject
 
 public:
     UpdateRegistry(const QString &directoryUrl, QObject *parent = nullptr);
+
+    void setDirectoryUrl(const QString &directoryUrl);
     bool fillFromJson(const QByteArray &text);
 
-    const QStringList channelNames() const;
     bool isReady() const;
+    const QStringList channelNames() const;
 
     const Flipper::Updates::VersionInfo latestVersion() const;
     Q_INVOKABLE Flipper::Updates::ChannelInfo channel(const QString &channelName) const;
@@ -51,15 +53,4 @@ public:
 private:
     const QString updateChannel() const override;
 };
-
-class ApplicationUpdates : public UpdateRegistry {
-    Q_OBJECT
-
-public:
-    ApplicationUpdates(const QString &directoryUrl, QObject *parent = nullptr);
-
-private:
-    const QString updateChannel() const override;
-};
-
 }

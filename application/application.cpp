@@ -21,9 +21,10 @@ Q_LOGGING_CATEGORY(CATEGORY_APP, "APP")
 
 Application::Application(int &argc, char **argv):
     QApplication(argc, argv),
+    m_updateRegistry(globalPrefs->checkApplicationUpdates() ? QStringLiteral("https://update.flipperzero.one/qFlipper/directory.json") : QString()),
     m_dangerFeaturesEnabled(QGuiApplication::queryKeyboardModifiers() & Qt::KeyboardModifier::AltModifier)
-
 {
+    initConnections();
     initLogger();
     initQmlTypes();
     initContextProperties();
@@ -60,6 +61,27 @@ bool Application::isDangerousFeaturesEnabled() const
     return m_dangerFeaturesEnabled;
 }
 
+bool Application::isUpdateable() const
+{
+    return globalPrefs->checkApplicationUpdates() && m_updateRegistry.isReady()
+            && m_updater.canUpdate(m_updateRegistry.latestVersion());
+}
+
+void Application::selfUpdate()
+{
+    m_updater.installUpdate(m_updateRegistry.latestVersion());
+}
+
+void Application::checkForUpdates()
+{
+    m_updateRegistry.check();
+}
+
+void Application::initConnections()
+{
+    connect(&m_updateRegistry, &Flipper::UpdateRegistry::latestVersionChanged, this, &Application::isUpdateableChanged);
+}
+
 void Application::initLogger()
 {
     qInstallMessageHandler(Logger::messageOutput);
@@ -77,7 +99,6 @@ void Application::initContextProperties()
     //TODO: Replace context properties with QML singletons
     m_engine.rootContext()->setContextProperty("app", this);
     m_engine.rootContext()->setContextProperty("firmwareUpdates", m_backend.firmwareUpdates());
-    m_engine.rootContext()->setContextProperty("applicationUpdates",m_backend.applicationUpdates());
 }
 
 void Application::initTranslations()

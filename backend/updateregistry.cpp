@@ -28,8 +28,12 @@ UpdateRegistry::UpdateRegistry(const QString &directoryUrl, QObject *parent):
     connect(m_checkTimer, &QTimer::timeout, this, &UpdateRegistry::check);
 
     check();
+}
 
-    m_checkTimer->start(std::chrono::minutes(10));
+void UpdateRegistry::setDirectoryUrl(const QString &directoryUrl)
+{
+    m_directoryUrl = directoryUrl;
+    check();
 }
 
 bool UpdateRegistry::fillFromJson(const QByteArray &text)
@@ -85,6 +89,10 @@ Updates::ChannelInfo UpdateRegistry::channel(const QString &channelName) const
 
 void UpdateRegistry::check()
 {
+    if(m_directoryUrl.isEmpty()) {
+        return;
+    }
+
     auto *fetcher = new RemoteFileFetcher(this);
     auto *buf = new QBuffer(this);
 
@@ -109,6 +117,8 @@ void UpdateRegistry::check()
     if(!fetcher->fetch(m_directoryUrl, buf)) {
         buf->deleteLater();
     }
+
+    m_checkTimer->start(std::chrono::minutes(10));
 }
 
 FirmwareUpdates::FirmwareUpdates(const QString &directoryUrl, QObject *parent):
@@ -120,15 +130,4 @@ FirmwareUpdates::FirmwareUpdates(const QString &directoryUrl, QObject *parent):
 const QString FirmwareUpdates::updateChannel() const
 {
     return globalPrefs->firmwareUpdateChannel();
-}
-
-ApplicationUpdates::ApplicationUpdates(const QString &directoryUrl, QObject *parent):
-    UpdateRegistry(directoryUrl, parent)
-{
-    connect(globalPrefs, &Preferences::applicationUpdateChannelChanged, this, &UpdateRegistry::latestVersionChanged);
-}
-
-const QString ApplicationUpdates::updateChannel() const
-{
-    return globalPrefs->applicationUpdateChannel();
 }

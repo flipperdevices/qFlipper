@@ -35,7 +35,7 @@ double ApplicationUpdater::progress() const
     return m_progress;
 }
 
-bool ApplicationUpdater::canUpdate(const Flipper::Updates::VersionInfo &versionInfo)
+bool ApplicationUpdater::canUpdate(const Flipper::Updates::VersionInfo &versionInfo) const
 {
     const auto appDate = QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).date();
     const auto appVersion = QStringLiteral(APP_VERSION);

@@ -25,13 +25,12 @@ public:
     State state() const;
     double progress() const;
 
+    bool canUpdate(const Flipper::Updates::VersionInfo &versionInfo) const;
+    void installUpdate(const Flipper::Updates::VersionInfo &versionInfo);
+
 signals:
     void stateChanged();
     void progressChanged();
-
-public slots:
-    bool canUpdate(const Flipper::Updates::VersionInfo &versionInfo);
-    void installUpdate(const Flipper::Updates::VersionInfo &versionInfo);
 
 private slots:
     void setState(State state);

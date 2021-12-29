@@ -3,12 +3,10 @@
 #include <QObject>
 
 namespace Flipper {
-
 class FlipperZero;
 class DeviceRegistry;
 class UpdateRegistry;
 class FirmwareUpdates;
-class ApplicationUpdates;
 }
 
 class ApplicationBackend : public QObject
@@ -54,7 +52,6 @@ public:
 
     Flipper::FlipperZero *currentDevice() const;
     Flipper::UpdateRegistry *firmwareUpdates() const;
-    Flipper::UpdateRegistry *applicationUpdates() const;
 
     /* Actions available from the GUI.
      * Applies to the currently active device. */
@@ -93,7 +90,6 @@ private:
 
     Flipper::DeviceRegistry *m_deviceRegistry;
     Flipper::FirmwareUpdates *m_firmwareUpdates;
-    Flipper::ApplicationUpdates *m_applicationUpdates;
 
     State m_state;
     UpdateStatus m_updateStatus;

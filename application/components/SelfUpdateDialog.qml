@@ -11,7 +11,7 @@ CustomDialog {
     closable: false
     closePolicy: Popup.NoAutoClose
 
-    title: app.updater.state === AppUpdater.Idle ? qsTr("Update qFlipper?") : qsTr("Updating qFlipper")
+    title: App.updater.state === AppUpdater.Idle ? qsTr("Update qFlipper?") : qsTr("Updating qFlipper")
 
     contentWidget: Item {
         implicitWidth: 430
@@ -23,7 +23,7 @@ CustomDialog {
 
             TextLabel {
                 id: messageLabel
-                visible: app.updater.state === AppUpdater.Idle
+                visible: App.updater.state === AppUpdater.Idle
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 text: qsTr("Newer version of qFlipper<br/>will be installed")
@@ -53,7 +53,7 @@ CustomDialog {
                     highlighted: true
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    onClicked:  app.updater.installUpdate(applicationUpdates.latestVersion);
+                    onClicked:  App.updater.installUpdate(applicationUpdates.latestVersion);
                 }
 
                 SmallButton {
@@ -68,7 +68,7 @@ CustomDialog {
             ProgressBar {
                 id: progressBar
 
-                visible: app.updater.state !== AppUpdater.Idle
+                visible: App.updater.state !== AppUpdater.Idle
 
                 implicitWidth: 286
                 implicitHeight: 56
@@ -76,7 +76,7 @@ CustomDialog {
                 from: 0
                 to: 100
 
-                value: app.updater.progress
+                value: App.updater.progress
                 indeterminate: value < 0
 
                 Layout.topMargin: 40
@@ -88,10 +88,10 @@ CustomDialog {
                 id: progressLabel
                 padding: 0
 
-                visible: app.updater.state !== AppUpdater.Idle
+                visible: App.updater.state !== AppUpdater.Idle
 
                 text: {
-                    switch(app.updater.state) {
+                    switch(App.updater.state) {
                     case AppUpdater.Downloading:
                         return qsTr("Downloading latest version...");
                     case AppUpdater.Updating:
@@ -109,7 +109,7 @@ CustomDialog {
                 Layout.fillWidth: true
                 Layout.bottomMargin: 14
 
-                color: app.updater.state === AppUpdater.ErrorOccured ? Theme.color.lightred3 : Theme.color.lightorange2
+                color: App.updater.state === AppUpdater.ErrorOccured ? Theme.color.lightred3 : Theme.color.lightorange2
             }
         }
     }
