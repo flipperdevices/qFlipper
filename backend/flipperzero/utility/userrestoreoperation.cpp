@@ -6,9 +6,9 @@
 
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
-#include "flipperzero/cli/storagemkdiroperation.h"
-#include "flipperzero/cli/storagewriteoperation.h"
-#include "flipperzero/cli/storageremoveoperation.h"
+#include "flipperzero/rpc/storagemkdiroperation.h"
+#include "flipperzero/rpc/storagewriteoperation.h"
+#include "flipperzero/rpc/storageremoveoperation.h"
 
 #include "debug.h"
 

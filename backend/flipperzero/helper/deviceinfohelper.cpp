@@ -9,14 +9,14 @@
 
 #include "flipperzero/factoryinfo.h"
 
-#include "flipperzero/cli/stoprpcoperation.h"
+#include "flipperzero/rpc/stoprpcoperation.h"
 
-#include "flipperzero/cli/storagestatoperation.h"
-#include "flipperzero/cli/storageinfooperation.h"
+#include "flipperzero/rpc/storagestatoperation.h"
+#include "flipperzero/rpc/storageinfooperation.h"
 
-#include "flipperzero/cli/systemdeviceinfooperation.h"
-#include "flipperzero/cli/systemgetdatetimeoperation.h"
-#include "flipperzero/cli/systemsetdatetimeoperation.h"
+#include "flipperzero/rpc/systemdeviceinfooperation.h"
+#include "flipperzero/rpc/systemgetdatetimeoperation.h"
+#include "flipperzero/rpc/systemsetdatetimeoperation.h"
 
 #include "device/stm32wb55.h"
 

@@ -7,7 +7,7 @@
 
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
-#include "flipperzero/cli/storagereadoperation.h"
+#include "flipperzero/rpc/storagereadoperation.h"
 
 #include "getfiletreeoperation.h"
 

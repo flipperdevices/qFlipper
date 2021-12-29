@@ -4,7 +4,7 @@
 
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
-#include "flipperzero/cli/storagelistoperation.h"
+#include "flipperzero/rpc/storagelistoperation.h"
 
 #include "debug.h"
 

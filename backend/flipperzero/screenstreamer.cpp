@@ -5,8 +5,8 @@
 
 #include "commandinterface.h"
 
-#include "cli/guistartstreamoperation.h"
-#include "cli/guistopstreamoperation.h"
+#include "rpc/guistartstreamoperation.h"
+#include "rpc/guistopstreamoperation.h"
 
 #include "protobuf/guiprotobufmessage.h"
 

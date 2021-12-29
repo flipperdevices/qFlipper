@@ -2,8 +2,8 @@
 
 #include <QSerialPort>
 
-#include "flipperzero/cli/skipmotdoperation.h"
-#include "flipperzero/cli/startrpcoperation.h"
+#include "flipperzero/rpc/skipmotdoperation.h"
+#include "flipperzero/rpc/startrpcoperation.h"
 
 using namespace Flipper;
 using namespace Zero;

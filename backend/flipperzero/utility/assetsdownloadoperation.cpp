@@ -7,12 +7,12 @@
 #include <QFileInfo>
 #include <QLoggingCategory>
 
-#include "flipperzero/cli/storageremoveoperation.h"
-#include "flipperzero/cli/storagemkdiroperation.h"
-#include "flipperzero/cli/storagewriteoperation.h"
-#include "flipperzero/cli/storagereadoperation.h"
-#include "flipperzero/cli/storageinfooperation.h"
-#include "flipperzero/cli/storagestatoperation.h"
+#include "flipperzero/rpc/storageremoveoperation.h"
+#include "flipperzero/rpc/storagemkdiroperation.h"
+#include "flipperzero/rpc/storagewriteoperation.h"
+#include "flipperzero/rpc/storagereadoperation.h"
+#include "flipperzero/rpc/storageinfooperation.h"
+#include "flipperzero/rpc/storagestatoperation.h"
 
 #include "flipperzero/commandinterface.h"
 #include "flipperzero/assetmanifest.h"

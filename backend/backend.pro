@@ -19,24 +19,24 @@ SOURCES += \
     filenode.cpp \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
-    flipperzero/cli/guistartstreamoperation.cpp \
-    flipperzero/cli/guistopstreamoperation.cpp \
-    flipperzero/cli/startrpcoperation.cpp \
-    flipperzero/cli/stoprpcoperation.cpp \
-    flipperzero/cli/storageinfooperation.cpp \
-    flipperzero/cli/storagelistoperation.cpp \
-    flipperzero/cli/storagemkdiroperation.cpp \
-    flipperzero/cli/storagereadoperation.cpp \
-    flipperzero/cli/storageremoveoperation.cpp \
-    flipperzero/cli/storagestatoperation.cpp \
-    flipperzero/cli/storagewriteoperation.cpp \
-    flipperzero/cli/systemdeviceinfooperation.cpp \
-    flipperzero/cli/systemfactoryresetoperation.cpp \
-    flipperzero/cli/systemgetdatetimeoperation.cpp \
-    flipperzero/cli/systemrebootoperation.cpp \
-    flipperzero/cli/systemsetdatetimeoperation.cpp \
+    flipperzero/rpc/guistartstreamoperation.cpp \
+    flipperzero/rpc/guistopstreamoperation.cpp \
+    flipperzero/rpc/startrpcoperation.cpp \
+    flipperzero/rpc/stoprpcoperation.cpp \
+    flipperzero/rpc/storageinfooperation.cpp \
+    flipperzero/rpc/storagelistoperation.cpp \
+    flipperzero/rpc/storagemkdiroperation.cpp \
+    flipperzero/rpc/storagereadoperation.cpp \
+    flipperzero/rpc/storageremoveoperation.cpp \
+    flipperzero/rpc/storagestatoperation.cpp \
+    flipperzero/rpc/storagewriteoperation.cpp \
+    flipperzero/rpc/systemdeviceinfooperation.cpp \
+    flipperzero/rpc/systemfactoryresetoperation.cpp \
+    flipperzero/rpc/systemgetdatetimeoperation.cpp \
+    flipperzero/rpc/systemrebootoperation.cpp \
+    flipperzero/rpc/systemsetdatetimeoperation.cpp \
     flipperzero/commandinterface.cpp \
-    flipperzero/cli/skipmotdoperation.cpp \
+    flipperzero/rpc/skipmotdoperation.cpp \
     flipperzero/devicestate.cpp \
     flipperzero/factoryinfo.cpp \
     flipperzero/flipperzero.cpp \
@@ -110,24 +110,24 @@ HEADERS += \
     filenode.h \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
-    flipperzero/cli/guistartstreamoperation.h \
-    flipperzero/cli/guistopstreamoperation.h \
-    flipperzero/cli/startrpcoperation.h \
-    flipperzero/cli/stoprpcoperation.h \
-    flipperzero/cli/storageinfooperation.h \
-    flipperzero/cli/storagelistoperation.h \
-    flipperzero/cli/storagemkdiroperation.h \
-    flipperzero/cli/storagereadoperation.h \
-    flipperzero/cli/storageremoveoperation.h \
-    flipperzero/cli/storagestatoperation.h \
-    flipperzero/cli/storagewriteoperation.h \
-    flipperzero/cli/systemdeviceinfooperation.h \
-    flipperzero/cli/systemfactoryresetoperation.h \
-    flipperzero/cli/systemgetdatetimeoperation.h \
-    flipperzero/cli/systemrebootoperation.h \
-    flipperzero/cli/systemsetdatetimeoperation.h \
+    flipperzero/rpc/guistartstreamoperation.h \
+    flipperzero/rpc/guistopstreamoperation.h \
+    flipperzero/rpc/startrpcoperation.h \
+    flipperzero/rpc/stoprpcoperation.h \
+    flipperzero/rpc/storageinfooperation.h \
+    flipperzero/rpc/storagelistoperation.h \
+    flipperzero/rpc/storagemkdiroperation.h \
+    flipperzero/rpc/storagereadoperation.h \
+    flipperzero/rpc/storageremoveoperation.h \
+    flipperzero/rpc/storagestatoperation.h \
+    flipperzero/rpc/storagewriteoperation.h \
+    flipperzero/rpc/systemdeviceinfooperation.h \
+    flipperzero/rpc/systemfactoryresetoperation.h \
+    flipperzero/rpc/systemgetdatetimeoperation.h \
+    flipperzero/rpc/systemrebootoperation.h \
+    flipperzero/rpc/systemsetdatetimeoperation.h \
     flipperzero/commandinterface.h \
-    flipperzero/cli/skipmotdoperation.h \
+    flipperzero/rpc/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
     flipperzero/devicestate.h \
     flipperzero/factoryinfo.h \

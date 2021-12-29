@@ -4,24 +4,24 @@
 
 #include "flipperzero/devicestate.h"
 
-#include "cli/skipmotdoperation.h"
+#include "rpc/skipmotdoperation.h"
 
-#include "cli/startrpcoperation.h"
-#include "cli/stoprpcoperation.h"
+#include "rpc/startrpcoperation.h"
+#include "rpc/stoprpcoperation.h"
 
-#include "cli/systemrebootoperation.h"
-#include "cli/systemfactoryresetoperation.h"
+#include "rpc/systemrebootoperation.h"
+#include "rpc/systemfactoryresetoperation.h"
 
-#include "cli/storageremoveoperation.h"
-#include "cli/storagemkdiroperation.h"
-#include "cli/storagewriteoperation.h"
-#include "cli/storagereadoperation.h"
-#include "cli/storagelistoperation.h"
-#include "cli/storagestatoperation.h"
-#include "cli/storageinfooperation.h"
+#include "rpc/storageremoveoperation.h"
+#include "rpc/storagemkdiroperation.h"
+#include "rpc/storagewriteoperation.h"
+#include "rpc/storagereadoperation.h"
+#include "rpc/storagelistoperation.h"
+#include "rpc/storagestatoperation.h"
+#include "rpc/storageinfooperation.h"
 
-#include "cli/guistartstreamoperation.h"
-#include "cli/guistopstreamoperation.h"
+#include "rpc/guistartstreamoperation.h"
+#include "rpc/guistopstreamoperation.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_RPC, "RPC");
 

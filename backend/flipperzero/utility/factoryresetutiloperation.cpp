@@ -4,7 +4,7 @@
 
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
-#include "flipperzero/cli/systemfactoryresetoperation.h"
+#include "flipperzero/rpc/systemfactoryresetoperation.h"
 
 #define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
 
