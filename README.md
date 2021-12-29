@@ -25,6 +25,8 @@ build_windows.bat
 docker-compose exec dev ./build_linux.sh
 ```
 
+If building qFlipper as a part of a native package, it is possible to disable the built-in application update feature by passing `DEFINES+=DISABLE_APPLICATION_UPDATES` to the `qmake` program.
+
 ### MacOS:
 
 Build requirements:
