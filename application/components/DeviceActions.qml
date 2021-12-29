@@ -114,11 +114,13 @@ ColumnLayout {
     TransparentLabel {
         color: Theme.color.lightorange2
         text: qsTr("Application update")
+        visible: Preferences.checkAppUpdates
     }
 
     Button {
         action: selfUpdateAction
         Layout.fillWidth: true
+        visible: Preferences.checkAppUpdates
 
         icon.source: "qrc:/assets/gfx/symbolic/update-symbolic.svg"
         icon.width: 16
@@ -151,7 +153,23 @@ ColumnLayout {
 
     Action {
         id: selfUpdateAction
-        text: qsTr("Check app updates")
-        enabled: false//applicationUpdates.isReady && app.updater.canUpdate(applicationUpdates.latestVersion)
+        text: App.updateStatus === App.Checking ? qsTr("Checking...") :
+              App.updateStatus === App.NoUpdates && checkTimer.running ? qsTr("No updates") : qsTr("Check app updates")
+
+        enabled: Preferences.checkAppUpdates && App.updateStatus !== App.Checking && !checkTimer.running
+        onTriggered: App.checkForUpdates()
+    }
+
+    Timer {
+        id: checkTimer
+        interval: 1000
+
+        Component.onCompleted: {
+            App.updateStatusChanged.connect(function() {
+                if(App.updateStatus === App.NoUpdates) {
+                    start();
+                }
+            });
+        }
     }
 }

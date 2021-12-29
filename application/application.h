@@ -13,26 +13,34 @@ class Application : public QApplication
     Q_PROPERTY(QString name READ applicationName NOTIFY applicationNameChanged)
     Q_PROPERTY(QString version READ applicationVersion NOTIFY applicationVersionChanged)
     Q_PROPERTY(QString commit READ commitNumber CONSTANT)
-    Q_PROPERTY(ApplicationUpdater* updater READ updater CONSTANT)
 
     Q_PROPERTY(bool dangerousFeatures READ isDangerousFeaturesEnabled CONSTANT)
-    Q_PROPERTY(bool updateable READ isUpdateable NOTIFY isUpdateableChanged)
+    Q_PROPERTY(UpdateStatus updateStatus READ updateStatus NOTIFY updateStatusChanged)
 
 public:
+    enum class UpdateStatus {
+        NoUpdates,
+        Checking,
+        CanUpdate
+    };
+
+    Q_ENUM(UpdateStatus)
+
     Application(int &argc, char **argv);
     ~Application();
 
     static const QString commitNumber();
-    ApplicationUpdater *updater();
-
     bool isDangerousFeaturesEnabled() const;
+    UpdateStatus updateStatus() const;
 
-    bool isUpdateable() const;
     Q_INVOKABLE void selfUpdate();
     Q_INVOKABLE void checkForUpdates();
 
 signals:
-    void isUpdateableChanged();
+    void updateStatusChanged();
+
+private slots:
+    void onLatestVersionChanged();
 
 private:
     void initConnections();
@@ -45,11 +53,14 @@ private:
     void initFonts();
     void initGUI();
 
+    void setUpdateStatus(UpdateStatus newUpdateStatus);
+
     ApplicationUpdater m_updater;
     ApplicationUpdateRegistry m_updateRegistry;
     ApplicationBackend m_backend;
     QQmlApplicationEngine m_engine;
 
     bool m_dangerFeaturesEnabled;
+    UpdateStatus m_updateStatus;
 };
 

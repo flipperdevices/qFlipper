@@ -22,7 +22,8 @@ Q_LOGGING_CATEGORY(CATEGORY_APP, "APP")
 Application::Application(int &argc, char **argv):
     QApplication(argc, argv),
     m_updateRegistry(globalPrefs->checkApplicationUpdates() ? QStringLiteral("https://update.flipperzero.one/qFlipper/directory.json") : QString()),
-    m_dangerFeaturesEnabled(QGuiApplication::queryKeyboardModifiers() & Qt::KeyboardModifier::AltModifier)
+    m_dangerFeaturesEnabled(QGuiApplication::queryKeyboardModifiers() & Qt::KeyboardModifier::AltModifier),
+    m_updateStatus(UpdateStatus::NoUpdates)
 {
     initConnections();
     initLogger();
@@ -51,20 +52,14 @@ const QString Application::commitNumber()
     return APP_COMMIT;
 }
 
-ApplicationUpdater *Application::updater()
-{
-    return &m_updater;
-}
-
 bool Application::isDangerousFeaturesEnabled() const
 {
     return m_dangerFeaturesEnabled;
 }
 
-bool Application::isUpdateable() const
+Application::UpdateStatus Application::updateStatus() const
 {
-    return globalPrefs->checkApplicationUpdates() && m_updateRegistry.isReady()
-            && m_updater.canUpdate(m_updateRegistry.latestVersion());
+    return m_updateStatus;
 }
 
 void Application::selfUpdate()
@@ -74,12 +69,26 @@ void Application::selfUpdate()
 
 void Application::checkForUpdates()
 {
+    if(m_updateStatus == UpdateStatus::Checking) {
+        return;
+    }
+
+    setUpdateStatus(UpdateStatus::Checking);
     m_updateRegistry.check();
+}
+
+void Application::onLatestVersionChanged()
+{
+    if(m_updateRegistry.isReady() && m_updater.canUpdate(m_updateRegistry.latestVersion())) {
+        setUpdateStatus(UpdateStatus::CanUpdate);
+    } else {
+        setUpdateStatus(UpdateStatus::NoUpdates);
+    }
 }
 
 void Application::initConnections()
 {
-    connect(&m_updateRegistry, &Flipper::UpdateRegistry::latestVersionChanged, this, &Application::isUpdateableChanged);
+    connect(&m_updateRegistry, &Flipper::UpdateRegistry::latestVersionChanged, this, &Application::onLatestVersionChanged);
 }
 
 void Application::initLogger()
@@ -97,7 +106,6 @@ void Application::initStyles()
 void Application::initContextProperties()
 {
     //TODO: Replace context properties with QML singletons
-    m_engine.rootContext()->setContextProperty("app", this);
     m_engine.rootContext()->setContextProperty("firmwareUpdates", m_backend.firmwareUpdates());
 }
 
@@ -117,7 +125,6 @@ void Application::initTranslations()
 void Application::initQmlTypes()
 {
     qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
-    qmlRegisterType<ApplicationUpdater>("QFlipper", 1, 0, "AppUpdater");
 
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Logger", globalLogger);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Preferences", globalPrefs);
@@ -150,4 +157,14 @@ void Application::initGUI()
 
     connect(&m_engine, &QQmlApplicationEngine::objectCreated, this, onObjectCreated, Qt::QueuedConnection);
     m_engine.load(url);
+}
+
+void Application::setUpdateStatus(UpdateStatus newUpdateStatus)
+{
+    if(newUpdateStatus == m_updateStatus) {
+        return;
+    }
+
+    m_updateStatus = newUpdateStatus;
+    emit updateStatusChanged();
 }

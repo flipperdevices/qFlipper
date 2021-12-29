@@ -40,7 +40,7 @@ CustomDialog {
 
             RowLayout {
                 id: buttonBox
-                visible: app.updater.state === AppUpdater.Idle
+                visible: App.updater.state === AppUpdater.Idle
                 spacing: 30
                 Layout.margins: 20
                 Layout.fillWidth: true

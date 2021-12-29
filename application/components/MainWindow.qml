@@ -33,10 +33,10 @@ Item {
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
     Component.onCompleted: {
-        if(App.updateable) {
+        if(App.updateStatus === App.CanUpdate) {
             askForSelfUpdate();
         } else {
-            App.isUpdateable.connect(askForSelfUpdate);
+            App.updateStatusChanged.connect(askForSelfUpdate);
         }
     }
 
@@ -338,7 +338,7 @@ Item {
     }
 
     function askForSelfUpdate() {
-        if(App.updateable) {
+        if(App.updateStatus === App.CanUpdate) {
             selfUpdateDialog.open();
         }
     }
