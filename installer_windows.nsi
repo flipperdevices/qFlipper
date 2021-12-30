@@ -8,6 +8,9 @@ SetCompressor /solid /final lzma
 !define DRIVER_TOOL_EXE "$INSTDIR\FlipperDriverTool.exe"
 !define VCREDIST2019_EXE "$INSTDIR\vcredist_msvc2019_x${ARCH_BITS}.exe"
 !define VCREDIST2010_EXE "$INSTDIR\vcredist_x${ARCH_BITS}.exe"
+!define UNINSTALL_REG_PATH "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
+
+!include "FileFunc.nsh"
 
 Name ${NAME}
 Icon "installer-assets\icons\${NAME}-installer.ico"
@@ -36,10 +39,21 @@ Section "-Main Application"
 	ExecWait "${VCREDIST2019_EXE} /install /passive /norestart"
 	
 	WriteUninstaller "${UNINSTALL_EXE}"
+	
+	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayName" "${NAME}"
+	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "UninstallString" "$\"${UNINSTALL_EXE}$\""
+	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "QuietUninstallString" "$\"${UNINSTALL_EXE}$\" /S"
+	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayIcon" "$\"$INSTDIR\${NAME}.exe$\""
+	WriteRegDWORD HKLM "${UNINSTALL_REG_PATH}" "NoModify" 1
+	WriteRegDWORD HKLM "${UNINSTALL_REG_PATH}" "NoRepair" 1
 SectionEnd
 
 Section "USB Driver"
 	nsExec::ExecToLog '"${DRIVER_TOOL_EXE}" $HWNDPARENT'
+SectionEnd
+
+Section "Start menu entry"
+	CreateShortCut "$SMPROGRAMS\${NAME}.lnk" "$INSTDIR\${NAME}.exe"
 SectionEnd
 
 Section "Desktop shortcut"
@@ -50,10 +64,16 @@ Section "-Cleanup"
 	Delete ${VCREDIST2019_EXE}
 	Delete ${VCREDIST2010_EXE}
 	Delete ${DRIVER_TOOL_EXE}
+	
+	${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
+	IntFmt $0 "0x%08X" $0
+	WriteRegDWORD HKLM "${UNINSTALL_REG_PATH}" "EstimatedSize" "$0"
 SectionEnd
 
 Section "Uninstall"
 	Delete "$DESKTOP\${NAME}.lnk"
+	Delete "$SMPROGRAMS\${NAME}.lnk"
 	Delete "$INSTDIR\uninstall.exe"
+	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
 	RMDir /r $INSTDIR
 SectionEnd
