@@ -1,8 +1,12 @@
 #include "devicestate.h"
 
+#include <QDebug>
 #include <QSerialPort>
+#include <QLoggingCategory>
 
 #include "helper/serialinithelper.h"
+
+Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
 
 using namespace Flipper;
 using namespace Zero;
@@ -30,6 +34,7 @@ const DeviceInfo &DeviceState::deviceInfo() const
 void DeviceState::setDeviceInfo(const DeviceInfo &newDeviceInfo)
 {
     if(m_isOnline) {
+        qCDebug(CATEGORY_DEBUG) << "Received a DeviceInfo too early, queueing it...";
         m_queue.enqueue(newDeviceInfo);
         return;
     }
@@ -199,6 +204,7 @@ void DeviceState::deleteSerialPort()
 void DeviceState::processQueue()
 {
     if(!m_isOnline && !m_queue.isEmpty()) {
+        qCDebug(CATEGORY_DEBUG) << "Took the latest DeviceInfo from the queue";
         setDeviceInfo(m_queue.takeLast());
         m_queue.clear();
     }
