@@ -40,19 +40,19 @@ rem Build the application
 mkdir %BUILD_DIR%
 cd %BUILD_DIR%
 
-%QMAKE% %PROJECT_DIR%\%TARGET%.pro -spec win32-msvc "CONFIG+=qtquickcompiler"
-%JOM% qmake_all
-%JOM%
+%QMAKE% %PROJECT_DIR%\%TARGET%.pro -spec win32-msvc "CONFIG+=qtquickcompiler" || goto error
+%JOM% qmake_all || goto error
+%JOM% || goto error
 
 rem Deploy the application
 mkdir %DIST_DIR%
 copy /Y %TARGET%.exe %DIST_DIR%
 cd %DIST_DIR%
 
-%WINDEPLOYQT% --release --no-compiler-runtime --qmldir %QML_DIR% %TARGET%.exe
+%WINDEPLOYQT% --release --no-compiler-runtime --qmldir %QML_DIR% %TARGET%.exe || goto error
 
 rem Build the driver tool
-msbuild %DRIVER_TOOL_DIR%\%DRIVER_TOOL%.sln /p:Configuration=Release /p:Platform=x%ARCH_BITS%
+msbuild %DRIVER_TOOL_DIR%\%DRIVER_TOOL%.sln /p:Configuration=Release /p:Platform=x%ARCH_BITS% || goto error
 
 rem Copy the built driver tool
 copy /Y %DRIVER_TOOL_DIR%\x%ARCH_BITS%\Release\%DRIVER_TOOL%.exe .
@@ -64,12 +64,30 @@ rem Copy Microsoft Visual C++ redistributable packages
 copy /Y %VCREDIST2019_EXE% .
 copy /Y %VCREDIST2010_EXE% .
 
+if defined SIGNING_TOOL (
+	rem Sign the executables
+	call %SIGNING_TOOL% %DIST_DIR%\%TARGET%.exe || goto error
+	call %SIGNING_TOOL% %DIST_DIR%\%DRIVER_TOOL%.exe || goto error
+)
+
 rem Make the zip archive as well
 tar -a -cf %BUILD_DIR%\%TARGET%-%ARCH_BITS%bit.zip *
 
 rem Make the installer
 cd %PROJECT_DIR%
-%NSIS% /DNAME=%TARGET% /DARCH_BITS=%ARCH_BITS% installer_windows.nsi
+%NSIS% /DNAME=%TARGET% /DARCH_BITS=%ARCH_BITS% installer_windows.nsi || goto error
+
+timeout /T 5 /NOBREAK
+
+if defined SIGNING_TOOL (
+	rem Sign the installer
+	call %SIGNING_TOOL% %BUILD_DIR%\%TARGET%Setup-%ARCH_BITS%bit.exe || goto error
+)
 
 echo The resulting installer is %BUILD_DIR%\%TARGET%Setup-%ARCH_BITS%bit.exe.
 echo Finished.
+exit 0
+
+:error
+echo There were errors during the build process!
+exit 1
