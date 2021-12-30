@@ -87,7 +87,7 @@ static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb
 
     if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED) {
         // Get string descriptors out of callback context
-        QTimer::singleShot(1000, detector, [=]() {
+        QTimer::singleShot(0, detector, [=]() {
             emit detector->devicePluggedIn(getDeviceInfo(info));
         });
 
