@@ -77,7 +77,7 @@ rem Make the installer
 cd %PROJECT_DIR%
 %NSIS% /DNAME=%TARGET% /DARCH_BITS=%ARCH_BITS% installer_windows.nsi || goto error
 
-timeout /T 5 /NOBREAK
+timeout /T 5 /NOBREAK > nul
 
 if defined SIGNING_TOOL (
 	rem Sign the installer
