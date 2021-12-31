@@ -9,8 +9,7 @@ Image {
 
     signal screenStreamRequested
 
-    readonly property var device: Backend.currentDevice
-    readonly property var deviceState: device ? device.state : undefined
+    readonly property var deviceState: Backend.deviceState
 
     visible: opacity > 0
     source: "qrc:/assets/gfx/images/flipper.svg"

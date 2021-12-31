@@ -42,14 +42,17 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
 {
     connect(m_state, &DeviceState::isPersistentChanged, this, &FlipperZero::onStreamConditionChanged);
     connect(m_state, &DeviceState::isOnlineChanged, this, &FlipperZero::onStreamConditionChanged);
-
-    // Add other connections as necessary.
     connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::stateChanged);
 }
 
 FlipperZero::~FlipperZero()
 {
     m_state->setOnline(false);
+}
+
+DeviceState *FlipperZero::deviceState() const
+{
+    return m_state;
 }
 
 bool FlipperZero::canUpdate(const Updates::VersionInfo &versionInfo) const
@@ -182,11 +185,6 @@ void FlipperZero::installFUS(const QUrl &fileUrl, uint32_t address)
 void FlipperZero::sendInputEvent(int key, int type)
 {
     m_streamer->sendInputEvent(key, type);
-}
-
-DeviceState *FlipperZero::deviceState() const
-{
-    return m_state;
 }
 
 void FlipperZero::onStreamConditionChanged()

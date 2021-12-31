@@ -15,9 +15,6 @@ ColumnLayout {
     property alias reinstallAction: reinstallAction
     property alias selfUpdateAction: selfUpdateAction
 
-    readonly property var device: Backend.currentDevice
-    readonly property var deviceState: device ? device.state : undefined
-
     TransparentLabel {
         color: Theme.color.lightorange2
         text: qsTr("Firmware update channel")
@@ -130,19 +127,19 @@ ColumnLayout {
     Action {
         id: backupAction
         text: qsTr("Backup")
-        enabled: !!deviceState && !deviceState.isRecoveryMode
+        enabled: Backend.deviceState && !Backend.deviceState.isRecoveryMode
     }
 
     Action {
         id: restoreAction
         text: qsTr("Restore")
-        enabled: !!deviceState && !deviceState.isRecoveryMode
+        enabled: Backend.deviceState && !Backend.deviceState.isRecoveryMode
     }
 
     Action {
         id: eraseAction
         text: qsTr("Erase")
-        enabled: !!deviceState && !deviceState.isRecoveryMode
+        enabled: Backend.deviceState && !Backend.deviceState.isRecoveryMode
     }
 
     Action {

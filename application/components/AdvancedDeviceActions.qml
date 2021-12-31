@@ -12,9 +12,6 @@ ColumnLayout {
     property alias installRadioAction: installRadioAction
     property alias installFusAction: installFusAction
 
-    readonly property var device: Backend.currentDevice
-    readonly property var deviceState: device ? device.state : undefined
-
     TransparentLabel {
         color: Theme.color.lightorange2
         text: qsTr("Proceed with extreme caution")
@@ -63,6 +60,6 @@ ColumnLayout {
     Action {
         id: installFusAction
         text: qsTr("Install FUS firmware")
-        enabled: !!deviceState && deviceState.isRecoveryMode
+        enabled: Backend.deviceState && Backend.deviceState.isRecoveryMode
     }
 }

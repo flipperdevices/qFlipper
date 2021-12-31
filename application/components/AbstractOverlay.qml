@@ -7,8 +7,7 @@ Item {
 
     property Rectangle backgroundRect
 
-    readonly property var device: Backend.currentDevice
-    readonly property var deviceState: device ? device.state : undefined
+    readonly property var deviceState: Backend.deviceState
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
     property alias fadeAnimation: fadeAnimation

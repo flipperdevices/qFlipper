@@ -10,16 +10,13 @@ class FirmwareUpdates;
 
 namespace Zero {
 class DeviceState;
-}
-
-}
+}}
 
 class ApplicationBackend : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
     Q_PROPERTY(UpdateStatus updateStatus READ updateStatus NOTIFY updateStatusChanged)
-    Q_PROPERTY(Flipper::FlipperZero* currentDevice READ currentDevice NOTIFY currentDeviceChanged)
     Q_PROPERTY(Flipper::Zero::DeviceState* deviceState READ deviceState NOTIFY currentDeviceChanged)
 
 public:
@@ -77,7 +74,7 @@ public:
     State state() const;
     UpdateStatus updateStatus() const;
 
-    Flipper::FlipperZero *currentDevice() const;
+    Flipper::FlipperZero *device() const;
     Flipper::Zero::DeviceState *deviceState() const;
     Flipper::UpdateRegistry *firmwareUpdates() const;
 

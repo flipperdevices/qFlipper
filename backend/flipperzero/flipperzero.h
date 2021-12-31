@@ -22,11 +22,12 @@ namespace Zero {
 class FlipperZero : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(Flipper::Zero::DeviceState* state READ deviceState CONSTANT)
 
 public:
     FlipperZero(const Zero::DeviceInfo &info, QObject *parent = nullptr);
     ~FlipperZero();
+
+    Zero::DeviceState *deviceState() const;
 
     bool canUpdate(const Flipper::Updates::VersionInfo &versionInfo) const;
     bool canInstall(const Flipper::Updates::VersionInfo &versionInfo) const;
@@ -46,8 +47,6 @@ public:
     void installFUS(const QUrl &fileUrl, uint32_t address);
 
     void sendInputEvent(int key, int type);
-
-    Flipper::Zero::DeviceState *deviceState() const;
 
 signals:
     void stateChanged();
