@@ -43,14 +43,4 @@ private:
     QTimer *m_checkTimer;
     ChannelMap m_channels;
 };
-
-class FirmwareUpdates : public UpdateRegistry {
-    Q_OBJECT
-
-public:
-    FirmwareUpdates(const QString &directoryUrl, QObject *parent = nullptr);
-
-private:
-    const QString updateChannel() const override;
-};
 }

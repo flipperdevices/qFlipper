@@ -12,7 +12,6 @@
 #include <QDebug>
 
 #include "debug.h"
-#include "preferences.h"
 #include "remotefilefetcher.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_UPDATES, "UPDATES")
@@ -119,15 +118,4 @@ void UpdateRegistry::check()
     }
 
     m_checkTimer->start(std::chrono::minutes(10));
-}
-
-FirmwareUpdates::FirmwareUpdates(const QString &directoryUrl, QObject *parent):
-    UpdateRegistry(directoryUrl, parent)
-{
-    connect(globalPrefs, &Preferences::firmwareUpdateChannelChanged, this, &UpdateRegistry::latestVersionChanged);
-}
-
-const QString FirmwareUpdates::updateChannel() const
-{
-    return globalPrefs->firmwareUpdateChannel();
 }

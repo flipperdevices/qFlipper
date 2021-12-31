@@ -17,6 +17,7 @@ SOURCES += \
     applicationbackend.cpp \
     deviceregistry.cpp \
     filenode.cpp \
+    firmwareupdateregistry.cpp \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
     flipperzero/rpc/guistartstreamoperation.cpp \
@@ -108,6 +109,7 @@ HEADERS += \
     failable.h \
     fileinfo.h \
     filenode.h \
+    firmwareupdateregistry.h \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
     flipperzero/rpc/guistartstreamoperation.h \

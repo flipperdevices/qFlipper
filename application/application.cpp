@@ -111,7 +111,7 @@ void Application::initStyles()
 void Application::initContextProperties()
 {
     //TODO: Replace context properties with QML singletons
-    m_engine.rootContext()->setContextProperty("firmwareUpdates", m_backend.firmwareUpdates());
+    m_engine.rootContext()->setContextProperty("firmwareUpdates", m_backend.firmwareUpdateRegistry());
 }
 
 void Application::initTranslations()

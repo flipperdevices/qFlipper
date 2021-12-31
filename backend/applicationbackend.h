@@ -6,7 +6,6 @@ namespace Flipper {
 class FlipperZero;
 class DeviceRegistry;
 class UpdateRegistry;
-class FirmwareUpdates;
 
 namespace Zero {
 class DeviceState;
@@ -76,7 +75,7 @@ public:
 
     Flipper::FlipperZero *device() const;
     Flipper::Zero::DeviceState *deviceState() const;
-    Flipper::UpdateRegistry *firmwareUpdates() const;
+    Flipper::UpdateRegistry *firmwareUpdateRegistry() const;
 
     /* Actions available from the GUI.
      * Applies to the currently active device. */
@@ -115,7 +114,7 @@ private:
     void setState(State newState);
 
     Flipper::DeviceRegistry *m_deviceRegistry;
-    Flipper::FirmwareUpdates *m_firmwareUpdates;
+    Flipper::UpdateRegistry *m_firmwareUpdateRegistry;
 
     State m_state;
     UpdateStatus m_updateStatus;

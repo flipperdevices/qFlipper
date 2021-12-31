@@ -5,7 +5,7 @@
 
 #include "logger.h"
 #include "deviceregistry.h"
-#include "updateregistry.h"
+#include "firmwareupdateregistry.h"
 
 #include "preferences.h"
 #include "flipperupdates.h"
@@ -25,7 +25,7 @@ using namespace Zero;
 ApplicationBackend::ApplicationBackend(QObject *parent):
     QObject(parent),
     m_deviceRegistry(new DeviceRegistry(this)),
-    m_firmwareUpdates(new FirmwareUpdates("https://update.flipperzero.one/firmware/directory.json", this)),
+    m_firmwareUpdateRegistry(new FirmwareUpdateRegistry("https://update.flipperzero.one/firmware/directory.json", this)),
     m_state(State::WaitingForDevices),
     m_updateStatus(UpdateStatus::Unknown)
 {
@@ -42,11 +42,11 @@ ApplicationBackend::State ApplicationBackend::state() const
 
 ApplicationBackend::UpdateStatus ApplicationBackend::updateStatus() const
 {
-    if(!device() || !m_firmwareUpdates->isReady()) {
+    if(!device() || !m_firmwareUpdateRegistry->isReady()) {
         return UpdateStatus::Unknown;
     }
 
-    const auto &latestVersion = m_firmwareUpdates->latestVersion();
+    const auto &latestVersion = m_firmwareUpdateRegistry->latestVersion();
 
     if (device()->canRepair(latestVersion)) {
         return UpdateStatus::CanRepair;
@@ -79,11 +79,11 @@ void ApplicationBackend::mainAction()
 
     if(device()->deviceState()->isRecoveryMode()) {
         setState(State::RepairingDevice);
-        helper = new RepairTopLevelHelper(m_firmwareUpdates, device(), this);
+        helper = new RepairTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
 
     } else {
         setState(State::UpdatingDevice);
-        helper = new UpdateTopLevelHelper(m_firmwareUpdates, device(), this);
+        helper = new UpdateTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
     }
 
     connect(helper, &AbstractOperationHelper::finished, helper, &QObject::deleteLater);
@@ -202,7 +202,7 @@ void ApplicationBackend::initConnections()
     connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::onCurrentDeviceChanged);
 
     connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::updateStatusChanged);
-    connect(m_firmwareUpdates, &UpdateRegistry::latestVersionChanged, this, &ApplicationBackend::updateStatusChanged);
+    connect(m_firmwareUpdateRegistry, &UpdateRegistry::latestVersionChanged, this, &ApplicationBackend::updateStatusChanged);
 }
 
 void ApplicationBackend::setState(State newState)
@@ -215,9 +215,9 @@ void ApplicationBackend::setState(State newState)
     emit stateChanged();
 }
 
-UpdateRegistry *ApplicationBackend::firmwareUpdates() const
+UpdateRegistry *ApplicationBackend::firmwareUpdateRegistry() const
 {
-    return m_firmwareUpdates;
+    return m_firmwareUpdateRegistry;
 }
 
 void ApplicationBackend::registerMetaTypes()
