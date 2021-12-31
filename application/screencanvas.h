@@ -1,5 +1,4 @@
-#ifndef SCREENCANVAS_H
-#define SCREENCANVAS_H
+#pragma once
 
 #include <QColor>
 #include <QImage>
@@ -67,5 +66,3 @@ const QImage canvas(int scale = 0) const;
     qreal m_renderWidth;
     qreal m_renderHeight;
 };
-
-#endif // SCREENCANVAS_H

@@ -37,6 +37,11 @@ FlipperZero *DeviceRegistry::currentDevice() const
     return m_devices.isEmpty() ? nullptr : m_devices.first();
 }
 
+int DeviceRegistry::deviceCount() const
+{
+    return m_devices.size();
+}
+
 void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 {
     if(!info.isValid()) {
@@ -78,14 +83,14 @@ void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
     }
 }
 
-void DeviceRegistry::cleanupOffline()
+void DeviceRegistry::removeOfflineDevices()
 {
     auto it = std::remove_if(m_devices.begin(), m_devices.end(), [](Flipper::FlipperZero *arg) {
         return !arg->deviceState()->isOnline();
     });
 
     for(const auto end = m_devices.end(); it != end; ++it) {
-        qCDebug(CAT_DEVREG).noquote() << "Removed zombie device:" << (*it)->deviceState()->name();
+        qCDebug(CAT_DEVREG).noquote() << "Removed offline device:" << (*it)->deviceState()->name();
 
         m_devices.erase(it);
         emit deviceCountChanged();

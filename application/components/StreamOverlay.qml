@@ -40,16 +40,16 @@ AbstractOverlay {
         x: 38
         y: 32
 
-        foregroundColor: "black"//Theme.color.darkorange1
+        foregroundColor: "black"
         backgroundColor: Theme.color.lightorange2
 
-        canvasWidth: device ? device.streamer.screenWidth : 1
-        canvasHeight: device ? device.streamer.screenHeight : 1
+        canvasWidth: deviceState ? deviceState.screenSize.width : 1
+        canvasHeight: deviceState ? deviceState.screenSize.height : 1
 
         width: canvasWidth * 4
         height: canvasHeight * 4
 
-        data: !!device && enabled ? device.streamer.screenData : ""
+        data: !!deviceState && enabled ? deviceState.screenData : ""
     }
 
     RowLayout {
@@ -92,7 +92,7 @@ AbstractOverlay {
         focus: enabled
 
         onInputEvent: {
-            device.streamer.sendInputEvent(key, type);
+            Backend.sendInputEvent(key, type);
         }
 
     }

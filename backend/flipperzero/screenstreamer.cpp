@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QLoggingCategory>
 
+#include "devicestate.h"
 #include "commandinterface.h"
 
 #include "rpc/guistartstreamoperation.h"
@@ -15,37 +16,17 @@ Q_LOGGING_CATEGORY(CATEGORY_SCREEN, "SCREEN")
 using namespace Flipper;
 using namespace Zero;
 
-ScreenStreamer::ScreenStreamer(CommandInterface *rpc, QObject *parent):
+ScreenStreamer::ScreenStreamer(DeviceState *deviceState, CommandInterface *rpc, QObject *parent):
     QObject(parent),
+    m_deviceState(deviceState),
     m_rpc(rpc),
     m_state(State::Stopped)
-{
-    connect(this, &ScreenStreamer::stateChanged, this, &ScreenStreamer::onStateChanged);
-}
+{}
 
-const QByteArray &ScreenStreamer::screenData() const
+void ScreenStreamer::sendInputEvent(int key, int type)
 {
-    return m_screenData;
-}
-
-bool ScreenStreamer::isEnabled() const
-{
-    return m_state == State::Running;
-}
-
-ScreenStreamer::State ScreenStreamer::state() const
-{
-    return m_state;
-}
-
-int ScreenStreamer::screenWidth()
-{
-    return 128;
-}
-
-int ScreenStreamer::screenHeight()
-{
-    return 64;
+    GuiSendInputRequest request(serialPort(), (PB_Gui_InputKey)key, (PB_Gui_InputType)type);
+    request.send();
 }
 
 void ScreenStreamer::start()
@@ -81,13 +62,6 @@ void ScreenStreamer::stop()
     setState(State::Stopping);
 }
 
-
-void ScreenStreamer::sendInputEvent(InputKey key, InputType type)
-{
-    GuiSendInputRequest request(serialPort(), (PB_Gui_InputKey)key, (PB_Gui_InputType)type);
-    request.send();
-}
-
 void ScreenStreamer::onPortReadyRead()
 {
     GuiScreenFrameResponse msg(serialPort());
@@ -105,23 +79,13 @@ void ScreenStreamer::onPortReadyRead()
             }
 
         } else {
-            m_screenData = msg.screenFrame();
-            emit screenDataChanged();
+            m_deviceState->setScreenData(msg.screenFrame());
         }
     }
 
     if(m_state == State::Stopping) {
         // Stop only after processing all of the messages
         sendStopCommand();
-    }
-}
-
-void ScreenStreamer::onStateChanged()
-{
-    if(m_state == State::Running) {
-        emit started();
-    } else if(m_state == State::Stopped) {
-        emit stopped();
     }
 }
 
@@ -147,10 +111,10 @@ void ScreenStreamer::setState(State newState)
     }
 
     m_state = newState;
-    emit stateChanged();
+    m_deviceState->setStreamingEnabled(m_state == State::Running);
 }
 
 QSerialPort *ScreenStreamer::serialPort() const
 {
-    return m_rpc->serialPort();
+    return m_deviceState->serialPort();
 }

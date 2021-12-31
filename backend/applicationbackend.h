@@ -7,6 +7,11 @@ class FlipperZero;
 class DeviceRegistry;
 class UpdateRegistry;
 class FirmwareUpdates;
+
+namespace Zero {
+class DeviceState;
+}
+
 }
 
 class ApplicationBackend : public QObject
@@ -15,8 +20,30 @@ class ApplicationBackend : public QObject
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
     Q_PROPERTY(UpdateStatus updateStatus READ updateStatus NOTIFY updateStatusChanged)
     Q_PROPERTY(Flipper::FlipperZero* currentDevice READ currentDevice NOTIFY currentDeviceChanged)
+    Q_PROPERTY(Flipper::Zero::DeviceState* deviceState READ deviceState NOTIFY currentDeviceChanged)
 
 public:
+    enum class InputKey {
+        Up,
+        Down,
+        Right,
+        Left,
+        Ok,
+        Back,
+    };
+
+    Q_ENUM(InputKey)
+
+    enum class InputType {
+        Press, /* Press event, emitted after debounce */
+        Release, /* Release event, emitted after debounce */
+        Short, /* Short event, emitted after InputTypeRelease done withing INPUT_LONG_PRESS interval */
+        Long, /* Long event, emmited after INPUT_LONG_PRESS interval, asynchronouse to InputTypeRelease  */
+        Repeat, /* Repeat event, emmited with INPUT_REPEATE_PRESS period after InputTypeLong event */
+    };
+
+    Q_ENUM(InputType)
+
     enum class State {
         WaitingForDevices,
         Ready,
@@ -51,6 +78,7 @@ public:
     UpdateStatus updateStatus() const;
 
     Flipper::FlipperZero *currentDevice() const;
+    Flipper::Zero::DeviceState *deviceState() const;
     Flipper::UpdateRegistry *firmwareUpdates() const;
 
     /* Actions available from the GUI.
@@ -68,6 +96,7 @@ public:
 
     Q_INVOKABLE void startFullScreenStreaming();
     Q_INVOKABLE void stopFullScreenStreaming();
+    Q_INVOKABLE void sendInputEvent(int key, int type);
 
     Q_INVOKABLE void finalizeOperation();
 

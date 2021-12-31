@@ -20,6 +20,7 @@ public:
     DeviceRegistry(QObject *parent = nullptr);
 
     FlipperZero *currentDevice() const;
+    int deviceCount() const;
 
 signals:
     void currentDeviceChanged();
@@ -28,7 +29,7 @@ signals:
 public slots:
     void insertDevice(const USBDeviceInfo &info);
     void removeDevice(const USBDeviceInfo &info);
-    void cleanupOffline();
+    void removeOfflineDevices();
 
 private slots:
     void processDevice();

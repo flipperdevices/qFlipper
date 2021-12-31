@@ -64,6 +64,15 @@ FlipperZero *ApplicationBackend::currentDevice() const
     return m_deviceRegistry->currentDevice();
 }
 
+DeviceState *ApplicationBackend::deviceState() const
+{
+    if(currentDevice()) {
+        return currentDevice()->deviceState();
+    } else {
+        return nullptr;
+    }
+}
+
 void ApplicationBackend::mainAction()
 {
     AbstractOperationHelper *helper;
@@ -126,12 +135,19 @@ void ApplicationBackend::stopFullScreenStreaming()
     setState(State::Ready);
 }
 
+void ApplicationBackend::sendInputEvent(int key, int type)
+{
+    if(currentDevice()) {
+        currentDevice()->sendInputEvent(key, type);
+    }
+}
+
 void ApplicationBackend::finalizeOperation()
 {
     qCDebug(LOG_BACKEND) << "Finalized current operation";
 
     globalLogger->setErrorCount(0);
-    m_deviceRegistry->cleanupOffline();
+    m_deviceRegistry->removeOfflineDevices();
 
     if(!currentDevice()) {
         setState(State::WaitingForDevices);

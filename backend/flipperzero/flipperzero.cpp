@@ -38,7 +38,7 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     m_rpc(new CommandInterface(m_state, this)),
     m_recovery(new RecoveryInterface(m_state, this)),
     m_utility(new UtilityInterface(m_state, m_rpc, this)),
-    m_streamer(new ScreenStreamer(m_rpc, this))
+    m_streamer(new ScreenStreamer(m_state, m_rpc, this))
 {
     connect(m_state, &DeviceState::isPersistentChanged, this, &FlipperZero::onStreamConditionChanged);
     connect(m_state, &DeviceState::isOnlineChanged, this, &FlipperZero::onStreamConditionChanged);
@@ -179,14 +179,14 @@ void FlipperZero::installFUS(const QUrl &fileUrl, uint32_t address)
     registerOperation(new FUSUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), address, this));
 }
 
+void FlipperZero::sendInputEvent(int key, int type)
+{
+    m_streamer->sendInputEvent(key, type);
+}
+
 DeviceState *FlipperZero::deviceState() const
 {
     return m_state;
-}
-
-Flipper::Zero::ScreenStreamer *FlipperZero::streamer() const
-{
-    return m_streamer;
 }
 
 void FlipperZero::onStreamConditionChanged()
@@ -227,9 +227,11 @@ void FlipperZero::registerOperation(AbstractOperation *operation)
         operation->start();
 
     } else {
-        connect(m_streamer, &ScreenStreamer::stopped, operation, [=]() {
-            //TODO: Check that ScreenStreamer has correctly stopped
-            operation->start();
+        connect(m_state, &DeviceState::isStreamingEnabledChanged, operation, [=]() {
+            //TODO: Check that ScreenStreamer has stopped without errors
+            if(!m_state->isStreamingEnabled()) {
+                operation->start();
+            }
         });
 
         m_streamer->stop();

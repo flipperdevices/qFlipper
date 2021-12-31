@@ -16,6 +16,7 @@ DeviceState::DeviceState(const DeviceInfo &deviceInfo, QObject *parent):
     m_deviceInfo(deviceInfo),
     m_serialPort(nullptr),
     m_isPersistent(false),
+    m_isStreaming(false),
     m_isOnline(false),
     m_isError(false),
     m_progress(-1.0)
@@ -101,6 +102,21 @@ bool DeviceState::isRecoveryMode() const
     return m_deviceInfo.usbInfo.productID() == 0xdf11;
 }
 
+bool DeviceState::isStreamingEnabled() const
+{
+    return m_isStreaming;
+}
+
+void DeviceState::setStreamingEnabled(bool set)
+{
+    if(set == m_isStreaming) {
+        return;
+    }
+
+    m_isStreaming = set;
+    emit isStreamingEnabledChanged();
+}
+
 double DeviceState::progress() const
 {
     return m_progress;
@@ -156,6 +172,23 @@ const QString &DeviceState::name() const
 QSerialPort *DeviceState::serialPort() const
 {
     return m_serialPort;
+}
+
+const QSize DeviceState::screenSize()
+{
+    return QSize(128, 64);
+}
+
+const QByteArray &DeviceState::screenData() const
+{
+    return m_screenData;
+}
+
+void DeviceState::setScreenData(const QByteArray &data)
+{
+    // Assuming it always changes
+    m_screenData = data;
+    emit screenDataChanged();
 }
 
 void DeviceState::onDeviceInfoChanged()

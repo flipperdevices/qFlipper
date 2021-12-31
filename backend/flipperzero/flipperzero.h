@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QSize>
 #include <QObject>
 
 class AbstractOperation;
@@ -22,7 +23,6 @@ class FlipperZero : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(Flipper::Zero::DeviceState* state READ deviceState CONSTANT)
-    Q_PROPERTY(Flipper::Zero::ScreenStreamer* streamer READ streamer CONSTANT)
 
 public:
     FlipperZero(const Zero::DeviceInfo &info, QObject *parent = nullptr);
@@ -45,8 +45,9 @@ public:
     void installWirelessStack(const QUrl &fileUrl);
     void installFUS(const QUrl &fileUrl, uint32_t address);
 
+    void sendInputEvent(int key, int type);
+
     Flipper::Zero::DeviceState *deviceState() const;
-    Flipper::Zero::ScreenStreamer *streamer() const;
 
 signals:
     void stateChanged();

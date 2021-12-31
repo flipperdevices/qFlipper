@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QSize>
 #include <QQueue>
 #include <QObject>
 
@@ -18,10 +19,11 @@ class DeviceState : public QObject
     Q_PROPERTY(bool isOnline READ isOnline NOTIFY isOnlineChanged)
     Q_PROPERTY(bool isError READ isError NOTIFY isErrorChanged)
     Q_PROPERTY(bool isRecoveryMode READ isRecoveryMode NOTIFY deviceInfoChanged)
-
+    Q_PROPERTY(bool isStreamingEnabled READ isStreamingEnabled NOTIFY isStreamingEnabledChanged)
     Q_PROPERTY(QString statusString READ statusString NOTIFY statusStringChanged)
     Q_PROPERTY(QString errorString READ errorString NOTIFY isErrorChanged)
-
+    Q_PROPERTY(QSize screenSize READ screenSize CONSTANT)
+    Q_PROPERTY(QByteArray screenData READ screenData NOTIFY screenDataChanged)
     Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
 
 public:
@@ -41,6 +43,9 @@ public:
 
     bool isRecoveryMode() const;
 
+    bool isStreamingEnabled() const;
+    void setStreamingEnabled(bool set);
+
     double progress() const;
     void setProgress(double newProgress);
 
@@ -55,14 +60,20 @@ public:
 
     QSerialPort *serialPort() const;
 
+    //TODO: Replace with a enum constant?
+    static const QSize screenSize();
+
+    const QByteArray &screenData() const;
+    void setScreenData(const QByteArray &data);
+
 signals:
     void deviceInfoChanged();
     void isPersistentChanged();
     void isOnlineChanged();
-
+    void isStreamingEnabledChanged();
     void statusStringChanged();
     void isErrorChanged();
-
+    void screenDataChanged();
     void progressChanged();
 
 private slots:
@@ -79,11 +90,13 @@ private:
     QQueue<DeviceInfo> m_queue;
 
     bool m_isPersistent;
+    bool m_isStreaming;
     bool m_isOnline;
     bool m_isError;
 
     QString m_statusString;
     QString m_errorString;
+    QByteArray m_screenData;
 
     double m_progress;
 };

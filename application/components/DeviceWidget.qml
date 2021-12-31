@@ -58,16 +58,17 @@ Image {
     }
 
     ScreenCanvas {
+        id: screenCanvas
         anchors.fill: defaultScreen
-        visible: Backend.state === Backend.Ready && device.streamer.enabled
+        visible: Backend.state === Backend.Ready && deviceState.isStreamingEnabled
 
         foregroundColor: Theme.color.darkorange1
         backgroundColor: Theme.color.lightorange2
 
-        canvasWidth: device ? device.streamer.screenWidth : 1
-        canvasHeight: device ? device.streamer.screenHeight : 1
+        canvasWidth: deviceState ? deviceState.screenSize.width : 1
+        canvasHeight: deviceState ? deviceState.screenSize.height : 1
 
-        data: device ? device.streamer.screenData : ""
+        data: deviceState ? deviceState.screenData : ""
     }
 
     ExpandWidget {
@@ -79,7 +80,7 @@ Image {
         width: 136
         height: 73
 
-        visible: Backend.state === Backend.Ready && device.streamer.enabled
+        visible: screenCanvas.visible
         onClicked: control.screenStreamRequested()
     }
 }
