@@ -86,7 +86,7 @@ bool UserRestoreOperation::deleteFiles()
         const auto filePath = m_deviceDirName + QByteArrayLiteral("/") + m_backupDir.relativeFilePath(it->absoluteFilePath()).toLocal8Bit();
         const auto isLastFile = (--numFiles == 0);
 
-        auto *op = cli()->storageRemove(filePath);
+        auto *op = rpc()->storageRemove(filePath);
         connect(op, &AbstractOperation::finished, this, [=](){
             if(op->isError()) {
                 finishWithError(op->errorString());
@@ -120,14 +120,14 @@ bool UserRestoreOperation::writeFiles()
                 return false;
             }
 
-            op = cli()->storageWrite(filePath, file);
+            op = rpc()->storageWrite(filePath, file);
             connect(op, &AbstractOperation::finished, this, [=]() {
                 file->close();
                 file->deleteLater();
             });
 
         } else if(fileInfo.isDir()) {
-            op = cli()->storageMkdir(filePath);
+            op = rpc()->storageMkdir(filePath);
         } else {
             return false;
         }

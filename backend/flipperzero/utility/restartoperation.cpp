@@ -53,7 +53,7 @@ void RestartOperation::rebootDevice()
 
     connect(deviceState(), &DeviceState::isOnlineChanged, this, &RestartOperation::onDeviceOnlineChanged);
 
-    auto *operation = cli()->rebootToOS();
+    auto *operation = rpc()->rebootToOS();
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {

@@ -53,7 +53,7 @@ void StartRecoveryOperation::startRecoveryMode()
 
     connect(deviceState(), &DeviceState::isOnlineChanged, this, &StartRecoveryOperation::onDeviceOnlineChanged);
 
-    auto *operation = cli()->rebootToRecovery();
+    auto *operation = rpc()->rebootToRecovery();
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {

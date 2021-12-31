@@ -98,7 +98,7 @@ void AssetsDownloadOperation::advanceOperationState()
 
 void AssetsDownloadOperation::checkForExtStorage()
 {
-    auto *op = cli()->storageInfo(QByteArrayLiteral("/ext"));
+    auto *op = rpc()->storageInfo(QByteArrayLiteral("/ext"));
 
     connect(op, &AbstractOperation::finished, this, [=]() {
         if(op->isError()) {
@@ -157,7 +157,7 @@ void AssetsDownloadOperation::readLocalManifest()
 
 void AssetsDownloadOperation::checkForDeviceManifest()
 {
-    auto *operation = cli()->storageStat(DEVICE_MANIFEST);
+    auto *operation = rpc()->storageStat(DEVICE_MANIFEST);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -180,7 +180,7 @@ void AssetsDownloadOperation::readDeviceManifest()
         return finishWithError(buf->errorString());
     }
 
-    auto *operation = cli()->storageRead(QByteArrayLiteral("/ext/Manifest"), buf);
+    auto *operation = rpc()->storageRead(QByteArrayLiteral("/ext/Manifest"), buf);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(!operation->isError()) {
@@ -268,7 +268,7 @@ void AssetsDownloadOperation::deleteFiles()
         const auto isLastFile = (--numFiles == 0);
         const auto fileName = QByteArrayLiteral("/ext/") + fileInfo.absolutePath.toLocal8Bit();
 
-        auto *operation = cli()->storageRemove(fileName);
+        auto *operation = rpc()->storageRemove(fileName);
 
         connect(operation, &AbstractOperation::finished, this, [=]() {
             if(operation->isError()) {
@@ -298,7 +298,7 @@ void AssetsDownloadOperation::writeFiles()
         const auto filePath = QByteArrayLiteral("/ext/") + fileInfo.absolutePath.toLocal8Bit();
 
         if(fileInfo.type == FileNode::Type::Directory) {
-            op = cli()->storageMkdir(filePath);
+            op = rpc()->storageMkdir(filePath);
 
         } else if(fileInfo.type == FileNode::Type::RegularFile) {
             auto *buf = new QBuffer(this);
@@ -311,7 +311,7 @@ void AssetsDownloadOperation::writeFiles()
                 return finishWithError(buf->errorString());
             }
 
-            op = cli()->storageWrite(filePath, buf);
+            op = rpc()->storageWrite(filePath, buf);
 
         } else {
             return finishWithError(QStringLiteral("Unexpected file type"));

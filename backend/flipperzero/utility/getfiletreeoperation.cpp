@@ -59,6 +59,6 @@ void GetFileTreeOperation::advanceOperationState()
 void GetFileTreeOperation::listDirectory(const QByteArray &path)
 {
     ++m_pendingCount;
-    auto *op = cli()->storageList(path);
+    auto *op = rpc()->storageList(path);
     connect(op, &AbstractOperation::finished, this, &GetFileTreeOperation::advanceOperationState);
 }

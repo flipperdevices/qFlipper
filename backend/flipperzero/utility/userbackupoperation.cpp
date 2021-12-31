@@ -83,7 +83,7 @@ void UserBackupOperation::createBackupDirectory()
 
 void UserBackupOperation::getFileTree()
 {
-    auto *operation = new GetFileTreeOperation(cli(), deviceState(), m_deviceDirName, this);
+    auto *operation = new GetFileTreeOperation(rpc(), deviceState(), m_deviceDirName, this);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -129,7 +129,7 @@ void UserBackupOperation::readFiles()
                 return;
             }
 
-            auto *op = cli()->storageRead(fileInfo.absolutePath, file);
+            auto *op = rpc()->storageRead(fileInfo.absolutePath, file);
             connect(op, &AbstractOperation::finished, this, [=]() {
                 if(op->isError()) {
                     finishWithError(op->errorString());

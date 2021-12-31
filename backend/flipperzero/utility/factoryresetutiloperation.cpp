@@ -46,7 +46,7 @@ void FactoryResetUtilOperation::resetDevice()
 
     connect(deviceState(), &DeviceState::isOnlineChanged, this, &FactoryResetUtilOperation::onDeviceOnlineChanged);
 
-    auto *operation = cli()->factoryReset();
+    auto *operation = rpc()->factoryReset();
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {

@@ -18,14 +18,14 @@ public:
 
     void start() override;
 
-    CommandInterface *cli() const;
+    CommandInterface *rpc() const;
     DeviceState *deviceState() const;
 
 private slots:
     virtual void advanceOperationState() = 0;
 
 private:
-    CommandInterface *m_cli;
+    CommandInterface *m_rpc;
     DeviceState *m_deviceState;
 };
 
