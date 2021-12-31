@@ -111,7 +111,12 @@ void ScreenStreamer::setState(State newState)
     }
 
     m_state = newState;
-    m_deviceState->setStreamingEnabled(m_state == State::Running);
+
+    if(m_state == State::Running) {
+        m_deviceState->setStreamingEnabled(true);
+    } else if(m_state == State::Stopped) {
+        m_deviceState->setStreamingEnabled(false);
+    }
 }
 
 QSerialPort *ScreenStreamer::serialPort() const
