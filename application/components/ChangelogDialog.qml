@@ -10,10 +10,10 @@ CustomDialog {
 
     closable: true
     invertTitle: true
-    title: Backend.updateStatus !== Backend.Unknown ? qsTr("Version %1 changelog").arg(firmwareUpdates.latestVersion.number) : qsTr("No data")
+    title: Backend.updateStatus !== Backend.Unknown ? qsTr("Version %1 changelog").arg(Backend.latestFirmwareVersion.number) : qsTr("No data")
 
     contentWidget: TextView {
-        text: Backend.updateStatus !== Backend.Unknown ? firmwareUpdates.latestVersion.changelog : qsTr("No data")
+        text: Backend.updateStatus !== Backend.Unknown ? Backend.latestFirmwareVersion.changelog : qsTr("No data")
         textFormat: Text.MarkdownText
 
         implicitWidth: control.width - 70

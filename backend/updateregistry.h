@@ -11,10 +11,6 @@ namespace Flipper {
 class UpdateRegistry : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList channelNames READ channelNames NOTIFY channelsChanged)
-    Q_PROPERTY(Flipper::Updates::VersionInfo latestVersion READ latestVersion NOTIFY latestVersionChanged)
-    Q_PROPERTY(bool isReady READ isReady NOTIFY channelsChanged)
-
     using ChannelMap = QMap<QString, Updates::ChannelInfo>;
 
 public:
@@ -27,7 +23,7 @@ public:
     const QStringList channelNames() const;
 
     const Flipper::Updates::VersionInfo latestVersion() const;
-    Q_INVOKABLE Flipper::Updates::ChannelInfo channel(const QString &channelName) const;
+    const Flipper::Updates::ChannelInfo channel(const QString &channelName) const;
 
 public slots:
     void check();

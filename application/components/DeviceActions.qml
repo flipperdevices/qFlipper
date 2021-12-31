@@ -23,7 +23,7 @@ ColumnLayout {
     ComboBox {
         id: channelComboBox
 
-        model: firmwareUpdates.channelNames
+        model: Backend.firmwareUpdateChannels
 
         delegate: ChannelDelegate {
             objectName: index === channelComboBox.model.length - 1 ? "last" : ""

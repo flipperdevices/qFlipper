@@ -2,6 +2,8 @@
 
 #include <QObject>
 
+#include "flipperupdates.h"
+
 namespace Flipper {
 class FlipperZero;
 class DeviceRegistry;
@@ -17,6 +19,8 @@ class ApplicationBackend : public QObject
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
     Q_PROPERTY(UpdateStatus updateStatus READ updateStatus NOTIFY updateStatusChanged)
     Q_PROPERTY(Flipper::Zero::DeviceState* deviceState READ deviceState NOTIFY currentDeviceChanged)
+    Q_PROPERTY(QStringList firmwareUpdateChannels READ firmwareUpdateChannels NOTIFY updateStatusChanged)
+    Q_PROPERTY(Flipper::Updates::VersionInfo latestFirmwareVersion READ latestFirmwareVersion NOTIFY updateStatusChanged)
 
 public:
     enum class InputKey {
@@ -75,7 +79,9 @@ public:
 
     Flipper::FlipperZero *device() const;
     Flipper::Zero::DeviceState *deviceState() const;
-    Flipper::UpdateRegistry *firmwareUpdateRegistry() const;
+
+    const QStringList firmwareUpdateChannels() const;
+    const Flipper::Updates::VersionInfo latestFirmwareVersion() const;
 
     /* Actions available from the GUI.
      * Applies to the currently active device. */

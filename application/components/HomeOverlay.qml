@@ -232,7 +232,7 @@ AbstractOverlay {
                 str = "Unknown";
             }
 
-            return "%1 %2".arg(str).arg(firmwareUpdates.latestVersion.number.split("-")[0]);
+            return "%1 %2".arg(str).arg(Backend.latestFirmwareVersion.number.split("-")[0]);
         }
 
         onTriggered: changelogDialog.open()
@@ -246,8 +246,6 @@ AbstractOverlay {
 
     function updateButtonFunc() {
         const channelName = Preferences.updateChannel;
-        const latestVersion = firmwareUpdates.latestVersion;
-
         const messageObj = deviceState.isRecoveryMode ? {
                 title : qsTr("Repair Device?"),
                 customText: qsTr("Repair"),

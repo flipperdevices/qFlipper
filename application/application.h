@@ -50,7 +50,6 @@ private:
     void initConnections();
     void initLogger();
     void initStyles();
-    void initContextProperties();
     void initTranslations();
     void initQmlTypes();
     void initImports();

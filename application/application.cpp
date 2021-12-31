@@ -28,7 +28,6 @@ Application::Application(int &argc, char **argv):
     initConnections();
     initLogger();
     initQmlTypes();
-    initContextProperties();
     initTranslations();
     initImports();
     initStyles();
@@ -106,12 +105,6 @@ void Application::initStyles()
     QQuickWindow::setDefaultAlphaBuffer(true);
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
     QQuickStyle::setStyle(":/style");
-}
-
-void Application::initContextProperties()
-{
-    //TODO: Replace context properties with QML singletons
-    m_engine.rootContext()->setContextProperty("firmwareUpdates", m_backend.firmwareUpdateRegistry());
 }
 
 void Application::initTranslations()

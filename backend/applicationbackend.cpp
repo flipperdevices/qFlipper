@@ -73,6 +73,16 @@ DeviceState *ApplicationBackend::deviceState() const
     }
 }
 
+const QStringList ApplicationBackend::firmwareUpdateChannels() const
+{
+    return m_firmwareUpdateRegistry->channelNames();
+}
+
+const Updates::VersionInfo ApplicationBackend::latestFirmwareVersion() const
+{
+    return m_firmwareUpdateRegistry->latestVersion();
+}
+
 void ApplicationBackend::mainAction()
 {
     AbstractOperationHelper *helper;
@@ -213,11 +223,6 @@ void ApplicationBackend::setState(State newState)
 
     m_state = newState;
     emit stateChanged();
-}
-
-UpdateRegistry *ApplicationBackend::firmwareUpdateRegistry() const
-{
-    return m_firmwareUpdateRegistry;
 }
 
 void ApplicationBackend::registerMetaTypes()

@@ -81,7 +81,7 @@ const Updates::VersionInfo UpdateRegistry::latestVersion() const
     return channel(updateChannel()).latestVersion();
 }
 
-Updates::ChannelInfo UpdateRegistry::channel(const QString &channelName) const
+const Updates::ChannelInfo UpdateRegistry::channel(const QString &channelName) const
 {
     return m_channels.value(channelName);
 }
