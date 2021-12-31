@@ -31,7 +31,7 @@ ColumnLayout {
 
         Layout.fillWidth: true
 
-        currentIndex: firmwareUpdates.isReady ? find(Preferences.updateChannel) : -1
+        currentIndex: Backend.updateStatus !== Backend.Unknown ? find(Preferences.updateChannel) : -1
         onActivated: Preferences.updateChannel = textAt(index);
     }
 

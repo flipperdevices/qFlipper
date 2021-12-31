@@ -166,7 +166,7 @@ AbstractOverlay {
         anchors.topMargin: 5
 
         linkColor: {
-            if(!firmwareUpdates.isReady) {
+            if(Backend.UpdateStatus === Backend.Unknown) {
                 return Theme.color.lightorange2;
             } else if(Preferences.updateChannel === "development") {
                 return Theme.color.lightred2;
@@ -215,12 +215,12 @@ AbstractOverlay {
 
     Action {
         id: changelogAction
-        enabled: firmwareUpdates.isReady
+        enabled: Backend.updateStatus !== Backend.Unknown
 
         text: {
             let str;
 
-            if(!firmwareUpdates.isReady) {
+            if(!enabled) {
                 return qsTr("No data");
             } else if(Preferences.updateChannel === "development") {
                 str = "Dev";
