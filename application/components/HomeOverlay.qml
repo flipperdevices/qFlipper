@@ -146,7 +146,7 @@ AbstractOverlay {
         y: 265
 
         accent: {
-            switch(Backend.updateStatus) {
+            switch(Backend.firmwareUpdateStatus) {
             case Backend.CanRepair:
                 return MainButton.Blue;
             case Backend.CanUpdate:
@@ -193,10 +193,10 @@ AbstractOverlay {
     Action {
         id: updateButtonAction
 
-        enabled: (Backend.updateStatus !== Backend.Unknown) &&
-                 (Backend.updateStatus !== Backend.NoUpdates)
+        enabled: (Backend.firmwareUpdateStatus !== Backend.Unknown) &&
+                 (Backend.firmwareUpdateStatus !== Backend.NoUpdates)
         text: {
-            switch(Backend.updateStatus) {
+            switch(Backend.firmwareUpdateStatus) {
             case Backend.CanRepair:
                 return qsTr("Repair");
             case Backend.CanUpdate:
@@ -215,7 +215,7 @@ AbstractOverlay {
 
     Action {
         id: changelogAction
-        enabled: Backend.updateStatus !== Backend.Unknown
+        enabled: Backend.firmwareUpdateStatus !== Backend.Unknown
 
         text: {
             let str;

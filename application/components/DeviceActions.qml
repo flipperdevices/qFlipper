@@ -31,7 +31,7 @@ ColumnLayout {
 
         Layout.fillWidth: true
 
-        currentIndex: Backend.updateStatus !== Backend.Unknown ? find(Preferences.updateChannel) : -1
+        currentIndex: Backend.firmwareUpdateStatus !== Backend.Unknown ? find(Preferences.updateChannel) : -1
         onActivated: Preferences.updateChannel = textAt(index);
     }
 
@@ -145,7 +145,7 @@ ColumnLayout {
     Action {
         id: reinstallAction
         text: qsTr("Reinstall")
-        enabled: Backend.updateStatus === Backend.NoUpdates
+        enabled: Backend.firmwareUpdateStatus === Backend.NoUpdates
     }
 
     Action {

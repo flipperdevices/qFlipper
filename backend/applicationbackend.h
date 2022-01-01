@@ -17,7 +17,7 @@ class ApplicationBackend : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
-    Q_PROPERTY(UpdateStatus updateStatus READ updateStatus NOTIFY updateStatusChanged)
+    Q_PROPERTY(FirmwareUpdateStatus firmwareUpdateStatus READ firmwareUpdateStatus NOTIFY updateStatusChanged)
     Q_PROPERTY(Flipper::Zero::DeviceState* deviceState READ deviceState NOTIFY currentDeviceChanged)
     Q_PROPERTY(QStringList firmwareUpdateChannels READ firmwareUpdateChannels NOTIFY updateStatusChanged)
     Q_PROPERTY(Flipper::Updates::VersionInfo latestFirmwareVersion READ latestFirmwareVersion NOTIFY updateStatusChanged)
@@ -62,7 +62,7 @@ public:
 
     Q_ENUM(State)
 
-    enum class UpdateStatus {
+    enum class FirmwareUpdateStatus {
         Unknown,
         CanUpdate,
         CanInstall,
@@ -70,16 +70,16 @@ public:
         NoUpdates
     };
 
-    Q_ENUM(UpdateStatus)
+    Q_ENUM(FirmwareUpdateStatus)
 
     ApplicationBackend(QObject *parent = nullptr);
 
     State state() const;
-    UpdateStatus updateStatus() const;
 
     Flipper::FlipperZero *device() const;
     Flipper::Zero::DeviceState *deviceState() const;
 
+    FirmwareUpdateStatus firmwareUpdateStatus() const;
     const QStringList firmwareUpdateChannels() const;
     const Flipper::Updates::VersionInfo latestFirmwareVersion() const;
 

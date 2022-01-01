@@ -39,22 +39,22 @@ ApplicationBackend::State ApplicationBackend::state() const
     return m_state;
 }
 
-ApplicationBackend::UpdateStatus ApplicationBackend::updateStatus() const
+ApplicationBackend::FirmwareUpdateStatus ApplicationBackend::firmwareUpdateStatus() const
 {
     if(!device() || !m_firmwareUpdateRegistry->isReady()) {
-        return UpdateStatus::Unknown;
+        return FirmwareUpdateStatus::Unknown;
     }
 
     const auto &latestVersion = m_firmwareUpdateRegistry->latestVersion();
 
     if (device()->canRepair(latestVersion)) {
-        return UpdateStatus::CanRepair;
+        return FirmwareUpdateStatus::CanRepair;
     } else if(device()->canUpdate(latestVersion)) {
-        return UpdateStatus::CanUpdate;
+        return FirmwareUpdateStatus::CanUpdate;
     } else if(device()->canInstall(latestVersion)) {
-        return UpdateStatus::CanInstall;
+        return FirmwareUpdateStatus::CanInstall;
     } else{
-        return UpdateStatus::NoUpdates;
+        return FirmwareUpdateStatus::NoUpdates;
     }
 }
 
