@@ -123,5 +123,4 @@ private:
     Flipper::UpdateRegistry *m_firmwareUpdateRegistry;
 
     State m_state;
-    UpdateStatus m_updateStatus;
 };

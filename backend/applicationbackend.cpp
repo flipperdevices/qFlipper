@@ -26,8 +26,7 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     QObject(parent),
     m_deviceRegistry(new DeviceRegistry(this)),
     m_firmwareUpdateRegistry(new FirmwareUpdateRegistry("https://update.flipperzero.one/firmware/directory.json", this)),
-    m_state(State::WaitingForDevices),
-    m_updateStatus(UpdateStatus::Unknown)
+    m_state(State::WaitingForDevices)
 {
     registerMetaTypes();
     registerComparators();
