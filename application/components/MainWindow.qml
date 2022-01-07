@@ -114,6 +114,7 @@ Item {
 
     WindowControls {
         id: windowControls
+        closeEnabled: (Backend.state <= Backend.ScreenStreaming) || (Backend.state >= Backend.Finished)
 
         controlPath: "qrc:/assets/gfx/controls"
 

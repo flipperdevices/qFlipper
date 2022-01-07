@@ -13,6 +13,7 @@ RowLayout {
     signal minimizeRequested
     signal closeRequested
 
+    property bool closeEnabled: true
     property string controlPath
 
     readonly property int style: {
@@ -72,6 +73,7 @@ RowLayout {
 
     ImageButton {
         id: closeButton
+        enabled: control.closeEnabled
 
         iconPath: control.iconPath
         iconName: "close"

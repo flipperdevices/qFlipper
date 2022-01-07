@@ -14,6 +14,8 @@ AbstractButton {
     implicitWidth: icon.width + padding * 2
     implicitHeight: icon.height + padding * 2
 
+    opacity: enabled ? 1.0 : 0.5
+
     padding: 0
 
     background: Item {}
