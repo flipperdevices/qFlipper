@@ -19,7 +19,7 @@ Q_LOGGING_CATEGORY(CATEGORY_UPDATES, "UPDATES")
 using namespace Flipper;
 
 UpdateRegistry::UpdateRegistry(const QString &directoryUrl, QObject *parent):
-    QObject(parent),
+    QAbstractListModel(parent),
     m_directoryUrl(directoryUrl),
     m_checkTimer(new QTimer(this))
 {
@@ -37,7 +37,9 @@ void UpdateRegistry::setDirectoryUrl(const QString &directoryUrl)
 
 bool UpdateRegistry::fillFromJson(const QByteArray &text)
 {
+    beginRemoveRows(QModelIndex(), 0, m_channels.size() - 1);
     m_channels.clear();
+    endRemoveRows();
 
     const auto doc = QJsonDocument::fromJson(text);
 
@@ -55,7 +57,10 @@ bool UpdateRegistry::fillFromJson(const QByteArray &text)
 
         for(const auto &val : arr) {
             const Updates::ChannelInfo info(val);
+
+            beginInsertRows(QModelIndex(), m_channels.size(), m_channels.size());
             m_channels.insert(info.name(), info);
+            endInsertRows();
         }
 
         return true;
@@ -84,6 +89,38 @@ const Updates::VersionInfo UpdateRegistry::latestVersion() const
 const Updates::ChannelInfo UpdateRegistry::channel(const QString &channelName) const
 {
     return m_channels.value(channelName);
+}
+
+int UpdateRegistry::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent)
+    return m_channels.size();
+}
+
+QVariant UpdateRegistry::data(const QModelIndex &index, int role) const
+{
+    const auto it = m_channels.cbegin();
+    const auto &channel = *(it+index.row());
+
+    switch(role) {
+    case NameRole:
+        return channel.name();
+    case TitleRole:
+        return channel.title();
+    case DescriptionRole:
+        return channel.description();
+    default:
+        return QVariant();
+    }
+}
+
+QHash<int, QByteArray> UpdateRegistry::roleNames() const
+{
+    return {
+        { NameRole, QByteArrayLiteral("name") },
+        { TitleRole, QByteArrayLiteral("title") },
+        { DescriptionRole, QByteArrayLiteral("description") }
+    };
 }
 
 void UpdateRegistry::check()

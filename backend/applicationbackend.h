@@ -4,6 +4,8 @@
 
 #include "flipperupdates.h"
 
+class QAbstractListModel;
+
 namespace Flipper {
 class FlipperZero;
 class DeviceRegistry;
@@ -17,8 +19,9 @@ class ApplicationBackend : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
-    Q_PROPERTY(FirmwareUpdateStatus firmwareUpdateStatus READ firmwareUpdateStatus NOTIFY updateStatusChanged)
     Q_PROPERTY(Flipper::Zero::DeviceState* deviceState READ deviceState NOTIFY currentDeviceChanged)
+    Q_PROPERTY(FirmwareUpdateStatus firmwareUpdateStatus READ firmwareUpdateStatus NOTIFY updateStatusChanged)
+    Q_PROPERTY(QAbstractListModel* firmwareUpdateModel READ firmwareUpdateModel CONSTANT)
     Q_PROPERTY(QStringList firmwareUpdateChannels READ firmwareUpdateChannels NOTIFY updateStatusChanged)
     Q_PROPERTY(Flipper::Updates::VersionInfo latestFirmwareVersion READ latestFirmwareVersion NOTIFY updateStatusChanged)
 
@@ -80,6 +83,7 @@ public:
     Flipper::Zero::DeviceState *deviceState() const;
 
     FirmwareUpdateStatus firmwareUpdateStatus() const;
+    QAbstractListModel *firmwareUpdateModel() const;
     const QStringList firmwareUpdateChannels() const;
     const Flipper::Updates::VersionInfo latestFirmwareVersion() const;
 

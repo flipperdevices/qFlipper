@@ -23,11 +23,10 @@ ColumnLayout {
     ComboBox {
         id: channelComboBox
 
-        model: Backend.firmwareUpdateChannels
+        delegate: ChannelDelegate {}
 
-        delegate: ChannelDelegate {
-            objectName: index === channelComboBox.model.length - 1 ? "last" : ""
-        }
+        model: Backend.firmwareUpdateModel
+        textRole: "name"
 
         Layout.fillWidth: true
 

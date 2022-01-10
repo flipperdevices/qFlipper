@@ -9,7 +9,8 @@ import Primitives 1.0
 ItemDelegate {
     id: control
 
-    text: control.textRole ? (Array.isArray(control.model) ? modelData[control.textRole] : model[control.textRole]) : modelData
+    text: name
+    readonly property bool last: index === ListView.view.model.count - 1
 
     highlighted: control.highlightedIndex === index
     hoverEnabled: control.hoverEnabled
@@ -40,8 +41,7 @@ ItemDelegate {
         x: 2
         width: parent.width - 4
         color: control.down ? Theme.color.lightorange2 : control.hovered ? Theme.color.mediumorange2 : Theme.color.darkorange1
-
-        bottomRadius: control.objectName === "last" ? 5 : 0
+        bottomRadius: control.last ? 5 : 0
 
         Behavior on color {
             ColorAnimation {
@@ -49,5 +49,11 @@ ItemDelegate {
                 easing.type: Easing.OutQuad
             }
         }
+    }
+
+    ToolTip {
+        visible: parent.hovered
+        text: description
+        implicitWidth: 250
     }
 }

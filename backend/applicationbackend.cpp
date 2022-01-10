@@ -58,6 +58,11 @@ ApplicationBackend::FirmwareUpdateStatus ApplicationBackend::firmwareUpdateStatu
     }
 }
 
+QAbstractListModel *ApplicationBackend::firmwareUpdateModel() const
+{
+    return m_firmwareUpdateRegistry;
+}
+
 FlipperZero *ApplicationBackend::device() const
 {
     return m_deviceRegistry->currentDevice();
@@ -241,6 +246,8 @@ void ApplicationBackend::registerMetaTypes()
     qRegisterMetaType<Flipper::Zero::ScreenStreamer*>("Flipper::Zero::ScreenStreamer*");
 
     qRegisterMetaType<Flipper::Zero::AssetManifest::FileInfo>();
+
+    qRegisterMetaType<QAbstractListModel*>();
 }
 
 void ApplicationBackend::registerComparators()

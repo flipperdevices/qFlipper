@@ -162,14 +162,3 @@ const VersionInfo &ChannelInfo::latestVersion() const
 {
     return m_versions.first();
 }
-
-const VersionInfo ChannelInfo::versionInfo(const QString &versionNumber) const
-{
-    const auto it = std::find_if(m_versions.cbegin(), m_versions.cend(),
-        [&](const Updates::VersionInfo &arg) {
-            return versionNumber == arg.number();
-        });
-
-    check_return_val(it != m_versions.cend(), "VersionInfo not found", VersionInfo());
-    return *it;
-}

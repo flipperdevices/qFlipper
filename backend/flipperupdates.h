@@ -1,5 +1,4 @@
-#ifndef FLIPPERUPDATES_H
-#define FLIPPERUPDATES_H
+#pragma once
 
 #include <QObject>
 #include <QVector>
@@ -48,7 +47,7 @@ public:
     const QDate &date() const;
     const QVector<Flipper::Updates::FileInfo> &files() const;
 
-    Q_INVOKABLE const Flipper::Updates::FileInfo fileInfo(const QString &type, const QString &target) const;
+    const Flipper::Updates::FileInfo fileInfo(const QString &type, const QString &target) const;
 
 private:
     QString m_number;
@@ -76,8 +75,6 @@ public:
     const QVector<Flipper::Updates::VersionInfo> &versions() const;
     const Flipper::Updates::VersionInfo &latestVersion() const;
 
-    Q_INVOKABLE const Flipper::Updates::VersionInfo versionInfo(const QString &versionNumber) const;
-
 private:
     QString m_id;
     QString m_title;
@@ -91,5 +88,3 @@ private:
 Q_DECLARE_METATYPE(Flipper::Updates::FileInfo)
 Q_DECLARE_METATYPE(Flipper::Updates::VersionInfo)
 Q_DECLARE_METATYPE(Flipper::Updates::ChannelInfo)
-
-#endif // FLIPPERUPDATES_H
