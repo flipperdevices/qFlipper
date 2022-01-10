@@ -32,6 +32,12 @@ ColumnLayout {
 
         currentIndex: Backend.firmwareUpdateStatus !== Backend.Unknown ? find(Preferences.updateChannel) : -1
         onActivated: Preferences.updateChannel = textAt(index);
+
+        ToolTip {
+            visible: parent.hovered
+            text: qsTr("Change the firmware update channel")
+            implicitWidth: 250
+        }
     }
 
     TransparentLabel {
