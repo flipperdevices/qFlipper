@@ -77,11 +77,6 @@ DeviceState *ApplicationBackend::deviceState() const
     }
 }
 
-const QStringList ApplicationBackend::firmwareUpdateChannels() const
-{
-    return m_firmwareUpdateRegistry->channelNames();
-}
-
 const Updates::VersionInfo ApplicationBackend::latestFirmwareVersion() const
 {
     return m_firmwareUpdateRegistry->latestVersion();

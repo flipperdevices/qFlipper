@@ -22,7 +22,6 @@ class ApplicationBackend : public QObject
     Q_PROPERTY(Flipper::Zero::DeviceState* deviceState READ deviceState NOTIFY currentDeviceChanged)
     Q_PROPERTY(FirmwareUpdateStatus firmwareUpdateStatus READ firmwareUpdateStatus NOTIFY updateStatusChanged)
     Q_PROPERTY(QAbstractListModel* firmwareUpdateModel READ firmwareUpdateModel CONSTANT)
-    Q_PROPERTY(QStringList firmwareUpdateChannels READ firmwareUpdateChannels NOTIFY updateStatusChanged)
     Q_PROPERTY(Flipper::Updates::VersionInfo latestFirmwareVersion READ latestFirmwareVersion NOTIFY updateStatusChanged)
 
 public:
@@ -84,7 +83,6 @@ public:
 
     FirmwareUpdateStatus firmwareUpdateStatus() const;
     QAbstractListModel *firmwareUpdateModel() const;
-    const QStringList firmwareUpdateChannels() const;
     const Flipper::Updates::VersionInfo latestFirmwareVersion() const;
 
     /* Actions available from the GUI.
