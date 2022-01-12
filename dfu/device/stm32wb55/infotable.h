@@ -13,8 +13,8 @@ namespace WB55 {
 namespace Subtables {
 struct VersionInfo
 {
-    unsigned build:4;
-    unsigned branch:4;
+    uint8_t build:4;
+    uint8_t branch:4;
     uint8_t sub;
     uint8_t minor;
     uint8_t major;
