@@ -29,7 +29,8 @@ using namespace Flipper;
 using namespace Zero;
 
 AbstractDeviceInfoHelper::AbstractDeviceInfoHelper(QObject *parent):
-    AbstractOperationHelper(parent)
+    AbstractOperationHelper(parent),
+    m_deviceInfo({})
 {}
 
 AbstractDeviceInfoHelper::~AbstractDeviceInfoHelper()
@@ -167,17 +168,19 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
             (HardwareInfo::Color)operation->result(QByteArrayLiteral("hardware_color")).toInt(),
         };
 
-        m_deviceInfo.fusVersion = QStringLiteral("%1.%2.%3").arg(
-            operation->result(QByteArrayLiteral("radio_fus_major")),
-            operation->result(QByteArrayLiteral("radio_fus_minor")),
-            operation->result(QByteArrayLiteral("radio_fus_sub")));
+        if(operation->result(QByteArray("radio_alive")) == QByteArrayLiteral("true")) {
+            m_deviceInfo.fusVersion = QStringLiteral("%1.%2.%3").arg(
+                operation->result(QByteArrayLiteral("radio_fus_major")),
+                operation->result(QByteArrayLiteral("radio_fus_minor")),
+                operation->result(QByteArrayLiteral("radio_fus_sub")));
 
-        m_deviceInfo.radioVersion = QStringLiteral("%1.%2.%3").arg(
-            operation->result(QByteArrayLiteral("radio_stack_major")),
-            operation->result(QByteArrayLiteral("radio_stack_minor")),
-            operation->result(QByteArrayLiteral("radio_stack_sub")));
+            m_deviceInfo.radioVersion = QStringLiteral("%1.%2.%3").arg(
+                operation->result(QByteArrayLiteral("radio_stack_major")),
+                operation->result(QByteArrayLiteral("radio_stack_minor")),
+                operation->result(QByteArrayLiteral("radio_stack_sub")));
 
-        m_deviceInfo.stackType = operation->result(QByteArrayLiteral("radio_stack_type")).toInt();
+            m_deviceInfo.stackType = operation->result(QByteArrayLiteral("radio_stack_type")).toInt();
+        }
 
         if(m_deviceInfo.name.isEmpty()) {
             finishWithError(QStringLiteral("Failed to read device information: required fields are not present"));

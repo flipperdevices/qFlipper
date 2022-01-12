@@ -58,7 +58,12 @@ DeviceState *FlipperZero::deviceState() const
 bool FlipperZero::canUpdate(const Updates::VersionInfo &versionInfo) const
 {
     const auto &storageInfo = m_state->deviceInfo().storage;
-    if(storageInfo.isExternalPresent && !storageInfo.isAssetsInstalled) {
+    const auto &radioStackVersion = m_state->deviceInfo().radioVersion;
+
+    const auto noAssets = storageInfo.isExternalPresent && !storageInfo.isAssetsInstalled;
+    const auto noRadioStack = radioStackVersion.isEmpty();
+
+    if(noAssets || noRadioStack) {
         return true;
     }
 

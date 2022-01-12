@@ -108,8 +108,8 @@ RowLayout {
         }
 
         TextLabel {
-            text: deviceInfo ? deviceInfo.radioVersion : text
-            color: Theme.color.lightorange3
+            text: deviceInfo && deviceInfo.radioVersion.length ? deviceInfo.radioVersion : qsTr("Corrupted")
+            color: deviceInfo && deviceInfo.radioVersion.length ? Theme.color.lightorange3 : Theme.color.lightred3
             visible: extraFields
         }
     }
