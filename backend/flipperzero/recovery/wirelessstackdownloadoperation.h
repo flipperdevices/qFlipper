@@ -16,7 +16,8 @@ class WirelessStackDownloadOperation : public AbstractRecoveryOperation
         StartingFUS = AbstractOperation::User,
         DeletingWirelessStack,
         DownloadingWirelessStack,
-        UpgradingWirelessStack
+        UpgradingWirelessStack,
+        CheckingWirelessStack
     };
 
 public:
@@ -34,10 +35,13 @@ private:
     void downloadWirelessStack();
     void upgradeWirelessStack();
     bool isWirelessStackUpgraded();
+    bool isWirelessStackOK();
+    void tryAgain();
 
     QIODevice *m_file;
     QTimer *m_loopTimer;
     uint32_t m_targetAddress;
+    int m_retryCount;
 };
 
 }

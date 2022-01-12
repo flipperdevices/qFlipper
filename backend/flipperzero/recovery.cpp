@@ -319,6 +319,28 @@ bool Recovery::upgradeWirelessStack()
     return success;
 }
 
+bool Recovery::checkWirelessStack()
+{
+    STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
+
+    if(!device.beginTransaction()) {
+        setError(QStringLiteral("Failed to read co-processor firmware version info"));
+        return false;
+    }
+
+    const auto versionInfo = device.versionInfo();
+
+    if(!device.endTransaction()) {
+        setError(QStringLiteral("Failed to read co-processor firmware version info"));
+        return false;
+    }
+
+    qCDebug(CATEGORY_DEBUG).noquote() << "FUS version:" << versionInfo.FUSVersion;
+    qCDebug(CATEGORY_DEBUG).noquote() << "Wireless Stack version:" << versionInfo.WirelessVersion;
+
+    return versionInfo.WirelessVersion != QStringLiteral("0.0.0");
+}
+
 bool Recovery::downloadOptionBytes(QIODevice *file)
 {
     m_deviceState->setStatusString("Downloading Option Bytes...");

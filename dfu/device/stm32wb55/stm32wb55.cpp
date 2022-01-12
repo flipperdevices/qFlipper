@@ -3,6 +3,7 @@
 #include <QBuffer>
 
 #include "debug.h"
+#include "infotable.h"
 
 #define OTP_ADDR 0x1FFF7000UL
 #define OTP_MAX_SIZE 1024
@@ -11,6 +12,10 @@
 
 #define FUS_STATUS_ADDR 0xFFFF0054UL
 #define FUS_STATUS_SIZE 2
+
+#define SRAM2A_BASE 0x20030000UL
+#define DIT_ARBITRARY_OFFSET 0x24 // Based on empirical data, should be 0 according to documentation
+#define DIT_FUS_MAGIC_NUMBER 0xa94656b
 
 namespace STM32 {
 
@@ -51,6 +56,57 @@ bool STM32WB55::setOptionBytes(const OptionBytes &ob)
 
     buf.close();
     return true;
+}
+
+VersionInfo STM32WB55::versionInfo()
+{
+    VersionInfo ret;
+
+    QByteArray data;
+    QBuffer buf(&data);
+
+    if(!buf.open(QIODevice::WriteOnly)) {
+        qCDebug(CATEGORY_DEBUG) << "Failed to open a buffer for writing:" << buf.errorString();
+        return ret;
+    }
+
+    const auto size = qMax(sizeof(FUSDeviceInfoTable), sizeof(DeviceInfoTable));
+    // Not checking IPCCDBA since it's always 0
+    const auto success = upload(&buf, SRAM2A_BASE + DIT_ARBITRARY_OFFSET, size, (uint8_t)Partition::Flash);
+    buf.close();
+
+    if(!success || data.size() != size) {
+        qCDebug(CATEGORY_DEBUG) << "Failed to read device information table";
+        return ret;
+    }
+
+    const auto *fusInfoTable = (const FUSDeviceInfoTable*)data.data();
+
+    if(fusInfoTable->magic == DIT_FUS_MAGIC_NUMBER) {
+        ret.FUSVersion = QStringLiteral("%1.%2.%3")
+                .arg(fusInfoTable->FUSVersion.major)
+                .arg(fusInfoTable->FUSVersion.minor)
+                .arg(fusInfoTable->FUSVersion.sub);
+
+        ret.WirelessVersion = QStringLiteral("%1.%2.%3")
+                .arg(fusInfoTable->wirelessStackVersion.major)
+                .arg(fusInfoTable->wirelessStackVersion.minor)
+                .arg(fusInfoTable->wirelessStackVersion.sub);
+    } else {
+        const auto *wirelessInfoTable = (const DeviceInfoTable*)data.data();
+
+        ret.FUSVersion = QStringLiteral("%1.%2.%3")
+                .arg(wirelessInfoTable->FUS.version.major)
+                .arg(wirelessInfoTable->FUS.version.minor)
+                .arg(wirelessInfoTable->FUS.version.sub);
+
+        ret.WirelessVersion = QStringLiteral("%1.%2.%3")
+                .arg(wirelessInfoTable->WirelessStack.version.major)
+                .arg(wirelessInfoTable->WirelessStack.version.minor)
+                .arg(wirelessInfoTable->WirelessStack.version.sub);
+    }
+
+    return ret;
 }
 
 QByteArray STM32WB55::OTPData(qint64 len)

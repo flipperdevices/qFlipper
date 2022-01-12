@@ -1,12 +1,16 @@
 #include "wirelessstackdownloadoperation.h"
 
+#include <QDebug>
 #include <QTimer>
 #include <QIODevice>
 #include <QFutureWatcher>
+#include <QLoggingCategory>
 #include <QtConcurrent/QtConcurrentRun>
 
 #include "flipperzero/devicestate.h"
 #include "flipperzero/recovery.h"
+
+Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
 
 using namespace Flipper;
 using namespace Zero;
@@ -15,7 +19,8 @@ WirelessStackDownloadOperation::WirelessStackDownloadOperation(Recovery *recover
     AbstractRecoveryOperation(recovery, parent),
     m_file(file),
     m_loopTimer(new QTimer(this)),
-    m_targetAddress(targetAddress)
+    m_targetAddress(targetAddress),
+    m_retryCount(3)
 {
     connect(m_loopTimer, &QTimer::timeout, this, &WirelessStackDownloadOperation::advanceOperationState);
 }
@@ -46,7 +51,14 @@ void WirelessStackDownloadOperation::advanceOperationState()
         upgradeWirelessStack();
 
     } else if(operationState() == WirelessStackDownloadOperation::UpgradingWirelessStack) {
-        if(isWirelessStackUpgraded()) {
+        if(!isWirelessStackUpgraded()) {
+            return;
+
+        } else if(!isWirelessStackOK()) {
+            setOperationState(AbstractOperation::Ready);
+            tryAgain();
+
+        } else {
             finish();
         }
     }
@@ -150,4 +162,20 @@ bool WirelessStackDownloadOperation::isWirelessStackUpgraded()
     }
 
     return !errorOccured;
+}
+
+bool WirelessStackDownloadOperation::isWirelessStackOK()
+{
+    return recovery()->checkWirelessStack();
+}
+
+void WirelessStackDownloadOperation::tryAgain()
+{
+    if(--m_retryCount == 0) {
+        finishWithError(QStringLiteral("Could not install wireless stack after several tries, giving up"));
+
+    } else {
+        qCDebug(CATEGORY_DEBUG) << "Wireless stack installation seem to have failed, retrying...";
+        advanceOperationState();
+    }
 }

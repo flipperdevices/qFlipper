@@ -19,8 +19,10 @@ HEADERS += \
     debug.h \
     device/stm32wb55.h \
     device/stm32wb55/fusstate.h \
+    device/stm32wb55/infotable.h \
     device/stm32wb55/optionbytes.h \
     device/stm32wb55/stm32wb55.h \
+    device/stm32wb55/versioninfo.h \
     dfumemorylayout.h \
     dfusedevice.h \
     dfusefile.h \

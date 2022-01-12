@@ -44,6 +44,7 @@ public:
     bool startWirelessStack();
     bool deleteWirelessStack();
     bool upgradeWirelessStack();
+    bool checkWirelessStack();
 
     bool downloadFirmware(QIODevice *file);
     bool downloadOptionBytes(QIODevice *file);

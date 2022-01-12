@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "dfusedevice.h"
+#include "versioninfo.h"
 #include "optionbytes.h"
 #include "fusstate.h"
 
@@ -22,6 +23,7 @@ public:
     WB55::OptionBytes optionBytes();
     bool setOptionBytes(const WB55::OptionBytes &ob);
 
+    WB55::VersionInfo versionInfo();
     QByteArray OTPData(qint64 len);
 
     WB55::FUSState FUSGetState();
