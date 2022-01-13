@@ -30,6 +30,7 @@ Q_LOGGING_CATEGORY(CAT_DEVICE, "DEVICE")
 #define CHANNEL_RELEASE "release"
 
 using namespace Flipper;
+using namespace Updates;
 using namespace Zero;
 
 FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
@@ -55,6 +56,7 @@ DeviceState *FlipperZero::deviceState() const
     return m_state;
 }
 
+// TODO: Handle -rcxx suffixes correctly
 bool FlipperZero::canUpdate(const Updates::VersionInfo &versionInfo) const
 {
     const auto &storageInfo = m_state->deviceInfo().storage;
@@ -86,18 +88,18 @@ bool FlipperZero::canUpdate(const Updates::VersionInfo &versionInfo) const
 
     if(deviceChannel == RELEASE) {
         if(serverChannel == RELEASE) {
-            return deviceVersion < serverVersion;
+            return VersionInfo::compare(deviceVersion, serverVersion) < 0;
         } else if(serverChannel == RELEASE_CANDIDATE) {
-            return deviceVersion < serverVersion.chopped(serverVersion.length() - deviceVersion.length());
+            return VersionInfo::compare(deviceVersion, serverVersion) < 0;
         } else if(serverChannel == DEVELOPMENT) {
             return deviceDate <= serverDate;
         }
 
     } else if(deviceChannel == RELEASE_CANDIDATE) {
         if(serverChannel == RELEASE) {
-            return deviceVersion.chopped(deviceVersion.length() - serverVersion.length()) <= serverVersion;
+            return VersionInfo::compare(deviceVersion, serverVersion) <= 0;
         } else if(serverChannel == RELEASE_CANDIDATE) {
-            return deviceVersion < serverVersion;
+            return VersionInfo::compare(deviceVersion, serverVersion) < 0;
         } else if(serverChannel == DEVELOPMENT) {
             return deviceDate <= serverDate;
         }

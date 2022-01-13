@@ -48,6 +48,10 @@ public:
     const QVector<Flipper::Updates::FileInfo> &files() const;
 
     const Flipper::Updates::FileInfo fileInfo(const QString &type, const QString &target) const;
+    qint64 compare(const VersionInfo &other) const;
+
+    static qint64 toNumericValue(const QString &version);
+    static qint64 compare(const QString &v1, const QString &v2);
 
 private:
     QString m_number;

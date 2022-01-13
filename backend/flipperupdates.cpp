@@ -3,8 +3,8 @@
 #include <stdexcept>
 
 #include <QDateTime>
-#include <QJsonObject>
 #include <QJsonArray>
+#include <QJsonObject>
 
 #include "debug.h"
 
@@ -107,6 +107,35 @@ const FileInfo VersionInfo::fileInfo(const QString &type, const QString &target)
     return *it;
 }
 
+qint64 VersionInfo::compare(const VersionInfo &other) const
+{
+    return compare(m_number, other.m_number);
+}
+
+qint64 VersionInfo::toNumericValue(const QString &version)
+{
+    int ret = 0;
+
+    // Get rid of the possible -rcxx suffix
+    const auto tokens = version.split('-').first().split('.');
+    for(const auto &token : tokens) {
+        bool ok; const auto val = token.toInt(&ok);
+
+        if(!ok) return std::numeric_limits<qint64>::min();
+
+        ret *= 1000;
+        ret += val;
+    }
+
+    return ret;
+}
+
+// TODO: Handle -rcxx suffixes correctly
+qint64 VersionInfo::compare(const QString &v1, const QString &v2)
+{
+    return toNumericValue(v1) - toNumericValue(v2);
+}
+
 ChannelInfo::ChannelInfo(const QJsonValue &val)
 {
     if(!val.isObject()) {
@@ -134,7 +163,7 @@ ChannelInfo::ChannelInfo(const QJsonValue &val)
 
     // Json data is not guaranteed to be sorted?
     std::sort(m_versions.begin(), m_versions.end(), [](const VersionInfo &a, const VersionInfo &b) {
-        return a.number() > b.number();
+        return a.compare(b) > 0;
     });
 }
 

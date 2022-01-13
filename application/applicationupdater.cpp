@@ -14,10 +14,8 @@
 
 Q_LOGGING_CATEGORY(CATEGORY_SELFUPDATES, "SELFUPD")
 
-static const QString chopRcSuffix(const QString &str) {
-    const auto suffixIdx = str.indexOf("-rc");
-    return suffixIdx < 0 ? str : str.chopped(str.length() - suffixIdx);
-}
+using namespace Flipper;
+using namespace Updates;
 
 ApplicationUpdater::ApplicationUpdater(QObject *parent):
     QObject(parent),
@@ -35,13 +33,12 @@ double ApplicationUpdater::progress() const
     return m_progress;
 }
 
+// TODO: Handle -rcxx suffixes correctly
 bool ApplicationUpdater::canUpdate(const Flipper::Updates::VersionInfo &versionInfo) const
 {
     const auto appDate = QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).date();
     const auto appVersion = QStringLiteral(APP_VERSION);
     const auto appCommit = QStringLiteral(APP_COMMIT);
-
-    const auto isReleaseCandidate = appVersion.contains("-rc");
 
     if(!globalPrefs->checkApplicationUpdates()) {
         return false;
@@ -50,12 +47,9 @@ bool ApplicationUpdater::canUpdate(const Flipper::Updates::VersionInfo &versionI
     } else if(globalPrefs->applicationUpdateChannel() == QStringLiteral("development")) {
         return (versionInfo.date() == appDate) && (versionInfo.number() != appCommit);
     } else if(globalPrefs->applicationUpdateChannel() == QStringLiteral("release-candidate")) {
-        return isReleaseCandidate ? versionInfo.number() > appVersion : // Handle multiple release candidates, e.g. rc1, rc2 etc
-                                    chopRcSuffix(versionInfo.number()) > appVersion;
-
+        return VersionInfo::compare(versionInfo.number(), appVersion) > 0;
     } else if(globalPrefs->applicationUpdateChannel() == QStringLiteral("release")) {
-        return isReleaseCandidate ?  versionInfo.number() >= chopRcSuffix(appVersion) :
-                                     versionInfo.number() > appVersion;
+        return VersionInfo::compare(versionInfo.number(), appVersion) > 0;
     } else {
         return false;
     }
