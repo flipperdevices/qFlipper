@@ -1,6 +1,7 @@
 #include "stm32wb55.h"
 
 #include <QBuffer>
+#include <QtEndian>
 
 #include "debug.h"
 #include "infotable.h"
@@ -14,7 +15,6 @@
 #define FUS_STATUS_SIZE 2
 
 #define SRAM2A_BASE 0x20030000UL
-#define DIT_ARBITRARY_OFFSET 0x24 // Based on empirical data, should be 0 according to documentation
 #define DIT_FUS_MAGIC_NUMBER 0xa94656b
 
 namespace STM32 {
@@ -60,27 +60,42 @@ bool STM32WB55::setOptionBytes(const OptionBytes &ob)
 
 VersionInfo STM32WB55::versionInfo()
 {
+    QBuffer buf;
     VersionInfo ret;
-
-    QByteArray data;
-    QBuffer buf(&data);
 
     if(!buf.open(QIODevice::WriteOnly)) {
         qCDebug(CATEGORY_DEBUG) << "Failed to open a buffer for writing:" << buf.errorString();
         return ret;
     }
 
+    auto success = upload(&buf, SRAM2A_BASE, sizeof(uint32_t), (uint8_t)Partition::Flash);
+    if(!success || buf.data().size() != sizeof(uint32_t)) {
+        qCDebug(CATEGORY_DEBUG) << "Failed to read device information table location";
+        return ret;
+    }
+
+    const auto addr = qFromLittleEndian<uint32_t>(buf.data().data());
+    if(addr < SRAM2A_BASE) {
+        qCDebug(CATEGORY_DEBUG).noquote().nospace() << "Invalid address 0x" << QString::number(addr, 16);
+        return ret;
+    }
+
+    buf.reset();
+
     const auto size = qMax(sizeof(FUSDeviceInfoTable), sizeof(DeviceInfoTable));
+
+    qCDebug(CATEGORY_DEBUG).noquote().nospace() << "Reading " << size << " bytes from address 0x" << QString::number(addr, 16);
+
     // Not checking IPCCDBA since it's always 0
-    const auto success = upload(&buf, SRAM2A_BASE + DIT_ARBITRARY_OFFSET, size, (uint8_t)Partition::Flash);
+    success = upload(&buf, addr, size, (uint8_t)Partition::Flash);
     buf.close();
 
-    if(!success || data.size() != size) {
+    if(!success || buf.data().size() != size) {
         qCDebug(CATEGORY_DEBUG) << "Failed to read device information table";
         return ret;
     }
 
-    const auto *fusInfoTable = (const FUSDeviceInfoTable*)data.data();
+    const auto *fusInfoTable = (const FUSDeviceInfoTable*)buf.data().data();
 
     if(fusInfoTable->magic == DIT_FUS_MAGIC_NUMBER) {
         ret.FUSVersion = QStringLiteral("%1.%2.%3")
@@ -93,7 +108,7 @@ VersionInfo STM32WB55::versionInfo()
                 .arg(fusInfoTable->wirelessStackVersion.minor)
                 .arg(fusInfoTable->wirelessStackVersion.sub);
     } else {
-        const auto *wirelessInfoTable = (const DeviceInfoTable*)data.data();
+        const auto *wirelessInfoTable = (const DeviceInfoTable*)buf.data().data();
 
         ret.FUSVersion = QStringLiteral("%1.%2.%3")
                 .arg(wirelessInfoTable->FUS.version.major)
