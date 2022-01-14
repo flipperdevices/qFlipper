@@ -8,7 +8,7 @@ Preferences::Preferences(QObject *parent):
     QObject(parent)
 {
     if(!m_settings.contains(FIRMWARE_UPDATE_CHANNEL_KEY)) {
-        m_settings.setValue(FIRMWARE_UPDATE_CHANNEL_KEY, QStringLiteral("development"));
+        m_settings.setValue(FIRMWARE_UPDATE_CHANNEL_KEY, QStringLiteral("release"));
     }
 
     if(!m_settings.contains(APPLICATION_UPDATE_CHANNEL_KEY)) {
