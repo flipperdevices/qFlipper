@@ -1,13 +1,9 @@
 #include "abstractrecoveryoperation.h"
 
 #include <QTimer>
-#include <QDebug>
-#include <QLoggingCategory>
 
 #include "flipperzero/recovery.h"
 #include "flipperzero/devicestate.h"
-
-Q_DECLARE_LOGGING_CATEGORY(LOG_RECOVERY)
 
 using namespace Flipper;
 using namespace Zero;
@@ -35,13 +31,9 @@ void AbstractRecoveryOperation::finish()
 
 void AbstractRecoveryOperation::onDeviceOnlineChanged()
 {
-    qCDebug(LOG_RECOVERY) << (deviceState()->isOnline() ?
-        "Device went back online" : "Device is offline");
-
     if(deviceState()->isOnline()) {
         stopTimeout();
         QTimer::singleShot(0, this, &AbstractRecoveryOperation::advanceOperationState);
-
     } else {
         startTimeout();
     }
