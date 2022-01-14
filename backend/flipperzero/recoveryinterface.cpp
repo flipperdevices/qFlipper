@@ -12,7 +12,7 @@
 #include "recovery.h"
 #include "debug.h"
 
-Q_LOGGING_CATEGORY(CATEGORY_RECOVERY, "RECOVERY")
+Q_LOGGING_CATEGORY(LOG_RECOVERY, "RECOVERY")
 
 using namespace Flipper;
 using namespace Zero;
@@ -80,5 +80,5 @@ CorrectOptionBytesOperation *RecoveryInterface::fixOptionBytes(QIODevice *file)
 
 const QLoggingCategory &RecoveryInterface::loggingCategory() const
 {
-    return CATEGORY_RECOVERY();
+    return LOG_RECOVERY();
 }

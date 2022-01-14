@@ -1,11 +1,13 @@
 #include "abstractrecoveryoperation.h"
 
 #include <QTimer>
+#include <QDebug>
+#include <QLoggingCategory>
 
 #include "flipperzero/recovery.h"
 #include "flipperzero/devicestate.h"
 
-#define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
+Q_DECLARE_LOGGING_CATEGORY(LOG_RECOVERY)
 
 using namespace Flipper;
 using namespace Zero;
@@ -21,7 +23,7 @@ void AbstractRecoveryOperation::start()
         finishWithError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
     } else {
         connect(m_recovery->deviceState(), &DeviceState::isOnlineChanged, this, &AbstractRecoveryOperation::onDeviceOnlineChanged);
-        CALL_LATER(this, &AbstractRecoveryOperation::advanceOperationState);
+        QTimer::singleShot(0, this, &AbstractRecoveryOperation::advanceOperationState);
     }
 }
 
@@ -33,9 +35,13 @@ void AbstractRecoveryOperation::finish()
 
 void AbstractRecoveryOperation::onDeviceOnlineChanged()
 {
-    if(m_recovery->deviceState()->isOnline()) {
+    qCDebug(LOG_RECOVERY) << (deviceState()->isOnline() ?
+        "Device went back online" : "Device is offline");
+
+    if(deviceState()->isOnline()) {
         stopTimeout();
-        CALL_LATER(this, &AbstractRecoveryOperation::advanceOperationState);
+        QTimer::singleShot(0, this, &AbstractRecoveryOperation::advanceOperationState);
+
     } else {
         startTimeout();
     }
