@@ -10,7 +10,7 @@
 #include "flipperzero/devicestate.h"
 #include "flipperzero/recovery.h"
 
-Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
+Q_DECLARE_LOGGING_CATEGORY(LOG_RECOVERY)
 
 using namespace Flipper;
 using namespace Zero;
@@ -78,13 +78,21 @@ void WirelessStackDownloadOperation::onOperationTimeout()
         msg = QStringLiteral("Should not have timed out here, probably a bug.");
     }
 
-    finishWithError(msg);
+    if(!deviceState()->isOnline()) {
+        finishWithError(msg);
+    } else {
+        qCDebug(LOG_RECOVERY) << "Timeout with an online device, assuming it is still functional";
+        advanceOperationState();
+    }
 }
 
 void WirelessStackDownloadOperation::startFUS()
 {
     if(!recovery()->startFUS()) {
         finishWithError(recovery()->errorString());
+    } else {
+        // Do not rely on the device disconnecting and thus triggering the timeout
+        startTimeout();
     }
 }
 
@@ -175,7 +183,7 @@ void WirelessStackDownloadOperation::tryAgain()
         finishWithError(QStringLiteral("Could not install wireless stack after several tries, giving up"));
 
     } else {
-        qCDebug(CATEGORY_DEBUG) << "Wireless stack installation seem to have failed, retrying...";
+        qCDebug(LOG_RECOVERY) << "Wireless stack installation seems to have failed, retrying...";
         advanceOperationState();
     }
 }
