@@ -19,6 +19,10 @@ public:
 
 private slots:
     void advanceOperationState() override;
+    void onOperationTimeout() override;
+
+private:
+    void exitRecovery();
 };
 
 }
