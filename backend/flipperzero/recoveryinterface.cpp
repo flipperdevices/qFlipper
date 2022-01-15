@@ -4,9 +4,8 @@
 
 #include "flipperzero/recovery/setbootmodeoperation.h"
 #include "flipperzero/recovery/exitrecoveryoperation.h"
-#include "flipperzero/recovery/fixbootissuesoperation.h"
-#include "flipperzero/recovery/correctoptionbytesoperation.h"
 #include "flipperzero/recovery/firmwaredownloadoperation.h"
+#include "flipperzero/recovery/correctoptionbytesoperation.h"
 #include "flipperzero/recovery/wirelessstackdownloadoperation.h"
 
 #include "recovery.h"
@@ -60,13 +59,6 @@ WirelessStackDownloadOperation *RecoveryInterface::downloadFUS(QIODevice *file, 
 WirelessStackDownloadOperation *RecoveryInterface::downloadWirelessStack(QIODevice *file)
 {
     auto *operation = new WirelessStackDownloadOperation(m_recovery, file, 0, this);
-    enqueueOperation(operation);
-    return operation;
-}
-
-FixBootIssuesOperation *RecoveryInterface::fixBootIssues()
-{
-    auto *operation = new FixBootIssuesOperation(m_recovery, this);
     enqueueOperation(operation);
     return operation;
 }
