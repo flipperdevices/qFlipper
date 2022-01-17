@@ -19,7 +19,7 @@ const QString FirmwareDownloadOperation::description() const
     return QStringLiteral("Firmware Download @%1").arg(deviceState()->name());
 }
 
-void FirmwareDownloadOperation::advanceOperationState()
+void FirmwareDownloadOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
         setOperationState(State::DownloadingFirmware);

@@ -22,7 +22,7 @@ const QString CorrectOptionBytesOperation::description() const
     return QStringLiteral("Correct Option Bytes @%1").arg(deviceState()->name());
 }
 
-void CorrectOptionBytesOperation::advanceOperationState()
+void CorrectOptionBytesOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
         setOperationState(CorrectOptionBytesOperation::CorrectingOptionBytes);

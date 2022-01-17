@@ -20,7 +20,7 @@ const QString SetBootModeOperation::description() const
     return QStringLiteral("Set %1 boot mode @%2").arg(typeString(), deviceState()->name());
 }
 
-void SetBootModeOperation::advanceOperationState()
+void SetBootModeOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
         setOperationState(SetBootModeOperation::WaitingForBoot);
@@ -36,7 +36,6 @@ void SetBootModeOperation::onOperationTimeout()
     if(!deviceState()->isOnline()) {
         finishWithError(QStringLiteral("Failed to set %1 mode: operation timeout").arg(typeString()));
     } else {
-        // TODO: Check that the boot mode was correctly set, if not, repeat
         qCDebug(LOG_RECOVERY) << "Timeout with an online device, assuming it is still functional";
         advanceOperationState();
     }
@@ -47,7 +46,6 @@ void SetBootModeOperation::setBootMode()
     if(!recovery()->setBootMode((Recovery::BootMode)bootMode())) {
         finishWithError(recovery()->errorString());
     } else {
-        // Do not rely on the device disconnecting and thus triggering the timeout
         startTimeout();
     }
 }

@@ -15,7 +15,7 @@ const QString ExitRecoveryOperation::description() const
     return QStringLiteral("Exit Recovery Mode @%1").arg(deviceState()->name());
 }
 
-void ExitRecoveryOperation::advanceOperationState()
+void ExitRecoveryOperation::nextStateLogic()
 {
     if(operationState() == BasicOperationState::Ready) {
         setOperationState(OperationState::WaitingForOnline);

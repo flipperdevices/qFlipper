@@ -22,7 +22,7 @@ WirelessStackDownloadOperation::WirelessStackDownloadOperation(Recovery *recover
     m_targetAddress(targetAddress),
     m_retryCount(3)
 {
-    connect(m_loopTimer, &QTimer::timeout, this, &WirelessStackDownloadOperation::advanceOperationState);
+    connect(m_loopTimer, &QTimer::timeout, this, &WirelessStackDownloadOperation::nextStateLogic);
 }
 
 const QString WirelessStackDownloadOperation::description() const
@@ -30,7 +30,7 @@ const QString WirelessStackDownloadOperation::description() const
     return QStringLiteral("Co-Processor Firmware Download @%1").arg(deviceState()->name());
 }
 
-void WirelessStackDownloadOperation::advanceOperationState()
+void WirelessStackDownloadOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
         setOperationState(WirelessStackDownloadOperation::StartingFUS);
@@ -91,7 +91,6 @@ void WirelessStackDownloadOperation::startFUS()
     if(!recovery()->startFUS()) {
         finishWithError(recovery()->errorString());
     } else {
-        // Do not rely on the device disconnecting and thus triggering the timeout
         startTimeout();
     }
 }
