@@ -2,7 +2,6 @@
 
 #include <QFile>
 #include <QDebug>
-#include <QTimer>
 #include <QBuffer>
 #include <QFileInfo>
 #include <QLoggingCategory>
@@ -56,7 +55,7 @@ const QString AssetsDownloadOperation::description() const
     return QStringLiteral("Assets Download @%1").arg(deviceState()->name());
 }
 
-void AssetsDownloadOperation::advanceOperationState()
+void AssetsDownloadOperation::nextStateLogic()
 {
     if(operationState() == BasicOperationState::Ready) {
         setOperationState(State::CheckingExtStorage);
@@ -131,7 +130,7 @@ void AssetsDownloadOperation::extractArchive()
             if(m_archive.isError()) {
                 finishWithError(m_archive.errorString());
             } else {
-                QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
+                advanceOperationState();
             }
         }
 
@@ -152,7 +151,7 @@ void AssetsDownloadOperation::readLocalManifest()
         return finishWithError(m_localManifest.errorString());
     }
 
-    QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
+    advanceOperationState();
 }
 
 void AssetsDownloadOperation::checkForDeviceManifest()
@@ -168,7 +167,7 @@ void AssetsDownloadOperation::checkForDeviceManifest()
             m_isDeviceManifestPresent = true;
         }
 
-        QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
+        advanceOperationState();
     });
 }
 
@@ -188,7 +187,7 @@ void AssetsDownloadOperation::readDeviceManifest()
             m_deviceManifest = AssetManifest(test);
         }
 
-        QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
+        advanceOperationState();
     });
 }
 
@@ -250,14 +249,14 @@ void AssetsDownloadOperation::buildFileLists()
     // Start deleting by the farthest nodes
     std::reverse(m_deleteList.begin(), m_deleteList.end());
 
-    QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
+    advanceOperationState();
 }
 
 void AssetsDownloadOperation::deleteFiles()
 {
     if(m_deleteList.isEmpty()) {
         qCDebug(CATEGORY_ASSETS) << "No files to delete, skipping to write";
-        QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
+        advanceOperationState();
     }
 
     deviceState()->setStatusString(tr("Deleting unneeded files..."));
@@ -274,7 +273,7 @@ void AssetsDownloadOperation::deleteFiles()
             if(operation->isError()) {
                 finishWithError(operation->errorString());
             } else if(isLastFile) {
-                QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
+                advanceOperationState();
             }
         });
     }
@@ -284,7 +283,7 @@ void AssetsDownloadOperation::writeFiles()
 {
     if(m_writeList.isEmpty()) {
         qCDebug(CATEGORY_ASSETS) << "No files to write, skipping to the end";
-        QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
+        advanceOperationState();
     }
 
     deviceState()->setStatusString(tr("Writing new files..."));
@@ -321,7 +320,7 @@ void AssetsDownloadOperation::writeFiles()
             if(op->isError()) {
                 finishWithError(op->errorString());
             } else if(i == 0) {
-                QTimer::singleShot(0, this, &AssetsDownloadOperation::advanceOperationState);
+                advanceOperationState();
             }
         });
     }

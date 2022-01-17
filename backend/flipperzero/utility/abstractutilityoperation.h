@@ -21,8 +21,11 @@ public:
     CommandInterface *rpc() const;
     DeviceState *deviceState() const;
 
+protected:
+    void advanceOperationState();
+
 private slots:
-    virtual void advanceOperationState() = 0;
+    virtual void nextStateLogic() = 0;
 
 private:
     CommandInterface *m_rpc;

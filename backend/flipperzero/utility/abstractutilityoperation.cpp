@@ -19,7 +19,7 @@ void AbstractUtilityOperation::start()
     if(operationState() != AbstractOperation::Ready) {
         finishWithError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
     } else {
-        QTimer::singleShot(0, this, &AbstractUtilityOperation::advanceOperationState);
+        advanceOperationState();
     }
 }
 
@@ -31,4 +31,9 @@ CommandInterface *AbstractUtilityOperation::rpc() const
 DeviceState *AbstractUtilityOperation::deviceState() const
 {
     return m_deviceState;
+}
+
+void AbstractUtilityOperation::advanceOperationState()
+{
+    QTimer::singleShot(0, this, &AbstractUtilityOperation::nextStateLogic);
 }

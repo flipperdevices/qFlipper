@@ -29,14 +29,14 @@ const QString UserRestoreOperation::description() const
     return QStringLiteral("Restore %1 @%2").arg(m_deviceDirName, deviceState()->name());
 }
 
-void UserRestoreOperation::advanceOperationState()
+void UserRestoreOperation::nextStateLogic()
 {
     if(operationState() == BasicOperationState::Ready) {
         setOperationState(State::ReadingBackupDir);
         if(!readBackupDir()) {
             finishWithError(QStringLiteral("Failed to process backup directory"));
         } else {
-            QTimer::singleShot(0, this, &UserRestoreOperation::advanceOperationState);
+            QTimer::singleShot(0, this, &UserRestoreOperation::nextStateLogic);
         }
 
     } else if(operationState() == State::ReadingBackupDir) {
@@ -91,7 +91,7 @@ bool UserRestoreOperation::deleteFiles()
             if(op->isError()) {
                 finishWithError(op->errorString());
             } else if(isLastFile) {
-                QTimer::singleShot(0, this, &UserRestoreOperation::advanceOperationState);
+                QTimer::singleShot(0, this, &UserRestoreOperation::nextStateLogic);
             }
         });
     }
@@ -136,7 +136,7 @@ bool UserRestoreOperation::writeFiles()
             if(op->isError()) {
                 finishWithError(op->errorString());
             } else if(isLastFile) {
-                QTimer::singleShot(0, this, &UserRestoreOperation::advanceOperationState);
+                QTimer::singleShot(0, this, &UserRestoreOperation::nextStateLogic);
             }
 
             op->deleteLater();

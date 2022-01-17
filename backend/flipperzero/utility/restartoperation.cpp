@@ -1,12 +1,8 @@
 #include "restartoperation.h"
 
-#include <QTimer>
-
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
 #include "flipperzero/rpc/systemrebootoperation.h"
-
-#define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
 
 using namespace Flipper;
 using namespace Zero;
@@ -20,7 +16,7 @@ const QString RestartOperation::description() const
     return QStringLiteral("Restart device @%1").arg(deviceState()->name());
 }
 
-void RestartOperation::advanceOperationState()
+void RestartOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
         setOperationState(RestartOperation::WaitingForOSBoot);
@@ -41,7 +37,7 @@ void RestartOperation::onOperationTimeout()
 void RestartOperation::onDeviceOnlineChanged()
 {
     if(deviceState()->isOnline()) {
-        CALL_LATER(this, &RestartOperation::advanceOperationState);
+        advanceOperationState();
     } else {
         startTimeout();
     }
@@ -60,4 +56,6 @@ void RestartOperation::rebootDevice()
             finishWithError(operation->errorString());
         }
     });
+
+    startTimeout();
 }

@@ -2,7 +2,6 @@
 
 #include <QUrl>
 #include <QFile>
-#include <QTimer>
 #include <QDebug>
 
 #include "flipperzero/devicestate.h"
@@ -25,7 +24,7 @@ const QString UserBackupOperation::description() const
     return QStringLiteral("Backup %1 @%2").arg(m_deviceDirName, deviceState()->name());
 }
 
-void UserBackupOperation::advanceOperationState()
+void UserBackupOperation::nextStateLogic()
 {
     if(operationState() == BasicOperationState::Ready) {
         deviceState()->setStatusString(QStringLiteral("Backing up internal storage..."));
@@ -77,7 +76,7 @@ void UserBackupOperation::createBackupDirectory()
     } else if(!m_backupDir.mkpath(subdir + m_deviceDirName) || !m_backupDir.cd(subdir)) {
         finishWithError(QStringLiteral("Failed to create backup directory"));
     } else{
-        QTimer::singleShot(0, this, &UserBackupOperation::advanceOperationState);
+        advanceOperationState();
     }
 }
 
@@ -90,7 +89,7 @@ void UserBackupOperation::getFileTree()
             finishWithError(operation->errorString());
         } else {
             m_fileList = operation->files();
-            QTimer::singleShot(0, this, &UserBackupOperation::advanceOperationState);
+            advanceOperationState();
         }
 
         operation->deleteLater();
