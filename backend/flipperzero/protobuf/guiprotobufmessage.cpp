@@ -31,3 +31,24 @@ GuiSendInputRequest::GuiSendInputRequest(QSerialPort *serialPort, PB_Gui_InputKe
     pbMessage()->content.gui_send_input_event_request.key = key;
     pbMessage()->content.gui_send_input_event_request.type = type;
 }
+
+GuiStartVirtualDisplayRequest::GuiStartVirtualDisplayRequest(QSerialPort *serialPort, const QByteArray &screenData):
+    AbstractMainProtobufRequest(serialPort)
+{
+    auto &request = pbMessage()->content.gui_start_virtual_display_request;
+
+    request = PB_Gui_StartVirtualDisplayRequest_init_default;
+    request.has_first_frame = !screenData.isEmpty();
+
+    if(request.has_first_frame) {
+        request.first_frame.data = (pb_bytes_array_t*)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(screenData.size()));
+        request.first_frame.data->size = screenData.size();
+        memcpy(request.first_frame.data->bytes, screenData.data(), screenData.size());
+    }
+}
+
+GuiStopVirtualDisplayRequest::GuiStopVirtualDisplayRequest(QSerialPort *serialPort):
+    AbstractMainProtobufRequest(serialPort)
+{
+    pbMessage()->content.gui_stop_virtual_display_request = PB_Gui_StopVirtualDisplayRequest_init_default;
+}

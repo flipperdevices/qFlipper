@@ -34,6 +34,18 @@ public:
     GuiSendInputRequest(QSerialPort *serialPort, PB_Gui_InputKey key, PB_Gui_InputType type);
 };
 
+class GuiStartVirtualDisplayRequest:
+public AbstractMainProtobufRequest<PB_Main_gui_start_virtual_display_request_tag>
+{
+    GuiStartVirtualDisplayRequest(QSerialPort *serialPort, const QByteArray &screenData = QByteArray());
+};
+
+class GuiStopVirtualDisplayRequest:
+public AbstractMainProtobufRequest<PB_Main_gui_stop_virtual_display_request_tag>
+{
+    GuiStopVirtualDisplayRequest(QSerialPort *serialPort);
+};
+
 }
 }
 
