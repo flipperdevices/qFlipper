@@ -63,8 +63,6 @@ SOURCES += \
     flipperzero/recovery/correctoptionbytesoperation.cpp \
     flipperzero/recovery/exitrecoveryoperation.cpp \
     flipperzero/recovery/firmwaredownloadoperation.cpp \
-    flipperzero/recovery/fixbootissuesoperation.cpp \
-    flipperzero/recovery/radioupdateoperation.cpp \
     flipperzero/recovery/setbootmodeoperation.cpp \
     flipperzero/recovery/wirelessstackdownloadoperation.cpp \
     flipperzero/recoveryinterface.cpp \
@@ -156,8 +154,6 @@ HEADERS += \
     flipperzero/recovery/correctoptionbytesoperation.h \
     flipperzero/recovery/exitrecoveryoperation.h \
     flipperzero/recovery/firmwaredownloadoperation.h \
-    flipperzero/recovery/fixbootissuesoperation.h \
-    flipperzero/recovery/radioupdateoperation.h \
     flipperzero/recovery/setbootmodeoperation.h \
     flipperzero/recovery/wirelessstackdownloadoperation.h \
     flipperzero/recoveryinterface.h \

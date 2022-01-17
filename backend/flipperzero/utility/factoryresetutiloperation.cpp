@@ -1,12 +1,8 @@
 #include "factoryresetutiloperation.h"
 
-#include <QTimer>
-
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
 #include "flipperzero/rpc/systemfactoryresetoperation.h"
-
-#define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
 
 using namespace Flipper;
 using namespace Zero;
@@ -20,7 +16,7 @@ const QString FactoryResetUtilOperation::description() const
     return QStringLiteral("Factory reset (Utility) @%1").arg(deviceState()->name());
 }
 
-void FactoryResetUtilOperation::advanceOperationState()
+void FactoryResetUtilOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
         setOperationState(FactoryResetUtilOperation::ResettingDevice);
@@ -34,7 +30,7 @@ void FactoryResetUtilOperation::advanceOperationState()
 void FactoryResetUtilOperation::onDeviceOnlineChanged()
 {
     if(deviceState()->isOnline()) {
-        CALL_LATER(this, &FactoryResetUtilOperation::advanceOperationState);
+        advanceOperationState();
     } else {
         startTimeout();
     }

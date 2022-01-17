@@ -24,7 +24,7 @@ public:
     const QString description() const override;
 
 private slots:
-    void advanceOperationState() override;
+    void nextStateLogic() override;
 
 private:
     void createBackupDirectory();

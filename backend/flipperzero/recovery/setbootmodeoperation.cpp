@@ -1,7 +1,12 @@
 #include "setbootmodeoperation.h"
 
+#include <QDebug>
+#include <QLoggingCategory>
+
 #include "flipperzero/devicestate.h"
 #include "flipperzero/recovery.h"
+
+Q_DECLARE_LOGGING_CATEGORY(LOG_RECOVERY)
 
 using namespace Flipper;
 using namespace Zero;
@@ -15,7 +20,7 @@ const QString SetBootModeOperation::description() const
     return QStringLiteral("Set %1 boot mode @%2").arg(typeString(), deviceState()->name());
 }
 
-void SetBootModeOperation::advanceOperationState()
+void SetBootModeOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
         setOperationState(SetBootModeOperation::WaitingForBoot);
@@ -28,13 +33,20 @@ void SetBootModeOperation::advanceOperationState()
 
 void SetBootModeOperation::onOperationTimeout()
 {
-    finishWithError(QStringLiteral("Failed to set %1 mode: operation timeout").arg(typeString()));
+    if(!deviceState()->isOnline()) {
+        finishWithError(QStringLiteral("Failed to set %1 mode: operation timeout").arg(typeString()));
+    } else {
+        qCDebug(LOG_RECOVERY) << "Timeout with an online device, assuming it is still functional";
+        advanceOperationState();
+    }
 }
 
 void SetBootModeOperation::setBootMode()
 {
     if(!recovery()->setBootMode((Recovery::BootMode)bootMode())) {
         finishWithError(recovery()->errorString());
+    } else {
+        startTimeout();
     }
 }
 

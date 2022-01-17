@@ -1,6 +1,10 @@
 #include "correctoptionbytesoperation.h"
 
+#include <QDebug>
 #include <QIODevice>
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(LOG_RECOVERY)
 
 #include "flipperzero/devicestate.h"
 #include "flipperzero/recovery.h"
@@ -18,7 +22,7 @@ const QString CorrectOptionBytesOperation::description() const
     return QStringLiteral("Correct Option Bytes @%1").arg(deviceState()->name());
 }
 
-void CorrectOptionBytesOperation::advanceOperationState()
+void CorrectOptionBytesOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
         setOperationState(CorrectOptionBytesOperation::CorrectingOptionBytes);
@@ -29,9 +33,21 @@ void CorrectOptionBytesOperation::advanceOperationState()
     } else {}
 }
 
+void CorrectOptionBytesOperation::onOperationTimeout()
+{
+    if(!deviceState()->isOnline()) {
+        finishWithError(QStringLiteral("Failed to write corrected option bytes: Operation timeout"));
+    } else {
+        qCDebug(LOG_RECOVERY) << "Timeout while device is online, assuming it is still functional";
+        advanceOperationState();
+    }
+}
+
 void CorrectOptionBytesOperation::correctOptionBytes()
 {
     if(!recovery()->downloadOptionBytes(m_file)) {
         finishWithError(recovery()->errorString());
+    } else {
+        startTimeout();
     }
 }

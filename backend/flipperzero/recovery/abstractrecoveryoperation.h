@@ -23,9 +23,11 @@ protected:
     Recovery *recovery() const;
     DeviceState *deviceState() const;
 
+    void advanceOperationState();
+
 private slots:
     void onDeviceOnlineChanged();
-    virtual void advanceOperationState() = 0;
+    virtual void nextStateLogic() = 0;
 
 private:
     Recovery *m_recovery;

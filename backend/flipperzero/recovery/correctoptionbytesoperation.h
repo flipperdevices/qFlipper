@@ -20,7 +20,8 @@ public:
     const QString description() const override;
 
 private slots:
-    void advanceOperationState() override;
+    void nextStateLogic() override;
+    void onOperationTimeout() override;
 
 private:
     void correctOptionBytes();

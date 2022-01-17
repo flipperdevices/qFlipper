@@ -1,12 +1,8 @@
 #include "getfiletreeoperation.h"
 
-#include <QTimer>
-
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
 #include "flipperzero/rpc/storagelistoperation.h"
-
-#include "debug.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -27,7 +23,7 @@ const FileInfoList &GetFileTreeOperation::files() const
     return m_result;
 }
 
-void GetFileTreeOperation::advanceOperationState()
+void GetFileTreeOperation::nextStateLogic()
 {
     if(operationState() == BasicOperationState::Ready) {
         setOperationState(State::Running);
@@ -60,5 +56,5 @@ void GetFileTreeOperation::listDirectory(const QByteArray &path)
 {
     ++m_pendingCount;
     auto *op = rpc()->storageList(path);
-    connect(op, &AbstractOperation::finished, this, &GetFileTreeOperation::advanceOperationState);
+    connect(op, &AbstractOperation::finished, this, &GetFileTreeOperation::nextStateLogic);
 }

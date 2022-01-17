@@ -10,7 +10,7 @@
 #include "flipperzero/devicestate.h"
 #include "flipperzero/recovery.h"
 
-Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
+Q_DECLARE_LOGGING_CATEGORY(LOG_RECOVERY)
 
 using namespace Flipper;
 using namespace Zero;
@@ -22,7 +22,7 @@ WirelessStackDownloadOperation::WirelessStackDownloadOperation(Recovery *recover
     m_targetAddress(targetAddress),
     m_retryCount(3)
 {
-    connect(m_loopTimer, &QTimer::timeout, this, &WirelessStackDownloadOperation::advanceOperationState);
+    connect(m_loopTimer, &QTimer::timeout, this, &WirelessStackDownloadOperation::nextStateLogic);
 }
 
 const QString WirelessStackDownloadOperation::description() const
@@ -30,7 +30,7 @@ const QString WirelessStackDownloadOperation::description() const
     return QStringLiteral("Co-Processor Firmware Download @%1").arg(deviceState()->name());
 }
 
-void WirelessStackDownloadOperation::advanceOperationState()
+void WirelessStackDownloadOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
         setOperationState(WirelessStackDownloadOperation::StartingFUS);
@@ -78,13 +78,20 @@ void WirelessStackDownloadOperation::onOperationTimeout()
         msg = QStringLiteral("Should not have timed out here, probably a bug.");
     }
 
-    finishWithError(msg);
+    if(!deviceState()->isOnline()) {
+        finishWithError(msg);
+    } else {
+        qCDebug(LOG_RECOVERY) << "Timeout with an online device, assuming it is still functional";
+        advanceOperationState();
+    }
 }
 
 void WirelessStackDownloadOperation::startFUS()
 {
     if(!recovery()->startFUS()) {
         finishWithError(recovery()->errorString());
+    } else {
+        startTimeout();
     }
 }
 
@@ -175,7 +182,7 @@ void WirelessStackDownloadOperation::tryAgain()
         finishWithError(QStringLiteral("Could not install wireless stack after several tries, giving up"));
 
     } else {
-        qCDebug(CATEGORY_DEBUG) << "Wireless stack installation seem to have failed, retrying...";
+        qCDebug(LOG_RECOVERY) << "Wireless stack installation seems to have failed, retrying...";
         advanceOperationState();
     }
 }

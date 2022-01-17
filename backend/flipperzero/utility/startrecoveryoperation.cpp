@@ -1,12 +1,8 @@
 #include "startrecoveryoperation.h"
 
-#include <QTimer>
-
 #include "flipperzero/devicestate.h"
 #include "flipperzero/commandinterface.h"
 #include "flipperzero/rpc/systemrebootoperation.h"
-
-#define CALL_LATER(obj, func) (QTimer::singleShot(0, obj, func))
 
 using namespace Flipper;
 using namespace Zero;
@@ -20,7 +16,7 @@ const QString StartRecoveryOperation::description() const
     return QStringLiteral("Start Recovery Mode @%1").arg(deviceState()->name());
 }
 
-void StartRecoveryOperation::advanceOperationState()
+void StartRecoveryOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
         setOperationState(StartRecoveryOperation::WaitingForRecovery);
@@ -36,7 +32,7 @@ void StartRecoveryOperation::advanceOperationState()
 void StartRecoveryOperation::onDeviceOnlineChanged()
 {
     if(deviceState()->isOnline()) {
-        CALL_LATER(this, &StartRecoveryOperation::advanceOperationState);
+        advanceOperationState();
     } else {
         startTimeout();
     }
@@ -45,7 +41,7 @@ void StartRecoveryOperation::onDeviceOnlineChanged()
 void StartRecoveryOperation::startRecoveryMode()
 {
     if(deviceState()->isRecoveryMode()) {
-        advanceOperationState();
+        nextStateLogic();
         return;
     }
 
@@ -60,4 +56,6 @@ void StartRecoveryOperation::startRecoveryMode()
             finishWithError(operation->errorString());
         }
     });
+
+    startTimeout();
 }

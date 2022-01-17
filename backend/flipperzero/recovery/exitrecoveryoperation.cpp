@@ -15,16 +15,27 @@ const QString ExitRecoveryOperation::description() const
     return QStringLiteral("Exit Recovery Mode @%1").arg(deviceState()->name());
 }
 
-void ExitRecoveryOperation::advanceOperationState()
+void ExitRecoveryOperation::nextStateLogic()
 {
     if(operationState() == BasicOperationState::Ready) {
         setOperationState(OperationState::WaitingForOnline);
-
-        if(!recovery()->exitRecoveryMode()) {
-            finishWithError(recovery()->errorString());
-        }
+        exitRecovery();
 
     } else if(operationState() == OperationState::WaitingForOnline) {
         finish();
+    }
+}
+
+void ExitRecoveryOperation::onOperationTimeout()
+{
+    finishWithError(QStringLiteral("Failed to exit recovery: Operation timeout"));
+}
+
+void ExitRecoveryOperation::exitRecovery()
+{
+    if(!recovery()->exitRecoveryMode()) {
+        finishWithError(recovery()->errorString());
+    } else {
+        startTimeout();
     }
 }

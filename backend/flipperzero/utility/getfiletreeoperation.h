@@ -22,7 +22,7 @@ public:
     const FileInfoList &files() const;
 
 private slots:
-    void advanceOperationState() override;
+    void nextStateLogic() override;
 
 private:
     void listDirectory(const QByteArray &path);

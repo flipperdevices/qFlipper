@@ -4,15 +4,14 @@
 
 #include "flipperzero/recovery/setbootmodeoperation.h"
 #include "flipperzero/recovery/exitrecoveryoperation.h"
-#include "flipperzero/recovery/fixbootissuesoperation.h"
-#include "flipperzero/recovery/correctoptionbytesoperation.h"
 #include "flipperzero/recovery/firmwaredownloadoperation.h"
+#include "flipperzero/recovery/correctoptionbytesoperation.h"
 #include "flipperzero/recovery/wirelessstackdownloadoperation.h"
 
 #include "recovery.h"
 #include "debug.h"
 
-Q_LOGGING_CATEGORY(CATEGORY_RECOVERY, "RECOVERY")
+Q_LOGGING_CATEGORY(LOG_RECOVERY, "RECOVERY")
 
 using namespace Flipper;
 using namespace Zero;
@@ -64,13 +63,6 @@ WirelessStackDownloadOperation *RecoveryInterface::downloadWirelessStack(QIODevi
     return operation;
 }
 
-FixBootIssuesOperation *RecoveryInterface::fixBootIssues()
-{
-    auto *operation = new FixBootIssuesOperation(m_recovery, this);
-    enqueueOperation(operation);
-    return operation;
-}
-
 CorrectOptionBytesOperation *RecoveryInterface::fixOptionBytes(QIODevice *file)
 {
     auto *operation = new CorrectOptionBytesOperation(m_recovery, file, this);
@@ -80,5 +72,5 @@ CorrectOptionBytesOperation *RecoveryInterface::fixOptionBytes(QIODevice *file)
 
 const QLoggingCategory &RecoveryInterface::loggingCategory() const
 {
-    return CATEGORY_RECOVERY();
+    return LOG_RECOVERY();
 }

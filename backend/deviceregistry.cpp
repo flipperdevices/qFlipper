@@ -14,7 +14,7 @@
 #define FLIPPER_ZERO_PID_VCP 0x5740
 #define FLIPPER_ZERO_PID_DFU 0xdf11
 
-Q_LOGGING_CATEGORY(CAT_DEVREG, "DEVREG");
+Q_LOGGING_CATEGORY(LOG_DEVREG, "DEVREG");
 
 using namespace Flipper;
 
@@ -45,15 +45,15 @@ int DeviceRegistry::deviceCount() const
 void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 {
     if(!info.isValid()) {
-        qCDebug(CAT_DEVREG).noquote().nospace()
+        qCDebug(LOG_DEVREG).noquote().nospace()
             << "Invalid device detected: VID_0x" << QString::number(info.vendorID(), 16) << ":PID_0x"
             << QString::number(info.productID(), 16) << ", ignoring it";
 
     } else if(info.vendorID() != FLIPPER_ZERO_VID) {
-        qCDebug(CAT_DEVREG) << "Unexpected device VID and PID";
+        qCDebug(LOG_DEVREG) << "Unexpected device VID and PID";
 
     } else {
-        qCDebug(CAT_DEVREG).noquote().nospace()
+        qCDebug(LOG_DEVREG).noquote().nospace()
             << "Detected new device: VID_0x" << QString::number(info.vendorID(), 16) << ":PID_0x" << QString::number(info.productID(), 16);
 
         auto *fetcher = Zero::AbstractDeviceInfoHelper::create(info, this);
@@ -73,11 +73,17 @@ void DeviceRegistry::removeDevice(const USBDeviceInfo &info)
         auto *device = m_devices.at(idx);
 
         if(!device->deviceState()->isPersistent()) {
+            qCDebug(LOG_DEVREG).noquote().nospace()
+                << "Device disconnected: VID_0x" << QString::number(info.vendorID(), 16) << ":PID_0x" << QString::number(info.productID(), 16);
+
             m_devices.takeAt(idx)->deleteLater();
             emit deviceCountChanged();
             emit currentDeviceChanged();
 
         } else {
+            qCDebug(LOG_DEVREG).noquote().nospace()
+                << "Device went offline: VID_0x" << QString::number(info.vendorID(), 16) << ":PID_0x" << QString::number(info.productID(), 16);
+
             device->deviceState()->setOnline(false);
         }
     }
@@ -90,7 +96,7 @@ void DeviceRegistry::removeOfflineDevices()
     });
 
     for(const auto end = m_devices.end(); it != end; ++it) {
-        qCDebug(CAT_DEVREG).noquote() << "Removed offline device:" << (*it)->deviceState()->name();
+        qCDebug(LOG_DEVREG).noquote() << "Removed offline device:" << (*it)->deviceState()->name();
 
         m_devices.erase(it);
         emit deviceCountChanged();
@@ -106,7 +112,7 @@ void DeviceRegistry::processDevice()
     fetcher->deleteLater();
 
     if(fetcher->isError()) {
-        qCDebug(CAT_DEVREG).noquote() << "Device initialization failed:" << fetcher->errorString();
+        qCDebug(LOG_DEVREG).noquote() << "Device initialization failed:" << fetcher->errorString();
         return;
     }
 
@@ -118,9 +124,12 @@ void DeviceRegistry::processDevice()
 
     if(it != m_devices.end()) {
         // Preserving the old instance
+        qCDebug(LOG_DEVREG) << "Device went back online";
         (*it)->deviceState()->setDeviceInfo(info);
 
     } else {
+        qCDebug(LOG_DEVREG) << "Registering the device";
+
         auto *device = new FlipperZero(info, this);
         m_devices.append(device);
 

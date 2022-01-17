@@ -13,7 +13,6 @@ class DeviceState;
 class SetBootModeOperation;
 class ExitRecoveryOperation;
 class FirmwareDownloadOperation;
-class FixBootIssuesOperation;
 class CorrectOptionBytesOperation;
 class WirelessStackDownloadOperation;
 
@@ -30,11 +29,9 @@ public:
     SetBootModeOperation *setRecoveryBootMode();
 
     FirmwareDownloadOperation *downloadFirmware(QIODevice *file);
-
     WirelessStackDownloadOperation *downloadFUS(QIODevice *file, uint32_t address);
     WirelessStackDownloadOperation *downloadWirelessStack(QIODevice *file);
 
-    FixBootIssuesOperation *fixBootIssues();
     CorrectOptionBytesOperation *fixOptionBytes(QIODevice *file);
 
 private:
