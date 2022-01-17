@@ -21,7 +21,9 @@ SOURCES += \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
     flipperzero/rpc/guistartstreamoperation.cpp \
+    flipperzero/rpc/guistartvirtualdisplayoperation.cpp \
     flipperzero/rpc/guistopstreamoperation.cpp \
+    flipperzero/rpc/guistopvirtualdisplayoperation.cpp \
     flipperzero/rpc/startrpcoperation.cpp \
     flipperzero/rpc/stoprpcoperation.cpp \
     flipperzero/rpc/storageinfooperation.cpp \
@@ -111,7 +113,9 @@ HEADERS += \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
     flipperzero/rpc/guistartstreamoperation.h \
+    flipperzero/rpc/guistartvirtualdisplayoperation.h \
     flipperzero/rpc/guistopstreamoperation.h \
+    flipperzero/rpc/guistopvirtualdisplayoperation.h \
     flipperzero/rpc/startrpcoperation.h \
     flipperzero/rpc/stoprpcoperation.h \
     flipperzero/rpc/storageinfooperation.h \

@@ -37,12 +37,14 @@ public:
 class GuiStartVirtualDisplayRequest:
 public AbstractMainProtobufRequest<PB_Main_gui_start_virtual_display_request_tag>
 {
+public:
     GuiStartVirtualDisplayRequest(QSerialPort *serialPort, const QByteArray &screenData = QByteArray());
 };
 
 class GuiStopVirtualDisplayRequest:
 public AbstractMainProtobufRequest<PB_Main_gui_stop_virtual_display_request_tag>
 {
+public:
     GuiStopVirtualDisplayRequest(QSerialPort *serialPort);
 };
 

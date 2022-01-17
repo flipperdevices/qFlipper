@@ -23,6 +23,9 @@
 #include "rpc/guistartstreamoperation.h"
 #include "rpc/guistopstreamoperation.h"
 
+#include "rpc/guistartvirtualdisplayoperation.h"
+#include "rpc/guistopvirtualdisplayoperation.h"
+
 Q_LOGGING_CATEGORY(CATEGORY_RPC, "RPC");
 
 using namespace Flipper;
@@ -101,6 +104,16 @@ GuiStartStreamOperation *CommandInterface::guiStartStreaming()
 GuiStopStreamOperation *CommandInterface::guiStopStreaming()
 {
     return registerOperation(new GuiStopStreamOperation(serialPort(), this));
+}
+
+GuiStartVirtualDisplayOperation *CommandInterface::guiStartVirtualDisplay(const QByteArray &screenData)
+{
+    return registerOperation(new GuiStartVirtualDisplayOperation(serialPort(), screenData, this));
+}
+
+GuiStopVirtualDisplayOperation *CommandInterface::guiStopVirtualDisplay()
+{
+    return registerOperation(new GuiStopVirtualDisplayOperation(serialPort(), this));
 }
 
 StorageRemoveOperation *CommandInterface::storageRemove(const QByteArray &path)
