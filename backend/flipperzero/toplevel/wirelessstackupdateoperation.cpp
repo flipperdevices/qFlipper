@@ -46,17 +46,17 @@ void AbstractCore2UpdateOperation::nextStateLogic()
 
 void AbstractCore2UpdateOperation::startRecoveryMode()
 {
-    registerOperation(m_utility->startRecoveryMode());
+    registerSubOperation(m_utility->startRecoveryMode());
 }
 
 void AbstractCore2UpdateOperation::setRecoveryBootMode()
 {
-    registerOperation(m_recovery->setRecoveryBootMode());
+    registerSubOperation(m_recovery->setRecoveryBootMode());
 }
 
 void AbstractCore2UpdateOperation::setOSBootMode()
 {
-    registerOperation(m_recovery->setOSBootMode());
+    registerSubOperation(m_recovery->setOSBootMode());
 }
 
 WirelessStackUpdateOperation::WirelessStackUpdateOperation(RecoveryInterface *recovery, UtilityInterface *utility, DeviceState *state, const QString &filePath, QObject *parent):
@@ -70,7 +70,7 @@ const QString WirelessStackUpdateOperation::description() const
 
 void WirelessStackUpdateOperation::updateCore2Firmware()
 {
-    registerOperation(m_recovery->downloadWirelessStack(m_file));
+    registerSubOperation(m_recovery->downloadWirelessStack(m_file));
 }
 
 FUSUpdateOperation::FUSUpdateOperation(RecoveryInterface *recovery, UtilityInterface *utility, DeviceState *state, const QString &filePath, uint32_t address, QObject *parent):
@@ -85,5 +85,5 @@ const QString FUSUpdateOperation::description() const
 
 void FUSUpdateOperation::updateCore2Firmware()
 {
-    registerOperation(m_recovery->downloadFUS(m_file, m_address));
+    registerSubOperation(m_recovery->downloadFUS(m_file, m_address));
 }

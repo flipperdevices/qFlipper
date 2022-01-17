@@ -115,54 +115,54 @@ void FullUpdateOperation::fetchFirmware()
 
 void FullUpdateOperation::saveBackup()
 {
-    registerOperation(m_utility->backupInternalStorage(globalTempDirs->root().absolutePath()));
+    registerSubOperation(m_utility->backupInternalStorage(globalTempDirs->root().absolutePath()));
 }
 
 void FullUpdateOperation::startRecovery()
 {
-    registerOperation(m_utility->startRecoveryMode());
+    registerSubOperation(m_utility->startRecoveryMode());
 }
 
 void FullUpdateOperation::setBootMode()
 {
-    registerOperation(m_recovery->setRecoveryBootMode());
+    registerSubOperation(m_recovery->setRecoveryBootMode());
 }
 
 void FullUpdateOperation::downloadFirmware()
 {
     auto *file = m_helper->file(FirmwareHelper::FileIndex::Firmware);
-    registerOperation(m_recovery->downloadFirmware(file));
+    registerSubOperation(m_recovery->downloadFirmware(file));
 }
 
 void FullUpdateOperation::downloadRadioFirmware()
 {
     auto *file = m_helper->file(FirmwareHelper::FileIndex::RadioFirmware);
-    registerOperation(m_recovery->downloadWirelessStack(file));
+    registerSubOperation(m_recovery->downloadWirelessStack(file));
 }
 
 void FullUpdateOperation::correctOptionBytes()
 {
     auto *file = m_helper->file(FirmwareHelper::FileIndex::OptionBytes);
-    registerOperation(m_recovery->fixOptionBytes(file));
+    registerSubOperation(m_recovery->fixOptionBytes(file));
 }
 
 void FullUpdateOperation::exitRecovery()
 {
-    registerOperation(m_recovery->exitRecoveryMode());
+    registerSubOperation(m_recovery->exitRecoveryMode());
 }
 
 void FullUpdateOperation::downloadAssets()
 {
     auto *file = m_helper->file(FirmwareHelper::FileIndex::AssetsTgz);
-    registerOperation(m_utility->downloadAssets(file));
+    registerSubOperation(m_utility->downloadAssets(file));
 }
 
 void FullUpdateOperation::restoreBackup()
 {
-    registerOperation(m_utility->restoreInternalStorage(globalTempDirs->root().absolutePath()));
+    registerSubOperation(m_utility->restoreInternalStorage(globalTempDirs->root().absolutePath()));
 }
 
 void FullUpdateOperation::restartDevice()
 {
-    registerOperation(m_utility->restartDevice());
+    registerSubOperation(m_utility->restartDevice());
 }

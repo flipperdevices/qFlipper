@@ -21,7 +21,7 @@ public:
 
 protected:
     void advanceOperationState();
-    void registerOperation(AbstractOperation *operation);
+    void registerSubOperation(AbstractOperation *operation);
 
 private slots:
     virtual void nextStateLogic() = 0;

@@ -39,7 +39,7 @@ void FactoryResetOperation::nextStateLogic()
 void FactoryResetOperation::resetDevice()
 {
     m_elapsed.start();
-    registerOperation(m_utility->factoryReset());
+    registerSubOperation(m_utility->factoryReset());
 }
 
 void FactoryResetOperation::wait()

@@ -76,25 +76,25 @@ void FullRepairOperation::fetchFirmware()
 
 void FullRepairOperation::setBootMode()
 {
-    registerOperation(m_recovery->setRecoveryBootMode());
+    registerSubOperation(m_recovery->setRecoveryBootMode());
 }
 
 void FullRepairOperation::downloadRadioFirmware()
 {
     auto *file = m_helper->file(FirmwareHelper::FileIndex::RadioFirmware);
-    registerOperation(m_recovery->downloadWirelessStack(file));
+    registerSubOperation(m_recovery->downloadWirelessStack(file));
 }
 
 void FullRepairOperation::downloadFirmware()
 {
     auto *file = m_helper->file(FirmwareHelper::FileIndex::Firmware);
-    registerOperation(m_recovery->downloadFirmware(file));
+    registerSubOperation(m_recovery->downloadFirmware(file));
 }
 
 void FullRepairOperation::correctOptionBytes()
 {
     auto *file = m_helper->file(FirmwareHelper::FileIndex::OptionBytes);
-    registerOperation(m_recovery->fixOptionBytes(file));
+    registerSubOperation(m_recovery->fixOptionBytes(file));
 }
 
 void FullRepairOperation::downloadAssets()
@@ -105,5 +105,5 @@ void FullRepairOperation::downloadAssets()
     }
 
     auto *file = m_helper->file(FirmwareHelper::FileIndex::AssetsTgz);
-    registerOperation(m_utility->downloadAssets(file));
+    registerSubOperation(m_utility->downloadAssets(file));
 }

@@ -47,7 +47,7 @@ void SettingsRestoreOperation::nextStateLogic()
 void SettingsRestoreOperation::restoreBackup()
 {
     m_elapsed.start();
-    registerOperation(m_utility->restoreInternalStorage(m_backupDir));
+    registerSubOperation(m_utility->restoreInternalStorage(m_backupDir));
 }
 
 void SettingsRestoreOperation::wait()
@@ -58,5 +58,5 @@ void SettingsRestoreOperation::wait()
 
 void SettingsRestoreOperation::restartDevice()
 {
-    registerOperation(m_utility->restartDevice());
+    registerSubOperation(m_utility->restartDevice());
 }

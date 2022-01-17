@@ -39,7 +39,7 @@ void AbstractTopLevelOperation::advanceOperationState()
     QTimer::singleShot(0, this, &AbstractTopLevelOperation::nextStateLogic);
 }
 
-void AbstractTopLevelOperation::registerOperation(AbstractOperation *operation)
+void AbstractTopLevelOperation::registerSubOperation(AbstractOperation *operation)
 {
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {

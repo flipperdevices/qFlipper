@@ -42,7 +42,7 @@ void SettingsBackupOperation::nextStateLogic()
 void SettingsBackupOperation::saveBackup()
 {
     m_elapsed.start();
-    registerOperation(m_utility->backupInternalStorage(m_backupDir));
+    registerSubOperation(m_utility->backupInternalStorage(m_backupDir));
 }
 
 void SettingsBackupOperation::wait()

@@ -70,23 +70,23 @@ void FirmwareInstallOperation::saveBackup()
         advanceOperationState();
 
     } else {
-        registerOperation(m_utility->backupInternalStorage(globalTempDirs->root().absolutePath()));
+        registerSubOperation(m_utility->backupInternalStorage(globalTempDirs->root().absolutePath()));
     }
 }
 
 void FirmwareInstallOperation::startRecovery()
 {
-    registerOperation(m_utility->startRecoveryMode());
+    registerSubOperation(m_utility->startRecoveryMode());
 }
 
 void FirmwareInstallOperation::installFirmware()
 {
-    registerOperation(m_recovery->downloadFirmware(m_file));
+    registerSubOperation(m_recovery->downloadFirmware(m_file));
 }
 
 void FirmwareInstallOperation::exitRecovery()
 {
-    registerOperation(m_recovery->exitRecoveryMode());
+    registerSubOperation(m_recovery->exitRecoveryMode());
 }
 
 void FirmwareInstallOperation::restoreBackup()
@@ -94,11 +94,11 @@ void FirmwareInstallOperation::restoreBackup()
     if(m_skipBackup) {
         finish();
     } else {
-        registerOperation(m_utility->restoreInternalStorage(globalTempDirs->root().absolutePath()));
+        registerSubOperation(m_utility->restoreInternalStorage(globalTempDirs->root().absolutePath()));
     }
 }
 
 void FirmwareInstallOperation::restartDevice()
 {
-    registerOperation(m_utility->restartDevice());
+    registerSubOperation(m_utility->restartDevice());
 }
