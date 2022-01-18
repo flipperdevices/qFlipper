@@ -20,6 +20,7 @@ SOURCES += \
     firmwareupdateregistry.cpp \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
+    flipperzero/rpc/guiscreenframeoperation.cpp \
     flipperzero/rpc/guistartstreamoperation.cpp \
     flipperzero/rpc/guistartvirtualdisplayoperation.cpp \
     flipperzero/rpc/guistopstreamoperation.cpp \
@@ -112,6 +113,9 @@ HEADERS += \
     firmwareupdateregistry.h \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
+    flipperzero/pixmaps/updateok.h \
+    flipperzero/pixmaps/updating.h \
+    flipperzero/rpc/guiscreenframeoperation.h \
     flipperzero/rpc/guistartstreamoperation.h \
     flipperzero/rpc/guistartvirtualdisplayoperation.h \
     flipperzero/rpc/guistopstreamoperation.h \

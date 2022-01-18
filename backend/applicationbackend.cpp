@@ -160,13 +160,11 @@ void ApplicationBackend::finalizeOperation()
 
     if(!device()) {
         setState(State::WaitingForDevices);
-        return;
 
-    } else if(device()->deviceState()->isError()) {
-        device()->restartSession();
+    } else {
+        device()->finalizeOperation();
+        setState(State::Ready);
     }
-
-    setState(State::Ready);
 }
 
 void ApplicationBackend::onCurrentDeviceChanged()

@@ -52,3 +52,13 @@ GuiStopVirtualDisplayRequest::GuiStopVirtualDisplayRequest(QSerialPort *serialPo
 {
     pbMessage()->content.gui_stop_virtual_display_request = PB_Gui_StopVirtualDisplayRequest_init_default;
 }
+
+GuiScreenFrameRequest::GuiScreenFrameRequest(QSerialPort *serialPort, const QByteArray &screenData):
+    AbstractMainProtobufRequest(serialPort)
+{
+    auto &request = pbMessage()->content.gui_screen_frame;
+
+    request.data = (pb_bytes_array_t*)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(screenData.size()));
+    request.data->size = screenData.size();
+    memcpy(request.data->bytes, screenData.data(), screenData.size());
+}

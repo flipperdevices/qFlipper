@@ -26,6 +26,7 @@ class StorageRemoveOperation;
 
 class GuiStartStreamOperation;
 class GuiStopStreamOperation;
+class GuiScreenFrameOperation;
 class GuiStartVirtualDisplayOperation;
 class GuiStopVirtualDisplayOperation;
 
@@ -57,6 +58,7 @@ public:
 
     GuiStartVirtualDisplayOperation *guiStartVirtualDisplay(const QByteArray &screenData = QByteArray());
     GuiStopVirtualDisplayOperation *guiStopVirtualDisplay();
+    GuiScreenFrameOperation *guiSendScreenFrame(const QByteArray &screenData);
 
 private:
     const QLoggingCategory &loggingCategory() const override;

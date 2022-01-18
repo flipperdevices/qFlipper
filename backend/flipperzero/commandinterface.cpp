@@ -25,6 +25,7 @@
 
 #include "rpc/guistartvirtualdisplayoperation.h"
 #include "rpc/guistopvirtualdisplayoperation.h"
+#include "rpc/guiscreenframeoperation.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_RPC, "RPC");
 
@@ -114,6 +115,11 @@ GuiStartVirtualDisplayOperation *CommandInterface::guiStartVirtualDisplay(const 
 GuiStopVirtualDisplayOperation *CommandInterface::guiStopVirtualDisplay()
 {
     return registerOperation(new GuiStopVirtualDisplayOperation(serialPort(), this));
+}
+
+GuiScreenFrameOperation *CommandInterface::guiSendScreenFrame(const QByteArray &screenData)
+{
+    return registerOperation(new GuiScreenFrameOperation(serialPort(), screenData, this));
 }
 
 StorageRemoveOperation *CommandInterface::storageRemove(const QByteArray &path)

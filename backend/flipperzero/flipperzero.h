@@ -33,8 +33,6 @@ public:
     bool canInstall(const Flipper::Updates::VersionInfo &versionInfo) const;
     bool canRepair(const Flipper::Updates::VersionInfo &versionInfo) const;
 
-    void restartSession();
-
     void fullUpdate(const Flipper::Updates::VersionInfo &versionInfo);
     void fullRepair(const Flipper::Updates::VersionInfo &versionInfo);
 
@@ -47,13 +45,14 @@ public:
     void installFUS(const QUrl &fileUrl, uint32_t address);
 
     void sendInputEvent(int key, int type);
+    void finalizeOperation();
 
 signals:
     void stateChanged();
     void operationFinished();
 
 private slots:
-    void onStreamConditionChanged();
+    void onIsOnlineChanged();
 
 private:
     void registerOperation(AbstractOperation *operation);

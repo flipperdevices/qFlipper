@@ -21,7 +21,14 @@
 #include "toplevel/fullrepairoperation.h"
 #include "toplevel/fullupdateoperation.h"
 
+#include "rpc/guistartvirtualdisplayoperation.h"
+#include "rpc/guistopvirtualdisplayoperation.h"
+#include "rpc/guiscreenframeoperation.h"
+
 #include "preferences.h"
+
+#include "pixmaps/updating.h"
+#include "pixmaps/updateok.h"
 
 Q_LOGGING_CATEGORY(CAT_DEVICE, "DEVICE")
 
@@ -41,8 +48,7 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     m_utility(new UtilityInterface(m_state, m_rpc, this)),
     m_streamer(new ScreenStreamer(m_state, m_rpc, this))
 {
-    connect(m_state, &DeviceState::isPersistentChanged, this, &FlipperZero::onStreamConditionChanged);
-    connect(m_state, &DeviceState::isOnlineChanged, this, &FlipperZero::onStreamConditionChanged);
+    connect(m_state, &DeviceState::isOnlineChanged, this, &FlipperZero::onIsOnlineChanged);
     connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::stateChanged);
 }
 
@@ -133,22 +139,6 @@ bool FlipperZero::canRepair(const Updates::VersionInfo &versionInfo) const
     return m_state->isRecoveryMode();
 }
 
-void FlipperZero::restartSession()
-{
-    // TODO: write a better implementation that would:
-    // 1. Check if the port is open and functional
-    // 2. Test if the RPC session is up an running
-    // 3. Open RPC session if necessary
-    // 4. Start screen streaming
-
-    m_state->setError(false);
-    m_state->setErrorString("");
-
-    if(!m_state->isRecoveryMode()) {
-        m_streamer->start();
-    }
-}
-
 void FlipperZero::fullUpdate(const Updates::VersionInfo &versionInfo)
 {
     registerOperation(new FullUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this));
@@ -194,18 +184,37 @@ void FlipperZero::sendInputEvent(int key, int type)
     m_streamer->sendInputEvent(key, type);
 }
 
-void FlipperZero::onStreamConditionChanged()
+void FlipperZero::finalizeOperation()
+{
+    // TODO: write a better implementation that would:
+    // 1. Check if the port is open and functional
+    // 2. Test if the RPC session is up an running
+    // 3. Open RPC session if necessary
+    // 4. Start screen streaming
+
+    if(m_state->isError()) {
+        m_state->setError(false);
+        m_state->setErrorString("");
+    }
+
+    if(!m_state->isRecoveryMode()) {
+        connect(m_rpc->guiStopVirtualDisplay(), &AbstractOperation::finished, m_streamer, &ScreenStreamer::start);
+    }
+}
+
+void FlipperZero::onIsOnlineChanged()
 {
     // Automatically start screen streaming if the conditions are right:
     // 1. There is no error
     // 2. Device is online and connected in VCP mode
     // 3. There is no ongoing operation
 
-    const auto streamCondition = m_state->isOnline() &&
-            !(m_state->isError() || m_state->isRecoveryMode() || m_state->isPersistent());
-
-    if(streamCondition) {
+    if(!m_state->isOnline() || m_state->isError() || m_state->isRecoveryMode()) {
+        return;
+    } else if(!m_state->isPersistent()) {
         m_streamer->start();
+    } else {
+        m_rpc->guiStartVirtualDisplay(QByteArray((char*)updating_bits, sizeof(updating_bits)));
     }
 }
 
@@ -219,6 +228,7 @@ void FlipperZero::registerOperation(AbstractOperation *operation)
             m_state->setErrorString(errorString);
 
         } else {
+            m_rpc->guiSendScreenFrame(QByteArray((char*)update_ok_bits, sizeof(update_ok_bits)));
             qCInfo(CAT_DEVICE).noquote() << operation->description() << "SUCCESS";
         }
 
@@ -234,9 +244,13 @@ void FlipperZero::registerOperation(AbstractOperation *operation)
     } else {
         connect(m_state, &DeviceState::isStreamingEnabledChanged, operation, [=]() {
             //TODO: Check that ScreenStreamer has stopped without errors
-            if(!m_state->isStreamingEnabled()) {
-                operation->start();
+            if(m_state->isStreamingEnabled()) {
+                // TODO: Finish with error
+                return;
             }
+
+            auto *startVirtualDisplay = m_rpc->guiStartVirtualDisplay(QByteArray((char*)updating_bits, sizeof(updating_bits)));
+            connect(startVirtualDisplay, &AbstractOperation::finished, operation, &AbstractOperation::start);
         });
 
         m_streamer->stop();
