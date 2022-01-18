@@ -24,10 +24,6 @@ VirtualDisplay::VirtualDisplay(DeviceState *deviceState, CommandInterface *rpc, 
 
 void VirtualDisplay::start(const QByteArray &firstFrame)
 {
-    if(m_state != State::Stopped) {
-        return;
-    }
-
     setState(State::Starting);
 
     auto *operation = m_rpc->guiStartVirtualDisplay(firstFrame);
@@ -53,10 +49,6 @@ void VirtualDisplay::sendFrame(const QByteArray &screenFrame)
 
 void VirtualDisplay::stop()
 {
-    if(m_state != State::Running) {
-        return;
-    }
-
     setState(State::Stopping);
 
     auto *operation = m_rpc->guiStopVirtualDisplay();

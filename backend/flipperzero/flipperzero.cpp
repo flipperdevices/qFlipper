@@ -22,10 +22,6 @@
 #include "toplevel/fullrepairoperation.h"
 #include "toplevel/fullupdateoperation.h"
 
-#include "rpc/guistartvirtualdisplayoperation.h"
-#include "rpc/guistopvirtualdisplayoperation.h"
-#include "rpc/guiscreenframeoperation.h"
-
 #include "preferences.h"
 
 #include "pixmaps/updating.h"
@@ -200,23 +196,19 @@ void FlipperZero::finalizeOperation()
     }
 
     if(!m_state->isRecoveryMode()) {
-        connect(m_rpc->guiStopVirtualDisplay(), &AbstractOperation::finished, m_streamer, &ScreenStreamer::start);
+        m_virtualDisplay->stop();
+        m_streamer->start();
     }
 }
 
 void FlipperZero::onIsOnlineChanged()
 {
-    // Automatically start screen streaming if the conditions are right:
-    // 1. There is no error
-    // 2. Device is online and connected in VCP mode
-    // 3. There is no ongoing operation
-
     if(!m_state->isOnline() || m_state->isError() || m_state->isRecoveryMode()) {
         return;
     } else if(!m_state->isPersistent()) {
         m_streamer->start();
     } else {
-        m_rpc->guiStartVirtualDisplay(QByteArray((char*)updating_bits, sizeof(updating_bits)));
+        m_virtualDisplay->start(QByteArray((char*)updating_bits, sizeof(updating_bits)));
     }
 }
 
@@ -230,7 +222,7 @@ void FlipperZero::registerOperation(AbstractOperation *operation)
             m_state->setErrorString(errorString);
 
         } else {
-            m_rpc->guiSendScreenFrame(QByteArray((char*)update_ok_bits, sizeof(update_ok_bits)));
+            m_virtualDisplay->sendFrame(QByteArray((char*)update_ok_bits, sizeof(update_ok_bits)));
             qCInfo(CAT_DEVICE).noquote() << operation->description() << "SUCCESS";
         }
 
@@ -248,11 +240,10 @@ void FlipperZero::registerOperation(AbstractOperation *operation)
             //TODO: Check that ScreenStreamer has stopped without errors
             if(m_state->isStreamingEnabled()) {
                 // TODO: Finish with error
-                return;
+            } else {
+                m_virtualDisplay->start(QByteArray((char*)updating_bits, sizeof(updating_bits)));
+                operation->start();
             }
-
-            auto *startVirtualDisplay = m_rpc->guiStartVirtualDisplay(QByteArray((char*)updating_bits, sizeof(updating_bits)));
-            connect(startVirtualDisplay, &AbstractOperation::finished, operation, &AbstractOperation::start);
         });
 
         m_streamer->stop();
