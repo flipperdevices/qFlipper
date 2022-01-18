@@ -87,6 +87,7 @@ SOURCES += \
     flipperzero/utility/userbackupoperation.cpp \
     flipperzero/utility/userrestoreoperation.cpp \
     flipperzero/utilityinterface.cpp \
+    flipperzero/virtualdisplay.cpp \
     gzipuncompressor.cpp \
     logger.cpp \
     preferences.cpp \
@@ -183,6 +184,7 @@ HEADERS += \
     flipperzero/utility/userbackupoperation.h \
     flipperzero/utility/userrestoreoperation.h \
     flipperzero/utilityinterface.h \
+    flipperzero/virtualdisplay.h \
     gzipuncompressor.h \
     logger.h \
     preferences.h \

@@ -8,6 +8,7 @@
 
 #include "devicestate.h"
 #include "screenstreamer.h"
+#include "virtualdisplay.h"
 
 #include "commandinterface.h"
 #include "utilityinterface.h"
@@ -46,7 +47,8 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     m_rpc(new CommandInterface(m_state, this)),
     m_recovery(new RecoveryInterface(m_state, this)),
     m_utility(new UtilityInterface(m_state, m_rpc, this)),
-    m_streamer(new ScreenStreamer(m_state, m_rpc, this))
+    m_streamer(new ScreenStreamer(m_state, m_rpc, this)),
+    m_virtualDisplay(new VirtualDisplay(m_state, m_rpc, this))
 {
     connect(m_state, &DeviceState::isOnlineChanged, this, &FlipperZero::onIsOnlineChanged);
     connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::stateChanged);

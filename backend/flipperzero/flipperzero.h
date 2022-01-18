@@ -17,6 +17,7 @@ namespace Zero {
     class RecoveryInterface;
     class UtilityInterface;
     class ScreenStreamer;
+    class VirtualDisplay;
 }
 
 class FlipperZero : public QObject
@@ -62,6 +63,7 @@ private:
     Zero::RecoveryInterface *m_recovery;
     Zero::UtilityInterface *m_utility;
     Zero::ScreenStreamer *m_streamer;
+    Zero::VirtualDisplay *m_virtualDisplay;
 };
 
 }
