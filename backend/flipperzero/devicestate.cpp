@@ -17,6 +17,7 @@ DeviceState::DeviceState(const DeviceInfo &deviceInfo, QObject *parent):
     m_serialPort(nullptr),
     m_isPersistent(false),
     m_isStreaming(false),
+    m_isVirtualDisplay(false),
     m_isOnline(false),
     m_isError(false),
     m_progress(-1.0)
@@ -115,6 +116,21 @@ void DeviceState::setStreamingEnabled(bool set)
 
     m_isStreaming = set;
     emit isStreamingEnabledChanged();
+}
+
+bool DeviceState::isVirtualDisplayEnabled() const
+{
+    return m_isVirtualDisplay;
+}
+
+void DeviceState::setVirtualDisplayEnabled(bool set)
+{
+    if(set == m_isVirtualDisplay) {
+        return;
+    }
+
+    m_isVirtualDisplay = set;
+    emit isVirtualDisplayEnabledChanged();
 }
 
 double DeviceState::progress() const

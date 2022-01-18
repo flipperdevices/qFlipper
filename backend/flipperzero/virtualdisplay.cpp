@@ -29,7 +29,7 @@ void VirtualDisplay::start(const QByteArray &firstFrame)
     auto *operation = m_rpc->guiStartVirtualDisplay(firstFrame);
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            qCDebug(LOG_VIRTDISPLAY) << "Failed to start virtual display:" << operation->errorString();
+            qCDebug(LOG_VIRTDISPLAY).noquote() << "Failed to start virtual display:" << operation->errorString();
             setState(State::Stopped);
         } else {
             setState(State::Running);
@@ -42,7 +42,7 @@ void VirtualDisplay::sendFrame(const QByteArray &screenFrame)
     auto *operation = m_rpc->guiSendScreenFrame(screenFrame);
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            qCDebug(LOG_VIRTDISPLAY) << "Failed to send screen frame:" << operation->errorString();
+            qCDebug(LOG_VIRTDISPLAY).noquote() << "Failed to send screen frame:" << operation->errorString();
         }
     });
 }
@@ -54,7 +54,7 @@ void VirtualDisplay::stop()
     auto *operation = m_rpc->guiStopVirtualDisplay();
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            qCDebug(LOG_VIRTDISPLAY) << "Failed to stop virtual display:" << operation->errorString();
+            qCDebug(LOG_VIRTDISPLAY).noquote() << "Failed to stop virtual display:" << operation->errorString();
         }
 
         setState(State::Stopped);
@@ -70,8 +70,8 @@ void VirtualDisplay::setState(State newState)
     m_state = newState;
 
     if(m_state == State::Running) {
-        emit started();
+        m_deviceState->setVirtualDisplayEnabled(true);
     } else if(m_state == State::Stopped) {
-        emit stopped();
+        m_deviceState->setVirtualDisplayEnabled(false);
     }
 }

@@ -20,6 +20,7 @@ class DeviceState : public QObject
     Q_PROPERTY(bool isError READ isError NOTIFY isErrorChanged)
     Q_PROPERTY(bool isRecoveryMode READ isRecoveryMode NOTIFY deviceInfoChanged)
     Q_PROPERTY(bool isStreamingEnabled READ isStreamingEnabled NOTIFY isStreamingEnabledChanged)
+    Q_PROPERTY(bool isVirtualDisplayEnabled READ isVirtualDisplayEnabled NOTIFY isVirtualDisplayEnabledChanged)
     Q_PROPERTY(QString statusString READ statusString NOTIFY statusStringChanged)
     Q_PROPERTY(QString errorString READ errorString NOTIFY isErrorChanged)
     Q_PROPERTY(QSize screenSize READ screenSize CONSTANT)
@@ -46,6 +47,9 @@ public:
     bool isStreamingEnabled() const;
     void setStreamingEnabled(bool set);
 
+    bool isVirtualDisplayEnabled() const;
+    void setVirtualDisplayEnabled(bool set);
+
     double progress() const;
     void setProgress(double newProgress);
 
@@ -71,6 +75,7 @@ signals:
     void isPersistentChanged();
     void isOnlineChanged();
     void isStreamingEnabledChanged();
+    void isVirtualDisplayEnabledChanged();
     void statusStringChanged();
     void isErrorChanged();
     void screenDataChanged();
@@ -91,6 +96,7 @@ private:
 
     bool m_isPersistent;
     bool m_isStreaming;
+    bool m_isVirtualDisplay;
     bool m_isOnline;
     bool m_isError;
 

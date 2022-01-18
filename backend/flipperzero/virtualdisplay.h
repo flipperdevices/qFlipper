@@ -30,10 +30,6 @@ public slots:
     void sendFrame(const QByteArray &screenFrame);
     void stop();
 
-signals:
-    void started();
-    void stopped();
-
 private:
     void setState(State newState);
 
