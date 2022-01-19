@@ -166,9 +166,7 @@ AbstractOverlay {
         anchors.topMargin: 5
 
         linkColor: {
-            if(Backend.UpdateStatus === Backend.Unknown) {
-                return Theme.color.lightorange2;
-            } else if(Preferences.updateChannel === "development") {
+            if(Preferences.updateChannel === "development") {
                 return Theme.color.lightred2;
             } else if(Preferences.updateChannel === "release-candidate") {
                 return "blueviolet";
@@ -178,6 +176,8 @@ AbstractOverlay {
                 return Theme.color.lightorange2;
             }
         }
+
+        visible: Backend.firmwareUpdateStatus !== Backend.Unknown
     }
 
     LinkButton {
