@@ -86,7 +86,7 @@ AbstractOverlay {
             id: layout
 
             Image {
-                source: "qrc:/assets/gfx/images/no-sd-card.svg"
+                source: "qrc:/assets/gfx/images/warning-sdcard.svg"
                 sourceSize: Qt.size(44, 58)
                 Layout.alignment: Qt.AlignHCenter
             }
