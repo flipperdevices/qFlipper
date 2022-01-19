@@ -66,10 +66,12 @@ public:
 
     enum class FirmwareUpdateStatus {
         Unknown,
+        Checking,
         CanUpdate,
         CanInstall,
         CanRepair,
-        NoUpdates
+        NoUpdates,
+        ErrorOccured
     };
 
     Q_ENUM(FirmwareUpdateStatus)
@@ -102,6 +104,7 @@ public:
     Q_INVOKABLE void stopFullScreenStreaming();
     Q_INVOKABLE void sendInputEvent(int key, int type);
 
+    Q_INVOKABLE void checkFirmwareUpdates();
     Q_INVOKABLE void finalizeOperation();
 
 signals:

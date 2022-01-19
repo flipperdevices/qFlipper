@@ -155,6 +155,10 @@ AbstractOverlay {
                 return MainButton.Default;
             }
         }
+
+        icon.source: Backend.firmwareUpdateStatus === Backend.ErrorOccured ? "qrc:/assets/gfx/symbolic/update-symbolic.svg" : ""
+        icon.width: 32
+        icon.height: 32
     }
 
     LinkButton {
@@ -177,7 +181,9 @@ AbstractOverlay {
             }
         }
 
-        visible: Backend.firmwareUpdateStatus !== Backend.Unknown
+        visible: Backend.firmwareUpdateStatus !== Backend.Unknown &&
+                 Backend.firmwareUpdateStatus !== Backend.Checking &&
+                 Backend.firmwareUpdateStatus !== Backend.ErrorOccured
     }
 
     LinkButton {
@@ -193,10 +199,17 @@ AbstractOverlay {
     Action {
         id: updateButtonAction
 
-        enabled: (Backend.firmwareUpdateStatus !== Backend.Unknown) &&
-                 (Backend.firmwareUpdateStatus !== Backend.NoUpdates)
+        enabled: Backend.firmwareUpdateStatus === Backend.CanUpdate ||
+                 Backend.firmwareUpdateStatus === Backend.CanInstall ||
+                 Backend.firmwareUpdateStatus === Backend.CanRepair ||
+                 Backend.firmwareUpdateStatus === Backend.ErrorOccured
+
         text: {
             switch(Backend.firmwareUpdateStatus) {
+            case Backend.Unknown:
+                return qsTr("No data");
+            case Backend.Checking:
+                return qsTr("Checking...");
             case Backend.CanRepair:
                 return qsTr("Repair");
             case Backend.CanUpdate:
@@ -205,17 +218,19 @@ AbstractOverlay {
                 return qsTr("Install");
             case Backend.NoUpdates:
                 return qsTr("No updates");
-            case Backend.Unknown:
-                return qsTr("No data");
+            case Backend.ErrorOccured:
+                return qsTr("Try again");
             }
         }
 
-        onTriggered: updateButtonFunc()
+        onTriggered: Backend.firmwareUpdateStatus !== Backend.ErrorOccured ? updateButtonFunc() : Backend.checkFirmwareUpdates()
     }
 
     Action {
         id: changelogAction
-        enabled: Backend.firmwareUpdateStatus !== Backend.Unknown
+        enabled: Backend.firmwareUpdateStatus !== Backend.Unknown &&
+                 Backend.firmwareUpdateStatus !== Backend.Checking &&
+                 Backend.firmwareUpdateStatus !== Backend.ErrorOccured
 
         text: {
             let str;

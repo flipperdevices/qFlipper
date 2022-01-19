@@ -21,12 +21,19 @@ class UpdateRegistry : public QAbstractListModel
     };
 
 public:
+    enum class State {
+        Unknown,
+        Checking,
+        Ready,
+        ErrorOccured
+    };
+
     UpdateRegistry(const QString &directoryUrl, QObject *parent = nullptr);
 
     void setDirectoryUrl(const QString &directoryUrl);
-    bool fillFromJson(const QByteArray &text);
+    void fillFromJson(const QByteArray &text);
 
-    bool isReady() const;
+    State state() const;
     const QStringList channelNames() const;
 
     const Flipper::Updates::VersionInfo latestVersion() const;
@@ -37,18 +44,20 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
+signals:
+    void stateChanged();
+    void latestVersionChanged();
+
 public slots:
     void check();
 
-signals:
-    void channelsChanged();
-    void latestVersionChanged();
-
 private:
     virtual const QString updateChannel() const = 0;
+    void setState(State newState);
 
     QString m_directoryUrl;
     QTimer *m_checkTimer;
     ChannelMap m_channels;
+    State m_state;
 };
 }

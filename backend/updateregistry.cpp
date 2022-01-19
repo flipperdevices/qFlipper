@@ -11,7 +11,6 @@
 #include <QTimer>
 #include <QDebug>
 
-#include "debug.h"
 #include "remotefilefetcher.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_UPDATES, "UPDATES")
@@ -21,9 +20,10 @@ using namespace Flipper;
 UpdateRegistry::UpdateRegistry(const QString &directoryUrl, QObject *parent):
     QAbstractListModel(parent),
     m_directoryUrl(directoryUrl),
-    m_checkTimer(new QTimer(this))
+    m_checkTimer(new QTimer(this)),
+    m_state(State::Unknown)
 {
-    connect(this, &UpdateRegistry::channelsChanged, this, &UpdateRegistry::latestVersionChanged);
+    connect(this, &UpdateRegistry::stateChanged, this, &UpdateRegistry::latestVersionChanged);
     connect(m_checkTimer, &QTimer::timeout, this, &UpdateRegistry::check);
 
     check();
@@ -35,7 +35,7 @@ void UpdateRegistry::setDirectoryUrl(const QString &directoryUrl)
     check();
 }
 
-bool UpdateRegistry::fillFromJson(const QByteArray &text)
+void UpdateRegistry::fillFromJson(const QByteArray &text)
 {
     beginRemoveRows(QModelIndex(), 0, m_channels.size() - 1);
     m_channels.clear();
@@ -43,13 +43,23 @@ bool UpdateRegistry::fillFromJson(const QByteArray &text)
 
     const auto doc = QJsonDocument::fromJson(text);
 
-    check_return_bool(!doc.isNull(), "Failed to parse the document");
-    check_return_bool(doc.isObject(),"Json document is not an object");
+    if(doc.isNull()) {
+        qCCritical(CATEGORY_UPDATES) << "Failed to parse the document";
+        return;
+    } else if(!doc.isObject()) {
+        qCCritical(CATEGORY_UPDATES) << "Json document is not an object";
+        return;
+    }
 
     const auto &obj = doc.object();
 
-    check_return_bool(obj.contains("channels"), "No channels data in json file");
-    check_return_bool(obj["channels"].isArray(), "Expected to get an array of channels");
+    if(!obj.contains("channels")) {
+        qCCritical(CATEGORY_UPDATES) << "No channels data in json file";
+        return;
+    } else if(!obj["channels"].isArray()) {
+        qCCritical(CATEGORY_UPDATES) << "Expected to get an array of channels";
+        return;
+    }
 
     const auto &arr = obj["channels"].toArray();
 
@@ -63,11 +73,8 @@ bool UpdateRegistry::fillFromJson(const QByteArray &text)
             endInsertRows();
         }
 
-        return true;
-
     } catch(std::runtime_error &e) {
-        error_msg(e.what());
-        return false;
+        qCCritical(CATEGORY_UPDATES) << "Failed to parse update information:" << e.what();
     }
 }
 
@@ -76,9 +83,9 @@ const QStringList UpdateRegistry::channelNames() const
     return m_channels.keys();
 }
 
-bool UpdateRegistry::isReady() const
+UpdateRegistry::State UpdateRegistry::state() const
 {
-    return !m_channels.isEmpty();
+    return m_state;
 }
 
 const Updates::VersionInfo UpdateRegistry::latestVersion() const
@@ -126,24 +133,26 @@ QHash<int, QByteArray> UpdateRegistry::roleNames() const
 void UpdateRegistry::check()
 {
     if(m_directoryUrl.isEmpty()) {
+        setState(State::ErrorOccured);
         return;
     }
+
+    setState(State::Checking);
 
     auto *fetcher = new RemoteFileFetcher(this);
     auto *buf = new QBuffer(this);
 
     fetcher->connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
         if(fetcher->isError()) {
-            qCWarning(CATEGORY_UPDATES).noquote() << "Failed to fetch update list:" << fetcher->errorString();
-        } else if(buf->open(QIODevice::ReadOnly)) {
-            qCDebug(CATEGORY_UPDATES).noquote() << "Fetched update directory from" << m_directoryUrl;
-
-            if(fillFromJson(buf->readAll())) {
-                emit channelsChanged();
-            }
+            qCCritical(CATEGORY_UPDATES).noquote() << "Failed to fetch update information:" << fetcher->errorString();
+            setState(State::ErrorOccured);
 
         } else {
-            qCDebug(CATEGORY_UPDATES).noquote() << "Failed to open a buffer for reading:" << buf->errorString();
+            qCDebug(CATEGORY_UPDATES).noquote() << "Fetched update information from" << m_directoryUrl;
+            buf->open(QIODevice::ReadOnly);
+
+            fillFromJson(buf->readAll());
+            setState(m_channels.isEmpty() ? State::ErrorOccured : State::Ready);
         }
 
         fetcher->deleteLater();
@@ -151,8 +160,20 @@ void UpdateRegistry::check()
     });
 
     if(!fetcher->fetch(m_directoryUrl, buf)) {
+        qCCritical(CATEGORY_UPDATES).noquote() << "Failed to fetch update information:" << fetcher->errorString();
+        setState(State::ErrorOccured);
         buf->deleteLater();
     }
 
     m_checkTimer->start(std::chrono::minutes(10));
+}
+
+void UpdateRegistry::setState(State newState)
+{
+    if(m_state == newState) {
+        return;
+    }
+
+    m_state = newState;
+    emit stateChanged();
 }

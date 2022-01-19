@@ -23,6 +23,10 @@ ColumnLayout {
     ComboBox {
         id: channelComboBox
 
+        enabled: Backend.firmwareUpdateStatus !== Backend.Unknown &&
+                 Backend.firmwareUpdateStatus !== Backend.Checking &&
+                 Backend.firmwareUpdateStatus !== Backend.ErrorOccured
+
         delegate: ChannelDelegate {}
 
         model: Backend.firmwareUpdateModel

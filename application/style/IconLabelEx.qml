@@ -21,10 +21,11 @@ RowLayout {
     Text {
         id: label
 
-        verticalAlignment: Qt.AlignVCenter
-        horizontalAlignment: Qt.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
 
         Layout.fillWidth: true
+        Layout.fillHeight: true
         Layout.rightMargin: control.padding
 
         antialiasing: false

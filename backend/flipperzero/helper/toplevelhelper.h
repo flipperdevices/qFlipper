@@ -28,7 +28,7 @@ protected:
     FlipperZero *device();
 
 private slots:
-    void onUpdatesChecked();
+    void onUpdateRegistryStateChanged();
 
 private:
     void nextStateLogic() override;

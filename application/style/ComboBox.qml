@@ -64,7 +64,7 @@ T.ComboBox {
         normal: Theme.color.lightorange2
         hover: Theme.color.lightorange1
         down: Theme.color.lightorange2
-        disabled: Theme.color.darkorange2
+        disabled: Theme.color.mediumorange1
     }
 
     property alias radius: bg.radius

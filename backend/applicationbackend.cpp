@@ -41,8 +41,12 @@ ApplicationBackend::State ApplicationBackend::state() const
 
 ApplicationBackend::FirmwareUpdateStatus ApplicationBackend::firmwareUpdateStatus() const
 {
-    if(!device() || !m_firmwareUpdateRegistry->isReady()) {
+    if(!device() || (m_firmwareUpdateRegistry->state() == UpdateRegistry::State::Unknown)) {
         return FirmwareUpdateStatus::Unknown;
+    } else if(m_firmwareUpdateRegistry->state() == UpdateRegistry::State::Checking) {
+        return FirmwareUpdateStatus::Checking;
+    } else if(m_firmwareUpdateRegistry->state() == UpdateRegistry::State::ErrorOccured) {
+        return FirmwareUpdateStatus::ErrorOccured;
     }
 
     const auto &latestVersion = m_firmwareUpdateRegistry->latestVersion();
@@ -149,6 +153,11 @@ void ApplicationBackend::sendInputEvent(int key, int type)
     if(device()) {
         device()->sendInputEvent(key, type);
     }
+}
+
+void ApplicationBackend::checkFirmwareUpdates()
+{
+    m_firmwareUpdateRegistry->check();
 }
 
 void ApplicationBackend::finalizeOperation()

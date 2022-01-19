@@ -26,17 +26,17 @@ FlipperZero *AbstractTopLevelHelper::device()
     return m_device;
 }
 
-void AbstractTopLevelHelper::onUpdatesChecked()
+void AbstractTopLevelHelper::onUpdateRegistryStateChanged()
 {
-    disconnect(m_updateRegistry, &UpdateRegistry::channelsChanged, this, &AbstractTopLevelHelper::onUpdatesChecked);
+    disconnect(m_updateRegistry, &UpdateRegistry::stateChanged, this, &AbstractTopLevelHelper::onUpdateRegistryStateChanged);
 
     // No timeout here, because it is handled by the update registry
-    if(!m_updateRegistry->isReady()) {
+    if(m_updateRegistry->state() == UpdateRegistry::State::ErrorOccured) {
         // Maintaining the single point of exit (ugly)
         m_device->deviceState()->setErrorString(QStringLiteral("Failed to retreive update information"));
         emit m_device->operationFinished();
 
-    } else{
+    } else if(m_updateRegistry->state() == UpdateRegistry::State::Ready) {
         advanceState();
     }
 }
@@ -57,7 +57,7 @@ void AbstractTopLevelHelper::checkForUpdates()
 {
     m_device->deviceState()->setStatusString(tr("Checking for updates..."));
 
-    connect(m_updateRegistry, &UpdateRegistry::channelsChanged, this, &AbstractTopLevelHelper::onUpdatesChecked);
+    connect(m_updateRegistry, &UpdateRegistry::stateChanged, this, &AbstractTopLevelHelper::onUpdateRegistryStateChanged);
     m_updateRegistry->check();
 }
 

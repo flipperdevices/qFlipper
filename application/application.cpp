@@ -83,7 +83,7 @@ void Application::checkForUpdates()
 
 void Application::onLatestVersionChanged()
 {
-    if(m_updateRegistry.isReady() && m_updater.canUpdate(m_updateRegistry.latestVersion())) {
+    if(m_updateRegistry.state() == ApplicationUpdateRegistry::State::Ready && m_updater.canUpdate(m_updateRegistry.latestVersion())) {
         setUpdateStatus(UpdateStatus::CanUpdate);
     } else {
         setUpdateStatus(UpdateStatus::NoUpdates);
