@@ -28,15 +28,14 @@ FlipperZero *AbstractTopLevelHelper::device()
 
 void AbstractTopLevelHelper::onUpdateRegistryStateChanged()
 {
-    disconnect(m_updateRegistry, &UpdateRegistry::stateChanged, this, &AbstractTopLevelHelper::onUpdateRegistryStateChanged);
-
-    // No timeout here, because it is handled by the update registry
     if(m_updateRegistry->state() == UpdateRegistry::State::ErrorOccured) {
         // Maintaining the single point of exit (ugly)
+        // TODO: Refactor the code to use finished signal properly
         m_device->deviceState()->setErrorString(QStringLiteral("Failed to retreive update information"));
         emit m_device->operationFinished();
 
     } else if(m_updateRegistry->state() == UpdateRegistry::State::Ready) {
+        disconnect(m_updateRegistry, &UpdateRegistry::stateChanged, this, &AbstractTopLevelHelper::onUpdateRegistryStateChanged);
         advanceState();
     }
 }
