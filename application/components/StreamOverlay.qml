@@ -89,13 +89,13 @@ AbstractOverlay {
         x: 590
         y: 52
 
-        focus: enabled
-
         onInputEvent: {
             Backend.sendInputEvent(key, type);
         }
 
-        onActiveFocusChanged: if(!activeFocus) focus = true
+        // Prevent focus loss
+        onEnabledChanged: focus = enabled
+        onActiveFocusChanged: if(!activeFocus) focus = enabled
     }
 
     IconImage {
