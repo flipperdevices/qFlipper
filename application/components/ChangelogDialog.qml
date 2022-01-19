@@ -19,7 +19,7 @@ CustomDialog {
         text: !(Backend.firmwareUpdateStatus === Backend.Unknown ||
                 Backend.firmwareUpdateStatus === Backend.Checking ||
                 Backend.firmwareUpdateStatus === Backend.ErrorOccured) ?
-              qsTr("Version %1 changelog").arg(Backend.latestFirmwareVersion.number) : qsTr("No data")
+              Backend.latestFirmwareVersion.changelog : qsTr("No data")
 
         textFormat: Text.MarkdownText
 
