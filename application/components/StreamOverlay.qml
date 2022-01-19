@@ -95,6 +95,7 @@ AbstractOverlay {
             Backend.sendInputEvent(key, type);
         }
 
+        onActiveFocusChanged: if(!activeFocus) focus = true
     }
 
     IconImage {
