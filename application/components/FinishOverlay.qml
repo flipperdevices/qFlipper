@@ -56,7 +56,10 @@ AbstractOverlay {
         action: continueAction
         anchors.horizontalCenter: parent.horizontalCenter
         visible: Backend.state === Backend.Finished
+        focus: visible
         y: 265
+
+        Keys.onPressed: continueAction.trigger()
     }
 
     Action {
