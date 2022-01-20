@@ -59,7 +59,7 @@ public:
         InstallingWirelessStack,
         InstallingFUS,
         Finished,
-        ErrorOccured
+        ErrorOccured = 0xff
     };
 
     Q_ENUM(State)
@@ -71,7 +71,7 @@ public:
         CanInstall,
         CanRepair,
         NoUpdates,
-        ErrorOccured
+        ErrorOccured = 0xff
     };
 
     Q_ENUM(FirmwareUpdateStatus)
