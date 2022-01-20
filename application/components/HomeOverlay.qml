@@ -159,6 +159,26 @@ AbstractOverlay {
         icon.source: Backend.firmwareUpdateStatus === Backend.ErrorOccured ? "qrc:/assets/gfx/symbolic/update-symbolic.svg" : ""
         icon.width: 32
         icon.height: 32
+
+        ToolTip {
+            text: {
+                switch(Backend.firmwareUpdateStatus) {
+                case Backend.CanRepair:
+                    return qsTr("Repair a broken firmware installation. May erase your progress and settings.");
+                case Backend.CanUpdate:
+                    return qsTr("Update Flipper to the latest version");
+                case Backend.CanInstall:
+                    return qsTr("Install firmware from currently selected update channel");
+                case Backend.ErrorOccured:
+                    return qsTr("Press to check internet connection and try to update Flipper again");
+                default:
+                    return "";
+                }
+            }
+
+            implicitWidth: 300
+            visible: parent.hovered && text.length != 0
+        }
     }
 
     LinkButton {

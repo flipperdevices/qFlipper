@@ -30,6 +30,7 @@ QtObject {
         readonly property color lightred1: "#ff5b27"
         readonly property color lightred2: "#ff5924"
         readonly property color lightred3: "#ff1f00"
+        readonly property color lightred4: "#ff3c00"
         readonly property color mediumred1: "#953618"
         readonly property color mediumred2: "#672715"
         readonly property color darkred1: "#451a0e"
