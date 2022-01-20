@@ -18,11 +18,11 @@ class DeviceState;
 class ApplicationBackend : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(State state READ state NOTIFY stateChanged)
+    Q_PROPERTY(BackendState backendState READ backendState NOTIFY backendStateChanged)
     Q_PROPERTY(Flipper::Zero::DeviceState* deviceState READ deviceState NOTIFY currentDeviceChanged)
-    Q_PROPERTY(FirmwareUpdateStatus firmwareUpdateStatus READ firmwareUpdateStatus NOTIFY updateStatusChanged)
+    Q_PROPERTY(FirmwareUpdateState firmwareUpdateState READ firmwareUpdateState NOTIFY firmwareUpdateStateChanged)
     Q_PROPERTY(QAbstractListModel* firmwareUpdateModel READ firmwareUpdateModel CONSTANT)
-    Q_PROPERTY(Flipper::Updates::VersionInfo latestFirmwareVersion READ latestFirmwareVersion NOTIFY updateStatusChanged)
+    Q_PROPERTY(Flipper::Updates::VersionInfo latestFirmwareVersion READ latestFirmwareVersion NOTIFY firmwareUpdateStateChanged)
 
 public:
     enum class InputKey {
@@ -46,7 +46,7 @@ public:
 
     Q_ENUM(InputType)
 
-    enum class State {
+    enum class BackendState {
         WaitingForDevices,
         Ready,
         ScreenStreaming,
@@ -62,9 +62,9 @@ public:
         ErrorOccured = 0xff
     };
 
-    Q_ENUM(State)
+    Q_ENUM(BackendState)
 
-    enum class FirmwareUpdateStatus {
+    enum class FirmwareUpdateState {
         Unknown,
         Checking,
         CanUpdate,
@@ -74,16 +74,16 @@ public:
         ErrorOccured = 0xff
     };
 
-    Q_ENUM(FirmwareUpdateStatus)
+    Q_ENUM(FirmwareUpdateState)
 
     ApplicationBackend(QObject *parent = nullptr);
 
-    State state() const;
+    BackendState backendState() const;
 
     Flipper::FlipperZero *device() const;
     Flipper::Zero::DeviceState *deviceState() const;
 
-    FirmwareUpdateStatus firmwareUpdateStatus() const;
+    FirmwareUpdateState firmwareUpdateState() const;
     QAbstractListModel *firmwareUpdateModel() const;
     const Flipper::Updates::VersionInfo latestFirmwareVersion() const;
 
@@ -108,9 +108,9 @@ public:
     Q_INVOKABLE void finalizeOperation();
 
 signals:
-    void stateChanged();
-    void updateStatusChanged();
     void currentDeviceChanged();
+    void backendStateChanged();
+    void firmwareUpdateStateChanged();
 
 private slots:
     void onCurrentDeviceChanged();
@@ -122,10 +122,10 @@ private:
 
     void initConnections();
 
-    void setState(State newState);
+    void setBackendState(BackendState newState);
 
     Flipper::DeviceRegistry *m_deviceRegistry;
     Flipper::UpdateRegistry *m_firmwareUpdateRegistry;
 
-    State m_state;
+    BackendState m_backendState;
 };

@@ -114,7 +114,7 @@ Item {
 
     WindowControls {
         id: windowControls
-        closeEnabled: (Backend.state <= Backend.ScreenStreaming) || (Backend.state >= Backend.Finished)
+        closeEnabled: (Backend.backendState <= Backend.ScreenStreaming) || (Backend.backendState >= Backend.Finished)
 
         controlPath: "qrc:/assets/gfx/controls"
 
@@ -165,7 +165,7 @@ Item {
         DeviceWidget {
             id: deviceWidget
             opacity: streamOverlay.visible ? 0 : 1
-            x: Backend.state === Backend.Ready ? Math.round(mainContent.width / 2) : 216
+            x: Backend.backendState === Backend.Ready ? Math.round(mainContent.width / 2) : 216
             y: 85
 
             onScreenStreamRequested: Backend.startFullScreenStreaming()
@@ -174,36 +174,36 @@ Item {
         NoDeviceOverlay {
             id: noDeviceOverlay
             anchors.fill: parent
-            opacity: Backend.state === Backend.WaitingForDevices ? 1 : 0
+            opacity: Backend.backendState === Backend.WaitingForDevices ? 1 : 0
         }
 
         HomeOverlay {
             id: homeOverlay
             backgroundRect: bg
             anchors.fill: parent
-            opacity: Backend.state === Backend.Ready ? 1 : 0
+            opacity: Backend.backendState === Backend.Ready ? 1 : 0
         }
 
         UpdateOverlay {
             id: updateOverlay
             backgroundRect: bg
             anchors.fill: parent
-            opacity: (Backend.state > Backend.ScreenStreaming) &&
-                     (Backend.state < Backend.Finished) ? 1 : 0
+            opacity: (Backend.backendState > Backend.ScreenStreaming) &&
+                     (Backend.backendState < Backend.Finished) ? 1 : 0
         }
 
         FinishOverlay {
             id: finishOverlay
             backgroundRect: bg
             anchors.fill: parent
-            opacity: (Backend.state === Backend.Finished) ||
-                     (Backend.state === Backend.ErrorOccured) ? 1 : 0
+            opacity: (Backend.backendState === Backend.Finished) ||
+                     (Backend.backendState === Backend.ErrorOccured) ? 1 : 0
         }
 
         StreamOverlay {
             id: streamOverlay
             anchors.fill: parent
-            opacity: Backend.state === Backend.ScreenStreaming ? 1 : 0
+            opacity: Backend.backendState === Backend.ScreenStreaming ? 1 : 0
         }
     }
 

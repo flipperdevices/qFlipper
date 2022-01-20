@@ -146,7 +146,7 @@ AbstractOverlay {
         y: 265
 
         accent: {
-            switch(Backend.firmwareUpdateStatus) {
+            switch(Backend.firmwareUpdateState) {
             case Backend.CanRepair:
                 return MainButton.Blue;
             case Backend.CanUpdate:
@@ -156,13 +156,13 @@ AbstractOverlay {
             }
         }
 
-        icon.source: Backend.firmwareUpdateStatus === Backend.ErrorOccured ? "qrc:/assets/gfx/symbolic/update-symbolic.svg" : ""
+        icon.source: Backend.firmwareUpdateState === Backend.ErrorOccured ? "qrc:/assets/gfx/symbolic/update-symbolic.svg" : ""
         icon.width: 32
         icon.height: 32
 
         ToolTip {
             text: {
-                switch(Backend.firmwareUpdateStatus) {
+                switch(Backend.firmwareUpdateState) {
                 case Backend.CanRepair:
                     return qsTr("Repair a broken firmware installation. May erase your progress and settings.");
                 case Backend.CanUpdate:
@@ -201,9 +201,9 @@ AbstractOverlay {
             }
         }
 
-        visible: Backend.firmwareUpdateStatus !== Backend.Unknown &&
-                 Backend.firmwareUpdateStatus !== Backend.Checking &&
-                 Backend.firmwareUpdateStatus !== Backend.ErrorOccured
+        visible: Backend.firmwareUpdateState !== Backend.Unknown &&
+                 Backend.firmwareUpdateState !== Backend.Checking &&
+                 Backend.firmwareUpdateState !== Backend.ErrorOccured
     }
 
     LinkButton {
@@ -219,13 +219,13 @@ AbstractOverlay {
     Action {
         id: updateButtonAction
 
-        enabled: Backend.firmwareUpdateStatus === Backend.CanUpdate ||
-                 Backend.firmwareUpdateStatus === Backend.CanInstall ||
-                 Backend.firmwareUpdateStatus === Backend.CanRepair ||
-                 Backend.firmwareUpdateStatus === Backend.ErrorOccured
+        enabled: Backend.firmwareUpdateState === Backend.CanUpdate ||
+                 Backend.firmwareUpdateState === Backend.CanInstall ||
+                 Backend.firmwareUpdateState === Backend.CanRepair ||
+                 Backend.firmwareUpdateState === Backend.ErrorOccured
 
         text: {
-            switch(Backend.firmwareUpdateStatus) {
+            switch(Backend.firmwareUpdateState) {
             case Backend.Unknown:
                 return qsTr("No data");
             case Backend.Checking:
@@ -243,14 +243,14 @@ AbstractOverlay {
             }
         }
 
-        onTriggered: Backend.firmwareUpdateStatus !== Backend.ErrorOccured ? updateButtonFunc() : Backend.checkFirmwareUpdates()
+        onTriggered: Backend.firmwareUpdateState !== Backend.ErrorOccured ? updateButtonFunc() : Backend.checkFirmwareUpdates()
     }
 
     Action {
         id: changelogAction
-        enabled: Backend.firmwareUpdateStatus !== Backend.Unknown &&
-                 Backend.firmwareUpdateStatus !== Backend.Checking &&
-                 Backend.firmwareUpdateStatus !== Backend.ErrorOccured
+        enabled: Backend.firmwareUpdateState !== Backend.Unknown &&
+                 Backend.firmwareUpdateState !== Backend.Checking &&
+                 Backend.firmwareUpdateState !== Backend.ErrorOccured
 
         text: {
             let str;

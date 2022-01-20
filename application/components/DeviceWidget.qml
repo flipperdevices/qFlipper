@@ -50,8 +50,8 @@ Image {
         y: 26
 
         source: deviceState && deviceState.isRecoveryMode ? "qrc:/assets/gfx/images/recovery.svg" :
-                Backend.state === Backend.Finished ? "qrc:/assets/gfx/images/success.svg" :
-                Backend.state === Backend.ErrorOccured ? "qrc:/assets/gfx/images/error-exclamation.svg" : "qrc:/assets/gfx/images/default.svg"
+                Backend.backendState === Backend.Finished ? "qrc:/assets/gfx/images/success.svg" :
+                Backend.backendState === Backend.ErrorOccured ? "qrc:/assets/gfx/images/error-exclamation.svg" : "qrc:/assets/gfx/images/default.svg"
 
         sourceSize: Qt.size(128, 64)
     }
@@ -59,7 +59,7 @@ Image {
     ScreenCanvas {
         id: screenCanvas
         anchors.fill: defaultScreen
-        visible: Backend.state === Backend.Ready && deviceState.isStreamingEnabled
+        visible: Backend.backendState === Backend.Ready && deviceState.isStreamingEnabled
 
         foregroundColor: Theme.color.darkorange1
         backgroundColor: Theme.color.lightorange2

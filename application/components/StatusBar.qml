@@ -9,8 +9,8 @@ import QFlipper 1.0
 Rectangle {
     id: control
 
-    readonly property bool errorOccured: Backend.state === Backend.ErrorOccured ||
-                                         Backend.firmwareUpdateStatus === Backend.ErrorOccured
+    readonly property bool errorOccured: Backend.backendState === Backend.ErrorOccured ||
+                                         Backend.firmwareUpdateState === Backend.ErrorOccured
 
     color: errorOccured ? Theme.color.darkred2 : Theme.color.darkorange1
 
@@ -29,12 +29,12 @@ Rectangle {
         TextLabel {
             id: message
 
-            text: Backend.state === Backend.ErrorOccured ? qsTr("Something went wrong. Check logs for details.") :
-                  Backend.state === Backend.WaitingForDevices ? qsTr("Waiting for devices ...") :
-                  Backend.state > Backend.ScreenStreaming && Backend.state < Backend.Finished ? qsTr("Do not unplug the device ...") :
-                  Backend.state === Backend.Finished ? qsTr("Operation has finished successfully.") :
-                  Backend.firmwareUpdateStatus === Backend.ErrorOccured ? qsTr("Cannot connect to update server.") :
-                  Backend.firmwareUpdateStatus === Backend.Checking ? qsTr("Checking for firmware updates...") : qsTr("Ready.")
+            text: Backend.backendState === Backend.ErrorOccured ? qsTr("Something went wrong. Check logs for details.") :
+                  Backend.backendState === Backend.WaitingForDevices ? qsTr("Waiting for devices ...") :
+                  Backend.backendState > Backend.ScreenStreaming && Backend.backendState < Backend.Finished ? qsTr("Do not unplug the device ...") :
+                  Backend.backendState === Backend.Finished ? qsTr("Operation has finished successfully.") :
+                  Backend.firmwareUpdateState === Backend.ErrorOccured ? qsTr("Cannot connect to update server.") :
+                  Backend.firmwareUpdateState === Backend.Checking ? qsTr("Checking for firmware updates...") : qsTr("Ready.")
 
             color: control.errorOccured ? Theme.color.lightred4 : Theme.color.lightorange2
 

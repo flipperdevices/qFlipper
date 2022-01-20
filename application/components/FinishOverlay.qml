@@ -13,12 +13,12 @@ AbstractOverlay {
         anchors.horizontalCenter: parent.horizontalCenter
         y: 24
 
-        color: Backend.state === Backend.ErrorOccured ? Theme.color.lightred3 : Theme.color.lightorange2
+        color: Backend.backendState === Backend.ErrorOccured ? Theme.color.lightred3 : Theme.color.lightorange2
 
         font.family: "Born2bSportyV2"
         font.pixelSize: 48
 
-        text: Backend.state === Backend.ErrorOccured ? qsTr("Operation Error"): qsTr("Success!")
+        text: Backend.backendState === Backend.ErrorOccured ? qsTr("Operation Error"): qsTr("Success!")
     }
 
     TextLabel {
@@ -33,7 +33,7 @@ AbstractOverlay {
         anchors.bottomMargin: 33
 
         text: deviceState ? deviceState.errorString : qsTr("Cannot connect to device")
-        visible: Backend.state === Backend.ErrorOccured
+        visible: Backend.backendState === Backend.ErrorOccured
     }
 
     Button {
@@ -48,14 +48,14 @@ AbstractOverlay {
         icon.height: 24
         icon.source: "qrc:/assets/gfx/symbolic/arrow-back.svg"
 
-        visible: Backend.state === Backend.ErrorOccured
+        visible: Backend.backendState === Backend.ErrorOccured
     }
 
     MainButton {
         id: continueButton
         action: continueAction
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: Backend.state === Backend.Finished
+        visible: Backend.backendState === Backend.Finished
         focus: visible
         y: 265
 

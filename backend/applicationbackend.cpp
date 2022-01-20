@@ -26,7 +26,7 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     QObject(parent),
     m_deviceRegistry(new DeviceRegistry(this)),
     m_firmwareUpdateRegistry(new FirmwareUpdateRegistry("https://update.flipperzero.one/firmware/directory.json", this)),
-    m_state(State::WaitingForDevices)
+    m_backendState(BackendState::WaitingForDevices)
 {
     registerMetaTypes();
     registerComparators();
@@ -34,31 +34,31 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     initConnections();
 }
 
-ApplicationBackend::State ApplicationBackend::state() const
+ApplicationBackend::BackendState ApplicationBackend::backendState() const
 {
-    return m_state;
+    return m_backendState;
 }
 
-ApplicationBackend::FirmwareUpdateStatus ApplicationBackend::firmwareUpdateStatus() const
+ApplicationBackend::FirmwareUpdateState ApplicationBackend::firmwareUpdateState() const
 {
     if(!device() || (m_firmwareUpdateRegistry->state() == UpdateRegistry::State::Unknown)) {
-        return FirmwareUpdateStatus::Unknown;
+        return FirmwareUpdateState::Unknown;
     } else if(m_firmwareUpdateRegistry->state() == UpdateRegistry::State::Checking) {
-        return FirmwareUpdateStatus::Checking;
+        return FirmwareUpdateState::Checking;
     } else if(m_firmwareUpdateRegistry->state() == UpdateRegistry::State::ErrorOccured) {
-        return FirmwareUpdateStatus::ErrorOccured;
+        return FirmwareUpdateState::ErrorOccured;
     }
 
     const auto &latestVersion = m_firmwareUpdateRegistry->latestVersion();
 
     if (device()->canRepair(latestVersion)) {
-        return FirmwareUpdateStatus::CanRepair;
+        return FirmwareUpdateState::CanRepair;
     } else if(device()->canUpdate(latestVersion)) {
-        return FirmwareUpdateStatus::CanUpdate;
+        return FirmwareUpdateState::CanUpdate;
     } else if(device()->canInstall(latestVersion)) {
-        return FirmwareUpdateStatus::CanInstall;
+        return FirmwareUpdateState::CanInstall;
     } else{
-        return FirmwareUpdateStatus::NoUpdates;
+        return FirmwareUpdateState::NoUpdates;
     }
 }
 
@@ -91,11 +91,11 @@ void ApplicationBackend::mainAction()
     AbstractOperationHelper *helper;
 
     if(device()->deviceState()->isRecoveryMode()) {
-        setState(State::RepairingDevice);
+        setBackendState(BackendState::RepairingDevice);
         helper = new RepairTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
 
     } else {
-        setState(State::UpdatingDevice);
+        setBackendState(BackendState::UpdatingDevice);
         helper = new UpdateTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
     }
 
@@ -104,48 +104,48 @@ void ApplicationBackend::mainAction()
 
 void ApplicationBackend::createBackup(const QUrl &directoryUrl)
 {
-    setState(State::CreatingBackup);
+    setBackendState(BackendState::CreatingBackup);
     device()->createBackup(directoryUrl);
 }
 
 void ApplicationBackend::restoreBackup(const QUrl &directoryUrl)
 {
-    setState(State::RestoringBackup);
+    setBackendState(BackendState::RestoringBackup);
     device()->restoreBackup(directoryUrl);
 }
 
 void ApplicationBackend::factoryReset()
 {
-    setState(State::FactoryResetting);
+    setBackendState(BackendState::FactoryResetting);
     device()->factoryReset();
 }
 
 void ApplicationBackend::installFirmware(const QUrl &fileUrl)
 {
-    setState(State::InstallingFirmware);
+    setBackendState(BackendState::InstallingFirmware);
     device()->installFirmware(fileUrl);
 }
 
 void ApplicationBackend::installWirelessStack(const QUrl &fileUrl)
 {
-    setState(State::InstallingWirelessStack);
+    setBackendState(BackendState::InstallingWirelessStack);
     device()->installWirelessStack(fileUrl);
 }
 
 void ApplicationBackend::installFUS(const QUrl &fileUrl, uint32_t address)
 {
-    setState(State::InstallingFUS);
+    setBackendState(BackendState::InstallingFUS);
     device()->installFUS(fileUrl, address);
 }
 
 void ApplicationBackend::startFullScreenStreaming()
 {
-    setState(State::ScreenStreaming);
+    setBackendState(BackendState::ScreenStreaming);
 }
 
 void ApplicationBackend::stopFullScreenStreaming()
 {
-    setState(State::Ready);
+    setBackendState(BackendState::Ready);
 }
 
 void ApplicationBackend::sendInputEvent(int key, int type)
@@ -168,31 +168,31 @@ void ApplicationBackend::finalizeOperation()
     m_deviceRegistry->removeOfflineDevices();
 
     if(!device()) {
-        setState(State::WaitingForDevices);
+        setBackendState(BackendState::WaitingForDevices);
 
     } else {
         device()->finalizeOperation();
-        setState(State::Ready);
+        setBackendState(BackendState::Ready);
     }
 }
 
 void ApplicationBackend::onCurrentDeviceChanged()
 {
     // Should not happen during an ongoing operation
-    if(m_state > State::ScreenStreaming && m_state != State::Finished) {
-        setState(State::ErrorOccured);
+    if(m_backendState > BackendState::ScreenStreaming && m_backendState != BackendState::Finished) {
+        setBackendState(BackendState::ErrorOccured);
         qCDebug(LOG_BACKEND) << "Current operation was interrupted";
 
     } else if(device()) {
         qCDebug(LOG_BACKEND) << "Current device changed to" << device()->deviceState()->deviceInfo().name;
         // No need to disconnect the old device, as it has been destroyed at this point
         connect(device(), &FlipperZero::operationFinished, this, &ApplicationBackend::onDeviceOperationFinished);
-        connect(device(), &FlipperZero::stateChanged, this, &ApplicationBackend::updateStatusChanged);
-        setState(State::Ready);
+        connect(device(), &FlipperZero::stateChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
+        setBackendState(BackendState::Ready);
 
     } else {
         qCDebug(LOG_BACKEND) << "Last device was disconnected";
-        setState(State::WaitingForDevices);
+        setBackendState(BackendState::WaitingForDevices);
     }
 }
 
@@ -201,14 +201,14 @@ void ApplicationBackend::onDeviceOperationFinished()
     // TODO: Some error handling?
     if(!device()) {
         qCDebug(LOG_BACKEND) << "Lost all connected devices";
-        setState(State::ErrorOccured);
+        setBackendState(BackendState::ErrorOccured);
 
     } else if(device()->deviceState()->isError()) {
         qCDebug(LOG_BACKEND) << "Current operation finished with error:" << device()->deviceState()->errorString();
-        setState(State::ErrorOccured);
+        setBackendState(BackendState::ErrorOccured);
 
     } else {
-        setState(State::Finished);
+        setBackendState(BackendState::Finished);
     }
 }
 
@@ -217,18 +217,18 @@ void ApplicationBackend::initConnections()
     connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::currentDeviceChanged);
     connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::onCurrentDeviceChanged);
 
-    connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::updateStatusChanged);
-    connect(m_firmwareUpdateRegistry, &UpdateRegistry::latestVersionChanged, this, &ApplicationBackend::updateStatusChanged);
+    connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
+    connect(m_firmwareUpdateRegistry, &UpdateRegistry::latestVersionChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
 }
 
-void ApplicationBackend::setState(State newState)
+void ApplicationBackend::setBackendState(BackendState newState)
 {
-    if(m_state == newState) {
+    if(m_backendState == newState) {
         return;
     }
 
-    m_state = newState;
-    emit stateChanged();
+    m_backendState = newState;
+    emit backendStateChanged();
 }
 
 void ApplicationBackend::registerMetaTypes()

@@ -20,7 +20,7 @@ AbstractOverlay {
         font.pixelSize: 48
 
         text: {
-            switch(Backend.state) {
+            switch(Backend.backendState) {
             case Backend.UpdatingDevice:
                 return qsTr("Updating your Flipper");
             case Backend.RepairingDevice:
@@ -77,8 +77,8 @@ AbstractOverlay {
         width: layout.implicitWidth
         height: layout.implicitHeight
 
-        opacity: Backend.state === Backend.UpdatingDevice ? !!deviceInfo && !deviceInfo.storage.isExternalPresent :
-                 Backend.state === Backend.RepairingDevice ? !!deviceInfo && !deviceState.isRecoveryMode && !deviceInfo.storage.isExternalPresent : 0
+        opacity: Backend.backendState === Backend.UpdatingDevice ? !!deviceInfo && !deviceInfo.storage.isExternalPresent :
+                 Backend.backendState === Backend.RepairingDevice ? !!deviceInfo && !deviceState.isRecoveryMode && !deviceInfo.storage.isExternalPresent : 0
 
         enabled: opacity > 0
 

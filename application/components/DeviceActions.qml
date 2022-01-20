@@ -23,9 +23,9 @@ ColumnLayout {
     ComboBox {
         id: channelComboBox
 
-        enabled: Backend.firmwareUpdateStatus !== Backend.Unknown &&
-                 Backend.firmwareUpdateStatus !== Backend.Checking &&
-                 Backend.firmwareUpdateStatus !== Backend.ErrorOccured
+        enabled: Backend.firmwareUpdateState !== Backend.Unknown &&
+                 Backend.firmwareUpdateState !== Backend.Checking &&
+                 Backend.firmwareUpdateState !== Backend.ErrorOccured
 
         delegate: ChannelDelegate {}
 
@@ -34,7 +34,7 @@ ColumnLayout {
 
         Layout.fillWidth: true
 
-        currentIndex: Backend.firmwareUpdateStatus !== Backend.Unknown ? find(Preferences.updateChannel) : -1
+        currentIndex: Backend.firmwareUpdateState !== Backend.Unknown ? find(Preferences.updateChannel) : -1
         onActivated: Preferences.updateChannel = textAt(index);
 
         ToolTip {
@@ -154,7 +154,7 @@ ColumnLayout {
     Action {
         id: reinstallAction
         text: qsTr("Reinstall")
-        enabled: Backend.firmwareUpdateStatus === Backend.NoUpdates
+        enabled: Backend.firmwareUpdateState === Backend.NoUpdates
     }
 
     Action {
