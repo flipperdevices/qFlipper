@@ -15,6 +15,7 @@
 #include "deviceregistry.h"
 #include "screencanvas.h"
 #include "preferences.h"
+#include "backenderror.h"
 #include "logger.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_APP, "APP")
@@ -124,6 +125,7 @@ void Application::initQmlTypes()
 {
     qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
     qmlRegisterType<ApplicationUpdater>("QFlipper", 1, 0, "AppUpdater");
+    qmlRegisterUncreatableType<BackendError>("QFlipper", 1, 0, "BackendError", QStringLiteral("This class is only a enum container"));
 
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Logger", globalLogger);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Preferences", globalPrefs);

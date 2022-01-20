@@ -107,6 +107,7 @@ HEADERS += \
     abstractprotobufoperation.h \
     abstractserialoperation.h \
     applicationbackend.h \
+    backenderror.h \
     deviceregistry.h \
     failable.h \
     fileinfo.h \

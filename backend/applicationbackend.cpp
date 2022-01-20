@@ -26,7 +26,8 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     QObject(parent),
     m_deviceRegistry(new DeviceRegistry(this)),
     m_firmwareUpdateRegistry(new FirmwareUpdateRegistry("https://update.flipperzero.one/firmware/directory.json", this)),
-    m_backendState(BackendState::WaitingForDevices)
+    m_backendState(BackendState::WaitingForDevices),
+    m_errorType(BackendError::UnknownError)
 {
     registerMetaTypes();
     registerComparators();
@@ -37,6 +38,11 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
 ApplicationBackend::BackendState ApplicationBackend::backendState() const
 {
     return m_backendState;
+}
+
+BackendError::ErrorType ApplicationBackend::errorType() const
+{
+    return m_errorType;
 }
 
 ApplicationBackend::FirmwareUpdateState ApplicationBackend::firmwareUpdateState() const
@@ -229,6 +235,16 @@ void ApplicationBackend::setBackendState(BackendState newState)
 
     m_backendState = newState;
     emit backendStateChanged();
+}
+
+void ApplicationBackend::setErrorType(BackendError::ErrorType newErrorType)
+{
+    if(m_errorType == newErrorType) {
+        return;
+    }
+
+    m_errorType = newErrorType;
+    emit errorTypeChanged();
 }
 
 void ApplicationBackend::registerMetaTypes()

@@ -2,6 +2,7 @@
 
 #include <QObject>
 
+#include "backenderror.h"
 #include "flipperupdates.h"
 
 class QAbstractListModel;
@@ -23,6 +24,7 @@ class ApplicationBackend : public QObject
     Q_PROPERTY(FirmwareUpdateState firmwareUpdateState READ firmwareUpdateState NOTIFY firmwareUpdateStateChanged)
     Q_PROPERTY(QAbstractListModel* firmwareUpdateModel READ firmwareUpdateModel CONSTANT)
     Q_PROPERTY(Flipper::Updates::VersionInfo latestFirmwareVersion READ latestFirmwareVersion NOTIFY firmwareUpdateStateChanged)
+    Q_PROPERTY(BackendError::ErrorType errorType READ errorType NOTIFY errorTypeChanged)
 
 public:
     enum class InputKey {
@@ -79,6 +81,7 @@ public:
     ApplicationBackend(QObject *parent = nullptr);
 
     BackendState backendState() const;
+    BackendError::ErrorType errorType() const;
 
     Flipper::FlipperZero *device() const;
     Flipper::Zero::DeviceState *deviceState() const;
@@ -86,6 +89,7 @@ public:
     FirmwareUpdateState firmwareUpdateState() const;
     QAbstractListModel *firmwareUpdateModel() const;
     const Flipper::Updates::VersionInfo latestFirmwareVersion() const;
+
 
     /* Actions available from the GUI.
      * Applies to the currently active device. */
@@ -108,6 +112,7 @@ public:
     Q_INVOKABLE void finalizeOperation();
 
 signals:
+    void errorTypeChanged();
     void currentDeviceChanged();
     void backendStateChanged();
     void firmwareUpdateStateChanged();
@@ -123,9 +128,11 @@ private:
     void initConnections();
 
     void setBackendState(BackendState newState);
+    void setErrorType(BackendError::ErrorType newErrorType);
 
     Flipper::DeviceRegistry *m_deviceRegistry;
     Flipper::UpdateRegistry *m_firmwareUpdateRegistry;
 
     BackendState m_backendState;
+    BackendError::ErrorType m_errorType;
 };
