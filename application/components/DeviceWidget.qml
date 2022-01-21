@@ -51,7 +51,7 @@ Image {
 
         source: deviceState && deviceState.isRecoveryMode ? "qrc:/assets/gfx/images/recovery.svg" :
                 Backend.backendState === Backend.Finished ? "qrc:/assets/gfx/images/success.svg" :
-                Backend.backendState === Backend.ErrorOccured ? "qrc:/assets/gfx/images/error-exclamation.svg" : "qrc:/assets/gfx/images/default.svg"
+                                                            "qrc:/assets/gfx/images/default.svg"
 
         sourceSize: Qt.size(128, 64)
     }

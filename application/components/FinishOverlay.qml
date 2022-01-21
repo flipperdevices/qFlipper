@@ -26,6 +26,8 @@ AbstractOverlay {
     }
 
     RowLayout {
+        visible: Backend.backendState === Backend.ErrorOccured
+
         anchors.fill: parent
         anchors.margins: 36
 
@@ -39,8 +41,6 @@ AbstractOverlay {
                 Layout.alignment: Qt.AlignHCenter
 
                 capitalized: false
-                visible: Backend.backendState === Backend.ErrorOccured
-
                 font.family: "Born2bSportyV2"
                 font.pixelSize: 48
 
@@ -75,6 +75,30 @@ AbstractOverlay {
 
                     sourceSize: Qt.size(246, 187)
                     source: "qrc:/assets/gfx/images/error-client.svg"
+
+                    visible: !flipperError.visible
+                }
+
+                Image {
+                    id: flipperError
+                    visible: Backend.errorType === BackendError.InvalidDevice ||
+                             Backend.errorType === BackendError.UnknownError
+
+                    anchors.centerIn: parent
+                    anchors.verticalCenterOffset: -30
+                    anchors.horizontalCenterOffset: -15
+
+                    sourceSize: Qt.size(360, 156)
+                    source: "qrc:/assets/gfx/images/flipper.svg"
+
+                    Image {
+                        x: 93
+                        y: 26
+
+                        source: Backend.errorType === BackendError.InvalidDevice ? "qrc:/assets/gfx/images/error-exclamation.svg" :
+                                                                                   "qrc:/assets/gfx/images/error-cross-eyes.svg"
+                        sourceSize: Qt.size(128, 64)
+                    }
                 }
             }
         }
@@ -83,10 +107,16 @@ AbstractOverlay {
             Layout.fillHeight: true
             Layout.preferredWidth: 335
 
-            visible: Backend.backendState === Backend.ErrorOccured
-
             style: Strings.errorStyle
-            text: Strings.errorRecovery
+            text: {
+                switch(Backend.errorType) {
+                case BackendError.InvalidDevice:
+                    return Strings.errorInvalidDevice
+                case BackendError.UnknownError:
+                default:
+                    return Strings.errorUnknown
+                }
+            }
         }
     }
 
