@@ -12,19 +12,30 @@ class FlipperZero;
 class DeviceRegistry : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(Flipper::FlipperZero* currentDevice READ currentDevice NOTIFY currentDeviceChanged)
 
     using DeviceList = QVector<FlipperZero*>;
 
 public:
+    enum class Error {
+        NoError,
+        InvalidDevice,
+        PortAccessError,
+        USBAccessError,
+        ProtocolError
+    };
+
     DeviceRegistry(QObject *parent = nullptr);
 
     FlipperZero *currentDevice() const;
     int deviceCount() const;
 
+    Error error() const;
+    void clearError();
+
 signals:
     void currentDeviceChanged();
     void deviceCountChanged();
+    void errorChanged();
 
 public slots:
     void insertDevice(const USBDeviceInfo &info);
@@ -35,7 +46,10 @@ private slots:
     void processDevice();
 
 private:
+    void setError(Error newError);
+
     DeviceList m_devices;
+    Error m_error;
 };
 
 }
