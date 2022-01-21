@@ -164,7 +164,9 @@ Item {
 
         DeviceWidget {
             id: deviceWidget
-            opacity: streamOverlay.visible ? 0 : 1
+            opacity: Backend.backendState !== Backend.ScreenStreaming &&
+                     Backend.backendState !== Backend.ErrorOccured ? 1 : 0
+
             x: Backend.backendState === Backend.Ready ? Math.round(mainContent.width / 2) : 216
             y: 85
 

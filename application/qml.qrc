@@ -104,5 +104,8 @@
         <file>assets/gfx/images/error-exclamation.svg</file>
         <file>assets/gfx/images/error-internet.svg</file>
         <file>assets/gfx/images/warning-sdcard.svg</file>
+        <file>components/TextBox.qml</file>
+        <file>imports/Strings/qmldir</file>
+        <file>imports/Strings/Strings.qml</file>
     </qresource>
 </RCC>

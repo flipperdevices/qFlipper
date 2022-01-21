@@ -1,39 +1,91 @@
 import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
 import QFlipper 1.0
+import Strings 1.0
 import Theme 1.0
 
 AbstractOverlay {
     id: overlay
 
     TextLabel {
-        id: updateLabel
-        capitalized: false
-        anchors.horizontalCenter: parent.horizontalCenter
+        id: successLabel
+
         y: 24
 
-        color: Backend.backendState === Backend.ErrorOccured ? Theme.color.lightred3 : Theme.color.lightorange2
+        capitalized: false
+        visible: Backend.backendState === Backend.Finished
 
         font.family: "Born2bSportyV2"
         font.pixelSize: 48
 
-        text: Backend.backendState === Backend.ErrorOccured ? qsTr("Operation Error"): qsTr("Success!")
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        text: qsTr("Success!")
     }
 
-    TextLabel {
-        id: messageLabel
+    RowLayout {
+        anchors.fill: parent
+        anchors.margins: 36
 
-        width: 480
-        horizontalAlignment: Text.AlignHCenter
-        wrapMode: Text.Wrap
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 33
+            TextLabel {
+                id: errorLabel
 
-        text: deviceState ? deviceState.errorString : qsTr("Cannot connect to device")
-        visible: Backend.backendState === Backend.ErrorOccured
+                Layout.alignment: Qt.AlignHCenter
+
+                capitalized: false
+                visible: Backend.backendState === Backend.ErrorOccured
+
+                font.family: "Born2bSportyV2"
+                font.pixelSize: 48
+
+                text: {
+                    switch(Backend.errorType) {
+                    case BackendError.InternetError:
+                        return qsTr("Internet Error")
+                    case BackendError.SerialError:
+                        return qsTr("Serial Port Error")
+                    case BackendError.RecoveryError:
+                        return qsTr("USB Connection Error")
+                    case BackendError.ProtocolError:
+                        return qsTr("Communication Error")
+                    case BackendError.DiskError:
+                        return qsTr("Disk Access Error")
+                    case BackendError.UnknownError:
+                    default:
+                        return qsTr("Unknown Error")
+                    }
+                }
+            }
+
+            Item {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                Image {
+                    anchors.centerIn: parent
+                    anchors.verticalCenterOffset: -15
+
+                    sourceSize: Qt.size(246, 187)
+                    source: "qrc:/assets/gfx/images/error-client.svg"
+                }
+            }
+        }
+
+        TextBox {
+            Layout.fillHeight: true
+            Layout.preferredWidth: 335
+
+            visible: Backend.backendState === Backend.ErrorOccured
+
+            style: Strings.errorStyle
+            text: Strings.errorRecovery
+        }
     }
 
     Button {
