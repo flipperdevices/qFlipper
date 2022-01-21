@@ -171,7 +171,9 @@ void ApplicationBackend::finalizeOperation()
     qCDebug(LOG_BACKEND) << "Finalized current operation";
 
     globalLogger->setErrorCount(0);
+
     m_deviceRegistry->removeOfflineDevices();
+    m_deviceRegistry->clearError();
 
     if(!device()) {
         setBackendState(BackendState::WaitingForDevices);
@@ -218,6 +220,22 @@ void ApplicationBackend::onDeviceOperationFinished()
     }
 }
 
+void ApplicationBackend::onDeviceRegistryErrorChanged()
+{
+    if(m_backendState != BackendState::WaitingForDevices) {
+        return;
+    }
+
+    const auto err = m_deviceRegistry->error();
+
+    if(err == DeviceRegistry::NoError) {
+        return;
+    } else if(err == DeviceRegistry::InvalidDevice) {
+        setErrorType(BackendError::InvalidDevice);
+        setBackendState(BackendState::ErrorOccured);
+    }
+}
+
 void ApplicationBackend::initConnections()
 {
     connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::currentDeviceChanged);
@@ -225,6 +243,8 @@ void ApplicationBackend::initConnections()
 
     connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
     connect(m_firmwareUpdateRegistry, &UpdateRegistry::latestVersionChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
+
+    connect(m_deviceRegistry, &DeviceRegistry::errorChanged, this, &ApplicationBackend::onDeviceRegistryErrorChanged);
 }
 
 void ApplicationBackend::setBackendState(BackendState newState)

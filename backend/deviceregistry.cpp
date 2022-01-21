@@ -20,7 +20,7 @@ using namespace Flipper;
 
 DeviceRegistry::DeviceRegistry(QObject *parent):
     QObject(parent),
-    m_error(Error::NoError)
+    m_error(DeviceRegistryError::NoError)
 {
     connect(USBDeviceDetector::instance(), &USBDeviceDetector::devicePluggedIn, this, &DeviceRegistry::insertDevice);
     connect(USBDeviceDetector::instance(), &USBDeviceDetector::deviceUnplugged, this, &DeviceRegistry::removeDevice);
@@ -43,9 +43,14 @@ int DeviceRegistry::deviceCount() const
     return m_devices.size();
 }
 
+DeviceRegistry::DeviceRegistryError DeviceRegistry::error() const
+{
+    return m_error;
+}
+
 void DeviceRegistry::clearError()
 {
-    setError(Error::NoError);
+    setError(DeviceRegistryError::NoError);
 }
 
 void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
@@ -55,11 +60,11 @@ void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
             << "Invalid device detected: VID_0x" << QString::number(info.vendorID(), 16) << ":PID_0x"
             << QString::number(info.productID(), 16) << ", ignoring it";
 
-        setError(Error::InvalidDevice);
+        setError(DeviceRegistryError::InvalidDevice);
 
     } else if(info.vendorID() != FLIPPER_ZERO_VID) {
         qCDebug(LOG_DEVREG) << "Unexpected device VID and PID";
-        setError(Error::InvalidDevice);
+        setError(DeviceRegistryError::InvalidDevice);
 
     } else {
         qCDebug(LOG_DEVREG).noquote().nospace()
@@ -150,7 +155,7 @@ void DeviceRegistry::processDevice()
     }
 }
 
-void DeviceRegistry::setError(Error newError)
+void DeviceRegistry::setError(DeviceRegistryError newError)
 {
     if(m_error == newError) {
         return;

@@ -46,6 +46,8 @@ AbstractOverlay {
 
                 text: {
                     switch(Backend.errorType) {
+                    case BackendError.InvalidDevice:
+                        return qsTr("Invalid device")
                     case BackendError.InternetError:
                         return qsTr("Internet Error")
                     case BackendError.SerialError:

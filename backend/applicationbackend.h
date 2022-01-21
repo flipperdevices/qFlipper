@@ -120,6 +120,7 @@ signals:
 private slots:
     void onCurrentDeviceChanged();
     void onDeviceOperationFinished();
+    void onDeviceRegistryErrorChanged();
 
 private:
     static void registerMetaTypes();

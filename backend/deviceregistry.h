@@ -16,7 +16,7 @@ class DeviceRegistry : public QObject
     using DeviceList = QVector<FlipperZero*>;
 
 public:
-    enum class Error {
+    enum DeviceRegistryError {
         NoError,
         InvalidDevice,
         PortAccessError,
@@ -29,7 +29,7 @@ public:
     FlipperZero *currentDevice() const;
     int deviceCount() const;
 
-    Error error() const;
+    DeviceRegistryError error() const;
     void clearError();
 
 signals:
@@ -46,10 +46,10 @@ private slots:
     void processDevice();
 
 private:
-    void setError(Error newError);
+    void setError(DeviceRegistryError newError);
 
     DeviceList m_devices;
-    Error m_error;
+    DeviceRegistryError m_error;
 };
 
 }
