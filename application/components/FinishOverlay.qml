@@ -74,7 +74,9 @@ AbstractOverlay {
                     anchors.verticalCenterOffset: -15
 
                     sourceSize: Qt.size(246, 187)
-                    source: "qrc:/assets/gfx/images/error-client.svg"
+                    source: Backend.errorType === BackendError.SerialError ||
+                            Backend.errorType === BackendError.RecoveryError ? "qrc:/assets/gfx/images/error-access.svg" :
+                                                                               "qrc:/assets/gfx/images/error-client.svg"
 
                     visible: !flipperError.visible
                 }
@@ -112,6 +114,10 @@ AbstractOverlay {
                 switch(Backend.errorType) {
                 case BackendError.InvalidDevice:
                     return Strings.errorInvalidDevice
+                case BackendError.SerialError:
+                    return Strings.errorSerial
+                case BackendError.RecoveryError:
+                    return Strings.errorRecovery
                 case BackendError.UnknownError:
                 default:
                     return Strings.errorUnknown

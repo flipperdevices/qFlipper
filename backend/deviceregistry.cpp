@@ -72,6 +72,7 @@ void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 
         auto *fetcher = Zero::AbstractDeviceInfoHelper::create(info, this);
         connect(fetcher, &Zero::AbstractDeviceInfoHelper::finished, this, &DeviceRegistry::processDevice);
+        connect(fetcher, &Zero::AbstractDeviceInfoHelper::finished, fetcher, &QObject::deleteLater);
     }
 }
 
@@ -122,15 +123,13 @@ void DeviceRegistry::removeOfflineDevices()
 void DeviceRegistry::processDevice()
 {
     auto *fetcher = qobject_cast<Zero::AbstractDeviceInfoHelper*>(sender());
-
-    fetcher->deleteLater();
+    const auto &info = fetcher->result();
 
     if(fetcher->isError()) {
         qCDebug(LOG_DEVREG).noquote() << "Device initialization failed:" << fetcher->errorString();
+        setError(info.usbInfo.productID() == 0xdf11 ? RecoveryError : SerialError);
         return;
     }
-
-    const auto &info = fetcher->result();
 
     const auto it = std::find_if(m_devices.begin(), m_devices.end(), [&info](Flipper::FlipperZero *arg) {
         return info.name == arg->deviceState()->name();

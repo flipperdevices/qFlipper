@@ -19,9 +19,8 @@ public:
     enum DeviceRegistryError {
         NoError,
         InvalidDevice,
-        PortAccessError,
-        USBAccessError,
-        ProtocolError
+        SerialError,
+        RecoveryError
     };
 
     DeviceRegistry(QObject *parent = nullptr);

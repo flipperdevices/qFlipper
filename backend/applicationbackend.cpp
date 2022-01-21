@@ -230,9 +230,18 @@ void ApplicationBackend::onDeviceRegistryErrorChanged()
 
     if(err == DeviceRegistry::NoError) {
         return;
-    } else if(err == DeviceRegistry::InvalidDevice) {
+    }
+
+    setBackendState(BackendState::ErrorOccured);
+
+    if(err == DeviceRegistry::InvalidDevice) {
         setErrorType(BackendError::InvalidDevice);
-        setBackendState(BackendState::ErrorOccured);
+    } else if(err == DeviceRegistry::SerialError) {
+        setErrorType(BackendError::SerialError);
+    } else if(err == DeviceRegistry::RecoveryError) {
+        setErrorType(BackendError::RecoveryError);
+    } else {
+        setErrorType(BackendError::UnknownError);
     }
 }
 

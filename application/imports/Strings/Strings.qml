@@ -12,8 +12,19 @@ QtObject {
 <p>1. Disconnect all other devices from this computer.</p>
 <p>2. Reconnect device via USB.</p>
 <p>3. Grant user permissions to access DFU devices.</p>
-<p>Run <a href='https://github.com/flipperdevices/qFlipper/raw/dev/setup_rules.sh'>this script</a> for Linux.</p>
-<p>4. Reboot device to Flipper OS and try updating again.</p>
+<p>Run <a href='https://github.com/flipperdevices/qFlipper/raw/dev/setup_rules.sh'>this script</a> on Linux or check drivers on Windows.</p>
+<p>4. Reboot device and try again.</p>
+<p>-----------------------------------</p>
+<center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
+
+    readonly property string errorSerial:
+"<p>Flipper is not responding.</p>
+<p>=========== HOW TO FIX ============</p>
+<p>1. Check that device is not connected via Bluetooth or Terminal session.</p>
+<p>2. Grant user permissions to access Serial devices.</p>
+<p>Run <a href='https://github.com/flipperdevices/qFlipper/raw/dev/setup_rules.sh'>this script</a> on Linux or check drivers on Windows.</p>
+<p>3. Reconnect device via USB.</p>
+<p>4. Reboot device and try again.</p>
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 
@@ -24,7 +35,7 @@ QtObject {
 <p>2. Reconnect device via USB.</p>
 <p>3. Grant user permissions to access DFU devices.</p>
 <p>Run <a href='https://github.com/flipperdevices/qFlipper/raw/dev/setup_rules.sh'>this script</a> for Linux.</p>
-<p>4. Reboot device to Flipper OS and try updating again.</p>
+<p>4. Reboot device and try again.</p>
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 
