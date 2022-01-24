@@ -20,7 +20,8 @@ using namespace Flipper;
 
 DeviceRegistry::DeviceRegistry(QObject *parent):
     QObject(parent),
-    m_error(DeviceRegistryError::NoError)
+    m_error(DeviceRegistryError::NoError),
+    m_isQueryInProgress(false)
 {
     connect(USBDeviceDetector::instance(), &USBDeviceDetector::devicePluggedIn, this, &DeviceRegistry::insertDevice);
     connect(USBDeviceDetector::instance(), &USBDeviceDetector::deviceUnplugged, this, &DeviceRegistry::removeDevice);
@@ -53,6 +54,11 @@ void DeviceRegistry::clearError()
     setError(DeviceRegistryError::NoError);
 }
 
+bool DeviceRegistry::isQueryInProgress() const
+{
+    return m_isQueryInProgress;
+}
+
 void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 {
     if(!info.isValid()) {
@@ -67,6 +73,7 @@ void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
         setError(DeviceRegistryError::InvalidDevice);
 
     } else {
+        setQueryInProgress(true);
         qCDebug(LOG_DEVREG).noquote().nospace()
             << "Detected new device: VID_0x" << QString::number(info.vendorID(), 16) << ":PID_0x" << QString::number(info.productID(), 16);
 
@@ -122,6 +129,8 @@ void DeviceRegistry::removeOfflineDevices()
 
 void DeviceRegistry::processDevice()
 {
+    setQueryInProgress(false);
+
     auto *fetcher = qobject_cast<Zero::AbstractDeviceInfoHelper*>(sender());
     const auto &info = fetcher->result();
 
@@ -162,4 +171,14 @@ void DeviceRegistry::setError(DeviceRegistryError newError)
 
     m_error = newError;
     emit errorChanged();
+}
+
+void DeviceRegistry::setQueryInProgress(bool set)
+{
+    if(m_isQueryInProgress == set) {
+        return;
+    }
+
+    m_isQueryInProgress = set;
+    emit isQueryInProgressChanged();
 }

@@ -25,6 +25,7 @@ class ApplicationBackend : public QObject
     Q_PROPERTY(QAbstractListModel* firmwareUpdateModel READ firmwareUpdateModel CONSTANT)
     Q_PROPERTY(Flipper::Updates::VersionInfo latestFirmwareVersion READ latestFirmwareVersion NOTIFY firmwareUpdateStateChanged)
     Q_PROPERTY(BackendError::ErrorType errorType READ errorType NOTIFY errorTypeChanged)
+    Q_PROPERTY(bool isQueryInProgress READ isQueryInProgress NOTIFY isQueryInProgressChanged)
 
 public:
     enum class InputKey {
@@ -90,6 +91,7 @@ public:
     QAbstractListModel *firmwareUpdateModel() const;
     const Flipper::Updates::VersionInfo latestFirmwareVersion() const;
 
+    bool isQueryInProgress() const;
 
     /* Actions available from the GUI.
      * Applies to the currently active device. */
@@ -116,6 +118,7 @@ signals:
     void currentDeviceChanged();
     void backendStateChanged();
     void firmwareUpdateStateChanged();
+    void isQueryInProgressChanged();
 
 private slots:
     void onCurrentDeviceChanged();

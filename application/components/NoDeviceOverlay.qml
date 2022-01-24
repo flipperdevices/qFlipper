@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.15
 
 import Theme 1.0
+import QFlipper 1.0
 
 Item {
     id: overlay
@@ -36,5 +37,37 @@ Item {
 
         font.family: "Born2bSportyV2"
         font.pixelSize: 48
+    }
+
+    Image {
+        id: spinner
+
+        anchors.rightMargin: 31
+        anchors.bottomMargin: 21
+
+        anchors.right: overlay.right
+        anchors.bottom: overlay.bottom
+
+        source: "qrc:/assets/gfx/images/spinner.svg"
+        sourceSize: Qt.size(24, 24)
+
+        opacity: Backend.isQueryInProgress
+
+        PropertyAnimation {
+            target: spinner
+            duration: 1500
+            loops: Animation.Infinite
+            property: "rotation"
+            running: Backend.isQueryInProgress
+            from: 0
+            to: 360
+        }
+
+        Behavior on opacity {
+            PropertyAnimation {
+                easing.type: Easing.InOutQuad
+                duration: 150
+            }
+        }
     }
 }

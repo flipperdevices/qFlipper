@@ -92,6 +92,11 @@ const Updates::VersionInfo ApplicationBackend::latestFirmwareVersion() const
     return m_firmwareUpdateRegistry->latestVersion();
 }
 
+bool ApplicationBackend::isQueryInProgress() const
+{
+    return m_deviceRegistry->isQueryInProgress();
+}
+
 void ApplicationBackend::mainAction()
 {
     AbstractOperationHelper *helper;
@@ -251,6 +256,7 @@ void ApplicationBackend::initConnections()
     connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::onCurrentDeviceChanged);
 
     connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
+    connect(m_deviceRegistry, &DeviceRegistry::isQueryInProgressChanged, this, &ApplicationBackend::isQueryInProgressChanged);
     connect(m_firmwareUpdateRegistry, &UpdateRegistry::latestVersionChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
 
     connect(m_deviceRegistry, &DeviceRegistry::errorChanged, this, &ApplicationBackend::onDeviceRegistryErrorChanged);

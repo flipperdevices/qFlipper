@@ -107,5 +107,6 @@
         <file>components/TextBox.qml</file>
         <file>imports/Strings/qmldir</file>
         <file>imports/Strings/Strings.qml</file>
+        <file>assets/gfx/images/spinner.svg</file>
     </qresource>
 </RCC>

@@ -31,7 +31,10 @@ public:
     DeviceRegistryError error() const;
     void clearError();
 
+    bool isQueryInProgress() const;
+
 signals:
+    void isQueryInProgressChanged();
     void currentDeviceChanged();
     void deviceCountChanged();
     void errorChanged();
@@ -46,9 +49,11 @@ private slots:
 
 private:
     void setError(DeviceRegistryError newError);
+    void setQueryInProgress(bool set);
 
     DeviceList m_devices;
     DeviceRegistryError m_error;
+    bool m_isQueryInProgress;
 };
 
 }
