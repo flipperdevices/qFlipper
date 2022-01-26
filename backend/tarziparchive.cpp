@@ -19,18 +19,18 @@ TarZipArchive::TarZipArchive(QFile *tarZipFile, QObject *parent):
     auto *uncompressor = new GZipUncompressor(tarZipFile, m_tarFile, this);
 
     if(uncompressor->isError()) {
-        setError(QStringLiteral("Failed to uncompress *tar.gz file: %1").arg(uncompressor->errorString()));
+        setErrorString(QStringLiteral("Failed to uncompress *tar.gz file: %1").arg(uncompressor->errorString()));
         return;
     }
 
     connect(uncompressor, &GZipUncompressor::finished, this, [=]() {
         if(uncompressor->isError()) {
-            setError(QStringLiteral("Failed to uncompress *tar.gz file: %1").arg(uncompressor->errorString()));
+            setErrorString(QStringLiteral("Failed to uncompress *tar.gz file: %1").arg(uncompressor->errorString()));
         } else {
             m_archiveIndex = new TarArchive(m_tarFile);
 
             if(m_archiveIndex->isError()) {
-                setError(QStringLiteral("Failed to build archive index: %1").arg(m_archiveIndex->errorString()));
+                setErrorString(QStringLiteral("Failed to build archive index: %1").arg(m_archiveIndex->errorString()));
             }
         }
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "signalingfailable.h"
-
 #include <QQueue>
 #include <QObject>
 

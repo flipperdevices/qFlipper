@@ -28,14 +28,14 @@ RemoteFileFetcher::RemoteFileFetcher(const Flipper::Updates::FileInfo &fileInfo,
 bool RemoteFileFetcher::fetch(const QString &remoteUrl, QIODevice *outputFile)
 {
     if(!outputFile->open(QIODevice::WriteOnly)) {
-        setError(QStringLiteral("Failed to open file for writing: %1.").arg(outputFile->errorString()));
+        setErrorString(QStringLiteral("Failed to open file for writing: %1.").arg(outputFile->errorString()));
         return false;
     }
 
     auto *reply = m_manager->get(QNetworkRequest(remoteUrl));
 
     if(reply->error() != QNetworkReply::NoError) {
-        setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
+        setErrorString(QStringLiteral("Network error: %1").arg(reply->errorString()));
 
         reply->deleteLater();
         return false;
@@ -46,11 +46,11 @@ bool RemoteFileFetcher::fetch(const QString &remoteUrl, QIODevice *outputFile)
         outputFile->close();
 
         if(reply->error() != QNetworkReply::NoError) {
-            setError(QStringLiteral("Network error: %1").arg(reply->errorString()));
+            setErrorString(QStringLiteral("Network error: %1").arg(reply->errorString()));
 
         } else if(!m_expectedChecksum.isEmpty()) {
             if(!outputFile->open(QIODevice::ReadOnly)) {
-                setError(QStringLiteral("Failed to open file for reading: %1.").arg(outputFile->errorString()));
+                setErrorString(QStringLiteral("Failed to open file for reading: %1.").arg(outputFile->errorString()));
                 return;
             }
 
@@ -58,7 +58,7 @@ bool RemoteFileFetcher::fetch(const QString &remoteUrl, QIODevice *outputFile)
             hash.addData(outputFile);
 
             if(hash.result().toHex() != m_expectedChecksum) {
-                setError(QStringLiteral("File integrity check failed"));
+                setErrorString(QStringLiteral("File integrity check failed"));
             }
 
             outputFile->close();

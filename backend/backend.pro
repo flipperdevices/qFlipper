@@ -16,6 +16,7 @@ SOURCES += \
     abstractserialoperation.cpp \
     applicationbackend.cpp \
     deviceregistry.cpp \
+    failable.cpp \
     filenode.cpp \
     firmwareupdateregistry.cpp \
     flipperupdates.cpp \

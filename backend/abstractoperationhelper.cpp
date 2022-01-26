@@ -17,7 +17,7 @@ void AbstractOperationHelper::finish()
 
 void AbstractOperationHelper::finishWithError(const QString &errorMessage)
 {
-    setError(errorMessage);
+    setErrorString(errorMessage);
     finish();
 }
 

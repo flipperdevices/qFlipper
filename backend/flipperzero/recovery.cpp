@@ -44,7 +44,7 @@ bool Recovery::exitRecoveryMode()
     end_ignore_block();
 
     if(!success) {
-        setError("Failed to exit recovery mode");
+        setErrorString("Failed to exit recovery mode");
     }
 
     return success;
@@ -61,14 +61,14 @@ bool Recovery::setBootMode(BootMode mode)
     STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
     if(!device.beginTransaction()) {
-        setError("Can't set boot mode: Failed to initiate transaction.");
+        setErrorString("Can't set boot mode: Failed to initiate transaction.");
         return false;
     }
 
     auto ob = device.optionBytes();
 
     if(!ob.isValid()) {
-        setError("Can't set boot mode: Failed to read option bytes.");
+        setErrorString("Can't set boot mode: Failed to read option bytes.");
         return false;
     }
 
@@ -78,7 +78,7 @@ bool Recovery::setBootMode(BootMode mode)
     const auto success = device.setOptionBytes(ob);
 
     if(!success) {
-        setError("Can't set boot mode: Failed to set option bytes");
+        setErrorString("Can't set boot mode: Failed to set option bytes");
     }
 
     begin_ignore_block();
@@ -140,7 +140,7 @@ bool Recovery::startFUS()
     STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
     if(!device.beginTransaction()) {
-        setError("Can't start FUS: Failed to initiate transaction.");
+        setErrorString("Can't start FUS: Failed to initiate transaction.");
         return false;
     }
 
@@ -148,7 +148,7 @@ bool Recovery::startFUS()
     auto success = state.isValid();
 
     if(!success) {
-        setError("Can't start FUS: Failed to get FUS state.");
+        setErrorString("Can't start FUS: Failed to get FUS state.");
 
     } else if((state.status() == FUSState::Idle) && (state.error() == FUSState::NoError)) {
         debug_msg("FUS is already RUNNING, rebooting for consistency...");
@@ -186,7 +186,7 @@ bool Recovery::startWirelessStack()
     check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
 
     if(!success) {
-        setError("Failed to start wireless stack.");
+        setErrorString("Failed to start wireless stack.");
     }
 
     return success;
@@ -201,7 +201,7 @@ bool Recovery::deleteWirelessStack()
     const auto success = device.beginTransaction() && device.FUSFwDelete() && device.endTransaction();
 
     if(!success) {
-        setError("Can't delete old co-processor firmware: Failed to initiate wireless stack firmware removal.");
+        setErrorString("Can't delete old co-processor firmware: Failed to initiate wireless stack firmware removal.");
     }
 
     return success;
@@ -210,11 +210,11 @@ bool Recovery::deleteWirelessStack()
 bool Recovery::downloadFirmware(QIODevice *file)
 {
     if(!file->open(QIODevice::ReadOnly)) {
-        setError("Can't download firmware: Failed to open the file.");
+        setErrorString("Can't download firmware: Failed to open the file.");
         return false;
 
     } else if(file->bytesAvailable() <= 0) {
-        setError("Can't download firmware: The file is empty.");
+        setErrorString("Can't download firmware: The file is empty.");
         return false;
 
     } else {
@@ -233,7 +233,7 @@ bool Recovery::downloadFirmware(QIODevice *file)
     const auto success = dev.beginTransaction() && dev.download(&fw) && dev.endTransaction();
 
     if(!success) {
-        setError("Can't download firmware: An error has occured during the operation.");
+        setErrorString("Can't download firmware: An error has occured during the operation.");
     }
 
     return success;
@@ -244,11 +244,11 @@ bool Recovery::downloadWirelessStack(QIODevice *file, uint32_t addr)
     debug_msg("Attempting to download CO-PROCESSOR firmware image...");
 
     if(!file->open(QIODevice::ReadOnly)) {
-        setError("Can't download co-processor firmware image: Failed to open file.");
+        setErrorString("Can't download co-processor firmware image: Failed to open file.");
         return false;
 
     } else if(!file->bytesAvailable()) {
-        setError("Can't download co-processor firmware image: File is empty.");
+        setErrorString("Can't download co-processor firmware image: File is empty.");
         return false;
 
     } else {
@@ -258,7 +258,7 @@ bool Recovery::downloadWirelessStack(QIODevice *file, uint32_t addr)
     STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
     if(!device.beginTransaction()) {
-        setError("Can't download co-processor firmware image: Failed to initiate transaction.");
+        setErrorString("Can't download co-processor firmware image: Failed to initiate transaction.");
         return false;
     }
 
@@ -266,7 +266,7 @@ bool Recovery::downloadWirelessStack(QIODevice *file, uint32_t addr)
         const auto ob = device.optionBytes();
 
         if(!ob.isValid()) {
-            setError("Can't download co-processor firmware image: Failed to read Option Bytes.");
+            setErrorString("Can't download co-processor firmware image: Failed to read Option Bytes.");
             return false;
         }
 
@@ -289,11 +289,11 @@ bool Recovery::downloadWirelessStack(QIODevice *file, uint32_t addr)
     bool success;
 
     if(!(success = device.erase(addr, file->bytesAvailable()))) {
-        setError("Can't download co-processor firmware image: Failed to erase the internal memory.");
+        setErrorString("Can't download co-processor firmware image: Failed to erase the internal memory.");
     } else if(!(success = device.download(file, addr, 0))) {
-        setError("Can't download co-processor firmware image: Failed to write the internal memory.");
+        setErrorString("Can't download co-processor firmware image: Failed to write the internal memory.");
     } else if(!(success = device.endTransaction())) {
-        setError("Can't download co-processor firmware image: Failed to end transaction.");
+        setErrorString("Can't download co-processor firmware image: Failed to end transaction.");
     } else {}
 
     file->close();
@@ -311,7 +311,7 @@ bool Recovery::upgradeWirelessStack()
     check_continue(device.endTransaction(), "^^^ It's probably nothing at this point... ^^^");
 
     if(!success) {
-        setError("Can't upgrade Co-Processor firmware: Failed to initiate installation.");
+        setErrorString("Can't upgrade Co-Processor firmware: Failed to initiate installation.");
     } else {
         m_deviceState->setStatusString("Upgrading Co-Processor firmware, please wait...");
     }
@@ -324,14 +324,14 @@ bool Recovery::checkWirelessStack()
     STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
     if(!device.beginTransaction()) {
-        setError(QStringLiteral("Failed to read co-processor firmware version info"));
+        setErrorString(QStringLiteral("Failed to read co-processor firmware version info"));
         return false;
     }
 
     const auto versionInfo = device.versionInfo();
 
     if(!device.endTransaction()) {
-        setError(QStringLiteral("Failed to read co-processor firmware version info"));
+        setErrorString(QStringLiteral("Failed to read co-processor firmware version info"));
         return false;
     }
 
@@ -366,7 +366,7 @@ bool Recovery::downloadOptionBytes(QIODevice *file)
         success = device.leave();
 
         if(!success) {
-            setError("Can't set boot mode: Failed to leave the Recovery mode.");
+            setErrorString("Can't set boot mode: Failed to leave the Recovery mode.");
         }
 
     } else {
@@ -380,7 +380,7 @@ bool Recovery::downloadOptionBytes(QIODevice *file)
         success = device.setOptionBytes(actual.corrected(diff));
 
         if(!success) {
-            setError("Can't set boot mode: Failed to set option bytes");
+            setErrorString("Can't set boot mode: Failed to set option bytes");
         }
     }
 

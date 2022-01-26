@@ -41,7 +41,7 @@ void AbstractOperationRunner::processQueue()
         if(operation->isError()) {
             qCCritical(loggingCategory()).noquote() << operation->description() << "ERROR:" << operation->errorString();
 
-            setError(operation->errorString());
+            setErrorString(operation->errorString());
 
             clearQueue();
             processQueue();

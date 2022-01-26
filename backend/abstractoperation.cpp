@@ -43,7 +43,7 @@ void AbstractOperation::setOperationState(int state)
 
 void AbstractOperation::finishWithError(const QString &errorMsg)
 {
-    setError(errorMsg);
+    setErrorString(errorMsg);
     finish();
 }
 

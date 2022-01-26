@@ -40,7 +40,7 @@ TarArchive::TarArchive(QIODevice *file):
     m_root(new FileNode("", FileNode::Type::Directory))
 {
     if(!m_tarFile->open(QIODevice::ReadOnly)) {
-        setError(m_tarFile->errorString());
+        setErrorString(m_tarFile->errorString());
     } else {
         buildIndex();
     }
@@ -57,22 +57,22 @@ FileNode *TarArchive::file(const QString &fullName)
 QByteArray TarArchive::fileData(const QString &fullName)
 {
     if(!m_tarFile) {
-        setError(QStringLiteral("Archive file not set"));
+        setErrorString(QStringLiteral("Archive file not set"));
         return QByteArray();
 
     } else if(!m_tarFile->isOpen()) {
-        setError(QStringLiteral("Archive file is not open"));
+        setErrorString(QStringLiteral("Archive file is not open"));
         return QByteArray();
     }
 
     auto *node = file(fullName);
     if(!node) {
-        setError(QStringLiteral("File not found"));
+        setErrorString(QStringLiteral("File not found"));
         return QByteArray();
     }
 
     if(!node->userData().canConvert<FileInfo>()) {
-        setError(QStringLiteral("No valid FileData found in the node."));
+        setErrorString(QStringLiteral("No valid FileData found in the node."));
         return QByteArray();
     }
 
@@ -83,7 +83,7 @@ QByteArray TarArchive::fileData(const QString &fullName)
         return m_tarFile->read(data.size);
 
     } else {
-        setError(m_tarFile->errorString());
+        setErrorString(m_tarFile->errorString());
         return QByteArray();
     }
 }
@@ -97,7 +97,7 @@ void TarArchive::buildIndex()
         const auto n = m_tarFile->read((char*)&header, sizeof(TarHeader));
 
         if(n != sizeof(TarHeader)) {
-            setError(QStringLiteral("Archive file is truncated"));
+            setErrorString(QStringLiteral("Archive file is truncated"));
             return;
 
         } else if(isMemZeros((char*)&header, sizeof(TarHeader))) {
@@ -108,7 +108,7 @@ void TarArchive::buildIndex()
             }
 
         } else if(strncmp(header.magic, "ustar", 5)) {
-            setError(QStringLiteral("Tar magic constant not found."));
+            setErrorString(QStringLiteral("Tar magic constant not found."));
             return;
         }
 
@@ -127,7 +127,7 @@ void TarArchive::buildIndex()
             m_root->addDirectory(fileName.chopped(1));
 
         } else {
-            setError(QStringLiteral("Only regular files and directories are supported"));
+            setErrorString(QStringLiteral("Only regular files and directories are supported"));
             return;
         }
 

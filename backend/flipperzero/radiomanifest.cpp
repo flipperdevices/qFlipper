@@ -231,14 +231,14 @@ const RadioManifest::RadioSection &RadioManifest::FirmwareInfo::radio() const
 RadioManifest::RadioManifest(const QByteArray &text)
 {
     if(text.isEmpty()) {
-        setError("JSON text is empty");
+        setErrorString("JSON text is empty");
         return;
     }
 
     const auto doc = QJsonDocument::fromJson(text);
 
     if(!doc.isObject()) {
-        setError("Expected RadioManifest to be a JSON object");
+        setErrorString("Expected RadioManifest to be a JSON object");
         return;
     }
 
@@ -246,7 +246,7 @@ RadioManifest::RadioManifest(const QByteArray &text)
     const auto canConstruct = obj.contains(QStringLiteral("manifest")) &&
                               obj.contains(QStringLiteral("copro"));
     if(!canConstruct) {
-        setError("Malformed RadioManifest");
+        setErrorString("Malformed RadioManifest");
         return;
     }
 
@@ -255,7 +255,7 @@ RadioManifest::RadioManifest(const QByteArray &text)
         m_firmware = FirmwareInfo(obj.value(QStringLiteral("copro")));
 
     } catch(const std::runtime_error &e) {
-        setError(e.what());
+        setErrorString(e.what());
     }
 }
 

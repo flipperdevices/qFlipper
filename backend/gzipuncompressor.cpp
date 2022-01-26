@@ -17,11 +17,11 @@ GZipUncompressor::GZipUncompressor(QIODevice *in, QIODevice *out, QObject *paren
     m_progress(0)
 {
     if(!m_in->open(QIODevice::ReadOnly)) {
-        setError(m_in->errorString());
+        setErrorString(m_in->errorString());
         return;
 
     } else if(!m_out->open(QIODevice::WriteOnly)) {
-        setError(m_out->errorString());
+        setErrorString(m_out->errorString());
         return;
     }
 
@@ -57,7 +57,7 @@ void GZipUncompressor::setProgress(double progress)
 void GZipUncompressor::doUncompress()
 {
     if(m_in->bytesAvailable() <= 4) {
-        setError(QStringLiteral("The input file is empty"));
+        setErrorString(QStringLiteral("The input file is empty"));
         return;
     }
 
@@ -73,7 +73,7 @@ void GZipUncompressor::doUncompress()
 
     const auto err = inflateInit2(&stream, 15 + 16);
     if(err != Z_OK) {
-        setError(QStringLiteral("Failed to initialise deflate method"));
+        setErrorString(QStringLiteral("Failed to initialise deflate method"));
         return;
     }
 
@@ -94,7 +94,7 @@ void GZipUncompressor::doUncompress()
 
             if(errorOccured) {
                 inflateEnd(&stream);
-                setError(QStringLiteral("Error during uncompression"));
+                setErrorString(QStringLiteral("Error during uncompression"));
                 return;
             }
 
