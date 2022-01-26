@@ -191,7 +191,6 @@ HEADERS += \
     preferences.h \
     remotefilefetcher.h \
     serialfinder.h \
-    signalingfailable.h \
     simpleserialoperation.h \
     tararchive.h \
     tarziparchive.h \

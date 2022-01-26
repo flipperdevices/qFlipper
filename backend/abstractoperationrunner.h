@@ -3,10 +3,13 @@
 #include "signalingfailable.h"
 
 #include <QQueue>
+#include <QObject>
+
+#include "failable.h"
 
 class AbstractOperation;
 
-class AbstractOperationRunner : public SignalingFailable
+class AbstractOperationRunner : public QObject, public Failable
 {
     Q_OBJECT
 

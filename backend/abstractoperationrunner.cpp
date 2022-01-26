@@ -9,7 +9,7 @@
 Q_LOGGING_CATEGORY(CATEGORY_DEFAULT, "DEFAULT")
 
 AbstractOperationRunner::AbstractOperationRunner(QObject *parent):
-    SignalingFailable(parent),
+    QObject(parent),
     m_state(State::Idle)
 {}
 
