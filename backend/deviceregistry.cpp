@@ -20,7 +20,7 @@ using namespace Flipper;
 
 DeviceRegistry::DeviceRegistry(QObject *parent):
     QObject(parent),
-    m_error(DeviceRegistryError::NoError),
+    m_error(BackendError::UnknownError),
     m_isQueryInProgress(false)
 {
     connect(USBDeviceDetector::instance(), &USBDeviceDetector::devicePluggedIn, this, &DeviceRegistry::insertDevice);
@@ -44,14 +44,14 @@ int DeviceRegistry::deviceCount() const
     return m_devices.size();
 }
 
-DeviceRegistry::DeviceRegistryError DeviceRegistry::error() const
+BackendError::ErrorType DeviceRegistry::error() const
 {
     return m_error;
 }
 
 void DeviceRegistry::clearError()
 {
-    setError(DeviceRegistryError::NoError);
+    setError(BackendError::UnknownError);
 }
 
 bool DeviceRegistry::isQueryInProgress() const
@@ -66,11 +66,11 @@ void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
             << "Invalid device detected: VID_0x" << QString::number(info.vendorID(), 16) << ":PID_0x"
             << QString::number(info.productID(), 16) << ", ignoring it";
 
-        setError(DeviceRegistryError::InvalidDevice);
+        setError(BackendError::InvalidDevice);
 
     } else if(info.vendorID() != FLIPPER_ZERO_VID) {
         qCDebug(LOG_DEVREG) << "Unexpected device VID and PID";
-        setError(DeviceRegistryError::InvalidDevice);
+        setError(BackendError::InvalidDevice);
 
     } else {
         setQueryInProgress(true);
@@ -136,7 +136,7 @@ void DeviceRegistry::processDevice()
 
     if(fetcher->isError()) {
         qCDebug(LOG_DEVREG).noquote() << "Device initialization failed:" << fetcher->errorString();
-        setError(info.usbInfo.productID() == 0xdf11 ? RecoveryError : SerialError);
+        setError(info.usbInfo.productID() == 0xdf11 ? BackendError::RecoveryError : BackendError::SerialError);
         return;
     }
 
@@ -163,7 +163,7 @@ void DeviceRegistry::processDevice()
     }
 }
 
-void DeviceRegistry::setError(DeviceRegistryError newError)
+void DeviceRegistry::setError(BackendError::ErrorType newError)
 {
     if(m_error == newError) {
         return;

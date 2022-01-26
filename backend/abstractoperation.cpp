@@ -47,11 +47,6 @@ void AbstractOperation::finishWithError(BackendError::ErrorType error, const QSt
     finish();
 }
 
-//void AbstractOperation::finishWithError(const QString &errorString)
-//{
-//    finishWithError(errorString, BackendError::UnknownError);
-//}
-
 void AbstractOperation::startTimeout()
 {
     m_timeoutTimer->start();

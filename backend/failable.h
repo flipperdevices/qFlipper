@@ -12,16 +12,16 @@ public:
     bool isError() const;
 
     BackendError::ErrorType error() const;
+
     void setError(BackendError::ErrorType error);
     void setError(BackendError::ErrorType error, const QString &errorString);
 
     const QString &errorString() const;
     void setErrorString(const QString &errorMessage);
 
-    void resetError();
+    void clearError();
 
 private:
-    bool m_isError;
     BackendError::ErrorType m_error;
     QString m_errorString;
 };

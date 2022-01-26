@@ -19,7 +19,7 @@ DeviceState::DeviceState(const DeviceInfo &deviceInfo, QObject *parent):
     m_isStreaming(false),
     m_isVirtualDisplay(false),
     m_isOnline(false),
-    m_isError(false),
+    m_error(BackendError::NoError),
     m_progress(-1.0)
 {
     connect(this, &DeviceState::deviceInfoChanged, this, &DeviceState::onDeviceInfoChanged);
@@ -85,17 +85,7 @@ void DeviceState::setOnline(bool set)
 
 bool DeviceState::isError() const
 {
-    return m_isError;
-}
-
-void DeviceState::setError(bool set)
-{
-    if(m_isError == set) {
-        return;
-    }
-
-    m_isError = set;
-    emit isErrorChanged();
+    return m_error != BackendError::NoError;
 }
 
 bool DeviceState::isRecoveryMode() const
@@ -168,14 +158,23 @@ const QString &DeviceState::errorString() const
     return m_errorString;
 }
 
-void DeviceState::setErrorString(const QString &newErrorString)
+BackendError::ErrorType DeviceState::error() const
 {
-    if(m_errorString == newErrorString) {
-        return;
-    }
+    return m_error;
+}
 
-    m_errorString = newErrorString;
-    m_isError = true;
+void DeviceState::setError(BackendError::ErrorType error, const QString &errorString)
+{
+    m_error = error;
+    m_errorString = errorString;
+
+    emit isErrorChanged();
+}
+
+void DeviceState::clearError()
+{
+    m_error = BackendError::NoError;
+    m_errorString.clear();
 
     emit isErrorChanged();
 }
@@ -209,7 +208,7 @@ void DeviceState::setScreenData(const QByteArray &data)
 
 void DeviceState::onDeviceInfoChanged()
 {
-    setError(false);
+    clearError();
     setProgress(-1.0);
 
     if(isRecoveryMode()) {
@@ -231,7 +230,7 @@ void DeviceState::createSerialPort()
     auto *helper = new SerialInitHelper(m_deviceInfo.portInfo, this);
     connect(helper, &AbstractOperationHelper::finished, this, [=]() {
         if(helper->isError()) {
-            setErrorString(tr("Failed to initialize serial port"));
+            setError(helper->error(), helper->errorString());
 
         } else {
             m_serialPort = helper->serialPort();

@@ -211,13 +211,14 @@ void ApplicationBackend::onCurrentDeviceChanged()
 
 void ApplicationBackend::onDeviceOperationFinished()
 {
-    // TODO: Some error handling?
     if(!device()) {
         qCDebug(LOG_BACKEND) << "Lost all connected devices";
+        setErrorType(BackendError::UnknownError);
         setBackendState(BackendState::ErrorOccured);
 
     } else if(device()->deviceState()->isError()) {
         qCDebug(LOG_BACKEND) << "Current operation finished with error:" << device()->deviceState()->errorString();
+        setErrorType(device()->deviceState()->error());
         setBackendState(BackendState::ErrorOccured);
 
     } else {
@@ -233,20 +234,9 @@ void ApplicationBackend::onDeviceRegistryErrorChanged()
 
     const auto err = m_deviceRegistry->error();
 
-    if(err == DeviceRegistry::NoError) {
-        return;
-    }
-
-    setBackendState(BackendState::ErrorOccured);
-
-    if(err == DeviceRegistry::InvalidDevice) {
-        setErrorType(BackendError::InvalidDevice);
-    } else if(err == DeviceRegistry::SerialError) {
-        setErrorType(BackendError::SerialError);
-    } else if(err == DeviceRegistry::RecoveryError) {
-        setErrorType(BackendError::RecoveryError);
-    } else {
-        setErrorType(BackendError::UnknownError);
+    if(err != BackendError::NoError) {
+        setErrorType(err);
+        setBackendState(BackendState::ErrorOccured);
     }
 }
 

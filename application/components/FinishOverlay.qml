@@ -53,11 +53,13 @@ AbstractOverlay {
                     case BackendError.SerialError:
                         return qsTr("Serial Port Error")
                     case BackendError.RecoveryError:
-                        return qsTr("USB Connection Error")
-//                    case BackendError.ProtocolError:
-//                        return qsTr("Communication Error")
+                        return qsTr("Recovery Error")
+                    case BackendError.ProtocolError:
+                        return qsTr("Communication Error")
                     case BackendError.DiskError:
                         return qsTr("Disk Access Error")
+                    case BackendError.TimeoutError:
+                        return qsTr("Timeour Error")
                     case BackendError.UnknownError:
                     default:
                         return qsTr("Unknown Error")

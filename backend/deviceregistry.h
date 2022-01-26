@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QVector>
 
+#include "backenderror.h"
 #include "usbdeviceinfo.h"
 
 namespace Flipper {
@@ -16,19 +17,12 @@ class DeviceRegistry : public QObject
     using DeviceList = QVector<FlipperZero*>;
 
 public:
-    enum DeviceRegistryError {
-        NoError,
-        InvalidDevice,
-        SerialError,
-        RecoveryError
-    };
-
     DeviceRegistry(QObject *parent = nullptr);
 
     FlipperZero *currentDevice() const;
     int deviceCount() const;
 
-    DeviceRegistryError error() const;
+    BackendError::ErrorType error() const;
     void clearError();
 
     bool isQueryInProgress() const;
@@ -48,11 +42,11 @@ private slots:
     void processDevice();
 
 private:
-    void setError(DeviceRegistryError newError);
+    void setError(BackendError::ErrorType newError);
     void setQueryInProgress(bool set);
 
     DeviceList m_devices;
-    DeviceRegistryError m_error;
+    BackendError::ErrorType m_error;
     bool m_isQueryInProgress;
 };
 

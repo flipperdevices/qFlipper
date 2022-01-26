@@ -5,6 +5,7 @@
 #include <QObject>
 
 #include "deviceinfo.h"
+#include "backenderror.h"
 
 namespace Flipper {
 namespace Zero {
@@ -40,7 +41,6 @@ public:
     void setOnline(bool set);
 
     bool isError() const;
-    void setError(bool set);
 
     bool isRecoveryMode() const;
 
@@ -57,7 +57,10 @@ public:
     void setStatusString(const QString &newStatusString);
 
     const QString &errorString() const;
-    void setErrorString(const QString &newErrorString);
+
+    BackendError::ErrorType error() const;
+    void setError(BackendError::ErrorType error, const QString &errorString);
+    void clearError();
 
     //TODO: Replace with deviceInfo().name
     const QString &name() const;
@@ -98,8 +101,8 @@ private:
     bool m_isStreaming;
     bool m_isVirtualDisplay;
     bool m_isOnline;
-    bool m_isError;
 
+    BackendError::ErrorType m_error;
     QString m_statusString;
     QString m_errorString;
     QByteArray m_screenData;

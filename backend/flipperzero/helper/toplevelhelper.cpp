@@ -31,7 +31,7 @@ void AbstractTopLevelHelper::onUpdateRegistryStateChanged()
     if(m_updateRegistry->state() == UpdateRegistry::State::ErrorOccured) {
         // Maintaining the single point of exit (ugly)
         // TODO: Refactor the code to use finished signal properly
-        m_device->deviceState()->setErrorString(QStringLiteral("Failed to retreive update information"));
+        m_device->deviceState()->setError(BackendError::InternetError, QStringLiteral("Failed to retreive update information"));
         emit m_device->operationFinished();
 
     } else if(m_updateRegistry->state() == UpdateRegistry::State::Ready) {

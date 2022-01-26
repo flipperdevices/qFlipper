@@ -7,12 +7,14 @@ class BackendError {
 
 public:
     enum ErrorType {
+        NoError,
         InternetError,  // Cannot connect to update server or the server replied with error
         InvalidDevice,  // Cannot determine device type
         SerialError,    // Cannot open the serial port (access/driver issues)
         RecoveryError,  // Cannot open the DFU device (access/driver issues)
         ProtocolError,  // Received an error, unexpected or not implemented RPC response
         DiskError,      // Cannot read/write to the disk
+        TimeoutError,   // The operation took too long to execute
         UnknownError    // ¯\_(ツ)_/¯
     };
 

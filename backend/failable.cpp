@@ -2,12 +2,12 @@
 
 Failable::Failable()
 {
-    resetError();
+    clearError();
 }
 
 bool Failable::isError() const
 {
-    return m_isError;
+    return m_error != BackendError::NoError;
 }
 
 BackendError::ErrorType Failable::error() const
@@ -17,13 +17,11 @@ BackendError::ErrorType Failable::error() const
 
 void Failable::setError(BackendError::ErrorType error)
 {
-    m_isError = true;
     m_error = error;
 }
 
 void Failable::setError(BackendError::ErrorType error, const QString &errorString)
 {
-    m_isError = true;
     m_error = error;
     m_errorString = errorString;
 }
@@ -35,13 +33,12 @@ const QString &Failable::errorString() const
 
 void Failable::setErrorString(const QString &errorMessage)
 {
-    m_isError = true;
+    m_error = BackendError::UnknownError;
     m_errorString = errorMessage;
 }
 
-void Failable::resetError()
+void Failable::clearError()
 {
-    m_isError = false;
-    m_error = BackendError::UnknownError;
+    m_error = BackendError::NoError;
     m_errorString = QStringLiteral("No Error");
 }

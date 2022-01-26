@@ -191,8 +191,7 @@ void FlipperZero::finalizeOperation()
     // 4. Start screen streaming
 
     if(m_state->isError()) {
-        m_state->setError(false);
-        m_state->setErrorString("");
+        m_state->clearError();
     }
 
     if(!m_state->isRecoveryMode()) {
@@ -219,7 +218,7 @@ void FlipperZero::registerOperation(AbstractOperation *operation)
             const auto &errorString = operation->errorString();
 
             qCCritical(CAT_DEVICE).noquote() << operation->description() << "ERROR:" << errorString;
-            m_state->setErrorString(errorString);
+            m_state->setError(operation->error(), operation->errorString());
 
         } else {
             m_virtualDisplay->sendFrame(QByteArray((char*)update_ok_bits, sizeof(update_ok_bits)));
