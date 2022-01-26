@@ -14,7 +14,7 @@ ColumnLayout {
 
     TransparentLabel {
         color: Theme.color.lightorange2
-        text: qsTr("Proceed with extreme caution")
+        text: qsTr("Developer Mode")
     }
 
     SmallButtonRed {
@@ -45,11 +45,6 @@ ColumnLayout {
             text: qsTr("Install a custom FUS firmware. !!MEGA WARNING!! It WILL result in encryption keys loss!")
             implicitWidth: 250
         }
-    }
-
-    TransparentLabel {
-        color: Theme.color.lightorange2
-        text: qsTr("Proceed with extreme caution")
     }
 
     Action {

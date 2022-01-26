@@ -23,7 +23,7 @@ Q_LOGGING_CATEGORY(CATEGORY_APP, "APP")
 Application::Application(int &argc, char **argv):
     QApplication(argc, argv),
     m_updateRegistry(globalPrefs->checkApplicationUpdates() ? QStringLiteral("https://update.flipperzero.one/qFlipper/directory.json") : QString()),
-    m_dangerFeaturesEnabled(QGuiApplication::queryKeyboardModifiers() & Qt::KeyboardModifier::AltModifier),
+    m_isDeveloperMode(QGuiApplication::queryKeyboardModifiers() & Qt::KeyboardModifier::AltModifier),
     m_updateStatus(UpdateStatus::NoUpdates)
 {
     initConnections();
@@ -37,8 +37,8 @@ Application::Application(int &argc, char **argv):
 
     qCInfo(CATEGORY_APP).noquote() << APP_NAME << "version" << APP_VERSION << "commit"
                                    << APP_COMMIT << QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).toString(Qt::ISODate);
-    if(m_dangerFeaturesEnabled) {
-        qCCritical(CATEGORY_APP) << "Dangerous features enabled! Please be careful.";
+    if(m_isDeveloperMode) {
+        qCCritical(CATEGORY_APP) << "Developer mode is enabled! Please be careful.";
     }
 }
 
@@ -57,9 +57,9 @@ const QString Application::commitNumber()
     return APP_COMMIT;
 }
 
-bool Application::isDangerousFeaturesEnabled() const
+bool Application::isDeveloperMode() const
 {
-    return m_dangerFeaturesEnabled;
+    return m_isDeveloperMode;
 }
 
 Application::UpdateStatus Application::updateStatus() const

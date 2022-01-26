@@ -96,8 +96,7 @@
         <file>components/SelfUpdateDialog.qml</file>
         <file>assets/gfx/images/alert-badge.svg</file>
         <file>assets/gfx/images/success.svg</file>
-        <file>assets/gfx/symbolic/skull.svg</file>
-        <file>components/AdvancedDeviceActions.qml</file>
+        <file>components/DeveloperActions.qml</file>
         <file>assets/gfx/images/error-access.svg</file>
         <file>assets/gfx/images/error-client.svg</file>
         <file>assets/gfx/images/error-cross-eyes.svg</file>
@@ -108,5 +107,6 @@
         <file>imports/Strings/qmldir</file>
         <file>imports/Strings/Strings.qml</file>
         <file>assets/gfx/images/spinner.svg</file>
+        <file>assets/gfx/symbolic/developer-mode.svg</file>
     </qresource>
 </RCC>

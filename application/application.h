@@ -16,7 +16,7 @@ class Application : public QApplication
 
     Q_PROPERTY(ApplicationUpdater* updater READ updater CONSTANT)
 
-    Q_PROPERTY(bool dangerousFeatures READ isDangerousFeaturesEnabled CONSTANT)
+    Q_PROPERTY(bool isDeveloperMode READ isDeveloperMode CONSTANT)
     Q_PROPERTY(UpdateStatus updateStatus READ updateStatus NOTIFY updateStatusChanged)
 
 public:
@@ -34,7 +34,7 @@ public:
     ApplicationUpdater *updater();
 
     static const QString commitNumber();
-    bool isDangerousFeaturesEnabled() const;
+    bool isDeveloperMode() const;
     UpdateStatus updateStatus() const;
 
     Q_INVOKABLE void selfUpdate();
@@ -63,7 +63,7 @@ private:
     ApplicationBackend m_backend;
     QQmlApplicationEngine m_engine;
 
-    bool m_dangerFeaturesEnabled;
+    bool m_isDeveloperMode;
     UpdateStatus m_updateStatus;
 };
 

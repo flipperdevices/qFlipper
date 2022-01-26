@@ -16,15 +16,15 @@ AbstractOverlay {
 
     TabButton {
         id: dangerTab
-        icon.source: "qrc:/assets/gfx/symbolic/skull.svg"
+        icon.source: "qrc:/assets/gfx/symbolic/developer-mode.svg"
         icon.width: 27
         icon.height: 27
 
-        enabled: App.dangerousFeatures
-        visible: App.dangerousFeatures
+        enabled: App.isDeveloperMode
+        visible: App.isDeveloperMode
 
         ToolTip {
-            text: qsTr("Wanna have a bad time?")
+            text: qsTr("Developer mode. Use with caution!")
             visible: parent.hovered
         }
     }
@@ -63,7 +63,7 @@ AbstractOverlay {
         items: [
             DeviceInfo { id: deviceInfoPane },
             DeviceActions { id: deviceActions },
-            AdvancedDeviceActions { id: advDeviceActions }
+            DeveloperActions { id: developerActions }
         ]
     }
 
@@ -437,10 +437,10 @@ AbstractOverlay {
         deviceActions.eraseAction.triggered.connect(eraseDevice);
         deviceActions.reinstallAction.triggered.connect(reinstallFirmware);
         deviceActions.selfUpdateAction.triggered.connect(selfUpdateRequested);
-        advDeviceActions.installRadioAction.triggered.connect(installWirelessStack);
-        advDeviceActions.installFusAction.triggered.connect(installFUSDangerDanger);
+        developerActions.installRadioAction.triggered.connect(installWirelessStack);
+        developerActions.installFusAction.triggered.connect(installFUSDangerDanger);
 
-        if(App.dangerousFeatures) {
+        if(App.isDeveloperMode) {
             tabs.addItem(dangerTab);
         }
     }
