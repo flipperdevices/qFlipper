@@ -11,7 +11,6 @@ public:
         InvalidDevice,  // Cannot determine device type
         SerialError,    // Cannot open the serial port (access/driver issues)
         RecoveryError,  // Cannot open the DFU device (access/driver issues)
-        ProtocolError,  // Cannot communicate via RPC protocol
         DiskError,      // Cannot read/write to the disk
         UnknownError    // ¯\_(ツ)_/¯
     };

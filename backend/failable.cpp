@@ -2,12 +2,23 @@
 
 Failable::Failable()
 {
-    resetErrorString();
+    resetError();
 }
 
 bool Failable::isError() const
 {
     return m_isError;
+}
+
+BackendError::ErrorType Failable::error() const
+{
+    return m_error;
+}
+
+void Failable::setError(BackendError::ErrorType error)
+{
+    m_isError = true;
+    m_error = error;
 }
 
 const QString &Failable::errorString() const
@@ -21,8 +32,9 @@ void Failable::setErrorString(const QString &errorMessage)
     m_errorString = errorMessage;
 }
 
-void Failable::resetErrorString()
+void Failable::resetError()
 {
     m_isError = false;
+    m_error = BackendError::UnknownError;
     m_errorString = QStringLiteral("No Error");
 }
