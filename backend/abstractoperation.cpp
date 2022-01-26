@@ -41,10 +41,16 @@ void AbstractOperation::setOperationState(int state)
     m_operationState = state;
 }
 
-void AbstractOperation::finishWithError(const QString &errorMsg)
+void AbstractOperation::finishWithError(const QString &errorString, BackendError::ErrorType error)
 {
-    setErrorString(errorMsg);
+    setError(error);
+    setErrorString(errorString);
     finish();
+}
+
+void AbstractOperation::finishWithError(const QString &errorString)
+{
+    finishWithError(errorString, BackendError::UnknownError);
 }
 
 void AbstractOperation::startTimeout()

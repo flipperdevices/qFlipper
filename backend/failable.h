@@ -13,6 +13,7 @@ public:
 
     BackendError::ErrorType error() const;
     void setError(BackendError::ErrorType error);
+    void setError(BackendError::ErrorType error, const QString &errorString);
 
     const QString &errorString() const;
     void setErrorString(const QString &errorMessage);

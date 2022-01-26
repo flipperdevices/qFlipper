@@ -21,6 +21,13 @@ void Failable::setError(BackendError::ErrorType error)
     m_error = error;
 }
 
+void Failable::setError(BackendError::ErrorType error, const QString &errorString)
+{
+    m_isError = true;
+    m_error = error;
+    m_errorString = errorString;
+}
+
 const QString &Failable::errorString() const
 {
     return m_errorString;

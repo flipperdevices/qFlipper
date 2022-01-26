@@ -39,7 +39,8 @@ protected slots:
 
 protected:
     void setOperationState(int state);
-    void finishWithError(const QString &errorMsg);
+    void finishWithError(const QString &errorString, BackendError::ErrorType error);
+    void finishWithError(const QString &errorString);
 
 private:
     QTimer *m_timeoutTimer;
