@@ -28,13 +28,13 @@ void ExitRecoveryOperation::nextStateLogic()
 
 void ExitRecoveryOperation::onOperationTimeout()
 {
-    finishWithError(QStringLiteral("Failed to exit recovery: Operation timeout"));
+    finishWithError(BackendError::RecoveryError, QStringLiteral("Failed to exit recovery: Operation timeout"));
 }
 
 void ExitRecoveryOperation::exitRecovery()
 {
     if(!recovery()->exitRecoveryMode()) {
-        finishWithError(recovery()->errorString());
+        finishWithError(BackendError::RecoveryError, recovery()->errorString());
     } else {
         startTimeout();
     }

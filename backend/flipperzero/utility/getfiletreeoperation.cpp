@@ -34,7 +34,7 @@ void GetFileTreeOperation::nextStateLogic()
         auto *op = qobject_cast<StorageListOperation*>(sender());
 
         if(op->isError()) {
-            finishWithError(op->errorString());
+            finishWithError(op->error(), op->errorString());
             return;
         }
 

@@ -27,7 +27,7 @@ void FirmwareDownloadOperation::nextStateLogic()
     } else if(operationState() == State::DownloadingFirmware) {
         finish();
     } else {
-        finishWithError(QStringLiteral("Unexpected state."));
+        finishWithError(BackendError::RecoveryError, QStringLiteral("Unexpected state."));
     }
 }
 
@@ -39,7 +39,7 @@ void FirmwareDownloadOperation::downloadFirmware()
         if(watcher->result()) {
             advanceOperationState();
         } else {
-            finishWithError(recovery()->errorString());
+            finishWithError(BackendError::RecoveryError, recovery()->errorString());
         }
 
         watcher->deleteLater();

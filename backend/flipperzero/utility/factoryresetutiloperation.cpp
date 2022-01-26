@@ -46,7 +46,7 @@ void FactoryResetUtilOperation::resetDevice()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->errorString());
+            finishWithError(operation->error(), operation->errorString());
         }
     });
 }

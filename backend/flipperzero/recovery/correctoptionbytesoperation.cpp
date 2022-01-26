@@ -36,7 +36,7 @@ void CorrectOptionBytesOperation::nextStateLogic()
 void CorrectOptionBytesOperation::onOperationTimeout()
 {
     if(!deviceState()->isOnline()) {
-        finishWithError(QStringLiteral("Failed to write corrected option bytes: Operation timeout"));
+        finishWithError(BackendError::RecoveryError, QStringLiteral("Failed to write corrected option bytes: Operation timeout"));
     } else {
         qCDebug(LOG_RECOVERY) << "Timeout while device is online, assuming it is still functional";
         advanceOperationState();
@@ -46,7 +46,7 @@ void CorrectOptionBytesOperation::onOperationTimeout()
 void CorrectOptionBytesOperation::correctOptionBytes()
 {
     if(!recovery()->downloadOptionBytes(m_file)) {
-        finishWithError(recovery()->errorString());
+        finishWithError(BackendError::RecoveryError, recovery()->errorString());
     } else {
         startTimeout();
     }

@@ -45,7 +45,7 @@ void UserBackupOperation::nextStateLogic()
 void UserBackupOperation::createBackupDirectory()
 {
     if(!m_deviceDirName.startsWith('/')) {
-        finishWithError(QStringLiteral("Expecting absolute path for device directory"));
+        finishWithError(BackendError::UnknownError, QStringLiteral("Expecting absolute path for device directory"));
         return;
     }
 
@@ -55,7 +55,7 @@ void UserBackupOperation::createBackupDirectory()
     if(targetDirInfo.isDir()) {
         QDir d(targetDirInfo.absoluteFilePath());
         if(!d.removeRecursively()) {
-            finishWithError(QStringLiteral("Failed to remove old directory (1)"));
+            finishWithError(BackendError::DiskError, QStringLiteral("Failed to remove old directory (1)"));
             return;
         }
 
@@ -64,7 +64,7 @@ void UserBackupOperation::createBackupDirectory()
 
         QFile f(targetDirInfo.absoluteFilePath());
         if(!f.remove()) {
-            finishWithError(QStringLiteral("Failed to remove old directory (2)"));
+            finishWithError(BackendError::DiskError, QStringLiteral("Failed to remove old directory (2)"));
             return;
         }
     }
@@ -72,9 +72,9 @@ void UserBackupOperation::createBackupDirectory()
     targetDirInfo.refresh();
 
     if(targetDirInfo.exists()) {
-        finishWithError(QStringLiteral("Failed to remove old directory (3)"));
+        finishWithError(BackendError::DiskError, QStringLiteral("Failed to remove old directory (3)"));
     } else if(!m_backupDir.mkpath(subdir + m_deviceDirName) || !m_backupDir.cd(subdir)) {
-        finishWithError(QStringLiteral("Failed to create backup directory"));
+        finishWithError(BackendError::DiskError, QStringLiteral("Failed to create backup directory"));
     } else{
         advanceOperationState();
     }
@@ -86,7 +86,7 @@ void UserBackupOperation::getFileTree()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->errorString());
+            finishWithError(operation->error(), operation->errorString());
         } else {
             m_fileList = operation->files();
             advanceOperationState();
@@ -114,7 +114,7 @@ void UserBackupOperation::readFiles()
 
         if(fileInfo.type == FileType::Directory) {
             if(!m_backupDir.mkdir(filePath)) {
-                finishWithError(QStringLiteral("Failed to create directory: %1").arg(QString(filePath)));
+                finishWithError(BackendError::DiskError, QStringLiteral("Failed to create directory: %1").arg(QString(filePath)));
                 return;
             }
 
@@ -124,14 +124,14 @@ void UserBackupOperation::readFiles()
             auto *file = new QFile(m_backupDir.absoluteFilePath(filePath), this);
             if(!file->open(QIODevice::WriteOnly)) {
                 file->deleteLater();
-                finishWithError(QStringLiteral("Failed to open file for writing: %1").arg(QString(filePath)));
+                finishWithError(BackendError::DiskError, QStringLiteral("Failed to open file for writing: %1").arg(QString(filePath)));
                 return;
             }
 
             auto *op = rpc()->storageRead(fileInfo.absolutePath, file);
             connect(op, &AbstractOperation::finished, this, [=]() {
                 if(op->isError()) {
-                    finishWithError(op->errorString());
+                    finishWithError(op->error(), op->errorString());
                 } else if(isLastFile) {
                     finish();
                 }

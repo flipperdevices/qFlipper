@@ -23,7 +23,7 @@ signals:
 
 protected slots:
     void finish();
-    void finishWithError(const QString &errorMessage);
+    void finishWithError(BackendError::ErrorType error, const QString &errorString);
 
     void advanceState();
 

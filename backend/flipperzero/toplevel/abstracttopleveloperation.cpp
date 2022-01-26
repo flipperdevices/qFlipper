@@ -28,7 +28,7 @@ DeviceState *AbstractTopLevelOperation::deviceState() const
 void AbstractTopLevelOperation::start()
 {
     if(operationState() != AbstractOperation::Ready) {
-        finishWithError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
+        finishWithError(BackendError::UnknownError, QStringLiteral("Trying to start an operation that is either already running or has finished."));
     } else {
         advanceOperationState();
     }
@@ -44,7 +44,7 @@ void AbstractTopLevelOperation::registerSubOperation(AbstractOperation *operatio
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             onSubOperationErrorOccured();
-            finishWithError(operation->errorString());
+            finishWithError(operation->error(), operation->errorString());
         } else {
             advanceOperationState();
         }

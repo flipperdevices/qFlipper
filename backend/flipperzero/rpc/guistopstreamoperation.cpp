@@ -22,11 +22,11 @@ void GuiStopStreamOperation::onSerialPortReadyRead()
 
     while(response.receive()) {
         if(!response.isOk()) {
-            finishWithError(QStringLiteral("Device replied with an error response: %1").arg(response.commandStatusString()));
+            finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with an error response: %1").arg(response.commandStatusString()));
 
         } else if(!response.isValidType()) {
             if(response.whichContent() != GuiScreenFrameResponse::tag()) {
-                finishWithError(QStringLiteral("Expected empty or screen frame reply, got something else"));
+                finishWithError(BackendError::ProtocolError, QStringLiteral("Expected empty or screen frame reply, got something else"));
             } else {
                 continue;
             }

@@ -34,7 +34,7 @@ void UserRestoreOperation::nextStateLogic()
     if(operationState() == BasicOperationState::Ready) {
         setOperationState(State::ReadingBackupDir);
         if(!readBackupDir()) {
-            finishWithError(QStringLiteral("Failed to process backup directory"));
+            finishWithError(BackendError::DiskError, QStringLiteral("Failed to process backup directory"));
         } else {
             QTimer::singleShot(0, this, &UserRestoreOperation::nextStateLogic);
         }
@@ -42,13 +42,13 @@ void UserRestoreOperation::nextStateLogic()
     } else if(operationState() == State::ReadingBackupDir) {
         setOperationState(State::DeletingFiles);
         if(!deleteFiles()) {
-            finishWithError(QStringLiteral("Failed to delete old files"));
+            finishWithError(BackendError::DiskError, QStringLiteral("Failed to delete old files"));
         }
 
     } else if(operationState() == State::DeletingFiles) {
         setOperationState(State::WritingFiles);
         if(!writeFiles()) {
-            finishWithError(QStringLiteral("Failed to write new files"));
+            finishWithError(BackendError::DiskError, QStringLiteral("Failed to write new files"));
         }
 
     } else if(operationState() == State::WritingFiles) {
@@ -89,7 +89,7 @@ bool UserRestoreOperation::deleteFiles()
         auto *op = rpc()->storageRemove(filePath);
         connect(op, &AbstractOperation::finished, this, [=](){
             if(op->isError()) {
-                finishWithError(op->errorString());
+                finishWithError(op->error(), op->errorString());
             } else if(isLastFile) {
                 QTimer::singleShot(0, this, &UserRestoreOperation::nextStateLogic);
             }
@@ -134,7 +134,7 @@ bool UserRestoreOperation::writeFiles()
 
         connect(op, &AbstractOperation::finished, this, [=]() {
             if(op->isError()) {
-                finishWithError(op->errorString());
+                finishWithError(op->error(), op->errorString());
             } else if(isLastFile) {
                 QTimer::singleShot(0, this, &UserRestoreOperation::nextStateLogic);
             }

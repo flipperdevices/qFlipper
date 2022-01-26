@@ -16,7 +16,7 @@ AbstractRecoveryOperation::AbstractRecoveryOperation(Recovery *recovery, QObject
 void AbstractRecoveryOperation::start()
 {
     if(operationState() != AbstractOperation::Ready) {
-        finishWithError(QStringLiteral("Trying to start an operation that is either already running or has finished."));
+        finishWithError(BackendError::RecoveryError, QStringLiteral("Trying to start an operation that is either already running or has finished."));
     } else {
         connect(m_recovery->deviceState(), &DeviceState::isOnlineChanged, this, &AbstractRecoveryOperation::onDeviceOnlineChanged);
         QTimer::singleShot(0, this, &AbstractRecoveryOperation::nextStateLogic);

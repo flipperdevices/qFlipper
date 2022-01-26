@@ -27,11 +27,11 @@ void StorageListOperation::onSerialPortReadyRead()
     while(response.receive()) {
 
         if(!response.isOk()) {
-            finishWithError(QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
+            finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
             return;
 
         } else if(!response.isValidType()) {
-            finishWithError(QStringLiteral("Expected StorageList response, got something else"));
+            finishWithError(BackendError::ProtocolError, QStringLiteral("Expected StorageList response, got something else"));
             return;
         }
 

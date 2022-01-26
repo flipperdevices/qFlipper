@@ -106,7 +106,7 @@ void FullUpdateOperation::fetchFirmware()
 
     connect(m_helper, &AbstractOperationHelper::finished, this, [=]() {
         if(m_helper->isError()) {
-            finishWithError(QStringLiteral("Failed to fetch the files: %1").arg(m_helper->errorString()));
+            finishWithError(m_helper->error(), QStringLiteral("Failed to fetch the files: %1").arg(m_helper->errorString()));
         } else {
             advanceOperationState();
         }

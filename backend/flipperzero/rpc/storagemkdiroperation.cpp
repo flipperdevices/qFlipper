@@ -21,9 +21,9 @@ void StorageMkdirOperation::onSerialPortReadyRead()
     if(!response.receive()) {
         return;
     } else if(!response.isOk() && (response.commandStatus() != PB_CommandStatus_ERROR_STORAGE_EXIST)) {
-        finishWithError(QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
+        finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
     } else if(!response.isValidType()) {
-        finishWithError(QStringLiteral("Expected empty response, got something else"));
+        finishWithError(BackendError::ProtocolError, QStringLiteral("Expected empty response, got something else"));
     } else {
         finish();
     }

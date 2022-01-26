@@ -23,9 +23,9 @@ void GuiStopVirtualDisplayOperation::onSerialPortReadyRead()
     if(!response.receive()) {
         return;
     } else if(!response.isOk()) {
-        finishWithError(QStringLiteral("Device replied with an error response: %1").arg(response.commandStatusString()));
+        finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with an error response: %1").arg(response.commandStatusString()));
     } else if(!response.isValidType()) {
-        finishWithError(QStringLiteral("Expected empty reply, got something else"));
+        finishWithError(BackendError::ProtocolError, QStringLiteral("Expected empty reply, got something else"));
     } else {
         finish();
     }

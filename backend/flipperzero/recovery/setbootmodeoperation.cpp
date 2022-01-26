@@ -34,7 +34,7 @@ void SetBootModeOperation::nextStateLogic()
 void SetBootModeOperation::onOperationTimeout()
 {
     if(!deviceState()->isOnline()) {
-        finishWithError(QStringLiteral("Failed to set %1 mode: operation timeout").arg(typeString()));
+        finishWithError(BackendError::RecoveryError, QStringLiteral("Failed to set %1 mode: operation timeout").arg(typeString()));
     } else {
         qCDebug(LOG_RECOVERY) << "Timeout with an online device, assuming it is still functional";
         advanceOperationState();
@@ -44,7 +44,7 @@ void SetBootModeOperation::onOperationTimeout()
 void SetBootModeOperation::setBootMode()
 {
     if(!recovery()->setBootMode((Recovery::BootMode)bootMode())) {
-        finishWithError(recovery()->errorString());
+        finishWithError(BackendError::RecoveryError, recovery()->errorString());
     } else {
         startTimeout();
     }

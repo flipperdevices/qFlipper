@@ -26,14 +26,14 @@ void StartRPCOperation::onSerialPortReadyRead()
         const auto str = serialPort()->readAll();
 
         if(!str.startsWith(s_cmd)) {
-            finishWithError(QStringLiteral("Failed to send the command due to interference"));
+            finishWithError(BackendError::SerialError, QStringLiteral("Failed to send the command due to interference"));
             return;
         }
 
         SystemPingRequest request(serialPort());
 
         if(!request.send()) {
-            finishWithError(QStringLiteral("Failed to send the ping request"));
+            finishWithError(BackendError::SerialError, QStringLiteral("Failed to send the ping request"));
         } else {
             setOperationState(State::WaitingForPing);
         }
@@ -45,24 +45,24 @@ void StartRPCOperation::onSerialPortReadyRead()
         if(!response.receive()) {
             return;
         } else if(!response.isOk()) {
-            finishWithError(QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
+            finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
         } else if(!response.isValidType()) {
-            finishWithError(QStringLiteral("Expected system ping response, got something else"));
+            finishWithError(BackendError::ProtocolError, QStringLiteral("Expected system ping response, got something else"));
         } else {
             finish();
         }
 
     } else {
-        finishWithError(QStringLiteral("Received data in an unexpected state"));
+        finishWithError(BackendError::UnknownError, QStringLiteral("Received data in an unexpected state"));
     }
 }
 
 void StartRPCOperation::onOperationTimeout()
 {
     if(operationState() == State::LeavingCli) {
-        finishWithError(QStringLiteral("Failed to start RPC session"));
+        finishWithError(BackendError::SerialError, QStringLiteral("Failed to start RPC session"));
     } else if(operationState() == State::WaitingForPing) {
-        finishWithError(QStringLiteral("No ping response from device"));
+        finishWithError(BackendError::ProtocolError, QStringLiteral("No ping response from device"));
     }
 }
 

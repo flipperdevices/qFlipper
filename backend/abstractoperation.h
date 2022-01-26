@@ -39,8 +39,9 @@ protected slots:
 
 protected:
     void setOperationState(int state);
-    void finishWithError(const QString &errorString, BackendError::ErrorType error);
-    void finishWithError(const QString &errorString);
+    void finishWithError(BackendError::ErrorType error = BackendError::UnknownError,
+                         const QString &errorString = QStringLiteral("Unknown Error"));
+//    void finishWithError(const QString &errorString);
 
 private:
     QTimer *m_timeoutTimer;

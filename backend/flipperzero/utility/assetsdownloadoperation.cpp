@@ -101,7 +101,7 @@ void AssetsDownloadOperation::checkForExtStorage()
 
     connect(op, &AbstractOperation::finished, this, [=]() {
         if(op->isError()) {
-            finishWithError("Failed to perform stat operation");
+            finishWithError(op->error(), QStringLiteral("Failed to perform stat operation: %1").arg(op->errorString()));
         } else if(!op->isPresent()) {
             qCDebug(CATEGORY_ASSETS) << "No external storage found, finishing early.";
             finish();
@@ -117,18 +117,18 @@ void AssetsDownloadOperation::extractArchive()
     auto *uncompressor = new GZipUncompressor(m_compressedFile, m_uncompressedFile, this);
 
     if(uncompressor->isError()) {
-        finishWithError(uncompressor->errorString());
+        finishWithError(uncompressor->error(), uncompressor->errorString());
         return;
     }
 
     connect(uncompressor, &GZipUncompressor::finished, this, [=]() {
         if(uncompressor->isError()) {
-            finishWithError(uncompressor->errorString());
+            finishWithError(uncompressor->error(), uncompressor->errorString());
         } else {
             m_archive = std::move(TarArchive(m_uncompressedFile));
 
             if(m_archive.isError()) {
-                finishWithError(m_archive.errorString());
+                finishWithError(m_archive.error(), m_archive.errorString());
             } else {
                 advanceOperationState();
             }
@@ -143,12 +143,12 @@ void AssetsDownloadOperation::readLocalManifest()
     const auto text = m_archive.fileData(QStringLiteral("resources/Manifest"));
 
     if(text.isEmpty()) {
-        return finishWithError(m_archive.errorString());
+        return finishWithError(m_archive.error(), m_archive.errorString());
     }
 
     m_localManifest = AssetManifest(text);
     if(m_localManifest.isError()) {
-        return finishWithError(m_localManifest.errorString());
+        return finishWithError(m_localManifest.error(), m_localManifest.errorString());
     }
 
     advanceOperationState();
@@ -160,7 +160,7 @@ void AssetsDownloadOperation::checkForDeviceManifest()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            return finishWithError(operation->errorString());
+            return finishWithError(operation->error(), operation->errorString());
         } else if(operation->type() != StorageStatOperation::Type::RegularFile) {
             setOperationState(State::ReadingDeviceManifest);
         } else {
@@ -176,7 +176,7 @@ void AssetsDownloadOperation::readDeviceManifest()
     auto *buf = new QBuffer(this);
 
     if(!buf->open(QIODevice::ReadWrite)) {
-        return finishWithError(buf->errorString());
+        return finishWithError(BackendError::UnknownError, buf->errorString());
     }
 
     auto *operation = rpc()->storageRead(QByteArrayLiteral("/ext/Manifest"), buf);
@@ -271,7 +271,7 @@ void AssetsDownloadOperation::deleteFiles()
 
         connect(operation, &AbstractOperation::finished, this, [=]() {
             if(operation->isError()) {
-                finishWithError(operation->errorString());
+                finishWithError(operation->error(), operation->errorString());
             } else if(isLastFile) {
                 advanceOperationState();
             }
@@ -302,23 +302,23 @@ void AssetsDownloadOperation::writeFiles()
         } else if(fileInfo.type == FileNode::Type::RegularFile) {
             auto *buf = new QBuffer(this);
             if(!buf->open(QIODevice::ReadWrite)) {
-                return finishWithError(buf->errorString());
+                return finishWithError(BackendError::UnknownError, buf->errorString());
             }
 
             const auto resourcePath = QStringLiteral("resources/") + fileInfo.absolutePath;
             if((buf->write(m_archive.fileData(resourcePath)) <= 0) || (!buf->seek(0))) {
-                return finishWithError(buf->errorString());
+                return finishWithError(BackendError::UnknownError, buf->errorString());
             }
 
             op = rpc()->storageWrite(filePath, buf);
 
         } else {
-            return finishWithError(QStringLiteral("Unexpected file type"));
+            return finishWithError(BackendError::UnknownError, QStringLiteral("Unexpected file type"));
         }
 
         connect(op, &AbstractOperation::finished, this, [=]() {
             if(op->isError()) {
-                finishWithError(op->errorString());
+                finishWithError(op->error(), op->errorString());
             } else if(i == 0) {
                 advanceOperationState();
             }

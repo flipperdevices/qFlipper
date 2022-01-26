@@ -19,7 +19,7 @@ void AbstractSerialOperation::start()
 
     QTimer::singleShot(0, this, [=]() {
         if(!begin()) {
-            finishWithError(QStringLiteral("Failed to begin operation: %1").arg(m_serialPort->errorString()));
+            finishWithError(BackendError::SerialError, QStringLiteral("Failed to begin operation: %1").arg(m_serialPort->errorString()));
         } else {
             startTimeout();
         }
@@ -70,5 +70,5 @@ void AbstractSerialOperation::onSerialPortBytesWritten(qint64 numBytes)
 
 void AbstractSerialOperation::onSerialPortError()
 {
-    finishWithError(m_serialPort->errorString());
+    finishWithError(BackendError::SerialError, m_serialPort->errorString());
 }

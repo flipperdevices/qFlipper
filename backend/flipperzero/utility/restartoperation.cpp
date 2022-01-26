@@ -31,7 +31,7 @@ void RestartOperation::nextStateLogic()
 
 void RestartOperation::onOperationTimeout()
 {
-    finishWithError(QStringLiteral("Failed to restart: timeout exceeded"));
+    finishWithError(BackendError::UnknownError, QStringLiteral("Failed to restart: timeout exceeded"));
 }
 
 void RestartOperation::onDeviceOnlineChanged()
@@ -53,7 +53,7 @@ void RestartOperation::rebootDevice()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->errorString());
+            finishWithError(operation->error(), operation->errorString());
         }
     });
 

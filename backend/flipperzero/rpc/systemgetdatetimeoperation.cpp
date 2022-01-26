@@ -28,9 +28,9 @@ void SystemGetDateTimeOperation::onSerialPortReadyRead()
     if(!response.receive()) {
         return;
     } else if(!response.isOk()) {
-        finishWithError(QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
+        finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
     } else if(!response.isValidType()) {
-        finishWithError(QStringLiteral("Expected SystemGetDateTime response, got something else"));
+        finishWithError(BackendError::ProtocolError, QStringLiteral("Expected SystemGetDateTime response, got something else"));
     } else {
         m_dateTime = response.dateTime();
         finish();

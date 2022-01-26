@@ -94,7 +94,7 @@ void FirmwareHelper::prepareRadioFirmware()
         helper->deleteLater();
 
         if(helper->isError()) {
-            finishWithError(helper->errorString());
+            finishWithError(helper->error(), helper->errorString());
             return;
         }
 
@@ -111,10 +111,10 @@ void FirmwareHelper::prepareRadioFirmware()
             m_files.insert(FileIndex::RadioFirmware, file);
 
             if(!file->open(QIODevice::WriteOnly)) {
-                finishWithError(QStringLiteral("Failed to open temporary file: %1").arg(file->errorString()));
+                finishWithError(BackendError::DiskError, QStringLiteral("Failed to open temporary file: %1").arg(file->errorString()));
                 return;
             } else if(file->write(helper->radioFirmwareData()) <= 0) {
-                finishWithError(QStringLiteral("Failed to write to temporary file: %1").arg(file->errorString()));
+                finishWithError(BackendError::DiskError, QStringLiteral("Failed to write to temporary file: %1").arg(file->errorString()));
                 return;
             } else {
                 file->close();
@@ -141,7 +141,7 @@ void FirmwareHelper::prepareOptionBytes()
         helper->deleteLater();
 
         if(helper->isError()) {
-            finishWithError(helper->errorString());
+            finishWithError(helper->error(), helper->errorString());
             return;
         }
 
@@ -149,9 +149,9 @@ void FirmwareHelper::prepareOptionBytes()
         m_files.insert(FileIndex::OptionBytes, file);
 
         if(!file->open(QIODevice::WriteOnly)) {
-            finishWithError(QStringLiteral("Failed to open temporary file: %1").arg(file->errorString()));
+            finishWithError(BackendError::DiskError, QStringLiteral("Failed to open temporary file: %1").arg(file->errorString()));
         } else if(file->write(helper->optionBytesData()) <= 0) {
-            finishWithError(QStringLiteral("Failed to write to temporary file: %1").arg(file->errorString()));
+            finishWithError(BackendError::DiskError, QStringLiteral("Failed to write to temporary file: %1").arg(file->errorString()));
         } else {
             file->close();
             advanceState();
@@ -174,7 +174,7 @@ void FirmwareHelper::fetchFile(FileIndex index, const Updates::FileInfo &fileInf
     auto *fetcher = new RemoteFileFetcher(fileInfo, file, this);
 
     if(fetcher->isError()) {
-        finishWithError(QStringLiteral("Failed to fetch file: %1").arg(fetcher->errorString()));
+        finishWithError(fetcher->error(), QStringLiteral("Failed to fetch file: %1").arg(fetcher->errorString()));
         return;
     }
 
@@ -182,7 +182,7 @@ void FirmwareHelper::fetchFile(FileIndex index, const Updates::FileInfo &fileInf
         m_files.insert(index, file);
 
         if(fetcher->isError()) {
-            finishWithError(QStringLiteral("Failed to fetch file: %1").arg(fetcher->errorString()));
+            finishWithError(fetcher->error(), QStringLiteral("Failed to fetch file: %1").arg(fetcher->errorString()));
         } else {
             advanceState();
         }

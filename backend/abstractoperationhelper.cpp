@@ -15,9 +15,9 @@ void AbstractOperationHelper::finish()
     emit finished();
 }
 
-void AbstractOperationHelper::finishWithError(const QString &errorMessage)
+void AbstractOperationHelper::finishWithError(BackendError::ErrorType error, const QString &errorString)
 {
-    setErrorString(errorMessage);
+    setError(error, errorString);
     finish();
 }
 

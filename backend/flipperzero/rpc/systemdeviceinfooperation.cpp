@@ -28,10 +28,10 @@ void SystemDeviceInfoOperation::onSerialPortReadyRead()
     while(response.receive()) {
 
         if(!response.isOk()) {
-            finishWithError(QStringLiteral("Device replied with an error response"));
+            finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with an error response"));
             return;
         } else if(!response.isValidType()) {
-            finishWithError(QStringLiteral("Expected empty reply, got something else"));
+            finishWithError(BackendError::ProtocolError, QStringLiteral("Expected empty reply, got something else"));
             return;
         }
 

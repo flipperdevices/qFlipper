@@ -32,9 +32,9 @@ void StorageWriteOperation::onSerialPortReadyRead()
     if(!response.receive()) {
         return;
     } else if(!response.isOk()) {
-        finishWithError(QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
+        finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
     } else if(!response.isValidType()) {
-        finishWithError(QStringLiteral("Expected empty response, got something else"));
+        finishWithError(BackendError::ProtocolError, QStringLiteral("Expected empty response, got something else"));
     } else {
         finish();
     }
@@ -49,13 +49,13 @@ void StorageWriteOperation::onTotalBytesWrittenChanged()
     const auto bytesAvailable = m_file->bytesAvailable();
 
     if(bytesAvailable < 0) {
-        finishWithError(QStringLiteral("Failed to read from input device: %1").arg(m_file->errorString()));
+        finishWithError(BackendError::DiskError, QStringLiteral("Failed to read from input device: %1").arg(m_file->errorString()));
 
     } else if(bytesAvailable > 0) {
         // Must write the chunk asynchronously in order to receive this signal
         QTimer::singleShot(0, this, [=]() {
             if(!writeChunk()) {
-                finishWithError(QStringLiteral("Failed to write chunk"));
+                finishWithError(BackendError::SerialError, QStringLiteral("Failed to write chunk"));
             }
         });
     }

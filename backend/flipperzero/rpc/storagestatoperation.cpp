@@ -51,11 +51,11 @@ void StorageStatOperation::onSerialPortReadyRead()
         if(status == PB_CommandStatus_ERROR_STORAGE_NOT_EXIST) {
             finish();
         } else{
-            finishWithError(QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
+            finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
         }
 
     } else if(!response.isValidType()) {
-        finishWithError(QStringLiteral("Expected StorageStat response, got something else"));
+        finishWithError(BackendError::ProtocolError, QStringLiteral("Expected StorageStat response, got something else"));
 
     } else {
         m_isPresent = response.isPresent();

@@ -79,7 +79,7 @@ void WirelessStackDownloadOperation::onOperationTimeout()
     }
 
     if(!deviceState()->isOnline()) {
-        finishWithError(msg);
+        finishWithError(BackendError::RecoveryError, msg);
     } else {
         qCDebug(LOG_RECOVERY) << "Timeout with an online device, assuming it is still functional";
         advanceOperationState();
@@ -89,7 +89,7 @@ void WirelessStackDownloadOperation::onOperationTimeout()
 void WirelessStackDownloadOperation::startFUS()
 {
     if(!recovery()->startFUS()) {
-        finishWithError(recovery()->errorString());
+        finishWithError(BackendError::RecoveryError, recovery()->errorString());
     } else {
         startTimeout();
     }
@@ -98,7 +98,7 @@ void WirelessStackDownloadOperation::startFUS()
 void WirelessStackDownloadOperation::deleteWirelessStack()
 {
     if(!recovery()->deleteWirelessStack()) {
-        finishWithError(recovery()->errorString());
+        finishWithError(BackendError::RecoveryError, recovery()->errorString());
     } else {
         m_loopTimer->start(1000);
     }
@@ -119,7 +119,7 @@ bool WirelessStackDownloadOperation::isWirelessStackDeleted()
     const auto errorOccured = (status == Recovery::WirelessStatus::WSRunning) ||
                               (status == Recovery::WirelessStatus::ErrorOccured);
     if(errorOccured) {
-        finishWithError(QStringLiteral("Failed to finish removal of the Wireless Stack."));
+        finishWithError(BackendError::RecoveryError, QStringLiteral("Failed to finish removal of the Wireless Stack."));
     }
 
     return !errorOccured;
@@ -133,7 +133,7 @@ void WirelessStackDownloadOperation::downloadWirelessStack()
         if(watcher->result()) {
             advanceOperationState();
         } else {
-            finishWithError(QStringLiteral("Failed to download the Wireless Stack."));
+            finishWithError(BackendError::RecoveryError, QStringLiteral("Failed to download the Wireless Stack."));
         }
 
         watcher->deleteLater();
@@ -145,7 +145,7 @@ void WirelessStackDownloadOperation::downloadWirelessStack()
 void WirelessStackDownloadOperation::upgradeWirelessStack()
 {
     if(!recovery()->upgradeWirelessStack()) {
-        finishWithError(recovery()->errorString());
+        finishWithError(BackendError::RecoveryError, recovery()->errorString());
     } else {
         m_loopTimer->start(1000);
     }
@@ -165,7 +165,7 @@ bool WirelessStackDownloadOperation::isWirelessStackUpgraded()
 
     const auto errorOccured = (status == Recovery::WirelessStatus::ErrorOccured);
     if(errorOccured) {
-        finishWithError(QStringLiteral("Failed to finish installation of the Wireless Stack."));
+        finishWithError(BackendError::RecoveryError, QStringLiteral("Failed to finish installation of the Wireless Stack."));
     }
 
     return !errorOccured;
@@ -179,7 +179,7 @@ bool WirelessStackDownloadOperation::isWirelessStackOK()
 void WirelessStackDownloadOperation::tryAgain()
 {
     if(--m_retryCount == 0) {
-        finishWithError(QStringLiteral("Could not install wireless stack after several tries, giving up"));
+        finishWithError(BackendError::RecoveryError, QStringLiteral("Could not install wireless stack after several tries, giving up"));
 
     } else {
         qCDebug(LOG_RECOVERY) << "Wireless stack installation seems to have failed, retrying...";
