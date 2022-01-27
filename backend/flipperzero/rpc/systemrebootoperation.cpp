@@ -12,7 +12,14 @@ SystemRebootOperation::SystemRebootOperation(QSerialPort *serialPort, RebootType
     AbstractProtobufOperation(serialPort, parent),
     m_rebootType(rebootType),
     m_byteCount(0)
-{}
+{
+// Workaround for Windows taking too long to install the driver
+#ifdef Q_OS_WINDOWS
+    if(rebootType == RebootType::Recovery) {
+        setTimeout(120000);
+    }
+#endif
+}
 
 const QString SystemRebootOperation::description() const
 {
