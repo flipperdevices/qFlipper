@@ -4,6 +4,8 @@
 
 #include <QSerialPortInfo>
 
+class QTimer;
+
 namespace Flipper {
 namespace Zero {
 
@@ -29,6 +31,8 @@ private:
     void startRPCSession();
 
     QSerialPort *m_serialPort;
+    QTimer *m_retryTimer;
+    int m_retryCount;
 };
 
 }

@@ -1,5 +1,6 @@
 #include "serialinithelper.h"
 
+#include <QTimer>
 #include <QSerialPort>
 
 #include "flipperzero/rpc/skipmotdoperation.h"
@@ -10,8 +11,13 @@ using namespace Zero;
 
 SerialInitHelper::SerialInitHelper(const QSerialPortInfo &portInfo, QObject *parent):
     AbstractOperationHelper(parent),
-    m_serialPort(new QSerialPort(portInfo, parent))
-{}
+    m_serialPort(new QSerialPort(portInfo, parent)),
+    m_retryTimer(new QTimer(this)),
+    m_retryCount(20)
+{
+    m_retryTimer->setSingleShot(true);
+    connect(m_retryTimer, &QTimer::timeout, this, &SerialInitHelper::openPort);
+}
 
 QSerialPort *SerialInitHelper::serialPort() const
 {
@@ -39,8 +45,10 @@ void SerialInitHelper::nextStateLogic()
 
 void SerialInitHelper::openPort()
 {
-    if(!m_serialPort->open(QIODevice::ReadWrite)) {
+    if(!(m_retryCount--)) {
         finishWithError(BackendError::SerialError, QStringLiteral("Failed to open serial port: %1").arg(m_serialPort->errorString()));
+    } else if(!m_serialPort->open(QIODevice::ReadWrite)) {
+        m_retryTimer->start(std::chrono::milliseconds(50));
     } else {
         advanceState();
     }
