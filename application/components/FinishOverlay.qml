@@ -55,7 +55,7 @@ AbstractOverlay {
                     case BackendError.RecoveryError:
                         return qsTr("Recovery Error")
                     case BackendError.ProtocolError:
-                        return qsTr("Communication Error")
+                        return qsTr("Protocol Error")
                     case BackendError.DiskError:
                         return qsTr("Disk Access Error")
                     case BackendError.TimeoutError:
@@ -78,7 +78,7 @@ AbstractOverlay {
                     sourceSize: Qt.size(246, 187)
                     source: Backend.errorType === BackendError.SerialError ||
                             Backend.errorType === BackendError.RecoveryError ? "qrc:/assets/gfx/images/error-access.svg" :
-                                                                               "qrc:/assets/gfx/images/error-client.svg"
+                            Backend.errorType === BackendError.InternetError ? "qrc:/assets/gfx/images/error-internet.svg" : "qrc:/assets/gfx/images/error-client.svg"
 
                     visible: !flipperError.visible
                 }
@@ -108,18 +108,26 @@ AbstractOverlay {
         }
 
         TextBox {
-            Layout.fillHeight: true
             Layout.preferredWidth: 335
+            Layout.alignment: Qt.AlignVCenter
 
             style: Strings.errorStyle
             text: {
                 switch(Backend.errorType) {
+                case BackendError.InternetError:
+                    return Strings.errorInternet
                 case BackendError.InvalidDevice:
                     return Strings.errorInvalidDevice
                 case BackendError.SerialError:
                     return Strings.errorSerial
                 case BackendError.RecoveryError:
                     return Strings.errorRecovery
+                case BackendError.ProtocolError:
+                    return Strings.errorProtocol
+                case BackendError.DiskError:
+                    return Strings.errorDisk
+                case BackendError.TimeoutError:
+                    return Strings.errorTimeout
                 case BackendError.UnknownError:
                 default:
                     return Strings.errorUnknown

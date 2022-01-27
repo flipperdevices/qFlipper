@@ -11,7 +11,7 @@ Rectangle {
 
     property int padding: 20
 
-    height: content.height + padding * 2
+    implicitHeight: content.implicitHeight + padding * 2
     radius: 6
 
     color: "black"
