@@ -60,6 +60,8 @@ void ScreenStreamer::stop()
     }
 
     setState(State::Stopping);
+    // Call this in case there is no data on the serial port
+    onPortReadyRead();
 }
 
 void ScreenStreamer::onPortReadyRead()
