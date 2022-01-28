@@ -1,5 +1,4 @@
-#ifndef FILEFETCHER_H
-#define FILEFETCHER_H
+#pragma once
 
 #include <QObject>
 
@@ -31,5 +30,3 @@ private:
     QNetworkAccessManager *m_manager;
     QByteArray m_expectedChecksum;
 };
-
-#endif // FILEFETCHER_H

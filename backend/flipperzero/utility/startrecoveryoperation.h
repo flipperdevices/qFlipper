@@ -19,6 +19,7 @@ public:
 
 private slots:
     void nextStateLogic() override;
+    void onOperationTimeout() override;
     void onDeviceOnlineChanged();
 
 private:

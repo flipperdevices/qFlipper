@@ -9,34 +9,57 @@ QtObject {
     readonly property string errorInvalidDevice:
 "<p>Device cannot be recognized.</p>
 <p>=========== HOW TO FIX ============</p>
-<p>1. Disconnect all other devices from this computer.</p>
-<p>2. Reconnect device via USB.</p>
-<p>3. Grant user permissions to access DFU devices.</p>
-<p>Run <a href='https://github.com/flipperdevices/qFlipper/raw/dev/setup_rules.sh'>this script</a> on Linux or check drivers on Windows.</p>
-<p>4. Reboot device and try again.</p>
+<p>1. Disconnect all other similar devices from this computer.</p>
+<p>2. Reconnect your Flipper.</p>
+<p>3. If the problem persists, reboot Flipper into RECOVERY MODE and click REPAIR to perform a clean installation.</p>
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 
     readonly property string errorSerial:
-"<p>Flipper is not responding.</p>
+"<p>Cannot connect to Flipper. Device is busy.</p>
 <p>=========== HOW TO FIX ============</p>
-<p>1. Check that device is not connected via Bluetooth or Terminal session.</p>
+<p>1. Ensure that Flipper is not connected via Bluetooth or Terminal session.</p>
+<p>2. Reconnect your Flipper.</p>
+<p>-----------------------------------</p>
+<center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
+
+    readonly property string errorSerialLinux:
+"<p>Cannot connect to Flipper. Device is busy.</p>
+<p>=========== HOW TO FIX ============</p>
+<p>1. Ensure that Flipper is not connected via Bluetooth or Terminal session.</p>
 <p>2. Grant user permissions to access Serial devices.</p>
-<p>Run <a href='https://github.com/flipperdevices/qFlipper/raw/dev/setup_rules.sh'>this script</a> on Linux or check drivers on Windows.</p>
-<p>3. Reconnect device via USB.</p>
-<p>4. Reboot device and try again.</p>
+<p>Run <a href='https://github.com/flipperdevices/qFlipper/raw/dev/setup_rules.sh'>this script</a> to do so automatically.</p>
+<p>3. Reconnect your Flipper.</p>
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 
     readonly property string errorRecovery:
 "<p>Cannot connect to Flipper in Update & Recovery mode. Device not found.</p>
 <p>=========== HOW TO FIX ============</p>
-<p>1. Check that device in Update & Recovery mode.</p>
-<p>2. Reconnect device via USB.</p>
+<p>1. Check that Flipper is in Update & Recovery mode.</p>
+<p>2. Reconnect your Flipper.</p>
+<p>3. Reboot Flipper to Flipper OS and try again.</p>
+<p>-----------------------------------</p>
+<center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
+
+    readonly property string errorRecoveryWindows:
+"<p>Cannot connect to Flipper in Update & Recovery mode. Device not found.</p>
+<p>=========== HOW TO FIX ============</p>
+<p>1. Check that Flipper is in Update & Recovery mode.</p>
+<p>2. Reconnect your Flipper.</p>
+<p>3. Reinstall qFlipper to update DFU device driver.</p>
+<p>4. Reboot Flipper to Flipper OS and try again.</p>
+<p>-----------------------------------</p>
+<center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
+
+    readonly property string errorRecoveryLinux:
+"<p>Cannot connect to Flipper in Update & Recovery mode. Device not found.</p>
+<p>=========== HOW TO FIX ============</p>
+<p>1. Check that Flipper is in Update & Recovery mode.</p>
+<p>2. Reconnect your Flipper.</p>
 <p>3. Grant user permissions to access DFU devices.</p>
-<p>For Windows, check that device drivers have been correctly installed.</p>
-<p>For Linux, run <a href='https://github.com/flipperdevices/qFlipper/raw/dev/setup_rules.sh'>this script</a>.</p>
-<p>4. Reboot device and try again.</p>
+<p>Run <a href='https://github.com/flipperdevices/qFlipper/raw/dev/setup_rules.sh'>this script</a> to do so automatically.</p>
+<p>4. Reboot Flipper to Flipper OS and try again.</p>
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 
@@ -49,14 +72,6 @@ QtObject {
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 
-    readonly property string errorProtocol:
-"<p>The device firmware seems to be too old.</p>
-<p>=========== HOW TO FIX ============</p>
-<p>1. Reboot device into Recovery mode.</p>
-<p>2. Click Repair to perform a clean installation.</p>
-<p>-----------------------------------</p>
-<center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
-
     readonly property string errorDisk:
 "<p>Can’t save or read files to/from the local filesystem</p>
 <p>=========== HOW TO FIX ============</p>
@@ -66,11 +81,29 @@ QtObject {
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 
-    readonly property string errorTimeout:
-"<p>The operation is taking too long.</p>
+    readonly property string errorBackup:
+"<p>Can’t get data from Flipper. This may be caused by an internal error.</p>
 <p>=========== HOW TO FIX ============</p>
-<p>1. Check USB cable.</p>
-<p>2. Reboot the device.</p>
+<p>1. Close all other applications that may use Flipper.</p>
+<p>2. Reboot your Flipper and reconnect via USB.</p>
+<p>3. Run the operation again.</p>
+<p>-----------------------------------</p>
+<center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
+
+    readonly property string errorData:
+"<p>Necessary data seem to be damaged.</p>
+<p>=========== HOW TO FIX ============</p>
+<p>1. If applicable, ensure to point qFlipper to the right input file(s).</p>
+<p>2. Reboot your Flipper and reconnect via USB.</p>
+<p>3. Run the operation again.</p>
+<p>-----------------------------------</p>
+<center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
+
+    readonly property string errorOperation:
+"<p>Current operation was interrupted. Connection to device is lost.</p>
+<p>=========== HOW TO FIX ============</p>
+<p>1. Check USB connection.</p>
+<p>2. Connect your Flipper in Update & Recovery mode and start Repair.</p>
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 

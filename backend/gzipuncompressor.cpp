@@ -1,12 +1,14 @@
 #include "gzipuncompressor.h"
 
 #include <QtConcurrent/QtConcurrentRun>
+#include <QLoggingCategory>
 #include <QFutureWatcher>
 #include <QIODevice>
+#include <QDebug>
 
 #include <zlib.h>
 
-#include "debug.h"
+Q_LOGGING_CATEGORY(LOG_UNZIP, "UNZIP")
 
 #define CHUNK_SIZE 1024
 
@@ -17,18 +19,18 @@ GZipUncompressor::GZipUncompressor(QIODevice *in, QIODevice *out, QObject *paren
     m_progress(0)
 {
     if(!m_in->open(QIODevice::ReadOnly)) {
-        setErrorString(m_in->errorString());
+        setError(BackendError::DiskError, m_in->errorString());
         return;
 
     } else if(!m_out->open(QIODevice::WriteOnly)) {
-        setErrorString(m_out->errorString());
+        setError(BackendError::DiskError, m_out->errorString());
         return;
     }
 
     auto *watcher = new QFutureWatcher<void>(this);
 
     connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
-        debug_msg(QStringLiteral("Uncompression finished : %1.").arg(errorString()));
+        qCDebug(LOG_UNZIP).noquote() << "Uncompression finished :" << errorString();
         watcher->deleteLater();
         emit finished();
     });
@@ -57,12 +59,12 @@ void GZipUncompressor::setProgress(double progress)
 void GZipUncompressor::doUncompress()
 {
     if(m_in->bytesAvailable() <= 4) {
-        setErrorString(QStringLiteral("The input file is empty"));
+        setError(BackendError::DataError, QStringLiteral("The input file is empty"));
         return;
     }
 
     const auto totalSize = m_in->bytesAvailable();
-    debug_msg(QStringLiteral("Uncompressing file with size of %1 bytes...").arg(totalSize));
+    qCDebug(LOG_UNZIP) << "Uncompressing file with size of" << totalSize << "bytes...";
 
     z_stream stream;
     stream.zalloc = Z_NULL;
@@ -73,7 +75,7 @@ void GZipUncompressor::doUncompress()
 
     const auto err = inflateInit2(&stream, 15 + 16);
     if(err != Z_OK) {
-        setErrorString(QStringLiteral("Failed to initialise deflate method"));
+        setError(BackendError::UnknownError, QStringLiteral("Failed to initialise deflate method"));
         return;
     }
 
@@ -94,7 +96,7 @@ void GZipUncompressor::doUncompress()
 
             if(errorOccured) {
                 inflateEnd(&stream);
-                setErrorString(QStringLiteral("Error during uncompression"));
+                setError(BackendError::DataError, QStringLiteral("Error during uncompression"));
                 return;
             }
 

@@ -2,8 +2,6 @@
 
 #include <QIODevice>
 
-#include "debug.h"
-
 #define BLOCK_SIZE 512
 
 struct TarHeader
@@ -40,7 +38,7 @@ TarArchive::TarArchive(QIODevice *file):
     m_root(new FileNode("", FileNode::Type::Directory))
 {
     if(!m_tarFile->open(QIODevice::ReadOnly)) {
-        setErrorString(m_tarFile->errorString());
+        setError(BackendError::DiskError, m_tarFile->errorString());
     } else {
         buildIndex();
     }
@@ -57,22 +55,22 @@ FileNode *TarArchive::file(const QString &fullName)
 QByteArray TarArchive::fileData(const QString &fullName)
 {
     if(!m_tarFile) {
-        setErrorString(QStringLiteral("Archive file not set"));
+        setError(BackendError::UnknownError, QStringLiteral("Archive file not set"));
         return QByteArray();
 
     } else if(!m_tarFile->isOpen()) {
-        setErrorString(QStringLiteral("Archive file is not open"));
+        setError(BackendError::UnknownError, QStringLiteral("Archive file is not open"));
         return QByteArray();
     }
 
     auto *node = file(fullName);
     if(!node) {
-        setErrorString(QStringLiteral("File not found"));
+        setError(BackendError::UnknownError, QStringLiteral("File not found"));
         return QByteArray();
     }
 
     if(!node->userData().canConvert<FileInfo>()) {
-        setErrorString(QStringLiteral("No valid FileData found in the node."));
+        setError(BackendError::DataError, QStringLiteral("No valid FileData found in the node."));
         return QByteArray();
     }
 
@@ -83,7 +81,7 @@ QByteArray TarArchive::fileData(const QString &fullName)
         return m_tarFile->read(data.size);
 
     } else {
-        setErrorString(m_tarFile->errorString());
+        setError(BackendError::DiskError, m_tarFile->errorString());
         return QByteArray();
     }
 }
@@ -97,7 +95,7 @@ void TarArchive::buildIndex()
         const auto n = m_tarFile->read((char*)&header, sizeof(TarHeader));
 
         if(n != sizeof(TarHeader)) {
-            setErrorString(QStringLiteral("Archive file is truncated"));
+            setError(BackendError::DataError, QStringLiteral("Archive file is truncated"));
             return;
 
         } else if(isMemZeros((char*)&header, sizeof(TarHeader))) {
@@ -108,7 +106,7 @@ void TarArchive::buildIndex()
             }
 
         } else if(strncmp(header.magic, "ustar", 5)) {
-            setErrorString(QStringLiteral("Tar magic constant not found."));
+            setError(BackendError::DataError, QStringLiteral("Tar magic constant not found."));
             return;
         }
 
@@ -127,7 +125,7 @@ void TarArchive::buildIndex()
             m_root->addDirectory(fileName.chopped(1));
 
         } else {
-            setErrorString(QStringLiteral("Only regular files and directories are supported"));
+            setError(BackendError::DataError, QStringLiteral("Only regular files and directories are supported"));
             return;
         }
 

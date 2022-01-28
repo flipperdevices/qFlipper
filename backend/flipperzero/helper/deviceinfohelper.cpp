@@ -138,7 +138,7 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->error(), QStringLiteral("Failed to get device information: %1").arg(operation->errorString()));
+            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to get device information: %1").arg(operation->errorString()));
             return;
         }
 
@@ -183,7 +183,7 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
         }
 
         if(m_deviceInfo.name.isEmpty()) {
-            finishWithError(BackendError::ProtocolError, QStringLiteral("Failed to read device information: required fields are not present"));
+            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to read device information: required fields are not present"));
         } else {
             advanceState();
         }
@@ -200,7 +200,7 @@ void VCPDeviceInfoHelper::checkSDCard()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->error(), QStringLiteral("Failed to check SD card: %1").arg(operation->errorString()));
+            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to check SD card: %1").arg(operation->errorString()));
 
         } else if(!operation->isPresent()) {
             m_deviceInfo.storage.isExternalPresent = false;
@@ -228,7 +228,7 @@ void VCPDeviceInfoHelper::checkManifest()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->error(), QStringLiteral("Failed to check resource manifest: %1").arg(operation->errorString()));
+            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to check resource manifest: %1").arg(operation->errorString()));
 
         } else {
             m_deviceInfo.storage.isAssetsInstalled = operation->isPresent() && (operation->type() == StorageStatOperation::Type::RegularFile);
@@ -248,7 +248,7 @@ void VCPDeviceInfoHelper::getTimeSkew()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->error(), QStringLiteral("Failed to check device time: %1").arg(operation->errorString()));
+            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to check device time: %1").arg(operation->errorString()));
 
         } else {
             const auto timeSkew = QDateTime::currentDateTime().msecsTo(operation->dateTime());
@@ -268,7 +268,7 @@ void VCPDeviceInfoHelper::syncTime()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->error(), QStringLiteral("Failed to set device time: %1").arg(operation->errorString()));
+            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to set device time: %1").arg(operation->errorString()));
         } else {
             advanceState();
         }
@@ -282,7 +282,7 @@ void VCPDeviceInfoHelper::stopRPCSession()
     auto *operation = new StopRPCOperation(m_serialPort, this);
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->error(), QStringLiteral("Failed to stop RPC session: %1").arg(operation->errorString()));
+            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to stop RPC session: %1").arg(operation->errorString()));
         } else {
             advanceState();
         }
@@ -330,19 +330,19 @@ void DFUDeviceInfoHelper::nextStateLogic()
     STM32WB55 device(m_deviceInfo.usbInfo);
 
     if(!device.beginTransaction()) {
-        finishWithError(BackendError::RecoveryError, QStringLiteral("Failed to initiate transaction"));
+        finishWithError(BackendError::RecoveryAccessError, QStringLiteral("Failed to initiate transaction"));
         return;
     }
 
     const FactoryInfo factoryInfo(device.OTPData(FactoryInfo::size()));
 
     if(!device.endTransaction()) {
-        finishWithError(BackendError::RecoveryError, QStringLiteral("Failed to end transaction"));
+        finishWithError(BackendError::RecoveryAccessError, QStringLiteral("Failed to end transaction"));
         return;
     }
 
     if(!factoryInfo.isValid()) {
-        finishWithError(BackendError::RecoveryError, QStringLiteral("Failed to read device factory information"));
+        finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to read device factory information"));
         return;
     }
 

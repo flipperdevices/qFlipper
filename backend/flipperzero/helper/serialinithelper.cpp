@@ -46,7 +46,7 @@ void SerialInitHelper::nextStateLogic()
 void SerialInitHelper::openPort()
 {
     if(!(m_retryCount--)) {
-        finishWithError(BackendError::SerialError, QStringLiteral("Failed to open serial port: %1").arg(m_serialPort->errorString()));
+        finishWithError(BackendError::SerialAccessError, QStringLiteral("Failed to open serial port: %1").arg(m_serialPort->errorString()));
     } else if(!m_serialPort->open(QIODevice::ReadWrite)) {
         m_retryTimer->start(std::chrono::milliseconds(50));
     } else {
@@ -60,7 +60,7 @@ void SerialInitHelper::skipMOTD()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->error(), QStringLiteral("Failed to begin CLI session: %1").arg(operation->errorString()));
+            finishWithError(BackendError::SerialAccessError, QStringLiteral("Failed to begin CLI session: %1").arg(operation->errorString()));
         } else {
             advanceState();
         }
@@ -76,7 +76,7 @@ void SerialInitHelper::startRPCSession()
     auto *operation = new StartRPCOperation(m_serialPort, this);
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->error(), QStringLiteral("Failed to start RPC session: %1").arg(operation->errorString()));
+            finishWithError(BackendError::SerialAccessError, QStringLiteral("Failed to start RPC session: %1").arg(operation->errorString()));
         } else {
             advanceState();
         }

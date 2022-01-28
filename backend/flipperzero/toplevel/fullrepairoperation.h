@@ -38,6 +38,8 @@ private:
     void correctOptionBytes();
     void downloadAssets();
 
+    void onSubOperationError(AbstractOperation *operation) override;
+
     RecoveryInterface *m_recovery;
     UtilityInterface *m_utility;
     FirmwareHelper *m_helper;

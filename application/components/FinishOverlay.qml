@@ -30,6 +30,7 @@ AbstractOverlay {
 
         anchors.fill: parent
         anchors.margins: 36
+        anchors.leftMargin: 0
 
         ColumnLayout {
             Layout.fillWidth: true
@@ -50,17 +51,18 @@ AbstractOverlay {
                         return qsTr("Invalid device")
                     case BackendError.InternetError:
                         return qsTr("Internet Error")
-                    case BackendError.SerialError:
-                        return qsTr("Serial Port Error")
-                    case BackendError.RecoveryError:
-                        return qsTr("Recovery Error")
-                    case BackendError.ProtocolError:
-                        return qsTr("Protocol Error")
                     case BackendError.DiskError:
                         return qsTr("Disk Access Error")
-                    case BackendError.TimeoutError:
-                        return qsTr("Timeour Error")
-                    case BackendError.UnknownError:
+                    case BackendError.SerialAccessError:
+                        return qsTr("Permission Denied")
+                    case BackendError.RecoveryAccessError:
+                        return qsTr("Can't Find DFU Device")
+                    case BackendError.BackupError:
+                        return qsTr("Backup Failed")
+                    case BackendError.FileError:
+                        return qsTr("Corrupted Data")
+                    case BackendError.OperationError:
+                        return qsTr("Operation Error")
                     default:
                         return qsTr("Unknown Error")
                     }
@@ -76,8 +78,8 @@ AbstractOverlay {
                     anchors.verticalCenterOffset: -15
 
                     sourceSize: Qt.size(246, 187)
-                    source: Backend.errorType === BackendError.SerialError ||
-                            Backend.errorType === BackendError.RecoveryError ? "qrc:/assets/gfx/images/error-access.svg" :
+                    source: Backend.errorType === BackendError.SerialAccessError ||
+                            Backend.errorType === BackendError.RecoveryAccessError ? "qrc:/assets/gfx/images/error-access.svg" :
                             Backend.errorType === BackendError.InternetError ? "qrc:/assets/gfx/images/error-internet.svg" :
                                                                                "qrc:/assets/gfx/images/error-client.svg"
 
@@ -86,14 +88,14 @@ AbstractOverlay {
 
                 Image {
                     id: flipperError
-                    visible: Backend.errorType === BackendError.InvalidDevice ||
-                             Backend.errorType === BackendError.ProtocolError ||
-                             Backend.errorType === BackendError.TimeoutError  ||
+                    visible: Backend.errorType === BackendError.InvalidDevice  ||
+                             Backend.errorType === BackendError.OperationError ||
+                             Backend.errorType === BackendError.BackupError ||
                              Backend.errorType === BackendError.UnknownError
 
                     anchors.centerIn: parent
                     anchors.verticalCenterOffset: -30
-                    anchors.horizontalCenterOffset: -15
+                    anchors.horizontalCenterOffset: -10
 
                     sourceSize: Qt.size(360, 156)
                     source: "qrc:/assets/gfx/images/flipper.svg"
@@ -102,9 +104,8 @@ AbstractOverlay {
                         x: 93
                         y: 26
 
-                        source: Backend.errorType === BackendError.InvalidDevice ||
-                                Backend.errorType === BackendError.ProtocolError ? "qrc:/assets/gfx/images/error-exclamation.svg" :
-                                                                                   "qrc:/assets/gfx/images/error-cross-eyes.svg"
+                        source: Backend.errorType === BackendError.OperationError ? "qrc:/assets/gfx/images/error-cross-eyes.svg" :
+                                                                                    "qrc:/assets/gfx/images/error-exclamation.svg"
                         sourceSize: Qt.size(128, 64)
                     }
                 }
@@ -122,17 +123,20 @@ AbstractOverlay {
                     return Strings.errorInternet
                 case BackendError.InvalidDevice:
                     return Strings.errorInvalidDevice
-                case BackendError.SerialError:
-                    return Strings.errorSerial
-                case BackendError.RecoveryError:
-                    return Strings.errorRecovery
-                case BackendError.ProtocolError:
-                    return Strings.errorProtocol
                 case BackendError.DiskError:
                     return Strings.errorDisk
-                case BackendError.TimeoutError:
-                    return Strings.errorTimeout
-                case BackendError.UnknownError:
+                case BackendError.SerialAccessError:
+                    return Qt.platform.os === "linux" ? Strings.errorSerialLinux : Strings.errorSerial
+                case BackendError.RecoveryAccessError:
+                    return Qt.platform.os === "linux" ? Strings.errorRecoveryLinux :
+                           Qt.platform.os === "windows" ? Strings.errorRecoveryWindows :
+                                                          Strings.errorRecovery
+                case BackendError.BackupError:
+                    return Strings.errorBackup
+                case BackendError.DataError:
+                    return Strings.errorData
+                case BackendError.OperationError:
+                    return Strings.errorOperation
                 default:
                     return Strings.errorUnknown
                 }

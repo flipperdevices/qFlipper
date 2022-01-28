@@ -166,3 +166,11 @@ void FullUpdateOperation::restartDevice()
 {
     registerSubOperation(m_utility->restartDevice());
 }
+
+void FullUpdateOperation::onSubOperationError(AbstractOperation *operation)
+{
+    const auto keepError = operationState() == FullUpdateOperation::SavingBackup ||
+                           operationState() == FullUpdateOperation::StartingRecovery;
+
+    finishWithError(keepError ? operation->error() : BackendError::OperationError, operation->errorString());
+}

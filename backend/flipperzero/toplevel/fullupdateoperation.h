@@ -52,6 +52,8 @@ private:
     void restoreBackup();
     void restartDevice();
 
+    void onSubOperationError(AbstractOperation *operation) override;
+
     RecoveryInterface *m_recovery;
     UtilityInterface *m_utility;
     FirmwareHelper *m_helper;

@@ -136,7 +136,7 @@ void DeviceRegistry::processDevice()
 
     if(fetcher->isError()) {
         qCDebug(LOG_DEVREG).noquote() << "Device initialization failed:" << fetcher->errorString();
-        setError(info.usbInfo.productID() == 0xdf11 ? BackendError::RecoveryError : BackendError::SerialError);
+        setError(fetcher->error());
         return;
     }
 

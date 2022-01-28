@@ -107,3 +107,8 @@ void FullRepairOperation::downloadAssets()
     auto *file = m_helper->file(FirmwareHelper::FileIndex::AssetsTgz);
     registerSubOperation(m_utility->downloadAssets(file));
 }
+
+void FullRepairOperation::onSubOperationError(AbstractOperation *operation)
+{
+    finishWithError(BackendError::OperationError, operation->errorString());
+}

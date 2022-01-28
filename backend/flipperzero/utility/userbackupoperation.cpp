@@ -131,7 +131,7 @@ void UserBackupOperation::readFiles()
             auto *op = rpc()->storageRead(fileInfo.absolutePath, file);
             connect(op, &AbstractOperation::finished, this, [=]() {
                 if(op->isError()) {
-                    finishWithError(op->error(), op->errorString());
+                    finishWithError(BackendError::BackupError, op->errorString());
                 } else if(isLastFile) {
                     finish();
                 }

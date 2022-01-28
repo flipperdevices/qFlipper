@@ -9,7 +9,12 @@ using namespace Zero;
 
 StartRecoveryOperation::StartRecoveryOperation(CommandInterface *cli, DeviceState *deviceState, QObject *parent):
     AbstractUtilityOperation(cli, deviceState, parent)
-{}
+{
+// Workaround for Windows taking too long to install the driver
+#ifdef Q_OS_WINDOWS
+    setTimeout(120000);
+#endif
+}
 
 const QString StartRecoveryOperation::description() const
 {
@@ -27,6 +32,11 @@ void StartRecoveryOperation::nextStateLogic()
         finish();
 
     } else {}
+}
+
+void StartRecoveryOperation::onOperationTimeout()
+{
+    finishWithError(BackendError::RecoveryAccessError, QStringLiteral("Failed to start recovery mode: operation timeout"));
 }
 
 void StartRecoveryOperation::onDeviceOnlineChanged()
@@ -54,8 +64,8 @@ void StartRecoveryOperation::startRecoveryMode()
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(operation->error(), operation->errorString());
+        } else {
+            startTimeout();
         }
     });
-
-    startTimeout();
 }

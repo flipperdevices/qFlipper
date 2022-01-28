@@ -43,15 +43,15 @@ void AbstractTopLevelOperation::registerSubOperation(AbstractOperation *operatio
 {
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            onSubOperationErrorOccured();
-            finishWithError(operation->error(), operation->errorString());
+            onSubOperationError(operation);
         } else {
             advanceOperationState();
         }
     });
 }
 
-void AbstractTopLevelOperation::onSubOperationErrorOccured()
+void AbstractTopLevelOperation::onSubOperationError(AbstractOperation *operation)
 {
-    //Empty default implementation
+    // Default implementation. Ignoring the operation error here, as we need to provide a respective top-level error instead
+    finishWithError(BackendError::UnknownError, operation->errorString());
 }
