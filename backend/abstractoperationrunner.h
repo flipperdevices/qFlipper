@@ -3,11 +3,9 @@
 #include <QQueue>
 #include <QObject>
 
-#include "failable.h"
-
 class AbstractOperation;
 
-class AbstractOperationRunner : public QObject, public Failable
+class AbstractOperationRunner : public QObject
 {
     Q_OBJECT
 
