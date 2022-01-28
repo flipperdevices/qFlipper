@@ -36,12 +36,13 @@ Rectangle {
                   Backend.errorType === BackendError.RecoveryAccessError ? qsTr("Cannot access device in recovery mode"):
                   Backend.errorType === BackendError.DiskError ? qsTr("Disk access error"):
                   Backend.errorType === BackendError.BackupError ? qsTr("Cannot save Flipper data"):
+                  Backend.errorType === BackendError.OperationError ? qsTr("Operation interrupted"):
                   Backend.errorType === BackendError.DataError ? qsTr("Data corrupted"): qsTr("Something went wrong. Check logs for details.") :
 
                   Backend.backendState === Backend.WaitingForDevices ? qsTr("Waiting for devices ...") :
                   Backend.backendState > Backend.ScreenStreaming && Backend.backendState < Backend.Finished ? qsTr("Do not unplug the device ...") :
                   Backend.backendState === Backend.Finished ? qsTr("Operation has finished successfully.") :
-                  Backend.firmwareUpdateState === Backend.ErrorOccured ? qsTr("Cannot connect to update server.") :
+                  Backend.firmwareUpdateState === Backend.ErrorOccured ? qsTr("Cannot connect to update server") :
                   Backend.firmwareUpdateState === Backend.Checking ? qsTr("Checking for firmware updates...") : qsTr("Ready.")
 
             color: control.errorOccured ? Theme.color.lightred4 : Theme.color.lightorange2
