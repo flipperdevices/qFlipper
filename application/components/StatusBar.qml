@@ -29,7 +29,15 @@ Rectangle {
         TextLabel {
             id: message
 
-            text: Backend.backendState === Backend.ErrorOccured ? qsTr("Something went wrong. Check logs for details.") :
+            text: Backend.backendState === Backend.ErrorOccured ?
+                  Backend.errorType === BackendError.InvalidDevice ? qsTr("Unsupported device found") :
+                  Backend.errorType === BackendError.InternetError ? qsTr("Cannot connect to update server") :
+                  Backend.errorType === BackendError.SerialError ? qsTr("Cannot access serial port"):
+                  Backend.errorType === BackendError.RecoveryError ? qsTr("Cannot access device in recovery mode"):
+                  Backend.errorType === BackendError.ProtocolError ? qsTr("Communication protocol error"):
+                  Backend.errorType === BackendError.DiskError ? qsTr("Disk access error"):
+                  Backend.errorType === BackendError.TimeoutError ? qsTr("Timeout error"): qsTr("Something went wrong. Check logs for details.") :
+
                   Backend.backendState === Backend.WaitingForDevices ? qsTr("Waiting for devices ...") :
                   Backend.backendState > Backend.ScreenStreaming && Backend.backendState < Backend.Finished ? qsTr("Do not unplug the device ...") :
                   Backend.backendState === Backend.Finished ? qsTr("Operation has finished successfully.") :

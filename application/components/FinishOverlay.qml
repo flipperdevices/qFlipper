@@ -78,7 +78,8 @@ AbstractOverlay {
                     sourceSize: Qt.size(246, 187)
                     source: Backend.errorType === BackendError.SerialError ||
                             Backend.errorType === BackendError.RecoveryError ? "qrc:/assets/gfx/images/error-access.svg" :
-                            Backend.errorType === BackendError.InternetError ? "qrc:/assets/gfx/images/error-internet.svg" : "qrc:/assets/gfx/images/error-client.svg"
+                            Backend.errorType === BackendError.InternetError ? "qrc:/assets/gfx/images/error-internet.svg" :
+                                                                               "qrc:/assets/gfx/images/error-client.svg"
 
                     visible: !flipperError.visible
                 }
@@ -86,6 +87,8 @@ AbstractOverlay {
                 Image {
                     id: flipperError
                     visible: Backend.errorType === BackendError.InvalidDevice ||
+                             Backend.errorType === BackendError.ProtocolError ||
+                             Backend.errorType === BackendError.TimeoutError  ||
                              Backend.errorType === BackendError.UnknownError
 
                     anchors.centerIn: parent
@@ -99,7 +102,8 @@ AbstractOverlay {
                         x: 93
                         y: 26
 
-                        source: Backend.errorType === BackendError.InvalidDevice ? "qrc:/assets/gfx/images/error-exclamation.svg" :
+                        source: Backend.errorType === BackendError.InvalidDevice ||
+                                Backend.errorType === BackendError.ProtocolError ? "qrc:/assets/gfx/images/error-exclamation.svg" :
                                                                                    "qrc:/assets/gfx/images/error-cross-eyes.svg"
                         sourceSize: Qt.size(128, 64)
                     }
