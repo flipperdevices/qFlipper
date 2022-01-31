@@ -215,9 +215,7 @@ void FlipperZero::registerOperation(AbstractOperation *operation)
 {
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            const auto &errorString = operation->errorString();
-
-            qCCritical(CAT_DEVICE).noquote() << operation->description() << "ERROR:" << errorString;
+            qCCritical(CAT_DEVICE).noquote() << operation->description() << "ERROR:" << operation->errorString();
             m_state->setError(operation->error(), operation->errorString());
 
         } else {
