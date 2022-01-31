@@ -53,5 +53,5 @@ void AbstractTopLevelOperation::registerSubOperation(AbstractOperation *operatio
 void AbstractTopLevelOperation::onSubOperationError(AbstractOperation *operation)
 {
     // Default implementation. Ignoring the operation error here, as we need to provide a respective top-level error instead
-    finishWithError(BackendError::UnknownError, operation->errorString());
+    finishWithError(BackendError::OperationError, operation->errorString());
 }
