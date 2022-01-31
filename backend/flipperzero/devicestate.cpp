@@ -216,36 +216,38 @@ void DeviceState::onDeviceInfoChanged()
         return;
     }
 
-    createSerialPort();
+    initSerialPort();
 }
 
 void DeviceState::onIsOnlineChanged()
 {
-    deleteSerialPort();
+    closeSerialPort();
     processQueue();
 }
 
-void DeviceState::createSerialPort()
+void DeviceState::initSerialPort()
 {
     auto *helper = new SerialInitHelper(m_deviceInfo.portInfo, this);
     connect(helper, &AbstractOperationHelper::finished, this, [=]() {
+        helper->deleteLater();
+
         if(helper->isError()) {
             setError(helper->error(), helper->errorString());
+            return;
 
-        } else {
-            m_serialPort = helper->serialPort();
-            setOnline(true);
+        } else if(m_serialPort) {
+            m_serialPort->deleteLater();
         }
 
-        helper->deleteLater();
+        m_serialPort = helper->serialPort();
+        setOnline(true);
     });
 }
 
-void DeviceState::deleteSerialPort()
+void DeviceState::closeSerialPort()
 {
     if(!m_isOnline && m_serialPort) {
-        m_serialPort->deleteLater();
-        m_serialPort = nullptr;
+        m_serialPort->close();
     }
 }
 

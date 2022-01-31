@@ -89,8 +89,8 @@ private slots:
     void onIsOnlineChanged();
 
 private:
-    void createSerialPort();
-    void deleteSerialPort();
+    void initSerialPort();
+    void closeSerialPort();
     void processQueue();
 
     DeviceInfo m_deviceInfo;
