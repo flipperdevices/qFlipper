@@ -50,3 +50,8 @@ void SettingsBackupOperation::wait()
     const auto delay = qMax<qint64>(MINIMUM_OPERATION_TIME_MS - m_elapsed.elapsed(), 0);
     QTimer::singleShot(delay, this, &SettingsBackupOperation::advanceOperationState);
 }
+
+void SettingsBackupOperation::onSubOperationError(AbstractOperation *operation)
+{
+    finishWithError(operation->error(), operation->errorString());
+}

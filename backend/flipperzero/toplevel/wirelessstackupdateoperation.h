@@ -34,6 +34,8 @@ private:
     void setRecoveryBootMode();
     void setOSBootMode();
 
+    void onSubOperationError(AbstractOperation *operation) override;
+
 protected:
     RecoveryInterface *m_recovery;
     UtilityInterface *m_utility;

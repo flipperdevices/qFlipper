@@ -89,7 +89,7 @@ bool UserRestoreOperation::deleteFiles()
         auto *op = rpc()->storageRemove(filePath);
         connect(op, &AbstractOperation::finished, this, [=](){
             if(op->isError()) {
-                finishWithError(op->error(), op->errorString());
+                finishWithError(BackendError::OperationError, op->errorString());
             } else if(isLastFile) {
                 QTimer::singleShot(0, this, &UserRestoreOperation::nextStateLogic);
             }
@@ -134,7 +134,7 @@ bool UserRestoreOperation::writeFiles()
 
         connect(op, &AbstractOperation::finished, this, [=]() {
             if(op->isError()) {
-                finishWithError(op->error(), op->errorString());
+                finishWithError(BackendError::OperationError, op->errorString());
             } else if(isLastFile) {
                 QTimer::singleShot(0, this, &UserRestoreOperation::nextStateLogic);
             }

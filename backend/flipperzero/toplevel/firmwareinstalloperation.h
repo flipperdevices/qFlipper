@@ -38,6 +38,8 @@ private:
     void restoreBackup();
     void restartDevice();
 
+    void onSubOperationError(AbstractOperation *operation) override;
+
     RecoveryInterface *m_recovery;
     UtilityInterface *m_utility;
     QFile *m_file;

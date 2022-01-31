@@ -29,6 +29,8 @@ private:
     void saveBackup();
     void wait();
 
+    void onSubOperationError(AbstractOperation *operation) override;
+
     UtilityInterface *m_utility;
     QString m_backupDir;
     QElapsedTimer m_elapsed;

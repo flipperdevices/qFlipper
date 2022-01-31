@@ -31,6 +31,8 @@ private:
     void wait();
     void restartDevice();
 
+    void onSubOperationError(AbstractOperation *operation) override;
+
     UtilityInterface *m_utility;
     QString m_backupDir;
     QElapsedTimer m_elapsed;

@@ -102,3 +102,11 @@ void FirmwareInstallOperation::restartDevice()
 {
     registerSubOperation(m_utility->restartDevice());
 }
+
+void FirmwareInstallOperation::onSubOperationError(AbstractOperation *operation)
+{
+    const auto keepError = operationState() == FirmwareInstallOperation::SavingBackup ||
+                           operationState() == FirmwareInstallOperation::StartingRecovery;
+
+    finishWithError(keepError ? operation->error() : BackendError::OperationError, operation->errorString());
+}

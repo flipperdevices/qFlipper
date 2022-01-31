@@ -60,3 +60,9 @@ void SettingsRestoreOperation::restartDevice()
 {
     registerSubOperation(m_utility->restartDevice());
 }
+
+void SettingsRestoreOperation::onSubOperationError(AbstractOperation *operation)
+{
+    const auto keepError = operationState() == SettingsRestoreOperation::RestoringBackup;
+    finishWithError(keepError ? operation->error() : BackendError::OperationError, operation->errorString());
+}

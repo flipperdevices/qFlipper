@@ -59,6 +59,12 @@ void AbstractCore2UpdateOperation::setOSBootMode()
     registerSubOperation(m_recovery->setOSBootMode());
 }
 
+void AbstractCore2UpdateOperation::onSubOperationError(AbstractOperation *operation)
+{
+    const auto keepError = operationState() == AbstractCore2UpdateOperation::StartingRecovery;
+    finishWithError(keepError ? operation->error() : BackendError::OperationError, operation->errorString());
+}
+
 WirelessStackUpdateOperation::WirelessStackUpdateOperation(RecoveryInterface *recovery, UtilityInterface *utility, DeviceState *state, const QString &filePath, QObject *parent):
     AbstractCore2UpdateOperation(recovery, utility, state, filePath, parent)
 {}

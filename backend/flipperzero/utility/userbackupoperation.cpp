@@ -86,7 +86,7 @@ void UserBackupOperation::getFileTree()
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            finishWithError(operation->error(), operation->errorString());
+            finishWithError(BackendError::BackupError, operation->errorString());
         } else {
             m_fileList = operation->files();
             advanceOperationState();
