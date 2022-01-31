@@ -34,6 +34,8 @@ private:
     void nextStateLogic() override;
     void checkForUpdates();
 
+    void finishEarly(BackendError::ErrorType error, const QString &errorString);
+
     virtual void runCustomOperation() = 0;
 
     UpdateRegistry *m_updateRegistry;

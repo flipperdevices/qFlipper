@@ -13,6 +13,7 @@ AbstractTopLevelHelper::AbstractTopLevelHelper(UpdateRegistry *updateRegistry, F
     m_updateRegistry(updateRegistry),
     m_device(device)
 {
+    m_device->deviceState()->setPersistent(true);
     connect(m_device, &FlipperZero::operationFinished, this, &AbstractTopLevelHelper::finish);
 }
 
@@ -29,14 +30,15 @@ FlipperZero *AbstractTopLevelHelper::device()
 void AbstractTopLevelHelper::onUpdateRegistryStateChanged()
 {
     if(m_updateRegistry->state() == UpdateRegistry::State::ErrorOccured) {
-        // Maintaining the single point of exit (ugly)
-        // TODO: Refactor the code to use finished signal properly
-        m_device->deviceState()->setError(BackendError::InternetError, QStringLiteral("Failed to retreive update information"));
-        emit m_device->operationFinished();
-
+        finishEarly(BackendError::InternetError, QStringLiteral("Failed to retreive update information"));
     } else if(m_updateRegistry->state() == UpdateRegistry::State::Ready) {
         disconnect(m_updateRegistry, &UpdateRegistry::stateChanged, this, &AbstractTopLevelHelper::onUpdateRegistryStateChanged);
-        advanceState();
+
+        if(!m_device->deviceState()->isOnline()) {
+            finishEarly(BackendError::OperationError, QStringLiteral("Connection to device was lost"));
+        } else {
+            advanceState();
+        }
     }
 }
 
@@ -58,6 +60,14 @@ void AbstractTopLevelHelper::checkForUpdates()
 
     connect(m_updateRegistry, &UpdateRegistry::stateChanged, this, &AbstractTopLevelHelper::onUpdateRegistryStateChanged);
     m_updateRegistry->check();
+}
+
+/* This is different from the usual finishWithError() method because it uses the deviceState to both
+ * signal the end of operation and pass the error information. */
+void AbstractTopLevelHelper::finishEarly(BackendError::ErrorType error, const QString &errorString)
+{
+    m_device->deviceState()->setError(error, errorString);
+    emit m_device->operationFinished();
 }
 
 UpdateTopLevelHelper::UpdateTopLevelHelper(UpdateRegistry *updateRegistry, FlipperZero *device, QObject *parent):
