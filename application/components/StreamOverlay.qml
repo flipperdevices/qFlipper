@@ -16,11 +16,21 @@ AbstractOverlay {
         id: fileDialog
 
         title: qsTr("Please choose a file")
-        folder: shortcuts.home
+        folder: shortcuts.pictures
         selectExisting: false
 
         nameFilters: ["PNG images (*.png)", "JPEG images (*.jpg)"]
-        onAccepted: canvas.saveImage(fileUrl, 4)
+
+        onAccepted: {
+            const ext = selectedNameFilter.match("\\.\\w+")[0];
+            let strurl = fileUrl.toString();
+
+            if(!strurl.endsWith(ext)) {
+                strurl += ext;
+            }
+
+            canvas.saveImage(Qt.resolvedUrl(strurl), 4);
+        }
     }
 
     Rectangle {
