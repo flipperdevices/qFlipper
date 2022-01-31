@@ -21,13 +21,13 @@ AssetManifest::AssetManifest(const QByteArray &text):
     auto n = 1;
     while(!s.atEnd()) {
         if(!parseLine(s.readLine())) {
-            setErrorString(QStringLiteral("Syntax error on line %1").arg(n++));
+            setError(BackendError::DataError, QStringLiteral("Syntax error on line %1").arg(n++));
             return;
         }
     }
 
     if((m_version == -1) || (m_timestamp == 0)) {
-        setErrorString(QStringLiteral("Incomplete manifest file"));
+        setError(BackendError::DataError, QStringLiteral("Incomplete manifest file"));
     }
 }
 
