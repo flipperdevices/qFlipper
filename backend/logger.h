@@ -18,9 +18,9 @@ class Logger : public QObject
 
 public:
     enum LogLevel {
-        Default,    //< Display everything
+        ErrorsOnly, //< Only display qCritical messages
         Terse,      //< No qDebug messages
-        ErrorsOnly  //< Only display qCritical messages
+        Default     //< Display everything
     };
 
     static Logger *instance();
