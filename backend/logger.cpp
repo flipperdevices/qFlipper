@@ -16,6 +16,7 @@ Logger::Logger(QObject *parent):
     m_stderr(stderr, QIODevice::WriteOnly),
     m_fileOut(m_logFile),
     m_startTime(QDateTime::currentDateTime()),
+    m_logLevel(Default),
     m_errorCount(0)
 {
     m_logDir.mkdir(APP_NAME);
@@ -53,26 +54,29 @@ void Logger::messageOutput(QtMsgType type, const QMessageLogContext &context, co
     const auto text = QStringLiteral("[%1] %2").arg(context.category, msg);
     const auto criticalText = QStringLiteral("<font color=\"#ff1f00\">%1</font>");
 
-    switch(type) {
-    case QtFatalMsg:
-    case QtDebugMsg:
-        break;
-    case QtInfoMsg:
-    case QtWarningMsg:
-    case QtCriticalMsg:
-        if(!strcmp(context.category, "default")) {
-            break;
-        }
-
-        emit globalLogger->messageArrived(type == QtCriticalMsg ? criticalText.arg(text) : text);
-        globalLogger->setErrorCount(globalLogger->errorCount() + (type == QtCriticalMsg ? 1 : 0));
-    }
-
+    // Writing everything in the file regardless of the log level
     if(globalLogger->m_logFile->isOpen()) {
         globalLogger->m_fileOut << text << Qt::endl;
     }
 
+    const auto filterNonError = globalLogger->m_logLevel == ErrorsOnly && type != QtCriticalMsg;
+    const auto filterDebug = globalLogger->m_logLevel == Terse && type == QtDebugMsg;
+
+    if(filterNonError || filterDebug) {
+        return;
+    }
+
     globalLogger->m_stderr << text << Qt::endl;
+
+    const auto filterWithoutCategory = !strcmp(context.category, "default");
+    const auto filterPretty = type == QtDebugMsg;
+
+    if(filterWithoutCategory || filterPretty) {
+        return;
+    }
+
+    emit globalLogger->messageArrived(type == QtCriticalMsg ? criticalText.arg(text) : text);
+    globalLogger->setErrorCount(globalLogger->errorCount() + (type == QtCriticalMsg ? 1 : 0));
 }
 
 const QUrl Logger::logsPath() const
@@ -93,6 +97,11 @@ void Logger::setErrorCount(int count)
 
     m_errorCount = count;
     emit errorCountChanged();
+}
+
+void Logger::setLogLevel(LogLevel level)
+{
+    m_logLevel = level;
 }
 
 void Logger::fallbackMessageOutput(const QString &msg)

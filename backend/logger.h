@@ -17,6 +17,12 @@ class Logger : public QObject
     Logger(QObject *parent = nullptr);
 
 public:
+    enum LogLevel {
+        Default,    //< Display everything
+        Terse,      //< No qDebug messages
+        ErrorsOnly  //< Only display qCritical messages
+    };
+
     static Logger *instance();
     static void messageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
@@ -24,6 +30,8 @@ public:
 
     int errorCount() const;
     void setErrorCount(int count);
+
+    void setLogLevel(LogLevel level);
 
 signals:
     void messageArrived(const QString&);
@@ -40,6 +48,7 @@ private:
     QTextStream m_fileOut;
 
     QDateTime m_startTime;
+    LogLevel m_logLevel;
     int m_errorCount;
 };
 
