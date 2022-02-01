@@ -28,16 +28,6 @@ Tool::Tool(int argc, char *argv[]):
 Tool::~Tool()
 {}
 
-void Tool::onCurrentDeviceChanged()
-{
-    if(m_backend.backendState() == ApplicationBackend::BackendState::Ready) {
-        qCInfo(LOG_TOOL) << "Current device is set to:" << m_backend.device()->deviceState()->deviceInfo().name;
-    } else {
-        qCCritical(LOG_TOOL) << "All devices disconnected. Exiting.";
-        exit(m_backend.backendState() == ApplicationBackend::BackendState::WaitingForDevices ? 0 : -1);
-    }
-}
-
 void Tool::onBackendStateChanged()
 {
     const auto state = m_backend.backendState();
@@ -45,8 +35,12 @@ void Tool::onBackendStateChanged()
         qCCritical(LOG_TOOL) << "An error has occured:" << m_backend.errorType() << "Exiting.";
         exit(-1);
 
+    } else if(state == ApplicationBackend::BackendState::WaitingForDevices) {
+        qCCritical(LOG_TOOL) << "All devices disconnected. Exiting.";
+        exit(0);
+
     } else if(state == ApplicationBackend::BackendState::Ready) {
-//        startPendingOperation();
+        startPendingOperation();
     } else if(state == ApplicationBackend::BackendState::Finished) {
         m_backend.finalizeOperation();
     }
@@ -65,7 +59,6 @@ void Tool::onUpdateStateChanged()
 
 void Tool::initConnections()
 {
-    connect(&m_backend, &ApplicationBackend::currentDeviceChanged, this, &Tool::onCurrentDeviceChanged);
     connect(&m_backend, &ApplicationBackend::backendStateChanged, this, &Tool::onBackendStateChanged);
     connect(&m_backend, &ApplicationBackend::firmwareUpdateStateChanged, this, &Tool::onUpdateStateChanged);
 }
@@ -189,7 +182,7 @@ void Tool::startPendingOperation()
         qCCritical(LOG_TOOL) << "All done! Exiting.";
         exit(0);
 
-    } else {
+    } else if(m_repeatCount > 0) {
         --m_repeatCount;
     }
 

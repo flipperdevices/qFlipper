@@ -20,7 +20,6 @@ public:
     ~Tool();
 
 private slots:
-    void onCurrentDeviceChanged();
     void onBackendStateChanged();
     void onUpdateStateChanged();
 
