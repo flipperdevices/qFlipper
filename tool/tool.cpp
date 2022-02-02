@@ -144,7 +144,7 @@ void Tool::processRepeatNumberOption()
         std::exit(-1);
     }
 
-    m_repeatCount = num;
+    m_repeatCount = num ? num : -1;
 }
 
 void Tool::beginUpdate()
@@ -181,8 +181,6 @@ void Tool::startPendingOperation()
     if(m_repeatCount == 0) {
         qCCritical(LOG_TOOL) << "All done! Exiting.";
         exit(0);
-
-//    } else if() {
 
     } else if(m_repeatCount > 0) {
         --m_repeatCount;
