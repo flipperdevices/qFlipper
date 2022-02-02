@@ -308,7 +308,7 @@ void Tool::beginCore2FUS()
 void Tool::startPendingOperation()
 {
     if(m_repeatCount == 0) {
-        qCCritical(LOG_TOOL) << "All done! Thank you.";
+        qCInfo(LOG_TOOL) << "All done! Thank you.";
         return exit(0);
 
     } else if(m_repeatCount > 0) {
