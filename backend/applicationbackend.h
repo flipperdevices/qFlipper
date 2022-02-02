@@ -122,6 +122,7 @@ signals:
 
 private slots:
     void onCurrentDeviceChanged();
+    void onCurrentDeviceReady();
     void onDeviceOperationFinished();
     void onDeviceRegistryErrorChanged();
 
@@ -133,6 +134,8 @@ private:
 
     void setBackendState(BackendState newState);
     void setErrorType(BackendError::ErrorType newErrorType);
+
+    void waitForDeviceReady();
 
     Flipper::DeviceRegistry *m_deviceRegistry;
     Flipper::UpdateRegistry *m_firmwareUpdateRegistry;

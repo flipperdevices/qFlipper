@@ -182,6 +182,8 @@ void Tool::startPendingOperation()
         qCCritical(LOG_TOOL) << "All done! Exiting.";
         exit(0);
 
+//    } else if() {
+
     } else if(m_repeatCount > 0) {
         --m_repeatCount;
     }
