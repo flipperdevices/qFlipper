@@ -32,12 +32,12 @@ void Tool::onBackendStateChanged()
 {
     const auto state = m_backend.backendState();
     if(state == ApplicationBackend::BackendState::ErrorOccured) {
-        qCCritical(LOG_TOOL) << "An error has occured:" << m_backend.errorType() << "Exiting.";
-        exit(-1);
+        qCCritical(LOG_TOOL).nospace() << "An error has occured: " << m_backend.errorType() << ". Exiting.";
+        return exit(-1);
 
     } else if(state == ApplicationBackend::BackendState::WaitingForDevices) {
         qCCritical(LOG_TOOL) << "All devices disconnected. Exiting.";
-        exit(0);
+        return exit(0);
 
     } else if(state == ApplicationBackend::BackendState::Ready) {
         // Start the pending operation as soon as the device is ready...
@@ -47,7 +47,7 @@ void Tool::onBackendStateChanged()
 
         } else if(m_backend.firmwareUpdateState() == ApplicationBackend::FirmwareUpdateState::ErrorOccured) {
             qCCritical(LOG_TOOL) << "Failed to get firmware updates. Exiting.";
-            exit(-1);
+            return exit(-1);
         }
 
         const auto isFirmwareReady = m_backend.firmwareUpdateState() != ApplicationBackend::FirmwareUpdateState::Checking &&
@@ -68,7 +68,7 @@ void Tool::onUpdateStateChanged()
 {
     if(m_backend.firmwareUpdateState() == ApplicationBackend::FirmwareUpdateState::ErrorOccured) {
         qCCritical(LOG_TOOL) << "Failed to get firmware updates. Exiting.";
-        exit(-1);
+        return exit(-1);
     }
 
     const auto isFirmwareReady = m_backend.firmwareUpdateState() != ApplicationBackend::FirmwareUpdateState::Checking &&
@@ -282,7 +282,7 @@ void Tool::startPendingOperation()
 {
     if(m_repeatCount == 0) {
         qCCritical(LOG_TOOL) << "All done! Thank you.";
-        exit(0);
+        return exit(0);
 
     } else if(m_repeatCount > 0) {
         --m_repeatCount;
