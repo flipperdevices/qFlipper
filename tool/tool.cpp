@@ -4,6 +4,7 @@
 #include <QLoggingCategory>
 
 #include "logger.h"
+#include "preferences.h"
 
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/devicestate.h"
@@ -92,16 +93,17 @@ void Tool::initLogger()
 
 void Tool::initParser()
 {
-    m_parser.addPositionalArgument(QStringLiteral("backup"), QStringLiteral("Backup Internal Memory contents"));
-    m_parser.addPositionalArgument(QStringLiteral("restore"), QStringLiteral("Restore Internal Memory contents"));
-    m_parser.addPositionalArgument(QStringLiteral("erase"), QStringLiteral("Erase Internal Memory contents"));
-    m_parser.addPositionalArgument(QStringLiteral("wipe"), QStringLiteral("Wipe entire MCU Flash Memory"));
-    m_parser.addPositionalArgument(QStringLiteral("firmware"), QStringLiteral("Flash Core1 Firmware"));
-    m_parser.addPositionalArgument(QStringLiteral("core2radio"), QStringLiteral("Flash Core2 Radio stack"));
-    m_parser.addPositionalArgument(QStringLiteral("core2fus"), QStringLiteral("Flash Core2 Firmware Update Service"));
+    m_parser.addPositionalArgument(QStringLiteral("backup"), QStringLiteral("Backup Internal Memory contents"), QStringLiteral("{backup <target_directory>,"));
+    m_parser.addPositionalArgument(QStringLiteral("restore"), QStringLiteral("Restore Internal Memory contents"), QStringLiteral("restore <source_directory>,"));
+    m_parser.addPositionalArgument(QStringLiteral("erase"), QStringLiteral("Erase Internal Memory contents"), QStringLiteral("erase,"));
+    m_parser.addPositionalArgument(QStringLiteral("wipe"), QStringLiteral("Wipe entire MCU Flash Memory"), QStringLiteral("wipe,"));
+    m_parser.addPositionalArgument(QStringLiteral("firmware"), QStringLiteral("Flash Core1 Firmware"), QStringLiteral("firmware <firmware_file.dfu>,"));
+    m_parser.addPositionalArgument(QStringLiteral("core2radio"), QStringLiteral("Flash Core2 Radio stack"), QStringLiteral("core2radio <firmware_file.bin>,"));
+    m_parser.addPositionalArgument(QStringLiteral("core2fus"), QStringLiteral("Flash Core2 Firmware Update Service"), QStringLiteral("core2fus <firmware_file.bin> <target_address>}"));
 
     m_options.append(QCommandLineOption({QStringLiteral("d"), QStringLiteral("debug-level")}, QStringLiteral("0 - Errors Only, 1 - Terse, 2 - Full"), QStringLiteral("1")));
     m_options.append(QCommandLineOption({QStringLiteral("n"), QStringLiteral("repeat-number")}, QStringLiteral("Number of times to repeat the operation, 0 - indefinitely"), QStringLiteral("1")));
+    m_options.append(QCommandLineOption({QStringLiteral("c"), QStringLiteral("update-channel")}, QStringLiteral("Update channel for Firmware Update/Repair"), globalPrefs->firmwareUpdateChannel()));
 
     m_parser.setApplicationDescription(QStringLiteral("A text mode non-interactive qFlipper counterpart. Run without arguments to quickly perform Firmware Update/Repair."));
 
@@ -116,6 +118,7 @@ void Tool::processOptions()
 {
     processDebugLevelOption();
     processRepeatNumberOption();
+    processUpdateChannelOption();
 }
 
 void Tool::processArguments()
@@ -145,7 +148,7 @@ void Tool::processArguments()
 
 void Tool::processDebugLevelOption()
 {
-    const auto &debugLevelOption = m_options[0];
+    const auto &debugLevelOption = m_options[DebugLevelOption];
 
     if(!m_parser.isSet(debugLevelOption)) {
         return;
@@ -164,7 +167,7 @@ void Tool::processDebugLevelOption()
 
 void Tool::processRepeatNumberOption()
 {
-    const auto &repeatNumberOption = m_options[1];
+    const auto &repeatNumberOption = m_options[RepeatNumberOption];
 
     if(!m_parser.isSet(repeatNumberOption)) {
         return;
@@ -181,6 +184,30 @@ void Tool::processRepeatNumberOption()
     qCInfo(LOG_TOOL).noquote() << "Will repeat the operation" << (num ? QStringLiteral("%1 times.").arg(num) : QStringLiteral("indefinitely."));
 
     m_repeatCount = num ? num : -1;
+}
+
+void Tool::processUpdateChannelOption()
+{
+    const auto &updateChannelOption = m_options[UpdateChannelOption];
+
+    if(!m_parser.isSet(updateChannelOption)) {
+        return;
+    }
+
+    static const QStringList allowedChannelNames = {
+        QStringLiteral("release"),
+        QStringLiteral("release-candidate"),
+        QStringLiteral("development")
+    };
+
+    const auto channelName = m_parser.value(updateChannelOption);
+
+    if(!allowedChannelNames.contains(channelName)) {
+        qCCritical(LOG_TOOL) << "Unknown update channel. Possible channels are:" << allowedChannelNames;
+        std::exit(-1);
+    }
+
+    globalPrefs->setFirmwareUpdateChannel(channelName);
 }
 
 void Tool::beginDefaultAction()

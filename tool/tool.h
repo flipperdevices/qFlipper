@@ -22,6 +22,12 @@ class Tool : public QCoreApplication
         Core2FUS
     };
 
+    enum OptionIndex {
+        DebugLevelOption = 0,
+        RepeatNumberOption,
+        UpdateChannelOption
+    };
+
 public:
     Tool(int argc, char *argv[]);
     ~Tool();
@@ -40,6 +46,7 @@ private:
 
     void processDebugLevelOption();
     void processRepeatNumberOption();
+    void processUpdateChannelOption();
 
     void beginDefaultAction();
     void beginBackup();
