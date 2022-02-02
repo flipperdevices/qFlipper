@@ -125,12 +125,19 @@ void Tool::processArguments()
     if(args.isEmpty()) {
         beginDefaultAction();
     } else if(args.startsWith(QStringLiteral("backup"))) {
+        beginBackup();
     } else if(args.startsWith(QStringLiteral("restore"))) {
+        beginRestore();
     } else if(args.startsWith(QStringLiteral("erase"))) {
+        beginErase();
     } else if(args.startsWith(QStringLiteral("wipe"))) {
+        beginWipe();
     } else if(args.startsWith(QStringLiteral("firmware"))) {
+        beginFirmware();
     } else if(args.startsWith(QStringLiteral("core2radio"))) {
+        beginCore2Radio();
     } else if(args.startsWith(QStringLiteral("core2fus"))) {
+        beginCore2FUS();
     } else {
         m_parser.showHelp(-1);
     }
@@ -182,6 +189,95 @@ void Tool::beginDefaultAction()
     m_pendingOperation = DefaultAction;
 }
 
+void Tool::beginBackup()
+{
+    verifyArgumentCount(2);
+    m_fileParameter = QUrl::fromLocalFile(m_parser.positionalArguments().at(1));
+
+    qCInfo(LOG_TOOL).noquote().nospace() << "Performing internal storage backup to " << m_fileParameter << "...";
+    m_pendingOperation = Backup;
+}
+
+void Tool::beginRestore()
+{
+    verifyArgumentCount(2);
+    m_fileParameter = QUrl::fromLocalFile(m_parser.positionalArguments().at(1));
+
+    qCInfo(LOG_TOOL).noquote().nospace() << "Performing internal restore from " << m_fileParameter << "...";
+    m_pendingOperation = Restore;
+}
+
+void Tool::beginErase()
+{
+    verifyArgumentCount(1);
+    qCInfo(LOG_TOOL) << "Performing device factory reset...";
+    m_pendingOperation = Erase;
+}
+
+void Tool::beginWipe()
+{
+    qCCritical(LOG_TOOL) << "Wipe is not implemented yet. Sorry!";
+    std::exit(-1);
+}
+
+void Tool::beginFirmware()
+{
+    verifyArgumentCount(2);
+    const auto arg = m_parser.positionalArguments().at(1);
+
+    if(!arg.endsWith(QStringLiteral(".dfu"), Qt::CaseInsensitive)) {
+        qCCritical(LOG_TOOL) << "Please provide a firmware file in DFUse format.";
+        std::exit(-1);
+    }
+
+    m_fileParameter = QUrl::fromLocalFile(arg);
+
+    qCInfo(LOG_TOOL).noquote().nospace() << "Performing Firmware installation from " << m_fileParameter << "...";
+    m_pendingOperation = Firmware;
+}
+
+void Tool::beginCore2Radio()
+{
+    verifyArgumentCount(2);
+    const auto arg = m_parser.positionalArguments().at(1);
+
+    if(!arg.endsWith(QStringLiteral(".bin"), Qt::CaseInsensitive)) {
+        qCCritical(LOG_TOOL) << "Please provide a firmware file in .bin format.";
+        std::exit(-1);
+    }
+
+    m_fileParameter = QUrl::fromLocalFile(arg);
+
+    qCInfo(LOG_TOOL).noquote().nospace() << "Performing Radio Firmware installation from " << m_fileParameter << "...";
+    m_pendingOperation = Core2Radio;
+}
+
+void Tool::beginCore2FUS()
+{
+    verifyArgumentCount(3);
+
+    const auto args = m_parser.positionalArguments();
+    const auto &arg1 = args[1];
+    const auto &arg2 = args[2];
+
+    if(!arg1.endsWith(QStringLiteral(".bin"), Qt::CaseInsensitive)) {
+        qCCritical(LOG_TOOL) << "Please provide a firmware file in .bin format.";
+        std::exit(-1);
+    }
+
+    m_fileParameter = QUrl::fromLocalFile(arg1);
+
+    bool canConvert;
+    m_core2Address = arg2.toULong(&canConvert, 16);
+
+    if(!canConvert) {
+        qCCritical(LOG_TOOL) << "Please provide a valid hexadecimal address.";
+        std::exit(-1);
+    }
+
+    m_pendingOperation = Core2FUS;
+}
+
 void Tool::startPendingOperation()
 {
     if(m_repeatCount == 0) {
@@ -196,22 +292,31 @@ void Tool::startPendingOperation()
         m_backend.mainAction();
 
     } else if(m_pendingOperation == Backup) {
-//        m_backend.createBackup();
+        m_backend.createBackup(m_fileParameter);
     } else if(m_pendingOperation == Restore) {
-//        m_backend.restoreBackup();
+        m_backend.restoreBackup(m_fileParameter);
     } else if(m_pendingOperation == Erase) {
         m_backend.factoryReset();
     } else if(m_pendingOperation == Wipe) {
-        qCCritical(LOG_TOOL) << "Wipe is not implemented yet. Sorry!";
-        exit(-1);
+        // Not implemented yet
     } else if(m_pendingOperation == Firmware) {
-//        m_backend.installFirmware();
+        m_backend.installFirmware(m_fileParameter);
     } else if(m_pendingOperation == Core2Radio) {
-//        m_backend.installWirelessStack();
+        m_backend.installWirelessStack(m_fileParameter);
     } else if(m_pendingOperation == Core2FUS) {
-//        m_backend.installFUS();
+        m_backend.installFUS(m_fileParameter, m_core2Address);
     } else {
         qCCritical(LOG_TOOL) << "Unhandled operation. Probably a bug!";
         exit(-1);
+    }
+}
+
+void Tool::verifyArgumentCount(int num)
+{
+    const auto argCount = m_parser.positionalArguments().size();
+
+    if(argCount != num) {
+        qCCritical(LOG_TOOL).nospace() << "Expected " << num << " arguments, got " << argCount << ". Exiting.";
+        std::exit(-1);
     }
 }
