@@ -11,8 +11,14 @@ class Tool : public QCoreApplication
 
     enum OperationType {
         NoOperation,
-        FullUpdate,
-        FullRepair
+        DefaultAction,
+        Backup,
+        Restore,
+        Erase,
+        Wipe,
+        Firmware,
+        Core2Radio,
+        Core2FUS
     };
 
 public:
@@ -34,8 +40,7 @@ private:
     void processDebugLevelOption();
     void processRepeatNumberOption();
 
-    void beginUpdate();
-    void beginRepair();
+    void beginDefaultAction();
 
     void startPendingOperation();
 

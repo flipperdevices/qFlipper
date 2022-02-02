@@ -40,7 +40,25 @@ void Tool::onBackendStateChanged()
         exit(0);
 
     } else if(state == ApplicationBackend::BackendState::Ready) {
-        startPendingOperation();
+        // Start the pending operation as soon as the device is ready...
+        if(m_pendingOperation != DefaultAction) {
+            startPendingOperation();
+            return;
+
+        } else if(m_backend.firmwareUpdateState() == ApplicationBackend::FirmwareUpdateState::ErrorOccured) {
+            qCCritical(LOG_TOOL) << "Failed to get firmware updates. Exiting.";
+            exit(-1);
+        }
+
+        const auto isFirmwareReady = m_backend.firmwareUpdateState() != ApplicationBackend::FirmwareUpdateState::Checking &&
+                                     m_backend.firmwareUpdateState() != ApplicationBackend::FirmwareUpdateState::Unknown;
+        if(isFirmwareReady) {
+            startPendingOperation();
+        } else {
+            // ... But there are special cases when we might have to wait for the firmware update to become available.
+            connect(&m_backend, &ApplicationBackend::firmwareUpdateStateChanged, this, &Tool::onUpdateStateChanged);
+        }
+
     } else if(state == ApplicationBackend::BackendState::Finished) {
         m_backend.finalizeOperation();
     }
@@ -48,11 +66,15 @@ void Tool::onBackendStateChanged()
 
 void Tool::onUpdateStateChanged()
 {
-    const auto deviceReady = m_backend.backendState() == ApplicationBackend::BackendState::Ready;
-    const auto firmwareReady = m_backend.firmwareUpdateState() == ApplicationBackend::FirmwareUpdateState::CanRepair;
-    const auto dependsOnFirmware = (m_pendingOperation == FullUpdate) || (m_pendingOperation == FullRepair);
+    if(m_backend.firmwareUpdateState() == ApplicationBackend::FirmwareUpdateState::ErrorOccured) {
+        qCCritical(LOG_TOOL) << "Failed to get firmware updates. Exiting.";
+        exit(-1);
+    }
 
-    if(deviceReady && firmwareReady && dependsOnFirmware) {
+    const auto isFirmwareReady = m_backend.firmwareUpdateState() != ApplicationBackend::FirmwareUpdateState::Checking &&
+                                     m_backend.firmwareUpdateState() != ApplicationBackend::FirmwareUpdateState::Unknown;
+    if(isFirmwareReady) {
+        disconnect(&m_backend, &ApplicationBackend::firmwareUpdateStateChanged, this, &Tool::onUpdateStateChanged);
         startPendingOperation();
     }
 }
@@ -60,7 +82,6 @@ void Tool::onUpdateStateChanged()
 void Tool::initConnections()
 {
     connect(&m_backend, &ApplicationBackend::backendStateChanged, this, &Tool::onBackendStateChanged);
-    connect(&m_backend, &ApplicationBackend::firmwareUpdateStateChanged, this, &Tool::onUpdateStateChanged);
 }
 
 void Tool::initLogger()
@@ -71,8 +92,6 @@ void Tool::initLogger()
 
 void Tool::initParser()
 {
-    m_parser.addPositionalArgument(QStringLiteral("update"), QStringLiteral("Update Firmware and Assets to latest version"));
-    m_parser.addPositionalArgument(QStringLiteral("repair"), QStringLiteral("Repair a broken Firmware installation"));
     m_parser.addPositionalArgument(QStringLiteral("backup"), QStringLiteral("Backup Internal Memory contents"));
     m_parser.addPositionalArgument(QStringLiteral("restore"), QStringLiteral("Restore Internal Memory contents"));
     m_parser.addPositionalArgument(QStringLiteral("erase"), QStringLiteral("Erase Internal Memory contents"));
@@ -84,7 +103,10 @@ void Tool::initParser()
     m_options.append(QCommandLineOption({QStringLiteral("d"), QStringLiteral("debug-level")}, QStringLiteral("0 - Errors Only, 1 - Terse, 2 - Full"), QStringLiteral("1")));
     m_options.append(QCommandLineOption({QStringLiteral("n"), QStringLiteral("repeat-number")}, QStringLiteral("Number of times to repeat the operation, 0 - indefinitely"), QStringLiteral("1")));
 
+    m_parser.setApplicationDescription(QStringLiteral("A text mode non-interactive qFlipper counterpart. Run without arguments to quickly perform Firmware Update/Repair."));
+
     m_parser.addOptions(m_options);
+    m_parser.addVersionOption();
     m_parser.addHelpOption();
 
     m_parser.process(*this);
@@ -100,10 +122,15 @@ void Tool::processArguments()
 {
     const auto args = m_parser.positionalArguments();
 
-    if(args.startsWith(QStringLiteral("update"))) {
-        beginUpdate();
-    } else if(args.startsWith(QStringLiteral("repair"))) {
-        beginRepair();
+    if(args.isEmpty()) {
+        beginDefaultAction();
+    } else if(args.startsWith(QStringLiteral("backup"))) {
+    } else if(args.startsWith(QStringLiteral("restore"))) {
+    } else if(args.startsWith(QStringLiteral("erase"))) {
+    } else if(args.startsWith(QStringLiteral("wipe"))) {
+    } else if(args.startsWith(QStringLiteral("firmware"))) {
+    } else if(args.startsWith(QStringLiteral("core2radio"))) {
+    } else if(args.startsWith(QStringLiteral("core2fus"))) {
     } else {
         m_parser.showHelp(-1);
     }
@@ -144,52 +171,47 @@ void Tool::processRepeatNumberOption()
         std::exit(-1);
     }
 
+    qCInfo(LOG_TOOL).noquote() << "Will repeat the operation" << (num ? QStringLiteral("%1 times.").arg(num) : QStringLiteral("indefinitely."));
+
     m_repeatCount = num ? num : -1;
 }
 
-void Tool::beginUpdate()
+void Tool::beginDefaultAction()
 {
     qCInfo(LOG_TOOL) << "Performing full firmware update...";
-
-    m_pendingOperation = FullUpdate;
-
-    const auto deviceReady = m_backend.backendState() == ApplicationBackend::BackendState::Ready;
-    const auto firmwareReady = (m_backend.firmwareUpdateState() == ApplicationBackend::FirmwareUpdateState::CanInstall) ||
-                             (m_backend.firmwareUpdateState() == ApplicationBackend::FirmwareUpdateState::CanUpdate);
-
-    if(deviceReady && firmwareReady) {
-        startPendingOperation();
-    }
-}
-
-void Tool::beginRepair()
-{
-    qCInfo(LOG_TOOL) << "Performing full firmware repair...";
-
-    m_pendingOperation = FullRepair;
-
-    const auto deviceReady = m_backend.backendState() == ApplicationBackend::BackendState::Ready;
-    const auto firmwareReady = m_backend.firmwareUpdateState() == ApplicationBackend::FirmwareUpdateState::CanRepair;
-
-    if(deviceReady && firmwareReady) {
-        startPendingOperation();
-    }
+    m_pendingOperation = DefaultAction;
 }
 
 void Tool::startPendingOperation()
 {
     if(m_repeatCount == 0) {
-        qCCritical(LOG_TOOL) << "All done! Exiting.";
+        qCCritical(LOG_TOOL) << "All done! Thank you.";
         exit(0);
 
     } else if(m_repeatCount > 0) {
         --m_repeatCount;
     }
 
-    if((m_pendingOperation == FullUpdate) || (m_pendingOperation == FullRepair)) {
+    if(m_pendingOperation == DefaultAction) {
         m_backend.mainAction();
 
+    } else if(m_pendingOperation == Backup) {
+//        m_backend.createBackup();
+    } else if(m_pendingOperation == Restore) {
+//        m_backend.restoreBackup();
+    } else if(m_pendingOperation == Erase) {
+        m_backend.factoryReset();
+    } else if(m_pendingOperation == Wipe) {
+        qCCritical(LOG_TOOL) << "Wipe is not implemented yet. Sorry!";
+        exit(-1);
+    } else if(m_pendingOperation == Firmware) {
+//        m_backend.installFirmware();
+    } else if(m_pendingOperation == Core2Radio) {
+//        m_backend.installWirelessStack();
+    } else if(m_pendingOperation == Core2FUS) {
+//        m_backend.installFUS();
     } else {
+        qCCritical(LOG_TOOL) << "Unhandled operation. Probably a bug!";
         exit(-1);
     }
 }
