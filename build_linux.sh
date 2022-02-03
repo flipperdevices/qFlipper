@@ -10,4 +10,7 @@ export QML_SOURCES_PATHS='..'
 
 mkdir -p $BUILDDIR && cd $BUILDDIR
 qmake ../$TARGET.pro -spec linux-g++ CONFIG+=qtquickcompiler && make qmake_all && make -j$(nproc)
-linuxdeploy -e $TARGET -i ../application/assets/icons/${TARGET}.png --appdir AppImage --plugin=qt --create-desktop-file -o appimage
+linuxdeploy --appdir=AppDir -o appimage -e ${TARGET}Tool -e $TARGET \
+            --custom-apprun=../installer-assets/appimage/AppRun --plugin=qt \
+            -d ../installer-assets/appimage/qFlipper.desktop \
+            -i ../application/assets/icons/qFlipper.png

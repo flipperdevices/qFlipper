@@ -19,12 +19,26 @@ qmake -spec macx-clang CONFIG+=release CONFIG+=x86_64 -o Makefile ../$PROJECT.pr
 make -j9 > /dev/null
 macdeployqt $PROJECT.app -qmldir=$PROJECT_DIR/Application -verbose=1
 
+# Add the Tool to bundle
+cp ${PROJECT}Tool $PROJECT.app/Contents/MacOS
+# Fix libraries for the Tool
+install_name_tool -change /usr/local/opt/libusb/lib/libusb-1.0.0.dylib @executable_path/../Frameworks/libusb-1.0.0.dylib $PROJECT.app/Contents/MacOS/${PROJECT}Tool
+install_name_tool -change /usr/local/opt/qt@5/lib/QtSerialPort.framework/Versions/5/QtSerialPort @executable_path/../Frameworks/QtSerialPort.framework/Versions/5/QtSerialPort $PROJECT.app/Contents/MacOS/${PROJECT}Tool
+install_name_tool -change /usr/local/opt/qt@5/lib/QtNetwork.framework/Versions/5/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork $PROJECT.app/Contents/MacOS/${PROJECT}Tool
+install_name_tool -change /usr/local/opt/qt@5/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore $PROJECT.app/Contents/MacOS/${PROJECT}Tool
+
 FAILED_LIBS_COUNT=`otool -L $PROJECT.app/Contents/Frameworks/*.dylib | grep /usr/local -c || true`
+FAILED_APPS_COUNT=`otool -L $PROJECT.app/Contents/MacOS/* | grep /usr/local -c || true`
 
 if [[ $FAILED_LIBS_COUNT -gt 0 ]]
 then
     echo "Not all libraries use proper paths"
     exit 255
+
+elif [[ $FAILED_APPS_COUNT -gt 0 ]]
+then
+   echo "Not all executables use proper paths"
+   exit 255
 fi
 
 # Sign
@@ -57,3 +71,4 @@ create-dmg \
     --app-drop-link 485 150 \
     "$PROJECT.dmg" \
     "disk_image/"
+

@@ -185,7 +185,7 @@ void ApplicationBackend::finalizeOperation()
 
     } else {
         device()->finalizeOperation();
-        setBackendState(BackendState::Ready);
+        waitForDeviceReady();
     }
 }
 
@@ -201,11 +201,20 @@ void ApplicationBackend::onCurrentDeviceChanged()
         // No need to disconnect the old device, as it has been destroyed at this point
         connect(device(), &FlipperZero::operationFinished, this, &ApplicationBackend::onDeviceOperationFinished);
         connect(device(), &FlipperZero::stateChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
-        setBackendState(BackendState::Ready);
+
+        waitForDeviceReady();
 
     } else {
         qCDebug(LOG_BACKEND) << "Last device was disconnected";
         setBackendState(BackendState::WaitingForDevices);
+    }
+}
+
+void ApplicationBackend::onCurrentDeviceReady()
+{
+    if(deviceState()->isStreamingEnabled()) {
+        disconnect(deviceState(), &DeviceState::isStreamingEnabledChanged, this, &ApplicationBackend::onCurrentDeviceReady);
+        setBackendState(BackendState::Ready);
     }
 }
 
@@ -242,8 +251,8 @@ void ApplicationBackend::onDeviceRegistryErrorChanged()
 
 void ApplicationBackend::initConnections()
 {
-    connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::currentDeviceChanged);
     connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::onCurrentDeviceChanged);
+    connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::currentDeviceChanged);
 
     connect(m_deviceRegistry, &DeviceRegistry::currentDeviceChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
     connect(m_deviceRegistry, &DeviceRegistry::isQueryInProgressChanged, this, &ApplicationBackend::isQueryInProgressChanged);
@@ -270,6 +279,15 @@ void ApplicationBackend::setErrorType(BackendError::ErrorType newErrorType)
 
     m_errorType = newErrorType;
     emit errorTypeChanged();
+}
+
+void ApplicationBackend::waitForDeviceReady()
+{
+    if(deviceState()->isRecoveryMode() || deviceState()->isStreamingEnabled()) {
+        setBackendState(BackendState::Ready);
+    } else {
+        connect(deviceState(), &DeviceState::isStreamingEnabledChanged, this, &ApplicationBackend::onCurrentDeviceReady);
+    }
 }
 
 void ApplicationBackend::registerMetaTypes()

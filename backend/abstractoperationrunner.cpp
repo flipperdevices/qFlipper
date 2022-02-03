@@ -25,18 +25,6 @@ void AbstractOperationRunner::enqueueOperation(AbstractOperation *operation)
         QTimer::singleShot(0, this, &AbstractOperationRunner::processQueue);
     }
 
-    m_queue.enqueue(operation);
-}
-
-void AbstractOperationRunner::processQueue()
-{
-    if(m_queue.isEmpty()) {
-        m_state = State::Idle;
-        return;
-    }
-
-    auto *operation = m_queue.dequeue();
-
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             qCCritical(loggingCategory()).noquote() << operation->description() << "ERROR:" << operation->errorString();
@@ -52,8 +40,18 @@ void AbstractOperationRunner::processQueue()
         operation->deleteLater();
     });
 
-    qCInfo(loggingCategory()).noquote() << operation->description() << "START";
+    m_queue.enqueue(operation);
+}
 
+void AbstractOperationRunner::processQueue()
+{
+    if(m_queue.isEmpty()) {
+        m_state = State::Idle;
+        return;
+    }
+
+    auto *operation = m_queue.dequeue();
+    qCInfo(loggingCategory()).noquote() << operation->description() << "START";
     operation->start();
 }
 

@@ -18,6 +18,7 @@ set WINDEPLOYQT=%QT_BIN_DIR%\windeployqt.exe
 set JOM=%QT_DIR%\Tools\QtCreator\bin\jom.exe
 
 set TARGET=qFlipper
+set TESTS_TOOL=%TARGET%Tool
 set DRIVER_TOOL=FlipperDriverTool
 
 set PROJECT_DIR=%cd%
@@ -47,9 +48,11 @@ cd %BUILD_DIR%
 rem Deploy the application
 mkdir %DIST_DIR%
 copy /Y %TARGET%.exe %DIST_DIR%
+copy /Y %TESTS_TOOL%.exe %DIST_DIR%
 cd %DIST_DIR%
 
 %WINDEPLOYQT% --release --no-compiler-runtime --qmldir %QML_DIR% %TARGET%.exe || goto error
+%WINDEPLOYQT% --release --no-compiler-runtime %TESTS_TOOL%.exe || goto error
 
 rem Build the driver tool
 msbuild %DRIVER_TOOL_DIR%\%DRIVER_TOOL%.sln /p:Configuration=Release /p:Platform=x%ARCH_BITS% || goto error
@@ -67,6 +70,7 @@ copy /Y %VCREDIST2010_EXE% .
 if defined SIGNING_TOOL (
 	rem Sign the executables
 	call %SIGNING_TOOL% %DIST_DIR%\%TARGET%.exe || goto error
+	call %SIGNING_TOOL% %DIST_DIR%\%TESTS_TOOL%.exe || goto error
 	call %SIGNING_TOOL% %DIST_DIR%\%DRIVER_TOOL%.exe || goto error
 )
 

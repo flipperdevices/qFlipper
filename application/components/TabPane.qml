@@ -73,6 +73,8 @@ ColumnLayout {
 
                 ctx.stroke();
             }
+
+            onVisibleChanged: if(visible) requestPaint();
         }
 
         StackLayout {

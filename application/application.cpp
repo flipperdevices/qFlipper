@@ -103,6 +103,8 @@ void Application::initLogger()
 
 void Application::initStyles()
 {
+    setWindowIcon(QIcon(":/assets/icons/qFlipper.ico"));
+
     QQuickWindow::setDefaultAlphaBuffer(true);
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
     QQuickStyle::setStyle(":/style");

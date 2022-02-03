@@ -108,5 +108,8 @@
         <file>imports/Strings/Strings.qml</file>
         <file>assets/gfx/images/spinner.svg</file>
         <file>assets/gfx/symbolic/developer-mode.svg</file>
+        <file>assets/icons/qFlipper.icns</file>
+        <file>assets/icons/qFlipper.ico</file>
+        <file>assets/icons/qFlipper.png</file>
     </qresource>
 </RCC>

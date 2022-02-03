@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+StartupWMClass=qFlipper
+Categories=Utility;Education
+Comment=Update your Flipper easily
+Icon=qFlipper
+Name=qFlipper
+Exec=qFlipper
+Terminal=false
+
