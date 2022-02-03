@@ -17,6 +17,7 @@ cd "$BUILD_DIRECTORY"
 
 qmake -spec macx-clang CONFIG+=release CONFIG+=x86_64 -o Makefile ../$PROJECT.pro
 make -j9 > /dev/null
+cp ${PROJECT}Tool $PROJECT.app/Contents/MacOS
 macdeployqt $PROJECT.app -qmldir=$PROJECT_DIR/Application -verbose=1
 
 FAILED_LIBS_COUNT=`otool -L $PROJECT.app/Contents/Frameworks/*.dylib | grep /usr/local -c || true`
