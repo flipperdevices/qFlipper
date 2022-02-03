@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -e
+
+this_dir="$(readlink -f "$(dirname "$0")")"
+
+if [[ $# -eq 0 ]]; then
+    "$this_dir"/usr/bin/qFlipper
+elif [[ "$1" = 'gui' ]]; then
+    shift 1
+    "$this_dir"/usr/bin/qFlipper "$@"
+elif [[ "$1" = 'cli' ]]; then
+    shift 1
+    "$this_dir"/usr/bin/qFlipperTool "$@"
+else
+    echo 'Usage: <Appimage> {[gui], cli} [parameters]'
+    exit 255
+fi
+
