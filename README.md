@@ -1,10 +1,17 @@
 # qFlipper
 
-Flipper companion application (desktop)
-
-**WARNING!** This software is still a work in progress. Some features may be missing or not properly implemented, and the code might contain bugs or sub-optimal solutions.
+### Flipper companion application (desktop)
 
 ![qFlipper screenshot](screenshot.png)
+
+## Features:
+* Update Flipper's firmware and supplemental data with a press of one button
+* Repair a broken fimware installation
+* Stream Flipper's display and control it remotely
+* Install firmware from a `.dfu` file
+* Backup and restore settings, progress and pairing data
+* Automatic self-update feature
+* Command line interface
 
 ## Build:
 ### Windows:
@@ -58,6 +65,16 @@ You will likely need to set up udev rules in order to use qFlipper as a normal u
 chmod +x setup_rules.sh
 ./setup_rules.sh
 ```
+
+## Project structure:
+- `application` - The main graphical application, written mostly in QML.
+- `backend` - The backend library, written in C++. Takes care of most of the logic.
+- `dfu` - Low level library for accessing USB and DFU devices.
+- `tool` - The command line interface, provides nearly all main application's functionality.
+- `3rdparty` - Third-party libraries.
+- `driver-tool` - DFU driver installation tool for Windows (based on `libwdi`).
+- `docker` - Docker configuration files..
+- `installer-assets` - Supplementary data for deployment.
 
 ## Known bugs:
 
