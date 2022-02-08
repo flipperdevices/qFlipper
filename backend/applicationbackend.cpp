@@ -192,8 +192,9 @@ void ApplicationBackend::finalizeOperation()
 void ApplicationBackend::onCurrentDeviceChanged()
 {
     // Should not happen during an ongoing operation
-    if(m_backendState > BackendState::ScreenStreaming && m_backendState != BackendState::Finished) {
+    if(m_backendState > BackendState::ScreenStreaming && m_backendState < BackendState::Finished) {
         setBackendState(BackendState::ErrorOccured);
+
         qCDebug(LOG_BACKEND) << "Current operation was interrupted";
 
     } else if(device()) {
