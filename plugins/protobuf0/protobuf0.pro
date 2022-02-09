@@ -1,5 +1,4 @@
 QT -= gui
-QT += serialport
 
 TARGET = protobuf0
 DESTDIR = ..
