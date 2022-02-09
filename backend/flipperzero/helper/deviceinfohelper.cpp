@@ -66,7 +66,9 @@ VCPDeviceInfoHelper::VCPDeviceInfoHelper(const USBDeviceInfo &info, QObject *par
     } else {
         m_plugin = qobject_cast<ProtobufPluginInterface*>(m_loader->instance());
         if(m_plugin) {
-            qCDebug(CATEGORY_DEBUG) << "Test method call:" << m_plugin->testMethod();
+            auto *msg = m_plugin->decode(QByteArray());
+            qCDebug(CATEGORY_DEBUG) << "Command ID:" << msg->commandID() << "has next:" << msg->hasNext();
+            delete msg;
         } else {
             qCCritical(CATEGORY_DEBUG) << "Failed to perform the cast";
         }

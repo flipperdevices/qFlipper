@@ -5,11 +5,22 @@
 #include <QString>
 #include <QByteArray>
 
+class AbstractProtobufMessage
+{
+public:
+    virtual ~AbstractProtobufMessage() {}
+    virtual uint32_t commandID() const = 0;
+    virtual bool hasNext() const = 0;
+};
+
 class ProtobufPluginInterface
 {
 public:
     virtual ~ProtobufPluginInterface() {}
-    virtual const QString testMethod() const = 0;
+
+    virtual const QByteArray systemDeviceInfo(uint32_t commandID) const = 0;
+
+    virtual AbstractProtobufMessage *decode(const QByteArray &buffer) const = 0;
 };
 
 QT_BEGIN_NAMESPACE

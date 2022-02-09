@@ -13,6 +13,9 @@ class ProtobufPlugin : public QObject, public ProtobufPluginInterface
 
 public:
     ProtobufPlugin(QObject *parent = nullptr);
-    const QString testMethod() const override;
+
+    const QByteArray systemDeviceInfo(uint32_t commandID) const override;
+
+    AbstractProtobufMessage *decode(const QByteArray &buffer) const override;
 };
 
