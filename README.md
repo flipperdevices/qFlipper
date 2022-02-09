@@ -66,6 +66,10 @@ chmod +x setup_rules.sh
 ./setup_rules.sh
 ```
 
+### Nix
+```
+```
+
 ## Project structure:
 - `application` - The main graphical application, written mostly in QML.
 - `backend` - The backend library, written in C++. Takes care of most of the logic.
