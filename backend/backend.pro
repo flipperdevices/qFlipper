@@ -214,7 +214,8 @@ win32:!win32-g++ {
 
 INCLUDEPATH += $$PWD/../dfu \
                $$PWD/../3rdparty \
-               $$PWD/../3rdparty/nanopb
+               $$PWD/../3rdparty/nanopb \
+               $$PWD/../plugins/protobufinterface
 
 DEPENDPATH += $$PWD/../dfu \
               $$PWD/../3rdparty

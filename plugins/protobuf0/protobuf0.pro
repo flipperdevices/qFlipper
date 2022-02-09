@@ -1,0 +1,44 @@
+QT -= gui
+QT += serialport
+
+TARGET = protobuf0
+DESTDIR = ..
+
+TEMPLATE = lib
+CONFIG += plugin c++11
+
+VERSION = 0.0.0
+
+INCLUDEPATH += $$PWD/../protobufinterface \
+    $$PWD/../../3rdparty/nanopb
+
+HEADERS += \
+    messages/application.pb.h \
+    messages/flipper.pb.h \
+    messages/gui.pb.h \
+    messages/status.pb.h \
+    messages/storage.pb.h \
+    messages/system.pb.h \
+    protobufplugin.h
+
+SOURCES += \
+    messages/application.pb.c \
+    messages/flipper.pb.c \
+    messages/gui.pb.c \
+    messages/status.pb.c \
+    messages/storage.pb.c \
+    messages/system.pb.c \
+    protobufplugin.cpp
+
+unix|win32 {
+    LIBS += -L$$OUT_PWD/../../3rdparty/ -l3rdparty
+}
+
+win32:!win32-g++ {
+    PRE_TARGETDEPS += $$OUT_PWD/../../3rdparty/3rdparty.lib
+
+} else:unix|win32-g++ {
+    PRE_TARGETDEPS += $$OUT_PWD/../../3rdparty/lib3rdparty.a
+}
+
+DEFINES += PB_ENABLE_MALLOC

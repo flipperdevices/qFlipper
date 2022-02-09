@@ -5,6 +5,7 @@ SUBDIRS += \
     application \
     backend \
     dfu \
+    plugins \
     tool
 
 backend.depends = dfu 3rdparty

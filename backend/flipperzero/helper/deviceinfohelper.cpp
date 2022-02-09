@@ -5,15 +5,16 @@
 #include <QDebug>
 #include <QTimer>
 #include <QSerialPort>
+#include <QPluginLoader>
 #include <QLoggingCategory>
+
+#include "protobufplugininterface.h"
 
 #include "flipperzero/factoryinfo.h"
 
 #include "flipperzero/rpc/stoprpcoperation.h"
-
 #include "flipperzero/rpc/storagestatoperation.h"
 #include "flipperzero/rpc/storageinfooperation.h"
-
 #include "flipperzero/rpc/systemdeviceinfooperation.h"
 #include "flipperzero/rpc/systemgetdatetimeoperation.h"
 #include "flipperzero/rpc/systemsetdatetimeoperation.h"
@@ -57,8 +58,20 @@ const DeviceInfo &AbstractDeviceInfoHelper::result() const
 
 VCPDeviceInfoHelper::VCPDeviceInfoHelper(const USBDeviceInfo &info, QObject *parent):
     AbstractDeviceInfoHelper(parent),
-    m_serialPort(nullptr)
+    m_serialPort(nullptr),
+    m_loader(new QPluginLoader("plugins/libprotobuf0.so", this))
 {
+    if(!m_loader->load()) {
+        qCCritical(CATEGORY_DEBUG) << "Failed to load the plugin:" << m_loader->errorString();
+    } else {
+        m_plugin = qobject_cast<ProtobufPluginInterface*>(m_loader->instance());
+        if(m_plugin) {
+            qCDebug(CATEGORY_DEBUG) << "Test method call:" << m_plugin->testMethod();
+        } else {
+            qCCritical(CATEGORY_DEBUG) << "Failed to perform the cast";
+        }
+    }
+
     m_deviceInfo.usbInfo = info;
 }
 

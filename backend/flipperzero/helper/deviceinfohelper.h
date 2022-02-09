@@ -8,6 +8,9 @@
 
 class QTimer;
 class QSerialPort;
+class QPluginLoader;
+
+class ProtobufPluginInterface;
 
 namespace Flipper {
 namespace Zero {
@@ -62,6 +65,8 @@ private:
     static const QString &branchToChannelName(const QByteArray &branchName);
 
     QSerialPort *m_serialPort;
+    QPluginLoader *m_loader;
+    ProtobufPluginInterface *m_plugin;
 };
 
 class DFUDeviceInfoHelper : public AbstractDeviceInfoHelper
