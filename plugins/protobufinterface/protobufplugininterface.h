@@ -1,17 +1,9 @@
 #pragma once
 
 #include <QtPlugin>
-
-#include <QString>
 #include <QByteArray>
 
-class AbstractProtobufMessage
-{
-public:
-    virtual ~AbstractProtobufMessage() {}
-    virtual uint32_t commandID() const = 0;
-    virtual bool hasNext() const = 0;
-};
+#include "mainresponseinterface.h"
 
 class ProtobufPluginInterface
 {
@@ -20,7 +12,7 @@ public:
 
     virtual const QByteArray systemDeviceInfo(uint32_t commandID) const = 0;
 
-    virtual AbstractProtobufMessage *decode(const QByteArray &buffer) const = 0;
+    virtual QObject *decode(const QByteArray &buffer) const = 0;
 };
 
 QT_BEGIN_NAMESPACE

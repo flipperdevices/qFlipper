@@ -1,0 +1,41 @@
+#pragma once
+
+#include <QString>
+#include <QtPlugin>
+
+class MainResponseInterface
+{
+public:
+    enum ResponseType {
+        Unknown,
+        Empty,
+
+        SystemPing,
+        SystemDeviceInfo,
+        SystemGetDateTime,
+
+        StorageList,
+        StorageRead,
+        StorageMd5,
+        StorageStat,
+        StorageInfo,
+
+        GuiScreenFrame,
+    };
+
+    virtual ~MainResponseInterface() {}
+
+    virtual uint32_t commandID() const = 0;
+    virtual ResponseType type() const = 0;
+
+    virtual bool hasNext() const = 0;
+    virtual bool isError() const = 0;
+
+    virtual const QString errorString() const = 0;
+};
+
+using EmptyResponseInterface = MainResponseInterface;
+
+QT_BEGIN_NAMESPACE
+Q_DECLARE_INTERFACE(MainResponseInterface, "com.flipperdevices.MainResponseInterface/1.0")
+QT_END_NAMESPACE

@@ -4,4 +4,6 @@ TEMPLATE = lib
 CONFIG += staticlib c++11
 
 HEADERS += \
-    protobufplugininterface.h
+    mainresponseinterface.h \
+    protobufplugininterface.h \
+    systemresponseinterface.h

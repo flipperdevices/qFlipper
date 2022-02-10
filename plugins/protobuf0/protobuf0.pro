@@ -12,22 +12,26 @@ INCLUDEPATH += $$PWD/../protobufinterface \
     $$PWD/../../3rdparty/nanopb
 
 HEADERS += \
+    mainresponse.h \
     messages/application.pb.h \
     messages/flipper.pb.h \
     messages/gui.pb.h \
     messages/status.pb.h \
     messages/storage.pb.h \
     messages/system.pb.h \
-    protobufplugin.h
+    protobufplugin.h \
+    systemresponse.h
 
 SOURCES += \
+    mainresponse.cpp \
     messages/application.pb.c \
     messages/flipper.pb.c \
     messages/gui.pb.c \
     messages/status.pb.c \
     messages/storage.pb.c \
     messages/system.pb.c \
-    protobufplugin.cpp
+    protobufplugin.cpp \
+    systemresponse.cpp
 
 unix|win32 {
     LIBS += -L$$OUT_PWD/../../3rdparty/ -l3rdparty

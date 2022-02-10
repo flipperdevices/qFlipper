@@ -16,6 +16,6 @@ public:
 
     const QByteArray systemDeviceInfo(uint32_t commandID) const override;
 
-    AbstractProtobufMessage *decode(const QByteArray &buffer) const override;
+    QObject *decode(const QByteArray &buffer) const override;
 };
 

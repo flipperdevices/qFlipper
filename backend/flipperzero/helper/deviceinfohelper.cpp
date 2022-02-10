@@ -9,6 +9,7 @@
 #include <QLoggingCategory>
 
 #include "protobufplugininterface.h"
+#include "systemresponseinterface.h"
 
 #include "flipperzero/factoryinfo.h"
 
@@ -66,9 +67,20 @@ VCPDeviceInfoHelper::VCPDeviceInfoHelper(const USBDeviceInfo &info, QObject *par
     } else {
         m_plugin = qobject_cast<ProtobufPluginInterface*>(m_loader->instance());
         if(m_plugin) {
+
             auto *msg = m_plugin->decode(QByteArray());
-            qCDebug(CATEGORY_DEBUG) << "Command ID:" << msg->commandID() << "has next:" << msg->hasNext();
-            delete msg;
+
+            if(auto *main = qobject_cast<MainResponseInterface*>(msg)) {
+                qCDebug(CATEGORY_DEBUG).nospace() << "Command ID: " << main->commandID() << ", Has next: " << main->hasNext()
+                                                  << ", Is error: " << main->isError() << ", Error string: " << main->errorString();
+            }
+
+            if(auto *ping = qobject_cast<SystemPingResponseInterface*>(msg)) {
+                qCDebug(CATEGORY_DEBUG) << "Data:" << ping->data();
+            }
+
+            msg->deleteLater();
+
         } else {
             qCCritical(CATEGORY_DEBUG) << "Failed to perform the cast";
         }
