@@ -2,31 +2,29 @@
 
 #include <QHash>
 
-#include "pb_decode.h"
+#include "systemresponse.h"
 
-MainResponse::MainResponse():
-    m_message{69, PB_CommandStatus_ERROR_STORAGE_NOT_IMPLEMENTED, false, {}, PB_Main_empty_tag, {}}
+MainResponse::MainResponse(MessageWrapper &&wrapper, QObject *parent):
+    QObject(parent),
+    m_wrapper(std::move(wrapper))
 {}
 
 MainResponse::~MainResponse()
-{
-    // TODO: release the resources if necessary
-//    pb_release(&PB_Main_msg, &m_message);
-}
+{}
 
 uint32_t MainResponse::commandID() const
 {
-    return m_message.command_id;
+    return m_wrapper.message().command_id;
 }
 
 bool MainResponse::hasNext() const
 {
-    return m_message.has_next;
+    return m_wrapper.message().has_next;
 }
 
 bool MainResponse::isError() const
 {
-    return m_message.command_status != PB_CommandStatus_OK;
+    return m_wrapper.message().command_status != PB_CommandStatus_OK;
 }
 
 const QString MainResponse::errorString() const
@@ -59,17 +57,35 @@ const QString MainResponse::errorString() const
         {PB_CommandStatus_ERROR_VIRTUAL_DISPLAY_NOT_STARTED, QStringLiteral("No virtual display session running")}
     };
 
-    return statusStrings[m_message.command_status];
+    return statusStrings[m_wrapper.message().command_status];
+}
+
+QObject *MainResponse::createResponse(MessageWrapper &&wrapper, QObject *parent)
+{
+    if(!wrapper.isComplete()) {
+        return nullptr;
+    }
+
+    const auto type = tagToResponseType(wrapper.message().which_content);
+
+    switch(type) {
+    case Empty: return new EmptyResponse(std::move(wrapper), parent);
+    case SystemPing: return new SystemPingResponse(std::move(wrapper), parent);
+    case SystemDeviceInfo: return new SystemDeviceInfoResponse(std::move(wrapper), parent);
+    case SystemGetDateTime: return new SystemDateTimeResponse(std::move(wrapper), parent);
+    case Unknown:
+    default: return nullptr;
+    }
 }
 
 const PB_Main &MainResponse::message() const
 {
-    return m_message;
+    return m_wrapper.message();
 }
 
-MainResponseInterface::ResponseType MainResponse::type() const
+MainResponseInterface::ResponseType MainResponse::tagToResponseType(pb_size_t tag)
 {
-    switch(m_message.which_content) {
+    switch(tag) {
     case PB_Main_empty_tag: return Empty;
 
     case PB_Main_system_ping_response_tag: return SystemPing;
@@ -85,4 +101,14 @@ MainResponseInterface::ResponseType MainResponse::type() const
     case PB_Main_gui_screen_frame_tag: return GuiScreenFrame;
     default: return Unknown;
     }
+}
+
+MainResponseInterface::ResponseType MainResponse::type() const
+{
+    return tagToResponseType(m_wrapper.message().which_content);
+}
+
+size_t MainResponse::encodedSize() const
+{
+    return m_wrapper.encodedSize();
 }

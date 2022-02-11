@@ -31,7 +31,7 @@ bool USBDeviceDetector::setWantedDevices(const QList<USBDeviceInfo> &wantedList)
 
     for(const auto &info : wantedList) {
         const auto events = libusb_hotplug_event(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED | LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT);
-        const auto err = libusb_hotplug_register_callback(nullptr, events, LIBUSB_HOTPLUG_ENUMERATE, info .vendorID(),
+        const auto err = libusb_hotplug_register_callback(nullptr, events, LIBUSB_HOTPLUG_NO_FLAGS, info .vendorID(),
                                                           info .productID(), LIBUSB_HOTPLUG_MATCH_ANY, libusbHotplugCallback, this, nullptr);
 
         check_return_bool(!err, "Failed to register hotplug callback");

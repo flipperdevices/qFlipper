@@ -14,8 +14,11 @@ class ProtobufPlugin : public QObject, public ProtobufPluginInterface
 public:
     ProtobufPlugin(QObject *parent = nullptr);
 
-    const QByteArray systemDeviceInfo(uint32_t commandID) const override;
+    const QByteArray testSystemPingResponse() const override;
 
-    QObject *decode(const QByteArray &buffer) const override;
+    const QByteArray systemPing(uint32_t id) const override;
+    const QByteArray systemDeviceInfo(uint32_t id) const override;
+
+    QObject *decode(const QByteArray &buffer, QObject *parent = nullptr) const override;
 };
 

@@ -19,6 +19,7 @@ HEADERS += \
     messages/status.pb.h \
     messages/storage.pb.h \
     messages/system.pb.h \
+    messagewrapper.h \
     protobufplugin.h \
     systemresponse.h
 
@@ -30,6 +31,7 @@ SOURCES += \
     messages/status.pb.c \
     messages/storage.pb.c \
     messages/system.pb.c \
+    messagewrapper.cpp \
     protobufplugin.cpp \
     systemresponse.cpp
 

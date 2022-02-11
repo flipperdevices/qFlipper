@@ -68,11 +68,15 @@ VCPDeviceInfoHelper::VCPDeviceInfoHelper(const USBDeviceInfo &info, QObject *par
         m_plugin = qobject_cast<ProtobufPluginInterface*>(m_loader->instance());
         if(m_plugin) {
 
-            auto *msg = m_plugin->decode(QByteArray());
+            const auto buffer = m_plugin->testSystemPingResponse();
+            qCDebug(CATEGORY_DEBUG) << "Test buffer:" << buffer;
+
+            auto *msg = m_plugin->decode(buffer);
 
             if(auto *main = qobject_cast<MainResponseInterface*>(msg)) {
                 qCDebug(CATEGORY_DEBUG).nospace() << "Command ID: " << main->commandID() << ", Has next: " << main->hasNext()
-                                                  << ", Is error: " << main->isError() << ", Error string: " << main->errorString();
+                                                  << ", Is error: " << main->isError() << ", Error string: " << main->errorString()
+                                                  << ", Encoded size: " << main->encodedSize();
             }
 
             if(auto *ping = qobject_cast<SystemPingResponseInterface*>(msg)) {

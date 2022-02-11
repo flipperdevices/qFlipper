@@ -1,11 +1,18 @@
 #include "systemresponse.h"
 
+SystemPingResponse::SystemPingResponse(MessageWrapper &&decoder, QObject *parent):
+    MainResponse(std::move(decoder), parent)
+{}
+
 const QByteArray SystemPingResponse::data() const
 {
-//    const auto *d = message().content.system_ping_response.data;
-//    return QByteArray((const char*)d->bytes, d->size);
-    return QByteArrayLiteral("I always come back!");
+    const auto *d = message().content.system_ping_response.data;
+    return QByteArray((const char*)d->bytes, d->size);
 }
+
+SystemDeviceInfoResponse::SystemDeviceInfoResponse(MessageWrapper &&decoder, QObject *parent):
+    MainResponse(std::move(decoder), parent)
+{}
 
 const QByteArray SystemDeviceInfoResponse::key() const
 {
@@ -16,6 +23,10 @@ const QByteArray SystemDeviceInfoResponse::value() const
 {
     return message().content.system_device_info_response.value;
 }
+
+SystemDateTimeResponse::SystemDateTimeResponse(MessageWrapper &&decoder, QObject *parent):
+    MainResponse(std::move(decoder), parent)
+{}
 
 const QDateTime SystemDateTimeResponse::dateTime() const
 {

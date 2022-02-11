@@ -2,9 +2,8 @@
 
 #include <QObject>
 
+#include "messagewrapper.h"
 #include "mainresponseinterface.h"
-
-#include "messages/flipper.pb.h"
 
 class MainResponse : public QObject, public MainResponseInterface
 {
@@ -12,20 +11,26 @@ class MainResponse : public QObject, public MainResponseInterface
     Q_INTERFACES(MainResponseInterface)
 
 public:
-    MainResponse();
+    MainResponse(MessageWrapper &&wrapper, QObject *parent = nullptr);
     virtual ~MainResponse();
 
     uint32_t commandID() const override;
     ResponseType type() const override;
+    size_t encodedSize() const override;
 
     bool hasNext() const override;
     bool isError() const override;
 
     const QString errorString() const override;
 
+    static QObject *createResponse(MessageWrapper &&wrapper, QObject *parent = nullptr);
+
 protected:
     const PB_Main &message() const;
 
 private:
-    PB_Main m_message;
+    static ResponseType tagToResponseType(pb_size_t tag);
+    MessageWrapper m_wrapper;
 };
+
+using EmptyResponse = MainResponse;

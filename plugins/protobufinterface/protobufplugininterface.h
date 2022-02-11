@@ -10,9 +10,12 @@ class ProtobufPluginInterface
 public:
     virtual ~ProtobufPluginInterface() {}
 
-    virtual const QByteArray systemDeviceInfo(uint32_t commandID) const = 0;
+    virtual const QByteArray testSystemPingResponse() const = 0;
 
-    virtual QObject *decode(const QByteArray &buffer) const = 0;
+    virtual const QByteArray systemPing(uint32_t id) const = 0;
+    virtual const QByteArray systemDeviceInfo(uint32_t id) const = 0;
+
+    virtual QObject *decode(const QByteArray &buffer, QObject *parent = nullptr) const = 0;
 };
 
 QT_BEGIN_NAMESPACE

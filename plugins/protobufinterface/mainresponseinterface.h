@@ -27,6 +27,7 @@ public:
 
     virtual uint32_t commandID() const = 0;
     virtual ResponseType type() const = 0;
+    virtual size_t encodedSize() const = 0;
 
     virtual bool hasNext() const = 0;
     virtual bool isError() const = 0;
