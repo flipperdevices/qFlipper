@@ -4,7 +4,7 @@
 
 #include "systemresponse.h"
 
-MainResponse::MainResponse(MessageWrapper &&wrapper, QObject *parent):
+MainResponse::MainResponse(MessageWrapper &wrapper, QObject *parent):
     QObject(parent),
     m_wrapper(std::move(wrapper))
 {}
@@ -60,7 +60,7 @@ const QString MainResponse::errorString() const
     return statusStrings[m_wrapper.message().command_status];
 }
 
-QObject *MainResponse::createResponse(MessageWrapper &&wrapper, QObject *parent)
+QObject *MainResponse::create(MessageWrapper &wrapper, QObject *parent)
 {
     if(!wrapper.isComplete()) {
         return nullptr;
@@ -69,10 +69,10 @@ QObject *MainResponse::createResponse(MessageWrapper &&wrapper, QObject *parent)
     const auto type = tagToResponseType(wrapper.message().which_content);
 
     switch(type) {
-    case Empty: return new EmptyResponse(std::move(wrapper), parent);
-    case SystemPing: return new SystemPingResponse(std::move(wrapper), parent);
-    case SystemDeviceInfo: return new SystemDeviceInfoResponse(std::move(wrapper), parent);
-    case SystemGetDateTime: return new SystemDateTimeResponse(std::move(wrapper), parent);
+    case Empty: return new EmptyResponse(wrapper, parent);
+    case SystemPing: return new SystemPingResponse(wrapper, parent);
+    case SystemDeviceInfo: return new SystemDeviceInfoResponse(wrapper, parent);
+    case SystemGetDateTime: return new SystemDateTimeResponse(wrapper, parent);
     case Unknown:
     default: return nullptr;
     }

@@ -1,7 +1,7 @@
 #include "systemresponse.h"
 
-SystemPingResponse::SystemPingResponse(MessageWrapper &&decoder, QObject *parent):
-    MainResponse(std::move(decoder), parent)
+SystemPingResponse::SystemPingResponse(MessageWrapper &wrapper, QObject *parent):
+    MainResponse(wrapper, parent)
 {}
 
 const QByteArray SystemPingResponse::data() const
@@ -10,8 +10,8 @@ const QByteArray SystemPingResponse::data() const
     return QByteArray((const char*)d->bytes, d->size);
 }
 
-SystemDeviceInfoResponse::SystemDeviceInfoResponse(MessageWrapper &&decoder, QObject *parent):
-    MainResponse(std::move(decoder), parent)
+SystemDeviceInfoResponse::SystemDeviceInfoResponse(MessageWrapper &wrapper, QObject *parent):
+    MainResponse(wrapper, parent)
 {}
 
 const QByteArray SystemDeviceInfoResponse::key() const
@@ -24,8 +24,8 @@ const QByteArray SystemDeviceInfoResponse::value() const
     return message().content.system_device_info_response.value;
 }
 
-SystemDateTimeResponse::SystemDateTimeResponse(MessageWrapper &&decoder, QObject *parent):
-    MainResponse(std::move(decoder), parent)
+SystemDateTimeResponse::SystemDateTimeResponse(MessageWrapper &wrapper, QObject *parent):
+    MainResponse(wrapper, parent)
 {}
 
 const QDateTime SystemDateTimeResponse::dateTime() const

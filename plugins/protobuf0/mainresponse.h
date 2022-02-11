@@ -11,7 +11,7 @@ class MainResponse : public QObject, public MainResponseInterface
     Q_INTERFACES(MainResponseInterface)
 
 public:
-    MainResponse(MessageWrapper &&wrapper, QObject *parent = nullptr);
+    MainResponse(MessageWrapper &wrapper, QObject *parent = nullptr);
     virtual ~MainResponse();
 
     uint32_t commandID() const override;
@@ -23,7 +23,7 @@ public:
 
     const QString errorString() const override;
 
-    static QObject *createResponse(MessageWrapper &&wrapper, QObject *parent = nullptr);
+    static QObject *create(MessageWrapper &wrapper, QObject *parent = nullptr);
 
 protected:
     const PB_Main &message() const;

@@ -62,5 +62,5 @@ const QByteArray ProtobufPlugin::systemDeviceInfo(uint32_t id) const
 QObject *ProtobufPlugin::decode(const QByteArray &buffer, QObject *parent) const
 {
     MessageWrapper wrp(buffer);
-    return MainResponse::createResponse(std::move(wrp), parent);
+    return MainResponse::create(wrp, parent);
 }
