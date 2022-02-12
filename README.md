@@ -66,27 +66,8 @@ chmod +x setup_rules.sh
 ./setup_rules.sh
 ```
 
-### Nix
-Clone the repo and run this in it:
-```
-nix build --experimental-features "nix-command flakes" '.?submodules=1'
-```
-Built binaries will be located in `./result/bin` folder.
-You can install it in the environment afterwards:
-```
-nix-env -i ./result
-```
-
-If you want to have yourself a development environment with all the dependencies you need to build it:
-```
-nix develop --experimental-features "nix-command flakes" '.?submodules=1'
-```
-
-If you wish to never again write `--experimental-features "nix-command flakes"`:
-```
-mkdir -p ~/.config/nix
-echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
-```
+### Nix:
+Refer to [contrib/nix/README.md](./contrib/nix/README.md)
 
 ## Project structure:
 - `application` - The main graphical application, written mostly in QML.
@@ -94,6 +75,7 @@ echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
 - `dfu` - Low level library for accessing USB and DFU devices.
 - `tool` - The command line interface, provides nearly all main application's functionality.
 - `3rdparty` - Third-party libraries.
+- `contrib` - Contributed packages and scripts
 - `driver-tool` - DFU driver installation tool for Windows (based on `libwdi`).
 - `docker` - Docker configuration files..
 - `installer-assets` - Supplementary data for deployment.

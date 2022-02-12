@@ -35,7 +35,7 @@ mkDerivation {
   name = "qFlipper";
   inherit version;
 
-  src = ./.;
+  src = ../..;
 
   nativeBuildInputs = [
     pkg-config
@@ -61,13 +61,15 @@ mkDerivation {
     qtwayland
   ];
 
+  qmakeFlags = [
+    "DEFINES+=DISABLE_APPLICATION_UPDATES"
+  ];
+
   preBuild = ''
     substituteInPlace qflipper_common.pri \
         --replace 'GIT_VERSION = unknown' 'GIT_VERSION = "${version}"' \
         --replace 'GIT_TIMESTAMP = 0' 'GIT_TIMESTAMP = ${timestamp}' \
         --replace 'GIT_COMMIT = unknown' 'GIT_COMMIT = "${commit}"'
-    cat qflipper_common.pri
-
   '';
 
   installPhase = ''
