@@ -66,12 +66,16 @@ chmod +x setup_rules.sh
 ./setup_rules.sh
 ```
 
+### Nix:
+Refer to [contrib/nix/README.md](./contrib/nix/README.md)
+
 ## Project structure:
 - `application` - The main graphical application, written mostly in QML.
 - `backend` - The backend library, written in C++. Takes care of most of the logic.
 - `dfu` - Low level library for accessing USB and DFU devices.
 - `tool` - The command line interface, provides nearly all main application's functionality.
 - `3rdparty` - Third-party libraries.
+- `contrib` - Contributed packages and scripts
 - `driver-tool` - DFU driver installation tool for Windows (based on `libwdi`).
 - `docker` - Docker configuration files..
 - `installer-assets` - Supplementary data for deployment.
