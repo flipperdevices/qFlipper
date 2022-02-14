@@ -66,8 +66,8 @@ chmod +x setup_rules.sh
 ./setup_rules.sh
 ```
 
-### Nix:
-Refer to [contrib/nix/README.md](./contrib/nix/README.md)
+#### Package managers support:
+See [contrib/README.md](./contrib/README.md)
 
 ## Project structure:
 - `application` - The main graphical application, written mostly in QML.
