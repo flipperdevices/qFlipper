@@ -12,6 +12,8 @@ INCLUDEPATH += $$PWD/../protobufinterface \
     $$PWD/../../3rdparty/nanopb
 
 HEADERS += \
+    guirequest.h \
+    mainrequest.h \
     mainresponse.h \
     messages/application.pb.h \
     messages/flipper.pb.h \
@@ -21,9 +23,14 @@ HEADERS += \
     messages/system.pb.h \
     messagewrapper.h \
     protobufplugin.h \
+    statusrequest.h \
+    storagerequest.h \
+    systemrequest.h \
     systemresponse.h
 
 SOURCES += \
+    guirequest.cpp \
+    mainrequest.cpp \
     mainresponse.cpp \
     messages/application.pb.c \
     messages/flipper.pb.c \
@@ -33,6 +40,9 @@ SOURCES += \
     messages/system.pb.c \
     messagewrapper.cpp \
     protobufplugin.cpp \
+    statusrequest.cpp \
+    storagerequest.cpp \
+    systemrequest.cpp \
     systemresponse.cpp
 
 unix|win32 {

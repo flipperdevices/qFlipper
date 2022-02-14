@@ -16,8 +16,27 @@ public:
 
     const QByteArray testSystemPingResponse() const override;
 
-    const QByteArray systemPing(uint32_t id) const override;
+    const QByteArray statusPing(uint32_t id, const QByteArray &data) const override;
+
+    const QByteArray systemReboot(uint32_t id, RebootMode mode) const override;
     const QByteArray systemDeviceInfo(uint32_t id) const override;
+    const QByteArray systemGetDateTime(uint32_t id) const override;
+    const QByteArray systemSetDateTime(uint32_t id, const QDateTime &dateTime) const override;
+
+    const QByteArray guiStartScreenStream(uint32_t id) const override;
+    const QByteArray guiStopScreenStream(uint32_t id) const override;
+    const QByteArray guiScreenFrame(uint32_t id, const QByteArray screenData) const override;
+    const QByteArray guiSendInput(uint32_t id, int key, int type) const override;
+    const QByteArray guiStartVirtualDisplay(uint32_t id, const QByteArray screenData) const override;
+    const QByteArray guiStopVirtualDisplay(uint32_t id) const override;
+
+    const QByteArray storageInfo(uint32_t id, const QByteArray &path) const override;
+    const QByteArray storageStat(uint32_t id, const QByteArray &path) const override;
+    const QByteArray storageList(uint32_t id, const QByteArray &path) const override;
+    const QByteArray storageMkDir(uint32_t id, const QByteArray &path) const override;
+    const QByteArray storageRemove(uint32_t id, const QByteArray &path, bool recursive) const override;
+    const QByteArray storageRead(uint32_t id, const QByteArray &path) const override;
+    const QByteArray storageWrite(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext) const override;
 
     QObject *decode(const QByteArray &buffer, QObject *parent = nullptr) const override;
 };
