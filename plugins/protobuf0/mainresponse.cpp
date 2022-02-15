@@ -2,8 +2,10 @@
 
 #include <QHash>
 
+#include "guiresponse.h"
 #include "statusresponse.h"
 #include "systemresponse.h"
+#include "storageresponse.h"
 
 MainResponse::MainResponse(MessageWrapper &wrapper, QObject *parent):
     QObject(parent),
@@ -74,6 +76,10 @@ QObject *MainResponse::create(MessageWrapper &wrapper, QObject *parent)
     case StatusPing: return new StatusPingResponse(wrapper, parent);
     case SystemDeviceInfo: return new SystemDeviceInfoResponse(wrapper, parent);
     case SystemGetDateTime: return new SystemGetDateTimeResponse(wrapper, parent);
+    case StorageInfo: return new StorageInfoResponse(wrapper, parent);
+    case StorageStat: return new StorageStatResponse(wrapper, parent);
+    case StorageList: return new StorageListResponse(wrapper, parent);
+    case StorageRead: return new StorageReadResponse(wrapper, parent);
     case Unknown:
     default: return nullptr;
     }

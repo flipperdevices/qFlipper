@@ -52,8 +52,13 @@ StorageReadResponse::StorageReadResponse(MessageWrapper &wrapper, QObject *paren
     MainResponse(wrapper, parent)
 {}
 
+bool StorageReadResponse::hasFile() const
+{
+    return message().content.storage_read_response.has_file;
+}
+
 const StorageFile StorageReadResponse::file() const
 {
-    const auto &f = message().content.storage_stat_response.file;
+    const auto &f = message().content.storage_read_response.file;
     return {(StorageFile::FileType)f.type, {f.name}, {(const char*)f.data->bytes, f.data->size}};
 }

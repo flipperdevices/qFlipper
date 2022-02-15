@@ -42,5 +42,6 @@ class StorageReadResponse : public MainResponse, public StorageReadResponseInter
 
 public:
     StorageReadResponse(MessageWrapper &wrapper, QObject *parent = nullptr);
+    bool hasFile() const override;
     const StorageFile file() const override;
 };
