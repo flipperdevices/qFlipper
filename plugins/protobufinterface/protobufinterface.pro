@@ -7,4 +7,5 @@ HEADERS += \
     mainresponseinterface.h \
     protobufplugininterface.h \
     statusresponseinterface.h \
+    storageresponseinterface.h \
     systemresponseinterface.h

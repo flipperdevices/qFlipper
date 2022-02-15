@@ -26,6 +26,7 @@ HEADERS += \
     statusrequest.h \
     statusresponse.h \
     storagerequest.h \
+    storageresponse.h \
     systemrequest.h \
     systemresponse.h
 
@@ -44,6 +45,7 @@ SOURCES += \
     statusrequest.cpp \
     statusresponse.cpp \
     storagerequest.cpp \
+    storageresponse.cpp \
     systemrequest.cpp \
     systemresponse.cpp
 
