@@ -13,6 +13,7 @@ INCLUDEPATH += $$PWD/../protobufinterface \
 
 HEADERS += \
     guirequest.h \
+    guiresponse.h \
     mainrequest.h \
     mainresponse.h \
     messages/application.pb.h \
@@ -32,6 +33,7 @@ HEADERS += \
 
 SOURCES += \
     guirequest.cpp \
+    guiresponse.cpp \
     mainrequest.cpp \
     mainresponse.cpp \
     messages/application.pb.c \
