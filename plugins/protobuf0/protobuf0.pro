@@ -1,6 +1,8 @@
 QT -= gui
 
-TARGET = protobuf0
+win32: TARGET = protobuf
+else: TARGET = protobuf0
+
 DESTDIR = ..
 
 TEMPLATE = lib

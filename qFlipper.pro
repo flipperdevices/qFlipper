@@ -11,3 +11,4 @@ SUBDIRS += \
 backend.depends = dfu 3rdparty
 application.depends = dfu 3rdparty backend
 tool.depends = dfu 3rdparty backend
+plugins.depends = 3rdparty
