@@ -6,4 +6,5 @@ CONFIG += staticlib c++11
 HEADERS += \
     mainresponseinterface.h \
     protobufplugininterface.h \
+    statusresponseinterface.h \
     systemresponseinterface.h

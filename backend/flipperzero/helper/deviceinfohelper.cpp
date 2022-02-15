@@ -10,6 +10,7 @@
 
 #include "protobufplugininterface.h"
 #include "systemresponseinterface.h"
+#include "statusresponseinterface.h"
 
 #include "flipperzero/factoryinfo.h"
 
@@ -79,7 +80,7 @@ VCPDeviceInfoHelper::VCPDeviceInfoHelper(const USBDeviceInfo &info, QObject *par
                                                   << ", Encoded size: " << main->encodedSize();
             }
 
-            if(auto *ping = qobject_cast<SystemPingResponseInterface*>(msg)) {
+            if(auto *ping = qobject_cast<StatusPingResponseInterface*>(msg)) {
                 qCDebug(CATEGORY_DEBUG) << "Data:" << ping->data();
             }
 

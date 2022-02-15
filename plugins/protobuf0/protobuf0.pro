@@ -24,6 +24,7 @@ HEADERS += \
     messagewrapper.h \
     protobufplugin.h \
     statusrequest.h \
+    statusresponse.h \
     storagerequest.h \
     systemrequest.h \
     systemresponse.h
@@ -41,6 +42,7 @@ SOURCES += \
     messagewrapper.cpp \
     protobufplugin.cpp \
     statusrequest.cpp \
+    statusresponse.cpp \
     storagerequest.cpp \
     systemrequest.cpp \
     systemresponse.cpp

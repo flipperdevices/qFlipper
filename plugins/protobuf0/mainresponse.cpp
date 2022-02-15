@@ -2,6 +2,7 @@
 
 #include <QHash>
 
+#include "statusresponse.h"
 #include "systemresponse.h"
 
 MainResponse::MainResponse(MessageWrapper &wrapper, QObject *parent):
@@ -70,9 +71,9 @@ QObject *MainResponse::create(MessageWrapper &wrapper, QObject *parent)
 
     switch(type) {
     case Empty: return new EmptyResponse(wrapper, parent);
-    case SystemPing: return new SystemPingResponse(wrapper, parent);
+    case StatusPing: return new StatusPingResponse(wrapper, parent);
     case SystemDeviceInfo: return new SystemDeviceInfoResponse(wrapper, parent);
-    case SystemGetDateTime: return new SystemDateTimeResponse(wrapper, parent);
+    case SystemGetDateTime: return new SystemGetDateTimeResponse(wrapper, parent);
     case Unknown:
     default: return nullptr;
     }
@@ -88,7 +89,7 @@ MainResponseInterface::ResponseType MainResponse::tagToResponseType(pb_size_t ta
     switch(tag) {
     case PB_Main_empty_tag: return Empty;
 
-    case PB_Main_system_ping_response_tag: return SystemPing;
+    case PB_Main_system_ping_response_tag: return StatusPing;
     case PB_Main_system_device_info_response_tag: return SystemDeviceInfo;
     case PB_Main_system_get_datetime_response_tag: return SystemGetDateTime;
 

@@ -10,7 +10,7 @@ public:
         Unknown,
         Empty,
 
-        SystemPing,
+        StatusPing,
         SystemDeviceInfo,
         SystemGetDateTime,
 

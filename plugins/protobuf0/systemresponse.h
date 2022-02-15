@@ -3,16 +3,6 @@
 #include "mainresponse.h"
 #include "systemresponseinterface.h"
 
-class SystemPingResponse : public MainResponse, public SystemPingResponseInterface
-{
-    Q_OBJECT
-    Q_INTERFACES(SystemPingResponseInterface)
-
-public:
-    SystemPingResponse(MessageWrapper &wrapper, QObject *parent = nullptr);
-    const QByteArray data() const override;
-};
-
 class SystemDeviceInfoResponse : public MainResponse, public SystemDeviceInfoResponseInterface
 {
     Q_OBJECT
@@ -24,12 +14,12 @@ public:
     const QByteArray value() const override;
 };
 
-class SystemDateTimeResponse : public MainResponse, public SystemDateTimeResponseInterface
+class SystemGetDateTimeResponse : public MainResponse, public SystemGetDateTimeResponseInterface
 {
     Q_OBJECT
-    Q_INTERFACES(SystemDateTimeResponseInterface)
+    Q_INTERFACES(SystemGetDateTimeResponseInterface)
 
 public:
-    SystemDateTimeResponse(MessageWrapper &wrapper, QObject *parent = nullptr);
+    SystemGetDateTimeResponse(MessageWrapper &wrapper, QObject *parent = nullptr);
     const QDateTime dateTime() const override;
 };
