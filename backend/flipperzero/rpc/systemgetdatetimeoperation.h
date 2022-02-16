@@ -1,13 +1,13 @@
 #pragma once
 
-#include "abstractprotobufoperation.h"
+#include "abstractserialoperation.h"
 
 #include <QDateTime>
 
 namespace Flipper {
 namespace Zero {
 
-class SystemGetDateTimeOperation : public AbstractProtobufOperation
+class SystemGetDateTimeOperation : public AbstractSerialOperation
 {
     Q_OBJECT
 

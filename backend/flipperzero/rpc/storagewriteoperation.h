@@ -1,6 +1,6 @@
 #pragma once
 
-#include "abstractprotobufoperation.h"
+#include "abstractserialoperation.h"
 
 #include <QByteArray>
 
@@ -9,7 +9,7 @@ class QIODevice;
 namespace Flipper {
 namespace Zero {
 
-class StorageWriteOperation : public AbstractProtobufOperation
+class StorageWriteOperation : public AbstractSerialOperation
 {
     Q_OBJECT
 

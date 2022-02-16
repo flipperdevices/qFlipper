@@ -11,7 +11,7 @@ using namespace Flipper;
 using namespace Zero;
 
 StorageWriteOperation::StorageWriteOperation(QSerialPort *serialPort, const QByteArray &path, QIODevice *file, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent),
+    AbstractSerialOperation(serialPort, parent),
     m_path(path),
     m_file(file),
     m_byteCount(0)

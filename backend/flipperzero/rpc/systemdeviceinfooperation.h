@@ -1,6 +1,6 @@
 #pragma once
 
-#include "abstractprotobufoperation.h"
+#include "abstractserialoperation.h"
 
 #include <QHash>
 #include <QByteArray>
@@ -10,7 +10,7 @@
 namespace Flipper {
 namespace Zero {
 
-class SystemDeviceInfoOperation : public AbstractProtobufOperation
+class SystemDeviceInfoOperation : public AbstractSerialOperation
 {
     Q_OBJECT
 

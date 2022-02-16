@@ -9,7 +9,7 @@ using namespace Flipper;
 using namespace Zero;
 
 SystemRebootOperation::SystemRebootOperation(QSerialPort *serialPort, RebootType rebootType, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent),
+    AbstractSerialOperation(serialPort, parent),
     m_rebootType(rebootType),
     m_byteCount(0)
 {}

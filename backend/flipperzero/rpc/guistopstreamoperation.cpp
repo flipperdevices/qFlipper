@@ -8,7 +8,7 @@ using namespace Flipper;
 using namespace Zero;
 
 GuiStopStreamOperation::GuiStopStreamOperation(QSerialPort *serialPort, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent)
+    AbstractSerialOperation(serialPort, parent)
 {}
 
 const QString GuiStopStreamOperation::description() const

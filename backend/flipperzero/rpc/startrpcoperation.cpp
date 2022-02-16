@@ -8,7 +8,7 @@ using namespace Flipper;
 using namespace Zero;
 
 StartRPCOperation::StartRPCOperation(QSerialPort *serialPort, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent)
+    AbstractSerialOperation(serialPort, parent)
 {}
 
 const QString StartRPCOperation::description() const

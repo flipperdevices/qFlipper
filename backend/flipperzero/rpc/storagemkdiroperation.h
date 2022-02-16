@@ -1,11 +1,11 @@
 #pragma once
 
-#include "abstractprotobufoperation.h"
+#include "abstractserialoperation.h"
 
 namespace Flipper {
 namespace Zero {
 
-class StorageMkdirOperation : public AbstractProtobufOperation
+class StorageMkdirOperation : public AbstractSerialOperation
 {
     Q_OBJECT
 

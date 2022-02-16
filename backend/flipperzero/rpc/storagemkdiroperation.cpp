@@ -5,7 +5,7 @@ using namespace Flipper;
 using namespace Zero;
 
 StorageMkdirOperation::StorageMkdirOperation(QSerialPort *serialPort, const QByteArray &path, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent),
+    AbstractSerialOperation(serialPort, parent),
     m_path(path)
 {}
 

@@ -12,7 +12,6 @@ SOURCES += \
     abstractoperation.cpp \
     abstractoperationhelper.cpp \
     abstractoperationrunner.cpp \
-    abstractprotobufoperation.cpp \
     abstractserialoperation.cpp \
     applicationbackend.cpp \
     deviceregistry.cpp \
@@ -106,7 +105,6 @@ HEADERS += \
     abstractoperationhelper.h \
     abstractoperationrunner.h \
     abstractprotobufmessage.h \
-    abstractprotobufoperation.h \
     abstractserialoperation.h \
     applicationbackend.h \
     backenderror.h \

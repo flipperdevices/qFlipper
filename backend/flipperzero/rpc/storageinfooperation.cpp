@@ -6,7 +6,7 @@ using namespace Flipper;
 using namespace Zero;
 
 StorageInfoOperation::StorageInfoOperation(QSerialPort *serialPort, const QByteArray &path, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent),
+    AbstractSerialOperation(serialPort, parent),
     m_path(path),
     m_isPresent(false),
     m_sizeFree(0),

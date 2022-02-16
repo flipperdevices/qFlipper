@@ -8,7 +8,7 @@ using namespace Flipper;
 using namespace Zero;
 
 SystemGetDateTimeOperation::SystemGetDateTimeOperation(QSerialPort *serialPort, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent)
+    AbstractSerialOperation(serialPort, parent)
 {}
 
 const QString SystemGetDateTimeOperation::description() const

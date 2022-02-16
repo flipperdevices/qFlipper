@@ -8,7 +8,7 @@ using namespace Flipper;
 using namespace Zero;
 
 GuiStartVirtualDisplayOperation::GuiStartVirtualDisplayOperation(QSerialPort *serialPort, const QByteArray &screenData, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent),
+    AbstractSerialOperation(serialPort, parent),
     m_screenData(screenData)
 {}
 

@@ -5,7 +5,7 @@ using namespace Flipper;
 using namespace Zero;
 
 StorageReadOperation::StorageReadOperation(QSerialPort *serialPort, const QByteArray &path, QIODevice *file, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent),
+    AbstractSerialOperation(serialPort, parent),
     m_path(path),
     m_file(file)
 {}

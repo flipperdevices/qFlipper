@@ -8,7 +8,7 @@ using namespace Flipper;
 using namespace Zero;
 
 SystemDeviceInfoOperation::SystemDeviceInfoOperation(QSerialPort *serialPort, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent)
+    AbstractSerialOperation(serialPort, parent)
 {}
 
 const QString SystemDeviceInfoOperation::description() const

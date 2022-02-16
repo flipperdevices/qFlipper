@@ -9,7 +9,7 @@ using namespace Flipper;
 using namespace Zero;
 
 GuiScreenFrameOperation::GuiScreenFrameOperation(QSerialPort *serialPort, const QByteArray &screenData, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent),
+    AbstractSerialOperation(serialPort, parent),
     m_screenData(screenData)
 {}
 

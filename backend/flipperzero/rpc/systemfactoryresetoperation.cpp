@@ -8,7 +8,7 @@ using namespace Flipper;
 using namespace Zero;
 
 SystemFactoryResetOperation::SystemFactoryResetOperation(QSerialPort *serialPort, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent),
+    AbstractSerialOperation(serialPort, parent),
     m_byteCount(0)
 {}
 
