@@ -8,7 +8,7 @@ SUBDIRS += \
     plugins \
     tool
 
-backend.depends = dfu 3rdparty
-application.depends = dfu 3rdparty backend
-tool.depends = dfu 3rdparty backend
+backend.depends = dfu plugins
+application.depends = backend
+tool.depends = backend
 plugins.depends = 3rdparty

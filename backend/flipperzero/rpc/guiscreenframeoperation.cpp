@@ -1,9 +1,6 @@
 #include "guiscreenframeoperation.h"
 
-#include <QTimer>
 #include <QSerialPort>
-
-#include "flipperzero/protobuf/guiprotobufmessage.h"
 
 using namespace Flipper;
 using namespace Zero;
@@ -20,12 +17,5 @@ const QString GuiScreenFrameOperation::description() const
 
 bool GuiScreenFrameOperation::begin()
 {
-    GuiScreenFrameRequest request(serialPort(), m_screenData);
-    const auto success = request.send();
-
-    if(success) {
-        QTimer::singleShot(0, this, &AbstractOperation::finish);
-    }
-
-    return success;
+    return false;
 }

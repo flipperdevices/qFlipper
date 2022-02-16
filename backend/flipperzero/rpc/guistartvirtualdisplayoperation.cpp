@@ -2,8 +2,6 @@
 
 #include <QSerialPort>
 
-#include "flipperzero/protobuf/guiprotobufmessage.h"
-
 using namespace Flipper;
 using namespace Zero;
 
@@ -19,21 +17,9 @@ const QString GuiStartVirtualDisplayOperation::description() const
 
 void GuiStartVirtualDisplayOperation::onSerialPortReadyRead()
 {
-    MainEmptyResponse response(serialPort());
-
-    if(!response.receive()) {
-        return;
-    } else if(!response.isOk()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with an error response: %1").arg(response.commandStatusString()));
-    } else if(!response.isValidType()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Expected empty reply, got something else"));
-    } else {
-        finish();
-    }
 }
 
 bool GuiStartVirtualDisplayOperation::begin()
 {
-    GuiStartVirtualDisplayRequest request(serialPort(), m_screenData);
-    return request.send();
+    return false;
 }

@@ -2,8 +2,6 @@
 
 #include <QSerialPort>
 
-#include "flipperzero/protobuf/systemprotobufmessage.h"
-
 using namespace Flipper;
 using namespace Zero;
 
@@ -23,29 +21,9 @@ const QByteArray SystemDeviceInfoOperation::result(const QByteArray &key) const
 
 void SystemDeviceInfoOperation::onSerialPortReadyRead()
 {
-    SystemDeviceInfoResponse response(serialPort());
-
-    while(response.receive()) {
-
-        if(!response.isOk()) {
-            finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with an error response"));
-            return;
-        } else if(!response.isValidType()) {
-            finishWithError(BackendError::ProtocolError, QStringLiteral("Expected empty reply, got something else"));
-            return;
-        }
-
-        m_data.insert(response.key(), response.value());
-
-        if(!response.hasNext()) {
-            finish();
-            return;
-        }
-    }
 }
 
 bool SystemDeviceInfoOperation::begin()
 {
-    SystemDeviceInfoRequest request(serialPort());
-    return request.send();
+    return false;
 }

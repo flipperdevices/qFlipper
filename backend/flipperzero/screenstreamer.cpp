@@ -1,6 +1,7 @@
 #include "screenstreamer.h"
 
 #include <QDebug>
+#include <QSerialPort>
 #include <QLoggingCategory>
 
 #include "devicestate.h"
@@ -8,8 +9,6 @@
 
 #include "rpc/guistartstreamoperation.h"
 #include "rpc/guistopstreamoperation.h"
-
-#include "protobuf/guiprotobufmessage.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_SCREEN, "SCREEN")
 
@@ -25,8 +24,8 @@ ScreenStreamer::ScreenStreamer(DeviceState *deviceState, CommandInterface *rpc, 
 
 void ScreenStreamer::sendInputEvent(int key, int type)
 {
-    GuiSendInputRequest request(serialPort(), (PB_Gui_InputKey)key, (PB_Gui_InputType)type);
-    request.send();
+    Q_UNUSED(key)
+    Q_UNUSED(type)
 }
 
 void ScreenStreamer::start()
@@ -66,29 +65,6 @@ void ScreenStreamer::stop()
 
 void ScreenStreamer::onPortReadyRead()
 {
-    GuiScreenFrameResponse msg(serialPort());
-
-    while(msg.receive()) {
-
-        if(!msg.isOk()) {
-            qCDebug(CATEGORY_SCREEN) << "Device replied with error:" << msg.commandStatusString();
-            return;
-
-        } else if(!msg.isValidType()) {
-            if(msg.whichContent() != MainEmptyResponse::tag()) {
-                qCDebug(CATEGORY_SCREEN) << "Expected screen frame or empty, got something else";
-                return;
-            }
-
-        } else {
-            m_deviceState->setScreenData(msg.screenFrame());
-        }
-    }
-
-    if(m_state == State::Stopping) {
-        // Stop only after processing all of the messages
-        sendStopCommand();
-    }
 }
 
 void ScreenStreamer::sendStopCommand()

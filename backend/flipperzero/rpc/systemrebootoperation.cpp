@@ -3,8 +3,6 @@
 #include <QTimer>
 #include <QSerialPort>
 
-#include "flipperzero/protobuf/systemprotobufmessage.h"
-
 using namespace Flipper;
 using namespace Zero;
 
@@ -28,10 +26,5 @@ void SystemRebootOperation::onTotalBytesWrittenChanged()
 
 bool SystemRebootOperation::begin()
 {
-    const auto rebootType = m_rebootType == RebootType::OS ? PB_System_RebootRequest_RebootMode_OS :
-                                                             PB_System_RebootRequest_RebootMode_DFU;
-    SystemRebootRequest request(serialPort(), rebootType);
-    const auto success = request.send();
-    m_byteCount = request.bytesWritten();
-    return success;
+    return false;
 }

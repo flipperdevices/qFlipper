@@ -2,8 +2,6 @@
 
 #include <QSerialPort>
 
-#include "flipperzero/protobuf/systemprotobufmessage.h"
-
 using namespace Flipper;
 using namespace Zero;
 
@@ -26,8 +24,5 @@ void SystemFactoryResetOperation::onTotalBytesWrittenChanged()
 
 bool SystemFactoryResetOperation::begin()
 {
-    SystemFactoryResetRequest request(serialPort());
-    const auto success = request.send();
-    m_byteCount = request.bytesWritten();
-    return success;
+    return false;
 }

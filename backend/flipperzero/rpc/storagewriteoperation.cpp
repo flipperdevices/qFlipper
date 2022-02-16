@@ -3,9 +3,7 @@
 #include <QTimer>
 #include <QIODevice>
 
-#include "flipperzero/protobuf/storageprotobufmessage.h"
-
-static constexpr qint64 CHUNK_SIZE = 512;
+//static constexpr qint64 CHUNK_SIZE = 512;
 
 using namespace Flipper;
 using namespace Zero;
@@ -27,17 +25,6 @@ const QString StorageWriteOperation::description() const
 
 void StorageWriteOperation::onSerialPortReadyRead()
 {
-    MainEmptyResponse response(serialPort());
-
-    if(!response.receive()) {
-        return;
-    } else if(!response.isOk()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
-    } else if(!response.isValidType()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Expected empty response, got something else"));
-    } else {
-        finish();
-    }
 }
 
 void StorageWriteOperation::onTotalBytesWrittenChanged()
@@ -68,10 +55,5 @@ bool StorageWriteOperation::begin()
 
 bool StorageWriteOperation::writeChunk()
 {
-    const auto hasNext = m_file->bytesAvailable() > CHUNK_SIZE;
-    StorageWriteRequest request(serialPort(), m_path, m_file->read(CHUNK_SIZE), hasNext);
-
-    const auto success = request.send();
-    m_byteCount += request.bytesWritten();
-    return success;
+    return false;
 }

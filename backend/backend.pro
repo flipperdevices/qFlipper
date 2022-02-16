@@ -51,16 +51,6 @@ SOURCES += \
     flipperzero/helper/scriptshelper.cpp \
     flipperzero/helper/serialinithelper.cpp \
     flipperzero/helper/toplevelhelper.cpp \
-    flipperzero/protobuf/guiprotobufmessage.cpp \
-    flipperzero/protobuf/mainprotobufmessage.cpp \
-    flipperzero/protobuf/messages/application.pb.c \
-    flipperzero/protobuf/messages/flipper.pb.c \
-    flipperzero/protobuf/messages/gui.pb.c \
-    flipperzero/protobuf/messages/status.pb.c \
-    flipperzero/protobuf/messages/storage.pb.c \
-    flipperzero/protobuf/messages/system.pb.c \
-    flipperzero/protobuf/storageprotobufmessage.cpp \
-    flipperzero/protobuf/systemprotobufmessage.cpp \
     flipperzero/radiomanifest.cpp \
     flipperzero/recovery.cpp \
     flipperzero/recovery/abstractrecoveryoperation.cpp \
@@ -149,16 +139,6 @@ HEADERS += \
     flipperzero/helper/scriptshelper.h \
     flipperzero/helper/serialinithelper.h \
     flipperzero/helper/toplevelhelper.h \
-    flipperzero/protobuf/guiprotobufmessage.h \
-    flipperzero/protobuf/mainprotobufmessage.h \
-    flipperzero/protobuf/messages/application.pb.h \
-    flipperzero/protobuf/messages/flipper.pb.h \
-    flipperzero/protobuf/messages/gui.pb.h \
-    flipperzero/protobuf/messages/status.pb.h \
-    flipperzero/protobuf/messages/storage.pb.h \
-    flipperzero/protobuf/messages/system.pb.h \
-    flipperzero/protobuf/storageprotobufmessage.h \
-    flipperzero/protobuf/systemprotobufmessage.h \
     flipperzero/radiomanifest.h \
     flipperzero/recovery.h \
     flipperzero/recovery/abstractrecoveryoperation.h \
@@ -199,23 +179,17 @@ HEADERS += \
     updateregistry.h
 
 unix|win32 {
-    LIBS += -L$$OUT_PWD/../dfu/ -ldfu \
-            -L$$OUT_PWD/../3rdparty/ -l3rdparty
+    LIBS += -L$$OUT_PWD/../dfu/ -ldfu
 }
 
 win32:!win32-g++ {
-    PRE_TARGETDEPS += $$OUT_PWD/../dfu/dfu.lib \
-                      $$OUT_PWD/../3rdparty/3rdparty.lib
+    PRE_TARGETDEPS += $$OUT_PWD/../dfu/dfu.lib
 
 } else:unix|win32-g++ {
-    PRE_TARGETDEPS += $$OUT_PWD/../dfu/libdfu.a \
-                      $$OUT_PWD/../3rdparty/lib3rdparty.a
+    PRE_TARGETDEPS += $$OUT_PWD/../dfu/libdfu.a
 }
 
 INCLUDEPATH += $$PWD/../dfu \
-               $$PWD/../3rdparty \
-               $$PWD/../3rdparty/nanopb \
                $$PWD/../plugins/protobufinterface
 
-DEPENDPATH += $$PWD/../dfu \
-              $$PWD/../3rdparty
+DEPENDPATH += $$PWD/../dfu

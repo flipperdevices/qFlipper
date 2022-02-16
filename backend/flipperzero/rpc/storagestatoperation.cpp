@@ -1,7 +1,5 @@
 #include "storagestatoperation.h"
 
-#include "flipperzero/protobuf/storageprotobufmessage.h"
-
 using namespace Flipper;
 using namespace Zero;
 
@@ -40,34 +38,9 @@ StorageStatOperation::Type StorageStatOperation::type() const
 
 void StorageStatOperation::onSerialPortReadyRead()
 {
-    StorageStatResponse response(serialPort());
-
-    if(!response.receive()) {
-        return;
-
-    } else if(!response.isOk()) {
-        const auto status = response.commandStatus();
-        // TODO: more flexible error handling
-        if(status == PB_CommandStatus_ERROR_STORAGE_NOT_EXIST) {
-            finish();
-        } else{
-            finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
-        }
-
-    } else if(!response.isValidType()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Expected StorageStat response, got something else"));
-
-    } else {
-        m_isPresent = response.isPresent();
-        m_type = (response.file().type == PB_Storage_File_FileType_FILE) ? Type::RegularFile : Type::Directory;
-        m_size = response.file().size;
-
-        finish();
-    }
 }
 
 bool StorageStatOperation::begin()
 {
-    StorageStatRequest request(serialPort(), m_fileName);
-    return request.send();
+    return false;
 }

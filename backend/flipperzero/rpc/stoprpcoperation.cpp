@@ -2,8 +2,6 @@
 
 #include <QSerialPort>
 
-#include "flipperzero/protobuf/mainprotobufmessage.h"
-
 using namespace Flipper;
 using namespace Zero;
 
@@ -26,6 +24,5 @@ void StopRPCOperation::onSerialPortReadyRead()
 
 bool StopRPCOperation::begin()
 {
-    MainStopSessionRequest request(serialPort());
-    return request.send();
+    return false;
 }
