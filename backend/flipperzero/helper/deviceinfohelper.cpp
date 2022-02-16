@@ -5,12 +5,11 @@
 #include <QDebug>
 #include <QTimer>
 #include <QSerialPort>
-#include <QPluginLoader>
 #include <QLoggingCategory>
 
-#include "protobufplugininterface.h"
-#include "systemresponseinterface.h"
-#include "statusresponseinterface.h"
+//#include "protobufplugininterface.h"
+//#include "systemresponseinterface.h"
+//#include "statusresponseinterface.h"
 
 #include "flipperzero/factoryinfo.h"
 
@@ -60,37 +59,8 @@ const DeviceInfo &AbstractDeviceInfoHelper::result() const
 
 VCPDeviceInfoHelper::VCPDeviceInfoHelper(const USBDeviceInfo &info, QObject *parent):
     AbstractDeviceInfoHelper(parent),
-    m_serialPort(nullptr),
-    m_loader(new QPluginLoader("plugins/libprotobuf0.so", this))
+    m_serialPort(nullptr)
 {
-    if(!m_loader->load()) {
-        qCCritical(CATEGORY_DEBUG) << "Failed to load the plugin:" << m_loader->errorString();
-    } else {
-        m_plugin = qobject_cast<ProtobufPluginInterface*>(m_loader->instance());
-        if(m_plugin) {
-
-            const auto buffer = m_plugin->testSystemPingResponse();
-            qCDebug(CATEGORY_DEBUG) << "Test buffer:" << buffer;
-
-            auto *msg = m_plugin->decode(buffer);
-
-            if(auto *main = qobject_cast<MainResponseInterface*>(msg)) {
-                qCDebug(CATEGORY_DEBUG).nospace() << "Command ID: " << main->commandID() << ", Has next: " << main->hasNext()
-                                                  << ", Is error: " << main->isError() << ", Error string: " << main->errorString()
-                                                  << ", Encoded size: " << main->encodedSize();
-            }
-
-            if(auto *ping = qobject_cast<StatusPingResponseInterface*>(msg)) {
-                qCDebug(CATEGORY_DEBUG) << "Data:" << ping->data();
-            }
-
-            msg->deleteLater();
-
-        } else {
-            qCCritical(CATEGORY_DEBUG) << "Failed to perform the cast";
-        }
-    }
-
     m_deviceInfo.usbInfo = info;
 }
 

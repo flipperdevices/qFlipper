@@ -3,6 +3,8 @@
 #include <QObject>
 #include <QSerialPortInfo>
 
+class ProtobufPluginInterface;
+
 namespace Flipper {
 namespace Zero {
 
@@ -20,6 +22,7 @@ public:
     };
 
     ProtobufSession(const QSerialPortInfo &serialInfo, QObject *parent = nullptr);
+    ~ProtobufSession();
 
     SessionState sessionState() const;
 
@@ -41,11 +44,23 @@ private slots:
     void onSerialPortErrorOccured();
 
 private:
+    bool loadProtobufPlugin();
+    bool unloadProtobufPlugin();
+
+    uint32_t getAndIncrementCounter();
     void setSessionState(SessionState newState);
+
+    const QString protobufPluginPath() const;
 
     SessionState m_sessionState;
     QSerialPort *m_serialPort;
-    uint32_t m_messageID;
+
+    ProtobufPluginInterface *m_plugin;
+
+    uint32_t m_counter;
+
+    int m_versionMajor;
+    int m_versionMinor;
 };
 
 }
