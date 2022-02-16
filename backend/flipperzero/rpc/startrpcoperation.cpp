@@ -16,6 +16,14 @@ const QString StartRPCOperation::description() const
 
 void StartRPCOperation::onSerialPortReadyRead()
 {
+    serialPort()->startTransaction();
+
+    if(!serialPort()->readAll().endsWith(s_cmd + '\n')) {
+        serialPort()->rollbackTransaction();
+    } else {
+        serialPort()->commitTransaction();
+        finish();
+    }
 }
 
 void StartRPCOperation::onOperationTimeout()

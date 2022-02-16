@@ -1,6 +1,7 @@
 #include "serialinithelper.h"
 
 #include <QTimer>
+#include <QDebug>
 #include <QSerialPort>
 
 #include "flipperzero/rpc/skipmotdoperation.h"
@@ -50,6 +51,7 @@ void SerialInitHelper::openPort()
     } else if(!m_serialPort->open(QIODevice::ReadWrite)) {
         m_retryTimer->start(std::chrono::milliseconds(50));
     } else {
+        qDebug() << "Port is open!";
         advanceState();
     }
 }
@@ -62,6 +64,7 @@ void SerialInitHelper::skipMOTD()
         if(operation->isError()) {
             finishWithError(BackendError::SerialAccessError, QStringLiteral("Failed to begin CLI session: %1").arg(operation->errorString()));
         } else {
+            qDebug() << "Skipped MOTD!";
             advanceState();
         }
 
@@ -78,6 +81,7 @@ void SerialInitHelper::startRPCSession()
         if(operation->isError()) {
             finishWithError(BackendError::SerialAccessError, QStringLiteral("Failed to start RPC session: %1").arg(operation->errorString()));
         } else {
+            qDebug() << "Started RPC Session!";
             advanceState();
         }
 
