@@ -7,16 +7,14 @@
 #include <QSerialPort>
 #include <QLoggingCategory>
 
-//#include "protobufplugininterface.h"
-//#include "systemresponseinterface.h"
-//#include "statusresponseinterface.h"
-
 #include "flipperzero/factoryinfo.h"
+#include "flipperzero/protobufsession.h"
+
+#include "flipperzero/protobuf/systemdeviceinfooperation.h"
 
 #include "flipperzero/rpc/stoprpcoperation.h"
 #include "flipperzero/rpc/storagestatoperation.h"
 #include "flipperzero/rpc/storageinfooperation.h"
-#include "flipperzero/rpc/systemdeviceinfooperation.h"
 #include "flipperzero/rpc/systemgetdatetimeoperation.h"
 #include "flipperzero/rpc/systemsetdatetimeoperation.h"
 
@@ -58,8 +56,7 @@ const DeviceInfo &AbstractDeviceInfoHelper::result() const
 }
 
 VCPDeviceInfoHelper::VCPDeviceInfoHelper(const USBDeviceInfo &info, QObject *parent):
-    AbstractDeviceInfoHelper(parent),
-    m_serialPort(nullptr)
+    AbstractDeviceInfoHelper(parent)
 {
     m_deviceInfo.usbInfo = info;
 }
@@ -71,10 +68,10 @@ void VCPDeviceInfoHelper::nextStateLogic()
         findSerialPort();
 
     } else if(state() == VCPDeviceInfoHelper::FindingSerialPort) {
-        setState(VCPDeviceInfoHelper::InitializingSerialPort);
-        initSerialPort();
+        setState(VCPDeviceInfoHelper::StartingProtobufSession);
+        startProtobufSession();
 
-    } else if(state() == VCPDeviceInfoHelper::InitializingSerialPort) {
+    } else if(state() == VCPDeviceInfoHelper::StartingProtobufSession) {
         setState(VCPDeviceInfoHelper::FetchingDeviceInfo);
         fetchDeviceInfo();
 
@@ -120,68 +117,60 @@ void VCPDeviceInfoHelper::findSerialPort()
     });
 }
 
-void VCPDeviceInfoHelper::initSerialPort()
+void VCPDeviceInfoHelper::startProtobufSession()
 {
-    auto *helper = new SerialInitHelper(m_deviceInfo.portInfo, this);
-
-    connect(helper, &AbstractOperationHelper::finished, this, [=]() {
-        if(helper->isError()) {
-            finishWithError(helper->error(), QStringLiteral("Failed to initialize serial port: %1").arg(helper->errorString()));
-        } else {
-            m_serialPort = helper->serialPort();
-            advanceState();
-        }
-    });
+    m_session = new ProtobufSession(m_deviceInfo.portInfo, this);
+    connect(m_session, &ProtobufSession::sessionStateChanged, this, &VCPDeviceInfoHelper::onProtobufSessionStateChanged);
 }
 
 void VCPDeviceInfoHelper::fetchDeviceInfo()
 {
-    auto *operation = new SystemDeviceInfoOperation(m_serialPort, this);
+    auto *reply = m_session->systemDeviceInfo();
 
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to get device information: %1").arg(operation->errorString()));
+    connect(reply, &AbstractOperation::finished, this, [=]() {
+        if(reply->isError()) {
+            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to get device information: %1").arg(reply->errorString()));
             return;
         }
 
-        m_deviceInfo.name = operation->result(QByteArrayLiteral("hardware_name"));
+        m_deviceInfo.name = reply->value(QByteArrayLiteral("hardware_name"));
 
         m_deviceInfo.bootloader = {
-            operation->result(QByteArrayLiteral("bootloader_version")),
-            operation->result(QByteArrayLiteral("bootloader_commit")),
-            operation->result(QByteArrayLiteral("bootloader_branch")),
-            branchToChannelName(operation->result(QByteArrayLiteral("bootloader_branch"))),
-            QDateTime::fromString(operation->result(QByteArrayLiteral("bootloader_build_date")), "dd-MM-yyyy").date()
+            reply->value(QByteArrayLiteral("bootloader_version")),
+            reply->value(QByteArrayLiteral("bootloader_commit")),
+            reply->value(QByteArrayLiteral("bootloader_branch")),
+            branchToChannelName(reply->value(QByteArrayLiteral("bootloader_branch"))),
+            QDateTime::fromString(reply->value(QByteArrayLiteral("bootloader_build_date")), "dd-MM-yyyy").date()
         };
 
         m_deviceInfo.firmware = {
-            operation->result(QByteArrayLiteral("firmware_version")),
-            operation->result(QByteArrayLiteral("firmware_commit")),
-            operation->result(QByteArrayLiteral("firmware_branch")),
-            branchToChannelName(operation->result(QByteArrayLiteral("firmware_branch"))),
-            QDateTime::fromString(operation->result(QByteArrayLiteral("firmware_build_date")), "dd-MM-yyyy").date()
+            reply->value(QByteArrayLiteral("firmware_version")),
+            reply->value(QByteArrayLiteral("firmware_commit")),
+            reply->value(QByteArrayLiteral("firmware_branch")),
+            branchToChannelName(reply->value(QByteArrayLiteral("firmware_branch"))),
+            QDateTime::fromString(reply->value(QByteArrayLiteral("firmware_build_date")), "dd-MM-yyyy").date()
         };
 
         m_deviceInfo.hardware = {
-            operation->result(QByteArrayLiteral("hardware_ver")),
-            QByteArrayLiteral("f") + operation->result(QByteArrayLiteral("hardware_target")),
-            QByteArrayLiteral("b") + operation->result(QByteArrayLiteral("hardware_body")),
-            QByteArrayLiteral("c") + operation->result(QByteArrayLiteral("hardware_connect")),
-            (HardwareInfo::Color)operation->result(QByteArrayLiteral("hardware_color")).toInt(),
+            reply->value(QByteArrayLiteral("hardware_ver")),
+            QByteArrayLiteral("f") + reply->value(QByteArrayLiteral("hardware_target")),
+            QByteArrayLiteral("b") + reply->value(QByteArrayLiteral("hardware_body")),
+            QByteArrayLiteral("c") + reply->value(QByteArrayLiteral("hardware_connect")),
+            (HardwareInfo::Color)reply->value(QByteArrayLiteral("hardware_color")).toInt(),
         };
 
-        if(operation->result(QByteArray("radio_alive")) == QByteArrayLiteral("true")) {
+        if(reply->value(QByteArray("radio_alive")) == QByteArrayLiteral("true")) {
             m_deviceInfo.fusVersion = QStringLiteral("%1.%2.%3").arg(
-                operation->result(QByteArrayLiteral("radio_fus_major")),
-                operation->result(QByteArrayLiteral("radio_fus_minor")),
-                operation->result(QByteArrayLiteral("radio_fus_sub")));
+                reply->value(QByteArrayLiteral("radio_fus_major")),
+                reply->value(QByteArrayLiteral("radio_fus_minor")),
+                reply->value(QByteArrayLiteral("radio_fus_sub")));
 
             m_deviceInfo.radioVersion = QStringLiteral("%1.%2.%3").arg(
-                operation->result(QByteArrayLiteral("radio_stack_major")),
-                operation->result(QByteArrayLiteral("radio_stack_minor")),
-                operation->result(QByteArrayLiteral("radio_stack_sub")));
+                reply->value(QByteArrayLiteral("radio_stack_major")),
+                reply->value(QByteArrayLiteral("radio_stack_minor")),
+                reply->value(QByteArrayLiteral("radio_stack_sub")));
 
-            m_deviceInfo.stackType = operation->result(QByteArrayLiteral("radio_stack_type")).toInt();
+            m_deviceInfo.stackType = reply->value(QByteArrayLiteral("radio_stack_type")).toInt();
         }
 
         if(m_deviceInfo.name.isEmpty()) {
@@ -189,116 +178,129 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
         } else {
             advanceState();
         }
-
-        operation->deleteLater();
     });
-
-    operation->start();
 }
 
 void VCPDeviceInfoHelper::checkSDCard()
 {
-    auto *operation = new StorageInfoOperation(m_serialPort, QByteArrayLiteral("/ext"), this);
+//    auto *operation = new StorageInfoOperation(m_serialPort, QByteArrayLiteral("/ext"), this);
 
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to check SD card: %1").arg(operation->errorString()));
+//    connect(operation, &AbstractOperation::finished, this, [=]() {
+//        if(operation->isError()) {
+//            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to check SD card: %1").arg(operation->errorString()));
 
-        } else if(!operation->isPresent()) {
-            m_deviceInfo.storage.isExternalPresent = false;
-            m_deviceInfo.storage.isAssetsInstalled = false;
+//        } else if(!operation->isPresent()) {
+//            m_deviceInfo.storage.isExternalPresent = false;
+//            m_deviceInfo.storage.isAssetsInstalled = false;
 
-            setState(VCPDeviceInfoHelper::CheckingManifest);
-            advanceState();
+//            setState(VCPDeviceInfoHelper::CheckingManifest);
+//            advanceState();
 
-        } else {
-            m_deviceInfo.storage.isExternalPresent = true;
-            m_deviceInfo.storage.externalFree = floor((double)operation->sizeFree() * 100.0 /
-                                                      (double)operation->sizeTotal());
-            advanceState();
-        }
+//        } else {
+//            m_deviceInfo.storage.isExternalPresent = true;
+//            m_deviceInfo.storage.externalFree = floor((double)operation->sizeFree() * 100.0 /
+//                                                      (double)operation->sizeTotal());
+//            advanceState();
+//        }
 
-        operation->deleteLater();
-    });
+//        operation->deleteLater();
+//    });
 
-    operation->start();
+//    operation->start();
+    finishWithError(BackendError::UnknownError, QStringLiteral("Not implemented"));
 }
 
 void VCPDeviceInfoHelper::checkManifest()
 {
-    auto *operation = new StorageStatOperation(m_serialPort, QByteArrayLiteral("/ext/Manifest"), this);
+//    auto *operation = new StorageStatOperation(m_serialPort, QByteArrayLiteral("/ext/Manifest"), this);
 
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to check resource manifest: %1").arg(operation->errorString()));
+//    connect(operation, &AbstractOperation::finished, this, [=]() {
+//        if(operation->isError()) {
+//            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to check resource manifest: %1").arg(operation->errorString()));
 
-        } else {
-            m_deviceInfo.storage.isAssetsInstalled = operation->isPresent() && (operation->type() == StorageStatOperation::Type::RegularFile);
-            advanceState();
-        }
+//        } else {
+//            m_deviceInfo.storage.isAssetsInstalled = operation->isPresent() && (operation->type() == StorageStatOperation::Type::RegularFile);
+//            advanceState();
+//        }
 
-        operation->deleteLater();
-    });
+//        operation->deleteLater();
+//    });
 
-    operation->start();
+//    operation->start();
+    finishWithError(BackendError::UnknownError, QStringLiteral("Not implemented"));
 }
 
 void VCPDeviceInfoHelper::getTimeSkew()
 {
-    auto *operation = new SystemGetDateTimeOperation(m_serialPort, this);
-    operation->start();
+//    auto *operation = new SystemGetDateTimeOperation(m_serialPort, this);
+//    operation->start();
 
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to check device time: %1").arg(operation->errorString()));
+//    connect(operation, &AbstractOperation::finished, this, [=]() {
+//        if(operation->isError()) {
+//            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to check device time: %1").arg(operation->errorString()));
 
-        } else {
-            const auto timeSkew = QDateTime::currentDateTime().msecsTo(operation->dateTime());
-            qCDebug(CATEGORY_DEBUG) << "Flipper time skew is" << timeSkew << "milliseconds";
+//        } else {
+//            const auto timeSkew = QDateTime::currentDateTime().msecsTo(operation->dateTime());
+//            qCDebug(CATEGORY_DEBUG) << "Flipper time skew is" << timeSkew << "milliseconds";
 
-            advanceState();
-        }
+//            advanceState();
+//        }
 
-        operation->deleteLater();
-    });
+//        operation->deleteLater();
+//    });
+    finishWithError(BackendError::UnknownError, QStringLiteral("Not implemented"));
 }
 
 void VCPDeviceInfoHelper::syncTime()
 {
-    auto *operation = new SystemSetDateTimeOperation(m_serialPort, QDateTime::currentDateTime(), this);
-    operation->start();
+//    auto *operation = new SystemSetDateTimeOperation(m_serialPort, QDateTime::currentDateTime(), this);
+//    operation->start();
 
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to set device time: %1").arg(operation->errorString()));
-        } else {
-            advanceState();
-        }
+//    connect(operation, &AbstractOperation::finished, this, [=]() {
+//        if(operation->isError()) {
+//            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to set device time: %1").arg(operation->errorString()));
+//        } else {
+//            advanceState();
+//        }
 
-        operation->deleteLater();
-    });
+//        operation->deleteLater();
+//    });
+    finishWithError(BackendError::UnknownError, QStringLiteral("Not implemented"));
 }
 
 void VCPDeviceInfoHelper::stopRPCSession()
 {
-    auto *operation = new StopRPCOperation(m_serialPort, this);
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to stop RPC session: %1").arg(operation->errorString()));
-        } else {
-            advanceState();
-        }
+//    auto *operation = new StopRPCOperation(m_serialPort, this);
+//    connect(operation, &AbstractOperation::finished, this, [=]() {
+//        if(operation->isError()) {
+//            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to stop RPC session: %1").arg(operation->errorString()));
+//        } else {
+//            advanceState();
+//        }
 
-        operation->deleteLater();
-    });
+//        operation->deleteLater();
+//    });
 
-    operation->start();
+//    operation->start();
+    finishWithError(BackendError::UnknownError, QStringLiteral("Not implemented"));
 }
 
 void VCPDeviceInfoHelper::closePortAndFinish()
 {
-    m_serialPort->close();
-    finish();
+}
+
+void VCPDeviceInfoHelper::onProtobufSessionStateChanged()
+{
+    if(m_session->isError()) {
+        finishWithError(m_session->error(), QStringLiteral("Protobuf session error: %1").arg(m_session->errorString()));
+
+    } else if(state() == VCPDeviceInfoHelper::StartingProtobufSession && m_session->sessionState() == ProtobufSession::Idle) {
+        advanceState();
+
+    } else if(state() == VCPDeviceInfoHelper::StoppingRPCSession && m_session->sessionState() == ProtobufSession::Stopped) {
+        qCDebug(CATEGORY_DEBUG) << "RPC session stopped successfully.";
+        advanceState();
+    }
 }
 
 const QString &VCPDeviceInfoHelper::branchToChannelName(const QByteArray &branchName)

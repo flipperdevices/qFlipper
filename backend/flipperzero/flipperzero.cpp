@@ -10,6 +10,7 @@
 #include "screenstreamer.h"
 #include "virtualdisplay.h"
 
+#include "protobufsession.h"
 #include "commandinterface.h"
 #include "utilityinterface.h"
 #include "recoveryinterface.h"

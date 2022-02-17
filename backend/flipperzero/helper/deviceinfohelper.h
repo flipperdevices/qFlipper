@@ -35,7 +35,7 @@ class VCPDeviceInfoHelper : public AbstractDeviceInfoHelper
 
     enum OperationState {
         FindingSerialPort = AbstractOperationHelper::User,
-        InitializingSerialPort,
+        StartingProtobufSession,
         FetchingDeviceInfo,
         CheckingSDCard,
         CheckingManifest,
@@ -51,7 +51,7 @@ private:
     void nextStateLogic() override;
 
     void findSerialPort();
-    void initSerialPort();
+    void startProtobufSession();
     void fetchDeviceInfo();
     void checkSDCard();
     void checkManifest();
@@ -60,10 +60,12 @@ private:
     void stopRPCSession();
     void closePortAndFinish();
 
+private slots:
+    void onProtobufSessionStateChanged();
+
 private:
     static const QString &branchToChannelName(const QByteArray &branchName);
-
-    QSerialPort *m_serialPort;
+    ProtobufSession *m_session;
 };
 
 class DFUDeviceInfoHelper : public AbstractDeviceInfoHelper

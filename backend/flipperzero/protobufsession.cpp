@@ -1,12 +1,17 @@
 #include "protobufsession.h"
 
 #include <QDebug>
+#include <QTimer>
 #include <QSerialPort>
 #include <QPluginLoader>
 #include <QLoggingCategory>
 
 #include "protobufplugininterface.h"
 #include "mainresponseinterface.h"
+
+#include "helper/serialinithelper.h"
+
+#include "protobuf/systemdeviceinfooperation.h"
 
 Q_LOGGING_CATEGORY(LOG_SESSION, "SESSION")
 
@@ -18,10 +23,15 @@ ProtobufSession::ProtobufSession(const QSerialPortInfo &serialInfo, QObject *par
     m_sessionState(Stopped),
     m_serialPort(nullptr),
     m_plugin(nullptr),
+    m_currentOperation(nullptr),
     m_counter(0),
     m_versionMajor(0),
     m_versionMinor(0)
 {
+    if(!loadProtobufPlugin()) {
+        return;
+    }
+
     setSerialPort(serialInfo);
 }
 
@@ -37,49 +47,152 @@ ProtobufSession::SessionState ProtobufSession::sessionState() const
 
 void ProtobufSession::setSerialPort(const QSerialPortInfo &serialInfo)
 {
-    Q_UNUSED(serialInfo)
+    // TODO: A better way to stop the session?
+    setSessionState(Stopped);
+
+    if(m_serialPort) {
+        m_serialPort->close();
+        m_serialPort->deleteLater();
+    }
+
+    qCInfo(LOG_SESSION) << "Starting RPC session...";
+
+    setSessionState(Starting);
+
+    auto *helper = new SerialInitHelper(serialInfo, this);
+    connect(helper, &SerialInitHelper::finished, this, [=]() {
+        helper->deleteLater();
+
+        if(helper->isError()) {
+            qCCritical(LOG_SESSION).noquote() << "Failed to start RPC session:" << helper->errorString();
+            setError(helper->error(), helper->errorString());
+            setSessionState(Stopped);
+            return;
+        }
+
+        m_serialPort = helper->serialPort();
+
+        connect(m_serialPort, &QSerialPort::readyRead, this, &ProtobufSession::onSerialPortReadyRead);
+        connect(m_serialPort, &QSerialPort::bytesWritten, this, &ProtobufSession::onSerialPortBytesWriten);
+        connect(m_serialPort, &QSerialPort::errorOccurred, this, &ProtobufSession::onSerialPortErrorOccured);
+
+        qCInfo(LOG_SESSION) << "RPC session started successfully.";
+        setSessionState(Idle);
+    });
 }
 
 void ProtobufSession::setMajorVersion(int versionMajor)
 {
+    // TODO: unload the previous plugin and load a proper one instead
     m_versionMajor = versionMajor;
 }
 
 void ProtobufSession::setMinorVersion(int versionMinor)
 {
+    // TODO: change the plugin settings accordingly
     m_versionMinor = versionMinor;
 }
 
-void ProtobufSession::start()
+SystemDeviceInfoOperation *ProtobufSession::systemDeviceInfo()
 {
-    loadProtobufPlugin();
+   return enqueueOperation(new SystemDeviceInfoOperation(getAndIncrementCounter(), this));
 }
 
 void ProtobufSession::stop()
-{
-    unloadProtobufPlugin();
-}
-
-void ProtobufSession::onSerialPortBytesWriten()
 {
 
 }
 
 void ProtobufSession::onSerialPortReadyRead()
 {
+    if((sessionState() != Running) && (sessionState() != Idle)) {
+        m_serialPort->clear();
+        return;
+    }
 
+    m_receivedData.append(m_serialPort->readAll());
+
+    auto *response = m_plugin->decode(m_receivedData);
+
+    if(!response) {
+        return;
+    }
+
+    auto *mainResponse = qobject_cast<MainResponseInterface*>(response);
+    m_receivedData.remove(0, mainResponse->encodedSize());
+
+    if(mainResponse->isError()) {
+        processErrorResponse(response);
+    } else if(mainResponse->commandID() == m_currentOperation->id()) {
+        processMatchedResponse(response);
+    } else if(mainResponse->commandID() == 0) {
+        processBroadcastResponse(response);
+    } else {
+        processUnmatchedResponse(response);
+    }
+
+    response->deleteLater();
+
+    if(!m_receivedData.isEmpty()) {
+        // m_receivedData can contain more than 1 full message
+        QTimer::singleShot(0, this, &ProtobufSession::onSerialPortReadyRead);
+    }
+}
+
+void ProtobufSession::onSerialPortBytesWriten(qint64 nbytes)
+{
+    qDebug() << nbytes << "bytes written to the port...";
+    m_bytesToWrite -= nbytes;
+
+    if(m_bytesToWrite && m_currentOperation->hasNext()) {
+        // Write the next part if applicable
+        QTimer::singleShot(0, this, &ProtobufSession::writeToPort);
+    }
 }
 
 void ProtobufSession::onSerialPortErrorOccured()
 {
+    qDebug() << "Serial port error occured:" << m_serialPort->errorString();
+}
 
+void ProtobufSession::processQueue()
+{
+    if(m_currentOperation) {
+        m_currentOperation->deleteLater();
+        m_currentOperation = nullptr;
+    }
+
+    if(m_queue.isEmpty()) {
+        setSessionState(Idle);
+        return;
+    }
+
+    m_currentOperation = m_queue.dequeue();
+    qCInfo(LOG_SESSION).noquote() << m_currentOperation->description() << "START";
+
+    writeToPort();
+}
+
+void ProtobufSession::writeToPort()
+{
+    const auto &buf = m_currentOperation->encodeRequest(m_plugin);
+    m_bytesToWrite = m_serialPort->write(buf);
+    // TODO: Check for full system serial buffer
+    const auto success = (m_bytesToWrite == buf.size()) && m_serialPort->flush();
+
+    if(!success) {
+        setError(BackendError::SerialError, m_serialPort->errorString());
+        setSessionState(Stopped);
+    }
 }
 
 bool ProtobufSession::loadProtobufPlugin()
 {
     QPluginLoader loader(protobufPluginPath());
 
-    if(!loader.load()) {
+    if(loader.isLoaded()) {
+        return true;
+    } else if(!loader.load()) {
         qCCritical(LOG_SESSION) << "Failed to load protobuf plugin:" << loader.errorString();
     } else if(!(m_plugin = qobject_cast<ProtobufPluginInterface*>(loader.instance()))) {
         qCCritical(LOG_SESSION) << "Loaded plugin does not provide the interface required";
@@ -87,7 +200,8 @@ bool ProtobufSession::loadProtobufPlugin()
         return true;
     }
 
-    setSessionState(ErrorOccured);
+    setError(BackendError::UnknownError, QStringLiteral("Failed to load protubuf plugin"));
+    setSessionState(Stopped);
     return false;
 }
 
@@ -120,4 +234,49 @@ void ProtobufSession::setSessionState(SessionState newState)
 const QString ProtobufSession::protobufPluginPath() const
 {
     return QStringLiteral("plugins/libprotobuf%1.so").arg(m_versionMajor);
+}
+
+void ProtobufSession::processMatchedResponse(QObject *response)
+{
+    m_currentOperation->feedResponse(response);
+
+    if(!m_currentOperation->isFinished()) {
+        return;
+    } else if(m_currentOperation->isError()) {
+        qCCritical(LOG_SESSION).noquote() << m_currentOperation->description() << "ERROR:" << m_currentOperation->errorString();
+    } else {
+        qCInfo(LOG_SESSION).noquote() << m_currentOperation->description() << "SUCCESS";
+    }
+
+    QTimer::singleShot(0, this, &ProtobufSession::processQueue);
+}
+
+void ProtobufSession::processBroadcastResponse(QObject *response)
+{
+    emit broadcastResponseReceived(response);
+}
+
+void ProtobufSession::processUnmatchedResponse(QObject *response)
+{
+    auto *mainResponse = qobject_cast<MainResponseInterface*>(response);
+    qCWarning(LOG_SESSION) << "Cannot match message with id" << mainResponse->commandID();
+}
+
+void ProtobufSession::processErrorResponse(QObject *response)
+{
+    auto *mainResponse = qobject_cast<MainResponseInterface*>(response);
+    qCCritical(LOG_SESSION) << "Device replied with error:" << mainResponse->errorString();
+}
+
+template<class T>
+T *ProtobufSession::enqueueOperation(T *operation)
+{
+    m_queue.enqueue(operation);
+
+    if(sessionState() == Idle) {
+        setSessionState(Running);
+        QTimer::singleShot(0, this, &ProtobufSession::processQueue);
+    }
+
+    return operation;
 }

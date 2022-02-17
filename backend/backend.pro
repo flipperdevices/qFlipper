@@ -20,6 +20,8 @@ SOURCES += \
     firmwareupdateregistry.cpp \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
+    flipperzero/protobuf/abstractprotobufoperation.cpp \
+    flipperzero/protobuf/systemdeviceinfooperation.cpp \
     flipperzero/protobufsession.cpp \
     flipperzero/rpc/guiscreenframeoperation.cpp \
     flipperzero/rpc/guistartstreamoperation.cpp \
@@ -35,7 +37,6 @@ SOURCES += \
     flipperzero/rpc/storageremoveoperation.cpp \
     flipperzero/rpc/storagestatoperation.cpp \
     flipperzero/rpc/storagewriteoperation.cpp \
-    flipperzero/rpc/systemdeviceinfooperation.cpp \
     flipperzero/rpc/systemfactoryresetoperation.cpp \
     flipperzero/rpc/systemgetdatetimeoperation.cpp \
     flipperzero/rpc/systemrebootoperation.cpp \
@@ -107,6 +108,8 @@ HEADERS += \
     flipperzero/assetmanifest.h \
     flipperzero/pixmaps/updateok.h \
     flipperzero/pixmaps/updating.h \
+    flipperzero/protobuf/abstractprotobufoperation.h \
+    flipperzero/protobuf/systemdeviceinfooperation.h \
     flipperzero/protobufsession.h \
     flipperzero/rpc/guiscreenframeoperation.h \
     flipperzero/rpc/guistartstreamoperation.h \
@@ -122,7 +125,6 @@ HEADERS += \
     flipperzero/rpc/storageremoveoperation.h \
     flipperzero/rpc/storagestatoperation.h \
     flipperzero/rpc/storagewriteoperation.h \
-    flipperzero/rpc/systemdeviceinfooperation.h \
     flipperzero/rpc/systemfactoryresetoperation.h \
     flipperzero/rpc/systemgetdatetimeoperation.h \
     flipperzero/rpc/systemrebootoperation.h \

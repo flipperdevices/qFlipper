@@ -3,6 +3,7 @@
 #include <QSize>
 #include <QObject>
 
+class USBDeviceInfo;
 class AbstractOperation;
 
 namespace Flipper {
@@ -13,6 +14,7 @@ class VersionInfo;
 namespace Zero {
     struct DeviceInfo;
     class DeviceState;
+    class ProtobufSession;
     class CommandInterface;
     class RecoveryInterface;
     class UtilityInterface;
@@ -59,6 +61,7 @@ private:
     void registerOperation(AbstractOperation *operation);
 
     Zero::DeviceState *m_state;
+    Zero::ProtobufSession *m_session;
     Zero::CommandInterface *m_rpc;
     Zero::RecoveryInterface *m_recovery;
     Zero::UtilityInterface *m_utility;
