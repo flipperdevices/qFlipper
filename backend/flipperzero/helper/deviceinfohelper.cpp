@@ -113,13 +113,14 @@ void VCPDeviceInfoHelper::findSerialPort()
 
 void VCPDeviceInfoHelper::startRPCSession()
 {
-    m_session = new ProtobufSession(m_deviceInfo.portInfo, this);
-    connect(m_session, &ProtobufSession::sessionStateChanged, this, &VCPDeviceInfoHelper::onRPCSessionStateChanged);
+    m_rpc = new ProtobufSession(m_deviceInfo.portInfo, this);
+    connect(m_rpc, &ProtobufSession::sessionStateChanged, this, &VCPDeviceInfoHelper::onRPCSessionStateChanged);
+    m_rpc->startSession();
 }
 
 void VCPDeviceInfoHelper::fetchDeviceInfo()
 {
-    auto *operation = m_session->systemDeviceInfo();
+    auto *operation = m_rpc->systemDeviceInfo();
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -177,7 +178,7 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
 
 void VCPDeviceInfoHelper::checkSDCard()
 {
-    auto *operation = m_session->storageInfo(QByteArrayLiteral("/ext"));
+    auto *operation = m_rpc->storageInfo(QByteArrayLiteral("/ext"));
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -201,7 +202,7 @@ void VCPDeviceInfoHelper::checkSDCard()
 
 void VCPDeviceInfoHelper::checkManifest()
 {
-    auto *operation = m_session->storageStat(QByteArrayLiteral("/ext/Manifest"));
+    auto *operation = m_rpc->storageStat(QByteArrayLiteral("/ext/Manifest"));
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -216,7 +217,7 @@ void VCPDeviceInfoHelper::checkManifest()
 
 void VCPDeviceInfoHelper::getTimeSkew()
 {
-    auto *operation = m_session->getDateTime();
+    auto *operation = m_rpc->getDateTime();
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -233,7 +234,7 @@ void VCPDeviceInfoHelper::getTimeSkew()
 
 void VCPDeviceInfoHelper::syncTime()
 {
-    auto *operation = m_session->setDateTime(QDateTime::currentDateTime());
+    auto *operation = m_rpc->setDateTime(QDateTime::currentDateTime());
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -246,16 +247,16 @@ void VCPDeviceInfoHelper::syncTime()
 
 void VCPDeviceInfoHelper::stopRPCSession()
 {
-    m_session->stop();
+    m_rpc->stopSession();
 }
 
 void VCPDeviceInfoHelper::onRPCSessionStateChanged()
 {
-    if(m_session->isError()) {
-        finishWithError(m_session->error(), QStringLiteral("Protobuf session error: %1").arg(m_session->errorString()));
-    } else if(state() == VCPDeviceInfoHelper::StartingRPCSession && m_session->sessionState() == ProtobufSession::Idle) {
+    if(m_rpc->isError()) {
+        finishWithError(m_rpc->error(), QStringLiteral("Protobuf session error: %1").arg(m_rpc->errorString()));
+    } else if(state() == VCPDeviceInfoHelper::StartingRPCSession && m_rpc->sessionState() == ProtobufSession::Idle) {
         advanceState();
-    } else if(state() == VCPDeviceInfoHelper::StoppingRPCSession && m_session->sessionState() == ProtobufSession::Stopped) {
+    } else if(state() == VCPDeviceInfoHelper::StoppingRPCSession && m_rpc->sessionState() == ProtobufSession::Stopped) {
         finish();
     }
 }

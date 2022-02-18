@@ -47,12 +47,12 @@ public:
         Stopped
     };
 
-    ProtobufSession(const QSerialPortInfo &serialInfo, QObject *parent = nullptr);
+    ProtobufSession(const QSerialPortInfo &portInfo, QObject *parent = nullptr);
     ~ProtobufSession();
 
     SessionState sessionState() const;
 
-    void setSerialPort(const QSerialPortInfo &serialInfo);
+    void setSerialPort(const QSerialPortInfo &portInfo);
 
     void setMajorVersion(int versionMajor);
     void setMinorVersion(int versionMinor);
@@ -84,8 +84,8 @@ signals:
     void broadcastResponseReceived(QObject *response);
 
 public slots:
-    void start();
-    void stop();
+    void startSession();
+    void stopSession();
 
 private slots:
     void onSerialPortReadyRead();
@@ -94,6 +94,7 @@ private slots:
 
     void processQueue();
     void writeToPort();
+    void doStopSession();
 
 private:
     bool loadProtobufPlugin();
@@ -107,6 +108,7 @@ private:
 
     template<class T>
     T* enqueueOperation(T *operation);
+    void clearOperationQueue();
 
     void processMatchedResponse(QObject *response);
     void processBroadcastResponse(QObject *response);
@@ -114,6 +116,7 @@ private:
     void processErrorResponse(QObject *response);
 
     SessionState m_sessionState;
+    QSerialPortInfo m_portInfo;
     QSerialPort *m_serialPort;
     QByteArray m_receivedData;
 

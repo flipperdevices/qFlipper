@@ -64,7 +64,7 @@ private slots:
 
 private:
     static const QString &branchToChannelName(const QByteArray &branchName);
-    ProtobufSession *m_session;
+    ProtobufSession *m_rpc;
 };
 
 class DFUDeviceInfoHelper : public AbstractDeviceInfoHelper

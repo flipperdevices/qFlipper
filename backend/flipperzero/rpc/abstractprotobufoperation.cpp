@@ -34,6 +34,11 @@ void AbstractProtobufOperation::start()
     // TODO: Decide whether to use this method at all
 }
 
+void AbstractProtobufOperation::abort(const QString &reason)
+{
+    finishWithError(BackendError::UnknownError, reason);
+}
+
 void AbstractProtobufOperation::feedResponse(QObject *response)
 {
     auto *mainResponse = qobject_cast<MainResponseInterface*>(response);

@@ -24,31 +24,26 @@
 #include "rpc/guistartvirtualdisplayoperation.h"
 #include "rpc/guistopvirtualdisplayoperation.h"
 
-Q_LOGGING_CATEGORY(LOG_SESSION, "SESSION")
+Q_LOGGING_CATEGORY(LOG_SESSION, "RPC")
 
 using namespace Flipper;
 using namespace Zero;
 
-ProtobufSession::ProtobufSession(const QSerialPortInfo &serialInfo, QObject *parent):
+ProtobufSession::ProtobufSession(const QSerialPortInfo &portInfo, QObject *parent):
     QObject(parent),
     m_sessionState(Stopped),
+    m_portInfo(portInfo),
     m_serialPort(nullptr),
     m_plugin(nullptr),
     m_currentOperation(nullptr),
     m_counter(0),
     m_versionMajor(0),
     m_versionMinor(0)
-{
-    if(!loadProtobufPlugin()) {
-        return;
-    }
-
-    setSerialPort(serialInfo);
-}
+{}
 
 ProtobufSession::~ProtobufSession()
 {
-    unloadProtobufPlugin();
+    stopSession();
 }
 
 ProtobufSession::SessionState ProtobufSession::sessionState() const
@@ -56,40 +51,9 @@ ProtobufSession::SessionState ProtobufSession::sessionState() const
     return m_sessionState;
 }
 
-void ProtobufSession::setSerialPort(const QSerialPortInfo &serialInfo)
+void ProtobufSession::setSerialPort(const QSerialPortInfo &portInfo)
 {
-    // TODO: A better way to stop the session?
-    setSessionState(Stopped);
-
-    if(m_serialPort) {
-        m_serialPort->close();
-        m_serialPort->deleteLater();
-    }
-
-    qCInfo(LOG_SESSION) << "Starting RPC session...";
-
-    setSessionState(Starting);
-
-    auto *helper = new SerialInitHelper(serialInfo, this);
-    connect(helper, &SerialInitHelper::finished, this, [=]() {
-        helper->deleteLater();
-
-        if(helper->isError()) {
-            qCCritical(LOG_SESSION).noquote() << "Failed to start RPC session:" << helper->errorString();
-            setError(helper->error(), helper->errorString());
-            setSessionState(Stopped);
-            return;
-        }
-
-        m_serialPort = helper->serialPort();
-
-        connect(m_serialPort, &QSerialPort::readyRead, this, &ProtobufSession::onSerialPortReadyRead);
-        connect(m_serialPort, &QSerialPort::bytesWritten, this, &ProtobufSession::onSerialPortBytesWriten);
-        connect(m_serialPort, &QSerialPort::errorOccurred, this, &ProtobufSession::onSerialPortErrorOccured);
-
-        qCInfo(LOG_SESSION) << "RPC session started successfully.";
-        setSessionState(Idle);
-    });
+    m_portInfo = portInfo;
 }
 
 void ProtobufSession::setMajorVersion(int versionMajor)
@@ -154,14 +118,52 @@ GuiScreenFrameOperation *ProtobufSession::guiSendScreenFrame(const QByteArray &s
     return enqueueOperation(new GuiScreenFrameOperation(getAndIncrementCounter(), screenData, this));
 }
 
-void ProtobufSession::start()
+void ProtobufSession::startSession()
 {
+    if(m_sessionState != Stopped) {
+        qCWarning(LOG_SESSION) << "RPC session is already running";
+        return;
+    }
 
+    clearError();
+
+    qCInfo(LOG_SESSION) << "Starting RPC session...";
+    setSessionState(Starting);
+
+    if(!loadProtobufPlugin()) {
+        setSessionState(Stopped);
+    }
+
+    auto *helper = new SerialInitHelper(m_portInfo, this);
+    connect(helper, &SerialInitHelper::finished, this, [=]() {
+        helper->deleteLater();
+
+        if(helper->isError()) {
+            qCCritical(LOG_SESSION).noquote() << "Failed to start RPC session:" << helper->errorString();
+            setError(helper->error(), helper->errorString());
+            setSessionState(Stopped);
+            return;
+        }
+
+        m_serialPort = helper->serialPort();
+
+        connect(m_serialPort, &QSerialPort::readyRead, this, &ProtobufSession::onSerialPortReadyRead);
+        connect(m_serialPort, &QSerialPort::bytesWritten, this, &ProtobufSession::onSerialPortBytesWriten);
+        connect(m_serialPort, &QSerialPort::errorOccurred, this, &ProtobufSession::onSerialPortErrorOccured);
+
+        qCInfo(LOG_SESSION) << "RPC session started successfully.";
+        setSessionState(Idle);
+    });
 }
 
-void ProtobufSession::stop()
+void ProtobufSession::stopSession()
 {
+    if(m_sessionState != Idle && m_sessionState != Running) {
+        return;
+    }
 
+    // Stop session asynchronously in order to give processQueue() time to finish its job
+    QTimer::singleShot(0, this, &ProtobufSession::doStopSession);
 }
 
 void ProtobufSession::onSerialPortReadyRead()
@@ -240,8 +242,26 @@ void ProtobufSession::writeToPort()
 
     if(!success) {
         setError(BackendError::SerialError, m_serialPort->errorString());
-        setSessionState(Stopped);
+        stopSession();
     }
+}
+
+void ProtobufSession::doStopSession()
+{
+    qCInfo(LOG_SESSION) << "Stopping RPC session...";
+    setSessionState(Stopping);
+
+    clearOperationQueue();
+
+    if(m_serialPort) {
+        m_serialPort->close();
+        m_serialPort->deleteLater();
+    }
+
+    unloadProtobufPlugin();
+
+    qCInfo(LOG_SESSION) << "RPC session stopped successfully.";
+    setSessionState(Stopped);
 }
 
 bool ProtobufSession::loadProtobufPlugin()
@@ -259,7 +279,6 @@ bool ProtobufSession::loadProtobufPlugin()
     }
 
     setError(BackendError::UnknownError, QStringLiteral("Failed to load protobuf plugin"));
-    setSessionState(Stopped);
     return false;
 }
 
@@ -287,6 +306,18 @@ void ProtobufSession::setSessionState(SessionState newState)
 
     m_sessionState = newState;
     emit sessionStateChanged();
+}
+
+void ProtobufSession::clearOperationQueue()
+{
+    if(m_currentOperation) {
+        m_currentOperation->abort(QStringLiteral("RPC session was stopped with operations still running"));
+        m_currentOperation->deleteLater();
+    }
+
+    while(!m_queue.isEmpty()) {
+        m_queue.dequeue()->deleteLater();
+    }
 }
 
 const QString ProtobufSession::protobufPluginPath() const
