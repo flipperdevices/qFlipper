@@ -1,41 +1,40 @@
 #pragma once
 
-#include "abstractserialoperation.h"
+#include "abstractprotobufoperation.h"
 
 namespace Flipper {
 namespace Zero {
 
-class StorageStatOperation : public AbstractSerialOperation
+class StorageStatOperation : public AbstractProtobufOperation
 {
     Q_OBJECT
 
 public:
-    enum class Type {
-        RegularFile,
-        Directory,
+    enum FileType {
+        RegularFile = 0,
+        Directory = 1,
         Invalid
     };
 
-    Q_ENUM(Type)
+    Q_ENUM(FileType)
 
-    StorageStatOperation(QSerialPort *serialPort, const QByteArray &fileName, QObject *parent = nullptr);
+    StorageStatOperation(uint32_t id, const QByteArray &fileName, QObject *parent = nullptr);
     const QString description() const override;
 
     const QByteArray &fileName() const;
-    bool isPresent() const;
+    bool hasFile() const;
     quint64 size() const;
-    Type type() const;
+    FileType type() const;
+
+    const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
 
 private:
-    void onSerialPortReadyRead() override;
-
-private:
-    bool begin() override;
+    bool processResponse(QObject *response) override;
 
     QByteArray m_fileName;
-    bool m_isPresent;
+    bool m_hasFile;
     quint64 m_size;
-    Type m_type;
+    FileType m_type;
 };
 
 }

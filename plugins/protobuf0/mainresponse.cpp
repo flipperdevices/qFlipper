@@ -15,7 +15,7 @@ MainResponse::MainResponse(MessageWrapper &wrapper, QObject *parent):
 MainResponse::~MainResponse()
 {}
 
-uint32_t MainResponse::commandID() const
+uint32_t MainResponse::id() const
 {
     return m_wrapper.message().command_id;
 }
@@ -27,7 +27,19 @@ bool MainResponse::hasNext() const
 
 bool MainResponse::isError() const
 {
-    return m_wrapper.message().command_status != PB_CommandStatus_OK;
+    // Only severe errors are considered as such.
+    // Other errors are handled inside the respective operations.
+    const auto status = m_wrapper.message().command_status;
+    switch (status) {
+    case PB_CommandStatus_ERROR:
+    case PB_CommandStatus_ERROR_DECODE:
+    case PB_CommandStatus_ERROR_NOT_IMPLEMENTED:
+    case PB_CommandStatus_ERROR_BUSY:
+    case PB_CommandStatus_ERROR_CONTINUOUS_COMMAND_INTERRUPTED:
+        return true;
+    default:
+        return false;
+    }
 }
 
 const QString MainResponse::errorString() const

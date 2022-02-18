@@ -1,10 +1,14 @@
 #include "storageinfooperation.h"
 
+#include "protobufplugininterface.h"
+#include "mainresponseinterface.h"
+#include "storageresponseinterface.h"
+
 using namespace Flipper;
 using namespace Zero;
 
-StorageInfoOperation::StorageInfoOperation(QSerialPort *serialPort, const QByteArray &path, QObject *parent):
-    AbstractSerialOperation(serialPort, parent),
+StorageInfoOperation::StorageInfoOperation(uint32_t id, const QByteArray &path, QObject *parent):
+    AbstractProtobufOperation(id, parent),
     m_path(path),
     m_isPresent(false),
     m_sizeFree(0),
@@ -13,7 +17,7 @@ StorageInfoOperation::StorageInfoOperation(QSerialPort *serialPort, const QByteA
 
 const QString StorageInfoOperation::description() const
 {
-    return QStringLiteral("Storage info @%1").arg(QString(m_path));
+    return QStringLiteral("Storage Info @%1").arg(QString(m_path));
 }
 
 bool StorageInfoOperation::isPresent() const
@@ -31,11 +35,21 @@ quint64 StorageInfoOperation::sizeTotal() const
     return m_sizeTotal;
 }
 
-void StorageInfoOperation::onSerialPortReadyRead()
+const QByteArray StorageInfoOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
+    return encoder->storageInfo(id(), m_path);
 }
 
-bool StorageInfoOperation::begin()
+bool StorageInfoOperation::processResponse(QObject *response)
 {
-    return false;
+    auto *storageInfoResponse = qobject_cast<StorageInfoResponseInterface*>(response);
+
+    if(storageInfoResponse) {
+        m_sizeFree = storageInfoResponse->sizeFree();
+        m_sizeTotal = storageInfoResponse->sizeTotal();
+        m_isPresent = true;
+    }
+
+    // Never fail on recoverable errors
+    return true;
 }

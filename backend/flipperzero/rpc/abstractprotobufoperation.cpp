@@ -36,9 +36,13 @@ void AbstractProtobufOperation::start()
 
 void AbstractProtobufOperation::feedResponse(QObject *response)
 {
-    if(!processResponse(response)) {
+    auto *mainResponse = qobject_cast<MainResponseInterface*>(response);
+
+    if(mainResponse->isError()) {
+        finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(mainResponse->errorString()));
+    } else if(!processResponse(response)) {
         finishWithError(BackendError::ProtocolError, QStringLiteral("Failed to process protobuf response"));
-    } else if(!(qobject_cast<MainResponseInterface*>(response)->hasNext())) {
+    } else if(!mainResponse->hasNext()) {
         finish();
     }
 }

@@ -6,13 +6,31 @@
 
 #include "failable.h"
 
+class QIODevice;
 class ProtobufPluginInterface;
 
 namespace Flipper {
 namespace Zero {
 
 class AbstractProtobufOperation;
+
+class SystemRebootOperation;
 class SystemDeviceInfoOperation;
+class SystemFactoryResetOperation;
+
+class StorageListOperation;
+class StorageInfoOperation;
+class StorageStatOperation;
+class StorageReadOperation;
+class StorageMkdirOperation;
+class StorageWriteOperation;
+class StorageRemoveOperation;
+
+class GuiStartStreamOperation;
+class GuiStopStreamOperation;
+class GuiScreenFrameOperation;
+class GuiStartVirtualDisplayOperation;
+class GuiStopVirtualDisplayOperation;
 
 class ProtobufSession : public QObject, public Failable
 {
@@ -38,7 +56,25 @@ public:
     void setMinorVersion(int versionMinor);
 
     // Operations
+    SystemRebootOperation *rebootToOS();
+    SystemRebootOperation *rebootToRecovery();
+    SystemFactoryResetOperation *factoryReset();
     SystemDeviceInfoOperation *systemDeviceInfo();
+
+    StorageListOperation *storageList(const QByteArray &path);
+    StorageInfoOperation *storageInfo(const QByteArray &path);
+    StorageStatOperation *storageStat(const QByteArray &path);
+    StorageMkdirOperation *storageMkdir(const QByteArray &path);
+    StorageRemoveOperation *storageRemove(const QByteArray &path);
+    StorageReadOperation *storageRead(const QByteArray &path, QIODevice *file);
+    StorageWriteOperation *storageWrite(const QByteArray &path, QIODevice *file);
+
+    GuiStartStreamOperation *guiStartStreaming();
+    GuiStopStreamOperation *guiStopStreaming();
+
+    GuiStartVirtualDisplayOperation *guiStartVirtualDisplay(const QByteArray &screenData = QByteArray());
+    GuiStopVirtualDisplayOperation *guiStopVirtualDisplay();
+    GuiScreenFrameOperation *guiSendScreenFrame(const QByteArray &screenData);
 
 signals:
     void sessionStateChanged();
@@ -61,6 +97,8 @@ private:
     bool unloadProtobufPlugin();
 
     const QString protobufPluginPath() const;
+    const QString prettyOperationDescription() const;
+
     uint32_t getAndIncrementCounter();
     void setSessionState(SessionState newState);
 

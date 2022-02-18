@@ -74,12 +74,14 @@ StorageListOperation *CommandInterface::storageList(const QByteArray &path)
 
 StorageInfoOperation *CommandInterface::storageInfo(const QByteArray &path)
 {
-    return registerOperation(new StorageInfoOperation(serialPort(), path, this));
+    Q_UNUSED(path)
+    return nullptr;
 }
 
 StorageStatOperation *CommandInterface::storageStat(const QByteArray &path)
 {
-    return registerOperation(new StorageStatOperation(serialPort(), path, this));
+    Q_UNUSED(path)
+    return nullptr;
 }
 
 StorageReadOperation *CommandInterface::storageRead(const QByteArray &path, QIODevice *file)

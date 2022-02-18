@@ -14,7 +14,7 @@ public:
     MainResponse(MessageWrapper &wrapper, QObject *parent = nullptr);
     virtual ~MainResponse();
 
-    uint32_t commandID() const override;
+    uint32_t id() const override;
     ResponseType type() const override;
     size_t encodedSize() const override;
 

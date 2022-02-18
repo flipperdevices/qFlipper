@@ -26,7 +26,7 @@ bool StorageStatResponse::hasFile() const
 const StorageFile StorageStatResponse::file() const
 {
     const auto &f = message().content.storage_stat_response.file;
-    return {(StorageFile::FileType)f.type, {f.name}, {}};
+    return {(StorageFile::FileType)f.type, {f.name}, {}, f.size};
 }
 
 StorageListResponse::StorageListResponse(MessageWrapper &wrapper, QObject *parent):
@@ -42,7 +42,7 @@ const StorageListResponse::StorageFiles StorageListResponse::files() const
     ret.reserve(count);
 
     for(; count; --count, ++fs) {
-        ret.append({(StorageFile::FileType)fs->type, {fs->name}, {(const char*)fs->data->bytes, fs->data->size}});
+        ret.append({(StorageFile::FileType)fs->type, {fs->name}, {(const char*)fs->data->bytes, fs->data->size}, fs->size});
     }
 
     return ret;
@@ -60,5 +60,5 @@ bool StorageReadResponse::hasFile() const
 const StorageFile StorageReadResponse::file() const
 {
     const auto &f = message().content.storage_read_response.file;
-    return {(StorageFile::FileType)f.type, {f.name}, {(const char*)f.data->bytes, f.data->size}};
+    return {(StorageFile::FileType)f.type, {f.name}, {(const char*)f.data->bytes, f.data->size}, f.size};
 }

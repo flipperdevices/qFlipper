@@ -14,6 +14,7 @@ struct StorageFile
     FileType type;
     QByteArray name;
     QByteArray data;
+    quint64 size;
 };
 
 class StorageInfoResponseInterface

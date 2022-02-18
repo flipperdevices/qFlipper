@@ -11,7 +11,9 @@
 
 #include "helper/serialinithelper.h"
 
-#include "protobuf/systemdeviceinfooperation.h"
+#include "rpc/storageinfooperation.h"
+#include "rpc/storagestatoperation.h"
+#include "rpc/systemdeviceinfooperation.h"
 
 Q_LOGGING_CATEGORY(LOG_SESSION, "SESSION")
 
@@ -95,7 +97,17 @@ void ProtobufSession::setMinorVersion(int versionMinor)
 
 SystemDeviceInfoOperation *ProtobufSession::systemDeviceInfo()
 {
-   return enqueueOperation(new SystemDeviceInfoOperation(getAndIncrementCounter(), this));
+    return enqueueOperation(new SystemDeviceInfoOperation(getAndIncrementCounter(), this));
+}
+
+StorageInfoOperation *ProtobufSession::storageInfo(const QByteArray &path)
+{
+    return enqueueOperation(new StorageInfoOperation(getAndIncrementCounter(), path, this));
+}
+
+StorageStatOperation *ProtobufSession::storageStat(const QByteArray &path)
+{
+    return enqueueOperation(new StorageStatOperation(getAndIncrementCounter(), path, this));
 }
 
 void ProtobufSession::stop()
@@ -112,7 +124,7 @@ void ProtobufSession::onSerialPortReadyRead()
 
     m_receivedData.append(m_serialPort->readAll());
 
-    auto *response = m_plugin->decode(m_receivedData);
+    auto *response = m_plugin->decode(m_receivedData, this);
 
     if(!response) {
         return;
@@ -121,11 +133,9 @@ void ProtobufSession::onSerialPortReadyRead()
     auto *mainResponse = qobject_cast<MainResponseInterface*>(response);
     m_receivedData.remove(0, mainResponse->encodedSize());
 
-    if(mainResponse->isError()) {
-        processErrorResponse(response);
-    } else if(mainResponse->commandID() == m_currentOperation->id()) {
+    if(mainResponse->id() == m_currentOperation->id()) {
         processMatchedResponse(response);
-    } else if(mainResponse->commandID() == 0) {
+    } else if(mainResponse->id() == 0) {
         processBroadcastResponse(response);
     } else {
         processUnmatchedResponse(response);
@@ -141,7 +151,6 @@ void ProtobufSession::onSerialPortReadyRead()
 
 void ProtobufSession::onSerialPortBytesWriten(qint64 nbytes)
 {
-    qDebug() << nbytes << "bytes written to the port...";
     m_bytesToWrite -= nbytes;
 
     if(m_bytesToWrite && m_currentOperation->hasNext()) {
@@ -168,7 +177,7 @@ void ProtobufSession::processQueue()
     }
 
     m_currentOperation = m_queue.dequeue();
-    qCInfo(LOG_SESSION).noquote() << m_currentOperation->description() << "START";
+    qCInfo(LOG_SESSION).noquote() << prettyOperationDescription() << "START";
 
     writeToPort();
 }
@@ -200,7 +209,7 @@ bool ProtobufSession::loadProtobufPlugin()
         return true;
     }
 
-    setError(BackendError::UnknownError, QStringLiteral("Failed to load protubuf plugin"));
+    setError(BackendError::UnknownError, QStringLiteral("Failed to load protobuf plugin"));
     setSessionState(Stopped);
     return false;
 }
@@ -233,7 +242,20 @@ void ProtobufSession::setSessionState(SessionState newState)
 
 const QString ProtobufSession::protobufPluginPath() const
 {
+#if defined(Q_OS_WINDOWS)
+    return QString();
+#elif defined(Q_OS_MAC)
+    return QString();
+#elif defined(Q_OS_LINUX)
     return QStringLiteral("plugins/libprotobuf%1.so").arg(m_versionMajor);
+#else
+#error "Unsupported OS"
+#endif
+}
+
+const QString ProtobufSession::prettyOperationDescription() const
+{
+    return QStringLiteral("(%1) %2").arg(m_currentOperation->id()).arg(m_currentOperation->description());
 }
 
 void ProtobufSession::processMatchedResponse(QObject *response)
@@ -243,9 +265,9 @@ void ProtobufSession::processMatchedResponse(QObject *response)
     if(!m_currentOperation->isFinished()) {
         return;
     } else if(m_currentOperation->isError()) {
-        qCCritical(LOG_SESSION).noquote() << m_currentOperation->description() << "ERROR:" << m_currentOperation->errorString();
+        qCCritical(LOG_SESSION).noquote() << prettyOperationDescription() << "ERROR:" << m_currentOperation->errorString();
     } else {
-        qCInfo(LOG_SESSION).noquote() << m_currentOperation->description() << "SUCCESS";
+        qCInfo(LOG_SESSION).noquote() << prettyOperationDescription() << "SUCCESS";
     }
 
     QTimer::singleShot(0, this, &ProtobufSession::processQueue);
@@ -259,7 +281,7 @@ void ProtobufSession::processBroadcastResponse(QObject *response)
 void ProtobufSession::processUnmatchedResponse(QObject *response)
 {
     auto *mainResponse = qobject_cast<MainResponseInterface*>(response);
-    qCWarning(LOG_SESSION) << "Cannot match message with id" << mainResponse->commandID();
+    qCWarning(LOG_SESSION) << "Cannot match message with id" << mainResponse->id();
 }
 
 void ProtobufSession::processErrorResponse(QObject *response)

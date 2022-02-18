@@ -161,7 +161,7 @@ void AssetsDownloadOperation::checkForDeviceManifest()
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             return finishWithError(operation->error(), operation->errorString());
-        } else if(operation->type() != StorageStatOperation::Type::RegularFile) {
+        } else if(operation->type() != StorageStatOperation::FileType::RegularFile) {
             setOperationState(State::ReadingDeviceManifest);
         } else {
             m_isDeviceManifestPresent = true;

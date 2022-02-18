@@ -1,19 +1,23 @@
 #include "storagestatoperation.h"
 
+#include "mainresponseinterface.h"
+#include "protobufplugininterface.h"
+#include "storageresponseinterface.h"
+
 using namespace Flipper;
 using namespace Zero;
 
-StorageStatOperation::StorageStatOperation(QSerialPort *serialPort, const QByteArray &fileName, QObject *parent):
-    AbstractSerialOperation(serialPort, parent),
+StorageStatOperation::StorageStatOperation(uint32_t id, const QByteArray &fileName, QObject *parent):
+    AbstractProtobufOperation(id, parent),
     m_fileName(fileName),
-    m_isPresent(false),
+    m_hasFile(false),
     m_size(0),
-    m_type(Type::Invalid)
+    m_type(FileType::Invalid)
 {}
 
 const QString StorageStatOperation::description() const
 {
-    return QStringLiteral("Storage stat @%1").arg(QString(m_fileName));
+    return QStringLiteral("Storage Stat @%1").arg(QString(m_fileName));
 }
 
 const QByteArray &StorageStatOperation::fileName() const
@@ -21,9 +25,9 @@ const QByteArray &StorageStatOperation::fileName() const
     return m_fileName;
 }
 
-bool StorageStatOperation::isPresent() const
+bool StorageStatOperation::hasFile() const
 {
-    return m_isPresent;
+    return m_hasFile;
 }
 
 quint64 StorageStatOperation::size() const
@@ -31,16 +35,28 @@ quint64 StorageStatOperation::size() const
     return m_size;
 }
 
-StorageStatOperation::Type StorageStatOperation::type() const
+StorageStatOperation::FileType StorageStatOperation::type() const
 {
     return m_type;
 }
 
-void StorageStatOperation::onSerialPortReadyRead()
+const QByteArray StorageStatOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
+    return encoder->storageStat(id(), m_fileName);
 }
 
-bool StorageStatOperation::begin()
+bool StorageStatOperation::processResponse(QObject *response)
 {
-    return false;
+    auto *statResponse = qobject_cast<StorageStatResponseInterface*>(response);
+
+    if(statResponse) {
+        m_hasFile = statResponse->hasFile();
+
+        if(m_hasFile) {
+            m_size = statResponse->file().size;
+            m_type = (FileType)statResponse->file().type;
+        }
+    }
+
+    return true;
 }
