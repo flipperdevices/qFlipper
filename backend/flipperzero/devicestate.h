@@ -65,8 +65,6 @@ public:
     //TODO: Replace with deviceInfo().name
     const QString &name() const;
 
-    QSerialPort *serialPort() const;
-
     //TODO: Replace with a enum constant?
     static const QSize screenSize();
 
@@ -89,12 +87,9 @@ private slots:
     void onIsOnlineChanged();
 
 private:
-    void initSerialPort();
-    void closeSerialPort();
     void processQueue();
 
     DeviceInfo m_deviceInfo;
-    QSerialPort *m_serialPort;
     QQueue<DeviceInfo> m_queue;
 
     bool m_isPersistent;

@@ -140,28 +140,27 @@ void DeviceRegistry::processDevice()
         return;
     }
 
-    qCDebug(LOG_DEVREG) << "Successfully received info for:" << info.name;
-//    const auto it = std::find_if(m_devices.begin(), m_devices.end(), [&info](Flipper::FlipperZero *arg) {
-//        return info.name == arg->deviceState()->name();
-//    });
+    const auto it = std::find_if(m_devices.begin(), m_devices.end(), [&info](Flipper::FlipperZero *arg) {
+        return info.name == arg->deviceState()->name();
+    });
 
-//    if(it != m_devices.end()) {
-//        // Preserving the old instance
-//        qCDebug(LOG_DEVREG) << "Device went back online";
-//        (*it)->deviceState()->setDeviceInfo(info);
+    if(it != m_devices.end()) {
+        // Preserving the old instance
+        qCDebug(LOG_DEVREG) << "Device went back online";
+        (*it)->deviceState()->setDeviceInfo(info);
 
-//    } else {
-//        qCDebug(LOG_DEVREG) << "Registering the device";
+    } else {
+        qCDebug(LOG_DEVREG) << "Registering the device";
 
-//        auto *device = new FlipperZero(info, this);
-//        m_devices.append(device);
+        auto *device = new FlipperZero(info, this);
+        m_devices.append(device);
 
-//        emit deviceCountChanged();
+        emit deviceCountChanged();
 
-//        if(m_devices.size() == 1) {
-//            emit currentDeviceChanged();
-//        }
-//    }
+        if(m_devices.size() == 1) {
+            emit currentDeviceChanged();
+        }
+    }
 }
 
 void DeviceRegistry::setError(BackendError::ErrorType newError)

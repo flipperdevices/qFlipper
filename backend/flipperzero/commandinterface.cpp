@@ -28,7 +28,7 @@ CommandInterface::CommandInterface(DeviceState *deviceState, QObject *parent):
 
 QSerialPort *CommandInterface::serialPort() const
 {
-    return m_deviceState->serialPort();
+    return nullptr;
 }
 
 StopRPCOperation *CommandInterface::stopRPCSession()
