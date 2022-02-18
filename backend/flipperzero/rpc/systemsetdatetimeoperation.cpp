@@ -1,25 +1,21 @@
 #include "systemsetdatetimeoperation.h"
 
-#include <QSerialPort>
+#include "protobufplugininterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-SystemSetDateTimeOperation::SystemSetDateTimeOperation(QSerialPort *serialPort, const QDateTime &dateTime, QObject *parent):
-    AbstractSerialOperation(serialPort, parent),
+SystemSetDateTimeOperation::SystemSetDateTimeOperation(uint32_t id, const QDateTime &dateTime, QObject *parent):
+    AbstractProtobufOperation(id, parent),
     m_dateTime(dateTime)
 {}
 
 const QString SystemSetDateTimeOperation::description() const
 {
-    return QStringLiteral("Set DateTime @%1").arg(QString(serialPort()->portName()));
+    return QStringLiteral("System Set DateTime");
 }
 
-void SystemSetDateTimeOperation::onSerialPortReadyRead()
+const QByteArray SystemSetDateTimeOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-}
-
-bool SystemSetDateTimeOperation::begin()
-{
-    return false;
+    return encoder->systemSetDateTime(id(), m_dateTime);
 }

@@ -46,3 +46,10 @@ void AbstractProtobufOperation::feedResponse(QObject *response)
         finish();
     }
 }
+
+bool AbstractProtobufOperation::processResponse(QObject *response)
+{
+    // Default implementation, checks whether we got an empty response
+    // TODO: add isOk() check
+    return qobject_cast<EmptyResponseInterface*>(response);
+}

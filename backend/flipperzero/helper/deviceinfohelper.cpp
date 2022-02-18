@@ -18,8 +18,6 @@
 #include "flipperzero/rpc/systemsetdatetimeoperation.h"
 
 #include "device/stm32wb55.h"
-
-#include "serialinithelper.h"
 #include "serialfinder.h"
 
 Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
@@ -67,10 +65,10 @@ void VCPDeviceInfoHelper::nextStateLogic()
         findSerialPort();
 
     } else if(state() == VCPDeviceInfoHelper::FindingSerialPort) {
-        setState(VCPDeviceInfoHelper::StartingProtobufSession);
-        startProtobufSession();
+        setState(VCPDeviceInfoHelper::StartingRPCSession);
+        startRPCSession();
 
-    } else if(state() == VCPDeviceInfoHelper::StartingProtobufSession) {
+    } else if(state() == VCPDeviceInfoHelper::StartingRPCSession) {
         setState(VCPDeviceInfoHelper::FetchingDeviceInfo);
         fetchDeviceInfo();
 
@@ -93,9 +91,6 @@ void VCPDeviceInfoHelper::nextStateLogic()
     } else if(state() == VCPDeviceInfoHelper::SyncingTime) {
         setState(VCPDeviceInfoHelper::StoppingRPCSession);
         stopRPCSession();
-
-    } else if(state() == VCPDeviceInfoHelper::StoppingRPCSession) {
-        closePortAndFinish();
     }
 }
 
@@ -116,10 +111,10 @@ void VCPDeviceInfoHelper::findSerialPort()
     });
 }
 
-void VCPDeviceInfoHelper::startProtobufSession()
+void VCPDeviceInfoHelper::startRPCSession()
 {
     m_session = new ProtobufSession(m_deviceInfo.portInfo, this);
-    connect(m_session, &ProtobufSession::sessionStateChanged, this, &VCPDeviceInfoHelper::onProtobufSessionStateChanged);
+    connect(m_session, &ProtobufSession::sessionStateChanged, this, &VCPDeviceInfoHelper::onRPCSessionStateChanged);
 }
 
 void VCPDeviceInfoHelper::fetchDeviceInfo()
@@ -221,74 +216,47 @@ void VCPDeviceInfoHelper::checkManifest()
 
 void VCPDeviceInfoHelper::getTimeSkew()
 {
-//    auto *operation = new SystemGetDateTimeOperation(m_serialPort, this);
-//    operation->start();
+    auto *operation = m_session->getDateTime();
 
-//    connect(operation, &AbstractOperation::finished, this, [=]() {
-//        if(operation->isError()) {
-//            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to check device time: %1").arg(operation->errorString()));
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to check device time: %1").arg(operation->errorString()));
 
-//        } else {
-//            const auto timeSkew = QDateTime::currentDateTime().msecsTo(operation->dateTime());
-//            qCDebug(CATEGORY_DEBUG) << "Flipper time skew is" << timeSkew << "milliseconds";
+        } else {
+            const auto timeSkew = QDateTime::currentDateTime().msecsTo(operation->dateTime());
+            qCDebug(CATEGORY_DEBUG) << "Flipper time skew is" << timeSkew << "milliseconds";
 
-//            advanceState();
-//        }
-
-//        operation->deleteLater();
-//    });
-    finishWithError(BackendError::UnknownError, QStringLiteral("Not implemented"));
+            advanceState();
+        }
+    });
 }
 
 void VCPDeviceInfoHelper::syncTime()
 {
-//    auto *operation = new SystemSetDateTimeOperation(m_serialPort, QDateTime::currentDateTime(), this);
-//    operation->start();
+    auto *operation = m_session->setDateTime(QDateTime::currentDateTime());
 
-//    connect(operation, &AbstractOperation::finished, this, [=]() {
-//        if(operation->isError()) {
-//            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to set device time: %1").arg(operation->errorString()));
-//        } else {
-//            advanceState();
-//        }
-
-//        operation->deleteLater();
-//    });
-    finishWithError(BackendError::UnknownError, QStringLiteral("Not implemented"));
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to set device time: %1").arg(operation->errorString()));
+        } else {
+            advanceState();
+        }
+    });
 }
 
 void VCPDeviceInfoHelper::stopRPCSession()
 {
-//    auto *operation = new StopRPCOperation(m_serialPort, this);
-//    connect(operation, &AbstractOperation::finished, this, [=]() {
-//        if(operation->isError()) {
-//            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to stop RPC session: %1").arg(operation->errorString()));
-//        } else {
-//            advanceState();
-//        }
-
-//        operation->deleteLater();
-//    });
-
-//    operation->start();
-    finishWithError(BackendError::UnknownError, QStringLiteral("Not implemented"));
+    m_session->stop();
 }
 
-void VCPDeviceInfoHelper::closePortAndFinish()
-{
-}
-
-void VCPDeviceInfoHelper::onProtobufSessionStateChanged()
+void VCPDeviceInfoHelper::onRPCSessionStateChanged()
 {
     if(m_session->isError()) {
         finishWithError(m_session->error(), QStringLiteral("Protobuf session error: %1").arg(m_session->errorString()));
-
-    } else if(state() == VCPDeviceInfoHelper::StartingProtobufSession && m_session->sessionState() == ProtobufSession::Idle) {
+    } else if(state() == VCPDeviceInfoHelper::StartingRPCSession && m_session->sessionState() == ProtobufSession::Idle) {
         advanceState();
-
     } else if(state() == VCPDeviceInfoHelper::StoppingRPCSession && m_session->sessionState() == ProtobufSession::Stopped) {
-        qCDebug(CATEGORY_DEBUG) << "RPC session stopped successfully.";
-        advanceState();
+        finish();
     }
 }
 

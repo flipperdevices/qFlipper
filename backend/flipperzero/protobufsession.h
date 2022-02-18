@@ -16,6 +16,8 @@ class AbstractProtobufOperation;
 
 class SystemRebootOperation;
 class SystemDeviceInfoOperation;
+class SystemGetDateTimeOperation;
+class SystemSetDateTimeOperation;
 class SystemFactoryResetOperation;
 
 class StorageListOperation;
@@ -58,6 +60,8 @@ public:
     // Operations
     SystemRebootOperation *rebootToOS();
     SystemRebootOperation *rebootToRecovery();
+    SystemGetDateTimeOperation *getDateTime();
+    SystemSetDateTimeOperation *setDateTime(const QDateTime &dateTime);
     SystemFactoryResetOperation *factoryReset();
     SystemDeviceInfoOperation *systemDeviceInfo();
 

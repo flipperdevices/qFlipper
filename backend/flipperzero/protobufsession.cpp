@@ -13,7 +13,10 @@
 
 #include "rpc/storageinfooperation.h"
 #include "rpc/storagestatoperation.h"
+
 #include "rpc/systemdeviceinfooperation.h"
+#include "rpc/systemgetdatetimeoperation.h"
+#include "rpc/systemsetdatetimeoperation.h"
 
 Q_LOGGING_CATEGORY(LOG_SESSION, "SESSION")
 
@@ -93,6 +96,16 @@ void ProtobufSession::setMinorVersion(int versionMinor)
 {
     // TODO: change the plugin settings accordingly
     m_versionMinor = versionMinor;
+}
+
+SystemGetDateTimeOperation *ProtobufSession::getDateTime()
+{
+    return enqueueOperation(new SystemGetDateTimeOperation(getAndIncrementCounter(), this));
+}
+
+SystemSetDateTimeOperation *ProtobufSession::setDateTime(const QDateTime &dateTime)
+{
+    return enqueueOperation(new SystemSetDateTimeOperation(getAndIncrementCounter(), dateTime, this));
 }
 
 SystemDeviceInfoOperation *ProtobufSession::systemDeviceInfo()
