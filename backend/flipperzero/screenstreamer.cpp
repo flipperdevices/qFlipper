@@ -7,8 +7,8 @@
 #include "devicestate.h"
 #include "commandinterface.h"
 
-#include "rpc/guistartstreamoperation.h"
-#include "rpc/guistopstreamoperation.h"
+#include "rpc/guistartscreenstreamoperation.h"
+#include "rpc/guistopscreenstreamoperation.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_SCREEN, "SCREEN")
 

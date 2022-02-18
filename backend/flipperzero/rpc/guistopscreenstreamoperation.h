@@ -5,17 +5,14 @@
 namespace Flipper {
 namespace Zero {
 
-class GuiStartVirtualDisplayOperation : public AbstractProtobufOperation
+class GuiStopScreenStreamOperation : public AbstractProtobufOperation
 {
     Q_OBJECT
 
 public:
-    GuiStartVirtualDisplayOperation(uint32_t id, const QByteArray &screenData, QObject *parent = nullptr);
+    GuiStopScreenStreamOperation(uint32_t id, QObject *parent = nullptr);
     const QString description() const override;
     const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
-
-private:
-    QByteArray m_screenData;
 };
 
 }

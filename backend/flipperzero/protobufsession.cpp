@@ -18,6 +18,12 @@
 #include "rpc/systemgetdatetimeoperation.h"
 #include "rpc/systemsetdatetimeoperation.h"
 
+#include "rpc/guiscreenframeoperation.h"
+#include "rpc/guistartscreenstreamoperation.h"
+#include "rpc/guistopscreenstreamoperation.h"
+#include "rpc/guistartvirtualdisplayoperation.h"
+#include "rpc/guistopvirtualdisplayoperation.h"
+
 Q_LOGGING_CATEGORY(LOG_SESSION, "SESSION")
 
 using namespace Flipper;
@@ -121,6 +127,36 @@ StorageInfoOperation *ProtobufSession::storageInfo(const QByteArray &path)
 StorageStatOperation *ProtobufSession::storageStat(const QByteArray &path)
 {
     return enqueueOperation(new StorageStatOperation(getAndIncrementCounter(), path, this));
+}
+
+GuiStartScreenStreamOperation *ProtobufSession::guiStartScreenStream()
+{
+    return enqueueOperation(new GuiStartScreenStreamOperation(getAndIncrementCounter(), this));
+}
+
+GuiStopScreenStreamOperation *ProtobufSession::guiStopScreenStream()
+{
+    return enqueueOperation(new GuiStopScreenStreamOperation(getAndIncrementCounter(), this));
+}
+
+GuiStartVirtualDisplayOperation *ProtobufSession::guiStartVirtualDisplay(const QByteArray &screenData)
+{
+    return enqueueOperation(new GuiStartVirtualDisplayOperation(getAndIncrementCounter(), screenData, this));
+}
+
+GuiStopVirtualDisplayOperation *ProtobufSession::guiStopVirtualDisplay()
+{
+    return enqueueOperation(new GuiStopVirtualDisplayOperation(getAndIncrementCounter(), this));
+}
+
+GuiScreenFrameOperation *ProtobufSession::guiSendScreenFrame(const QByteArray &screenData)
+{
+    return enqueueOperation(new GuiScreenFrameOperation(getAndIncrementCounter(), screenData, this));
+}
+
+void ProtobufSession::start()
+{
+
 }
 
 void ProtobufSession::stop()

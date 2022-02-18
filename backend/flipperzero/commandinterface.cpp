@@ -4,8 +4,6 @@
 
 #include "flipperzero/devicestate.h"
 
-#include "rpc/skipmotdoperation.h"
-
 #include "rpc/startrpcoperation.h"
 #include "rpc/stoprpcoperation.h"
 
@@ -17,15 +15,6 @@
 #include "rpc/storagewriteoperation.h"
 #include "rpc/storagereadoperation.h"
 #include "rpc/storagelistoperation.h"
-#include "rpc/storagestatoperation.h"
-#include "rpc/storageinfooperation.h"
-
-#include "rpc/guistartstreamoperation.h"
-#include "rpc/guistopstreamoperation.h"
-
-#include "rpc/guistartvirtualdisplayoperation.h"
-#include "rpc/guistopvirtualdisplayoperation.h"
-#include "rpc/guiscreenframeoperation.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_RPC, "RPC");
 
@@ -99,29 +88,31 @@ StorageWriteOperation *CommandInterface::storageWrite(const QByteArray &path, QI
     return registerOperation(new StorageWriteOperation(serialPort(), path, file, this));
 }
 
-GuiStartStreamOperation *CommandInterface::guiStartStreaming()
+GuiStartScreenStreamOperation *CommandInterface::guiStartStreaming()
 {
-    return registerOperation(new GuiStartStreamOperation(serialPort(), this));
+    return nullptr;
 }
 
-GuiStopStreamOperation *CommandInterface::guiStopStreaming()
+GuiStopScreenStreamOperation *CommandInterface::guiStopStreaming()
 {
-    return registerOperation(new GuiStopStreamOperation(serialPort(), this));
+    return nullptr;
 }
 
 GuiStartVirtualDisplayOperation *CommandInterface::guiStartVirtualDisplay(const QByteArray &screenData)
 {
-    return registerOperation(new GuiStartVirtualDisplayOperation(serialPort(), screenData, this));
+    Q_UNUSED(screenData)
+    return nullptr;
 }
 
 GuiStopVirtualDisplayOperation *CommandInterface::guiStopVirtualDisplay()
 {
-    return registerOperation(new GuiStopVirtualDisplayOperation(serialPort(), this));
+    return nullptr;
 }
 
 GuiScreenFrameOperation *CommandInterface::guiSendScreenFrame(const QByteArray &screenData)
 {
-    return registerOperation(new GuiScreenFrameOperation(serialPort(), screenData, this));
+    Q_UNUSED(screenData)
+    return nullptr;
 }
 
 StorageRemoveOperation *CommandInterface::storageRemove(const QByteArray &path)

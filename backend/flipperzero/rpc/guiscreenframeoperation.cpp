@@ -1,21 +1,21 @@
 #include "guiscreenframeoperation.h"
 
-#include <QSerialPort>
+#include "protobufplugininterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-GuiScreenFrameOperation::GuiScreenFrameOperation(QSerialPort *serialPort, const QByteArray &screenData, QObject *parent):
-    AbstractSerialOperation(serialPort, parent),
+GuiScreenFrameOperation::GuiScreenFrameOperation(uint32_t id, const QByteArray &screenData, QObject *parent):
+    AbstractProtobufOperation(id, parent),
     m_screenData(screenData)
 {}
 
 const QString GuiScreenFrameOperation::description() const
 {
-    return QStringLiteral("Send screen frame @%1").arg(serialPort()->portName());
+    return QStringLiteral("Gui ScreenFrame");
 }
 
-bool GuiScreenFrameOperation::begin()
+const QByteArray GuiScreenFrameOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    return false;
+    return encoder->guiScreenFrame(id(), m_screenData);
 }

@@ -1,24 +1,20 @@
 #include "guistopvirtualdisplayoperation.h"
 
-#include <QSerialPort>
+#include "protobufplugininterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-GuiStopVirtualDisplayOperation::GuiStopVirtualDisplayOperation(QSerialPort *serialPort, QObject *parent):
-    AbstractSerialOperation(serialPort, parent)
+GuiStopVirtualDisplayOperation::GuiStopVirtualDisplayOperation(uint32_t id, QObject *parent):
+    AbstractProtobufOperation(id, parent)
 {}
 
 const QString GuiStopVirtualDisplayOperation::description() const
 {
-    return QStringLiteral("Stop virtual display @%1").arg(serialPort()->portName());
+    return QStringLiteral("Gui Stop VirtualDisplay");
 }
 
-void GuiStopVirtualDisplayOperation::onSerialPortReadyRead()
+const QByteArray GuiStopVirtualDisplayOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-}
-
-bool GuiStopVirtualDisplayOperation::begin()
-{
-    return false;
+    return encoder->guiStopVirtualDisplay(id());
 }

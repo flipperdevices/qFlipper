@@ -24,8 +24,8 @@ class StorageMkdirOperation;
 class StorageWriteOperation;
 class StorageRemoveOperation;
 
-class GuiStartStreamOperation;
-class GuiStopStreamOperation;
+class GuiStartScreenStreamOperation;
+class GuiStopScreenStreamOperation;
 class GuiScreenFrameOperation;
 class GuiStartVirtualDisplayOperation;
 class GuiStopVirtualDisplayOperation;
@@ -53,8 +53,8 @@ public:
     StorageReadOperation *storageRead(const QByteArray &path, QIODevice *file);
     StorageWriteOperation *storageWrite(const QByteArray &path, QIODevice *file);
 
-    GuiStartStreamOperation *guiStartStreaming();
-    GuiStopStreamOperation *guiStopStreaming();
+    GuiStartScreenStreamOperation *guiStartStreaming();
+    GuiStopScreenStreamOperation *guiStopStreaming();
 
     GuiStartVirtualDisplayOperation *guiStartVirtualDisplay(const QByteArray &screenData = QByteArray());
     GuiStopVirtualDisplayOperation *guiStopVirtualDisplay();

@@ -1,25 +1,22 @@
 #include "guistartvirtualdisplayoperation.h"
 
-#include <QSerialPort>
+#include "protobufplugininterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-GuiStartVirtualDisplayOperation::GuiStartVirtualDisplayOperation(QSerialPort *serialPort, const QByteArray &screenData, QObject *parent):
-    AbstractSerialOperation(serialPort, parent),
+GuiStartVirtualDisplayOperation::GuiStartVirtualDisplayOperation(uint32_t id, const QByteArray &screenData, QObject *parent):
+    AbstractProtobufOperation(id, parent),
     m_screenData(screenData)
 {}
 
 const QString GuiStartVirtualDisplayOperation::description() const
 {
-    return QStringLiteral("Start virtual display @%1").arg(serialPort()->portName());
+    return QStringLiteral("Gui Start VirtualDisplay");
 }
 
-void GuiStartVirtualDisplayOperation::onSerialPortReadyRead()
+const QByteArray GuiStartVirtualDisplayOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
+    return encoder->guiStartVirtualDisplay(id(), m_screenData);
 }
 
-bool GuiStartVirtualDisplayOperation::begin()
-{
-    return false;
-}
