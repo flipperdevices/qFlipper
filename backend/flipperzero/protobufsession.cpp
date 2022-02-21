@@ -22,6 +22,7 @@
 #include "rpc/systemdeviceinfooperation.h"
 #include "rpc/systemgetdatetimeoperation.h"
 #include "rpc/systemsetdatetimeoperation.h"
+#include "rpc/systemfactoryresetoperation.h"
 
 #include "rpc/guiscreenframeoperation.h"
 #include "rpc/guistartscreenstreamoperation.h"
@@ -82,6 +83,11 @@ SystemGetDateTimeOperation *ProtobufSession::getDateTime()
 SystemSetDateTimeOperation *ProtobufSession::setDateTime(const QDateTime &dateTime)
 {
     return enqueueOperation(new SystemSetDateTimeOperation(getAndIncrementCounter(), dateTime, this));
+}
+
+SystemFactoryResetOperation *ProtobufSession::factoryReset()
+{
+    return enqueueOperation(new SystemFactoryResetOperation(getAndIncrementCounter(), this));
 }
 
 SystemDeviceInfoOperation *ProtobufSession::systemDeviceInfo()

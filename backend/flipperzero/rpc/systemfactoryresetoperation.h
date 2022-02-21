@@ -1,24 +1,18 @@
 #pragma once
 
-#include "abstractserialoperation.h"
+#include "abstractprotobufoperation.h"
 
 namespace Flipper {
 namespace Zero {
 
-class SystemFactoryResetOperation : public AbstractSerialOperation
+class SystemFactoryResetOperation : public AbstractProtobufOperation
 {
     Q_OBJECT
 
 public:
-    SystemFactoryResetOperation(QSerialPort *serialPort, QObject *parent = nullptr);
+    SystemFactoryResetOperation(uint32_t id, QObject *parent = nullptr);
     const QString description() const override;
-
-private slots:
-    void onTotalBytesWrittenChanged() override;
-
-private:
-    bool begin() override;
-    qint64 m_byteCount;
+    const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
 };
 
 }

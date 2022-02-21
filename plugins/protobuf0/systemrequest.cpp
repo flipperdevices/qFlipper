@@ -34,3 +34,7 @@ SystemSetDateTimeRequest::SystemSetDateTimeRequest(uint32_t id, const QDateTime 
 
     content.has_datetime = true;
 }
+
+SystemFactoryResetRequest::SystemFactoryResetRequest(uint32_t id):
+    MainRequest(id, PB_Main_system_factory_reset_request_tag)
+{}

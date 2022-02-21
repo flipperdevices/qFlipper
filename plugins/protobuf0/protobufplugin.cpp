@@ -67,6 +67,11 @@ const QByteArray ProtobufPlugin::systemReboot(uint32_t id, RebootMode mode) cons
     return SystemRebootRequest(id, rm).encode();
 }
 
+const QByteArray ProtobufPlugin::systemFactoryReset(uint32_t id) const
+{
+    return SystemFactoryResetRequest(id).encode();
+}
+
 const QByteArray ProtobufPlugin::systemDeviceInfo(uint32_t id) const
 {
     return SystemDeviceInfoRequest(id).encode();

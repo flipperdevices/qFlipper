@@ -10,6 +10,12 @@ public:
     SystemRebootRequest(uint32_t id, PB_System_RebootRequest_RebootMode mode);
 };
 
+class SystemFactoryResetRequest : public MainRequest
+{
+public:
+    SystemFactoryResetRequest(uint32_t id);
+};
+
 class SystemDeviceInfoRequest : public MainRequest
 {
 public:

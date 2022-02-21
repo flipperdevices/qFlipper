@@ -34,7 +34,7 @@ SystemRebootOperation *CommandInterface::rebootToRecovery()
 
 SystemFactoryResetOperation *CommandInterface::factoryReset()
 {
-    return registerOperation(new SystemFactoryResetOperation(serialPort(), this));
+    return nullptr;
 }
 
 StorageListOperation *CommandInterface::storageList(const QByteArray &path)
