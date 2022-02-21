@@ -92,6 +92,7 @@ QObject *MainResponse::create(MessageWrapper &wrapper, QObject *parent)
     case StorageStat: return new StorageStatResponse(wrapper, parent);
     case StorageList: return new StorageListResponse(wrapper, parent);
     case StorageRead: return new StorageReadResponse(wrapper, parent);
+    case GuiScreenFrame: return new GuiScreenFrameResponse(wrapper, parent);
     case Unknown:
     default: return nullptr;
     }

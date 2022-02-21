@@ -7,6 +7,7 @@
 #include "failable.h"
 
 class QIODevice;
+class QPluginLoader;
 class ProtobufPluginInterface;
 
 namespace Flipper {
@@ -43,14 +44,13 @@ public:
         Starting,
         Idle,
         Running,
-        Stopping,
         Stopped
     };
 
     ProtobufSession(const QSerialPortInfo &portInfo, QObject *parent = nullptr);
     ~ProtobufSession();
 
-    SessionState sessionState() const;
+    bool isSessionUp() const;
 
     void setSerialPort(const QSerialPortInfo &portInfo);
 
@@ -80,7 +80,7 @@ public:
     GuiScreenFrameOperation *guiSendScreenFrame(const QByteArray &screenData);
 
 signals:
-    void sessionStateChanged();
+    void sessionStatusChanged();
     void broadcastResponseReceived(QObject *response);
 
 public slots:
@@ -104,7 +104,6 @@ private:
     const QString prettyOperationDescription() const;
 
     uint32_t getAndIncrementCounter();
-    void setSessionState(SessionState newState);
 
     template<class T>
     T* enqueueOperation(T *operation);
@@ -120,6 +119,7 @@ private:
     QSerialPort *m_serialPort;
     QByteArray m_receivedData;
 
+    QPluginLoader *m_loader;
     ProtobufPluginInterface *m_plugin;
     QQueue<AbstractProtobufOperation*> m_queue;
     AbstractProtobufOperation *m_currentOperation;

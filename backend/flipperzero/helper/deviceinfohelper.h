@@ -60,7 +60,7 @@ private:
     void stopRPCSession();
 
 private slots:
-    void onRPCSessionStateChanged();
+    void onSessionStatusChanged();
 
 private:
     static const QString &branchToChannelName(const QByteArray &branchName);

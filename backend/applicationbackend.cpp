@@ -201,7 +201,7 @@ void ApplicationBackend::onCurrentDeviceChanged()
         qCDebug(LOG_BACKEND) << "Current device changed to" << device()->deviceState()->deviceInfo().name;
         // No need to disconnect the old device, as it has been destroyed at this point
         connect(device(), &FlipperZero::operationFinished, this, &ApplicationBackend::onDeviceOperationFinished);
-        connect(device(), &FlipperZero::stateChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
+        connect(device(), &FlipperZero::deviceStateChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
 
         waitForDeviceReady();
 

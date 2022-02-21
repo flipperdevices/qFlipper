@@ -201,11 +201,6 @@ void DeviceState::onDeviceInfoChanged()
 {
     clearError();
     setProgress(-1.0);
-
-//    if(isRecoveryMode()) {
-//        setOnline(true);
-//        return;
-//    }
 }
 
 void DeviceState::onIsOnlineChanged()

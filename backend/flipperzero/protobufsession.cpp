@@ -34,6 +34,7 @@ ProtobufSession::ProtobufSession(const QSerialPortInfo &portInfo, QObject *paren
     m_sessionState(Stopped),
     m_portInfo(portInfo),
     m_serialPort(nullptr),
+    m_loader(new QPluginLoader(this)),
     m_plugin(nullptr),
     m_currentOperation(nullptr),
     m_counter(0),
@@ -46,9 +47,9 @@ ProtobufSession::~ProtobufSession()
     stopSession();
 }
 
-ProtobufSession::SessionState ProtobufSession::sessionState() const
+bool ProtobufSession::isSessionUp() const
 {
-    return m_sessionState;
+    return m_sessionState == Idle || m_sessionState == Running;
 }
 
 void ProtobufSession::setSerialPort(const QSerialPortInfo &portInfo)
@@ -128,10 +129,10 @@ void ProtobufSession::startSession()
     clearError();
 
     qCInfo(LOG_SESSION) << "Starting RPC session...";
-    setSessionState(Starting);
+    m_sessionState = Starting;
 
     if(!loadProtobufPlugin()) {
-        setSessionState(Stopped);
+        m_sessionState = Stopped;
     }
 
     auto *helper = new SerialInitHelper(m_portInfo, this);
@@ -141,7 +142,7 @@ void ProtobufSession::startSession()
         if(helper->isError()) {
             qCCritical(LOG_SESSION).noquote() << "Failed to start RPC session:" << helper->errorString();
             setError(helper->error(), helper->errorString());
-            setSessionState(Stopped);
+            m_sessionState = Stopped;
             return;
         }
 
@@ -152,13 +153,15 @@ void ProtobufSession::startSession()
         connect(m_serialPort, &QSerialPort::errorOccurred, this, &ProtobufSession::onSerialPortErrorOccured);
 
         qCInfo(LOG_SESSION) << "RPC session started successfully.";
-        setSessionState(Idle);
+
+        m_sessionState = Idle;
+        emit sessionStatusChanged();
     });
 }
 
 void ProtobufSession::stopSession()
 {
-    if(m_sessionState != Idle && m_sessionState != Running) {
+    if(!isSessionUp()) {
         return;
     }
 
@@ -168,7 +171,7 @@ void ProtobufSession::stopSession()
 
 void ProtobufSession::onSerialPortReadyRead()
 {
-    if((sessionState() != Running) && (sessionState() != Idle)) {
+    if(!isSessionUp()) {
         m_serialPort->clear();
         return;
     }
@@ -184,7 +187,7 @@ void ProtobufSession::onSerialPortReadyRead()
     auto *mainResponse = qobject_cast<MainResponseInterface*>(response);
     m_receivedData.remove(0, mainResponse->encodedSize());
 
-    if(mainResponse->id() == m_currentOperation->id()) {
+    if(m_currentOperation && mainResponse->id() == m_currentOperation->id()) {
         processMatchedResponse(response);
     } else if(mainResponse->id() == 0) {
         processBroadcastResponse(response);
@@ -212,7 +215,13 @@ void ProtobufSession::onSerialPortBytesWriten(qint64 nbytes)
 
 void ProtobufSession::onSerialPortErrorOccured()
 {
-    qDebug() << "Serial port error occured:" << m_serialPort->errorString();
+    qCInfo(LOG_SESSION) << "Serial connection was lost.";
+
+    disconnect(m_serialPort, &QSerialPort::readyRead, this, &ProtobufSession::onSerialPortReadyRead);
+    disconnect(m_serialPort, &QSerialPort::bytesWritten, this, &ProtobufSession::onSerialPortBytesWriten);
+    disconnect(m_serialPort, &QSerialPort::errorOccurred, this, &ProtobufSession::onSerialPortErrorOccured);
+
+    stopSession();
 }
 
 void ProtobufSession::processQueue()
@@ -223,7 +232,7 @@ void ProtobufSession::processQueue()
     }
 
     if(m_queue.isEmpty()) {
-        setSessionState(Idle);
+        m_sessionState = Idle;
         return;
     }
 
@@ -249,7 +258,6 @@ void ProtobufSession::writeToPort()
 void ProtobufSession::doStopSession()
 {
     qCInfo(LOG_SESSION) << "Stopping RPC session...";
-    setSessionState(Stopping);
 
     clearOperationQueue();
 
@@ -261,18 +269,20 @@ void ProtobufSession::doStopSession()
     unloadProtobufPlugin();
 
     qCInfo(LOG_SESSION) << "RPC session stopped successfully.";
-    setSessionState(Stopped);
+
+    m_sessionState = Stopped;
+    emit sessionStatusChanged();
 }
 
 bool ProtobufSession::loadProtobufPlugin()
 {
-    QPluginLoader loader(protobufPluginPath());
+    m_loader->setFileName(protobufPluginPath());
 
-    if(loader.isLoaded()) {
+    if(m_loader->isLoaded()) {
         return true;
-    } else if(!loader.load()) {
-        qCCritical(LOG_SESSION) << "Failed to load protobuf plugin:" << loader.errorString();
-    } else if(!(m_plugin = qobject_cast<ProtobufPluginInterface*>(loader.instance()))) {
+    } else if(!m_loader->load()) {
+        qCCritical(LOG_SESSION) << "Failed to load protobuf plugin:" << m_loader->errorString();
+    } else if(!(m_plugin = qobject_cast<ProtobufPluginInterface*>(m_loader->instance()))) {
         qCCritical(LOG_SESSION) << "Loaded plugin does not provide the interface required";
     } else {
         return true;
@@ -284,8 +294,13 @@ bool ProtobufSession::loadProtobufPlugin()
 
 bool ProtobufSession::unloadProtobufPlugin()
 {
-    QPluginLoader loader(protobufPluginPath());
-    return loader.isLoaded() ? loader.unload() : true;
+    const auto success = m_loader->isLoaded() ? m_loader->unload() : true;
+
+    if(!success) {
+        qCWarning(LOG_SESSION) << "Failed to unload protobuf plugin";
+    }
+
+    return success;
 }
 
 uint32_t ProtobufSession::getAndIncrementCounter()
@@ -296,16 +311,6 @@ uint32_t ProtobufSession::getAndIncrementCounter()
     } while(m_counter == 0);
 
     return m_counter;
-}
-
-void ProtobufSession::setSessionState(SessionState newState)
-{
-    if(m_sessionState == newState) {
-        return;
-    }
-
-    m_sessionState = newState;
-    emit sessionStateChanged();
 }
 
 void ProtobufSession::clearOperationQueue()
@@ -375,8 +380,8 @@ T *ProtobufSession::enqueueOperation(T *operation)
 {
     m_queue.enqueue(operation);
 
-    if(sessionState() == Idle) {
-        setSessionState(Running);
+    if(m_sessionState == Idle) {
+        m_sessionState = Running;
         QTimer::singleShot(0, this, &ProtobufSession::processQueue);
     }
 

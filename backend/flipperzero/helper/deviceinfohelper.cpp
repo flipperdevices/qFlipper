@@ -114,7 +114,7 @@ void VCPDeviceInfoHelper::findSerialPort()
 void VCPDeviceInfoHelper::startRPCSession()
 {
     m_rpc = new ProtobufSession(m_deviceInfo.portInfo, this);
-    connect(m_rpc, &ProtobufSession::sessionStateChanged, this, &VCPDeviceInfoHelper::onRPCSessionStateChanged);
+    connect(m_rpc, &ProtobufSession::sessionStatusChanged, this, &VCPDeviceInfoHelper::onSessionStatusChanged);
     m_rpc->startSession();
 }
 
@@ -250,13 +250,13 @@ void VCPDeviceInfoHelper::stopRPCSession()
     m_rpc->stopSession();
 }
 
-void VCPDeviceInfoHelper::onRPCSessionStateChanged()
+void VCPDeviceInfoHelper::onSessionStatusChanged()
 {
     if(m_rpc->isError()) {
         finishWithError(m_rpc->error(), QStringLiteral("Protobuf session error: %1").arg(m_rpc->errorString()));
-    } else if(state() == VCPDeviceInfoHelper::StartingRPCSession && m_rpc->sessionState() == ProtobufSession::Idle) {
+    } else if(state() == VCPDeviceInfoHelper::StartingRPCSession && m_rpc->isSessionUp()) {
         advanceState();
-    } else if(state() == VCPDeviceInfoHelper::StoppingRPCSession && m_rpc->sessionState() == ProtobufSession::Stopped) {
+    } else if(state() == VCPDeviceInfoHelper::StoppingRPCSession && !m_rpc->isSessionUp()) {
         finish();
     }
 }

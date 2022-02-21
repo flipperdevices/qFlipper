@@ -51,11 +51,14 @@ public:
     void finalizeOperation();
 
 signals:
-    void stateChanged();
+    void deviceStateChanged();
     void operationFinished();
 
 private slots:
     void onIsOnlineChanged();
+    void onDeviceInfoChanged();
+    void onSessionStatusChanged();
+    void onScreenStreamerStateChanged();
 
 private:
     void registerOperation(AbstractOperation *operation);
