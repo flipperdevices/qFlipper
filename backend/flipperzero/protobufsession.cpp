@@ -14,6 +14,7 @@
 #include "rpc/storageinfooperation.h"
 #include "rpc/storagestatoperation.h"
 #include "rpc/storagelistoperation.h"
+#include "rpc/storagereadoperation.h"
 #include "rpc/storagemkdiroperation.h"
 #include "rpc/storagewriteoperation.h"
 #include "rpc/storageremoveoperation.h"
@@ -111,6 +112,11 @@ StorageMkdirOperation *ProtobufSession::storageMkdir(const QByteArray &path)
 StorageRemoveOperation *ProtobufSession::storageRemove(const QByteArray &path)
 {
     return enqueueOperation(new StorageRemoveOperation(getAndIncrementCounter(), path, this));
+}
+
+StorageReadOperation *ProtobufSession::storageRead(const QByteArray &path, QIODevice *file)
+{
+    return enqueueOperation(new StorageReadOperation(getAndIncrementCounter(), path, file, this));
 }
 
 StorageWriteOperation *ProtobufSession::storageWrite(const QByteArray &path, QIODevice *file)

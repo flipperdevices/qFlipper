@@ -4,17 +4,8 @@
 
 #include "flipperzero/devicestate.h"
 
-#include "rpc/startrpcoperation.h"
-#include "rpc/stoprpcoperation.h"
-
 #include "rpc/systemrebootoperation.h"
 #include "rpc/systemfactoryresetoperation.h"
-
-#include "rpc/storageremoveoperation.h"
-#include "rpc/storagemkdiroperation.h"
-#include "rpc/storagewriteoperation.h"
-#include "rpc/storagereadoperation.h"
-#include "rpc/storagelistoperation.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_RPC, "RPC");
 
@@ -66,7 +57,9 @@ StorageStatOperation *CommandInterface::storageStat(const QByteArray &path)
 
 StorageReadOperation *CommandInterface::storageRead(const QByteArray &path, QIODevice *file)
 {
-    return registerOperation(new StorageReadOperation(serialPort(), path, file, this));
+    Q_UNUSED(path)
+    Q_UNUSED(file)
+    return nullptr;
 }
 
 StorageMkdirOperation *CommandInterface::storageMkdir(const QByteArray &path)
