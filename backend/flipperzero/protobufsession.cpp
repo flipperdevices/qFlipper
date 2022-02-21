@@ -13,6 +13,7 @@
 
 #include "rpc/storageinfooperation.h"
 #include "rpc/storagestatoperation.h"
+#include "rpc/storagelistoperation.h"
 
 #include "rpc/systemdeviceinfooperation.h"
 #include "rpc/systemgetdatetimeoperation.h"
@@ -82,6 +83,11 @@ SystemSetDateTimeOperation *ProtobufSession::setDateTime(const QDateTime &dateTi
 SystemDeviceInfoOperation *ProtobufSession::systemDeviceInfo()
 {
     return enqueueOperation(new SystemDeviceInfoOperation(getAndIncrementCounter(), this));
+}
+
+StorageListOperation *ProtobufSession::storageList(const QByteArray &path)
+{
+    return enqueueOperation(new StorageListOperation(getAndIncrementCounter(), path, this));
 }
 
 StorageInfoOperation *ProtobufSession::storageInfo(const QByteArray &path)

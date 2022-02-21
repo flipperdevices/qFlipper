@@ -38,9 +38,6 @@ public:
     CommandInterface(DeviceState *deviceState, QObject *parent = nullptr);
     QSerialPort *serialPort() const;
 
-    StopRPCOperation *stopRPCSession();
-    StartRPCOperation *startRPCSession();
-
     SystemRebootOperation *rebootToOS();
     SystemRebootOperation *rebootToRecovery();
     SystemFactoryResetOperation *factoryReset();

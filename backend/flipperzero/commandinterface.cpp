@@ -31,16 +31,6 @@ QSerialPort *CommandInterface::serialPort() const
     return nullptr;
 }
 
-StopRPCOperation *CommandInterface::stopRPCSession()
-{
-    return registerOperation(new StopRPCOperation(serialPort(), this));
-}
-
-StartRPCOperation *CommandInterface::startRPCSession()
-{
-    return registerOperation(new StartRPCOperation(serialPort(), this));
-}
-
 SystemRebootOperation *CommandInterface::rebootToOS()
 {
     return registerOperation(new SystemRebootOperation(serialPort(), SystemRebootOperation::RebootType::OS, this));
@@ -58,7 +48,8 @@ SystemFactoryResetOperation *CommandInterface::factoryReset()
 
 StorageListOperation *CommandInterface::storageList(const QByteArray &path)
 {
-    return registerOperation(new StorageListOperation(serialPort(), path, this));
+    Q_UNUSED(path)
+    return nullptr;
 }
 
 StorageInfoOperation *CommandInterface::storageInfo(const QByteArray &path)
