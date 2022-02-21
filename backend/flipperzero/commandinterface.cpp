@@ -109,7 +109,8 @@ GuiScreenFrameOperation *CommandInterface::guiSendScreenFrame(const QByteArray &
 
 StorageRemoveOperation *CommandInterface::storageRemove(const QByteArray &path)
 {
-    return registerOperation(new StorageRemoveOperation(serialPort(), path, this));
+    Q_UNUSED(path)
+    return nullptr;
 }
 
 const QLoggingCategory &CommandInterface::loggingCategory() const

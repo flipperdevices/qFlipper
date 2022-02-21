@@ -15,6 +15,7 @@
 #include "rpc/storagestatoperation.h"
 #include "rpc/storagelistoperation.h"
 #include "rpc/storagemkdiroperation.h"
+#include "rpc/storageremoveoperation.h"
 
 #include "rpc/systemdeviceinfooperation.h"
 #include "rpc/systemgetdatetimeoperation.h"
@@ -104,6 +105,11 @@ StorageStatOperation *ProtobufSession::storageStat(const QByteArray &path)
 StorageMkdirOperation *ProtobufSession::storageMkdir(const QByteArray &path)
 {
     return enqueueOperation(new StorageMkdirOperation(getAndIncrementCounter(), path, this));
+}
+
+StorageRemoveOperation *ProtobufSession::storageRemove(const QByteArray &path)
+{
+    return enqueueOperation(new StorageRemoveOperation(getAndIncrementCounter(), path, this));
 }
 
 GuiStartScreenStreamOperation *ProtobufSession::guiStartScreenStream()

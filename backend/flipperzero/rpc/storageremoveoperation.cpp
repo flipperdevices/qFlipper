@@ -1,23 +1,21 @@
 #include "storageremoveoperation.h"
 
+#include "protobufplugininterface.h"
+
 using namespace Flipper;
 using namespace Zero;
 
-StorageRemoveOperation::StorageRemoveOperation(QSerialPort *serialPort, const QByteArray &path, QObject *parent):
-    AbstractSerialOperation(serialPort, parent),
+StorageRemoveOperation::StorageRemoveOperation(uint32_t id, const QByteArray &path, QObject *parent):
+    AbstractProtobufOperation(id, parent),
     m_path(path)
 {}
 
 const QString StorageRemoveOperation::description() const
 {
-    return QStringLiteral("Storage remove @%1").arg(QString(m_path));
+    return QStringLiteral("Storage Remove @%1").arg(QString(m_path));
 }
 
-void StorageRemoveOperation::onSerialPortReadyRead()
+const QByteArray StorageRemoveOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-}
-
-bool StorageRemoveOperation::begin()
-{
-    return false;
+    return encoder->storageRemove(id(), m_path);
 }
