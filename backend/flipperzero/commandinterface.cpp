@@ -71,7 +71,8 @@ StorageReadOperation *CommandInterface::storageRead(const QByteArray &path, QIOD
 
 StorageMkdirOperation *CommandInterface::storageMkdir(const QByteArray &path)
 {
-    return registerOperation(new StorageMkdirOperation(serialPort(), path, this));
+    Q_UNUSED(path)
+    return nullptr;
 }
 
 StorageWriteOperation *CommandInterface::storageWrite(const QByteArray &path, QIODevice *file)

@@ -1,23 +1,21 @@
 #include "storagemkdiroperation.h"
 
+#include "protobufplugininterface.h"
+
 using namespace Flipper;
 using namespace Zero;
 
-StorageMkdirOperation::StorageMkdirOperation(QSerialPort *serialPort, const QByteArray &path, QObject *parent):
-    AbstractSerialOperation(serialPort, parent),
+StorageMkdirOperation::StorageMkdirOperation(uint32_t id, const QByteArray &path, QObject *parent):
+    AbstractProtobufOperation(id, parent),
     m_path(path)
 {}
 
 const QString StorageMkdirOperation::description() const
 {
-    return QStringLiteral("Storage mkdir @%1").arg(QString(m_path));
+    return QStringLiteral("Storage MkDir @%1").arg(QString(m_path));
 }
 
-void StorageMkdirOperation::onSerialPortReadyRead()
+const QByteArray StorageMkdirOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-}
-
-bool StorageMkdirOperation::begin()
-{
-    return false;
+    return encoder->storageMkDir(id(), m_path);
 }
