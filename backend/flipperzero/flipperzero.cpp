@@ -47,7 +47,7 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     m_recovery(new RecoveryInterface(m_state, this)),
     m_utility(new UtilityInterface(m_state, m_oldStuff, this)),
     m_streamer(new ScreenStreamer(m_state, m_rpc, this)),
-    m_virtualDisplay(new VirtualDisplay(m_state, m_oldStuff, this))
+    m_virtualDisplay(new VirtualDisplay(m_state, m_rpc, this))
 {
     connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::onDeviceInfoChanged);
     connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::deviceStateChanged);
