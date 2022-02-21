@@ -49,21 +49,13 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     m_streamer(new ScreenStreamer(m_state, m_rpc, this)),
     m_virtualDisplay(new VirtualDisplay(m_state, m_oldStuff, this))
 {
-    connect(m_state, &DeviceState::isOnlineChanged, this, &FlipperZero::onIsOnlineChanged);
     connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::onDeviceInfoChanged);
-    connect(m_state, &DeviceState::isStreamingEnabledChanged, this, &FlipperZero::onScreenStreamerStateChanged);
+    connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::deviceStateChanged);
 
     connect(m_rpc, &ProtobufSession::sessionStatusChanged, this, &FlipperZero::onSessionStatusChanged);
     connect(m_rpc, &ProtobufSession::broadcastResponseReceived, m_streamer, &ScreenStreamer::onBroadcastResponseReceived);
 
-    connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::deviceStateChanged);
-
     onDeviceInfoChanged();
-}
-
-FlipperZero::~FlipperZero()
-{
-    m_state->setOnline(false);
 }
 
 DeviceState *FlipperZero::deviceState() const
@@ -206,13 +198,9 @@ void FlipperZero::finalizeOperation()
     }
 
     if(!m_state->isRecoveryMode()) {
-//        m_virtualDisplay->stop();
-//        m_streamer->start();
+        m_virtualDisplay->stop();
+        m_streamer->start();
     }
-}
-
-void FlipperZero::onIsOnlineChanged()
-{
 }
 
 void FlipperZero::onDeviceInfoChanged()
@@ -225,66 +213,59 @@ void FlipperZero::onDeviceInfoChanged()
     // TODO: set protobuf version
 //    m_rpc->setMajorVersion(0);
 //    m_rpc->setMinorVersion(0);
+    // Enterprise 100ms delay until I figure it out
     QTimer::singleShot(100, m_rpc, &ProtobufSession::startSession);
 }
 
 void FlipperZero::onSessionStatusChanged()
 {
     if(m_rpc->isError()) {
-        // TODO: error handling
-    } else if(m_rpc->isSessionUp()) {
+        // TODO: Take into account a failed RPC start
+        qCritical() << "RPC ERROR:" << m_rpc->errorString();
 
-        if(!m_state->isPersistent()) {
-            m_streamer->start();
-        } else {
+    } else if(m_rpc->isSessionUp()) {
+        if(m_state->isPersistent()) {
             m_virtualDisplay->start(QByteArray((char*)updating_bits, sizeof(updating_bits)));
+        } else {
+            m_streamer->start();
         }
 
         m_state->setOnline(true);
-
-    } else {
-
     }
-}
-
-void FlipperZero::onScreenStreamerStateChanged()
-{
-
 }
 
 void FlipperZero::registerOperation(AbstractOperation *operation)
 {
-    Q_UNUSED(operation)
-//    connect(operation, &AbstractOperation::finished, this, [=]() {
-//        if(operation->isError()) {
-//            qCCritical(CAT_DEVICE).noquote() << operation->description() << "ERROR:" << operation->errorString();
-//            m_state->setError(operation->error(), operation->errorString());
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            qCCritical(CAT_DEVICE).noquote() << operation->description() << "ERROR:" << operation->errorString();
+            m_state->setError(operation->error(), operation->errorString());
 
-//        } else {
-//            m_virtualDisplay->sendFrame(QByteArray((char*)update_ok_bits, sizeof(update_ok_bits)));
-//            qCInfo(CAT_DEVICE).noquote() << operation->description() << "SUCCESS";
-//        }
+        } else {
+            m_virtualDisplay->sendFrame(QByteArray((char*)update_ok_bits, sizeof(update_ok_bits)));
+            qCInfo(CAT_DEVICE).noquote() << operation->description() << "SUCCESS";
+        }
 
-//        operation->deleteLater();
-//        emit operationFinished();
-//    });
+        operation->deleteLater();
+        emit operationFinished();
+    });
 
-//    qCInfo(CAT_DEVICE).noquote() << operation->description() << "START";
+    qCInfo(CAT_DEVICE).noquote() << operation->description() << "START";
 
-//    if(m_state->isRecoveryMode()) {
-//        operation->start();
+    if(m_state->isRecoveryMode()) {
+        operation->start();
 
-//    } else {
-//        connect(m_state, &DeviceState::isStreamingEnabledChanged, operation, [=]() {
-//            //TODO: Check that ScreenStreamer has stopped without errors
-//            if(m_state->isStreamingEnabled()) {
-//                // TODO: Finish with error
-//            } else {
-//                m_virtualDisplay->start(QByteArray((char*)updating_bits, sizeof(updating_bits)));
-//                operation->start();
-//            }
-//        });
+    } else {
+        connect(m_state, &DeviceState::isStreamingEnabledChanged, operation, [=]() {
+            //TODO: Check that ScreenStreamer has stopped without errors
+            if(m_state->isStreamingEnabled()) {
+                // TODO: Finish with error
+            } else {
+                m_virtualDisplay->start(QByteArray((char*)updating_bits, sizeof(updating_bits)));
+                operation->start();
+            }
+        });
 
-//        m_streamer->stop();
-//    }
+        m_streamer->stop();
+    }
 }

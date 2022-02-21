@@ -100,6 +100,8 @@ private:
     bool loadProtobufPlugin();
     bool unloadProtobufPlugin();
 
+    void stopEarly(BackendError::ErrorType error, const QString &errorString);
+
     const QString protobufPluginPath() const;
     const QString prettyOperationDescription() const;
 

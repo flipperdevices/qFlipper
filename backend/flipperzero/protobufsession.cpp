@@ -132,7 +132,7 @@ void ProtobufSession::startSession()
     m_sessionState = Starting;
 
     if(!loadProtobufPlugin()) {
-        m_sessionState = Stopped;
+        stopEarly(BackendError::UnknownError, QStringLiteral("Failed to load protobuf plugin: %1").arg(m_loader->errorString()));
     }
 
     auto *helper = new SerialInitHelper(m_portInfo, this);
@@ -141,8 +141,7 @@ void ProtobufSession::startSession()
 
         if(helper->isError()) {
             qCCritical(LOG_SESSION).noquote() << "Failed to start RPC session:" << helper->errorString();
-            setError(helper->error(), helper->errorString());
-            m_sessionState = Stopped;
+            stopEarly(helper->error(), helper->errorString());
             return;
         }
 
@@ -266,9 +265,11 @@ void ProtobufSession::doStopSession()
         m_serialPort->deleteLater();
     }
 
-    unloadProtobufPlugin();
-
-    qCInfo(LOG_SESSION) << "RPC session stopped successfully.";
+    if(unloadProtobufPlugin()) {
+        qCInfo(LOG_SESSION) << "RPC session stopped successfully.";
+    } else {
+        setError(BackendError::UnknownError, QStringLiteral("Failed to unload protobuf plugin: %1").arg(m_loader->errorString()));
+    }
 
     m_sessionState = Stopped;
     emit sessionStatusChanged();
@@ -288,7 +289,6 @@ bool ProtobufSession::loadProtobufPlugin()
         return true;
     }
 
-    setError(BackendError::UnknownError, QStringLiteral("Failed to load protobuf plugin"));
     return false;
 }
 
@@ -301,6 +301,13 @@ bool ProtobufSession::unloadProtobufPlugin()
     }
 
     return success;
+}
+
+void ProtobufSession::stopEarly(BackendError::ErrorType error, const QString &errorString)
+{
+    m_sessionState = Stopped;
+    setError(error, errorString);
+    emit sessionStatusChanged();
 }
 
 uint32_t ProtobufSession::getAndIncrementCounter()

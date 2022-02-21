@@ -28,7 +28,6 @@ class FlipperZero : public QObject
 
 public:
     FlipperZero(const Zero::DeviceInfo &info, QObject *parent = nullptr);
-    ~FlipperZero();
 
     Zero::DeviceState *deviceState() const;
 
@@ -55,10 +54,8 @@ signals:
     void operationFinished();
 
 private slots:
-    void onIsOnlineChanged();
     void onDeviceInfoChanged();
     void onSessionStatusChanged();
-    void onScreenStreamerStateChanged();
 
 private:
     void registerOperation(AbstractOperation *operation);
