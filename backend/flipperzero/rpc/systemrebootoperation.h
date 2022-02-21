@@ -1,31 +1,26 @@
 #pragma once
 
-#include "abstractserialoperation.h"
+#include "abstractprotobufoperation.h"
 
 namespace Flipper {
 namespace Zero {
 
-class SystemRebootOperation : public AbstractSerialOperation
+class SystemRebootOperation : public AbstractProtobufOperation
 {
     Q_OBJECT
 
 public:
-    enum class RebootType {
-        OS,
-        Recovery
+    enum RebootMode {
+        RebootModeOS = 0,
+        RebootModeRecovery = 1
     };
 
-    SystemRebootOperation(QSerialPort *serialPort, RebootType rebootType, QObject *parent = nullptr);
+    SystemRebootOperation(uint32_t id, RebootMode rebootType, QObject *parent = nullptr);
     const QString description() const override;
-
-private slots:
-    void onTotalBytesWrittenChanged() override;
+    const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
 
 private:
-    bool begin() override;
-
-    RebootType m_rebootType;
-    qint64 m_byteCount;
+    RebootMode m_rebootMode;
 };
 
 }

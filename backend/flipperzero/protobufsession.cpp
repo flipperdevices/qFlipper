@@ -19,6 +19,7 @@
 #include "rpc/storagewriteoperation.h"
 #include "rpc/storageremoveoperation.h"
 
+#include "rpc/systemrebootoperation.h"
 #include "rpc/systemdeviceinfooperation.h"
 #include "rpc/systemgetdatetimeoperation.h"
 #include "rpc/systemsetdatetimeoperation.h"
@@ -73,6 +74,16 @@ void ProtobufSession::setMinorVersion(int versionMinor)
 {
     // TODO: change the plugin settings accordingly
     m_versionMinor = versionMinor;
+}
+
+SystemRebootOperation *ProtobufSession::rebootToOS()
+{
+    return enqueueOperation(new SystemRebootOperation(getAndIncrementCounter(), SystemRebootOperation::RebootModeOS, this));
+}
+
+SystemRebootOperation *ProtobufSession::rebootToRecovery()
+{
+    return enqueueOperation(new SystemRebootOperation(getAndIncrementCounter(), SystemRebootOperation::RebootModeRecovery, this));
 }
 
 SystemGetDateTimeOperation *ProtobufSession::getDateTime()

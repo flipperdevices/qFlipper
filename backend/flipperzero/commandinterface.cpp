@@ -2,11 +2,6 @@
 
 #include <QLoggingCategory>
 
-#include "flipperzero/devicestate.h"
-
-#include "rpc/systemrebootoperation.h"
-#include "rpc/systemfactoryresetoperation.h"
-
 Q_LOGGING_CATEGORY(CATEGORY_RPC, "RPC");
 
 using namespace Flipper;
@@ -24,12 +19,12 @@ QSerialPort *CommandInterface::serialPort() const
 
 SystemRebootOperation *CommandInterface::rebootToOS()
 {
-    return registerOperation(new SystemRebootOperation(serialPort(), SystemRebootOperation::RebootType::OS, this));
+    return nullptr;
 }
 
 SystemRebootOperation *CommandInterface::rebootToRecovery()
 {
-    return registerOperation(new SystemRebootOperation(serialPort(), SystemRebootOperation::RebootType::Recovery, this));
+    return nullptr;
 }
 
 SystemFactoryResetOperation *CommandInterface::factoryReset()

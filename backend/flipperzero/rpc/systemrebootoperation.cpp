@@ -1,30 +1,24 @@
 #include "systemrebootoperation.h"
 
 #include <QTimer>
-#include <QSerialPort>
+
+#include "protobufplugininterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-SystemRebootOperation::SystemRebootOperation(QSerialPort *serialPort, RebootType rebootType, QObject *parent):
-    AbstractSerialOperation(serialPort, parent),
-    m_rebootType(rebootType),
-    m_byteCount(0)
+SystemRebootOperation::SystemRebootOperation(uint32_t id, RebootMode rebootType, QObject *parent):
+    AbstractProtobufOperation(id, parent),
+    m_rebootMode(rebootType)
 {}
 
 const QString SystemRebootOperation::description() const
 {
-    return QStringLiteral("System reboot @%1").arg(QString(serialPort()->portName()));
+    return QStringLiteral("System Reboot");
 }
 
-void SystemRebootOperation::onTotalBytesWrittenChanged()
+const QByteArray SystemRebootOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    if(m_byteCount == totalBytesWritten()) {
-        finish();
-    }
-}
-
-bool SystemRebootOperation::begin()
-{
-    return false;
+    QTimer::singleShot(0, this, &AbstractOperation::finish);
+    return encoder->systemReboot(id(), (ProtobufPluginInterface::RebootMode)m_rebootMode);
 }

@@ -9,8 +9,8 @@ class ProtobufPluginInterface
 {
 public:
     enum RebootMode {
-        RebootModeOS,
-        RebootModeRecovery
+        RebootModeOS = 0,
+        RebootModeRecovery = 1
     };
 
     virtual ~ProtobufPluginInterface() {}
