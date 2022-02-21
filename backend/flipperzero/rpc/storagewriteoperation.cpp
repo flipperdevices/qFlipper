@@ -1,59 +1,34 @@
 #include "storagewriteoperation.h"
 
-#include <QTimer>
 #include <QIODevice>
 
-//static constexpr qint64 CHUNK_SIZE = 512;
+#include "protobufplugininterface.h"
+
+static constexpr qint64 CHUNK_SIZE = 512;
 
 using namespace Flipper;
 using namespace Zero;
 
-StorageWriteOperation::StorageWriteOperation(QSerialPort *serialPort, const QByteArray &path, QIODevice *file, QObject *parent):
-    AbstractSerialOperation(serialPort, parent),
+StorageWriteOperation::StorageWriteOperation(uint32_t id, const QByteArray &path, QIODevice *file, QObject *parent):
+    AbstractProtobufOperation(id, parent),
     m_path(path),
-    m_file(file),
-    m_byteCount(0)
+    m_file(file)
 {
     // Write operations can be lenghty
-    setTimeout(30000);
+//    setTimeout(30000);
 }
 
 const QString StorageWriteOperation::description() const
 {
-    return QStringLiteral("Storage write @%1").arg(QString(m_path));
+    return QStringLiteral("Storage Write @%1").arg(QString(m_path));
 }
 
-void StorageWriteOperation::onSerialPortReadyRead()
+bool StorageWriteOperation::hasNext() const
 {
+    return m_file->bytesAvailable() > CHUNK_SIZE;
 }
 
-void StorageWriteOperation::onTotalBytesWrittenChanged()
+const QByteArray StorageWriteOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    if(totalBytesWritten() != m_byteCount) {
-        return;
-    }
-
-    const auto bytesAvailable = m_file->bytesAvailable();
-
-    if(bytesAvailable < 0) {
-        finishWithError(BackendError::DiskError, QStringLiteral("Failed to read from input device: %1").arg(m_file->errorString()));
-
-    } else if(bytesAvailable > 0) {
-        // Must write the chunk asynchronously in order to receive this signal
-        QTimer::singleShot(0, this, [=]() {
-            if(!writeChunk()) {
-                finishWithError(BackendError::SerialError, QStringLiteral("Failed to write chunk"));
-            }
-        });
-    }
-}
-
-bool StorageWriteOperation::begin()
-{
-    return writeChunk();
-}
-
-bool StorageWriteOperation::writeChunk()
-{
-    return false;
+    return encoder->storageWrite(id(), m_path, m_file->read(CHUNK_SIZE), hasNext());
 }

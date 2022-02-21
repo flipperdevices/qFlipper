@@ -77,7 +77,9 @@ StorageMkdirOperation *CommandInterface::storageMkdir(const QByteArray &path)
 
 StorageWriteOperation *CommandInterface::storageWrite(const QByteArray &path, QIODevice *file)
 {
-    return registerOperation(new StorageWriteOperation(serialPort(), path, file, this));
+    Q_UNUSED(path)
+    Q_UNUSED(file)
+    return nullptr;
 }
 
 GuiStartScreenStreamOperation *CommandInterface::guiStartStreaming()
