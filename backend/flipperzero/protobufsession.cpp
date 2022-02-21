@@ -272,19 +272,15 @@ void ProtobufSession::onSerialPortErrorOccured()
 
 void ProtobufSession::processQueue()
 {
-    if(m_currentOperation) {
-        m_currentOperation->deleteLater();
-        m_currentOperation = nullptr;
-    }
-
     if(m_queue.isEmpty()) {
         m_sessionState = Idle;
         return;
     }
 
     m_currentOperation = m_queue.dequeue();
-    qCInfo(LOG_SESSION).noquote() << prettyOperationDescription() << "START";
+    connect(m_currentOperation, &AbstractOperation::finished, this, &ProtobufSession::onCurrentOperationFinished);
 
+    qCInfo(LOG_SESSION).noquote() << prettyOperationDescription() << "START";
     writeToPort();
 }
 
@@ -320,6 +316,20 @@ void ProtobufSession::doStopSession()
 
     m_sessionState = Stopped;
     emit sessionStatusChanged();
+}
+
+void ProtobufSession::onCurrentOperationFinished()
+{
+    if(m_currentOperation->isError()) {
+        qCCritical(LOG_SESSION).noquote() << prettyOperationDescription() << "ERROR:" << m_currentOperation->errorString();
+    } else {
+        qCInfo(LOG_SESSION).noquote() << prettyOperationDescription() << "SUCCESS";
+    }
+
+    m_currentOperation->deleteLater();
+    m_currentOperation = nullptr;
+
+    QTimer::singleShot(0, this, &ProtobufSession::processQueue);
 }
 
 bool ProtobufSession::loadProtobufPlugin()
@@ -400,16 +410,6 @@ const QString ProtobufSession::prettyOperationDescription() const
 void ProtobufSession::processMatchedResponse(QObject *response)
 {
     m_currentOperation->feedResponse(response);
-
-    if(!m_currentOperation->isFinished()) {
-        return;
-    } else if(m_currentOperation->isError()) {
-        qCCritical(LOG_SESSION).noquote() << prettyOperationDescription() << "ERROR:" << m_currentOperation->errorString();
-    } else {
-        qCInfo(LOG_SESSION).noquote() << prettyOperationDescription() << "SUCCESS";
-    }
-
-    QTimer::singleShot(0, this, &ProtobufSession::processQueue);
 }
 
 void ProtobufSession::processBroadcastResponse(QObject *response)

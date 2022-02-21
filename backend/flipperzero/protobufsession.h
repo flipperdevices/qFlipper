@@ -96,6 +96,8 @@ private slots:
     void writeToPort();
     void doStopSession();
 
+    void onCurrentOperationFinished();
+
 private:
     bool loadProtobufPlugin();
     bool unloadProtobufPlugin();
