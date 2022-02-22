@@ -16,7 +16,7 @@ class StorageWriteOperation : public AbstractProtobufOperation
 public:
     StorageWriteOperation(uint32_t id, const QByteArray &path, QIODevice *file, QObject *parent = nullptr);
     const QString description() const override;
-    bool hasNext() const override;
+    bool hasMoreData() const override;
     const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
 
 private:

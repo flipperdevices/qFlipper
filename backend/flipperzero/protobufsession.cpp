@@ -45,6 +45,7 @@ ProtobufSession::ProtobufSession(const QSerialPortInfo &portInfo, QObject *paren
     m_loader(new QPluginLoader(this)),
     m_plugin(nullptr),
     m_currentOperation(nullptr),
+    m_bytesToWrite(0),
     m_counter(0),
     m_versionMajor(0),
     m_versionMinor(0)
@@ -259,7 +260,9 @@ void ProtobufSession::onSerialPortBytesWriten(qint64 nbytes)
 {
     m_bytesToWrite -= nbytes;
 
-    if(m_bytesToWrite && m_currentOperation->hasNext()) {
+    if(m_bytesToWrite || !m_currentOperation) {
+        return;
+    } else if(m_currentOperation->hasMoreData()) {
         // Write the next part if applicable
         QTimer::singleShot(0, this, &ProtobufSession::writeToPort);
     }
@@ -293,9 +296,11 @@ void ProtobufSession::processQueue()
 void ProtobufSession::writeToPort()
 {
     const auto &buf = m_currentOperation->encodeRequest(m_plugin);
-    m_bytesToWrite = m_serialPort->write(buf);
     // TODO: Check for full system serial buffer
-    const auto success = (m_bytesToWrite == buf.size()) && m_serialPort->flush();
+    const auto bytesWritten = m_serialPort->write(buf);
+    const auto success = (bytesWritten == buf.size()) && m_serialPort->flush();
+
+    m_bytesToWrite += bytesWritten;
 
     if(!success) {
         setError(BackendError::SerialError, m_serialPort->errorString());

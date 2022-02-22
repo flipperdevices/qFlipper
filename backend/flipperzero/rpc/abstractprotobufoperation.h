@@ -16,7 +16,7 @@ public:
     virtual ~AbstractProtobufOperation();
 
     uint32_t id() const;
-    virtual bool hasNext() const;
+    virtual bool hasMoreData() const;
     bool isFinished() const;
 
     void start() override;

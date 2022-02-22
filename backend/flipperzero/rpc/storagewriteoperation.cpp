@@ -1,5 +1,6 @@
 #include "storagewriteoperation.h"
 
+#include <QDebug>
 #include <QIODevice>
 
 #include "protobufplugininterface.h"
@@ -23,12 +24,12 @@ const QString StorageWriteOperation::description() const
     return QStringLiteral("Storage Write @%1").arg(QString(m_path));
 }
 
-bool StorageWriteOperation::hasNext() const
+bool StorageWriteOperation::hasMoreData() const
 {
-    return m_file->bytesAvailable() > CHUNK_SIZE;
+    return m_file->bytesAvailable();
 }
 
 const QByteArray StorageWriteOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    return encoder->storageWrite(id(), m_path, m_file->read(CHUNK_SIZE), hasNext());
+    return encoder->storageWrite(id(), m_path, m_file->read(CHUNK_SIZE), m_file->bytesAvailable() > CHUNK_SIZE);
 }

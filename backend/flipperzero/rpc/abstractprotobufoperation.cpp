@@ -20,7 +20,7 @@ uint32_t AbstractProtobufOperation::id() const
     return m_id;
 }
 
-bool AbstractProtobufOperation::hasNext() const
+bool AbstractProtobufOperation::hasMoreData() const
 {
     // Default implementation for single-part operations
     return false;
