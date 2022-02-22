@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    protobuf0 \
+    flipperproto0 \
     protobufinterface

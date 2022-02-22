@@ -2,8 +2,8 @@ QT -= gui
 
 include(../../qflipper_common.pri)
 
-win32: TARGET = protobuf
-else: TARGET = protobuf0
+win32: TARGET = flipperproto
+else: TARGET = flipperproto0
 
 DESTDIR = ..
 
