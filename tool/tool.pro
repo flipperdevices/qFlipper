@@ -62,3 +62,8 @@ SOURCES += \
 
 HEADERS += \
     tool.h
+
+unix:!macx {
+    target.path = $$PREFIX/bin
+    INSTALLS += target
+}

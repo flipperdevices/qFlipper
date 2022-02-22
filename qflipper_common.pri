@@ -5,6 +5,8 @@ unix:!macx {
     CONFIG += link_pkgconfig
     PKGCONFIG += libusb-1.0 zlib
 
+    isEmpty(PREFIX): PREFIX = /usr
+
 } else:win32 {
     CONFIG -= debug_and_release
     DEFINES += USB_BACKEND_WIN32

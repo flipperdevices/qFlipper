@@ -1,5 +1,7 @@
 QT -= gui
 
+include(../../qflipper_common.pri)
+
 win32: TARGET = protobuf
 else: TARGET = protobuf0
 
@@ -65,3 +67,8 @@ win32:!win32-g++ {
 }
 
 DEFINES += PB_ENABLE_MALLOC
+
+unix:!macx {
+    target.path = $$PREFIX/lib/$$NAME/plugins
+    INSTALLS += target
+}

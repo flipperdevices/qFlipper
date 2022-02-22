@@ -78,3 +78,15 @@ HEADERS += \
     screencanvas.h
 
 DISTFILES +=
+
+unix:!macx {
+    target.path = $$PREFIX/bin
+
+    desktopfiles.files = $$PWD/../installer-assets/appimage/$${TARGET}.desktop
+    desktopfiles.path = $$PREFIX/share/applications
+
+    iconfiles.files = $$PWD/assets/icons/$${TARGET}.png
+    iconfiles.path = $$PREFIX/share/icons/hicolor/512x512/apps
+
+    INSTALLS += target desktopfiles iconfiles
+}
