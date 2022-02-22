@@ -407,7 +407,7 @@ const QString ProtobufSession::protobufPluginPath() const
 #elif defined(Q_OS_MAC)
     return QString();
 #elif defined(Q_OS_LINUX)
-    return QStringLiteral("plugins/libprotobuf%1.so").arg(m_versionMajor);
+    return QStringLiteral("libflipperproto%1.so").arg(m_versionMajor);
 #else
 #error "Unsupported OS"
 #endif
