@@ -8,9 +8,9 @@
 using namespace Flipper;
 using namespace Zero;
 
-AbstractUtilityOperation::AbstractUtilityOperation(CommandInterface *cli, DeviceState *deviceState, QObject *parent):
+AbstractUtilityOperation::AbstractUtilityOperation(ProtobufSession *rpc, DeviceState *deviceState, QObject *parent):
     AbstractOperation(parent),
-    m_rpc(cli),
+    m_rpc(rpc),
     m_deviceState(deviceState)
 {}
 
@@ -23,7 +23,7 @@ void AbstractUtilityOperation::start()
     }
 }
 
-CommandInterface *AbstractUtilityOperation::rpc() const
+ProtobufSession *AbstractUtilityOperation::rpc() const
 {
     return m_rpc;
 }

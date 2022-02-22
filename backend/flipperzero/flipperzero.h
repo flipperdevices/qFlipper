@@ -15,7 +15,6 @@ namespace Zero {
     struct DeviceInfo;
     class DeviceState;
     class ProtobufSession;
-    class CommandInterface;
     class RecoveryInterface;
     class UtilityInterface;
     class ScreenStreamer;
@@ -62,7 +61,6 @@ private:
 
     Zero::DeviceState *m_state;
     Zero::ProtobufSession *m_rpc;
-    Zero::CommandInterface *m_oldStuff;
     Zero::RecoveryInterface *m_recovery;
     Zero::UtilityInterface *m_utility;
     Zero::ScreenStreamer *m_streamer;

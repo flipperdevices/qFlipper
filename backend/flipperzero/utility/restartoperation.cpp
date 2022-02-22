@@ -1,14 +1,14 @@
 #include "restartoperation.h"
 
 #include "flipperzero/devicestate.h"
-#include "flipperzero/commandinterface.h"
+#include "flipperzero/protobufsession.h"
 #include "flipperzero/rpc/systemrebootoperation.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-RestartOperation::RestartOperation(CommandInterface *cli, DeviceState *deviceState, QObject *parent):
-    AbstractUtilityOperation(cli, deviceState, parent)
+RestartOperation::RestartOperation(ProtobufSession *rpc, DeviceState *deviceState, QObject *parent):
+    AbstractUtilityOperation(rpc, deviceState, parent)
 {}
 
 const QString RestartOperation::description() const

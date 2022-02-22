@@ -1,14 +1,14 @@
 #include "factoryresetutiloperation.h"
 
 #include "flipperzero/devicestate.h"
-#include "flipperzero/commandinterface.h"
+#include "flipperzero/protobufsession.h"
 #include "flipperzero/rpc/systemfactoryresetoperation.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-FactoryResetUtilOperation::FactoryResetUtilOperation(CommandInterface *cli, DeviceState *deviceState, QObject *parent):
-    AbstractUtilityOperation(cli, deviceState, parent)
+FactoryResetUtilOperation::FactoryResetUtilOperation(ProtobufSession *rpc, DeviceState *deviceState, QObject *parent):
+    AbstractUtilityOperation(rpc, deviceState, parent)
 {}
 
 const QString FactoryResetUtilOperation::description() const

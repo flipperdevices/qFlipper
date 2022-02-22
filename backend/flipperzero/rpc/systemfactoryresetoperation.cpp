@@ -1,7 +1,4 @@
 #include "systemfactoryresetoperation.h"
-
-#include <QTimer>
-
 #include "protobufplugininterface.h"
 
 using namespace Flipper;
@@ -18,6 +15,6 @@ const QString SystemFactoryResetOperation::description() const
 
 const QByteArray SystemFactoryResetOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    QTimer::singleShot(0, this, &AbstractOperation::finish);
+    finishLater();
     return encoder->systemFactoryReset(id());
 }

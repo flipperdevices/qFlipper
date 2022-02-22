@@ -26,7 +26,7 @@ public:
         WritingFiles
     };
 
-    AssetsDownloadOperation(CommandInterface *cli, DeviceState *deviceState, QIODevice *compressedFile, QObject *parent = nullptr);
+    AssetsDownloadOperation(ProtobufSession *rpc, DeviceState *deviceState, QIODevice *compressedFile, QObject *parent = nullptr);
     ~AssetsDownloadOperation();
 
     const QString description() const override;

@@ -20,6 +20,7 @@ public:
     bool isFinished() const;
 
     void start() override;
+    void finishLater();
     void abort(const QString &reason);
 
     void feedResponse(QObject *response);

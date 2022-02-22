@@ -1,7 +1,4 @@
 #include "systemrebootoperation.h"
-
-#include <QTimer>
-
 #include "protobufplugininterface.h"
 
 using namespace Flipper;
@@ -19,6 +16,6 @@ const QString SystemRebootOperation::description() const
 
 const QByteArray SystemRebootOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    QTimer::singleShot(0, this, &AbstractOperation::finish);
+    finishLater();
     return encoder->systemReboot(id(), (ProtobufPluginInterface::RebootMode)m_rebootMode);
 }

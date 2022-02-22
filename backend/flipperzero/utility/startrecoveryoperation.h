@@ -14,7 +14,7 @@ class StartRecoveryOperation : public AbstractUtilityOperation
     };
 
 public:
-    StartRecoveryOperation(CommandInterface *cli, DeviceState *deviceState, QObject *parent = nullptr);
+    StartRecoveryOperation(ProtobufSession *rpc, DeviceState *deviceState, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:

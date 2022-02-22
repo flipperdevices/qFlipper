@@ -1,5 +1,4 @@
 #include "guiscreenframeoperation.h"
-
 #include "protobufplugininterface.h"
 
 using namespace Flipper;
@@ -17,5 +16,6 @@ const QString GuiScreenFrameOperation::description() const
 
 const QByteArray GuiScreenFrameOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
+    finishLater();
     return encoder->guiScreenFrame(id(), m_screenData);
 }

@@ -14,7 +14,7 @@ class RestartOperation : public AbstractUtilityOperation
     };
 
 public:
-    RestartOperation(CommandInterface *cli, DeviceState *deviceState, QObject *parent = nullptr);
+    RestartOperation(ProtobufSession *rpc, DeviceState *deviceState, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:

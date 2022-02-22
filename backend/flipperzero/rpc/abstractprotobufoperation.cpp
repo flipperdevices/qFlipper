@@ -1,5 +1,7 @@
 #include "abstractprotobufoperation.h"
 
+#include <QTimer>
+
 #include "mainresponseinterface.h"
 
 using namespace Flipper;
@@ -32,6 +34,11 @@ bool AbstractProtobufOperation::isFinished() const
 void AbstractProtobufOperation::start()
 {
     // TODO: Decide whether to use this method at all
+}
+
+void AbstractProtobufOperation::finishLater()
+{
+    QTimer::singleShot(0, this, &AbstractOperation::finish);
 }
 
 void AbstractProtobufOperation::abort(const QString &reason)

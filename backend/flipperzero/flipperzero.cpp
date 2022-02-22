@@ -12,7 +12,6 @@
 #include "virtualdisplay.h"
 
 #include "protobufsession.h"
-#include "commandinterface.h"
 #include "utilityinterface.h"
 #include "recoveryinterface.h"
 
@@ -43,9 +42,8 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     QObject(parent),
     m_state(new DeviceState(info, this)),
     m_rpc(new ProtobufSession(info.portInfo, this)),
-    m_oldStuff(new CommandInterface(m_state, this)),
     m_recovery(new RecoveryInterface(m_state, this)),
-    m_utility(new UtilityInterface(m_state, m_oldStuff, this)),
+    m_utility(new UtilityInterface(m_state, m_rpc, this)),
     m_streamer(new ScreenStreamer(m_state, m_rpc, this)),
     m_virtualDisplay(new VirtualDisplay(m_state, m_rpc, this))
 {

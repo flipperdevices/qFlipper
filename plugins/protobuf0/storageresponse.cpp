@@ -42,7 +42,7 @@ const StorageListResponse::StorageFiles StorageListResponse::files() const
     ret.reserve(count);
 
     for(; count; --count, ++fs) {
-        ret.append({(StorageFile::FileType)fs->type, {fs->name}, {(const char*)fs->data->bytes, fs->data->size}, fs->size});
+        ret.append({(StorageFile::FileType)fs->type, {fs->name}, {}, fs->size});
     }
 
     return ret;

@@ -1,14 +1,14 @@
 #include "startrecoveryoperation.h"
 
 #include "flipperzero/devicestate.h"
-#include "flipperzero/commandinterface.h"
+#include "flipperzero/protobufsession.h"
 #include "flipperzero/rpc/systemrebootoperation.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-StartRecoveryOperation::StartRecoveryOperation(CommandInterface *cli, DeviceState *deviceState, QObject *parent):
-    AbstractUtilityOperation(cli, deviceState, parent)
+StartRecoveryOperation::StartRecoveryOperation(ProtobufSession *rpc, DeviceState *deviceState, QObject *parent):
+    AbstractUtilityOperation(rpc, deviceState, parent)
 {
 // Workaround for Windows taking too long to install the driver
 #ifdef Q_OS_WINDOWS

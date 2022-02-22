@@ -6,19 +6,19 @@ namespace Flipper {
 namespace Zero {
 
 class DeviceState;
-class CommandInterface;
+class ProtobufSession;
 
 class AbstractUtilityOperation : public AbstractOperation
 {
     Q_OBJECT
 
 public:
-    AbstractUtilityOperation(CommandInterface *cli, DeviceState *deviceState, QObject *parent = nullptr);
+    AbstractUtilityOperation(ProtobufSession *rpc, DeviceState *deviceState, QObject *parent = nullptr);
     virtual ~AbstractUtilityOperation() {}
 
     void start() override;
 
-    CommandInterface *rpc() const;
+    ProtobufSession *rpc() const;
     DeviceState *deviceState() const;
 
 protected:
@@ -28,7 +28,7 @@ private slots:
     virtual void nextStateLogic() = 0;
 
 private:
-    CommandInterface *m_rpc;
+    ProtobufSession *m_rpc;
     DeviceState *m_deviceState;
 };
 
