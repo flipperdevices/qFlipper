@@ -32,6 +32,7 @@ class StorageRemoveOperation;
 class GuiStartScreenStreamOperation;
 class GuiStopScreenStreamOperation;
 class GuiScreenFrameOperation;
+class GuiSendInputOperation;
 class GuiStartVirtualDisplayOperation;
 class GuiStopVirtualDisplayOperation;
 
@@ -77,6 +78,7 @@ public:
     GuiStopScreenStreamOperation *guiStopScreenStream();
     GuiStartVirtualDisplayOperation *guiStartVirtualDisplay(const QByteArray &screenData = QByteArray());
     GuiStopVirtualDisplayOperation *guiStopVirtualDisplay();
+    GuiSendInputOperation *guiSendInput(int key, int type);
     GuiScreenFrameOperation *guiSendScreenFrame(const QByteArray &screenData);
 
 signals:

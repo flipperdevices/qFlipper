@@ -25,6 +25,7 @@
 #include "rpc/systemsetdatetimeoperation.h"
 #include "rpc/systemfactoryresetoperation.h"
 
+#include "rpc/guisendinputoperation.h"
 #include "rpc/guiscreenframeoperation.h"
 #include "rpc/guistartscreenstreamoperation.h"
 #include "rpc/guistopscreenstreamoperation.h"
@@ -159,6 +160,11 @@ GuiStartVirtualDisplayOperation *ProtobufSession::guiStartVirtualDisplay(const Q
 GuiStopVirtualDisplayOperation *ProtobufSession::guiStopVirtualDisplay()
 {
     return enqueueOperation(new GuiStopVirtualDisplayOperation(getAndIncrementCounter(), this));
+}
+
+GuiSendInputOperation *ProtobufSession::guiSendInput(int key, int type)
+{
+    return enqueueOperation(new GuiSendInputOperation(getAndIncrementCounter(), key, type, this));
 }
 
 GuiScreenFrameOperation *ProtobufSession::guiSendScreenFrame(const QByteArray &screenData)

@@ -9,6 +9,7 @@
 
 #include "rpc/guistartscreenstreamoperation.h"
 #include "rpc/guistopscreenstreamoperation.h"
+#include "rpc/guisendinputoperation.h"
 
 Q_LOGGING_CATEGORY(CATEGORY_SCREEN, "SCREEN")
 
@@ -22,13 +23,16 @@ ScreenStreamer::ScreenStreamer(DeviceState *deviceState, ProtobufSession *rpc, Q
     m_rpc(rpc)
 {}
 
-ScreenStreamer::~ScreenStreamer()
-{}
-
 void ScreenStreamer::sendInputEvent(int key, int type)
 {
-    Q_UNUSED(key)
-    Q_UNUSED(type)
+    auto *operation = m_rpc->guiSendInput(key, type);
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            setStreamState(Stopped);
+            qCDebug(CATEGORY_SCREEN).noquote() << "Failed to send input event: " << operation->errorString();
+        }
+    });
 }
 
 void ScreenStreamer::start()

@@ -24,8 +24,6 @@ public:
     Q_ENUM(StreamState)
 
     ScreenStreamer(DeviceState *deviceState, ProtobufSession *rpc, QObject *parent = nullptr);
-    ~ScreenStreamer();
-
     void sendInputEvent(int key, int type);
 
 public slots:
@@ -35,7 +33,6 @@ public slots:
     void onBroadcastResponseReceived(QObject *response);
 
 private:
-    void sendStopCommand();
     void setStreamState(StreamState newState);
 
     DeviceState *m_deviceState;
