@@ -18,7 +18,7 @@ cd "$BUILD_DIRECTORY"
 qmake -spec macx-clang CONFIG+=release CONFIG+=x86_64 -o Makefile ../$PROJECT.pro
 make qmake_all && make -j9 > /dev/null && make install
 
-macdeployqt $PROJECT.app -qmldir=$PROJECT_DIR/Application -verbose=1 -executable=${PPROJECT}Tool
+macdeployqt $PROJECT.app -qmldir=$PROJECT_DIR/Application -verbose=1 -executable=${PROJECT}Tool
 
 FAILED_LIBS_COUNT=`otool -L $PROJECT.app/Contents/Frameworks/*.dylib | grep /usr/local -c || true`
 FAILED_APPS_COUNT=`otool -L $PROJECT.app/Contents/MacOS/* | grep /usr/local -c || true`
