@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QLoggingCategory>
+#include <QCoreApplication>
 
 #include "logger.h"
 #include "deviceregistry.h"
@@ -32,6 +33,7 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     registerMetaTypes();
     registerComparators();
 
+    initLibraryPaths();
     initConnections();
 }
 
@@ -248,6 +250,17 @@ void ApplicationBackend::onDeviceRegistryErrorChanged()
         setErrorType(err);
         setBackendState(BackendState::ErrorOccured);
     }
+}
+
+void ApplicationBackend::initLibraryPaths()
+{
+    const auto appPath = qApp->applicationDirPath();
+    qApp->addLibraryPath(QStringLiteral("%1/plugins").arg(appPath));
+
+#if defined Q_OS_LINUX
+    qApp->addLibraryPath(QStringLiteral("%1/../lib/%2/plugins").arg(appPath, APP_NAME));
+#elif defined Q_OS_MAC
+#endif
 }
 
 void ApplicationBackend::initConnections()
