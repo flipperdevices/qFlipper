@@ -14,8 +14,6 @@ class ProtobufPlugin : public QObject, public ProtobufPluginInterface
 public:
     ProtobufPlugin(QObject *parent = nullptr);
 
-    const QByteArray testSystemPingResponse() const override;
-
     const QByteArray statusPing(uint32_t id, const QByteArray &data) const override;
 
     const QByteArray systemReboot(uint32_t id, RebootMode mode) const override;

@@ -3,8 +3,6 @@
 #include <QtPlugin>
 #include <QByteArray>
 
-#include "mainresponseinterface.h"
-
 class ProtobufPluginInterface
 {
 public:
@@ -14,8 +12,6 @@ public:
     };
 
     virtual ~ProtobufPluginInterface() {}
-
-    virtual const QByteArray testSystemPingResponse() const = 0;
 
     virtual const QByteArray statusPing(uint32_t id, const QByteArray &data = QByteArray()) const = 0;
     virtual const QByteArray systemFactoryReset(uint32_t id) const = 0;
