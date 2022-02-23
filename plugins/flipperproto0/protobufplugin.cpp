@@ -8,8 +8,14 @@
 #include "storagerequest.h"
 
 ProtobufPlugin::ProtobufPlugin(QObject *parent):
-    QObject(parent)
+    QObject(parent),
+    m_versionMinor(0)
 {}
+
+void ProtobufPlugin::setMinorVersion(int version)
+{
+    m_versionMinor = version;
+}
 
 const QByteArray ProtobufPlugin::statusPing(uint32_t id, const QByteArray &data) const
 {

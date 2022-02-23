@@ -14,6 +14,8 @@ class ProtobufPlugin : public QObject, public ProtobufPluginInterface
 public:
     ProtobufPlugin(QObject *parent = nullptr);
 
+    void setMinorVersion(int version) override;
+
     const QByteArray statusPing(uint32_t id, const QByteArray &data) const override;
 
     const QByteArray systemReboot(uint32_t id, RebootMode mode) const override;
@@ -38,5 +40,7 @@ public:
     const QByteArray storageWrite(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext) const override;
 
     QObject *decode(const QByteArray &buffer, QObject *parent = nullptr) const override;
-};
 
+private:
+    int m_versionMinor;
+};

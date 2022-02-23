@@ -68,14 +68,16 @@ void ProtobufSession::setSerialPort(const QSerialPortInfo &portInfo)
 
 void ProtobufSession::setMajorVersion(int versionMajor)
 {
-    // TODO: unload the previous plugin and load a proper one instead
     m_versionMajor = versionMajor;
 }
 
 void ProtobufSession::setMinorVersion(int versionMinor)
 {
-    // TODO: change the plugin settings accordingly
     m_versionMinor = versionMinor;
+
+    if(m_plugin) {
+        m_plugin->setMinorVersion(m_versionMinor);
+    }
 }
 
 SystemRebootOperation *ProtobufSession::rebootToOS()
@@ -354,7 +356,7 @@ bool ProtobufSession::loadProtobufPlugin()
     } else if(!(m_plugin = qobject_cast<ProtobufPluginInterface*>(m_loader->instance()))) {
         qCCritical(LOG_SESSION) << "Loaded plugin does not provide the interface required";
     } else {
-        return true;
+        m_plugin->setMinorVersion(m_versionMinor);
     }
 
     return false;
