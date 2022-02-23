@@ -403,9 +403,9 @@ void ProtobufSession::clearOperationQueue()
 const QString ProtobufSession::protobufPluginPath() const
 {
 #if defined(Q_OS_WINDOWS)
-    return QString();
+    return QStringLiteral("flipperproto%1.dll").arg(m_versionMajor);
 #elif defined(Q_OS_MAC)
-    return QString();
+    return QStringLiteral("libflipperproto%1.dylib").arg(m_versionMajor);
 #elif defined(Q_OS_LINUX)
     return QStringLiteral("libflipperproto%1.so").arg(m_versionMajor);
 #else
