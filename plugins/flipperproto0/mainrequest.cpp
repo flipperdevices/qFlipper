@@ -15,7 +15,7 @@ const QByteArray MainRequest::encode() const
         return ret;
     }
 
-    ret.resize(s.bytes_written);
+    ret.resize((int)s.bytes_written);
     s = pb_ostream_from_buffer((pb_byte_t*)ret.data(), ret.size());
 
     if(!pb_encode_ex(&s, &PB_Main_msg, &m_message, PB_ENCODE_DELIMITED)) {

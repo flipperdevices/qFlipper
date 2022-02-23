@@ -240,7 +240,7 @@ void ProtobufSession::onSerialPortReadyRead()
     }
 
     auto *mainResponse = qobject_cast<MainResponseInterface*>(response);
-    m_receivedData.remove(0, mainResponse->encodedSize());
+    m_receivedData.remove(0, (int)mainResponse->encodedSize());
 
     if(m_currentOperation && mainResponse->id() == m_currentOperation->id()) {
         processMatchedResponse(response);
