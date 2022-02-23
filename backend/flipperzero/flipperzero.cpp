@@ -208,10 +208,11 @@ void FlipperZero::onDeviceInfoChanged()
         return;
     }
 
-    // TODO: set protobuf version
-//    m_rpc->setMajorVersion(0);
-//    m_rpc->setMinorVersion(0);
-    // Enterprise 100ms delay until I figure it out
+    const auto &pb = m_state->deviceInfo().protobuf;
+    m_rpc->setMajorVersion(pb.versionMajor);
+    m_rpc->setMinorVersion(pb.versionMinor);
+
+    // Magic 100ms delay until I figure it out
     QTimer::singleShot(100, m_rpc, &ProtobufSession::startSession);
 }
 

@@ -75,7 +75,7 @@ void ProtobufSession::setMinorVersion(int versionMinor)
 {
     m_versionMinor = versionMinor;
 
-    if(m_plugin) {
+    if(m_loader->isLoaded()) {
         m_plugin->setMinorVersion(m_versionMinor);
     }
 }
@@ -357,6 +357,7 @@ bool ProtobufSession::loadProtobufPlugin()
         qCCritical(LOG_SESSION) << "Loaded plugin does not provide the interface required";
     } else {
         m_plugin->setMinorVersion(m_versionMinor);
+        return true;
     }
 
     return false;

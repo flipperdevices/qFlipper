@@ -154,7 +154,12 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
             (HardwareInfo::Color)operation->value(QByteArrayLiteral("hardware_color")).toInt(),
         };
 
-        if(operation->value(QByteArray("radio_alive")) == QByteArrayLiteral("true")) {
+        m_deviceInfo.protobuf = {
+            operation->value(QByteArrayLiteral("protobuf_version_major")).toInt(),
+            operation->value(QByteArrayLiteral("protobuf_version_minor")).toInt()
+        };
+
+        if(operation->value(QByteArrayLiteral("radio_alive")) == QByteArrayLiteral("true")) {
             m_deviceInfo.fusVersion = QStringLiteral("%1.%2.%3").arg(
                 operation->value(QByteArrayLiteral("radio_fus_major")),
                 operation->value(QByteArrayLiteral("radio_fus_minor")),

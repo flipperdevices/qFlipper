@@ -73,6 +73,12 @@ public:
     bool operator !=(const StorageInfo &other) const { Q_UNUSED(other) return true; }
 };
 
+struct ProtobufInfo {
+public:
+    int versionMajor;
+    int versionMinor;
+};
+
 struct DeviceInfo {
     Q_GADGET
     Q_PROPERTY(QString name MEMBER name)
@@ -97,6 +103,7 @@ public:
     HardwareInfo hardware;
     SoftwareInfo bootloader;
     SoftwareInfo firmware;
+    ProtobufInfo protobuf;
     StorageInfo storage;
 
     QString systemLocation;
