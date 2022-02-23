@@ -65,7 +65,7 @@ HEADERS += \
 
 unix:!macx {
     target.path = $$PREFIX/bin
-} esle:macx {
+} else:macx {
     target.path = $$DESTDIR/$${NAME}.app/Contents/MacOS
 } else:win32 {
     target.path = $$DESTDIR/$$NAME
