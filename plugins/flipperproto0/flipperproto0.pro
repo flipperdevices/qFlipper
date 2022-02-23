@@ -70,6 +70,8 @@ DEFINES += PB_ENABLE_MALLOC
 
 unix:!macx {
     target.path = $$PREFIX/lib/$$NAME/plugins
+} else:macx {
+    target.path = $$DESTDIR/../$${NAME}.app/Contents/PlugIns
 } else:win32 {
     target.path = $$DESTDIR/../$$NAME/plugins
 }
