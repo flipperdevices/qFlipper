@@ -5,7 +5,7 @@ include(../../qflipper_common.pri)
 win32: TARGET = flipperproto
 else: TARGET = flipperproto0
 
-DESTDIR = ..
+DESTDIR = $$OUT_PWD/..
 
 TEMPLATE = lib
 CONFIG += plugin c++11
@@ -70,5 +70,8 @@ DEFINES += PB_ENABLE_MALLOC
 
 unix:!macx {
     target.path = $$PREFIX/lib/$$NAME/plugins
-    INSTALLS += target
+} else:win32 {
+    target.path = $$DESTDIR/../$$NAME/plugins
 }
+
+INSTALLS += target

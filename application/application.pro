@@ -3,7 +3,7 @@ QT += quick serialport widgets quickcontrols2 svg
 include(../qflipper_common.pri)
 
 TARGET = $$NAME
-DESTDIR = ..
+DESTDIR = $$OUT_PWD/..
 
 CONFIG += c++11
 
@@ -89,4 +89,8 @@ unix:!macx {
     iconfiles.path = $$PREFIX/share/icons/hicolor/512x512/apps
 
     INSTALLS += target desktopfiles iconfiles
+
+} else:win32 {
+    target.path = $$DESTDIR/$$NAME
+    INSTALLS += target
 }
