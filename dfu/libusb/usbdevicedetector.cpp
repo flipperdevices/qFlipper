@@ -1,8 +1,7 @@
 #include "usbdevicedetector.h"
 
-#include <QTimer>
-
 #include <libusb.h>
+#include <QTimer>
 
 #include "debug.h"
 
@@ -17,12 +16,6 @@ USBDeviceDetector::USBDeviceDetector(QObject *parent):
 USBDeviceDetector::~USBDeviceDetector()
 {
     libusb_exit(nullptr);
-}
-
-USBDeviceDetector *USBDeviceDetector::instance()
-{
-    static USBDeviceDetector instance;
-    return &instance;
 }
 
 bool USBDeviceDetector::setWantedDevices(const QList<USBDeviceInfo> &wantedList)
@@ -76,9 +69,8 @@ static USBDeviceInfo getDeviceInfo(const USBDeviceInfo &info)
 
 static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data) {
     Q_UNUSED(ctx)
-    Q_UNUSED(user_data)
 
-    auto *detector = USBDeviceDetector::instance();
+    auto *detector = (USBDeviceDetector*)user_data;
 
     libusb_device_descriptor desc;
     check_return_val(!libusb_get_device_descriptor(dev, &desc),"Failed to get device descriptor", 0);

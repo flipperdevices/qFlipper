@@ -34,12 +34,6 @@ USBDeviceDetector::~USBDeviceDetector()
     delete m_p;
 }
 
-USBDeviceDetector *USBDeviceDetector::instance()
-{
-    static USBDeviceDetector instance;
-    return &instance;
-}
-
 bool USBDeviceDetector::setWantedDevices(const QList<USBDeviceInfo> &wantedList)
 {
     m_wanted = wantedList;

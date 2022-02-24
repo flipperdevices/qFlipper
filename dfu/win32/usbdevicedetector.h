@@ -10,11 +10,9 @@ class USBDeviceDetector : public QObject
 
     struct USBDeviceDetectorPrivate;
 
+public:
     USBDeviceDetector(QObject *parent = nullptr);
     ~USBDeviceDetector();
-
-public:
-    static USBDeviceDetector *instance();
 
     bool setWantedDevices(const QList <USBDeviceInfo> &wantedList);
 

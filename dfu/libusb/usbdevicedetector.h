@@ -1,5 +1,4 @@
-#ifndef LIBUSBDEVICEDETECTOR_H
-#define LIBUSBDEVICEDETECTOR_H
+#pragma once
 
 #include <QObject>
 
@@ -9,11 +8,10 @@ class USBDeviceDetector : public QObject
 {
     Q_OBJECT
 
+public:
     USBDeviceDetector(QObject *parent = nullptr);
     ~USBDeviceDetector();
 
-public:
-    static USBDeviceDetector *instance();
     bool setWantedDevices(const QList <USBDeviceInfo> &wantedList);
 
 signals:
@@ -23,5 +21,3 @@ signals:
 private:
     void timerEvent(QTimerEvent *e) override;
 };
-
-#endif // LIBUSBDEVICEDETECTOR_H

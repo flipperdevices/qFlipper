@@ -6,6 +6,8 @@
 #include "backenderror.h"
 #include "usbdeviceinfo.h"
 
+class USBDeviceDetector;
+
 namespace Flipper {
 
 class FlipperZero;
@@ -45,6 +47,7 @@ private:
     void setError(BackendError::ErrorType newError);
     void setQueryInProgress(bool set);
 
+    USBDeviceDetector *m_detector;
     DeviceList m_devices;
     BackendError::ErrorType m_error;
     bool m_isQueryInProgress;

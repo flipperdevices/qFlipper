@@ -20,13 +20,14 @@ using namespace Flipper;
 
 DeviceRegistry::DeviceRegistry(QObject *parent):
     QObject(parent),
+    m_detector(new USBDeviceDetector(this)),
     m_error(BackendError::UnknownError),
     m_isQueryInProgress(false)
 {
-    connect(USBDeviceDetector::instance(), &USBDeviceDetector::devicePluggedIn, this, &DeviceRegistry::insertDevice);
-    connect(USBDeviceDetector::instance(), &USBDeviceDetector::deviceUnplugged, this, &DeviceRegistry::removeDevice);
+    connect(m_detector, &USBDeviceDetector::devicePluggedIn, this, &DeviceRegistry::insertDevice);
+    connect(m_detector, &USBDeviceDetector::deviceUnplugged, this, &DeviceRegistry::removeDevice);
 
-    USBDeviceDetector::instance()->setWantedDevices({
+    m_detector->setWantedDevices({
         USBDeviceInfo(FLIPPER_ZERO_VID, FLIPPER_ZERO_PID_DFU),
         USBDeviceInfo(FLIPPER_ZERO_VID, FLIPPER_ZERO_PID_VCP)
             .withManufacturer("Flipper Devices Inc.")
