@@ -89,8 +89,13 @@ See [contrib](./contrib) for available options.
 - `3rdparty` - Third-party libraries.
 - `contrib` - Contributed packages and scripts.
 - `driver-tool` - DFU driver installation tool for Windows (based on `libwdi`).
-- `docker` - Docker configuration files..
+- `docker` - Docker configuration files.
 - `installer-assets` - Supplementary data for deployment.
+
+## Reporting bugs:
+qFlipper is a project under active development. Please report any encountered bugs to make it better!
+
+The (mostly) complete guide is located [here](./BUGS.md).
 
 ## Known bugs:
 
