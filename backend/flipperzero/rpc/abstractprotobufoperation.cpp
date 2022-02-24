@@ -10,7 +10,9 @@ using namespace Zero;
 AbstractProtobufOperation::AbstractProtobufOperation(uint32_t id, QObject *parent):
     AbstractOperation(parent),
     m_id(id)
-{}
+{
+    setTimeout(15000);
+}
 
 AbstractProtobufOperation::~AbstractProtobufOperation()
 {}
@@ -33,7 +35,8 @@ bool AbstractProtobufOperation::isFinished() const
 
 void AbstractProtobufOperation::start()
 {
-    // TODO: Decide whether to use this method at all
+    setOperationState(Started);
+    startTimeout();
 }
 
 void AbstractProtobufOperation::finishLater()
@@ -56,6 +59,8 @@ void AbstractProtobufOperation::feedResponse(QObject *response)
         finishWithError(BackendError::ProtocolError, QStringLiteral("Failed to process protobuf response"));
     } else if(!mainResponse->hasNext()) {
         finish();
+    } else {
+        startTimeout();
     }
 }
 

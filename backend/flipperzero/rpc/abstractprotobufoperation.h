@@ -11,6 +11,10 @@ class AbstractProtobufOperation : public AbstractOperation
 {
     Q_OBJECT
 
+    enum ProtobufOperationState {
+        Started = AbstractOperation::User
+    };
+
 public:
     AbstractProtobufOperation(uint32_t id, QObject *parent = nullptr);
     virtual ~AbstractProtobufOperation();
