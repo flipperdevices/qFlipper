@@ -20,6 +20,7 @@ Build requirements:
 - MS Visual Studio 2019 or newer
 - Qt (MSVC build) >= 5.15.0
 - Windows Driver Kit (to build libwdi)
+- NSIS (to generate the installer)
 
 Edit `build_windows.bat` to adjust to your build environment and then run:
 ```cmd
@@ -27,12 +28,22 @@ build_windows.bat
 ```
 
 ### Linux:
-
+#### Docker build (AppImage, official):
 ```sh
 docker-compose exec dev ./build_linux.sh
 ```
 
-If building qFlipper as a part of a native package, it is possible to disable the built-in application update feature by passing `DEFINES+=DISABLE_APPLICATION_UPDATES` to the `qmake` program.
+#### Standalone build:
+Build requirements:
+- Qt >= 5.15.0
+- libusb >= 1.0.16
+```sh
+mkdir build && cd build
+qmake ../qFlipper.pro PREFIX=/path/to/install/dir -spec linux-g++ CONFIG+=qtquickcompiler && 
+make qmake_all && make && make install
+```
+**Caution:** `make install`ing to the system prefix is not recommended. Instead, use this method for building distro-specific packages. 
+In this case, it is possible to disable the built-in application update feature by passing `DEFINES+=DISABLE_APPLICATION_UPDATES` to the `qmake` call.
 
 ### MacOS:
 
@@ -40,7 +51,7 @@ Build requirements:
 
 - Xcode or command line tools
 - Qt >= 5.15.0
-- Libusb
+- libusb
 
 If you want to sign binaries, set `SIGNING_KEY` environment variable:
 
@@ -67,15 +78,16 @@ chmod +x setup_rules.sh
 ```
 
 #### Package managers support:
-See [contrib/README.md](./contrib/README.md)
+See [contrib](./contrib) for available options.
 
 ## Project structure:
 - `application` - The main graphical application, written mostly in QML.
 - `backend` - The backend library, written in C++. Takes care of most of the logic.
 - `dfu` - Low level library for accessing USB and DFU devices.
 - `tool` - The command line interface, provides nearly all main application's functionality.
+- `plugins` - Protobuf-based communication protocol support.
 - `3rdparty` - Third-party libraries.
-- `contrib` - Contributed packages and scripts
+- `contrib` - Contributed packages and scripts.
 - `driver-tool` - DFU driver installation tool for Windows (based on `libwdi`).
 - `docker` - Docker configuration files..
 - `installer-assets` - Supplementary data for deployment.
