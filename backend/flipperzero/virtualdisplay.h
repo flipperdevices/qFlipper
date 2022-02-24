@@ -7,23 +7,23 @@ namespace Flipper {
 namespace Zero {
 
 class DeviceState;
-class CommandInterface;
+class ProtobufSession;
 
 class VirtualDisplay : public QObject
 {
     Q_OBJECT
 
 public:
-    enum class State {
+    enum class DisplayState {
         Starting,
         Running,
         Stopping,
         Stopped
     };
 
-    Q_ENUM(State)
+    Q_ENUM(DisplayState)
 
-    VirtualDisplay(DeviceState *deviceState, CommandInterface *rpc, QObject *parent = nullptr);
+    VirtualDisplay(DeviceState *deviceState, ProtobufSession *rpc, QObject *parent = nullptr);
 
 public slots:
     void start(const QByteArray &firstFrame = QByteArray());
@@ -31,11 +31,11 @@ public slots:
     void stop();
 
 private:
-    void setState(State newState);
+    void setDisplayState(DisplayState newState);
 
     DeviceState *m_deviceState;
-    CommandInterface *m_rpc;
-    State m_state;
+    ProtobufSession *m_rpc;
+    DisplayState m_displayState;
 };
 
 }

@@ -1,14 +1,14 @@
 #include "getfiletreeoperation.h"
 
 #include "flipperzero/devicestate.h"
-#include "flipperzero/commandinterface.h"
+#include "flipperzero/protobufsession.h"
 #include "flipperzero/rpc/storagelistoperation.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-GetFileTreeOperation::GetFileTreeOperation(CommandInterface *cli, DeviceState *deviceState, const QByteArray &rootPath, QObject *parent):
-    AbstractUtilityOperation(cli, deviceState, parent),
+GetFileTreeOperation::GetFileTreeOperation(ProtobufSession *rpc, DeviceState *deviceState, const QByteArray &rootPath, QObject *parent):
+    AbstractUtilityOperation(rpc, deviceState, parent),
     m_rootPath(rootPath),
     m_pendingCount(0)
 {}

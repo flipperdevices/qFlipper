@@ -1,19 +1,19 @@
 #include "systemgetdatetimeoperation.h"
 
-#include <QSerialPort>
-
-#include "flipperzero/protobuf/systemprotobufmessage.h"
+#include "mainresponseinterface.h"
+#include "systemresponseinterface.h"
+#include "protobufplugininterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-SystemGetDateTimeOperation::SystemGetDateTimeOperation(QSerialPort *serialPort, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent)
+SystemGetDateTimeOperation::SystemGetDateTimeOperation(uint32_t id, QObject *parent):
+    AbstractProtobufOperation(id, parent)
 {}
 
 const QString SystemGetDateTimeOperation::description() const
 {
-    return QStringLiteral("Get DateTime @%1").arg(QString(serialPort()->portName()));
+    return QStringLiteral("System Get DateTime");
 }
 
 const QDateTime &SystemGetDateTimeOperation::dateTime() const
@@ -21,24 +21,19 @@ const QDateTime &SystemGetDateTimeOperation::dateTime() const
     return m_dateTime;
 }
 
-void SystemGetDateTimeOperation::onSerialPortReadyRead()
+const QByteArray SystemGetDateTimeOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    SystemGetDateTimeResponse response(serialPort());
-
-    if(!response.receive()) {
-        return;
-    } else if(!response.isOk()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
-    } else if(!response.isValidType()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Expected SystemGetDateTime response, got something else"));
-    } else {
-        m_dateTime = response.dateTime();
-        finish();
-    }
+    return encoder->systemGetDateTime(id());
 }
 
-bool SystemGetDateTimeOperation::begin()
+bool SystemGetDateTimeOperation::processResponse(QObject *response)
 {
-    SystemGetDateTimeRequest request(serialPort());
-    return request.send();
+    auto *getDateTimeResponse = qobject_cast<SystemGetDateTimeResponseInterface*>(response);
+
+    if(!getDateTimeResponse) {
+        return false;
+    }
+
+    m_dateTime = getDateTimeResponse->dateTime();
+    return true;
 }

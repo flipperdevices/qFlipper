@@ -12,15 +12,15 @@ class SystemGetDateTimeOperation : public AbstractProtobufOperation
     Q_OBJECT
 
 public:
-    SystemGetDateTimeOperation(QSerialPort *serialPort, QObject *parent = nullptr);
+    SystemGetDateTimeOperation(uint32_t id, QObject *parent = nullptr);
     const QString description() const override;
     const QDateTime &dateTime() const;
 
-private slots:
-    void onSerialPortReadyRead() override;
+    const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
 
 private:
-    bool begin() override;
+    bool processResponse(QObject *response) override;
+
     QDateTime m_dateTime;
 };
 

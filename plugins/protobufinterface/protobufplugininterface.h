@@ -1,0 +1,45 @@
+#pragma once
+
+#include <QtPlugin>
+#include <QByteArray>
+
+class ProtobufPluginInterface
+{
+public:
+    enum RebootMode {
+        RebootModeOS = 0,
+        RebootModeRecovery = 1
+    };
+
+    virtual ~ProtobufPluginInterface() {}
+
+    virtual void setMinorVersion(int version) = 0;
+
+    virtual const QByteArray statusPing(uint32_t id, const QByteArray &data = QByteArray()) const = 0;
+    virtual const QByteArray systemFactoryReset(uint32_t id) const = 0;
+    virtual const QByteArray systemReboot(uint32_t id, RebootMode mode) const = 0;
+    virtual const QByteArray systemDeviceInfo(uint32_t id) const = 0;
+    virtual const QByteArray systemGetDateTime(uint32_t id) const = 0;
+    virtual const QByteArray systemSetDateTime(uint32_t id, const QDateTime &dateTime) const = 0;
+
+    virtual const QByteArray guiStartScreenStream(uint32_t id) const = 0;
+    virtual const QByteArray guiStopScreenStream(uint32_t id) const = 0;
+    virtual const QByteArray guiScreenFrame(uint32_t id, const QByteArray screenData = QByteArray()) const = 0;
+    virtual const QByteArray guiSendInput(uint32_t id, int key, int type) const = 0;
+    virtual const QByteArray guiStartVirtualDisplay(uint32_t id, const QByteArray screenData = QByteArray()) const = 0;
+    virtual const QByteArray guiStopVirtualDisplay(uint32_t id) const = 0;
+
+    virtual const QByteArray storageInfo(uint32_t id, const QByteArray &path) const = 0;
+    virtual const QByteArray storageStat(uint32_t id, const QByteArray &path) const = 0;
+    virtual const QByteArray storageList(uint32_t id, const QByteArray &path) const = 0;
+    virtual const QByteArray storageMkDir(uint32_t id, const QByteArray &path) const = 0;
+    virtual const QByteArray storageRemove(uint32_t id, const QByteArray &path, bool recursive = false) const = 0;
+    virtual const QByteArray storageRead(uint32_t id, const QByteArray &path) const = 0;
+    virtual const QByteArray storageWrite(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext) const = 0;
+
+    virtual QObject *decode(const QByteArray &buffer, QObject *parent = nullptr) const = 0;
+};
+
+QT_BEGIN_NAMESPACE
+Q_DECLARE_INTERFACE(ProtobufPluginInterface, "com.flipperdevices.ProtobufPluginInterface/1.0")
+QT_END_NAMESPACE

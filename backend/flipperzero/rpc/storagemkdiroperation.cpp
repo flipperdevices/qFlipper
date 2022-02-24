@@ -1,36 +1,21 @@
 #include "storagemkdiroperation.h"
-#include "flipperzero/protobuf/storageprotobufmessage.h"
+
+#include "protobufplugininterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-StorageMkdirOperation::StorageMkdirOperation(QSerialPort *serialPort, const QByteArray &path, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent),
+StorageMkdirOperation::StorageMkdirOperation(uint32_t id, const QByteArray &path, QObject *parent):
+    AbstractProtobufOperation(id, parent),
     m_path(path)
 {}
 
 const QString StorageMkdirOperation::description() const
 {
-    return QStringLiteral("Storage mkdir @%1").arg(QString(m_path));
+    return QStringLiteral("Storage MkDir @%1").arg(QString(m_path));
 }
 
-void StorageMkdirOperation::onSerialPortReadyRead()
+const QByteArray StorageMkdirOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    MainEmptyResponse response(serialPort());
-
-    if(!response.receive()) {
-        return;
-    } else if(!response.isOk() && (response.commandStatus() != PB_CommandStatus_ERROR_STORAGE_EXIST)) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
-    } else if(!response.isValidType()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Expected empty response, got something else"));
-    } else {
-        finish();
-    }
-}
-
-bool StorageMkdirOperation::begin()
-{
-    StorageMkdirRequest request(serialPort(), m_path);
-    return request.send();
+    return encoder->storageMkDir(id(), m_path);
 }

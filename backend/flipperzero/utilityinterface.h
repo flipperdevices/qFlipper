@@ -8,7 +8,7 @@ namespace Flipper {
 namespace Zero {
 
 class DeviceState;
-class CommandInterface;
+class ProtobufSession;
 
 class FactoryResetUtilOperation;
 class StartRecoveryOperation;
@@ -22,7 +22,7 @@ class UtilityInterface : public AbstractOperationRunner
     Q_OBJECT
 
 public:
-    UtilityInterface(DeviceState *deviceState, CommandInterface *rpc, QObject *parent = nullptr);
+    UtilityInterface(DeviceState *deviceState, ProtobufSession *rpc, QObject *parent = nullptr);
 
     StartRecoveryOperation *startRecoveryMode();
     AssetsDownloadOperation *downloadAssets(QIODevice *compressedFile);
@@ -35,7 +35,7 @@ private:
     const QLoggingCategory &loggingCategory() const override;
 
     DeviceState *m_deviceState;
-    CommandInterface *m_rpc;
+    ProtobufSession *m_rpc;
 };
 
 }

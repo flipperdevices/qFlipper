@@ -3,6 +3,7 @@
 #include <QSize>
 #include <QObject>
 
+class USBDeviceInfo;
 class AbstractOperation;
 
 namespace Flipper {
@@ -13,7 +14,7 @@ class VersionInfo;
 namespace Zero {
     struct DeviceInfo;
     class DeviceState;
-    class CommandInterface;
+    class ProtobufSession;
     class RecoveryInterface;
     class UtilityInterface;
     class ScreenStreamer;
@@ -26,7 +27,6 @@ class FlipperZero : public QObject
 
 public:
     FlipperZero(const Zero::DeviceInfo &info, QObject *parent = nullptr);
-    ~FlipperZero();
 
     Zero::DeviceState *deviceState() const;
 
@@ -49,17 +49,18 @@ public:
     void finalizeOperation();
 
 signals:
-    void stateChanged();
+    void deviceStateChanged();
     void operationFinished();
 
 private slots:
-    void onIsOnlineChanged();
+    void onDeviceInfoChanged();
+    void onSessionStatusChanged();
 
 private:
     void registerOperation(AbstractOperation *operation);
 
     Zero::DeviceState *m_state;
-    Zero::CommandInterface *m_rpc;
+    Zero::ProtobufSession *m_rpc;
     Zero::RecoveryInterface *m_recovery;
     Zero::UtilityInterface *m_utility;
     Zero::ScreenStreamer *m_streamer;

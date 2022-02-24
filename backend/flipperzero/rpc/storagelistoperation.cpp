@@ -1,18 +1,19 @@
 #include "storagelistoperation.h"
 
-#include "flipperzero/protobuf/storageprotobufmessage.h"
+#include "protobufplugininterface.h"
+#include "storageresponseinterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-StorageListOperation::StorageListOperation(QSerialPort *serialPort, const QByteArray &path, QObject *parent):
-    AbstractSerialOperation(serialPort, parent),
+StorageListOperation::StorageListOperation(uint32_t id, const QByteArray &path, QObject *parent):
+    AbstractProtobufOperation(id, parent),
     m_path(path)
 {}
 
 const QString StorageListOperation::description() const
 {
-    return QStringLiteral("Storage list @%1").arg(QString(m_path));
+    return QStringLiteral("Storage List @%1").arg(QString(m_path));
 }
 
 const FileInfoList &StorageListOperation::files() const
@@ -20,43 +21,28 @@ const FileInfoList &StorageListOperation::files() const
     return m_result;
 }
 
-void StorageListOperation::onSerialPortReadyRead()
+const QByteArray StorageListOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    StorageListResponse response(serialPort());
-
-    while(response.receive()) {
-
-        if(!response.isOk()) {
-            finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
-            return;
-
-        } else if(!response.isValidType()) {
-            finishWithError(BackendError::ProtocolError, QStringLiteral("Expected StorageList response, got something else"));
-            return;
-        }
-
-        const auto &files = response.files();
-        for(auto &file : files) {
-
-            FileInfo fileInfo {
-                QByteArray(file.name),
-                m_path + QByteArrayLiteral("/") + QByteArray(file.name),
-                file.type == PB_Storage_File_FileType_FILE ? FileType::RegularFile : FileType::Directory,
-                file.size
-            };
-
-            m_result.append(fileInfo);
-        }
-
-        if(!response.hasNext()) {
-            finish();
-            return;
-        }
-    }
+    return encoder->storageList(id(), m_path);
 }
 
-bool StorageListOperation::begin()
+bool StorageListOperation::processResponse(QObject *response)
 {
-    StorageListRequest request(serialPort(), m_path);
-    return request.send();
+    auto *listResponse = qobject_cast<StorageListResponseInterface*>(response);
+
+    if(!listResponse) {
+        return false;
+    }
+
+    const auto &files = listResponse->files();
+
+    for(const auto &file : files) {
+        m_result.append({
+            file.name, m_path + QByteArrayLiteral("/") + file.name,
+            file.type == StorageFile::Directory ? FileType::Directory : FileType::RegularFile,
+            (qint64)file.size // TODO: see if a negative value is actually used anywhere
+        });
+    }
+
+    return true;
 }

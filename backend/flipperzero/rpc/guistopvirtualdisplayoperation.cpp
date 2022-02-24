@@ -1,38 +1,20 @@
 #include "guistopvirtualdisplayoperation.h"
 
-#include <QSerialPort>
-
-#include "flipperzero/protobuf/guiprotobufmessage.h"
+#include "protobufplugininterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-GuiStopVirtualDisplayOperation::GuiStopVirtualDisplayOperation(QSerialPort *serialPort, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent)
+GuiStopVirtualDisplayOperation::GuiStopVirtualDisplayOperation(uint32_t id, QObject *parent):
+    AbstractProtobufOperation(id, parent)
 {}
 
 const QString GuiStopVirtualDisplayOperation::description() const
 {
-    return QStringLiteral("Stop virtual display @%1").arg(serialPort()->portName());
+    return QStringLiteral("Gui Stop VirtualDisplay");
 }
 
-void GuiStopVirtualDisplayOperation::onSerialPortReadyRead()
+const QByteArray GuiStopVirtualDisplayOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    MainEmptyResponse response(serialPort());
-
-    if(!response.receive()) {
-        return;
-    } else if(!response.isOk()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with an error response: %1").arg(response.commandStatusString()));
-    } else if(!response.isValidType()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Expected empty reply, got something else"));
-    } else {
-        finish();
-    }
-}
-
-bool GuiStopVirtualDisplayOperation::begin()
-{
-    GuiStopVirtualDisplayRequest request(serialPort());
-    return request.send();
+    return encoder->guiStopVirtualDisplay(id());
 }

@@ -12,7 +12,6 @@ SOURCES += \
     abstractoperation.cpp \
     abstractoperationhelper.cpp \
     abstractoperationrunner.cpp \
-    abstractprotobufoperation.cpp \
     abstractserialoperation.cpp \
     applicationbackend.cpp \
     deviceregistry.cpp \
@@ -21,10 +20,13 @@ SOURCES += \
     firmwareupdateregistry.cpp \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
+    flipperzero/protobufsession.cpp \
+    flipperzero/rpc/abstractprotobufoperation.cpp \
     flipperzero/rpc/guiscreenframeoperation.cpp \
-    flipperzero/rpc/guistartstreamoperation.cpp \
+    flipperzero/rpc/guisendinputoperation.cpp \
+    flipperzero/rpc/guistartscreenstreamoperation.cpp \
     flipperzero/rpc/guistartvirtualdisplayoperation.cpp \
-    flipperzero/rpc/guistopstreamoperation.cpp \
+    flipperzero/rpc/guistopscreenstreamoperation.cpp \
     flipperzero/rpc/guistopvirtualdisplayoperation.cpp \
     flipperzero/rpc/startrpcoperation.cpp \
     flipperzero/rpc/stoprpcoperation.cpp \
@@ -40,7 +42,6 @@ SOURCES += \
     flipperzero/rpc/systemgetdatetimeoperation.cpp \
     flipperzero/rpc/systemrebootoperation.cpp \
     flipperzero/rpc/systemsetdatetimeoperation.cpp \
-    flipperzero/commandinterface.cpp \
     flipperzero/rpc/skipmotdoperation.cpp \
     flipperzero/devicestate.cpp \
     flipperzero/factoryinfo.cpp \
@@ -51,16 +52,6 @@ SOURCES += \
     flipperzero/helper/scriptshelper.cpp \
     flipperzero/helper/serialinithelper.cpp \
     flipperzero/helper/toplevelhelper.cpp \
-    flipperzero/protobuf/guiprotobufmessage.cpp \
-    flipperzero/protobuf/mainprotobufmessage.cpp \
-    flipperzero/protobuf/messages/application.pb.c \
-    flipperzero/protobuf/messages/flipper.pb.c \
-    flipperzero/protobuf/messages/gui.pb.c \
-    flipperzero/protobuf/messages/status.pb.c \
-    flipperzero/protobuf/messages/storage.pb.c \
-    flipperzero/protobuf/messages/system.pb.c \
-    flipperzero/protobuf/storageprotobufmessage.cpp \
-    flipperzero/protobuf/systemprotobufmessage.cpp \
     flipperzero/radiomanifest.cpp \
     flipperzero/recovery.cpp \
     flipperzero/recovery/abstractrecoveryoperation.cpp \
@@ -105,7 +96,6 @@ HEADERS += \
     abstractoperationhelper.h \
     abstractoperationrunner.h \
     abstractprotobufmessage.h \
-    abstractprotobufoperation.h \
     abstractserialoperation.h \
     applicationbackend.h \
     backenderror.h \
@@ -118,10 +108,13 @@ HEADERS += \
     flipperzero/assetmanifest.h \
     flipperzero/pixmaps/updateok.h \
     flipperzero/pixmaps/updating.h \
+    flipperzero/protobufsession.h \
+    flipperzero/rpc/abstractprotobufoperation.h \
     flipperzero/rpc/guiscreenframeoperation.h \
-    flipperzero/rpc/guistartstreamoperation.h \
+    flipperzero/rpc/guisendinputoperation.h \
+    flipperzero/rpc/guistartscreenstreamoperation.h \
     flipperzero/rpc/guistartvirtualdisplayoperation.h \
-    flipperzero/rpc/guistopstreamoperation.h \
+    flipperzero/rpc/guistopscreenstreamoperation.h \
     flipperzero/rpc/guistopvirtualdisplayoperation.h \
     flipperzero/rpc/startrpcoperation.h \
     flipperzero/rpc/stoprpcoperation.h \
@@ -137,7 +130,6 @@ HEADERS += \
     flipperzero/rpc/systemgetdatetimeoperation.h \
     flipperzero/rpc/systemrebootoperation.h \
     flipperzero/rpc/systemsetdatetimeoperation.h \
-    flipperzero/commandinterface.h \
     flipperzero/rpc/skipmotdoperation.h \
     flipperzero/deviceinfo.h \
     flipperzero/devicestate.h \
@@ -149,16 +141,6 @@ HEADERS += \
     flipperzero/helper/scriptshelper.h \
     flipperzero/helper/serialinithelper.h \
     flipperzero/helper/toplevelhelper.h \
-    flipperzero/protobuf/guiprotobufmessage.h \
-    flipperzero/protobuf/mainprotobufmessage.h \
-    flipperzero/protobuf/messages/application.pb.h \
-    flipperzero/protobuf/messages/flipper.pb.h \
-    flipperzero/protobuf/messages/gui.pb.h \
-    flipperzero/protobuf/messages/status.pb.h \
-    flipperzero/protobuf/messages/storage.pb.h \
-    flipperzero/protobuf/messages/system.pb.h \
-    flipperzero/protobuf/storageprotobufmessage.h \
-    flipperzero/protobuf/systemprotobufmessage.h \
     flipperzero/radiomanifest.h \
     flipperzero/recovery.h \
     flipperzero/recovery/abstractrecoveryoperation.h \
@@ -199,22 +181,17 @@ HEADERS += \
     updateregistry.h
 
 unix|win32 {
-    LIBS += -L$$OUT_PWD/../dfu/ -ldfu \
-            -L$$OUT_PWD/../3rdparty/ -l3rdparty
+    LIBS += -L$$OUT_PWD/../dfu/ -ldfu
 }
 
 win32:!win32-g++ {
-    PRE_TARGETDEPS += $$OUT_PWD/../dfu/dfu.lib \
-                      $$OUT_PWD/../3rdparty/3rdparty.lib
+    PRE_TARGETDEPS += $$OUT_PWD/../dfu/dfu.lib
 
 } else:unix|win32-g++ {
-    PRE_TARGETDEPS += $$OUT_PWD/../dfu/libdfu.a \
-                      $$OUT_PWD/../3rdparty/lib3rdparty.a
+    PRE_TARGETDEPS += $$OUT_PWD/../dfu/libdfu.a
 }
 
 INCLUDEPATH += $$PWD/../dfu \
-               $$PWD/../3rdparty \
-               $$PWD/../3rdparty/nanopb
+               $$PWD/../plugins/protobufinterface
 
-DEPENDPATH += $$PWD/../dfu \
-              $$PWD/../3rdparty
+DEPENDPATH += $$PWD/../dfu

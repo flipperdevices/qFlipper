@@ -1,39 +1,21 @@
 #include "systemsetdatetimeoperation.h"
 
-#include <QSerialPort>
-
-#include "flipperzero/protobuf/systemprotobufmessage.h"
+#include "protobufplugininterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-SystemSetDateTimeOperation::SystemSetDateTimeOperation(QSerialPort *serialPort, const QDateTime &dateTime, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent),
+SystemSetDateTimeOperation::SystemSetDateTimeOperation(uint32_t id, const QDateTime &dateTime, QObject *parent):
+    AbstractProtobufOperation(id, parent),
     m_dateTime(dateTime)
 {}
 
 const QString SystemSetDateTimeOperation::description() const
 {
-    return QStringLiteral("Set DateTime @%1").arg(QString(serialPort()->portName()));
+    return QStringLiteral("System Set DateTime");
 }
 
-void SystemSetDateTimeOperation::onSerialPortReadyRead()
+const QByteArray SystemSetDateTimeOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    MainEmptyResponse response(serialPort());
-
-    if(!response.receive()) {
-        return;
-    } else if(!response.isOk()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
-    } else if(!response.isValidType()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Expected empty response, got something else"));
-    } else {
-        finish();
-    }
-}
-
-bool SystemSetDateTimeOperation::begin()
-{
-    SystemSetDateTimeRequest request(serialPort(), m_dateTime);
-    return request.send();
+    return encoder->systemSetDateTime(id(), m_dateTime);
 }

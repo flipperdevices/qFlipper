@@ -1,10 +1,7 @@
 #include "devicestate.h"
 
 #include <QDebug>
-#include <QSerialPort>
 #include <QLoggingCategory>
-
-#include "helper/serialinithelper.h"
 
 Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
 
@@ -14,7 +11,6 @@ using namespace Zero;
 DeviceState::DeviceState(const DeviceInfo &deviceInfo, QObject *parent):
     QObject(parent),
     m_deviceInfo(deviceInfo),
-    m_serialPort(nullptr),
     m_isPersistent(false),
     m_isStreaming(false),
     m_isVirtualDisplay(false),
@@ -184,11 +180,6 @@ const QString &DeviceState::name() const
     return m_deviceInfo.name;
 }
 
-QSerialPort *DeviceState::serialPort() const
-{
-    return m_serialPort;
-}
-
 const QSize DeviceState::screenSize()
 {
     return QSize(128, 64);
@@ -210,45 +201,11 @@ void DeviceState::onDeviceInfoChanged()
 {
     clearError();
     setProgress(-1.0);
-
-    if(isRecoveryMode()) {
-        setOnline(true);
-        return;
-    }
-
-    initSerialPort();
 }
 
 void DeviceState::onIsOnlineChanged()
 {
-    closeSerialPort();
     processQueue();
-}
-
-void DeviceState::initSerialPort()
-{
-    auto *helper = new SerialInitHelper(m_deviceInfo.portInfo, this);
-    connect(helper, &AbstractOperationHelper::finished, this, [=]() {
-        helper->deleteLater();
-
-        if(helper->isError()) {
-            setError(helper->error(), helper->errorString());
-            return;
-
-        } else if(m_serialPort) {
-            m_serialPort->deleteLater();
-        }
-
-        m_serialPort = helper->serialPort();
-        setOnline(true);
-    });
-}
-
-void DeviceState::closeSerialPort()
-{
-    if(!m_isOnline && m_serialPort) {
-        m_serialPort->close();
-    }
 }
 
 void DeviceState::processQueue()

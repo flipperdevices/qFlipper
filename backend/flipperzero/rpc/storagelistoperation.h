@@ -1,25 +1,24 @@
 #pragma once
 
-#include "abstractserialoperation.h"
+#include "abstractprotobufoperation.h"
 #include "fileinfo.h"
 
 namespace Flipper {
 namespace Zero {
 
-class StorageListOperation : public AbstractSerialOperation
+class StorageListOperation : public AbstractProtobufOperation
 {
     Q_OBJECT
 
 public:
-    StorageListOperation(QSerialPort *serialPort, const QByteArray &path, QObject *parent = nullptr);
+    StorageListOperation(uint32_t id, const QByteArray &path, QObject *parent = nullptr);
     const QString description() const override;
     const FileInfoList &files() const;
 
-private slots:
-    void onSerialPortReadyRead() override;
+    const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
 
 private:
-    bool begin() override;
+    bool processResponse(QObject *response) override;
 
     QByteArray m_path;
     FileInfoList m_result;

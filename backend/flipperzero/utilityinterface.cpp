@@ -14,7 +14,7 @@ Q_LOGGING_CATEGORY(CATEGORY_UTILITY, "UTILITY")
 using namespace Flipper;
 using namespace Zero;
 
-UtilityInterface::UtilityInterface(DeviceState *deviceState, CommandInterface *rpc, QObject *parent):
+UtilityInterface::UtilityInterface(DeviceState *deviceState, ProtobufSession *rpc, QObject *parent):
     AbstractOperationRunner(parent),
     m_deviceState(deviceState),
     m_rpc(rpc)

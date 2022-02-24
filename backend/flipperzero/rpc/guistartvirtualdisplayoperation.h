@@ -10,14 +10,11 @@ class GuiStartVirtualDisplayOperation : public AbstractProtobufOperation
     Q_OBJECT
 
 public:
-    GuiStartVirtualDisplayOperation(QSerialPort *serialPort, const QByteArray &screenData, QObject *parent = nullptr);
+    GuiStartVirtualDisplayOperation(uint32_t id, const QByteArray &screenData, QObject *parent = nullptr);
     const QString description() const override;
-
-private slots:
-    void onSerialPortReadyRead() override;
+    const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
 
 private:
-    bool begin() override;
     QByteArray m_screenData;
 };
 

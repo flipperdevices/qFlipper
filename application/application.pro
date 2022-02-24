@@ -3,7 +3,7 @@ QT += quick serialport widgets quickcontrols2 svg
 include(../qflipper_common.pri)
 
 TARGET = $$NAME
-DESTDIR = ..
+DESTDIR = $$OUT_PWD/..
 
 CONFIG += c++11
 
@@ -31,20 +31,17 @@ QML_IMPORT_PATH = $$PWD/imports
 unix|win32 {
     LIBS += \
         -L$$OUT_PWD/../backend/ -lbackend \
-        -L$$OUT_PWD/../3rdparty/ -l3rdparty \
         -L$$OUT_PWD/../dfu/ -ldfu
 }
 
 win32:!win32-g++ {
     PRE_TARGETDEPS += \
         $$OUT_PWD/../backend/backend.lib \
-        $$OUT_PWD/../3rdparty/3rdparty.lib \
         $$OUT_PWD/../dfu/dfu.lib
 
 } else:unix|win32-g++ {
     PRE_TARGETDEPS += \
         $$OUT_PWD/../backend/libbackend.a \
-        $$OUT_PWD/../3rdparty/lib3rdparty.a \
         $$OUT_PWD/../dfu/libdfu.a
 }
 
@@ -72,8 +69,7 @@ INCLUDEPATH += \
 
 DEPENDPATH += \
     $$PWD/../dfu \
-    $$PWD/../backend \
-    $$PWD/../3rdparty \
+    $$PWD/../backend
 
 HEADERS += \
     application.h \
@@ -82,3 +78,19 @@ HEADERS += \
     screencanvas.h
 
 DISTFILES +=
+
+unix:!macx {
+    target.path = $$PREFIX/bin
+
+    desktopfiles.files = $$PWD/../installer-assets/appimage/$${TARGET}.desktop
+    desktopfiles.path = $$PREFIX/share/applications
+
+    iconfiles.files = $$PWD/assets/icons/$${TARGET}.png
+    iconfiles.path = $$PREFIX/share/icons/hicolor/512x512/apps
+
+    INSTALLS += target desktopfiles iconfiles
+
+} else:win32 {
+    target.path = $$DESTDIR/$$NAME
+    INSTALLS += target
+}

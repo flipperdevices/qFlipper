@@ -10,11 +10,11 @@ class GuiScreenFrameOperation : public AbstractProtobufOperation
     Q_OBJECT
 
 public:
-    GuiScreenFrameOperation(QSerialPort *serialPort, const QByteArray &screenData, QObject *parent = nullptr);
+    GuiScreenFrameOperation(uint32_t id, const QByteArray &screenData, QObject *parent = nullptr);
     const QString description() const override;
+    const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
 
 private:
-    bool begin() override;
     QByteArray m_screenData;
 };
 

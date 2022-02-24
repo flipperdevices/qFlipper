@@ -5,7 +5,7 @@ include(../qflipper_common.pri)
 
 TARGET = $${NAME}Tool
 
-DESTDIR = ..
+DESTDIR = $$OUT_PWD/..
 CONFIG += c++11 console
 CONFIG -= app_bundle
 
@@ -62,3 +62,13 @@ SOURCES += \
 
 HEADERS += \
     tool.h
+
+unix:!macx {
+    target.path = $$PREFIX/bin
+} else:macx {
+    target.path = $$DESTDIR/$${NAME}.app/Contents/MacOS
+} else:win32 {
+    target.path = $$DESTDIR/$$NAME
+}
+
+INSTALLS += target

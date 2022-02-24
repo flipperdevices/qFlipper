@@ -13,7 +13,7 @@
 #include "flipperzero/rpc/storageinfooperation.h"
 #include "flipperzero/rpc/storagestatoperation.h"
 
-#include "flipperzero/commandinterface.h"
+#include "flipperzero/protobufsession.h"
 #include "flipperzero/assetmanifest.h"
 #include "flipperzero/devicestate.h"
 
@@ -40,8 +40,8 @@ static void printFileList(const char *header, const FileNode::FileInfoList &list
     }
 }
 
-AssetsDownloadOperation::AssetsDownloadOperation(CommandInterface *cli, DeviceState *deviceState, QIODevice *compressedFile, QObject *parent):
-    AbstractUtilityOperation(cli, deviceState, parent),
+AssetsDownloadOperation::AssetsDownloadOperation(ProtobufSession *rpc, DeviceState *deviceState, QIODevice *compressedFile, QObject *parent):
+    AbstractUtilityOperation(rpc, deviceState, parent),
     m_compressedFile(compressedFile),
     m_uncompressedFile(new QFile(globalTempDirs->root().absoluteFilePath(QStringLiteral("qFlipper-databases.tar")), this)),
     m_isDeviceManifestPresent(false)
@@ -161,7 +161,7 @@ void AssetsDownloadOperation::checkForDeviceManifest()
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             return finishWithError(operation->error(), operation->errorString());
-        } else if(operation->type() != StorageStatOperation::Type::RegularFile) {
+        } else if(operation->type() != StorageStatOperation::FileType::RegularFile) {
             setOperationState(State::ReadingDeviceManifest);
         } else {
             m_isDeviceManifestPresent = true;

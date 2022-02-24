@@ -19,12 +19,14 @@ set JOM=%QT_DIR%\Tools\QtCreator\bin\jom.exe
 
 set TARGET=qFlipper
 set TESTS_TOOL=%TARGET%Tool
+set PROTO_TARGET=flipperproto
 set DRIVER_TOOL=FlipperDriverTool
 
 set PROJECT_DIR=%cd%
 set BUILD_DIR=%PROJECT_DIR%\build
 set QML_DIR=%PROJECT_DIR%\Application
 set DIST_DIR=%BUILD_DIR%\%TARGET%
+set PLUGINS_DIR=%DIST_DIR%\plugins
 set DRIVER_TOOL_DIR=%PROJECT_DIR%\driver-tool
 
 set OPENSSL_DIR=%QT_DIR%\Tools\OpenSSL\Win_x%ARCH_BITS%\bin
@@ -35,24 +37,24 @@ set NSIS="%programfiles(x86)%\NSIS\makensis.exe"
 set VCREDIST2019_EXE=%VCREDIST_DIR%\vcredist_msvc%MSVC_VERSION%_x%ARCH_BITS%.exe
 set VCREDIST2010_EXE=%VCREDIST_DIR%\vcredist_x%ARCH_BITS%.exe
 
-if exist %BUILD_DIR% (rmdir /S /Q %BUILD_DIR%)
+rem if exist %BUILD_DIR% (rmdir /S /Q %BUILD_DIR%)
 
 rem Build the application
 mkdir %BUILD_DIR%
 cd %BUILD_DIR%
 
-%QMAKE% %PROJECT_DIR%\%TARGET%.pro -spec win32-msvc "CONFIG+=qtquickcompiler" || goto error
-%JOM% qmake_all || goto error
-%JOM% || goto error
+%QMAKE% %PROJECT_DIR%\%TARGET%.pro -spec win32-msvc "CONFIG+=qtquickcompiler" &&^
+%JOM% qmake_all && %JOM% && %JOM% install || goto error
 
 rem Deploy the application
-mkdir %DIST_DIR%
-copy /Y %TARGET%.exe %DIST_DIR%
-copy /Y %TESTS_TOOL%.exe %DIST_DIR%
 cd %DIST_DIR%
 
-%WINDEPLOYQT% --release --no-compiler-runtime --qmldir %QML_DIR% %TARGET%.exe || goto error
+%WINDEPLOYQT% --release --no-compiler-runtime --dir %DIST_DIR% %PLUGINS_DIR%/%PROTO_TARGET%0.dll &&^
+%WINDEPLOYQT% --release --no-compiler-runtime --qmldir %QML_DIR% %TARGET%.exe &&^
 %WINDEPLOYQT% --release --no-compiler-runtime %TESTS_TOOL%.exe || goto error
+
+rem Copy OpenSSL binaries
+copy /Y %OPENSSL_DIR%\*.dll .
 
 rem Build the driver tool
 msbuild %DRIVER_TOOL_DIR%\%DRIVER_TOOL%.sln /p:Configuration=Release /p:Platform=x%ARCH_BITS% || goto error
@@ -60,8 +62,6 @@ msbuild %DRIVER_TOOL_DIR%\%DRIVER_TOOL%.sln /p:Configuration=Release /p:Platform
 rem Copy the built driver tool
 copy /Y %DRIVER_TOOL_DIR%\x%ARCH_BITS%\Release\%DRIVER_TOOL%.exe .
 
-rem Copy OpenSSL binaries
-copy /Y %OPENSSL_DIR%\*.dll .
 
 rem Copy Microsoft Visual C++ redistributable packages
 copy /Y %VCREDIST2019_EXE% .

@@ -17,7 +17,7 @@ class GetFileTreeOperation : public AbstractUtilityOperation
     };
 
 public:
-    GetFileTreeOperation(CommandInterface *cli, DeviceState *deviceState, const QByteArray &rootPath, QObject *parent = nullptr);
+    GetFileTreeOperation(ProtobufSession *rpc, DeviceState *deviceState, const QByteArray &rootPath, QObject *parent = nullptr);
     const QString description() const override;
     const FileInfoList &files() const;
 

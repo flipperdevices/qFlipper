@@ -1,6 +1,7 @@
 #include "flipperzero.h"
 
 #include <QDebug>
+#include <QTimer>
 #include <QLoggingCategory>
 
 #include "preferences.h"
@@ -10,7 +11,7 @@
 #include "screenstreamer.h"
 #include "virtualdisplay.h"
 
-#include "commandinterface.h"
+#include "protobufsession.h"
 #include "utilityinterface.h"
 #include "recoveryinterface.h"
 
@@ -40,19 +41,19 @@ using namespace Zero;
 FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     QObject(parent),
     m_state(new DeviceState(info, this)),
-    m_rpc(new CommandInterface(m_state, this)),
+    m_rpc(new ProtobufSession(info.portInfo, this)),
     m_recovery(new RecoveryInterface(m_state, this)),
     m_utility(new UtilityInterface(m_state, m_rpc, this)),
     m_streamer(new ScreenStreamer(m_state, m_rpc, this)),
     m_virtualDisplay(new VirtualDisplay(m_state, m_rpc, this))
 {
-    connect(m_state, &DeviceState::isOnlineChanged, this, &FlipperZero::onIsOnlineChanged);
-    connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::stateChanged);
-}
+    connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::onDeviceInfoChanged);
+    connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::deviceStateChanged);
 
-FlipperZero::~FlipperZero()
-{
-    m_state->setOnline(false);
+    connect(m_rpc, &ProtobufSession::sessionStatusChanged, this, &FlipperZero::onSessionStatusChanged);
+    connect(m_rpc, &ProtobufSession::broadcastResponseReceived, m_streamer, &ScreenStreamer::onBroadcastResponseReceived);
+
+    onDeviceInfoChanged();
 }
 
 DeviceState *FlipperZero::deviceState() const
@@ -200,14 +201,35 @@ void FlipperZero::finalizeOperation()
     }
 }
 
-void FlipperZero::onIsOnlineChanged()
+void FlipperZero::onDeviceInfoChanged()
 {
-    if(!m_state->isOnline() || m_state->isError() || m_state->isRecoveryMode()) {
+    if(m_state->isRecoveryMode()) {
+        m_state->setOnline(true);
         return;
-    } else if(!m_state->isPersistent()) {
-        m_streamer->start();
-    } else {
-        m_virtualDisplay->start(QByteArray((char*)updating_bits, sizeof(updating_bits)));
+    }
+
+    const auto &pb = m_state->deviceInfo().protobuf;
+    m_rpc->setMajorVersion(pb.versionMajor);
+    m_rpc->setMinorVersion(pb.versionMinor);
+
+    // Magic 100ms delay until I figure it out
+    QTimer::singleShot(100, m_rpc, &ProtobufSession::startSession);
+}
+
+void FlipperZero::onSessionStatusChanged()
+{
+    if(m_rpc->isError()) {
+        // TODO: Take into account a failed RPC start
+        qCritical() << "RPC ERROR:" << m_rpc->errorString();
+
+    } else if(m_rpc->isSessionUp()) {
+        if(m_state->isPersistent()) {
+            m_virtualDisplay->start(QByteArray((char*)updating_bits, sizeof(updating_bits)));
+        } else {
+            m_streamer->start();
+        }
+
+        m_state->setOnline(true);
     }
 }
 

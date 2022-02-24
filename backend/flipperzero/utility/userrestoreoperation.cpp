@@ -5,7 +5,7 @@
 #include <QDirIterator>
 
 #include "flipperzero/devicestate.h"
-#include "flipperzero/commandinterface.h"
+#include "flipperzero/protobufsession.h"
 #include "flipperzero/rpc/storagemkdiroperation.h"
 #include "flipperzero/rpc/storagewriteoperation.h"
 #include "flipperzero/rpc/storageremoveoperation.h"
@@ -15,8 +15,8 @@
 using namespace Flipper;
 using namespace Zero;
 
-UserRestoreOperation::UserRestoreOperation(CommandInterface *cli, DeviceState *deviceState, const QString &backupPath, QObject *parent):
-    AbstractUtilityOperation(cli, deviceState, parent),
+UserRestoreOperation::UserRestoreOperation(ProtobufSession *rpc, DeviceState *deviceState, const QString &backupPath, QObject *parent):
+    AbstractUtilityOperation(rpc, deviceState, parent),
     m_backupDir(backupPath),
     m_deviceDirName(QByteArrayLiteral("/int"))
 {

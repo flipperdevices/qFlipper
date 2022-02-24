@@ -5,7 +5,7 @@
 #include <QDebug>
 
 #include "flipperzero/devicestate.h"
-#include "flipperzero/commandinterface.h"
+#include "flipperzero/protobufsession.h"
 #include "flipperzero/rpc/storagereadoperation.h"
 
 #include "getfiletreeoperation.h"
@@ -13,8 +13,8 @@
 using namespace Flipper;
 using namespace Zero;
 
-UserBackupOperation::UserBackupOperation(CommandInterface *cli, DeviceState *deviceState, const QString &backupPath, QObject *parent):
-    AbstractUtilityOperation(cli, deviceState, parent),
+UserBackupOperation::UserBackupOperation(ProtobufSession *rpc, DeviceState *deviceState, const QString &backupPath, QObject *parent):
+    AbstractUtilityOperation(rpc, deviceState, parent),
     m_backupDir(backupPath),
     m_deviceDirName(QByteArrayLiteral("/int"))
 {}

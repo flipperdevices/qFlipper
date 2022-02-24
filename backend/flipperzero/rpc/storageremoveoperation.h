@@ -10,14 +10,11 @@ class StorageRemoveOperation : public AbstractProtobufOperation
     Q_OBJECT
 
 public:
-    StorageRemoveOperation(QSerialPort *serialPort, const QByteArray &path, QObject *parent = nullptr);
+    StorageRemoveOperation(uint32_t id, const QByteArray &path, QObject *parent = nullptr);
     const QString description() const override;
-
-private slots:
-    void onSerialPortReadyRead() override;
+    const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
 
 private:
-    bool begin() override;
 
     QByteArray m_path;
 };

@@ -1,39 +1,22 @@
 #include "guistartvirtualdisplayoperation.h"
 
-#include <QSerialPort>
-
-#include "flipperzero/protobuf/guiprotobufmessage.h"
+#include "protobufplugininterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-GuiStartVirtualDisplayOperation::GuiStartVirtualDisplayOperation(QSerialPort *serialPort, const QByteArray &screenData, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent),
+GuiStartVirtualDisplayOperation::GuiStartVirtualDisplayOperation(uint32_t id, const QByteArray &screenData, QObject *parent):
+    AbstractProtobufOperation(id, parent),
     m_screenData(screenData)
 {}
 
 const QString GuiStartVirtualDisplayOperation::description() const
 {
-    return QStringLiteral("Start virtual display @%1").arg(serialPort()->portName());
+    return QStringLiteral("Gui Start VirtualDisplay");
 }
 
-void GuiStartVirtualDisplayOperation::onSerialPortReadyRead()
+const QByteArray GuiStartVirtualDisplayOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    MainEmptyResponse response(serialPort());
-
-    if(!response.receive()) {
-        return;
-    } else if(!response.isOk()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with an error response: %1").arg(response.commandStatusString()));
-    } else if(!response.isValidType()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Expected empty reply, got something else"));
-    } else {
-        finish();
-    }
+    return encoder->guiStartVirtualDisplay(id(), m_screenData);
 }
 
-bool GuiStartVirtualDisplayOperation::begin()
-{
-    GuiStartVirtualDisplayRequest request(serialPort(), m_screenData);
-    return request.send();
-}

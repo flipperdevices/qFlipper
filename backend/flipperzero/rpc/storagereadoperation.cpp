@@ -1,58 +1,40 @@
 #include "storagereadoperation.h"
-#include "flipperzero/protobuf/storageprotobufmessage.h"
+
+#include "protobufplugininterface.h"
+#include "storageresponseinterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-StorageReadOperation::StorageReadOperation(QSerialPort *serialPort, const QByteArray &path, QIODevice *file, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent),
+StorageReadOperation::StorageReadOperation(uint32_t id, const QByteArray &path, QIODevice *file, QObject *parent):
+    AbstractProtobufOperation(id, parent),
     m_path(path),
     m_file(file)
-{}
+{
+    connect(this, &AbstractOperation::finished, m_file, [=]() {
+        m_file->seek(0);
+    });
+}
 
 const QString StorageReadOperation::description() const
 {
-    return QStringLiteral("Storage read @%1").arg(QString(m_path));
+    return QStringLiteral("Storage Read @%1").arg(QString(m_path));
 }
 
-void StorageReadOperation::onSerialPortReadyRead()
+const QByteArray StorageReadOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    StorageReadResponse response(serialPort());
+    return encoder->storageRead(id(), m_path);
+}
 
-    while(response.receive()) {
+bool StorageReadOperation::processResponse(QObject *response)
+{
+    auto *storageReadResponse = qobject_cast<StorageReadResponseInterface*>(response);
 
-        if(!response.isOk()) {
-            finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
-        } else if(!response.isValidType()) {
-            finishWithError(BackendError::ProtocolError, QStringLiteral("Expected StorageRead response, got something else"));
-        } else {
-            const auto &data = response.data();
-            const auto bytesWritten = m_file->write(response.data());
-
-            if(bytesWritten != data.size()) {
-                finishWithError(BackendError::DiskError, QStringLiteral("Error writing to output device: %1").arg(m_file->errorString()));
-            } else if(!response.hasNext()) {
-                rewindAndFinish();
-            } else {
-                continue;
-            }
-        }
-
-        break;
+    if(!storageReadResponse) {
+        return false;
+    } else if(storageReadResponse->hasFile()) {
+        return m_file->write(storageReadResponse->file().data);
     }
-}
 
-bool StorageReadOperation::begin()
-{
-    StorageReadRequest request(serialPort(), m_path);
-    return request.send();
-}
-
-void StorageReadOperation::rewindAndFinish()
-{
-    if(!m_file->seek(0)) {
-        finishWithError(BackendError::DiskError, QStringLiteral("Failed to rewind output device: %1").arg(m_file->errorString()));
-    } else {
-        finish();
-    }
+    return true;
 }

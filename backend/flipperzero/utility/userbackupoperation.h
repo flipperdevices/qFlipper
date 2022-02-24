@@ -20,7 +20,7 @@ class UserBackupOperation : public AbstractUtilityOperation
     };
 
 public:
-    UserBackupOperation(CommandInterface *cli, DeviceState *deviceState, const QString &backupPath, QObject *parent = nullptr);
+    UserBackupOperation(ProtobufSession *rpc, DeviceState *deviceState, const QString &backupPath, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:

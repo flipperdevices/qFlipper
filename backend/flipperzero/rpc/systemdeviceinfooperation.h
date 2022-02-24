@@ -5,8 +5,6 @@
 #include <QHash>
 #include <QByteArray>
 
-#include "flipperzero/deviceinfo.h"
-
 namespace Flipper {
 namespace Zero {
 
@@ -15,15 +13,14 @@ class SystemDeviceInfoOperation : public AbstractProtobufOperation
     Q_OBJECT
 
 public:
-    SystemDeviceInfoOperation(QSerialPort *serialPort, QObject *parent = nullptr);
+    SystemDeviceInfoOperation(uint32_t id, QObject *parent = nullptr);
     const QString description() const override;
-    const QByteArray result(const QByteArray &key) const;
+    const QByteArray value(const QByteArray &key) const;
 
-private slots:
-    void onSerialPortReadyRead() override;
+    const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
 
 private:
-    bool begin() override;
+    bool processResponse(QObject *response) override;
     QHash<QByteArray, QByteArray> m_data;
 };
 

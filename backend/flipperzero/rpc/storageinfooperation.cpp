@@ -1,12 +1,14 @@
 #include "storageinfooperation.h"
 
-#include "flipperzero/protobuf/storageprotobufmessage.h"
+#include "protobufplugininterface.h"
+#include "mainresponseinterface.h"
+#include "storageresponseinterface.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-StorageInfoOperation::StorageInfoOperation(QSerialPort *serialPort, const QByteArray &path, QObject *parent):
-    AbstractProtobufOperation(serialPort, parent),
+StorageInfoOperation::StorageInfoOperation(uint32_t id, const QByteArray &path, QObject *parent):
+    AbstractProtobufOperation(id, parent),
     m_path(path),
     m_isPresent(false),
     m_sizeFree(0),
@@ -15,7 +17,7 @@ StorageInfoOperation::StorageInfoOperation(QSerialPort *serialPort, const QByteA
 
 const QString StorageInfoOperation::description() const
 {
-    return QStringLiteral("Storage info @%1").arg(QString(m_path));
+    return QStringLiteral("Storage Info @%1").arg(QString(m_path));
 }
 
 bool StorageInfoOperation::isPresent() const
@@ -33,36 +35,21 @@ quint64 StorageInfoOperation::sizeTotal() const
     return m_sizeTotal;
 }
 
-void StorageInfoOperation::onSerialPortReadyRead()
+const QByteArray StorageInfoOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    StorageInfoResponse response(serialPort());
-
-    if(!response.receive()) {
-        return;
-
-    } else if(!response.isOk()) {
-        const auto status = response.commandStatus();
-        // TODO: more flexible error handling
-        if(status == PB_CommandStatus_ERROR_STORAGE_INTERNAL) {
-            finish();
-        } else{
-            finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(response.commandStatusString()));
-        }
-
-    } else if(!response.isValidType()) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Expected StorageInfo response, got something else"));
-
-    } else {
-        m_isPresent = true;
-        m_sizeFree = response.sizeFree();
-        m_sizeTotal = response.sizeTotal();
-
-        finish();
-    }
+    return encoder->storageInfo(id(), m_path);
 }
 
-bool StorageInfoOperation::begin()
+bool StorageInfoOperation::processResponse(QObject *response)
 {
-    StorageInfoRequest request(serialPort(), m_path);
-    return request.send();
+    auto *storageInfoResponse = qobject_cast<StorageInfoResponseInterface*>(response);
+
+    if(storageInfoResponse) {
+        m_sizeFree = storageInfoResponse->sizeFree();
+        m_sizeTotal = storageInfoResponse->sizeTotal();
+        m_isPresent = true;
+    }
+
+    // Never fail on recoverable errors
+    return true;
 }

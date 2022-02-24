@@ -12,6 +12,8 @@ class QSerialPort;
 namespace Flipper {
 namespace Zero {
 
+class ProtobufSession;
+
 class AbstractDeviceInfoHelper : public AbstractOperationHelper
 {
     Q_OBJECT
@@ -33,7 +35,7 @@ class VCPDeviceInfoHelper : public AbstractDeviceInfoHelper
 
     enum OperationState {
         FindingSerialPort = AbstractOperationHelper::User,
-        InitializingSerialPort,
+        StartingRPCSession,
         FetchingDeviceInfo,
         CheckingSDCard,
         CheckingManifest,
@@ -49,19 +51,20 @@ private:
     void nextStateLogic() override;
 
     void findSerialPort();
-    void initSerialPort();
+    void startRPCSession();
     void fetchDeviceInfo();
     void checkSDCard();
     void checkManifest();
     void getTimeSkew();
     void syncTime();
     void stopRPCSession();
-    void closePortAndFinish();
+
+private slots:
+    void onSessionStatusChanged();
 
 private:
     static const QString &branchToChannelName(const QByteArray &branchName);
-
-    QSerialPort *m_serialPort;
+    ProtobufSession *m_rpc;
 };
 
 class DFUDeviceInfoHelper : public AbstractDeviceInfoHelper

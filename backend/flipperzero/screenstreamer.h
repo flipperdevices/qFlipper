@@ -3,47 +3,41 @@
 #include <QObject>
 #include <QByteArray>
 
-class QSerialPort;
-
 namespace Flipper {
 namespace Zero {
 
 class DeviceState;
-class CommandInterface;
+class ProtobufSession;
 
 class ScreenStreamer : public QObject
 {
     Q_OBJECT
 
 public:
-    enum class State {
+    enum StreamState {
         Starting,
         Running,
         Stopping,
         Stopped
     };
 
-    Q_ENUM(State)
+    Q_ENUM(StreamState)
 
-    ScreenStreamer(DeviceState *deviceState, CommandInterface *rpc, QObject *parent = nullptr);
+    ScreenStreamer(DeviceState *deviceState, ProtobufSession *rpc, QObject *parent = nullptr);
     void sendInputEvent(int key, int type);
 
 public slots:
     void start();
     void stop();
 
-private slots:
-    void onPortReadyRead();
+    void onBroadcastResponseReceived(QObject *response);
 
 private:
-    void sendStopCommand();
-    void setState(State newState);
-
-    QSerialPort *serialPort() const;
+    void setStreamState(StreamState newState);
 
     DeviceState *m_deviceState;
-    CommandInterface *m_rpc;
-    State m_state;
+    StreamState m_streamState;
+    ProtobufSession *m_rpc;
 };
 
 }

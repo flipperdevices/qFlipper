@@ -10,18 +10,18 @@ class StorageInfoOperation : public AbstractProtobufOperation
     Q_OBJECT
 
 public:
-    StorageInfoOperation(QSerialPort *serialPort, const QByteArray &path, QObject *parent = nullptr);
+    StorageInfoOperation(uint32_t id, const QByteArray &path, QObject *parent = nullptr);
     const QString description() const override;
 
     bool isPresent() const;
     quint64 sizeFree() const;
     quint64 sizeTotal() const;
 
-private slots:
-    void onSerialPortReadyRead() override;
+private:
+    const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
 
 private:
-    bool begin() override;
+    bool processResponse(QObject *response) override;
 
     QByteArray m_path;
     bool m_isPresent;

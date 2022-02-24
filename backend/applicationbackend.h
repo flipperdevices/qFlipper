@@ -127,6 +127,7 @@ private slots:
     void onDeviceRegistryErrorChanged();
 
 private:
+    static void initLibraryPaths();
     static void registerMetaTypes();
     static void registerComparators();
 

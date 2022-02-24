@@ -14,7 +14,7 @@ class FactoryResetUtilOperation : public AbstractUtilityOperation
     };
 
 public:
-    FactoryResetUtilOperation(CommandInterface *cli, DeviceState *deviceState, QObject *parent = nullptr);
+    FactoryResetUtilOperation(ProtobufSession *rpc, DeviceState *deviceState, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:
