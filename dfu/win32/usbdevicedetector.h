@@ -1,5 +1,4 @@
-#ifndef WIN32DEVICEDETECTOR_H
-#define WIN32DEVICEDETECTOR_H
+#pragma once
 
 #include <QObject>
 
@@ -41,5 +40,3 @@ private:
     QList <USBDeviceInfo> m_wanted;
     QList <USBDeviceInfo> m_current;
 };
-
-#endif // WIN32DEVICEDETECTOR_H

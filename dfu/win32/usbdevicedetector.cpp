@@ -4,7 +4,10 @@
 #include <setupapi.h>
 #include <dbt.h>
 
-#include "debug.h"
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(LOG_DETECTOR, "USBDET")
 
 static LRESULT CALLBACK hotplugWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -19,8 +22,11 @@ USBDeviceDetector::USBDeviceDetector(QObject *parent):
     QObject(parent),
     m_p(new USBDeviceDetectorPrivate)
 {
-    check_return_void(registerAtom(), "Failed to register hotplug window atom");
-    check_return_void(createHotplugWindow(), "Failed to create hotplug window");
+    if(!registerAtom()) {
+        qCCritical(LOG_DETECTOR) <<  "Failed to register hotplug window atom";
+    } else if(!createHotplugWindow()) {
+        qCCritical(LOG_DETECTOR) <<  "Failed to create hotplug window";
+    }
 }
 
 USBDeviceDetector::~USBDeviceDetector()
@@ -50,9 +56,12 @@ void USBDeviceDetector::update()
 
 bool USBDeviceDetector::registerAtom()
 {
-
     m_p->appInstsance = GetModuleHandleA(nullptr);
-    check_return_bool(m_p->appInstsance, "Failed to get application instance");
+
+    if(!m_p->appInstsance) {
+        qCCritical(LOG_DETECTOR) <<  "Failed to get application instance";
+        return false;
+    }
 
     WNDCLASSEXA wc;
     wc.cbSize = sizeof(wc);
@@ -81,6 +90,7 @@ bool USBDeviceDetector::createHotplugWindow()
     const auto success = (m_p->hotplugWindowHandle != INVALID_HANDLE_VALUE);
 
     if(success) {
+        SetWindowLongPtrA(m_p->hotplugWindowHandle, GWLP_USERDATA, (LONG_PTR)this);
         ShowWindow(m_p->hotplugWindowHandle, SW_HIDE);
         EnableWindow(m_p->hotplugWindowHandle, TRUE);
     }
@@ -93,7 +103,11 @@ QList<USBDeviceInfo> USBDeviceDetector::availableDevices() const
     QList <USBDeviceInfo> ret;
 
     HDEVINFO infoSet = SetupDiGetClassDevsA(nullptr, nullptr, nullptr, DIGCF_PRESENT | DIGCF_ALLCLASSES | DIGCF_DEVICEINTERFACE);
-    check_return_val(infoSet != INVALID_HANDLE_VALUE, "Failed to get device list", ret);
+
+    if(infoSet == INVALID_HANDLE_VALUE) {
+        qCCritical(LOG_DETECTOR) <<  "Failed to get device list";
+        return ret;
+    }
 
     SP_DEVINFO_DATA infoData;
     infoData.cbSize = sizeof(SP_DEVINFO_DATA);
@@ -193,7 +207,10 @@ USBDeviceInfo USBDeviceDetector::parseInstanceID(const char *buf)
 static LRESULT CALLBACK hotplugWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if((msg == WM_DEVICECHANGE) && (wParam == DBT_DEVNODES_CHANGED)) {
-        USBDeviceDetector::instance()->update();
+        if(auto *ctx = (USBDeviceDetector*)GetWindowLongPtrA(hWnd, GWLP_USERDATA)) {
+            ctx->update();
+        }
+
         return TRUE;
 
     } else if(msg == WM_CLOSE) {

@@ -1,5 +1,4 @@
-#ifndef WIN32USBDEVICE_H
-#define WIN32USBDEVICE_H
+#pragma once
 
 #include <QObject>
 
@@ -34,5 +33,3 @@ private:
 
     USBDevicePrivate *m_p;
 };
-
-#endif // WIN32USBDEVICE_H
