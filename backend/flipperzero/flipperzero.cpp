@@ -209,11 +209,12 @@ void FlipperZero::onDeviceInfoChanged()
     }
 
     const auto &pb = m_state->deviceInfo().protobuf;
+    const auto &pi = m_state->deviceInfo().portInfo;
+
     m_rpc->setMajorVersion(pb.versionMajor);
     m_rpc->setMinorVersion(pb.versionMinor);
-
-    // Magic 100ms delay until I figure it out
-    QTimer::singleShot(100, m_rpc, &ProtobufSession::startSession);
+    m_rpc->setSerialPort(pi);
+    m_rpc->startSession();
 }
 
 void FlipperZero::onSessionStatusChanged()
