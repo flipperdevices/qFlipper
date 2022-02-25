@@ -111,5 +111,6 @@
         <file>assets/icons/qFlipper.icns</file>
         <file>assets/icons/qFlipper.ico</file>
         <file>assets/icons/qFlipper.png</file>
+        <file>assets/gfx/symbolic/file-symbolic.svg</file>
     </qresource>
 </RCC>

@@ -95,6 +95,17 @@ AbstractOverlay {
                 visible: parent.hovered
             }
         }
+
+        TabButton {
+            icon.source: "qrc:/assets/gfx/symbolic/file-symbolic.svg"
+            icon.width: 23
+            icon.height: 29
+
+            ToolTip {
+                text: qsTr("File manager")
+                visible: parent.hovered
+            }
+        }
     }
 
     TextLabel {
