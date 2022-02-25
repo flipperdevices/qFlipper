@@ -214,7 +214,9 @@ void FlipperZero::onDeviceInfoChanged()
     m_rpc->setMajorVersion(pb.versionMajor);
     m_rpc->setMinorVersion(pb.versionMinor);
     m_rpc->setSerialPort(pi);
-    m_rpc->startSession();
+
+    // 100 ms delay to prevent race condition in Flipper
+    QTimer::singleShot(100, m_rpc, &ProtobufSession::startSession);
 }
 
 void FlipperZero::onSessionStatusChanged()
