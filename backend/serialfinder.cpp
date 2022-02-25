@@ -37,7 +37,7 @@ void SerialFinder::findMatchingPort()
         return info.serialNumber() == m_serialNumber;
     });
 
-    if(it != portInfos.cend()) {
+    if(it != portInfos.cend() && !(*it).isNull()) {
         emit finished(*it);
         return;
     }
