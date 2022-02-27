@@ -300,6 +300,10 @@ void ProtobufSession::processQueue()
 
 void ProtobufSession::writeToPort()
 {
+    if(!m_currentOperation || !m_plugin) {
+       return;
+    }
+
     const auto &buf = m_currentOperation->encodeRequest(m_plugin);
     // TODO: Check for full system serial buffer
     const auto bytesWritten = m_serialPort->write(buf);
@@ -396,13 +400,12 @@ uint32_t ProtobufSession::getAndIncrementCounter()
 
 void ProtobufSession::clearOperationQueue()
 {
-    if(m_currentOperation) {
-        m_currentOperation->abort(QStringLiteral("RPC session was stopped with operations still running"));
-        m_currentOperation->deleteLater();
-    }
-
     while(!m_queue.isEmpty()) {
         m_queue.dequeue()->deleteLater();
+    }
+
+    if(m_currentOperation) {
+        m_currentOperation->abort(QStringLiteral("RPC session was stopped with operations still running"));
     }
 }
 
