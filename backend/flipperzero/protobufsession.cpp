@@ -183,6 +183,7 @@ void ProtobufSession::startSession()
     }
 
     clearError();
+    m_receivedData.clear();
 
     qCInfo(LOG_SESSION) << "Starting RPC session...";
     m_sessionState = Starting;
@@ -232,7 +233,6 @@ void ProtobufSession::onSerialPortReadyRead()
     }
 
     m_receivedData.append(m_serialPort->readAll());
-
     auto *response = m_plugin->decode(m_receivedData, this);
 
     if(!response) {
@@ -260,14 +260,7 @@ void ProtobufSession::onSerialPortReadyRead()
 
 void ProtobufSession::onSerialPortBytesWriten(qint64 nbytes)
 {
-    m_bytesToWrite -= nbytes;
-
-    if(m_bytesToWrite || !m_currentOperation) {
-        return;
-    } else if(m_currentOperation->hasMoreData()) {
-        // Write the next part if applicable
-        QTimer::singleShot(0, this, &ProtobufSession::writeToPort);
-    }
+    Q_UNUSED(nbytes)
 }
 
 void ProtobufSession::onSerialPortErrorOccured()
@@ -304,16 +297,30 @@ void ProtobufSession::writeToPort()
        return;
     }
 
-    const auto &buf = m_currentOperation->encodeRequest(m_plugin);
-    // TODO: Check for full system serial buffer
-    const auto bytesWritten = m_serialPort->write(buf);
-    const auto success = (bytesWritten == buf.size()) && m_serialPort->flush();
+    bool success;
 
-    m_bytesToWrite += bytesWritten;
+    do {
+        const auto &buf = m_currentOperation->encodeRequest(m_plugin);
+        const auto bytesWritten = m_serialPort->write(buf);
+
+        success = bytesWritten >= 0;
+
+        if(!success) {
+            break;
+        } else if(bytesWritten != buf.size()) {
+            // TODO: Check for full system serial buffer
+            qCCritical(LOG_SESSION) << "Serial buffer overflow";
+            break;
+        }
+
+    } while(m_currentOperation->hasMoreData());
+
+    success &= m_serialPort->flush();
 
     if(!success) {
         setError(BackendError::SerialError, m_serialPort->errorString());
         stopSession();
+        return;
     }
 }
 

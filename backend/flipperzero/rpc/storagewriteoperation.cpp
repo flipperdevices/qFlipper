@@ -1,6 +1,5 @@
 #include "storagewriteoperation.h"
 
-#include <QDebug>
 #include <QIODevice>
 
 #include "protobufplugininterface.h"
@@ -16,7 +15,7 @@ StorageWriteOperation::StorageWriteOperation(uint32_t id, const QByteArray &path
     m_file(file)
 {
     // Write operations can be lenghty
-//    setTimeout(30000);
+    setTimeout(60000);
 }
 
 const QString StorageWriteOperation::description() const
@@ -31,5 +30,7 @@ bool StorageWriteOperation::hasMoreData() const
 
 const QByteArray StorageWriteOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    return encoder->storageWrite(id(), m_path, m_file->read(CHUNK_SIZE), m_file->bytesAvailable() > CHUNK_SIZE);
+    const auto buf = m_file->read(CHUNK_SIZE);
+    const auto hasNext = m_file->bytesAvailable() > 0;
+    return encoder->storageWrite(id(), m_path, buf, hasNext);
 }
