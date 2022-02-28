@@ -38,6 +38,7 @@ signals:
     void errorCountChanged();
 
 private:
+    void timerEvent(QTimerEvent *e) override;
     void fallbackMessageOutput(const QString &msg);
     bool removeOldFiles();
 
@@ -49,6 +50,7 @@ private:
 
     QDateTime m_startTime;
     LogLevel m_logLevel;
+    QString m_buffer;
     int m_errorCount;
 };
 

@@ -41,6 +41,8 @@ Logger::Logger(QObject *parent):
     if(!m_logFile->open(QIODevice::WriteOnly)) {
         fallbackMessageOutput(QStringLiteral("Failed to open log file: %1").arg(m_logFile->errorString()));
     }
+
+    startTimer(250);
 }
 
 Logger *Logger::instance()
@@ -75,7 +77,8 @@ void Logger::messageOutput(QtMsgType type, const QMessageLogContext &context, co
         return;
     }
 
-    emit globalLogger->messageArrived(type == QtCriticalMsg ? criticalText.arg(text) : text);
+    globalLogger->m_buffer.append(type == QtCriticalMsg ? criticalText.arg(text) : text);
+    globalLogger->m_buffer.append("<br>");
     globalLogger->setErrorCount(globalLogger->errorCount() + (type == QtCriticalMsg ? 1 : 0));
 }
 
@@ -102,6 +105,18 @@ void Logger::setErrorCount(int count)
 void Logger::setLogLevel(LogLevel level)
 {
     m_logLevel = level;
+}
+
+void Logger::timerEvent(QTimerEvent *e)
+{
+    Q_UNUSED(e)
+
+    if(m_buffer.isEmpty()) {
+        return;
+    }
+
+    emit globalLogger->messageArrived(m_buffer);
+    m_buffer.clear();
 }
 
 void Logger::fallbackMessageOutput(const QString &msg)

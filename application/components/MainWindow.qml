@@ -306,7 +306,7 @@ Item {
         }
 
         Component.onCompleted: {
-            Logger.messageArrived.connect(logView.content.append);
+            Logger.messageArrived.connect(logView.append);
             Logger.messageArrived.connect(logView.scrollToBottom);
         }
     }
