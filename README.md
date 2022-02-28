@@ -1,10 +1,18 @@
-# qFlipper
+## qFlipper
 
-### Flipper companion application (desktop)
+### Graphical desktop application for updating [Flipper Zero](https://flipperzero.one/) firmware via PC
+qFlipper is completely open source and based on [Qt](https://www.qt.io/) framework. Runs on Windows, macOS, Linux.
 
-![qFlipper screenshot](screenshot.png)
+<img alt="qFlipper" width="450" src="https://cdn.flipperzero.one/qflipper_logo_with_connected_flipper.png" />
 
-## Features:
+## Download
+
+Download official qFlipper builds here: [update.flipperzero.one](https://update.flipperzero.one/)
+
+<a href="https://update.flipperzero.one"><img width="300" alt="download qFlipper Button" src="https://cdn.flipperzero.one/download_qFlipper_button.png" /></a>
+
+
+## Features
 * Update Flipper's firmware and supplemental data with a press of one button
 * Repair a broken fimware installation
 * Stream Flipper's display and control it remotely
@@ -13,8 +21,8 @@
 * Automatic self-update feature
 * Command line interface
 
-## Build:
-### Windows:
+## Build from sources 
+### Windows
 
 Build requirements:
 - MS Visual Studio 2019 or newer
@@ -27,13 +35,14 @@ Edit `build_windows.bat` to adjust to your build environment and then run:
 build_windows.bat
 ```
 
-### Linux:
-#### Docker build (AppImage, official):
+### Linux
+#### Docker build (AppImage, official)
+
 ```sh
 docker-compose exec dev ./build_linux.sh
 ```
 
-#### Standalone build:
+#### Standalone build
 Build requirements:
 - Qt >= 5.15.0
 - libusb >= 1.0.16
@@ -45,7 +54,7 @@ make qmake_all && make && make install
 **Caution:** `make install`ing to the system prefix is not recommended. Instead, use this method for building distro-specific packages. 
 In this case, it is possible to disable the built-in application update feature by passing `DEFINES+=DISABLE_APPLICATION_UPDATES` to the `qmake` call.
 
-### MacOS:
+### MacOS
 
 Build requirements:
 
@@ -63,9 +72,9 @@ Building, signing and creating package:
 
 Resulting image can be found in: `build_mac/qFlipper.dmg`
 
-## Run:
+## Run
 
-### Linux:
+### Linux
 ```sh
 ./build/qFlipper-x86_64.AppImage
 ```
@@ -77,10 +86,10 @@ chmod +x setup_rules.sh
 ./setup_rules.sh
 ```
 
-#### Package managers support:
+#### Package managers support
 See [contrib](./contrib) for available options.
 
-## Project structure:
+## Project structure
 - `application` - The main graphical application, written mostly in QML.
 - `backend` - The backend library, written in C++. Takes care of most of the logic.
 - `dfu` - Low level library for accessing USB and DFU devices.
@@ -92,12 +101,12 @@ See [contrib](./contrib) for available options.
 - `docker` - Docker configuration files.
 - `installer-assets` - Supplementary data for deployment.
 
-## Reporting bugs:
+## Reporting bugs
 qFlipper is a project under active development. Please report any encountered bugs to make it better!
 
 The (mostly) complete guide is located [here](./BUGS.md).
 
-## Known bugs:
+## Known bugs
 
 * Sometimes Flipper's serial port doesn't get recognised by the OS, which leads to firmware update errors. This is a firmware issue.
 * On some systems, there is noticeable flicker during opening, closing or resizing of the log area
