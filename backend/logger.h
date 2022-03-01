@@ -8,6 +8,7 @@
 #include <QStringList>
 
 class QFile;
+class QTimer;
 
 class Logger : public QObject
 {
@@ -47,6 +48,7 @@ private:
 
     QDir m_logDir;
     QFile *m_logFile;
+    QTimer *m_updateTimer;
 
     QTextStream m_stderr;
     QTextStream m_fileOut;

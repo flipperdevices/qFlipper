@@ -2,6 +2,7 @@
 
 #include <QFile>
 #include <QDebug>
+#include <QTimer>
 #include <QDateTime>
 #include <QTextStream>
 #include <QStandardPaths>
@@ -13,6 +14,7 @@ Logger::Logger(QObject *parent):
     QObject(parent),
     m_logDir(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)),
     m_logFile(new QFile(this)),
+    m_updateTimer(new QTimer(this)),
     m_stderr(stderr, QIODevice::WriteOnly),
     m_fileOut(m_logFile),
     m_startTime(QDateTime::currentDateTime()),
@@ -20,6 +22,11 @@ Logger::Logger(QObject *parent):
     m_maxLineCount(200),
     m_errorCount(0)
 {
+    m_updateTimer->setSingleShot(true);
+    m_updateTimer->setInterval(100);
+
+    connect(m_updateTimer, &QTimer::timeout, this, &Logger::logTextChanged);
+
     m_logDir.mkdir(APP_NAME);
 
     if(!m_logDir.exists(APP_NAME)) {
@@ -118,7 +125,9 @@ void Logger::append(const QString &line)
         m_logText.removeFirst();
     }
 
-    emit logTextChanged();
+    if(!m_updateTimer->isActive()) {
+        m_updateTimer->start();
+    }
 }
 
 void Logger::fallbackMessageOutput(const QString &msg)
