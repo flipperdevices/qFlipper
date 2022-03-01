@@ -39,6 +39,8 @@ Item {
             readOnly: true
             selectByMouse: true
             selectByKeyboard: true
+
+            onTextChanged: scrollToBottom();
         }
     }
 
@@ -50,10 +52,6 @@ Item {
     }
 
     onVisibleChanged: if(visible) scrollToBottom()
-
-    function append(text) {
-        content.insert(content.length, text);
-    }
 
     function scrollToBottom() {
         if(!visible) {

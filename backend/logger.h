@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QDateTime>
 #include <QTextStream>
+#include <QStringList>
 
 class QFile;
 
@@ -13,6 +14,7 @@ class Logger : public QObject
     Q_OBJECT
     Q_PROPERTY(QUrl logsPath READ logsPath CONSTANT)
     Q_PROPERTY(int errorCount READ errorCount WRITE setErrorCount NOTIFY errorCountChanged)
+    Q_PROPERTY(QString logText READ logText NOTIFY logTextChanged)
 
     Logger(QObject *parent = nullptr);
 
@@ -30,15 +32,16 @@ public:
 
     int errorCount() const;
     void setErrorCount(int count);
+    QString logText() const;
 
     void setLogLevel(LogLevel level);
 
 signals:
-    void messageArrived(const QString&);
+    void logTextChanged();
     void errorCountChanged();
 
 private:
-    void timerEvent(QTimerEvent *e) override;
+    void append(const QString &line);
     void fallbackMessageOutput(const QString &msg);
     bool removeOldFiles();
 
@@ -50,7 +53,8 @@ private:
 
     QDateTime m_startTime;
     LogLevel m_logLevel;
-    QString m_buffer;
+    QStringList m_logText;
+    int m_maxLineCount;
     int m_errorCount;
 };
 

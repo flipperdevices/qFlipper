@@ -284,6 +284,7 @@ Item {
         anchors.bottomMargin: 12
 
         content.textFormat: TextArea.RichText
+        content.text: Logger.logText
 
         menu: Menu {
             id: logMenu
@@ -305,10 +306,10 @@ Item {
             }
         }
 
-        Component.onCompleted: {
-            Logger.messageArrived.connect(logView.append);
-            Logger.messageArrived.connect(logView.scrollToBottom);
-        }
+//        Component.onCompleted: {
+//            Logger.messageArrived.connect(logView.append);
+//            Logger.messageArrived.connect(logView.scrollToBottom);
+//        }
     }
 
     MouseArea {
