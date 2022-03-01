@@ -2,6 +2,7 @@
 
 #include <QFile>
 #include <QDebug>
+#include <QTimer>
 #include <QDateTime>
 #include <QTextStream>
 #include <QStandardPaths>
@@ -13,12 +14,19 @@ Logger::Logger(QObject *parent):
     QObject(parent),
     m_logDir(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)),
     m_logFile(new QFile(this)),
+    m_updateTimer(new QTimer(this)),
     m_stderr(stderr, QIODevice::WriteOnly),
     m_fileOut(m_logFile),
     m_startTime(QDateTime::currentDateTime()),
     m_logLevel(Default),
+    m_maxLineCount(200),
     m_errorCount(0)
 {
+    m_updateTimer->setSingleShot(true);
+    m_updateTimer->setInterval(100);
+
+    connect(m_updateTimer, &QTimer::timeout, this, &Logger::logTextChanged);
+
     m_logDir.mkdir(APP_NAME);
 
     if(!m_logDir.exists(APP_NAME)) {
@@ -75,7 +83,7 @@ void Logger::messageOutput(QtMsgType type, const QMessageLogContext &context, co
         return;
     }
 
-    emit globalLogger->messageArrived(type == QtCriticalMsg ? criticalText.arg(text) : text);
+    globalLogger->append(type == QtCriticalMsg ? criticalText.arg(text) : text);
     globalLogger->setErrorCount(globalLogger->errorCount() + (type == QtCriticalMsg ? 1 : 0));
 }
 
@@ -99,9 +107,27 @@ void Logger::setErrorCount(int count)
     emit errorCountChanged();
 }
 
+QString Logger::logText() const
+{
+    return m_logText.join("<br/>");
+}
+
 void Logger::setLogLevel(LogLevel level)
 {
     m_logLevel = level;
+}
+
+void Logger::append(const QString &line)
+{
+    m_logText.append(line);
+
+    if(m_logText.size() > m_maxLineCount) {
+        m_logText.removeFirst();
+    }
+
+    if(!m_updateTimer->isActive()) {
+        m_updateTimer->start();
+    }
 }
 
 void Logger::fallbackMessageOutput(const QString &msg)

@@ -39,6 +39,8 @@ Item {
             readOnly: true
             selectByMouse: true
             selectByKeyboard: true
+
+            onTextChanged: scrollToBottom();
         }
     }
 
@@ -49,7 +51,19 @@ Item {
         onClicked: if(control.menu && mouse.button === Qt.RightButton) control.menu.popup()
     }
 
+    onVisibleChanged: if(visible) scrollToBottom()
+
     function scrollToBottom() {
-        scrollView.ScrollBar.vertical.increase();
+        if(!visible) {
+            return;
+        }
+
+        let sb = scrollView.ScrollBar.vertical;
+        let prevPos;
+
+        do {
+            prevPos = sb.position;
+            sb.increase();
+        } while(prevPos !== sb.position);
     }
 }

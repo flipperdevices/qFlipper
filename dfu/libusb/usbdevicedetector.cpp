@@ -1,7 +1,9 @@
 #include "usbdevicedetector.h"
 
 #include <libusb.h>
+
 #include <QTimer>
+#include <QThread>
 
 #include "debug.h"
 
@@ -70,10 +72,28 @@ static USBDeviceInfo getDeviceInfo(const USBDeviceInfo &info)
 static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data) {
     Q_UNUSED(ctx)
 
+    auto numRetries = 20;
     auto *detector = (USBDeviceDetector*)user_data;
 
     libusb_device_descriptor desc;
-    check_return_val(!libusb_get_device_descriptor(dev, &desc),"Failed to get device descriptor", 0);
+    bool descOk, valuesOk;
+
+    do {
+        descOk = !libusb_get_device_descriptor(dev, &desc);
+        valuesOk = desc.idVendor && desc.idProduct;
+
+        if(descOk && valuesOk) {
+            break;
+        }
+
+        QThread::msleep(20);
+
+    } while(--numRetries);
+
+    if(!descOk || !valuesOk) {
+        qCDebug(CATEGORY_DEBUG) << (descOk ? "Failed to get device descriptor" : "Device descriptor received, but not a valid one");
+        return 0;
+    }
 
     const auto info = USBDeviceInfo(desc.idVendor, desc.idProduct).withBackendData(QVariant::fromValue((void*)dev));
 
