@@ -15,6 +15,9 @@ ColumnLayout {
     property int radius: 7
     property int borderWidth: 2
 
+    property bool background: false
+    property color backgroundColor: Qt.rgba(0,0,0,0)
+
     Item {
         id: header
         clip: true
@@ -22,22 +25,9 @@ ColumnLayout {
 
         Layout.fillWidth: true
 
-        Item {
-            clip: true
-            anchors.fill: parent
-            anchors.rightMargin: parent.width / 2
-
-            Rectangle {
-                color: "transparent"
-                width: parent.width + border.width
-                height: control.radius + control.borderWidth * 2
-                border.color: Theme.color.lightorange2
-                border.width: borderWidth
-            }
-        }
 
         Rectangle {
-            color: "transparent"
+            color: control.background ? "black" : "transparent"
             width: parent.width + control.radius
             height: control.radius * 2 + control.borderWidth * 2
             radius: control.radius
@@ -45,12 +35,27 @@ ColumnLayout {
             border.width: borderWidth
             anchors.right: parent.right
         }
+
+        Item {
+            clip: true
+            anchors.fill: parent
+            anchors.rightMargin: parent.width / 2
+
+            Rectangle {
+                color: control.background ? "black" : "transparent"
+                width: parent.width + border.width
+                height: control.radius + control.borderWidth * 2
+                border.color: Theme.color.lightorange2
+                border.width: borderWidth
+            }
+        }
     }
 
     Item {
         clip: true
-        Layout.fillWidth: true
-        Layout.preferredHeight: content.height + content.anchors.topMargin * 2
+
+        implicitWidth: content.width + control.borderWidth * 2
+        implicitHeight: content.height
 
         Canvas {
             anchors.fill: parent
@@ -58,6 +63,12 @@ ColumnLayout {
             onPaint: {
                 const ctx = getContext("2d");
                 ctx.reset();
+
+                if(control.background) {
+                    const inset = control.borderWidth;
+                    ctx.fillStyle = Qt.rgba(0,0,0,1);
+                    ctx.fillRect(inset, 0, width - inset, height);
+                }
 
                 ctx.globalAlpha = 0.5;
                 ctx.lineDashOffset = 0.5;
@@ -79,18 +90,18 @@ ColumnLayout {
 
         StackLayout {
             id: content
+            x: control.borderWidth
+
             children: items
-            height: children[currentIndex].height
 
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
+            width: children[currentIndex].implicitWidth
+            height: children[currentIndex].implicitHeight
 
-            anchors.topMargin: 10
-            anchors.bottomMargin: anchors.topMargin
-
-            anchors.leftMargin: 20
-            anchors.rightMargin: anchors.leftMargin
+            Behavior on width {
+                PropertyAnimation {
+                    duration: 200
+                }
+            }
 
             Behavior on height {
                 PropertyAnimation {
@@ -108,7 +119,7 @@ ColumnLayout {
         Layout.fillWidth: true
 
         Rectangle {
-            color: "transparent"
+            color: control.background ? "black" : "transparent"
             width: parent.width
             height: control.radius * 2 + control.borderWidth * 2
             radius: control.radius

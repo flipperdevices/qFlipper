@@ -52,17 +52,18 @@ AbstractOverlay {
     }
 
     TabPane {
-        width: 322
-
+        z: fileButton.z + 1
         anchors.top: tabs.bottom
         anchors.left: tabs.left
         anchors.topMargin: -2
 
         currentIndex: tabs.currentIndex
+        background: currentIndex == 2
 
         items: [
             DeviceInfo { id: deviceInfoPane },
             DeviceActions { id: deviceActions },
+            FileManager { id: fileManager },
             DeveloperActions { id: developerActions }
         ]
     }

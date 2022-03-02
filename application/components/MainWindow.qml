@@ -305,11 +305,6 @@ Item {
                 onTriggered: Qt.openUrlExternally(Logger.logsPath)
             }
         }
-
-//        Component.onCompleted: {
-//            Logger.messageArrived.connect(logView.append);
-//            Logger.messageArrived.connect(logView.scrollToBottom);
-//        }
     }
 
     MouseArea {
