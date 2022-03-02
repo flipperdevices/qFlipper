@@ -58,7 +58,7 @@ AbstractOverlay {
         anchors.topMargin: -2
 
         currentIndex: tabs.currentIndex
-        background: currentIndex == 2
+        backgroundColor: Qt.rgba(0, 0, 0, currentIndex == 2)
 
         items: [
             DeviceInfo { id: deviceInfoPane },

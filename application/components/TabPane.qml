@@ -15,8 +15,14 @@ ColumnLayout {
     property int radius: 7
     property int borderWidth: 2
 
-    property bool background: false
     property color backgroundColor: Qt.rgba(0,0,0,0)
+
+    Behavior on backgroundColor {
+        ColorAnimation {
+            duration: 200
+            easing.type: Easing.InOutQuad
+        }
+    }
 
     Item {
         id: header
@@ -27,7 +33,7 @@ ColumnLayout {
 
 
         Rectangle {
-            color: control.background ? "black" : "transparent"
+            color: control.backgroundColor
             width: parent.width + control.radius
             height: control.radius * 2 + control.borderWidth * 2
             radius: control.radius
@@ -42,7 +48,7 @@ ColumnLayout {
             anchors.rightMargin: parent.width / 2
 
             Rectangle {
-                color: control.background ? "black" : "transparent"
+                color: control.backgroundColor
                 width: parent.width + border.width
                 height: control.radius + control.borderWidth * 2
                 border.color: Theme.color.lightorange2
@@ -64,11 +70,9 @@ ColumnLayout {
                 const ctx = getContext("2d");
                 ctx.reset();
 
-                if(control.background) {
-                    const inset = control.borderWidth;
-                    ctx.fillStyle = Qt.rgba(0,0,0,1);
-                    ctx.fillRect(inset, 0, width - inset, height);
-                }
+                const inset = control.borderWidth;
+                ctx.fillStyle = control.backgroundColor;
+                ctx.fillRect(inset, 0, width - inset, height);
 
                 ctx.globalAlpha = 0.5;
                 ctx.lineDashOffset = 0.5;
@@ -100,12 +104,14 @@ ColumnLayout {
             Behavior on width {
                 PropertyAnimation {
                     duration: 200
+                    easing.type: Easing.InOutQuad
                 }
             }
 
             Behavior on height {
                 PropertyAnimation {
                     duration: 200
+                    easing.type: Easing.InOutQuad
                 }
             }
         }
@@ -119,7 +125,7 @@ ColumnLayout {
         Layout.fillWidth: true
 
         Rectangle {
-            color: control.background ? "black" : "transparent"
+            color: control.backgroundColor
             width: parent.width
             height: control.radius * 2 + control.borderWidth * 2
             radius: control.radius
