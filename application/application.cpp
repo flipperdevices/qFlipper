@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QLocale>
+#include <QSysInfo>
 #include <QDateTime>
 #include <QTranslator>
 #include <QQmlContext>
@@ -37,6 +38,9 @@ Application::Application(int &argc, char **argv):
 
     qCInfo(CATEGORY_APP).noquote() << APP_NAME << "version" << APP_VERSION << "commit"
                                    << APP_COMMIT << QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).toString(Qt::ISODate);
+
+    qCInfo(CATEGORY_APP).noquote() << "OS info:" << QSysInfo::prettyProductName() << QSysInfo::productVersion() << QSysInfo::kernelVersion();
+
     if(m_isDeveloperMode) {
         qCCritical(CATEGORY_APP) << "Developer mode is enabled! Please be careful.";
     }
