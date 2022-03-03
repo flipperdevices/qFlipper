@@ -108,5 +108,6 @@ The (mostly) complete guide is located [here](./BUGS.md).
 
 ## Known bugs
 
+* Currently incompatible with `libusb 1.0.25` due to [hotplug regression](https://github.com/libusb/libusb/issues/1082).
 * Sometimes Flipper's serial port doesn't get recognised by the OS, which leads to firmware update errors. This is a firmware issue.
 * On some systems, there is noticeable flicker during opening, closing or resizing of the log area
