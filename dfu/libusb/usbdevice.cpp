@@ -22,10 +22,8 @@ USBDevice::USBDevice(const USBDeviceInfo &info, QObject *parent):
 
 USBDevice::~USBDevice()
 {
-    if(m_p->libusbDeviceHandle) {
-        close();
-    }
-
+    // TODO: Find out how to close it safely
+//  close();
     delete m_p;
 }
 

@@ -12,8 +12,10 @@ Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
 static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
 
 USBDeviceDetector::USBDeviceDetector(QObject *parent):
-    QObject(parent)
+    QObject(parent),
+    m_timer(new QTimer(this))
 {
+    connect(m_timer, &QTimer::timeout, this, &USBDeviceDetector::processEvents);
     libusb_init(nullptr);
 }
 
@@ -29,6 +31,8 @@ bool USBDeviceDetector::setWantedDevices(const QList<USBDeviceInfo> &wantedList)
         return false;
     }
 
+    m_timer->stop();
+
     for(const auto &info : wantedList) {
         const auto events = libusb_hotplug_event(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED | LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT);
         const auto err = libusb_hotplug_register_callback(nullptr, events, LIBUSB_HOTPLUG_ENUMERATE, info.vendorID(),
@@ -39,23 +43,44 @@ bool USBDeviceDetector::setWantedDevices(const QList<USBDeviceInfo> &wantedList)
         }
     }
 
-    return startTimer(100);
+    m_timer->start(100);
+    return true;
 }
 
-void USBDeviceDetector::timerEvent(QTimerEvent *e)
+void USBDeviceDetector::registerDevice(const USBDeviceInfo &deviceInfo)
 {
-    Q_UNUSED(e);
+    QTimer::singleShot(0, this, [=]() {
+        if(m_devices.contains(deviceInfo)) {
+            return;
+        }
 
+        m_devices.append(fillDeviceInfo(deviceInfo));
+        emit devicePluggedIn(m_devices.last());
+    });
+}
+
+void USBDeviceDetector::unregisterDevice(const USBDeviceInfo &deviceInfo)
+{
+    if(!m_devices.contains(deviceInfo)) {
+        return;
+    }
+
+    m_devices.removeOne(deviceInfo);
+    emit deviceUnplugged(deviceInfo);
+}
+
+void USBDeviceDetector::processEvents()
+{
     struct timeval timeout = {0, 10000};
     libusb_handle_events_timeout_completed(nullptr, &timeout, nullptr);
 }
 
-static USBDeviceInfo getDeviceInfo(const USBDeviceInfo &info)
+USBDeviceInfo USBDeviceDetector::fillDeviceInfo(const USBDeviceInfo &deviceInfo)
 {
     auto numRetries = 20;
-    auto *dev = (libusb_device*)info.backendData().value<void*>();
+    auto *dev = (libusb_device*)deviceInfo.backendData().value<void*>();
 
-    USBDeviceInfo newinfo = info;
+    USBDeviceInfo newinfo = deviceInfo;
     unsigned char buf[1024];
 
     libusb_device_descriptor desc;
@@ -147,13 +172,9 @@ static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb
     const auto info = USBDeviceInfo(desc.idVendor, desc.idProduct).withBackendData(QVariant::fromValue((void*)dev));
 
     if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED) {
-        // Get string descriptors out of callback context
-        QTimer::singleShot(0, detector, [=]() {
-            emit detector->devicePluggedIn(getDeviceInfo(info));
-        });
-
+        detector->registerDevice(info);
     } else if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT) {
-        emit detector->deviceUnplugged(info);
+        detector->unregisterDevice(info);
     } else {
         qCDebug(CATEGORY_DEBUG) << "Unhandled libusb event";
     }
