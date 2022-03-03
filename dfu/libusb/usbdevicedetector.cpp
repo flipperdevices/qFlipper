@@ -2,10 +2,12 @@
 
 #include <libusb.h>
 
+#include <QDebug>
 #include <QTimer>
 #include <QThread>
+#include <QLoggingCategory>
 
-#include "debug.h"
+Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
 
 static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
 
@@ -22,14 +24,19 @@ USBDeviceDetector::~USBDeviceDetector()
 
 bool USBDeviceDetector::setWantedDevices(const QList<USBDeviceInfo> &wantedList)
 {
-    check_return_bool(libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG), "Hotplug support is expected, but is not present");
+    if(!libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG)) {
+        qCDebug(CATEGORY_DEBUG) << "Failed to get device descriptor";
+        return false;
+    }
 
     for(const auto &info : wantedList) {
         const auto events = libusb_hotplug_event(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED | LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT);
         const auto err = libusb_hotplug_register_callback(nullptr, events, LIBUSB_HOTPLUG_ENUMERATE, info.vendorID(),
                                                           info.productID(), LIBUSB_HOTPLUG_MATCH_ANY, libusbHotplugCallback, this, nullptr);
-
-        check_return_bool(!err, "Failed to register hotplug callback");
+        if(err) {
+            qCDebug(CATEGORY_DEBUG) << "Failed to register hotplug callback";
+            return false;
+        }
     }
 
     return startTimer(100);
@@ -45,27 +52,63 @@ void USBDeviceDetector::timerEvent(QTimerEvent *e)
 
 static USBDeviceInfo getDeviceInfo(const USBDeviceInfo &info)
 {
+    auto numRetries = 20;
     auto *dev = (libusb_device*)info.backendData().value<void*>();
 
-    libusb_device_descriptor desc;
-    check_return_val(!libusb_get_device_descriptor(dev, &desc),"Failed to get device descriptor", USBDeviceInfo());
-
-    struct libusb_device_handle *handle;
-    check_return_val(!libusb_open(dev, &handle), "Failed to open device", USBDeviceInfo());
-
     USBDeviceInfo newinfo = info;
-    unsigned char buf[0xff];
+    unsigned char buf[1024];
 
-    check_return_val(libusb_get_string_descriptor_ascii(handle, desc.iManufacturer, buf, sizeof(buf)) >= 0, "Failed to get manufacturer string descriptor", USBDeviceInfo());
-    newinfo.setManufacturer(QString::fromLocal8Bit((const char*)buf));
+    libusb_device_descriptor desc;
+    struct libusb_device_handle *handle;
 
-    check_return_val(libusb_get_string_descriptor_ascii(handle, desc.iProduct, buf, sizeof(buf)) >= 0,"Failed to get product string descriptor", USBDeviceInfo());
-    newinfo.setProductDescription(QString::fromLocal8Bit((const char*)buf));
+    bool descOk, devOk, mfgOk, productOk, serialOk;
 
-    check_return_val(libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, buf, sizeof(buf)) >= 0, "Failed to get device serial number", USBDeviceInfo());
-    newinfo.setSerialNumber(QString::fromLocal8Bit((const char*)buf));
+    do {
+        do {
+            descOk = !libusb_get_device_descriptor(dev, &desc);
+            if(!descOk) break;
 
-    libusb_close(handle);
+            devOk = !libusb_open(dev, &handle);
+            if(!devOk) break;
+
+            mfgOk = libusb_get_string_descriptor_ascii(handle, desc.iManufacturer, buf, sizeof(buf)) >= 0;
+            if(!mfgOk) break;
+
+            newinfo.setManufacturer(QString::fromLocal8Bit((const char*)buf));
+
+            productOk = libusb_get_string_descriptor_ascii(handle, desc.iProduct, buf, sizeof(buf)) >= 0;
+            if(!productOk) break;
+
+            newinfo.setProductDescription(QString::fromLocal8Bit((const char*)buf));
+
+            serialOk = libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, buf, sizeof(buf)) >= 0;
+            if(!serialOk) break;
+
+            newinfo.setSerialNumber(QString::fromLocal8Bit((const char*)buf));
+        } while(false);
+
+        if(descOk && devOk) {
+            libusb_close(handle);
+        }
+
+    } while(--numRetries);
+
+    if(!serialOk) {
+        if(!descOk) {
+            qCDebug(CATEGORY_DEBUG) << "Failed to get device descriptor";
+        } else if(!devOk) {
+            qCDebug(CATEGORY_DEBUG) << "Failed to open device";
+        } else if(!mfgOk) {
+            qCDebug(CATEGORY_DEBUG) << "Failed to get manufacturer string descriptor";
+        } else if(!productOk) {
+            qCDebug(CATEGORY_DEBUG) << "Failed to get product string descriptor";
+        } else if(!serialOk) {
+            qCDebug(CATEGORY_DEBUG) << "Failed to get device serial number";
+        }
+
+        return USBDeviceInfo();
+    }
+
     return newinfo;
 }
 
@@ -90,7 +133,7 @@ static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb
 
     } while(--numRetries);
 
-    if(!descOk || !valuesOk) {
+    if(!valuesOk) {
         qCDebug(CATEGORY_DEBUG) << (descOk ? "Failed to get device descriptor" : "Device descriptor received, but not a valid one");
         return 0;
     }
@@ -106,7 +149,7 @@ static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb
     } else if(event == LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT) {
         emit detector->deviceUnplugged(info);
     } else {
-        debug_msg("Unhandled libusb event");
+        qCDebug(CATEGORY_DEBUG) << "Unhandled libusb event";
     }
 
     return 0;
