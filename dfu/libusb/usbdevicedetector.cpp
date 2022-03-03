@@ -61,7 +61,7 @@ static USBDeviceInfo getDeviceInfo(const USBDeviceInfo &info)
     libusb_device_descriptor desc;
     struct libusb_device_handle *handle;
 
-    bool descOk, devOk, mfgOk, productOk, serialOk;
+    bool descOk = false, devOk = false, mfgOk = false, productOk = false, serialOk = false;
 
     do {
         do {
@@ -87,9 +87,15 @@ static USBDeviceInfo getDeviceInfo(const USBDeviceInfo &info)
             newinfo.setSerialNumber(QString::fromLocal8Bit((const char*)buf));
         } while(false);
 
-        if(descOk && devOk) {
+        if(devOk) {
             libusb_close(handle);
         }
+
+        if(serialOk) {
+            break;
+        }
+
+        QThread::msleep(20);
 
     } while(--numRetries);
 
@@ -102,7 +108,7 @@ static USBDeviceInfo getDeviceInfo(const USBDeviceInfo &info)
             qCDebug(CATEGORY_DEBUG) << "Failed to get manufacturer string descriptor";
         } else if(!productOk) {
             qCDebug(CATEGORY_DEBUG) << "Failed to get product string descriptor";
-        } else if(!serialOk) {
+        } else {
             qCDebug(CATEGORY_DEBUG) << "Failed to get device serial number";
         }
 
