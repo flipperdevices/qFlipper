@@ -14,6 +14,7 @@ class UpdateRegistry;
 
 namespace Zero {
 class DeviceState;
+class FileManager;
 }}
 
 class ApplicationBackend : public QObject
@@ -21,6 +22,7 @@ class ApplicationBackend : public QObject
     Q_OBJECT
     Q_PROPERTY(BackendState backendState READ backendState NOTIFY backendStateChanged)
     Q_PROPERTY(Flipper::Zero::DeviceState* deviceState READ deviceState NOTIFY currentDeviceChanged)
+    Q_PROPERTY(Flipper::Zero::FileManager* fileManager READ fileManager CONSTANT)
     Q_PROPERTY(FirmwareUpdateState firmwareUpdateState READ firmwareUpdateState NOTIFY firmwareUpdateStateChanged)
     Q_PROPERTY(QAbstractListModel* firmwareUpdateModel READ firmwareUpdateModel CONSTANT)
     Q_PROPERTY(Flipper::Updates::VersionInfo latestFirmwareVersion READ latestFirmwareVersion NOTIFY firmwareUpdateStateChanged)
@@ -86,6 +88,7 @@ public:
 
     Flipper::FlipperZero *device() const;
     Flipper::Zero::DeviceState *deviceState() const;
+    Flipper::Zero::FileManager *fileManager() const;
 
     FirmwareUpdateState firmwareUpdateState() const;
     QAbstractListModel *firmwareUpdateModel() const;
@@ -140,6 +143,7 @@ private:
 
     Flipper::DeviceRegistry *m_deviceRegistry;
     Flipper::UpdateRegistry *m_firmwareUpdateRegistry;
+    Flipper::Zero::FileManager *m_fileManager;
 
     BackendState m_backendState;
     BackendError::ErrorType m_errorType;

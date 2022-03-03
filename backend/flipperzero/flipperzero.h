@@ -29,6 +29,7 @@ public:
     FlipperZero(const Zero::DeviceInfo &info, QObject *parent = nullptr);
 
     Zero::DeviceState *deviceState() const;
+    Zero::ProtobufSession *rpc() const;
 
     bool canUpdate(const Flipper::Updates::VersionInfo &versionInfo) const;
     bool canInstall(const Flipper::Updates::VersionInfo &versionInfo) const;

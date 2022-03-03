@@ -13,6 +13,7 @@
 
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/devicestate.h"
+#include "flipperzero/filemanager.h"
 #include "flipperzero/assetmanifest.h"
 #include "flipperzero/screenstreamer.h"
 
@@ -27,6 +28,7 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     QObject(parent),
     m_deviceRegistry(new DeviceRegistry(this)),
     m_firmwareUpdateRegistry(new FirmwareUpdateRegistry("https://update.flipperzero.one/firmware/directory.json", this)),
+    m_fileManager(new FileManager(this)),
     m_backendState(BackendState::WaitingForDevices),
     m_errorType(BackendError::UnknownError)
 {
@@ -87,6 +89,11 @@ DeviceState *ApplicationBackend::deviceState() const
     } else {
         return nullptr;
     }
+}
+
+FileManager *ApplicationBackend::fileManager() const
+{
+    return m_fileManager;
 }
 
 const Updates::VersionInfo ApplicationBackend::latestFirmwareVersion() const
@@ -187,7 +194,7 @@ void ApplicationBackend::finalizeOperation()
 
     } else {
         device()->finalizeOperation();
-        waitForDeviceReady();
+        setBackendState(BackendState::Ready);
     }
 }
 
@@ -205,11 +212,15 @@ void ApplicationBackend::onCurrentDeviceChanged()
         connect(device(), &FlipperZero::operationFinished, this, &ApplicationBackend::onDeviceOperationFinished);
         connect(device(), &FlipperZero::deviceStateChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
 
-        waitForDeviceReady();
+        setBackendState(BackendState::Ready);
 
     } else {
         qCDebug(LOG_BACKEND) << "Last device was disconnected";
         setBackendState(BackendState::WaitingForDevices);
+    }
+
+    if(m_backendState <= BackendState::Ready) {
+        m_fileManager->setDevice(m_deviceRegistry->currentDevice());
     }
 }
 

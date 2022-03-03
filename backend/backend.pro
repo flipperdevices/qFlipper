@@ -20,6 +20,7 @@ SOURCES += \
     firmwareupdateregistry.cpp \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
+    flipperzero/filemanager.cpp \
     flipperzero/protobufsession.cpp \
     flipperzero/rpc/abstractprotobufoperation.cpp \
     flipperzero/rpc/guiscreenframeoperation.cpp \
@@ -106,6 +107,7 @@ HEADERS += \
     firmwareupdateregistry.h \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
+    flipperzero/filemanager.h \
     flipperzero/pixmaps/updateok.h \
     flipperzero/pixmaps/updating.h \
     flipperzero/protobufsession.h \

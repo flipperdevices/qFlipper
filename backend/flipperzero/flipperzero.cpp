@@ -25,8 +25,8 @@
 
 #include "preferences.h"
 
-#include "pixmaps/updating.h"
-#include "pixmaps/updateok.h"
+//#include "pixmaps/updating.h"
+//#include "pixmaps/updateok.h"
 
 Q_LOGGING_CATEGORY(CAT_DEVICE, "DEVICE")
 
@@ -59,6 +59,11 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
 DeviceState *FlipperZero::deviceState() const
 {
     return m_state;
+}
+
+ProtobufSession *FlipperZero::rpc() const
+{
+    return m_rpc;
 }
 
 // TODO: Handle -rcxx suffixes correctly
@@ -189,15 +194,9 @@ void FlipperZero::finalizeOperation()
     // 1. Check if the port is open and functional
     // 2. Test if the RPC session is up an running
     // 3. Open RPC session if necessary
-    // 4. Start screen streaming
 
     if(m_state->isError()) {
         m_state->clearError();
-    }
-
-    if(!m_state->isRecoveryMode()) {
-        m_virtualDisplay->stop();
-        m_streamer->start();
     }
 }
 
@@ -226,12 +225,6 @@ void FlipperZero::onSessionStatusChanged()
         qCritical() << "RPC ERROR:" << m_rpc->errorString();
 
     } else if(m_rpc->isSessionUp()) {
-        if(m_state->isPersistent()) {
-            m_virtualDisplay->start(QByteArray((char*)updating_bits, sizeof(updating_bits)));
-        } else {
-            m_streamer->start();
-        }
-
         m_state->setOnline(true);
     }
 }
@@ -244,7 +237,6 @@ void FlipperZero::registerOperation(AbstractOperation *operation)
             m_state->setError(operation->error(), operation->errorString());
 
         } else {
-            m_virtualDisplay->sendFrame(QByteArray((char*)update_ok_bits, sizeof(update_ok_bits)));
             qCInfo(CAT_DEVICE).noquote() << operation->description() << "SUCCESS";
         }
 
@@ -253,21 +245,5 @@ void FlipperZero::registerOperation(AbstractOperation *operation)
     });
 
     qCInfo(CAT_DEVICE).noquote() << operation->description() << "START";
-
-    if(m_state->isRecoveryMode()) {
-        operation->start();
-
-    } else {
-        connect(m_state, &DeviceState::isStreamingEnabledChanged, operation, [=]() {
-            //TODO: Check that ScreenStreamer has stopped without errors
-            if(m_state->isStreamingEnabled()) {
-                // TODO: Finish with error
-            } else {
-                m_virtualDisplay->start(QByteArray((char*)updating_bits, sizeof(updating_bits)));
-                operation->start();
-            }
-        });
-
-        m_streamer->stop();
-    }
+    operation->start();
 }
