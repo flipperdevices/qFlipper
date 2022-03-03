@@ -383,6 +383,8 @@ bool ProtobufSession::unloadProtobufPlugin()
 
     if(!success) {
         qCWarning(LOG_SESSION) << "Failed to unload protobuf plugin";
+    } else {
+        m_plugin = nullptr;
     }
 
     return success;
