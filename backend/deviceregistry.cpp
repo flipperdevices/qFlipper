@@ -135,6 +135,8 @@ void DeviceRegistry::processDevice()
     auto *fetcher = qobject_cast<Zero::AbstractDeviceInfoHelper*>(sender());
     const auto &info = fetcher->result();
 
+    qCDebug(LOG_DEVREG).noquote() << "Got device info: fw:" << info.firmware.version << "commit:"
+                                  << info.firmware.commit << "radio:" << info.radioVersion;
     if(fetcher->isError()) {
         qCDebug(LOG_DEVREG).noquote() << "Device initialization failed:" << fetcher->errorString();
         setError(fetcher->error());
