@@ -37,7 +37,7 @@ QFile *TempDirectories::createFile(const QString &fileName, QObject *parent) con
     return new QFile(root().absoluteFilePath(fileName), parent);
 }
 
-QFile *TempDirectories::createTempFile() const
+QFile *TempDirectories::createTempFile(QObject *parent) const
 {
-    return new QTemporaryFile(root().absoluteFilePath(QStringLiteral("temp.XXXXXXXX")));
+    return new QTemporaryFile(root().absoluteFilePath(QStringLiteral("temp.XXXXXXXX")), parent);
 }

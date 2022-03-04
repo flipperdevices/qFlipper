@@ -106,19 +106,17 @@ void FirmwareHelper::prepareRadioFirmware()
 
         m_hasRadioUpdate = currentRadioVersion.isEmpty() || (currentStackType != newStackType) || (currentRadioVersion < newRadioVersion);
 
-        if(m_hasRadioUpdate) {
-            auto *file = globalTempDirs->createTempFile();
-            m_files.insert(FileIndex::RadioFirmware, file);
+        auto *file = globalTempDirs->createTempFile(this);
+        m_files.insert(FileIndex::RadioFirmware, file);
 
-            if(!file->open(QIODevice::WriteOnly)) {
-                finishWithError(BackendError::DiskError, QStringLiteral("Failed to open temporary file: %1").arg(file->errorString()));
-                return;
-            } else if(file->write(helper->radioFirmwareData()) <= 0) {
-                finishWithError(BackendError::DiskError, QStringLiteral("Failed to write to temporary file: %1").arg(file->errorString()));
-                return;
-            } else {
-                file->close();
-            }
+        if(!file->open(QIODevice::WriteOnly)) {
+            finishWithError(BackendError::DiskError, QStringLiteral("Failed to open temporary file: %1").arg(file->errorString()));
+            return;
+        } else if(file->write(helper->radioFirmwareData()) <= 0) {
+            finishWithError(BackendError::DiskError, QStringLiteral("Failed to write to temporary file: %1").arg(file->errorString()));
+            return;
+        } else {
+            file->close();
         }
 
         advanceState();
@@ -145,7 +143,7 @@ void FirmwareHelper::prepareOptionBytes()
             return;
         }
 
-        auto *file = globalTempDirs->createTempFile();
+        auto *file = globalTempDirs->createTempFile(this);
         m_files.insert(FileIndex::OptionBytes, file);
 
         if(!file->open(QIODevice::WriteOnly)) {

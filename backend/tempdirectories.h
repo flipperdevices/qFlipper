@@ -17,7 +17,7 @@ public:
     QDir subdir(const QString &subdirName) const;
 
     QFile *createFile(const QString &fileName, QObject *parent = nullptr) const;
-    QFile *createTempFile() const;
+    QFile *createTempFile(QObject *parent = nullptr) const;
 
 private:
     QTemporaryDir m_root;

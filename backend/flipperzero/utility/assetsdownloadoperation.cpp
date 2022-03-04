@@ -306,7 +306,7 @@ void AssetsDownloadOperation::writeFiles()
             }
 
             const auto resourcePath = QStringLiteral("resources/") + fileInfo.absolutePath;
-            if((buf->write(m_archive.fileData(resourcePath)) <= 0) || (!buf->seek(0))) {
+            if((buf->write(m_archive.fileData(resourcePath)) < 0) || (!buf->seek(0))) {
                 return finishWithError(BackendError::UnknownError, buf->errorString());
             }
 

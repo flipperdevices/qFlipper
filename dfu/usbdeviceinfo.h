@@ -1,5 +1,4 @@
-#ifndef USBDEVICEINFO_H
-#define USBDEVICEINFO_H
+#pragma once
 
 #include <QString>
 #include <QVariant>
@@ -30,6 +29,8 @@ public:
     void setProductDescription(const QString &productDescription);
     void setSerialNumber(const QString &serialNumber);
 
+    bool operator ==(const USBDeviceInfo &other) const;
+
 private:
     uint16_t m_vendorID;
     uint16_t m_productID;
@@ -42,5 +43,3 @@ private:
 };
 
 Q_DECLARE_METATYPE(USBDeviceInfo)
-
-#endif // USBDEVICEINFO_H

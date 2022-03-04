@@ -82,3 +82,8 @@ void USBDeviceInfo::setSerialNumber(const QString &serialNumber)
 {
     m_serialNumber = serialNumber;
 }
+
+bool USBDeviceInfo::operator ==(const USBDeviceInfo &other) const
+{
+    return m_backendData == other.m_backendData;
+}

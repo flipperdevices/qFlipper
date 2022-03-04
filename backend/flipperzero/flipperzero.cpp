@@ -207,8 +207,13 @@ void FlipperZero::onDeviceInfoChanged()
         return;
     }
 
-    const auto &pb = m_state->deviceInfo().protobuf;
-    const auto &pi = m_state->deviceInfo().portInfo;
+    const auto &deviceInfo = m_state->deviceInfo();
+
+    qCDebug(CAT_DEVICE).noquote() << "Version:" << deviceInfo.firmware.version << "commit:"
+                                  << deviceInfo.firmware.commit << "radio:" << deviceInfo.radioVersion;
+
+    const auto &pb = deviceInfo.protobuf;
+    const auto &pi = deviceInfo.portInfo;
 
     m_rpc->setMajorVersion(pb.versionMajor);
     m_rpc->setMinorVersion(pb.versionMinor);
