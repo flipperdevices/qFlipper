@@ -102,7 +102,7 @@ private slots:
 
 private:
     bool loadProtobufPlugin();
-    bool unloadProtobufPlugin();
+    void unloadProtobufPlugin();
 
     void stopEarly(BackendError::ErrorType error, const QString &errorString);
 

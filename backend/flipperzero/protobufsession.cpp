@@ -190,6 +190,7 @@ void ProtobufSession::startSession()
 
     if(!loadProtobufPlugin()) {
         stopEarly(BackendError::UnknownError, QStringLiteral("Failed to load protobuf plugin: %1").arg(m_loader->errorString()));
+        return;
     }
 
     auto *helper = new SerialInitHelper(m_portInfo, this);
@@ -335,11 +336,9 @@ void ProtobufSession::doStopSession()
         m_serialPort->deleteLater();
     }
 
-    if(unloadProtobufPlugin()) {
-        qCInfo(LOG_SESSION) << "RPC session stopped successfully.";
-    } else {
-        setError(BackendError::UnknownError, QStringLiteral("Failed to unload protobuf plugin: %1").arg(m_loader->errorString()));
-    }
+    unloadProtobufPlugin();
+
+    qCInfo(LOG_SESSION) << "RPC session stopped successfully.";
 
     m_sessionState = Stopped;
     emit sessionStatusChanged();
@@ -363,31 +362,30 @@ bool ProtobufSession::loadProtobufPlugin()
 {
     m_loader->setFileName(protobufPluginPath());
 
-    if(m_loader->isLoaded()) {
-        return true;
-    } else if(!m_loader->load()) {
+    if(!(m_plugin = qobject_cast<ProtobufPluginInterface*>(m_loader->instance()))) {
         qCCritical(LOG_SESSION) << "Failed to load protobuf plugin:" << m_loader->errorString();
-    } else if(!(m_plugin = qobject_cast<ProtobufPluginInterface*>(m_loader->instance()))) {
-        qCCritical(LOG_SESSION) << "Loaded plugin does not provide the interface required";
     } else {
         m_plugin->setMinorVersion(m_versionMinor);
-        return true;
     }
 
-    return false;
+    return m_plugin;
 }
 
-bool ProtobufSession::unloadProtobufPlugin()
+void ProtobufSession::unloadProtobufPlugin()
 {
-    const auto success = m_loader->isLoaded() ? m_loader->unload() : true;
+    m_plugin = nullptr;
 
-    if(!success) {
-        qCWarning(LOG_SESSION) << "Failed to unload protobuf plugin";
-    } else {
-        m_plugin = nullptr;
+    if(!m_loader->isLoaded()) {
+        return;
     }
 
-    return success;
+    qCDebug(LOG_SESSION) << "Attempting to unload protobuf plugin...";
+
+    if(!m_loader->unload()) {
+        qCDebug(LOG_SESSION) << "Cannot unload protobuf plugin. This is probably OK.";
+    } else {
+        qCDebug(LOG_SESSION) << "Unloaded protobuf plugin.";
+    }
 }
 
 void ProtobufSession::stopEarly(BackendError::ErrorType error, const QString &errorString)
