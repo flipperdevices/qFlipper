@@ -137,6 +137,14 @@ Item {
         }
     }
 
+    DropArea {
+        enabled: Backend.fileManager.currentPath !== "/"
+        anchors.fill: parent
+        onDropped: {
+            console.log("Downloading", drop.urls)
+        }
+    }
+
     Action {
         id: forwardAction
         enabled: Backend.fileManager.canGoForward

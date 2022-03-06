@@ -84,6 +84,28 @@ ItemDelegate {
         }
     }
 
+    DragHandler {
+        id: dragHandler
+        target: null
+        dragThreshold: 3
+    }
+
+    Item {
+        id: draggable
+        anchors.fill: parent
+
+        Drag.active: dragHandler.active
+        Drag.mimeData: { "text/plain": delegate.filePath }
+        Drag.dragType: Drag.Automatic
+        Drag.onDragFinished: function(dropAction) {
+            if(dropAction !== Qt.MoveAction) {
+                return;
+            }
+
+            console.log("Uploading", delegate.fileName)
+        }
+    }
+
     onClicked: {
         if(fileType !== 0) {
             return;
