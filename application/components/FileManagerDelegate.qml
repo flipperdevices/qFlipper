@@ -5,6 +5,7 @@ import QtQuick.Controls.impl 2.15
 
 import Theme 1.0
 import QFlipper 1.0
+import Strings 1.0
 
 ItemDelegate {
     id: delegate
@@ -31,9 +32,21 @@ ItemDelegate {
                     return "qrc:/assets/gfx/symbolic/mimetypes/internal.svg";
                 } else if(delegate.fileType === 0) {
                     return "qrc:/assets/gfx/symbolic/mimetypes/folder.svg";
+                }
+
+                const extension = delegate.fileName.substring(delegate.fileName.lastIndexOf('.') + 1);
+
+                // TODO: move to a dictionary?
+                if(extension === "ir") {
+                    return "qrc:/assets/gfx/symbolic/mimetypes/infrared.svg";
+                } else if(extension === "nfc") {
+                    return "qrc:/assets/gfx/symbolic/mimetypes/nfc.svg";
+                } else if(extension === "u2f") {
+                    return "qrc:/assets/gfx/symbolic/mimetypes/u2f.svg";
                 } else {
                     return "qrc:/assets/gfx/symbolic/mimetypes/file.svg";
                 }
+
             }
 
             sourceSize: Qt.size(28, 28)
