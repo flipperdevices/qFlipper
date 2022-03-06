@@ -107,6 +107,12 @@ AbstractOverlay {
                 visible: parent.hovered
             }
         }
+
+        onCurrentIndexChanged: {
+            if(currentIndex === 2) {
+                Backend.fileManager.refresh();
+            }
+        }
     }
 
     TextLabel {

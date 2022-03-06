@@ -220,7 +220,7 @@ void ApplicationBackend::onCurrentDeviceChanged()
     }
 
     if(m_backendState <= BackendState::Ready) {
-        m_fileManager->setDevice(m_deviceRegistry->currentDevice());
+        m_fileManager->setDevice(device());
     }
 }
 
@@ -329,6 +329,7 @@ void ApplicationBackend::registerMetaTypes()
 
     qRegisterMetaType<Flipper::FlipperZero*>("Flipper::FlipperZero*");
     qRegisterMetaType<Flipper::Zero::DeviceState*>("Flipper::Zero::DeviceState*");
+    qRegisterMetaType<Flipper::Zero::FileManager*>("Flipper::Zero::FileManager*");
     qRegisterMetaType<Flipper::Zero::ScreenStreamer*>("Flipper::Zero::ScreenStreamer*");
 
     qRegisterMetaType<Flipper::Zero::AssetManifest::FileInfo>();
