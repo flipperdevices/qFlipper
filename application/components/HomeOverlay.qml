@@ -14,8 +14,9 @@ AbstractOverlay {
     readonly property int centerX: 590
     readonly property int centerOffset: Math.min(overlay.width - (centerX + systemPathLabel.width + 12), 0)
 
+
     TabButton {
-        id: dangerTab
+        id: developerTab
         icon.source: "qrc:/assets/gfx/symbolic/developer-mode.svg"
         icon.width: 27
         icon.height: 27
@@ -58,7 +59,7 @@ AbstractOverlay {
         anchors.topMargin: -2
 
         currentIndex: tabs.currentIndex
-        backgroundColor: Qt.rgba(0, 0, 0, currentIndex == 2)
+        backgroundColor: Qt.rgba(0, 0, 0, fileManagerTab.checked)
 
         items: [
             DeviceInfo { id: deviceInfoPane },
@@ -98,19 +99,18 @@ AbstractOverlay {
         }
 
         TabButton {
+            id: fileManagerTab
+            enabled: Backend.deviceState && !Backend.deviceState.isRecoveryMode
+
             icon.source: "qrc:/assets/gfx/symbolic/file-symbolic.svg"
             icon.width: 23
             icon.height: 29
 
+            onCheckedChanged: if(checked) Backend.fileManager.refresh()
+
             ToolTip {
                 text: qsTr("File manager")
                 visible: parent.hovered
-            }
-        }
-
-        onCurrentIndexChanged: {
-            if(currentIndex === 2) {
-                Backend.fileManager.refresh();
             }
         }
     }
@@ -459,7 +459,7 @@ AbstractOverlay {
         developerActions.installFusAction.triggered.connect(installFUSDangerDanger);
 
         if(App.isDeveloperMode) {
-            tabs.addItem(dangerTab);
+            tabs.addItem(developerTab);
         }
     }
 }
