@@ -84,6 +84,7 @@ Item {
                         font.family: "Share Tech Mono"
 
                         color: Theme.color.lightorange2
+                        elide: Text.ElideMiddle
 
                         text: {
                             const path = Backend.fileManager.currentPath
@@ -97,7 +98,10 @@ Item {
                             }
                         }
 
-                        elide: Text.ElideMiddle
+                        onTextChanged: {
+                            fileView.currentIndex = -1;
+                        }
+
                     }
                 }
             }
@@ -128,8 +132,23 @@ Item {
             background: Item {}
 
             GridView {
+                id: fileView
                 cellWidth: 120
                 cellHeight: 86
+
+                MouseArea {
+                    z: parent.z - 1
+                    anchors.fill: parent
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+                    onClicked: {
+                        fileView.currentIndex = -1;
+
+                        if(mouse.button === Qt.RightButton) {
+                            emptyMenu.popup();
+                        }
+                    }
+                }
 
                 model: Backend.fileManager
                 delegate: FileManagerDelegate {}
@@ -141,7 +160,18 @@ Item {
         enabled: Backend.fileManager.currentPath !== "/"
         anchors.fill: parent
         onDropped: {
-            console.log("Downloading", drop.urls)
+            // Copy files to Flipper (easy)
+        }
+    }
+
+    Menu {
+        id: emptyMenu
+        MenuItem {
+            action: uploadHereAction
+        }
+
+        MenuItem {
+            action: newDirAction
         }
     }
 
@@ -175,5 +205,15 @@ Item {
         icon.source: "qrc:/assets/gfx/symbolic/refresh-small.svg"
 
         onTriggered: Backend.fileManager.refresh()
+    }
+
+    Action {
+        id: uploadHereAction
+        text: qsTr("Upload here...")
+    }
+
+    Action {
+        id: newDirAction
+        text: qsTr("New Folder...")
     }
 }

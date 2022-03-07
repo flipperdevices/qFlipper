@@ -82,7 +82,6 @@ T.MenuItem {
 
     icon.width: 24
     icon.height: 24
-    icon.color: control.palette.windowText
 
     font.pixelSize: 16
     font.letterSpacing: -1
