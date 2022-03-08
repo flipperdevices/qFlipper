@@ -143,6 +143,7 @@ Item {
 
                     onClicked: {
                         fileView.currentIndex = -1;
+                        forceActiveFocus(Qt.MouseFocusReason);
 
                         if(mouse.button === Qt.RightButton) {
                             emptyMenu.popup();
