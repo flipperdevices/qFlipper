@@ -35,8 +35,13 @@ bool AbstractProtobufOperation::isFinished() const
 
 void AbstractProtobufOperation::start()
 {
-    setOperationState(Started);
-    startTimeout();
+    if(!begin()) {
+        // begin() has to fill the error() and errorString() fields
+        finishLater();
+    } else {
+        setOperationState(Started);
+        startTimeout();
+    }
 }
 
 void AbstractProtobufOperation::finishLater()
@@ -62,6 +67,12 @@ void AbstractProtobufOperation::feedResponse(QObject *response)
     } else {
         startTimeout();
     }
+}
+
+bool AbstractProtobufOperation::begin()
+{
+    // Empty default implementation
+    return true;
 }
 
 bool AbstractProtobufOperation::processResponse(QObject *response)

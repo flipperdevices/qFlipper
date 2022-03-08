@@ -32,6 +32,7 @@ public:
     virtual const QByteArray encodeRequest(ProtobufPluginInterface *encoder) = 0;
 
 private:
+    virtual bool begin();
     virtual bool processResponse(QObject *response);
     uint32_t m_id;
 };

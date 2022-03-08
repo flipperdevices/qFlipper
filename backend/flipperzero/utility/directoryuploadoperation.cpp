@@ -86,11 +86,11 @@ void DirectoryUploadOperation::writeFiles()
         } else {
             auto *file = new QFile(fileInfo.absoluteFilePath(), this);
 
-            if(!file->open(QIODevice::ReadOnly)) {
-                file->deleteLater();
-                finishWithError(BackendError::DiskError, QStringLiteral("Failed to open file for reading: %1").arg(file->errorString()));
-                return;
-            }
+//            if(!file->open(QIODevice::ReadOnly)) {
+//                file->deleteLater();
+//                finishWithError(BackendError::DiskError, QStringLiteral("Failed to open file for reading: %1").arg(file->errorString()));
+//                return;
+//            }
 
             operation = rpc()->storageWrite(remoteFilePath, file);
             connect(operation, &AbstractOperation::finished, this, [=]() {

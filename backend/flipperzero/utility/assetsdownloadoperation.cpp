@@ -301,13 +301,18 @@ void AssetsDownloadOperation::writeFiles()
 
         } else if(fileInfo.type == FileNode::Type::RegularFile) {
             auto *buf = new QBuffer(this);
+
             if(!buf->open(QIODevice::ReadWrite)) {
+                buf->deleteLater();
                 return finishWithError(BackendError::UnknownError, buf->errorString());
             }
 
             const auto resourcePath = QStringLiteral("resources/") + fileInfo.absolutePath;
-            if((buf->write(m_archive.fileData(resourcePath)) < 0) || (!buf->seek(0))) {
+            if((buf->write(m_archive.fileData(resourcePath)) < 0)) {
+                buf->deleteLater();
                 return finishWithError(BackendError::UnknownError, buf->errorString());
+            } else {
+                buf->close();
             }
 
             op = rpc()->storageWrite(filePath, buf);

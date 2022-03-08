@@ -213,30 +213,18 @@ void FileManager::listCurrentPath()
 bool FileManager::uploadFile(const QFileInfo &info)
 {
     auto *file = new QFile(info.absoluteFilePath(), this);
+    auto *operation = m_device->rpc()->storageWrite(remoteFilePath(info.fileName()), file);
 
-    do {
-        if(!file->open(QIODevice::ReadOnly)) {
-            // TODO: Error handling
-            break;
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        file->deleteLater();
+        if(operation->isError()) {
+            //TODO: Error handling
+        } else {
+            listCurrentPath();
         }
+    });
 
-        auto *operation = m_device->rpc()->storageWrite(remoteFilePath(info.fileName()), file);
-
-        connect(operation, &AbstractOperation::finished, this, [=]() {
-            file->deleteLater();
-            if(operation->isError()) {
-                //TODO: Error handling
-            } else {
-                listCurrentPath();
-            }
-        });
-
-        return true;
-
-    } while(false);
-
-    file->deleteLater();
-    return false;
+    return true;
 }
 
 bool FileManager::uploadDirectory(const QFileInfo &info)
