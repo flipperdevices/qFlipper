@@ -174,15 +174,11 @@ void AssetsDownloadOperation::checkForDeviceManifest()
 void AssetsDownloadOperation::readDeviceManifest()
 {
     auto *buf = new QBuffer(this);
-
-    if(!buf->open(QIODevice::ReadWrite)) {
-        return finishWithError(BackendError::UnknownError, buf->errorString());
-    }
-
     auto *operation = rpc()->storageRead(QByteArrayLiteral("/ext/Manifest"), buf);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(!operation->isError()) {
+            buf->open(QIODevice::ReadOnly);
             const auto test = buf->readAll();
             m_deviceManifest = AssetManifest(test);
         }
