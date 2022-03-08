@@ -1,9 +1,13 @@
 #pragma once
 
+#include <QUrl>
+#include <QList>
 #include <QStringList>
 #include <QAbstractListModel>
 
 #include "fileinfo.h"
+
+class QFileInfo;
 
 namespace Flipper {
 
@@ -46,6 +50,9 @@ public:
     Q_INVOKABLE void rename(const QString &oldName, const QString &newName);
     Q_INVOKABLE void remove(const QString &fileName, bool recursive = false);
 
+    Q_INVOKABLE void upload(const QList<QUrl> &urlList);
+//    Q_INVOKABLE void download(const QString &fileName, bool recursive = false);
+
     // Properties
     bool isBusy() const;
     bool canGoBack() const;
@@ -63,8 +70,14 @@ signals:
 
 private:
     void setBusy(bool busy);
+
     void listCurrentPath();
+    bool uploadFile(const QFileInfo &info);
+    bool uploadDirectory(const QFileInfo &info);
+
     void setModelData(const FileInfoList &newData);
+
+    const QByteArray remoteFilePath(const QString &fileName) const;
 
     FlipperZero *m_device;
     FileInfoList m_modelData;

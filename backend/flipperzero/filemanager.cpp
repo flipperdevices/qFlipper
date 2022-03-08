@@ -1,12 +1,15 @@
 #include "filemanager.h"
 
+#include <QFile>
 #include <QDebug>
+#include <QFileInfo>
 #include <QLoggingCategory>
 
 #include "flipperzero.h"
 #include "protobufsession.h"
 
 #include "rpc/storagelistoperation.h"
+#include "rpc/storagewriteoperation.h"
 #include "rpc/storageremoveoperation.h"
 #include "rpc/storagerenameoperation.h"
 
@@ -79,17 +82,15 @@ void FileManager::historyBack()
 
 void FileManager::rename(const QString &oldName, const QString &newName)
 {
-    const auto oldPath = QStringLiteral("%1/%2").arg(currentPath(), oldName);
-    const auto newPath = QStringLiteral("%1/%2").arg(currentPath(), newName);
-    auto *operation = m_device->rpc()->storageRename(oldPath.toLocal8Bit(), newPath.toLocal8Bit());
+    auto *operation = m_device->rpc()->storageRename(remoteFilePath(oldName), remoteFilePath(newName));
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             //TODO: Error handling
+        } else {
+            listCurrentPath();
         }
     });
-
-    listCurrentPath();
 }
 
 void FileManager::remove(const QString &fileName, bool recursive)
@@ -100,10 +101,22 @@ void FileManager::remove(const QString &fileName, bool recursive)
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             //TODO: Error handling
+        } else {
+            listCurrentPath();
         }
     });
+}
 
-    listCurrentPath();
+void FileManager::upload(const QList<QUrl> &urlList)
+{
+    for(const auto &url : urlList) {
+        const QFileInfo info(url.toLocalFile());
+        const auto success = info.isDir() ? uploadDirectory(info) : uploadFile(info);
+        if(!success) {
+            //TODO: Error handling
+            break;
+        }
+    }
 }
 
 bool FileManager::isBusy() const
@@ -194,6 +207,41 @@ void FileManager::listCurrentPath()
     });
 }
 
+bool FileManager::uploadFile(const QFileInfo &info)
+{
+    auto *file = new QFile(info.absoluteFilePath(), this);
+
+    do {
+        if(!file->open(QIODevice::ReadOnly)) {
+            // TODO: Error handling
+            break;
+        }
+
+        auto *operation = m_device->rpc()->storageWrite(remoteFilePath(info.fileName()), file);
+
+        connect(operation, &AbstractOperation::finished, this, [=]() {
+            file->deleteLater();
+            if(operation->isError()) {
+                //TODO: Error handling
+            } else {
+                listCurrentPath();
+            }
+        });
+
+        return true;
+
+    } while(false);
+
+    file->deleteLater();
+    return false;
+}
+
+bool FileManager::uploadDirectory(const QFileInfo &info)
+{
+    qDebug() << "Uploading directory..." << info.fileName();
+    return true;
+}
+
 void FileManager::setModelData(const FileInfoList &newData)
 {
     beginResetModel();
@@ -202,7 +250,7 @@ void FileManager::setModelData(const FileInfoList &newData)
 
     if(currentPath() == QStringLiteral("/")) {
         m_modelData.erase(std::remove_if(m_modelData.begin(), m_modelData.end(), [](const FileInfo &arg) {
-            return arg.absolutePath == QStringLiteral("/any");
+            return arg.absolutePath != QStringLiteral("/ext") && arg.absolutePath != QStringLiteral("/int");
         }), m_modelData.end());
 
     } else {
@@ -216,4 +264,9 @@ void FileManager::setModelData(const FileInfoList &newData)
     }
 
     endResetModel();
+}
+
+const QByteArray FileManager::remoteFilePath(const QString &fileName) const
+{
+    return QStringLiteral("%1/%2").arg(currentPath(), fileName).toLocal8Bit();
 }

@@ -165,7 +165,12 @@ Item {
         enabled: Backend.fileManager.currentPath !== "/"
         anchors.fill: parent
         onDropped: {
-            // Copy files to Flipper (easy)
+            if(drop.proposedAction !== Qt.CopyAction) {
+                return;
+            }
+
+            Backend.fileManager.upload(drop.urls);
+            drop.accept()
         }
     }
 
