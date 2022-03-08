@@ -45,6 +45,7 @@ void RestartOperation::onDeviceOnlineChanged()
 
 void RestartOperation::rebootDevice()
 {
+    deviceState()->setProgress(-1);
     deviceState()->setStatusString(QStringLiteral("Restarting device..."));
 
     connect(deviceState(), &DeviceState::isOnlineChanged, this, &RestartOperation::onDeviceOnlineChanged);

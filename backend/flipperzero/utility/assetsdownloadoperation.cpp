@@ -261,15 +261,18 @@ void AssetsDownloadOperation::deleteFiles()
 
     deviceState()->setStatusString(tr("Deleting unneeded files..."));
 
-    int numFiles = m_deleteList.size();
+    auto filesRemaining = m_deleteList.size();
+    const auto increment = 100.0 / filesRemaining;
 
     for(const auto &fileInfo : qAsConst(m_deleteList)) {
-        const auto isLastFile = (--numFiles == 0);
+        const auto isLastFile = (--filesRemaining == 0);
         const auto fileName = QByteArrayLiteral("/ext/") + fileInfo.absolutePath.toLocal8Bit();
 
         auto *operation = rpc()->storageRemove(fileName);
 
         connect(operation, &AbstractOperation::finished, this, [=]() {
+            deviceState()->setProgress(100.0 - increment * filesRemaining);
+
             if(operation->isError()) {
                 finishWithError(operation->error(), operation->errorString());
             } else if(isLastFile) {
@@ -286,12 +289,13 @@ void AssetsDownloadOperation::writeFiles()
         advanceOperationState();
     }
 
-    deviceState()->setStatusString(tr("Writing new files..."));
+    deviceState()->setStatusString(tr("Installing databases..."));
 
-    int i = m_writeList.size();
+    auto filesRemaining = m_writeList.size();
+    const auto increment = 100.0 / filesRemaining;
 
     for(const auto &fileInfo : qAsConst(m_writeList)) {
-        --i;
+        --filesRemaining;
 
         AbstractOperation *op;
         const auto filePath = QByteArrayLiteral("/ext/") + fileInfo.absolutePath.toLocal8Bit();
@@ -322,9 +326,11 @@ void AssetsDownloadOperation::writeFiles()
         }
 
         connect(op, &AbstractOperation::finished, this, [=]() {
+            deviceState()->setProgress(100.0 - increment * filesRemaining);
+
             if(op->isError()) {
                 finishWithError(op->error(), op->errorString());
-            } else if(i == 0) {
+            } else if(filesRemaining == 0) {
                 advanceOperationState();
             }
         });
