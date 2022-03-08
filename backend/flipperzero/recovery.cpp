@@ -210,15 +210,15 @@ bool Recovery::deleteWirelessStack()
 bool Recovery::downloadFirmware(QIODevice *file)
 {
     if(!file->open(QIODevice::ReadOnly)) {
-        setErrorString("Can't download firmware: Failed to open the file.");
+        setErrorString("Can't flash firmware: Failed to open the file.");
         return false;
 
     } else if(file->bytesAvailable() <= 0) {
-        setErrorString("Can't download firmware: The file is empty.");
+        setErrorString("Can't flash firmware: The file is empty.");
         return false;
 
     } else {
-        m_deviceState->setStatusString("Downloading firmware...");
+        m_deviceState->setStatusString("Flashing firmware...");
     }
 
     DfuseFile fw(file);
@@ -233,7 +233,7 @@ bool Recovery::downloadFirmware(QIODevice *file)
     const auto success = dev.beginTransaction() && dev.download(&fw) && dev.endTransaction();
 
     if(!success) {
-        setErrorString("Can't download firmware: An error has occured during the operation.");
+        setErrorString("Can't flash firmware: An error has occured during the operation.");
     }
 
     return success;
@@ -241,24 +241,24 @@ bool Recovery::downloadFirmware(QIODevice *file)
 
 bool Recovery::downloadWirelessStack(QIODevice *file, uint32_t addr)
 {
-    debug_msg("Attempting to download CO-PROCESSOR firmware image...");
+    debug_msg("Attempting to flash CO-PROCESSOR firmware image...");
 
     if(!file->open(QIODevice::ReadOnly)) {
-        setErrorString("Can't download co-processor firmware image: Failed to open file.");
+        setErrorString("Can't flash co-processor firmware image: Failed to open file.");
         return false;
 
     } else if(!file->bytesAvailable()) {
-        setErrorString("Can't download co-processor firmware image: File is empty.");
+        setErrorString("Can't flash co-processor firmware image: File is empty.");
         return false;
 
     } else {
-        m_deviceState->setStatusString("Downloading co-processor firmware image...");
+        m_deviceState->setStatusString("Flashing co-processor firmware image...");
     }
 
     STM32WB55 device(m_deviceState->deviceInfo().usbInfo);
 
     if(!device.beginTransaction()) {
-        setErrorString("Can't download co-processor firmware image: Failed to initiate transaction.");
+        setErrorString("Can't flash co-processor firmware image: Failed to initiate transaction.");
         return false;
     }
 
@@ -266,7 +266,7 @@ bool Recovery::downloadWirelessStack(QIODevice *file, uint32_t addr)
         const auto ob = device.optionBytes();
 
         if(!ob.isValid()) {
-            setErrorString("Can't download co-processor firmware image: Failed to read Option Bytes.");
+            setErrorString("Can't flash co-processor firmware image: Failed to read Option Bytes.");
             return false;
         }
 
@@ -289,11 +289,11 @@ bool Recovery::downloadWirelessStack(QIODevice *file, uint32_t addr)
     bool success;
 
     if(!(success = device.erase(addr, file->bytesAvailable()))) {
-        setErrorString("Can't download co-processor firmware image: Failed to erase the internal memory.");
+        setErrorString("Can't flash co-processor firmware image: Failed to erase the internal memory.");
     } else if(!(success = device.download(file, addr, 0))) {
-        setErrorString("Can't download co-processor firmware image: Failed to write the internal memory.");
+        setErrorString("Can't flash co-processor firmware image: Failed to write the internal memory.");
     } else if(!(success = device.endTransaction())) {
-        setErrorString("Can't download co-processor firmware image: Failed to end transaction.");
+        setErrorString("Can't flash co-processor firmware image: Failed to end transaction.");
     } else {}
 
     file->close();
