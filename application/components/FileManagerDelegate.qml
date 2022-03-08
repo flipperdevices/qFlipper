@@ -177,7 +177,7 @@ Item {
             Rectangle {
                 id: editBox
 
-                readonly property int padding: 4
+                readonly property int padding: 2
 
                 visible: false
 
@@ -188,7 +188,6 @@ Item {
                 color: "black"
                 border.color: Theme.color.lightorange2
                 border.width: 1
-                radius: 2
 
                 onVisibleChanged: {
                     if(visible) {
@@ -216,7 +215,14 @@ Item {
                     selectByMouse: true
 
                     onAccepted: {
-                        console.log("Renaming...")
+                        const oldName = delegate.fileName;
+                        const newName = text;
+
+                        if(oldName === newName) {
+                            return;
+                        }
+
+                        Backend.fileManager.rename(oldName, newName);
                     }
 
                     onEditingFinished: {

@@ -18,6 +18,7 @@
 #include "rpc/storagemkdiroperation.h"
 #include "rpc/storagewriteoperation.h"
 #include "rpc/storageremoveoperation.h"
+#include "rpc/storagerenameoperation.h"
 
 #include "rpc/systemrebootoperation.h"
 #include "rpc/systemdeviceinfooperation.h"
@@ -128,6 +129,11 @@ StorageStatOperation *ProtobufSession::storageStat(const QByteArray &path)
 StorageMkdirOperation *ProtobufSession::storageMkdir(const QByteArray &path)
 {
     return enqueueOperation(new StorageMkdirOperation(getAndIncrementCounter(), path, this));
+}
+
+StorageRenameOperation *ProtobufSession::storageRename(const QByteArray &oldPath, const QByteArray &newPath)
+{
+    return enqueueOperation(new StorageRenameOperation(getAndIncrementCounter(), oldPath, newPath, this));
 }
 
 StorageRemoveOperation *ProtobufSession::storageRemove(const QByteArray &path)

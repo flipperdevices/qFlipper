@@ -7,6 +7,7 @@
 #include "protobufsession.h"
 
 #include "rpc/storagelistoperation.h"
+#include "rpc/storagerenameoperation.h"
 
 Q_LOGGING_CATEGORY(LOG_FILEMGR, "FILEMGR")
 
@@ -73,6 +74,21 @@ void FileManager::historyForward()
 void FileManager::historyBack()
 {
     popd();
+}
+
+void FileManager::rename(const QString &oldName, const QString &newName)
+{
+    const auto oldPath = QStringLiteral("%1/%2").arg(currentPath(), oldName);
+    const auto newPath = QStringLiteral("%1/%2").arg(currentPath(), newName);
+    auto *operation = m_device->rpc()->storageRename(oldPath.toLocal8Bit(), newPath.toLocal8Bit());
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            //TODO: Error handling
+        }
+    });
+
+    listCurrentPath();
 }
 
 bool FileManager::isBusy() const
@@ -151,8 +167,6 @@ void FileManager::listCurrentPath()
         return;
     }
 
-    setBusy(true);
-
     auto *operation = m_device->rpc()->storageList(currentPath().toLocal8Bit());
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
@@ -162,8 +176,6 @@ void FileManager::listCurrentPath()
             setModelData(operation->files());
             emit currentPathChanged();
         }
-
-        setBusy(false);
     });
 }
 

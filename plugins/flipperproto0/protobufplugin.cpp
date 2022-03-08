@@ -100,6 +100,11 @@ const QByteArray ProtobufPlugin::storageMkDir(uint32_t id, const QByteArray &pat
     return StorageMkDirRequest(id, path).encode();
 }
 
+const QByteArray ProtobufPlugin::storageRename(uint32_t id, const QByteArray &oldPath, const QByteArray &newPath) const
+{
+    return StorageRenameRequest(id, oldPath, newPath).encode();
+}
+
 const QByteArray ProtobufPlugin::storageRemove(uint32_t id, const QByteArray &path, bool recursive) const
 {
     return StorageRemoveRequest(id, path, recursive).encode();

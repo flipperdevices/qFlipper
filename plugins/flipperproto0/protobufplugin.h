@@ -35,6 +35,7 @@ public:
     const QByteArray storageStat(uint32_t id, const QByteArray &path) const override;
     const QByteArray storageList(uint32_t id, const QByteArray &path) const override;
     const QByteArray storageMkDir(uint32_t id, const QByteArray &path) const override;
+    const QByteArray storageRename(uint32_t id, const QByteArray &oldPath, const QByteArray &newPath) const override;
     const QByteArray storageRemove(uint32_t id, const QByteArray &path, bool recursive) const override;
     const QByteArray storageRead(uint32_t id, const QByteArray &path) const override;
     const QByteArray storageWrite(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext) const override;

@@ -27,6 +27,7 @@ class StorageStatOperation;
 class StorageReadOperation;
 class StorageMkdirOperation;
 class StorageWriteOperation;
+class StorageRenameOperation;
 class StorageRemoveOperation;
 
 class GuiStartScreenStreamOperation;
@@ -70,6 +71,7 @@ public:
     StorageInfoOperation *storageInfo(const QByteArray &path);
     StorageStatOperation *storageStat(const QByteArray &path);
     StorageMkdirOperation *storageMkdir(const QByteArray &path);
+    StorageRenameOperation *storageRename(const QByteArray &oldPath, const QByteArray &newPath);
     StorageRemoveOperation *storageRemove(const QByteArray &path);
     StorageReadOperation *storageRead(const QByteArray &path, QIODevice *file);
     StorageWriteOperation *storageWrite(const QByteArray &path, QIODevice *file);

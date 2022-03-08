@@ -36,6 +36,7 @@ SOURCES += \
     flipperzero/rpc/storagemkdiroperation.cpp \
     flipperzero/rpc/storagereadoperation.cpp \
     flipperzero/rpc/storageremoveoperation.cpp \
+    flipperzero/rpc/storagerenameoperation.cpp \
     flipperzero/rpc/storagestatoperation.cpp \
     flipperzero/rpc/storagewriteoperation.cpp \
     flipperzero/rpc/systemdeviceinfooperation.cpp \
@@ -125,6 +126,7 @@ HEADERS += \
     flipperzero/rpc/storagemkdiroperation.h \
     flipperzero/rpc/storagereadoperation.h \
     flipperzero/rpc/storageremoveoperation.h \
+    flipperzero/rpc/storagerenameoperation.h \
     flipperzero/rpc/storagestatoperation.h \
     flipperzero/rpc/storagewriteoperation.h \
     flipperzero/rpc/systemdeviceinfooperation.h \

@@ -33,6 +33,7 @@ public:
     virtual const QByteArray storageStat(uint32_t id, const QByteArray &path) const = 0;
     virtual const QByteArray storageList(uint32_t id, const QByteArray &path) const = 0;
     virtual const QByteArray storageMkDir(uint32_t id, const QByteArray &path) const = 0;
+    virtual const QByteArray storageRename(uint32_t id, const QByteArray &oldPath, const QByteArray &newPath) const = 0;
     virtual const QByteArray storageRemove(uint32_t id, const QByteArray &path, bool recursive = false) const = 0;
     virtual const QByteArray storageRead(uint32_t id, const QByteArray &path) const = 0;
     virtual const QByteArray storageWrite(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext) const = 0;

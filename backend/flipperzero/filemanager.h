@@ -43,6 +43,8 @@ public:
     Q_INVOKABLE void historyForward();
     Q_INVOKABLE void historyBack();
 
+    Q_INVOKABLE void rename(const QString &oldName, const QString &newName);
+
     // Properties
     bool isBusy() const;
     bool canGoBack() const;
