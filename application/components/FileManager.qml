@@ -165,7 +165,7 @@ Item {
         enabled: Backend.fileManager.currentPath !== "/"
         anchors.fill: parent
         onDropped: {
-            if(drop.proposedAction !== Qt.CopyAction) {
+            if(drop.source || drop.proposedAction !== Qt.CopyAction) {
                 return;
             }
 
