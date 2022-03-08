@@ -64,7 +64,7 @@ AbstractOverlay {
         items: [
             DeviceInfo { id: deviceInfoPane },
             DeviceActions { id: deviceActions },
-            FileManager { id: fileManager },
+            FileManager { id: fileManager; confirmationDialog: confirmationDialog },
             DeveloperActions { id: developerActions }
         ]
     }

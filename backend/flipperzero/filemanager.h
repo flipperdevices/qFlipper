@@ -44,6 +44,7 @@ public:
     Q_INVOKABLE void historyBack();
 
     Q_INVOKABLE void rename(const QString &oldName, const QString &newName);
+    Q_INVOKABLE void remove(const QString &fileName, bool recursive = false);
 
     // Properties
     bool isBusy() const;

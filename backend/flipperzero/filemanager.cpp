@@ -7,6 +7,7 @@
 #include "protobufsession.h"
 
 #include "rpc/storagelistoperation.h"
+#include "rpc/storageremoveoperation.h"
 #include "rpc/storagerenameoperation.h"
 
 Q_LOGGING_CATEGORY(LOG_FILEMGR, "FILEMGR")
@@ -81,6 +82,20 @@ void FileManager::rename(const QString &oldName, const QString &newName)
     const auto oldPath = QStringLiteral("%1/%2").arg(currentPath(), oldName);
     const auto newPath = QStringLiteral("%1/%2").arg(currentPath(), newName);
     auto *operation = m_device->rpc()->storageRename(oldPath.toLocal8Bit(), newPath.toLocal8Bit());
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            //TODO: Error handling
+        }
+    });
+
+    listCurrentPath();
+}
+
+void FileManager::remove(const QString &fileName, bool recursive)
+{
+    const auto filePath = QStringLiteral("%1/%2").arg(currentPath(), fileName);
+    auto *operation = m_device->rpc()->storageRemove(filePath.toLocal8Bit(), recursive);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {

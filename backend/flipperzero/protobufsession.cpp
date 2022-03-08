@@ -136,9 +136,9 @@ StorageRenameOperation *ProtobufSession::storageRename(const QByteArray &oldPath
     return enqueueOperation(new StorageRenameOperation(getAndIncrementCounter(), oldPath, newPath, this));
 }
 
-StorageRemoveOperation *ProtobufSession::storageRemove(const QByteArray &path)
+StorageRemoveOperation *ProtobufSession::storageRemove(const QByteArray &path, bool recursive)
 {
-    return enqueueOperation(new StorageRemoveOperation(getAndIncrementCounter(), path, this));
+    return enqueueOperation(new StorageRemoveOperation(getAndIncrementCounter(), path, recursive, this));
 }
 
 StorageReadOperation *ProtobufSession::storageRead(const QByteArray &path, QIODevice *file)

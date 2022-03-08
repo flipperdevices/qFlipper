@@ -7,10 +7,12 @@ import Theme 1.0
 import QFlipper 1.0
 
 Item {
-    id: bg
+    id: control
 
     implicitWidth: 745
     implicitHeight: 290
+
+    property ConfirmationDialog confirmationDialog
 
     ColumnLayout {
         anchors.fill: parent
@@ -152,7 +154,9 @@ Item {
                 }
 
                 model: Backend.fileManager
-                delegate: FileManagerDelegate {}
+                delegate: FileManagerDelegate {
+                    confirmationDialog: control.confirmationDialog
+                }
             }
         }
     }

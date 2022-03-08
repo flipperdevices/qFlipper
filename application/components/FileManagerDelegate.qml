@@ -10,6 +10,7 @@ Item {
     id: delegate
 
     required property int index
+
     required property string fileName
     required property string filePath
     required property int fileType
@@ -19,6 +20,8 @@ Item {
     readonly property bool isHovered: mouseArea.containsMouse
     readonly property bool isCurrent: GridView.isCurrentItem
     readonly property color selectionColor: Color.transparent(Theme.color.darkorange1, delegate.isCurrent ? 1 : delegate.isHovered ? 0.5 : 0)
+
+    property ConfirmationDialog confirmationDialog
 
     width: 120
     height: 86
@@ -243,7 +246,7 @@ Item {
         }
 
         MenuItem {
-            action: saveAction
+            action: downloadAction
         }
     }
 
@@ -251,7 +254,7 @@ Item {
         id: fileMenu
 
         MenuItem {
-            action: saveAction
+            action: downloadAction
         }
 
         MenuItem {
@@ -271,7 +274,7 @@ Item {
         }
 
         MenuItem {
-            action: saveAction
+            action: downloadAction
         }
 
         MenuItem {
@@ -289,7 +292,7 @@ Item {
     }
 
     Action {
-        id: saveAction
+        id: downloadAction
         text: qsTr("Download...")
     }
 
@@ -302,5 +305,20 @@ Item {
     Action {
         id: removeAction
         text: qsTr("Delete")
+
+        onTriggered: {
+            const doRemove = function() {
+                Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
+            };
+
+            const msgObj = {
+                title: qsTr("Delete") + " " + delegate.fileName + "?",
+                message: qsTr("This action cannot be undone."),
+                suggestedRole: ConfirmationDialog.RejectRole,
+                customText: qsTr("Delete")
+            };
+
+            confirmationDialog.openWithMessage(doRemove, msgObj);
+        }
     }
 }

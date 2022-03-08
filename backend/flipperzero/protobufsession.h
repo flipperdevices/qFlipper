@@ -72,7 +72,7 @@ public:
     StorageStatOperation *storageStat(const QByteArray &path);
     StorageMkdirOperation *storageMkdir(const QByteArray &path);
     StorageRenameOperation *storageRename(const QByteArray &oldPath, const QByteArray &newPath);
-    StorageRemoveOperation *storageRemove(const QByteArray &path);
+    StorageRemoveOperation *storageRemove(const QByteArray &path, bool recursive = false);
     StorageReadOperation *storageRead(const QByteArray &path, QIODevice *file);
     StorageWriteOperation *storageWrite(const QByteArray &path, QIODevice *file);
 
