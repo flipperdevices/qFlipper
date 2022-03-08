@@ -8,8 +8,9 @@
 #include "flipperzero/utility/startrecoveryoperation.h"
 #include "flipperzero/utility/assetsdownloadoperation.h"
 #include "flipperzero/utility/factoryresetutiloperation.h"
+#include "flipperzero/utility/directoryuploadoperation.h"
 
-Q_LOGGING_CATEGORY(CATEGORY_UTILITY, "UTILITY")
+Q_LOGGING_CATEGORY(LOG_UTILITY, "UTL")
 
 using namespace Flipper;
 using namespace Zero;
@@ -62,7 +63,14 @@ FactoryResetUtilOperation *UtilityInterface::factoryReset()
     return operation;
 }
 
+DirectoryUploadOperation *UtilityInterface::uploadDirectory(const QString &localDirectory, const QByteArray &remotePath)
+{
+    auto *operation = new DirectoryUploadOperation(m_rpc, m_deviceState, localDirectory, remotePath, this);
+    enqueueOperation(operation);
+    return operation;
+}
+
 const QLoggingCategory &UtilityInterface::loggingCategory() const
 {
-    return CATEGORY_UTILITY();
+    return LOG_UTILITY();
 }

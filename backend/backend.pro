@@ -74,6 +74,7 @@ SOURCES += \
     flipperzero/toplevel/wirelessstackupdateoperation.cpp \
     flipperzero/utility/abstractutilityoperation.cpp \
     flipperzero/utility/assetsdownloadoperation.cpp \
+    flipperzero/utility/directoryuploadoperation.cpp \
     flipperzero/utility/factoryresetutiloperation.cpp \
     flipperzero/utility/getfiletreeoperation.cpp \
     flipperzero/utility/restartoperation.cpp \
@@ -165,6 +166,7 @@ HEADERS += \
     flipperzero/toplevel/wirelessstackupdateoperation.h \
     flipperzero/utility/abstractutilityoperation.h \
     flipperzero/utility/assetsdownloadoperation.h \
+    flipperzero/utility/directoryuploadoperation.h \
     flipperzero/utility/factoryresetutiloperation.h \
     flipperzero/utility/getfiletreeoperation.h \
     flipperzero/utility/restartoperation.h \

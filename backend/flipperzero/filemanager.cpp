@@ -7,11 +7,14 @@
 
 #include "flipperzero.h"
 #include "protobufsession.h"
+#include "utilityinterface.h"
 
 #include "rpc/storagelistoperation.h"
 #include "rpc/storagewriteoperation.h"
 #include "rpc/storageremoveoperation.h"
 #include "rpc/storagerenameoperation.h"
+
+#include "utility/directoryuploadoperation.h"
 
 Q_LOGGING_CATEGORY(LOG_FILEMGR, "FILEMGR")
 
@@ -238,7 +241,16 @@ bool FileManager::uploadFile(const QFileInfo &info)
 
 bool FileManager::uploadDirectory(const QFileInfo &info)
 {
-    qDebug() << "Uploading directory..." << info.fileName();
+    auto *operation = m_device->utility()->uploadDirectory(info.absoluteFilePath(), currentPath().toLocal8Bit());
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            //TODO: Error handling
+        } else {
+            listCurrentPath();
+        }
+    });
+
     return true;
 }
 

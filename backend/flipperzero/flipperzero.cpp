@@ -66,6 +66,11 @@ ProtobufSession *FlipperZero::rpc() const
     return m_rpc;
 }
 
+UtilityInterface *FlipperZero::utility() const
+{
+    return m_utility;
+}
+
 // TODO: Handle -rcxx suffixes correctly
 bool FlipperZero::canUpdate(const Updates::VersionInfo &versionInfo) const
 {

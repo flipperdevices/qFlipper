@@ -10,6 +10,7 @@ namespace Zero {
 class DeviceState;
 class ProtobufSession;
 
+class DirectoryUploadOperation;
 class FactoryResetUtilOperation;
 class StartRecoveryOperation;
 class AssetsDownloadOperation;
@@ -30,6 +31,7 @@ public:
     UserRestoreOperation *restoreInternalStorage(const QString &backupPath);
     RestartOperation *restartDevice();
     FactoryResetUtilOperation *factoryReset();
+    DirectoryUploadOperation *uploadDirectory(const QString &localDirectory, const QByteArray &remotePath);
 
 private:
     const QLoggingCategory &loggingCategory() const override;
