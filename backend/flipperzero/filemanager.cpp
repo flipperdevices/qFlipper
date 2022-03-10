@@ -10,6 +10,7 @@
 #include "utilityinterface.h"
 
 #include "rpc/storagelistoperation.h"
+#include "rpc/storagereadoperation.h"
 #include "rpc/storagewriteoperation.h"
 #include "rpc/storageremoveoperation.h"
 #include "rpc/storagerenameoperation.h"
@@ -114,11 +115,24 @@ void FileManager::upload(const QList<QUrl> &urlList)
 {
     for(const auto &url : urlList) {
         const QFileInfo info(url.toLocalFile());
-        const auto success = info.isDir() ? uploadDirectory(info) : uploadFile(info);
-        if(!success) {
-            //TODO: Error handling
-            break;
+
+        if(info.isDir()) {
+            uploadDirectory(info);
+        } else {
+            uploadFile(info);
         }
+    }
+}
+
+void FileManager::download(const QString &remoteFileName, const QUrl &localUrl, bool recursive)
+{
+    const auto remote = remoteFileName.toLocal8Bit();
+    const auto local = localUrl.toLocalFile();
+
+    if(recursive) {
+        downloadDirectory(remote, local);
+    } else {
+        downloadFile(remote, local);
     }
 }
 
@@ -210,7 +224,7 @@ void FileManager::listCurrentPath()
     });
 }
 
-bool FileManager::uploadFile(const QFileInfo &info)
+void FileManager::uploadFile(const QFileInfo &info)
 {
     auto *file = new QFile(info.absoluteFilePath(), this);
     auto *operation = m_device->rpc()->storageWrite(remoteFilePath(info.fileName()), file);
@@ -223,11 +237,9 @@ bool FileManager::uploadFile(const QFileInfo &info)
             listCurrentPath();
         }
     });
-
-    return true;
 }
 
-bool FileManager::uploadDirectory(const QFileInfo &info)
+void FileManager::uploadDirectory(const QFileInfo &info)
 {
     auto *operation = m_device->utility()->uploadDirectory(info.absoluteFilePath(), currentPath().toLocal8Bit());
 
@@ -238,8 +250,27 @@ bool FileManager::uploadDirectory(const QFileInfo &info)
             listCurrentPath();
         }
     });
+}
 
-    return true;
+void FileManager::downloadFile(const QByteArray &remoteFileName, const QString &localFileName)
+{
+    auto *file = new QFile(localFileName, this);
+    auto *operation = m_device->rpc()->storageRead(remoteFilePath(remoteFileName), file);
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        file->deleteLater();
+
+        if(operation->isError()) {
+            //TODO: Error handling
+        } else {
+            listCurrentPath();
+        }
+    });
+}
+
+void FileManager::downloadDirectory(const QByteArray &remoteDirName, const QString &localDirName)
+{
+
 }
 
 void FileManager::setModelData(const FileInfoList &newData)

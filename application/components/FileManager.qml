@@ -13,6 +13,7 @@ Item {
     implicitHeight: 290
 
     property ConfirmationDialog confirmationDialog
+    readonly property bool isRoot: Backend.fileManager.currentPath === "/"
 
     ColumnLayout {
         anchors.fill: parent
@@ -147,7 +148,7 @@ Item {
                         fileView.currentIndex = -1;
                         forceActiveFocus(Qt.MouseFocusReason);
 
-                        if(mouse.button === Qt.RightButton) {
+                        if(mouse.button === Qt.RightButton && !control.isRoot) {
                             emptyMenu.popup();
                         }
                     }
@@ -162,7 +163,7 @@ Item {
     }
 
     DropArea {
-        enabled: Backend.fileManager.currentPath !== "/"
+        enabled: !control.isRoot
         anchors.fill: parent
         onDropped: {
             if(drop.source || drop.proposedAction !== Qt.CopyAction) {
@@ -220,6 +221,30 @@ Item {
     Action {
         id: uploadHereAction
         text: qsTr("Upload here...")
+
+        onTriggered: {
+            const onFinished = function() {
+                AdvancedFileDialog.accepted.disconnect(onAccepted);
+                AdvancedFileDialog.finished.disconnect(onFinished);
+            };
+
+            const onAccepted = function() {
+                Backend.fileManager.upload(AdvancedFileDialog.fileUrls);
+            };
+
+            AdvancedFileDialog.accepted.connect(onAccepted);
+            AdvancedFileDialog.finished.connect(onFinished);
+
+            AdvancedFileDialog.defaultFileName = "";
+            AdvancedFileDialog.title = qsTr("Select files to upload");
+            AdvancedFileDialog.nameFilters = [ "All files (*)" ];
+            AdvancedFileDialog.openLocation = AdvancedFileDialog.HomeLocation;
+            AdvancedFileDialog.selectExisting = true;
+            AdvancedFileDialog.selectMultiple = true;
+            AdvancedFileDialog.selectFolder = false;
+
+            AdvancedFileDialog.open();
+        }
     }
 
     Action {

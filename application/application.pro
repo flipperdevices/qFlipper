@@ -8,6 +8,7 @@ DESTDIR = $$OUT_PWD/..
 CONFIG += c++11
 
 SOURCES += \
+        advancedfiledialog.cpp \
         application.cpp \
         applicationupdater.cpp \
         applicationupdateregistry.cpp \
@@ -72,6 +73,7 @@ DEPENDPATH += \
     $$PWD/../backend
 
 HEADERS += \
+    advancedfiledialog.h \
     application.h \
     applicationupdater.h \
     applicationupdateregistry.h \

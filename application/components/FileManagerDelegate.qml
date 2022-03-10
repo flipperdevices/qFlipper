@@ -294,6 +294,30 @@ Item {
     Action {
         id: downloadAction
         text: qsTr("Download...")
+
+        onTriggered: {
+            const onFinished = function() {
+                AdvancedFileDialog.accepted.disconnect(onAccepted);
+                AdvancedFileDialog.finished.disconnect(onFinished);
+            };
+
+            const onAccepted = function() {
+                Backend.fileManager.download(delegate.fileName, AdvancedFileDialog.fileUrls[0], delegate.isDirectory);
+            };
+
+            AdvancedFileDialog.accepted.connect(onAccepted);
+            AdvancedFileDialog.finished.connect(onFinished);
+
+            AdvancedFileDialog.defaultFileName = delegate.fileName;
+            AdvancedFileDialog.title = qsTr("Select download location");
+            AdvancedFileDialog.nameFilters = [ "All files (*)" ];
+            AdvancedFileDialog.openLocation = AdvancedFileDialog.DownloadsLocation;
+            AdvancedFileDialog.selectExisting = false;
+            AdvancedFileDialog.selectMultiple = false;
+            AdvancedFileDialog.selectFolder = false;
+
+            AdvancedFileDialog.open();
+        }
     }
 
     Action {

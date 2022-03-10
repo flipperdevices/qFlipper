@@ -5,6 +5,7 @@
 
 #include "applicationupdater.h"
 #include "applicationbackend.h"
+#include "advancedfiledialog.h"
 #include "applicationupdateregistry.h"
 
 class Application : public QApplication
@@ -60,6 +61,7 @@ private:
 
     ApplicationUpdater m_updater;
     ApplicationUpdateRegistry m_updateRegistry;
+    AdvancedFileDialog m_fileDialog;
     ApplicationBackend m_backend;
     QQmlApplicationEngine m_engine;
 

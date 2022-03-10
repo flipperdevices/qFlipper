@@ -51,7 +51,7 @@ public:
     Q_INVOKABLE void remove(const QString &fileName, bool recursive = false);
 
     Q_INVOKABLE void upload(const QList<QUrl> &urlList);
-//    Q_INVOKABLE void download(const QString &fileName, bool recursive = false);
+    Q_INVOKABLE void download(const QString &remoteFileName, const QUrl &localUrl, bool recursive = false);
 
     // Properties
     bool isBusy() const;
@@ -72,8 +72,11 @@ private:
     void setBusy(bool busy);
 
     void listCurrentPath();
-    bool uploadFile(const QFileInfo &info);
-    bool uploadDirectory(const QFileInfo &info);
+    void uploadFile(const QFileInfo &info);
+    void uploadDirectory(const QFileInfo &info);
+
+    void downloadFile(const QByteArray &remoteFileName, const QString &localFileName);
+    void downloadDirectory(const QByteArray &remoteDirName, const QString &localDirName);
 
     void setModelData(const FileInfoList &newData);
 
