@@ -8,9 +8,7 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", ATTRS{manu
 #Flipper Zero DFU
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", ATTRS{manufacturer}=="STMicroelectronics", TAG+="uaccess"'
 
-warning_message() {
-    printf "You will now be asked for SUDO password.\n"
-}
+alias warning_message='printf "You will now be asked for SUDO password.\n"'
 
 rules_install() {
     warning_message
