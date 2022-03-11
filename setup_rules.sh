@@ -62,7 +62,7 @@ printf "This script will install system rules that will enable communication wit
 while true
 do
     printf "Choose what to do: [I]nstall, [U]ninstall or [E]xit: "
-    read REPLY
+    read -r REPLY
     case $REPLY in
         [Ii]* ) rules_install; break;;
         [Uu]* ) rules_uninstall; break;;
