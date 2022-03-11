@@ -17,7 +17,7 @@ rules_install() {
 
     # The danger zone
     sudo -K \
-    && printf "%s\n" "$RULES_TEXT" | sudo tee "$RULES_FILE" > /dev/null \
+    && printf "%s\n" "$RULES_TEXT" | sudo dd of="$RULES_FILE" >/dev/null 2>&1 \
     && sudo udevadm control --reload-rules \
     && sudo udevadm trigger
     # End of danger zone
