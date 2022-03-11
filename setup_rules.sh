@@ -1,7 +1,7 @@
 #!/bin/sh
 
 RULES_DIR=/etc/udev/rules.d
-RULES_FILE=$RULES_DIR/42-flipperzero.rules
+RULES_FILE="$RULES_DIR"/42-flipperzero.rules
 RULES_TEXT='#Flipper Zero serial port
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", ATTRS{manufacturer}=="Flipper Devices Inc.", TAG+="uaccess"
 #Flipper Zero DFU
@@ -16,7 +16,7 @@ rules_install() {
 
     sudo -K &&
     # The danger zone
-    echo "$RULES_TEXT" | sudo tee $RULES_FILE > /dev/null &&
+    echo "$RULES_TEXT" | sudo tee "$RULES_FILE" > /dev/null &&
     sudo udevadm control --reload-rules &&
     sudo udevadm trigger
     # End of danger zone
@@ -29,7 +29,7 @@ rules_install() {
 }
 
 rules_uninstall() {
-    if [ -f $RULES_FILE ]; then
+    if [ -f "$RULES_FILE" ]; then
         warning_message
 
         sudo -K &&
@@ -52,7 +52,7 @@ rules_uninstall() {
 
 clear
 
-if [ ! -d $RULES_DIR ]; then
+if [ ! -d "$RULES_DIR" ]; then
     echo "Your system seems to have an unusual Udev rules directory, please check your distro's documentation and edit the RULES_DIR variable accordingly."
     exit
 fi
