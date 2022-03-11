@@ -52,7 +52,7 @@ rules_uninstall() {
 
 clear
 
-if [ ! -d "$RULES_DIR" ]; then
+if ! [ -d "$RULES_DIR" ]; then
     printf "Your system seems to have an unusual Udev rules directory, please check your distro's documentation and edit the RULES_DIR variable accordingly."
     exit
 fi
