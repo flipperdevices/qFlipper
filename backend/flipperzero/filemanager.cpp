@@ -16,6 +16,7 @@
 #include "rpc/storagerenameoperation.h"
 
 #include "utility/directoryuploadoperation.h"
+#include "utility/directorydownloadoperation.h"
 
 Q_LOGGING_CATEGORY(LOG_FILEMGR, "FILEMGR")
 
@@ -270,7 +271,15 @@ void FileManager::downloadFile(const QByteArray &remoteFileName, const QString &
 
 void FileManager::downloadDirectory(const QByteArray &remoteDirName, const QString &localDirName)
 {
+    auto *operation = m_device->utility()->downloadDirectory(localDirName, remoteFilePath(remoteDirName));
 
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            //TODO: Error handling
+        } else {
+            listCurrentPath();
+        }
+    });
 }
 
 void FileManager::setModelData(const FileInfoList &newData)
@@ -299,5 +308,6 @@ void FileManager::setModelData(const FileInfoList &newData)
 
 const QByteArray FileManager::remoteFilePath(const QString &fileName) const
 {
-    return QStringLiteral("%1/%2").arg(currentPath(), fileName).toLocal8Bit();
+    const auto isRoot = currentPath() == QStringLiteral("/");
+    return QStringLiteral("%1/%2").arg(currentPath(), fileName).mid(isRoot ? 1 : 0).toLocal8Bit();
 }

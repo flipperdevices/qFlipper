@@ -308,13 +308,13 @@ Item {
             AdvancedFileDialog.accepted.connect(onAccepted);
             AdvancedFileDialog.finished.connect(onFinished);
 
-            AdvancedFileDialog.defaultFileName = delegate.fileName;
+            AdvancedFileDialog.defaultFileName = delegate.isDirectory ? "" : delegate.fileName;
             AdvancedFileDialog.title = qsTr("Select download location");
             AdvancedFileDialog.nameFilters = [ "All files (*)" ];
             AdvancedFileDialog.openLocation = AdvancedFileDialog.DownloadsLocation;
-            AdvancedFileDialog.selectExisting = false;
             AdvancedFileDialog.selectMultiple = false;
-            AdvancedFileDialog.selectFolder = false;
+            AdvancedFileDialog.selectExisting = delegate.isDirectory;
+            AdvancedFileDialog.selectFolder = delegate.isDirectory;
 
             AdvancedFileDialog.open();
         }

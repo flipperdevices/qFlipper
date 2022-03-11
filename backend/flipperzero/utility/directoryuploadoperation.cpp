@@ -18,7 +18,7 @@ DirectoryUploadOperation::DirectoryUploadOperation(ProtobufSession *rpc, DeviceS
 
 const QString DirectoryUploadOperation::description() const
 {
-    return QStringLiteral("Upload Directory %1 -> %2").arg(m_localDir.dirName(), QString(m_remotePath));
+    return QStringLiteral("Upload Directory %1").arg(QString(m_remotePath));
 }
 
 void DirectoryUploadOperation::nextStateLogic()

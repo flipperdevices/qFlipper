@@ -11,6 +11,7 @@ class DeviceState;
 class ProtobufSession;
 
 class DirectoryUploadOperation;
+class DirectoryDownloadOperation;
 class FactoryResetUtilOperation;
 class StartRecoveryOperation;
 class AssetsDownloadOperation;
@@ -32,6 +33,7 @@ public:
     RestartOperation *restartDevice();
     FactoryResetUtilOperation *factoryReset();
     DirectoryUploadOperation *uploadDirectory(const QString &localDirectory, const QByteArray &remotePath);
+    DirectoryDownloadOperation *downloadDirectory(const QString &localDirectory, const QByteArray &remotePath);
 
 private:
     const QLoggingCategory &loggingCategory() const override;

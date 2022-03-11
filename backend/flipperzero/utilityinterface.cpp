@@ -9,6 +9,7 @@
 #include "flipperzero/utility/assetsdownloadoperation.h"
 #include "flipperzero/utility/factoryresetutiloperation.h"
 #include "flipperzero/utility/directoryuploadoperation.h"
+#include "flipperzero/utility/directorydownloadoperation.h"
 
 Q_LOGGING_CATEGORY(LOG_UTILITY, "UTL")
 
@@ -66,6 +67,13 @@ FactoryResetUtilOperation *UtilityInterface::factoryReset()
 DirectoryUploadOperation *UtilityInterface::uploadDirectory(const QString &localDirectory, const QByteArray &remotePath)
 {
     auto *operation = new DirectoryUploadOperation(m_rpc, m_deviceState, localDirectory, remotePath, this);
+    enqueueOperation(operation);
+    return operation;
+}
+
+DirectoryDownloadOperation *UtilityInterface::downloadDirectory(const QString &localDirectory, const QByteArray &remotePath)
+{
+    auto *operation = new DirectoryDownloadOperation(m_rpc, m_deviceState, localDirectory, remotePath, this);
     enqueueOperation(operation);
     return operation;
 }
