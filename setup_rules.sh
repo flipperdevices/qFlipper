@@ -15,11 +15,11 @@ warning_message() {
 rules_install() {
     warning_message
 
-    sudo -K &&
     # The danger zone
-    printf "%s\n" "$RULES_TEXT" | sudo tee "$RULES_FILE" > /dev/null &&
-    sudo udevadm control --reload-rules &&
-    sudo udevadm trigger
+    sudo -K \
+    && printf "%s\n" "$RULES_TEXT" | sudo tee "$RULES_FILE" > /dev/null \
+    && sudo udevadm control --reload-rules \
+    && sudo udevadm trigger
     # End of danger zone
 
     if [ $? -eq 0 ]; then
@@ -33,11 +33,11 @@ rules_uninstall() {
     if [ -f "$RULES_FILE" ]; then
         warning_message
 
-        sudo -K &&
         # The danger zone
-        sudo rm -rf $RULES_FILE &&
-        sudo udevadm control --reload-rules &&
-        sudo udevadm trigger
+        sudo -K \
+        && sudo rm -rf $RULES_FILE \
+        && sudo udevadm control --reload-rules \
+        && sudo udevadm trigger
         # End of danger zone
 
         if [ $? -eq 0 ]; then
