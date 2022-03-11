@@ -8,7 +8,7 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", ATTRS{manu
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", ATTRS{manufacturer}=="STMicroelectronics", TAG+="uaccess"'
 
 warning_message() {
-    echo "You will now be asked for SUDO password."
+    printf "You will now be asked for SUDO password.\n"
 }
 
 rules_install() {
@@ -16,15 +16,15 @@ rules_install() {
 
     sudo -K &&
     # The danger zone
-    echo "$RULES_TEXT" | sudo tee "$RULES_FILE" > /dev/null &&
+    printf "%s\n" "$RULES_TEXT" | sudo tee "$RULES_FILE" > /dev/null &&
     sudo udevadm control --reload-rules &&
     sudo udevadm trigger
     # End of danger zone
 
     if [ $? -eq 0 ]; then
-        echo "Device rules have been installed successfully. You're good to go!."
+        printf "Device rules have been installed successfully. You're good to go!\n"
     else
-        echo "Something went wrong. Device rules may have not been installed correctly."
+        printf "Something went wrong. Device rules may have not been installed correctly.\n"
     fi
 }
 
@@ -40,33 +40,33 @@ rules_uninstall() {
         # End of danger zone
 
         if [ $? -eq 0 ]; then
-            echo "Device rules have been uninstalled successfully. Thank you."
+            printf "Device rules have been uninstalled successfully. Thank you.\n"
         else
-            echo "Something went wrong. Device rules may have not been uninstalled correctly."
+            printf "Something went wrong. Device rules may have not been uninstalled correctly.\n"
         fi
 
     else
-        echo "Nothing to uninstall. Bye!"
+        printf "Nothing to uninstall. Bye!\n"
     fi
 }
 
 clear
 
 if [ ! -d "$RULES_DIR" ]; then
-    echo "Your system seems to have an unusual Udev rules directory, please check your distro's documentation and edit the RULES_DIR variable accordingly."
+    printf "Your system seems to have an unusual Udev rules directory, please check your distro's documentation and edit the RULES_DIR variable accordingly."
     exit
 fi
 
-echo "This script will install system rules that will enable communication with your Flipper Zero."
+printf "This script will install system rules that will enable communication with your Flipper Zero.\n"
 
 while true
 do
-    echo -n "Choose what to do: [I]nstall, [U]ninstall or [E]xit: "
+    printf "Choose what to do: [I]nstall, [U]ninstall or [E]xit: "
     read REPLY
     case $REPLY in
         [Ii]* ) rules_install; break;;
         [Uu]* ) rules_uninstall; break;;
-        [Ee]* ) echo "Bye!"; exit;;
-        * ) echo "Please enter one of the letters: I, U or E.";;
+        [Ee]* ) printf "Bye!\n"; exit;;
+        * ) printf "Please enter one of the letters: I, U or E.\n";;
     esac
 done
