@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 RULES_DIR=/etc/udev/rules.d
 RULES_FILE="$RULES_DIR"/42-flipperzero.rules
