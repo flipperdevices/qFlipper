@@ -2,6 +2,7 @@
 
 #include <QDirIterator>
 
+#include "flipperzero/devicestate.h"
 #include "flipperzero/protobufsession.h"
 #include "flipperzero/rpc/storagemkdiroperation.h"
 #include "flipperzero/rpc/storagewriteoperation.h"
@@ -73,6 +74,7 @@ void DirectoryUploadOperation::createRemoteDir()
 void DirectoryUploadOperation::writeFiles()
 {
     auto numFiles = m_files.size();
+    const auto increment = 100.0 / numFiles;
 
     for(const auto &fileInfo: qAsConst(m_files)) {
         const auto relativeFilePath = m_localDir.relativeFilePath(fileInfo.absoluteFilePath()).toLocal8Bit();
@@ -86,12 +88,6 @@ void DirectoryUploadOperation::writeFiles()
         } else {
             auto *file = new QFile(fileInfo.absoluteFilePath(), this);
 
-//            if(!file->open(QIODevice::ReadOnly)) {
-//                file->deleteLater();
-//                finishWithError(BackendError::DiskError, QStringLiteral("Failed to open file for reading: %1").arg(file->errorString()));
-//                return;
-//            }
-
             operation = rpc()->storageWrite(remoteFilePath, file);
             connect(operation, &AbstractOperation::finished, this, [=]() {
                 file->deleteLater();
@@ -99,6 +95,8 @@ void DirectoryUploadOperation::writeFiles()
         }
 
         connect(operation, &AbstractOperation::finished, this, [=]() {
+            setProgress(100.0 - increment * numFiles);
+
             if(operation->isError()) {
                 finishWithError(BackendError::OperationError, operation->errorString());
             } else if(isLastFile) {

@@ -84,10 +84,11 @@ void DirectoryDownloadOperation::getFileTree()
 
 void DirectoryDownloadOperation::readFiles()
 {
-
     auto filesRemaining = std::count_if(m_fileList.cbegin(), m_fileList.cend(), [](const FileInfo &arg) {
         return arg.type == FileType::RegularFile;
     });
+
+    const auto increment = 100.0 / filesRemaining;
 
     for(const auto &fileInfo: qAsConst(m_fileList)) {
         const auto filePath = fileInfo.absolutePath.mid(m_remotePath.size() + 1);
@@ -105,6 +106,8 @@ void DirectoryDownloadOperation::readFiles()
             auto *operation = rpc()->storageRead(fileInfo.absolutePath, file);
 
             connect(operation, &AbstractOperation::finished, this, [=]() {
+                setProgress(100.0 - increment * filesRemaining);
+
                 if(operation->isError()) {
                     finishWithError(BackendError::BackupError, operation->errorString());
                 } else if(!filesRemaining) {

@@ -27,9 +27,12 @@ public:
     int operationState() const;
     void setTimeout(int msec);
 
+    double progress() const;
+
 signals:
     void started();
     void finished();
+    void progressChanged();
 
 protected slots:
     virtual void onOperationTimeout();
@@ -40,7 +43,10 @@ protected slots:
 protected:
     void setOperationState(int state);
     void finishWithError(BackendError::ErrorType error, const QString &errorString);
+    void setProgress(double newProgress);
+
 private:
     QTimer *m_timeoutTimer;
     int m_operationState;
+    double m_progress;
 };

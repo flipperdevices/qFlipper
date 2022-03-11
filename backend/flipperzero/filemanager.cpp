@@ -105,6 +105,8 @@ void FileManager::rename(const QString &oldName, const QString &newName)
 
 void FileManager::remove(const QString &fileName, bool recursive)
 {
+    setBusy(true);
+
     const auto filePath = QStringLiteral("%1/%2").arg(currentPath(), fileName);
     auto *operation = m_device->rpc()->storageRemove(filePath.toLocal8Bit(), recursive);
 
@@ -114,6 +116,8 @@ void FileManager::remove(const QString &fileName, bool recursive)
         } else {
             listCurrentPath();
         }
+
+        setBusy(false);
     });
 }
 
@@ -232,8 +236,6 @@ void FileManager::listCurrentPath()
         return;
     }
 
-    setBusy(true);
-
     auto *operation = m_device->rpc()->storageList(currentPath().toLocal8Bit());
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
@@ -243,8 +245,6 @@ void FileManager::listCurrentPath()
             setModelData(operation->files());
             emit currentPathChanged();
         }
-
-        setBusy(false);
     });
 }
 

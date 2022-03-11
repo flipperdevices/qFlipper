@@ -203,7 +203,8 @@ Item {
             from: 0
             to: 100
 
-            indeterminate: true
+            value: Backend.deviceState ? Backend.deviceState.progress : 0
+            indeterminate: Backend.deviceState ? Backend.deviceState.progress < 0 : true
         }
 
         TextLabel {

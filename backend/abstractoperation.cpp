@@ -31,6 +31,11 @@ void AbstractOperation::setTimeout(int msec)
     m_timeoutTimer->setInterval(msec);
 }
 
+double AbstractOperation::progress() const
+{
+    return m_progress;
+}
+
 void AbstractOperation::onOperationTimeout()
 {
     finishWithError(BackendError::TimeoutError, QStringLiteral("Operation timeout (generic)"));
@@ -45,6 +50,16 @@ void AbstractOperation::finishWithError(BackendError::ErrorType error, const QSt
 {
     setError(error, errorString);
     finish();
+}
+
+void AbstractOperation::setProgress(double newProgress)
+{
+    if(!qFuzzyCompare(m_progress, newProgress)) {
+        return;
+    }
+
+    m_progress = newProgress;
+    emit progressChanged();
 }
 
 void AbstractOperation::startTimeout()
