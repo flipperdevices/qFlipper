@@ -14,13 +14,13 @@ rules_install() {
     warning_message
 
     # The danger zone
-    sudo -K \
-    && printf "%s\n" "$RULES_TEXT" | sudo dd of="$RULES_FILE" >/dev/null 2>&1 \
-    && sudo udevadm control --reload-rules \
-    && sudo udevadm trigger
+    if \
+            sudo -K \
+            && printf "%s\n" "$RULES_TEXT" | sudo dd of="$RULES_FILE" >/dev/null 2>&1 \
+            && sudo udevadm control --reload-rules \
+            && sudo udevadm trigger
     # End of danger zone
-
-    if [ $? -eq 0 ]; then
+    then
         printf "Device rules have been installed successfully. You're good to go!\n"
     else
         printf "Something went wrong. Device rules may have not been installed correctly.\n"
@@ -32,13 +32,13 @@ rules_uninstall() {
         warning_message
 
         # The danger zone
-        sudo -K \
-        && sudo rm -rf $RULES_FILE \
-        && sudo udevadm control --reload-rules \
-        && sudo udevadm trigger
+        if
+                sudo -K \
+                && sudo rm -rf $RULES_FILE \
+                && sudo udevadm control --reload-rules \
+                && sudo udevadm trigger
         # End of danger zone
-
-        if [ $? -eq 0 ]; then
+        then
             printf "Device rules have been uninstalled successfully. Thank you.\n"
         else
             printf "Something went wrong. Device rules may have not been uninstalled correctly.\n"
