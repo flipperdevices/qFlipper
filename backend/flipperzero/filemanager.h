@@ -7,6 +7,7 @@
 
 #include "fileinfo.h"
 
+class QTimer;
 class QFileInfo;
 
 namespace Flipper {
@@ -68,6 +69,9 @@ signals:
     void isBusyChanged();
     void currentPathChanged();
 
+private slots:
+    void onBusyTimerTimeout();
+
 private:
     void setBusy(bool busy);
 
@@ -86,7 +90,7 @@ private:
     FileInfoList m_modelData;
     QStringList m_history;
     QStringList m_forwardHistory;
-
+    QTimer *m_busyTimer;
     bool m_isBusy;
 };
 

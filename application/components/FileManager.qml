@@ -175,6 +175,46 @@ Item {
         }
     }
 
+    Rectangle {
+        anchors.fill: parent
+        visible: Backend.fileManager.isBusy
+        color: Color.transparent("black", visible ? 0.8 : 0)
+
+        Behavior on color {
+            PropertyAnimation {
+                duration: 200
+                easing.type: Easing.OutCubic
+            }
+        }
+
+        MouseArea {
+            acceptedButtons: Qt.AllButtons
+            anchors.fill: parent
+        }
+
+        ProgressBar {
+            id: progressBar
+
+            anchors.centerIn: parent
+
+            width: 280
+            height: 56
+
+            from: 0
+            to: 100
+
+            indeterminate: true
+        }
+
+        TextLabel {
+            id: messageLabel
+            anchors.top: progressBar.bottom
+            anchors.topMargin: 20
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: qsTr("Working, please wait...")
+        }
+    }
+
     Menu {
         id: emptyMenu
         MenuItem {

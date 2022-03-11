@@ -2,6 +2,7 @@
 
 #include <QFile>
 #include <QDebug>
+#include <QTimer>
 #include <QFileInfo>
 #include <QLoggingCategory>
 
@@ -26,8 +27,12 @@ using namespace Zero;
 FileManager::FileManager(QObject *parent):
     QAbstractListModel(parent),
     m_device(nullptr),
+    m_busyTimer(new QTimer(this)),
     m_isBusy(false)
-{}
+{
+    m_busyTimer->setSingleShot(true);
+    connect(m_busyTimer, &QTimer::timeout, this, &FileManager::onBusyTimerTimeout);
+}
 
 void FileManager::setDevice(FlipperZero *device)
 {
@@ -197,14 +202,28 @@ QHash<int, QByteArray> FileManager::roleNames() const
     return roles;
 }
 
+void FileManager::onBusyTimerTimeout()
+{
+    m_isBusy = true;
+    emit isBusyChanged();
+}
+
 void FileManager::setBusy(bool busy)
 {
-    if(m_isBusy == busy) {
-        return;
-    }
+    // Do not mark short operations as busy to avoid visual noise
+    if(busy) {
+        if(!m_busyTimer->isActive()) {
+            m_busyTimer->start(500);
+        }
 
-    m_isBusy = busy;
-    emit isBusyChanged();
+    } else {
+        m_busyTimer->stop();
+
+        if(m_isBusy) {
+            m_isBusy = false;
+            emit isBusyChanged();
+        }
+    }
 }
 
 void FileManager::listCurrentPath()
@@ -212,6 +231,8 @@ void FileManager::listCurrentPath()
     if(!m_device) {
         return;
     }
+
+    setBusy(true);
 
     auto *operation = m_device->rpc()->storageList(currentPath().toLocal8Bit());
 
@@ -222,11 +243,15 @@ void FileManager::listCurrentPath()
             setModelData(operation->files());
             emit currentPathChanged();
         }
+
+        setBusy(false);
     });
 }
 
 void FileManager::uploadFile(const QFileInfo &info)
 {
+    setBusy(true);
+
     auto *file = new QFile(info.absoluteFilePath(), this);
     auto *operation = m_device->rpc()->storageWrite(remoteFilePath(info.fileName()), file);
 
@@ -237,11 +262,15 @@ void FileManager::uploadFile(const QFileInfo &info)
         } else {
             listCurrentPath();
         }
+
+        setBusy(false);
     });
 }
 
 void FileManager::uploadDirectory(const QFileInfo &info)
 {
+    setBusy(true);
+
     auto *operation = m_device->utility()->uploadDirectory(info.absoluteFilePath(), currentPath().toLocal8Bit());
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
@@ -250,11 +279,15 @@ void FileManager::uploadDirectory(const QFileInfo &info)
         } else {
             listCurrentPath();
         }
+
+        setBusy(false);
     });
 }
 
 void FileManager::downloadFile(const QByteArray &remoteFileName, const QString &localFileName)
 {
+    setBusy(true);
+
     auto *file = new QFile(localFileName, this);
     auto *operation = m_device->rpc()->storageRead(remoteFilePath(remoteFileName), file);
 
@@ -266,11 +299,15 @@ void FileManager::downloadFile(const QByteArray &remoteFileName, const QString &
         } else {
             listCurrentPath();
         }
+
+        setBusy(false);
     });
 }
 
 void FileManager::downloadDirectory(const QByteArray &remoteDirName, const QString &localDirName)
 {
+    setBusy(true);
+
     auto *operation = m_device->utility()->downloadDirectory(localDirName, remoteFilePath(remoteDirName));
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
@@ -279,6 +316,8 @@ void FileManager::downloadDirectory(const QByteArray &remoteDirName, const QStri
         } else {
             listCurrentPath();
         }
+
+        setBusy(false);
     });
 }
 

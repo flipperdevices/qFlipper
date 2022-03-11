@@ -14,7 +14,6 @@ AbstractOverlay {
     readonly property int centerX: 590
     readonly property int centerOffset: Math.min(overlay.width - (centerX + systemPathLabel.width + 12), 0)
 
-
     TabButton {
         id: developerTab
         icon.source: "qrc:/assets/gfx/symbolic/developer-mode.svg"
@@ -74,6 +73,7 @@ AbstractOverlay {
         x: 28
         y: 28
 
+        enabled: !Backend.fileManager.isBusy
         layer.enabled: true
 
         TabButton {
