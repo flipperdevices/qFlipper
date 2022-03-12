@@ -20,7 +20,8 @@ class FullRepairOperation : public AbstractTopLevelOperation
         DownloadingRadioFirmware,
         DownloadingFirmware,
         CorrectingOptionBytes,
-        DownloadingAssets
+        DownloadingAssets,
+        RestartingDevice
     };
 
 public:
@@ -37,6 +38,7 @@ private:
     void downloadFirmware();
     void correctOptionBytes();
     void downloadAssets();
+    void restartDevice();
 
     RecoveryInterface *m_recovery;
     UtilityInterface *m_utility;
