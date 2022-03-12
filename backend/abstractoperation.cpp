@@ -5,7 +5,8 @@
 AbstractOperation::AbstractOperation(QObject *parent):
     QObject(parent),
     m_timeoutTimer(new QTimer(this)),
-    m_operationState(BasicOperationState::Ready)
+    m_operationState(BasicOperationState::Ready),
+    m_progress(-1)
 {
     connect(m_timeoutTimer, &QTimer::timeout, this, &AbstractOperation::onOperationTimeout);
 
@@ -54,7 +55,7 @@ void AbstractOperation::finishWithError(BackendError::ErrorType error, const QSt
 
 void AbstractOperation::setProgress(double newProgress)
 {
-    if(!qFuzzyCompare(m_progress, newProgress)) {
+    if(qFuzzyCompare(m_progress, newProgress)) {
         return;
     }
 

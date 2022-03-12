@@ -10,6 +10,8 @@
 #include "protobufsession.h"
 #include "utilityinterface.h"
 
+#include "flipperzero/devicestate.h"
+
 #include "rpc/storagelistoperation.h"
 #include "rpc/storagereadoperation.h"
 #include "rpc/storagewriteoperation.h"
@@ -92,33 +94,13 @@ void FileManager::historyBack()
 
 void FileManager::rename(const QString &oldName, const QString &newName)
 {
-    auto *operation = m_device->rpc()->storageRename(remoteFilePath(oldName), remoteFilePath(newName));
-
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            //TODO: Error handling
-        } else {
-            listCurrentPath();
-        }
-    });
+    registerOperation(m_device->rpc()->storageRename(remoteFilePath(oldName), remoteFilePath(newName)));
 }
 
 void FileManager::remove(const QString &fileName, bool recursive)
 {
-    setBusy(true);
-
     const auto filePath = QStringLiteral("%1/%2").arg(currentPath(), fileName);
-    auto *operation = m_device->rpc()->storageRemove(filePath.toLocal8Bit(), recursive);
-
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            //TODO: Error handling
-        } else {
-            listCurrentPath();
-        }
-
-        setBusy(false);
-    });
+    registerOperation(m_device->rpc()->storageRemove(filePath.toLocal8Bit(), recursive));
 }
 
 void FileManager::upload(const QList<QUrl> &urlList)
@@ -250,75 +232,30 @@ void FileManager::listCurrentPath()
 
 void FileManager::uploadFile(const QFileInfo &info)
 {
-    setBusy(true);
-
     auto *file = new QFile(info.absoluteFilePath(), this);
     auto *operation = m_device->rpc()->storageWrite(remoteFilePath(info.fileName()), file);
 
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        file->deleteLater();
-        if(operation->isError()) {
-            //TODO: Error handling
-        } else {
-            listCurrentPath();
-        }
-
-        setBusy(false);
-    });
+    connect(operation, &AbstractOperation::finished, file, &QObject::deleteLater);
+    registerOperation(operation);
 }
 
 void FileManager::uploadDirectory(const QFileInfo &info)
 {
-    setBusy(true);
-
-    auto *operation = m_device->utility()->uploadDirectory(info.absoluteFilePath(), currentPath().toLocal8Bit());
-
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            //TODO: Error handling
-        } else {
-            listCurrentPath();
-        }
-
-        setBusy(false);
-    });
+    registerOperation(m_device->utility()->uploadDirectory(info.absoluteFilePath(), currentPath().toLocal8Bit()));
 }
 
 void FileManager::downloadFile(const QByteArray &remoteFileName, const QString &localFileName)
 {
-    setBusy(true);
-
     auto *file = new QFile(localFileName, this);
     auto *operation = m_device->rpc()->storageRead(remoteFilePath(remoteFileName), file);
 
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        file->deleteLater();
-
-        if(operation->isError()) {
-            //TODO: Error handling
-        } else {
-            listCurrentPath();
-        }
-
-        setBusy(false);
-    });
+    connect(operation, &AbstractOperation::finished, file, &QObject::deleteLater);
+    registerOperation(operation);
 }
 
 void FileManager::downloadDirectory(const QByteArray &remoteDirName, const QString &localDirName)
 {
-    setBusy(true);
-
-    auto *operation = m_device->utility()->downloadDirectory(localDirName, remoteFilePath(remoteDirName));
-
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            //TODO: Error handling
-        } else {
-            listCurrentPath();
-        }
-
-        setBusy(false);
-    });
+    registerOperation(m_device->utility()->downloadDirectory(localDirName, remoteFilePath(remoteDirName)));
 }
 
 void FileManager::setModelData(const FileInfoList &newData)
@@ -343,6 +280,26 @@ void FileManager::setModelData(const FileInfoList &newData)
     }
 
     endResetModel();
+}
+
+void FileManager::registerOperation(AbstractOperation *operation)
+{
+    setBusy(true);
+    m_device->deviceState()->setProgress(-1.0);
+
+    connect(operation, &AbstractOperation::progressChanged, m_device, [=]() {
+        m_device->deviceState()->setProgress(operation->progress());
+    });
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            //TODO: error handling
+        } else {
+            listCurrentPath();
+        }
+
+        setBusy(false);
+    });
 }
 
 const QByteArray FileManager::remoteFilePath(const QString &fileName) const

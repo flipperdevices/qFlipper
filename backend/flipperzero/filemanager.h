@@ -9,6 +9,7 @@
 
 class QTimer;
 class QFileInfo;
+class AbstractOperation;
 
 namespace Flipper {
 
@@ -83,6 +84,7 @@ private:
     void downloadDirectory(const QByteArray &remoteDirName, const QString &localDirName);
 
     void setModelData(const FileInfoList &newData);
+    void registerOperation(AbstractOperation *operation);
 
     const QByteArray remoteFilePath(const QString &fileName) const;
 
