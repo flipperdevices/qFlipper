@@ -11,6 +11,7 @@
 #include "flipperzero/recovery/wirelessstackdownloadoperation.h"
 
 #include "flipperzero/utilityinterface.h"
+#include "flipperzero/utility/restartoperation.h"
 #include "flipperzero/utility/assetsdownloadoperation.h"
 
 #include "flipperzero/helper/firmwarehelper.h"
@@ -27,7 +28,7 @@ FullRepairOperation::FullRepairOperation(RecoveryInterface *recovery, UtilityInt
 
 const QString FullRepairOperation::description() const
 {
-    return QStringLiteral("Full Restore @%1").arg(deviceState()->name());
+    return QStringLiteral("Full Repair @%1").arg(deviceState()->name());
 }
 
 void FullRepairOperation::nextStateLogic()
@@ -57,6 +58,10 @@ void FullRepairOperation::nextStateLogic()
         downloadAssets();
 
     } else if(operationState() == FullRepairOperation::DownloadingAssets) {
+        setOperationState(FullRepairOperation::RestartingDevice);
+        restartDevice();
+
+    } else if(operationState() == FullRepairOperation::RestartingDevice) {
         finish();
     }
 }
@@ -106,4 +111,9 @@ void FullRepairOperation::downloadAssets()
 
     auto *file = m_helper->file(FirmwareHelper::FileIndex::AssetsTgz);
     registerSubOperation(m_utility->downloadAssets(file));
+}
+
+void FullRepairOperation::restartDevice()
+{
+    registerSubOperation(m_utility->restartDevice());
 }
