@@ -76,7 +76,7 @@ void ProtobufSession::setMinorVersion(int versionMinor)
 {
     m_versionMinor = versionMinor;
 
-    if(m_loader->isLoaded()) {
+    if(m_plugin) {
         m_plugin->setMinorVersion(m_versionMinor);
     }
 }
