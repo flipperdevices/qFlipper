@@ -3,7 +3,10 @@
 #include <QStandardPaths>
 
 AdvancedFileDialog::AdvancedFileDialog():
-    QFileDialog()
+    QFileDialog(),
+    m_isSelectFolder(false),
+    m_isSelectMultiple(false),
+    m_isSelectExisting(false)
 {}
 
 QString AdvancedFileDialog::defaultFileName() const
@@ -18,37 +21,58 @@ void AdvancedFileDialog::setDefaultFileName(const QString &fileName)
 
 void AdvancedFileDialog::setSelectFolder(bool set)
 {
+    if(set == m_isSelectFolder) {
+        return;
+    } else if(set) {
+        setFileMode(Directory);
+    } else {
+        setFileMode(m_isSelectExisting ? (m_isSelectMultiple ? ExistingFiles : ExistingFile) : AnyFile);
+    }
+
     setOption(ShowDirsOnly, set);
+    m_isSelectFolder = set;
+
+    emit isSelectFolderChanged();
 }
 
 bool AdvancedFileDialog::isSelectFolder() const
 {
-    return testOption(ShowDirsOnly);
+    return m_isSelectFolder;
 }
 
 void AdvancedFileDialog::setSelectMultiple(bool set)
 {
-    setFileMode(isSelectExisting() ? (set ? ExistingFiles : ExistingFile) : AnyFile);
+    if(set == m_isSelectMultiple) {
+        return;
+    }
+
+    setFileMode(m_isSelectExisting ? (set ? ExistingFiles : ExistingFile) : AnyFile);
+
+    m_isSelectMultiple = set;
+    emit  isSelectMultipleChanged();
 }
 
 bool AdvancedFileDialog::isSelectMultiple() const
 {
-    return fileMode() == ExistingFiles;
+    return m_isSelectMultiple;
 }
 
 void AdvancedFileDialog::setSelectExisting(bool set)
 {
+    if(set == m_isSelectExisting) {
+        return;
+    }
+
+    setFileMode(set ? (m_isSelectMultiple ? ExistingFiles : ExistingFile) : AnyFile);
     setAcceptMode(set ? AcceptOpen : AcceptSave);
 
-    if(!isSelectMultiple()) {
-        setFileMode(set ? ExistingFile : AnyFile);
-    }
+    m_isSelectExisting = set;
+    emit isSelectExistingChanged();
 }
 
 bool AdvancedFileDialog::isSelectExisting() const
 {
-    const auto mode = fileMode();
-    return (mode == ExistingFile || mode == ExistingFiles) && (acceptMode() == AcceptOpen);
+    return m_isSelectExisting;
 }
 
 void AdvancedFileDialog::setOpenLocation(StandardLocation location)

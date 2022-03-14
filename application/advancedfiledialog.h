@@ -52,5 +52,10 @@ signals:
     void isSelectMultipleChanged();
     void isSelectExistingChanged();
     void openLocationChanged();
+
+private:
+    bool m_isSelectFolder;
+    bool m_isSelectMultiple;
+    bool m_isSelectExisting;
 };
 
