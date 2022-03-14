@@ -284,7 +284,7 @@ Item {
             AdvancedFileDialog.selectMultiple = true;
             AdvancedFileDialog.selectFolder = false;
 
-            AdvancedFileDialog.open();
+            AdvancedFileDialog.exec();
         }
     }
 

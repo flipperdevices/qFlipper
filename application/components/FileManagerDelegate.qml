@@ -316,7 +316,7 @@ Item {
             AdvancedFileDialog.selectExisting = delegate.isDirectory;
             AdvancedFileDialog.selectFolder = delegate.isDirectory;
 
-            AdvancedFileDialog.open();
+            AdvancedFileDialog.exec();
         }
     }
 
