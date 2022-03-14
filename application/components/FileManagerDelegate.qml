@@ -36,7 +36,7 @@ Item {
         id: mouseArea
         hoverEnabled: true
         anchors.fill: parent
-        drag.target: draggable
+//        drag.target: draggable
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onClicked: {
@@ -64,19 +64,19 @@ Item {
         }
     }
 
-    Item {
-        id: draggable
-        anchors.fill: parent
+//    Item {
+//        id: draggable
+//        anchors.fill: parent
 
-        Drag.active: mouseArea.drag.active
-        Drag.mimeData: { "text/uri-list": Qt.resolvedUrl("file:///home/test/hello.txt") }
-        Drag.dragType: Drag.Automatic
-        Drag.proposedAction: Qt.CopyAction
-        Drag.supportedActions: Qt.CopyAction
+//        Drag.active: mouseArea.drag.active
+//        Drag.mimeData: { "text/uri-list": Qt.resolvedUrl("file:///home/test/hello.txt") }
+//        Drag.dragType: Drag.Automatic
+//        Drag.proposedAction: Qt.CopyAction
+//        Drag.supportedActions: Qt.CopyAction
 
 //        Drag.onDragFinished: function(dropAction) {
 //        }
-    }
+//    }
 
     ColumnLayout {
         spacing: 3
