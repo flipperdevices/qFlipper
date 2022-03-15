@@ -10,7 +10,7 @@ AbstractOperation::AbstractOperation(QObject *parent):
     connect(m_timeoutTimer, &QTimer::timeout, this, &AbstractOperation::onOperationTimeout);
 
     m_timeoutTimer->setSingleShot(true);
-    m_timeoutTimer->setInterval(10000);
+    m_timeoutTimer->setInterval(30000);
 }
 
 void AbstractOperation::finish()

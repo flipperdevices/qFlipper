@@ -10,9 +10,7 @@ using namespace Zero;
 AbstractProtobufOperation::AbstractProtobufOperation(uint32_t id, QObject *parent):
     AbstractOperation(parent),
     m_id(id)
-{
-    setTimeout(15000);
-}
+{}
 
 AbstractProtobufOperation::~AbstractProtobufOperation()
 {}
@@ -56,7 +54,7 @@ void AbstractProtobufOperation::feedResponse(QObject *response)
     if(mainResponse->isError()) {
         finishWithError(BackendError::ProtocolError, QStringLiteral("Device replied with error: %1").arg(mainResponse->errorString()));
     } else if(!processResponse(response)) {
-        finishWithError(BackendError::ProtocolError, QStringLiteral("Failed to process protobuf response"));
+        finishWithError(BackendError::ProtocolError, QStringLiteral("Operation finished with error: %1").arg(mainResponse->errorString()));
     } else if(!mainResponse->hasNext()) {
         finish();
     } else {
