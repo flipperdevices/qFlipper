@@ -14,6 +14,7 @@ class Logger : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QUrl logsPath READ logsPath CONSTANT)
+    Q_PROPERTY(QUrl logsFile READ logsFile CONSTANT)
     Q_PROPERTY(int errorCount READ errorCount WRITE setErrorCount NOTIFY errorCountChanged)
     Q_PROPERTY(QString logText READ logText NOTIFY logTextChanged)
 
@@ -30,6 +31,7 @@ public:
     static void messageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
     const QUrl logsPath() const;
+    const QUrl logsFile() const;
 
     int errorCount() const;
     void setErrorCount(int count);
