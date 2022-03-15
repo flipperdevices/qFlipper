@@ -281,7 +281,7 @@ Item {
         anchors.bottom: parent.bottom
 
         anchors.topMargin: 14
-        anchors.bottomMargin: 12
+        anchors.bottomMargin: 28
 
         content.textFormat: TextArea.RichText
         content.text: Logger.logText
@@ -305,11 +305,6 @@ Item {
                 onTriggered: Qt.openUrlExternally(Logger.logsPath)
             }
         }
-
-//        Component.onCompleted: {
-//            Logger.messageArrived.connect(logView.append);
-//            Logger.messageArrived.connect(logView.scrollToBottom);
-//        }
     }
 
     MouseArea {
@@ -318,7 +313,7 @@ Item {
         property int prevMouseY
 
         width: parent.width
-        height: 20
+        height: 28
 
         visible: logView.visible && !logCollapse.running && !logExpand.running
         cursorShape: Qt.SizeVerCursor
@@ -337,6 +332,41 @@ Item {
         onMouseYChanged: {
             const dy = mouseY - prevMouseY;
             mainWindow.height = Math.max(mainWindow.height + dy, mainWindow.baseHeight + mainWindow.minimumLogHeight);
+        }
+    }
+
+    Text {
+        id: fullLogButton
+        visible: opacity
+        opacity: resizer.visible
+
+        text: "<a href=\"#\">%1</a>".arg(qsTr("Open Full Log"))
+
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 7
+
+        font.pixelSize: 14
+        font.letterSpacing: -1
+        font.family: "Share Tech Mono"
+        font.capitalization: Font.AllUppercase
+
+        color: Theme.color.lightorange2
+        linkColor: Theme.color.lightorange2
+
+        onLinkActivated: Qt.openUrlExternally(Logger.logsFile)
+
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.NoButton
+            cursorShape: Qt.PointingHandCursor
+        }
+
+        Behavior on opacity {
+            PropertyAnimation {
+                duration: 200
+                easing.type: Easing.OutCubic
+            }
         }
     }
 

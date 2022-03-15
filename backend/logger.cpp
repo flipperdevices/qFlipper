@@ -42,7 +42,7 @@ Logger::Logger(QObject *parent):
         return;
     }
 
-    const auto fileName = QStringLiteral("%1-%2.log").arg(APP_NAME, m_startTime.toString(QStringLiteral("yyyyMMdd-hhmmss")));
+    const auto fileName = QStringLiteral("%1-%2.txt").arg(APP_NAME, m_startTime.toString(QStringLiteral("yyyyMMdd-hhmmss")));
     const auto filePath = m_logDir.absoluteFilePath(fileName);
     m_logFile->setFileName(filePath);
 
@@ -90,6 +90,11 @@ void Logger::messageOutput(QtMsgType type, const QMessageLogContext &context, co
 const QUrl Logger::logsPath() const
 {
     return QUrl::fromLocalFile(m_logDir.absolutePath());
+}
+
+const QUrl Logger::logsFile() const
+{
+    return QUrl::fromLocalFile(m_logFile->fileName());
 }
 
 int Logger::errorCount() const
