@@ -121,6 +121,11 @@ Item {
             Switch {
                 id: hiddenFileSwitch
                 text: qsTr("Hidden files")
+                checked: Preferences.showHiddenFiles
+                onCheckedChanged: {
+                    Preferences.showHiddenFiles = checked;
+                    Backend.fileManager.refresh();
+                }
             }
         }
 

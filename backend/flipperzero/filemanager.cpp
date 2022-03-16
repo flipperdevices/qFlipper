@@ -22,6 +22,8 @@
 #include "utility/directoryuploadoperation.h"
 #include "utility/directorydownloadoperation.h"
 
+#include "preferences.h"
+
 Q_LOGGING_CATEGORY(LOG_FILEMGR, "FILEMGR")
 
 using namespace Flipper;
@@ -315,6 +317,13 @@ void FileManager::setModelData(const FileInfoList &newData)
         }), m_modelData.end());
 
     } else {
+
+        if(!globalPrefs->showHiddenFiles()) {
+            m_modelData.erase(std::remove_if(m_modelData.begin(), m_modelData.end(), [](const FileInfo &arg) {
+                return arg.name.startsWith('.');
+            }), m_modelData.end());
+        }
+
         std::sort(m_modelData.begin(), m_modelData.end(), [](const FileInfo &a, const FileInfo &b) {
             if(a.type != b.type) {
                 return a.type < b.type;

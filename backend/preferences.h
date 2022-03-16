@@ -9,6 +9,7 @@ class Preferences : public QObject
     Q_PROPERTY(QString updateChannel READ firmwareUpdateChannel WRITE setFirmwareUpdateChannel NOTIFY firmwareUpdateChannelChanged)
     Q_PROPERTY(QString appUpdateChannel READ applicationUpdateChannel WRITE setApplicationUpdateChannel NOTIFY applicationUpdateChannelChanged)
     Q_PROPERTY(bool checkAppUpdates READ checkApplicationUpdates WRITE setCheckApplicationUpdates NOTIFY checkApplicationUpdatesChanged)
+    Q_PROPERTY(bool showHiddenFiles READ showHiddenFiles WRITE setShowHiddenFiles NOTIFY showHiddenFilesChanged)
 
     Preferences(QObject *parent = nullptr);
 
@@ -24,10 +25,14 @@ public:
     bool checkApplicationUpdates() const;
     void setCheckApplicationUpdates(bool set);
 
+    bool showHiddenFiles() const;
+    void setShowHiddenFiles(bool set);
+
 signals:
     void firmwareUpdateChannelChanged();
     void applicationUpdateChannelChanged();
     void checkApplicationUpdatesChanged();
+    void showHiddenFilesChanged();
 
 private:
     QSettings m_settings;
