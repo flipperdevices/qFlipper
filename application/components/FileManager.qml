@@ -291,5 +291,12 @@ Item {
     Action {
         id: newDirAction
         text: qsTr("New Folder...")
+        onTriggered: Backend.fileManager.beginMkDir();
+    }
+
+    Component.onCompleted: {
+        Backend.fileManager.refreshed.connect(function() {
+            fileView.currentIndex = -1;
+        });
     }
 }

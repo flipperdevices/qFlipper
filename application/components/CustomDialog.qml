@@ -86,13 +86,17 @@ Popup {
 
                 TextLabel {
                     id: titleLabel
+
                     anchors.fill: parent
+                    anchors.leftMargin: 8
+                    anchors.rightMargin: 8
+
                     color: invertTitle ? Theme.color.darkorange1 : Theme.color.lightorange2
 
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
 
-                    antialiasing: false
+                    elide: Text.ElideMiddle
 
                     Item {
                         id: closeButton

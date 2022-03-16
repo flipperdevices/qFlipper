@@ -15,6 +15,7 @@
 #include "rpc/storagelistoperation.h"
 #include "rpc/storagereadoperation.h"
 #include "rpc/storagewriteoperation.h"
+#include "rpc/storagemkdiroperation.h"
 #include "rpc/storageremoveoperation.h"
 #include "rpc/storagerenameoperation.h"
 
@@ -30,7 +31,8 @@ FileManager::FileManager(QObject *parent):
     QAbstractListModel(parent),
     m_device(nullptr),
     m_busyTimer(new QTimer(this)),
-    m_isBusy(false)
+    m_isBusy(false),
+    m_newDirectoryIndex(-1)
 {
     m_busyTimer->setSingleShot(true);
     connect(m_busyTimer, &QTimer::timeout, this, &FileManager::onBusyTimerTimeout);
@@ -99,8 +101,27 @@ void FileManager::rename(const QString &oldName, const QString &newName)
 
 void FileManager::remove(const QString &fileName, bool recursive)
 {
-    const auto filePath = QStringLiteral("%1/%2").arg(currentPath(), fileName);
-    registerOperation(m_device->rpc()->storageRemove(filePath.toLocal8Bit(), recursive));
+    registerOperation(m_device->rpc()->storageRemove(remoteFilePath(fileName), recursive));
+}
+
+void FileManager::beginMkDir()
+{
+    beginInsertRows(QModelIndex(), m_modelData.size(), m_modelData.size());
+
+    FileInfo newDir;
+    newDir.type = FileType::Directory;
+    newDir.name = QByteArrayLiteral("New Folder");
+
+    m_modelData.append(newDir);
+
+    endInsertRows();
+    setNewDirectoryIndex(m_modelData.size() - 1);
+}
+
+void FileManager::commitMkDir(const QString &dirName)
+{
+    setNewDirectoryIndex(-1);
+    registerOperation(m_device->rpc()->storageMkdir(remoteFilePath(dirName)));
 }
 
 void FileManager::upload(const QList<QUrl> &urlList)
@@ -150,6 +171,11 @@ QString FileManager::currentPath() const
     } else {
         return m_history.join('/');
     }
+}
+
+int FileManager::newDirectoryIndex() const
+{
+    return m_newDirectoryIndex;
 }
 
 int FileManager::rowCount(const QModelIndex &parent) const
@@ -212,6 +238,16 @@ void FileManager::setBusy(bool busy)
     }
 }
 
+void FileManager::setNewDirectoryIndex(int newIndex)
+{
+    if(newIndex == m_newDirectoryIndex) {
+        return;
+    }
+
+    m_newDirectoryIndex = newIndex;
+    emit newDirectoryIndexChanged();
+}
+
 void FileManager::listCurrentPath()
 {
     if(!m_device) {
@@ -221,11 +257,13 @@ void FileManager::listCurrentPath()
     auto *operation = m_device->rpc()->storageList(currentPath().toLocal8Bit());
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
+        emit currentPathChanged();
+
         if(operation->isError()) {
             //TODO: Error handling
         } else {
             setModelData(operation->files());
-            emit currentPathChanged();
+            emit refreshed();
         }
     });
 }

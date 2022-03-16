@@ -24,6 +24,7 @@ class FileManager : public QAbstractListModel
     Q_PROPERTY(bool canGoBack READ canGoBack NOTIFY currentPathChanged)
     Q_PROPERTY(bool canGoForward READ canGoForward NOTIFY currentPathChanged)
     Q_PROPERTY(QString currentPath READ currentPath NOTIFY currentPathChanged)
+    Q_PROPERTY(int newDirectoryIndex READ newDirectoryIndex NOTIFY newDirectoryIndexChanged)
 
 public:
     enum FieldRole {
@@ -52,6 +53,9 @@ public:
     Q_INVOKABLE void rename(const QString &oldName, const QString &newName);
     Q_INVOKABLE void remove(const QString &fileName, bool recursive = false);
 
+    Q_INVOKABLE void beginMkDir();
+    Q_INVOKABLE void commitMkDir(const QString &dirName);
+
     Q_INVOKABLE void upload(const QList<QUrl> &urlList);
     Q_INVOKABLE void download(const QString &remoteFileName, const QUrl &localUrl, bool recursive = false);
 
@@ -60,6 +64,7 @@ public:
     bool canGoBack() const;
     bool canGoForward() const;
     QString currentPath() const;
+    int newDirectoryIndex() const;
 
     // QAbstractListModel API
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -69,12 +74,15 @@ public:
 signals:
     void isBusyChanged();
     void currentPathChanged();
+    void newDirectoryIndexChanged();
+    void refreshed();
 
 private slots:
     void onBusyTimerTimeout();
 
 private:
     void setBusy(bool busy);
+    void setNewDirectoryIndex(int newIndex);
 
     void listCurrentPath();
     void uploadFile(const QFileInfo &info);
@@ -94,6 +102,7 @@ private:
     QStringList m_forwardHistory;
     QTimer *m_busyTimer;
     bool m_isBusy;
+    int m_newDirectoryIndex;
 };
 
 }

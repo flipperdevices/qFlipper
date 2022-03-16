@@ -17,6 +17,7 @@ Item {
     required property int fileSize
 
     readonly property bool isDirectory: !fileType
+    readonly property bool isNewDirectory: Backend.fileManager.newDirectoryIndex === index
     readonly property bool isHovered: mouseArea.containsMouse
     readonly property bool isCurrent: GridView.isCurrentItem
     readonly property color selectionColor: Color.transparent(Theme.color.darkorange1, delegate.isCurrent ? 1 : delegate.isHovered ? 0.5 : 0)
@@ -25,6 +26,12 @@ Item {
 
     width: 120
     height: 86
+
+    onIsNewDirectoryChanged: {
+        if(isNewDirectory) {
+            beginEdit();
+        }
+    }
 
     ColorAnimation {
         id: selectionAnimation
@@ -192,14 +199,6 @@ Item {
                 border.color: Theme.color.lightorange2
                 border.width: 1
 
-                onVisibleChanged: {
-                    if(visible) {
-                        nameEdit.text = nameLabel.text
-                        nameEdit.selectAll();
-                        nameEdit.forceActiveFocus(Qt.MouseFocusReason);
-                    }
-                }
-
                 TextInput {
                     id: nameEdit
 
@@ -217,20 +216,8 @@ Item {
 
                     selectByMouse: true
 
-                    onAccepted: {
-                        const oldName = delegate.fileName;
-                        const newName = text;
-
-                        if(oldName === newName) {
-                            return;
-                        }
-
-                        Backend.fileManager.rename(oldName, newName);
-                    }
-
-                    onEditingFinished: {
-                        editBox.visible = false;
-                    }
+                    onAccepted: isNewDirectory ? delegate.commitMkDir() : delegate.commitEdit();
+                    onEditingFinished: delegate.finishEdit();
                 }
             }
         }
@@ -323,7 +310,7 @@ Item {
     Action {
         id: renameAction
         text: qsTr("Rename")
-        onTriggered: editBox.visible = true;
+        onTriggered: delegate.beginEdit();
     }
 
     Action {
@@ -336,7 +323,7 @@ Item {
             };
 
             const msgObj = {
-                title: qsTr("Delete") + " " + delegate.fileName + "?",
+                title: "%1 \"%2\"?".arg(qsTr("Delete")).arg(delegate.fileName),
                 message: qsTr("This action cannot be undone."),
                 suggestedRole: ConfirmationDialog.RejectRole,
                 customText: qsTr("Delete")
@@ -344,5 +331,33 @@ Item {
 
             confirmationDialog.openWithMessage(doRemove, msgObj);
         }
+    }
+
+    function beginEdit() {
+        editBox.visible = true;
+
+        nameEdit.text = nameLabel.text;
+        nameEdit.selectAll();
+        nameEdit.forceActiveFocus(Qt.MouseFocusReason);
+    }
+
+    function commitEdit() {
+        const oldName = delegate.fileName;
+        const newName = nameEdit.text;
+
+        if(oldName === newName) {
+            return;
+        }
+
+        Backend.fileManager.rename(oldName, newName);
+    }
+
+    function commitMkDir() {
+        const newName = nameEdit.text;
+        Backend.fileManager.commitMkDir(newName);
+    }
+
+    function finishEdit() {
+        editBox.visible = false;
     }
 }
