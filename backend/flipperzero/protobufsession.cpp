@@ -289,15 +289,12 @@ void ProtobufSession::processQueue()
     }
 
     m_currentOperation = m_queue.dequeue();
-    m_currentOperation->start();
-
     qCInfo(LOG_SESSION).noquote() << prettyOperationDescription() << "START";
 
-    if(m_currentOperation->isError()) {
-        // The operation may not be able to start
-        onCurrentOperationFinished();
-    } else {
-        connect(m_currentOperation, &AbstractOperation::finished, this, &ProtobufSession::onCurrentOperationFinished);
+    connect(m_currentOperation, &AbstractOperation::finished, this, &ProtobufSession::onCurrentOperationFinished);
+    m_currentOperation->start();
+
+    if(!m_currentOperation->isError()) {
         writeToPort();
     }
 }

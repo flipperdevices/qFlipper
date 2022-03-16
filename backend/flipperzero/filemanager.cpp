@@ -265,8 +265,10 @@ void FileManager::setModelData(const FileInfoList &newData)
     m_modelData = newData;
 
     if(currentPath() == QStringLiteral("/")) {
-        m_modelData.erase(std::remove_if(m_modelData.begin(), m_modelData.end(), [](const FileInfo &arg) {
-            return arg.absolutePath != QStringLiteral("/ext") && arg.absolutePath != QStringLiteral("/int");
+        const auto hasSDCard = m_device->deviceState()->deviceInfo().storage.isExternalPresent;
+
+        m_modelData.erase(std::remove_if(m_modelData.begin(), m_modelData.end(), [hasSDCard](const FileInfo &arg) {
+            return arg.absolutePath != QStringLiteral("/int") && (!hasSDCard || arg.absolutePath != QStringLiteral("/ext"));
         }), m_modelData.end());
 
     } else {
