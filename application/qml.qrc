@@ -134,5 +134,6 @@
         <file>assets/gfx/symbolic/filemgr/action-save.svg</file>
         <file>assets/gfx/symbolic/filemgr/location-internal.svg</file>
         <file>assets/gfx/symbolic/filemgr/location-sdcard.svg</file>
+        <file>components/ProgressDialog.qml</file>
     </qresource>
 </RCC>

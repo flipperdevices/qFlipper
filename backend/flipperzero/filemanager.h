@@ -21,6 +21,7 @@ class FileManager : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(bool isBusy READ isBusy NOTIFY isBusyChanged)
+    Q_PROPERTY(bool isRoot READ isRoot NOTIFY currentPathChanged)
     Q_PROPERTY(bool canGoBack READ canGoBack NOTIFY currentPathChanged)
     Q_PROPERTY(bool canGoForward READ canGoForward NOTIFY currentPathChanged)
     Q_PROPERTY(QString currentPath READ currentPath NOTIFY currentPathChanged)
@@ -61,6 +62,7 @@ public:
 
     // Properties
     bool isBusy() const;
+    bool isRoot() const;
     bool canGoBack() const;
     bool canGoForward() const;
     QString currentPath() const;

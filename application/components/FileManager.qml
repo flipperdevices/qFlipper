@@ -13,7 +13,6 @@ Item {
     implicitHeight: 290
 
     property ConfirmationDialog confirmationDialog
-    readonly property bool isRoot: Backend.fileManager.currentPath === "/"
 
     ColumnLayout {
         anchors.fill: parent
@@ -148,7 +147,7 @@ Item {
                         fileView.currentIndex = -1;
                         forceActiveFocus(Qt.MouseFocusReason);
 
-                        if(mouse.button === Qt.RightButton && !control.isRoot) {
+                        if(mouse.button === Qt.RightButton && !Backend.fileManager.isRoot) {
                             emptyMenu.popup();
                         }
                     }
@@ -163,7 +162,7 @@ Item {
     }
 
     DropArea {
-        enabled: !control.isRoot
+        enabled: !Backend.fileManager.isRoot
         anchors.fill: parent
         onDropped: {
             if(drop.source || drop.proposedAction !== Qt.CopyAction) {
@@ -172,47 +171,6 @@ Item {
 
             Backend.fileManager.upload(drop.urls);
             drop.accept()
-        }
-    }
-
-    Rectangle {
-        anchors.fill: parent
-        visible: Backend.fileManager.isBusy
-        color: Color.transparent("black", visible ? 0.8 : 0)
-
-        Behavior on color {
-            PropertyAnimation {
-                duration: 200
-                easing.type: Easing.OutCubic
-            }
-        }
-
-        MouseArea {
-            acceptedButtons: Qt.AllButtons
-            anchors.fill: parent
-        }
-
-        ProgressBar {
-            id: progressBar
-
-            anchors.centerIn: parent
-
-            width: 280
-            height: 56
-
-            from: 0
-            to: 100
-
-            value: Backend.deviceState ? Backend.deviceState.progress : 0
-            indeterminate: Backend.deviceState ? Backend.deviceState.progress < 0 : true
-        }
-
-        TextLabel {
-            id: messageLabel
-            anchors.top: progressBar.bottom
-            anchors.topMargin: 20
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: qsTr("Working, please wait...")
         }
     }
 

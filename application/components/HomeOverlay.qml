@@ -45,6 +45,25 @@ AbstractOverlay {
         radius: backgroundRect.radius
     }
 
+    ProgressDialog {
+        id: progressDialog
+        parent: backgroundRect
+        radius: backgroundRect.radius
+
+        title: qsTr("Please wait")
+        text: qsTr("File operation in progress...")
+
+        value: Backend.deviceState ? Backend.deviceState.progress : -1
+        indeterminate: Backend.deviceState ? Backend.deviceState.progress < 0 : true
+
+        Component.onCompleted: {
+            Backend.fileManager.isBusyChanged.connect(function() {
+                if(Backend.fileManager.isBusy) open();
+                else close();
+            });
+        }
+    }
+
     ChangelogDialog {
         id: changelogDialog
         parent: backgroundRect
@@ -63,7 +82,7 @@ AbstractOverlay {
         items: [
             DeviceInfo { id: deviceInfoPane },
             DeviceActions { id: deviceActions },
-            FileManager { id: fileManager; confirmationDialog: confirmationDialog },
+            FileManager { id: fileManager; confirmationDialog: confirmationDialog; },
             DeveloperActions { id: developerActions }
         ]
     }
@@ -73,7 +92,6 @@ AbstractOverlay {
         x: 28
         y: 28
 
-        enabled: !Backend.fileManager.isBusy
         layer.enabled: true
 
         TabButton {

@@ -154,6 +154,11 @@ bool FileManager::isBusy() const
     return m_isBusy;
 }
 
+bool FileManager::isRoot() const
+{
+    return currentPath() == QStringLiteral("/");
+}
+
 bool FileManager::canGoBack() const
 {
     return m_history.size() > 1;
@@ -302,7 +307,7 @@ void FileManager::setModelData(const FileInfoList &newData)
 
     m_modelData = newData;
 
-    if(currentPath() == QStringLiteral("/")) {
+    if(isRoot()) {
         const auto hasSDCard = m_device->deviceState()->deviceInfo().storage.isExternalPresent;
 
         m_modelData.erase(std::remove_if(m_modelData.begin(), m_modelData.end(), [hasSDCard](const FileInfo &arg) {
