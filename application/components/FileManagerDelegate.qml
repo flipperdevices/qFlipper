@@ -18,9 +18,10 @@ Item {
 
     readonly property bool isDirectory: !fileType
     readonly property bool isNewDirectory: Backend.fileManager.newDirectoryIndex === index
-    readonly property bool isHovered: mouseArea.containsMouse
+    readonly property bool isHovered: iconMouseArea.containsMouse || labelMouseArea.containsMouse
     readonly property bool isCurrent: GridView.isCurrentItem
-    readonly property color selectionColor: Color.transparent(Theme.color.darkorange1, delegate.isCurrent ? 1 : delegate.isHovered ? 0.5 : 0)
+
+    property color selectionColor: Color.transparent(Theme.color.darkorange1, delegate.isCurrent ? 1 : delegate.isHovered ? 0.5 : 0)
 
     property ConfirmationDialog confirmationDialog
 
@@ -33,57 +34,12 @@ Item {
         }
     }
 
-    ColorAnimation {
-        id: selectionAnimation
-        duration: 150
-        easing.type: Easing.OutQuad
-    }
-
-    MouseArea {
-        id: mouseArea
-        hoverEnabled: true
-        anchors.fill: parent
-//        drag.target: draggable
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
-
-        onClicked: {
-            delegate.GridView.view.currentIndex = delegate.index
-
-            if(mouse.button === Qt.LeftButton) {
-                return;
-            }
-
-            if(delegate.filePath === "/ext" || delegate.filePath === "/int") {
-                storageMenu.popup();
-            } else if(delegate.isDirectory) {
-                dirMenu.popup();
-            } else {
-                fileMenu.popup();
-            }
-        }
-
-        onDoubleClicked: {
-            if(mouse.button === Qt.RightButton || !delegate.isDirectory) {
-                return;
-            }
-
-            Backend.fileManager.pushd(delegate.fileName)
+    Behavior on selectionColor {
+        ColorAnimation {
+            duration: 150
+            easing.type: Easing.OutQuad
         }
     }
-
-//    Item {
-//        id: draggable
-//        anchors.fill: parent
-
-//        Drag.active: mouseArea.drag.active
-//        Drag.mimeData: { "text/uri-list": Qt.resolvedUrl("file:///home/test/hello.txt") }
-//        Drag.dragType: Drag.Automatic
-//        Drag.proposedAction: Qt.CopyAction
-//        Drag.supportedActions: Qt.CopyAction
-
-//        Drag.onDragFinished: function(dropAction) {
-//        }
-//    }
 
     ColumnLayout {
         spacing: 3
@@ -98,8 +54,15 @@ Item {
             width: icon.width + 12
             height: icon.height + 12
 
-            Behavior on color {
-                animation: selectionAnimation
+            MouseArea {
+                id: iconMouseArea
+                hoverEnabled: true
+                anchors.fill: parent
+
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+                onClicked: delegate.rightClick(mouse);
+                onDoubleClicked: delegate.doubleClick(mouse)
             }
 
             IconImage {
@@ -147,10 +110,17 @@ Item {
             Rectangle {
                 anchors.fill: nameLabel
                 color: delegate.selectionColor
+            }
 
-                Behavior on color {
-                    animation: selectionAnimation
-                }
+            MouseArea {
+                id: labelMouseArea
+                hoverEnabled: true
+                anchors.fill: parent
+
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+                onClicked: delegate.rightClick(mouse);
+                onDoubleClicked: delegate.doubleClick(mouse)
             }
 
             Text {
@@ -331,6 +301,30 @@ Item {
 
             confirmationDialog.openWithMessage(doRemove, msgObj);
         }
+    }
+
+    function rightClick(mouse) {
+        delegate.GridView.view.currentIndex = delegate.index
+
+        if(mouse.button === Qt.LeftButton) {
+            return;
+        }
+
+        if(delegate.filePath === "/ext" || delegate.filePath === "/int") {
+            storageMenu.popup();
+        } else if(delegate.isDirectory) {
+            dirMenu.popup();
+        } else {
+            fileMenu.popup();
+        }
+    }
+
+    function doubleClick(mouse) {
+        if(mouse.button === Qt.RightButton || !delegate.isDirectory) {
+            return;
+        }
+
+        Backend.fileManager.pushd(delegate.fileName)
     }
 
     function beginEdit() {
