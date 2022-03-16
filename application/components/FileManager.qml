@@ -117,6 +117,11 @@ Item {
 
                 padding: 2
             }
+
+            Switch {
+                id: hiddenFileSwitch
+                text: qsTr("Hidden files")
+            }
         }
 
         ScrollView {
