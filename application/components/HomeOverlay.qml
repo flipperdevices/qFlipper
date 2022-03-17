@@ -14,6 +14,8 @@ AbstractOverlay {
     readonly property int centerX: 590
     readonly property int centerOffset: Math.min(overlay.width - (centerX + systemPathLabel.width + 12), 0)
 
+    onDeviceInfoChanged: tabs.currentIndex = 0;
+
     TabButton {
         id: developerTab
         icon.source: "qrc:/assets/gfx/symbolic/developer-mode.svg"
@@ -53,8 +55,8 @@ AbstractOverlay {
         title: qsTr("Please wait")
         text: qsTr("File operation in progress...")
 
-        value: Backend.deviceState ? Backend.deviceState.progress : -1
-        indeterminate: Backend.deviceState ? Backend.deviceState.progress < 0 : true
+        value: deviceState ? deviceState.progress : -1
+        indeterminate: deviceState ? deviceState.progress < 0 : true
 
         Component.onCompleted: {
             Backend.fileManager.isBusyChanged.connect(function() {

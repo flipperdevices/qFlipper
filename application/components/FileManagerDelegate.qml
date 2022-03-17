@@ -246,6 +246,30 @@ Item {
     Action {
         id: uploadHereAction
         text: qsTr("Upload here...")
+
+        onTriggered: {
+            const onFinished = function() {
+                AdvancedFileDialog.accepted.disconnect(onAccepted);
+                AdvancedFileDialog.finished.disconnect(onFinished);
+            };
+
+            const onAccepted = function() {
+                Backend.fileManager.uploadTo(delegate.fileName, AdvancedFileDialog.fileUrls);
+            };
+
+            AdvancedFileDialog.accepted.connect(onAccepted);
+            AdvancedFileDialog.finished.connect(onFinished);
+
+            AdvancedFileDialog.defaultFileName = "";
+            AdvancedFileDialog.title = qsTr("Select files to upload");
+            AdvancedFileDialog.nameFilters = [ "All files (*)" ];
+            AdvancedFileDialog.openLocation = AdvancedFileDialog.HomeLocation;
+            AdvancedFileDialog.selectExisting = true;
+            AdvancedFileDialog.selectMultiple = true;
+            AdvancedFileDialog.selectFolder = false;
+
+            AdvancedFileDialog.exec();
+        }
     }
 
     Action {
@@ -324,7 +348,7 @@ Item {
             return;
         }
 
-        Backend.fileManager.pushd(delegate.fileName)
+        Backend.fileManager.cd(delegate.fileName)
     }
 
     function beginEdit() {

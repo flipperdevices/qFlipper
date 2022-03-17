@@ -42,6 +42,10 @@ FileManager::FileManager(QObject *parent):
 
 void FileManager::setDevice(FlipperZero *device)
 {
+    if(!device) {
+        return;
+    }
+
     m_device = device;
     reset();
 }
@@ -50,10 +54,17 @@ void FileManager::reset()
 {
     m_forwardHistory.clear();
     m_history = QStringList{QString()};
+    setModelData(FileInfoList());
 }
 
 void FileManager::refresh()
 {
+    listCurrentPath();
+}
+
+void FileManager::cd(const QString &dirName)
+{
+    pushd(dirName);
     listCurrentPath();
 }
 
@@ -68,7 +79,6 @@ void FileManager::pushd(const QString &dirName)
     }
 
     m_history.append(dirName);
-    listCurrentPath();
 }
 
 void FileManager::popd()
@@ -78,7 +88,6 @@ void FileManager::popd()
     }
 
     m_forwardHistory.append(m_history.takeLast());
-    listCurrentPath();
 }
 
 void FileManager::historyForward()
@@ -88,12 +97,15 @@ void FileManager::historyForward()
     }
 
     const auto dirName = m_forwardHistory.last();
+
     pushd(dirName);
+    listCurrentPath();
 }
 
 void FileManager::historyBack()
 {
     popd();
+    listCurrentPath();
 }
 
 void FileManager::rename(const QString &oldName, const QString &newName)
@@ -137,6 +149,12 @@ void FileManager::upload(const QList<QUrl> &urlList)
             uploadFile(info);
         }
     }
+}
+
+void FileManager::uploadTo(const QString &remoteDirName, const QList<QUrl> &urlList)
+{
+    pushd(remoteDirName);
+    upload(urlList);
 }
 
 void FileManager::download(const QString &remoteFileName, const QUrl &localUrl, bool recursive)

@@ -45,8 +45,7 @@ public:
     Q_INVOKABLE void reset();
     Q_INVOKABLE void refresh();
 
-    Q_INVOKABLE void pushd(const QString &dirName);
-    Q_INVOKABLE void popd();
+    Q_INVOKABLE void cd(const QString &dirName);
 
     Q_INVOKABLE void historyForward();
     Q_INVOKABLE void historyBack();
@@ -58,6 +57,7 @@ public:
     Q_INVOKABLE void commitMkDir(const QString &dirName);
 
     Q_INVOKABLE void upload(const QList<QUrl> &urlList);
+    Q_INVOKABLE void uploadTo(const QString &remoteDirName, const QList<QUrl> &urlList);
     Q_INVOKABLE void download(const QString &remoteFileName, const QUrl &localUrl, bool recursive = false);
 
     // Properties
@@ -85,6 +85,9 @@ private slots:
 private:
     void setBusy(bool busy);
     void setNewDirectoryIndex(int newIndex);
+
+    void pushd(const QString &dirName);
+    void popd();
 
     void listCurrentPath();
     void uploadFile(const QFileInfo &info);
