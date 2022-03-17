@@ -12,8 +12,6 @@ DeviceState::DeviceState(const DeviceInfo &deviceInfo, QObject *parent):
     QObject(parent),
     m_deviceInfo(deviceInfo),
     m_isPersistent(false),
-    m_isStreaming(false),
-    m_isVirtualDisplay(false),
     m_isOnline(false),
     m_error(BackendError::NoError),
     m_progress(-1.0)
@@ -89,36 +87,6 @@ bool DeviceState::isRecoveryMode() const
     return m_deviceInfo.usbInfo.productID() == 0xdf11;
 }
 
-bool DeviceState::isStreamingEnabled() const
-{
-    return m_isStreaming;
-}
-
-void DeviceState::setStreamingEnabled(bool set)
-{
-    if(set == m_isStreaming) {
-        return;
-    }
-
-    m_isStreaming = set;
-    emit isStreamingEnabledChanged();
-}
-
-bool DeviceState::isVirtualDisplayEnabled() const
-{
-    return m_isVirtualDisplay;
-}
-
-void DeviceState::setVirtualDisplayEnabled(bool set)
-{
-    if(set == m_isVirtualDisplay) {
-        return;
-    }
-
-    m_isVirtualDisplay = set;
-    emit isVirtualDisplayEnabledChanged();
-}
-
 double DeviceState::progress() const
 {
     return m_progress;
@@ -178,23 +146,6 @@ void DeviceState::clearError()
 const QString &DeviceState::name() const
 {
     return m_deviceInfo.name;
-}
-
-const QSize DeviceState::screenSize()
-{
-    return QSize(128, 64);
-}
-
-const QByteArray &DeviceState::screenData() const
-{
-    return m_screenData;
-}
-
-void DeviceState::setScreenData(const QByteArray &data)
-{
-    // Assuming it always changes
-    m_screenData = data;
-    emit screenDataChanged();
 }
 
 void DeviceState::onDeviceInfoChanged()

@@ -192,7 +192,7 @@ void ProtobufSession::startSession()
     m_receivedData.clear();
 
     qCInfo(LOG_SESSION) << "Starting RPC session...";
-    m_sessionState = Starting;
+    setSessionState(Starting);
 
     if(!loadProtobufPlugin()) {
         stopEarly(BackendError::UnknownError, QStringLiteral("Failed to load protobuf plugin: %1").arg(m_loader->errorString()));
@@ -217,8 +217,12 @@ void ProtobufSession::startSession()
 
         qCInfo(LOG_SESSION) << "RPC session started successfully.";
 
-        m_sessionState = Idle;
-        emit sessionStatusChanged();
+        if(!m_queue.isEmpty()) {
+            setSessionState(Running);
+            QTimer::singleShot(0, this, &ProtobufSession::processQueue);
+        } else {
+            setSessionState(Idle);
+        }
     });
 }
 
@@ -284,7 +288,7 @@ void ProtobufSession::onSerialPortErrorOccured()
 void ProtobufSession::processQueue()
 {
     if(m_queue.isEmpty()) {
-        m_sessionState = Idle;
+        setSessionState(Idle);
         return;
     }
 
@@ -347,8 +351,7 @@ void ProtobufSession::doStopSession()
 
     qCInfo(LOG_SESSION) << "RPC session stopped successfully.";
 
-    m_sessionState = Stopped;
-    emit sessionStatusChanged();
+    setSessionState(Stopped);
 }
 
 void ProtobufSession::onCurrentOperationFinished()
@@ -363,6 +366,16 @@ void ProtobufSession::onCurrentOperationFinished()
     m_currentOperation = nullptr;
 
     QTimer::singleShot(0, this, &ProtobufSession::processQueue);
+}
+
+void ProtobufSession::setSessionState(SessionState newState)
+{
+    if(m_sessionState == newState) {
+        return;
+    }
+
+    m_sessionState = newState;
+    emit sessionStateChanged();
 }
 
 bool ProtobufSession::loadProtobufPlugin()
@@ -397,9 +410,8 @@ void ProtobufSession::unloadProtobufPlugin()
 
 void ProtobufSession::stopEarly(BackendError::ErrorType error, const QString &errorString)
 {
-    m_sessionState = Stopped;
     setError(error, errorString);
-    emit sessionStatusChanged();
+    setSessionState(Stopped);
 }
 
 uint32_t ProtobufSession::getAndIncrementCounter()
@@ -469,8 +481,8 @@ T *ProtobufSession::enqueueOperation(T *operation)
     m_queue.enqueue(operation);
 
     if(m_sessionState == Idle) {
-        m_sessionState = Running;
         QTimer::singleShot(0, this, &ProtobufSession::processQueue);
+        setSessionState(Running);
     }
 
     return operation;

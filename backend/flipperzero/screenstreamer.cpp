@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QLoggingCategory>
 
+#include "flipperzero.h"
 #include "devicestate.h"
 #include "protobufsession.h"
 #include "guiresponseinterface.h"
@@ -11,21 +12,35 @@
 #include "rpc/guistopscreenstreamoperation.h"
 #include "rpc/guisendinputoperation.h"
 
-Q_LOGGING_CATEGORY(CATEGORY_SCREEN, "SCREEN")
+Q_LOGGING_CATEGORY(CATEGORY_SCREEN, "SCR")
 
 using namespace Flipper;
 using namespace Zero;
 
-ScreenStreamer::ScreenStreamer(DeviceState *deviceState, ProtobufSession *rpc, QObject *parent):
+ScreenStreamer::ScreenStreamer(QObject *parent):
     QObject(parent),
-    m_deviceState(deviceState),
     m_streamState(StreamState::Stopped),
-    m_rpc(rpc)
+    m_device(nullptr)
 {}
+
+void ScreenStreamer::setDevice(FlipperZero *device)
+{
+    if(device == m_device) {
+        return;
+    }
+
+    m_device = device;
+
+    if(device) {
+        auto *rpc = device->rpc();
+        connect(rpc, &ProtobufSession::broadcastResponseReceived, this, &ScreenStreamer::onBroadcastResponseReceived);
+        connect(rpc, &ProtobufSession::sessionStateChanged, this, &ScreenStreamer::onProtobufSessionStateChanged);
+    }
+}
 
 void ScreenStreamer::sendInputEvent(int key, int type)
 {
-    auto *operation = m_rpc->guiSendInput(key, type);
+    auto *operation = m_device->rpc()->guiSendInput(key, type);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -33,6 +48,21 @@ void ScreenStreamer::sendInputEvent(int key, int type)
             qCDebug(CATEGORY_SCREEN).noquote() << "Failed to send input event: " << operation->errorString();
         }
     });
+}
+
+bool ScreenStreamer::isActive() const
+{
+    return m_streamState == Running;
+}
+
+const QSize ScreenStreamer::screenSize()
+{
+    return QSize(128, 64);
+}
+
+const QByteArray &ScreenStreamer::screenData() const
+{
+    return m_screenData;
 }
 
 void ScreenStreamer::start()
@@ -44,7 +74,7 @@ void ScreenStreamer::start()
 
     setStreamState(StreamState::Starting);
 
-    auto *operation = m_rpc->guiStartScreenStream();
+    auto *operation = m_device->rpc()->guiStartScreenStream();
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -66,7 +96,7 @@ void ScreenStreamer::stop()
 
     setStreamState(StreamState::Stopping);
 
-    auto *operation = m_rpc->guiStopScreenStream();
+    auto *operation = m_device->rpc()->guiStopScreenStream();
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -77,12 +107,19 @@ void ScreenStreamer::stop()
     });
 }
 
+void ScreenStreamer::onProtobufSessionStateChanged()
+{
+    if(!m_device->rpc()->isSessionUp()) {
+        setStreamState(Stopped);
+    }
+}
+
 void ScreenStreamer::onBroadcastResponseReceived(QObject *response)
 {
     auto *screenFrameResponse = qobject_cast<GuiScreenFrameResponseInterface*>(response);
 
     if(screenFrameResponse) {
-        m_deviceState->setScreenData(screenFrameResponse->screenFrame());
+        setScreenData(screenFrameResponse->screenFrame());
     }
 }
 
@@ -93,10 +130,11 @@ void ScreenStreamer::setStreamState(StreamState newState)
     }
 
     m_streamState = newState;
+    emit streamStateChanged();
+}
 
-    if(m_streamState == StreamState::Running) {
-        m_deviceState->setStreamingEnabled(true);
-    } else if(m_streamState == StreamState::Stopped) {
-        m_deviceState->setStreamingEnabled(false);
-    }
+void ScreenStreamer::setScreenData(const QByteArray &data)
+{
+    m_screenData = data;
+    emit screenDataChanged();
 }

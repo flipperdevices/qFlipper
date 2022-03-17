@@ -4,10 +4,9 @@
 #include <QByteArray>
 
 namespace Flipper {
-namespace Zero {
+class FlipperZero;
 
-class DeviceState;
-class ProtobufSession;
+namespace Zero {
 
 class VirtualDisplay : public QObject
 {
@@ -23,7 +22,13 @@ public:
 
     Q_ENUM(DisplayState)
 
-    VirtualDisplay(DeviceState *deviceState, ProtobufSession *rpc, QObject *parent = nullptr);
+    VirtualDisplay(QObject *parent = nullptr);
+    void setDevice(FlipperZero *device);
+
+    DisplayState displayState() const;
+
+signals:
+    void displayStateChanged();
 
 public slots:
     void start(const QByteArray &firstFrame = QByteArray());
@@ -33,9 +38,8 @@ public slots:
 private:
     void setDisplayState(DisplayState newState);
 
-    DeviceState *m_deviceState;
-    ProtobufSession *m_rpc;
     DisplayState m_displayState;
+    FlipperZero *m_device;
 };
 
 }

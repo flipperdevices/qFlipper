@@ -42,7 +42,7 @@ FileManager::FileManager(QObject *parent):
 
 void FileManager::setDevice(FlipperZero *device)
 {
-    if(!device) {
+    if(device == m_device) {
         return;
     }
 

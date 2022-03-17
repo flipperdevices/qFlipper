@@ -84,7 +84,7 @@ public:
     GuiScreenFrameOperation *guiSendScreenFrame(const QByteArray &screenData);
 
 signals:
-    void sessionStatusChanged();
+    void sessionStateChanged();
     void broadcastResponseReceived(QObject *response);
 
 public slots:
@@ -103,6 +103,8 @@ private slots:
     void onCurrentOperationFinished();
 
 private:
+    void setSessionState(SessionState newState);
+
     bool loadProtobufPlugin();
     void unloadProtobufPlugin();
 

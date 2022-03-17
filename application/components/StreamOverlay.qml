@@ -53,13 +53,13 @@ AbstractOverlay {
         foregroundColor: "black"
         backgroundColor: Theme.color.lightorange2
 
-        canvasWidth: deviceState ? deviceState.screenSize.width : 1
-        canvasHeight: deviceState ? deviceState.screenSize.height : 1
+        canvasWidth: Backend.screenStreamer.screenSize.width
+        canvasHeight: Backend.screenStreamer.screenSize.height
 
         width: canvasWidth * 4
         height: canvasHeight * 4
 
-        data: !!deviceState && enabled ? deviceState.screenData : ""
+        data: Backend.screenStreamer.screenData
     }
 
     RowLayout {
@@ -100,7 +100,7 @@ AbstractOverlay {
         y: 52
 
         onInputEvent: {
-            Backend.sendInputEvent(key, type);
+            Backend.screenStreamer.sendInputEvent(key, type);
         }
 
         // Prevent focus loss

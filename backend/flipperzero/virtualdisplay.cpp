@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QLoggingCategory>
 
+#include "flipperzero.h"
 #include "devicestate.h"
 #include "protobufsession.h"
 
@@ -10,23 +11,36 @@
 #include "rpc/guistopvirtualdisplayoperation.h"
 #include "rpc/guiscreenframeoperation.h"
 
-Q_LOGGING_CATEGORY(LOG_VIRTDISPLAY, "VIRTDISPLAY")
+Q_LOGGING_CATEGORY(LOG_VIRTDISPLAY, "DPY")
 
 using namespace Flipper;
 using namespace Zero;
 
-VirtualDisplay::VirtualDisplay(DeviceState *deviceState, ProtobufSession *rpc, QObject *parent):
+VirtualDisplay::VirtualDisplay(QObject *parent):
     QObject(parent),
-    m_deviceState(deviceState),
-    m_rpc(rpc),
-    m_displayState(DisplayState::Stopped)
+    m_displayState(DisplayState::Stopped),
+    m_device(nullptr)
 {}
+
+void VirtualDisplay::setDevice(FlipperZero *device)
+{
+    if(!device) {
+        return;
+    }
+
+    m_device = device;
+}
+
+VirtualDisplay::DisplayState VirtualDisplay::displayState() const
+{
+    return m_displayState;
+}
 
 void VirtualDisplay::start(const QByteArray &firstFrame)
 {
     setDisplayState(DisplayState::Starting);
 
-    auto *operation = m_rpc->guiStartVirtualDisplay(firstFrame);
+    auto *operation = m_device->rpc()->guiStartVirtualDisplay(firstFrame);
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             qCDebug(LOG_VIRTDISPLAY).noquote() << "Failed to start virtual display:" << operation->errorString();
@@ -39,7 +53,7 @@ void VirtualDisplay::start(const QByteArray &firstFrame)
 
 void VirtualDisplay::sendFrame(const QByteArray &screenFrame)
 {
-    auto *operation = m_rpc->guiSendScreenFrame(screenFrame);
+    auto *operation = m_device->rpc()->guiSendScreenFrame(screenFrame);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -52,7 +66,7 @@ void VirtualDisplay::stop()
 {
     setDisplayState(DisplayState::Stopping);
 
-    auto *operation = m_rpc->guiStopVirtualDisplay();
+    auto *operation = m_device->rpc()->guiStopVirtualDisplay();
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -70,10 +84,5 @@ void VirtualDisplay::setDisplayState(DisplayState newState)
     }
 
     m_displayState = newState;
-
-    if(m_displayState == DisplayState::Running) {
-        m_deviceState->setVirtualDisplayEnabled(true);
-    } else if(m_displayState == DisplayState::Stopped) {
-        m_deviceState->setVirtualDisplayEnabled(false);
-    }
+    emit displayStateChanged();
 }

@@ -17,8 +17,6 @@ namespace Zero {
     class ProtobufSession;
     class RecoveryInterface;
     class UtilityInterface;
-    class ScreenStreamer;
-    class VirtualDisplay;
 }
 
 class FlipperZero : public QObject
@@ -47,7 +45,6 @@ public:
     void installWirelessStack(const QUrl &fileUrl);
     void installFUS(const QUrl &fileUrl, uint32_t address);
 
-    void sendInputEvent(int key, int type);
     void finalizeOperation();
 
 signals:
@@ -65,8 +62,6 @@ private:
     Zero::ProtobufSession *m_rpc;
     Zero::RecoveryInterface *m_recovery;
     Zero::UtilityInterface *m_utility;
-    Zero::ScreenStreamer *m_streamer;
-    Zero::VirtualDisplay *m_virtualDisplay;
 };
 
 }

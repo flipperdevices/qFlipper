@@ -50,24 +50,23 @@ Image {
         y: 26
 
         source: deviceState && deviceState.isRecoveryMode ? "qrc:/assets/gfx/images/recovery.svg" :
-                Backend.backendState === Backend.Finished ? "qrc:/assets/gfx/images/success.svg" :
-                                                            "qrc:/assets/gfx/images/default.svg"
-
+                Backend.backendState === ApplicationBackend.Finished ? "qrc:/assets/gfx/images/success.svg" :
+                                                                       "qrc:/assets/gfx/images/default.svg"
         sourceSize: Qt.size(128, 64)
     }
 
     ScreenCanvas {
         id: screenCanvas
         anchors.fill: defaultScreen
-        visible: Backend.backendState === Backend.Ready && deviceState.isStreamingEnabled
+        visible: Backend.backendState === ApplicationBackend.Ready && Backend.screenStreamer.isActive
 
         foregroundColor: Theme.color.darkorange1
         backgroundColor: Theme.color.lightorange2
 
-        canvasWidth: deviceState ? deviceState.screenSize.width : 1
-        canvasHeight: deviceState ? deviceState.screenSize.height : 1
+        canvasWidth: Backend.screenStreamer.screenSize.width
+        canvasHeight: Backend.screenStreamer.screenSize.height
 
-        data: deviceState ? deviceState.screenData : ""
+        data: Backend.screenStreamer.screenData
     }
 
     ExpandWidget {

@@ -8,8 +8,6 @@
 #include "flipperupdates.h"
 
 #include "devicestate.h"
-#include "screenstreamer.h"
-#include "virtualdisplay.h"
 
 #include "protobufsession.h"
 #include "utilityinterface.h"
@@ -28,7 +26,7 @@
 //#include "pixmaps/updating.h"
 //#include "pixmaps/updateok.h"
 
-Q_LOGGING_CATEGORY(CAT_DEVICE, "DEVICE")
+Q_LOGGING_CATEGORY(CAT_DEVICE, "DEV")
 
 #define CHANNEL_DEVELOPMENT "development"
 #define CHANNEL_RELEASE_CANDIDATE "release-candidate"
@@ -43,15 +41,12 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     m_state(new DeviceState(info, this)),
     m_rpc(new ProtobufSession(info.portInfo, this)),
     m_recovery(new RecoveryInterface(m_state, this)),
-    m_utility(new UtilityInterface(m_state, m_rpc, this)),
-    m_streamer(new ScreenStreamer(m_state, m_rpc, this)),
-    m_virtualDisplay(new VirtualDisplay(m_state, m_rpc, this))
+    m_utility(new UtilityInterface(m_state, m_rpc, this))
 {
     connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::onDeviceInfoChanged);
     connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::deviceStateChanged);
 
-    connect(m_rpc, &ProtobufSession::sessionStatusChanged, this, &FlipperZero::onSessionStatusChanged);
-    connect(m_rpc, &ProtobufSession::broadcastResponseReceived, m_streamer, &ScreenStreamer::onBroadcastResponseReceived);
+    connect(m_rpc, &ProtobufSession::sessionStateChanged, this, &FlipperZero::onSessionStatusChanged);
 
     onDeviceInfoChanged();
 }
@@ -186,11 +181,6 @@ void FlipperZero::installWirelessStack(const QUrl &fileUrl)
 void FlipperZero::installFUS(const QUrl &fileUrl, uint32_t address)
 {
     registerOperation(new FUSUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), address, this));
-}
-
-void FlipperZero::sendInputEvent(int key, int type)
-{
-    m_streamer->sendInputEvent(key, type);
 }
 
 void FlipperZero::finalizeOperation()

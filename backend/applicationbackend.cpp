@@ -11,15 +11,18 @@
 #include "preferences.h"
 #include "flipperupdates.h"
 
+#include "flipperzero/screenstreamer.h"
+#include "flipperzero/virtualdisplay.h"
+#include "flipperzero/filemanager.h"
+
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/devicestate.h"
-#include "flipperzero/filemanager.h"
 #include "flipperzero/assetmanifest.h"
 #include "flipperzero/screenstreamer.h"
 
 #include "flipperzero/helper/toplevelhelper.h"
 
-Q_LOGGING_CATEGORY(LOG_BACKEND, "BACKEND")
+Q_LOGGING_CATEGORY(LOG_BACKEND, "BKD")
 
 using namespace Flipper;
 using namespace Zero;
@@ -28,6 +31,8 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     QObject(parent),
     m_deviceRegistry(new DeviceRegistry(this)),
     m_firmwareUpdateRegistry(new FirmwareUpdateRegistry("https://update.flipperzero.one/firmware/directory.json", this)),
+    m_screenStreamer(new ScreenStreamer(this)),
+    m_virtualDisplay(new VirtualDisplay(this)),
     m_fileManager(new FileManager(this)),
     m_backendState(BackendState::WaitingForDevices),
     m_errorType(BackendError::UnknownError)
@@ -89,6 +94,16 @@ DeviceState *ApplicationBackend::deviceState() const
     } else {
         return nullptr;
     }
+}
+
+ScreenStreamer *ApplicationBackend::screenStreamer() const
+{
+    return m_screenStreamer;
+}
+
+VirtualDisplay *ApplicationBackend::virtualDisplay() const
+{
+    return m_virtualDisplay;
 }
 
 FileManager *ApplicationBackend::fileManager() const
@@ -168,13 +183,6 @@ void ApplicationBackend::stopFullScreenStreaming()
     setBackendState(BackendState::Ready);
 }
 
-void ApplicationBackend::sendInputEvent(int key, int type)
-{
-    if(device()) {
-        device()->sendInputEvent(key, type);
-    }
-}
-
 void ApplicationBackend::checkFirmwareUpdates()
 {
     m_firmwareUpdateRegistry->check();
@@ -198,6 +206,24 @@ void ApplicationBackend::finalizeOperation()
     }
 }
 
+void ApplicationBackend::onBackendStateChanged()
+{
+    if(!deviceState() || deviceState()->isRecoveryMode()) {
+        return;
+    }
+
+    if(m_backendState == BackendState::Ready) {
+        m_fileManager->setDevice(device());
+        m_screenStreamer->setDevice(device());
+        m_screenStreamer->start();
+
+    } else if(m_backendState == BackendState::Finished) {
+        m_virtualDisplay->setDevice(device());
+    } else if(m_backendState > BackendState::ScreenStreaming && m_backendState < BackendState::Finished) {
+        m_virtualDisplay->setDevice(device());
+    }
+}
+
 void ApplicationBackend::onCurrentDeviceChanged()
 {
     // Should not happen during an ongoing operation
@@ -212,25 +238,42 @@ void ApplicationBackend::onCurrentDeviceChanged()
         connect(device(), &FlipperZero::operationFinished, this, &ApplicationBackend::onDeviceOperationFinished);
         connect(device(), &FlipperZero::deviceStateChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
 
+//        connect(deviceState(), &DeviceState::isOnlineChanged, this, &ApplicationBackend::onDeviceOnlineChanged);
+
+//        if(deviceState()->isOnline()) {
+//            onDeviceOnlineChanged();
+//        }
+
         setBackendState(BackendState::Ready);
 
     } else {
         qCDebug(LOG_BACKEND) << "Last device was disconnected";
         setBackendState(BackendState::WaitingForDevices);
     }
-
-    if(m_backendState <= BackendState::Ready) {
-        m_fileManager->setDevice(device());
-    }
 }
 
-void ApplicationBackend::onCurrentDeviceReady()
-{
-    if(deviceState()->isStreamingEnabled()) {
-        disconnect(deviceState(), &DeviceState::isStreamingEnabledChanged, this, &ApplicationBackend::onCurrentDeviceReady);
-        setBackendState(BackendState::Ready);
-    }
-}
+//void ApplicationBackend::onDeviceOnlineChanged()
+//{
+//    if(!deviceState()->isOnline()) {
+//        return;
+//    }
+
+//    m_screenStreamer->setDevice(device());
+//    m_virtualDisplay->setDevice(device());
+//    m_fileManager->setDevice(device());
+
+
+
+//    qDebug() << "!!!!! onDeviceOnlineChanged()" << device()->deviceState()->isOnline();
+//}
+
+//void ApplicationBackend::onCurrentDeviceReady()
+//{
+//    if(deviceState()->isStreamingEnabled()) {
+//        disconnect(deviceState(), &DeviceState::isStreamingEnabledChanged, this, &ApplicationBackend::onCurrentDeviceReady);
+//        setBackendState(BackendState::Ready);
+//    }
+//}
 
 void ApplicationBackend::onDeviceOperationFinished()
 {
@@ -284,6 +327,7 @@ void ApplicationBackend::initConnections()
     connect(m_firmwareUpdateRegistry, &UpdateRegistry::latestVersionChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
 
     connect(m_deviceRegistry, &DeviceRegistry::errorChanged, this, &ApplicationBackend::onDeviceRegistryErrorChanged);
+    connect(this, &ApplicationBackend::backendStateChanged, this, &ApplicationBackend::onBackendStateChanged);
 }
 
 void ApplicationBackend::setBackendState(BackendState newState)
@@ -306,14 +350,14 @@ void ApplicationBackend::setErrorType(BackendError::ErrorType newErrorType)
     emit errorTypeChanged();
 }
 
-void ApplicationBackend::waitForDeviceReady()
-{
-    if(deviceState()->isRecoveryMode() || deviceState()->isStreamingEnabled()) {
-        setBackendState(BackendState::Ready);
-    } else {
-        connect(deviceState(), &DeviceState::isStreamingEnabledChanged, this, &ApplicationBackend::onCurrentDeviceReady);
-    }
-}
+//void ApplicationBackend::waitForDeviceReady()
+//{
+//    if(deviceState()->isRecoveryMode() || deviceState()->isStreamingEnabled()) {
+//        setBackendState(BackendState::Ready);
+//    } else {
+//        connect(deviceState(), &DeviceState::isStreamingEnabledChanged, this, &ApplicationBackend::onCurrentDeviceReady);
+//    }
+//}
 
 void ApplicationBackend::registerMetaTypes()
 {
@@ -329,6 +373,8 @@ void ApplicationBackend::registerMetaTypes()
 
     qRegisterMetaType<Flipper::FlipperZero*>("Flipper::FlipperZero*");
     qRegisterMetaType<Flipper::Zero::DeviceState*>("Flipper::Zero::DeviceState*");
+    qRegisterMetaType<Flipper::Zero::ScreenStreamer*>("Flipper::Zero::ScreenStreamer*");
+    qRegisterMetaType<Flipper::Zero::VirtualDisplay*>("Flipper::Zero::VirtualDisplay*");
     qRegisterMetaType<Flipper::Zero::FileManager*>("Flipper::Zero::FileManager*");
     qRegisterMetaType<Flipper::Zero::ScreenStreamer*>("Flipper::Zero::ScreenStreamer*");
 
