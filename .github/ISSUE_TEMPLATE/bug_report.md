@@ -1,19 +1,39 @@
-# How to report bugs
+---
+name: Bug report
+about: How to report bugs
+title: ''
+labels: bug
+assignees: ''
+
+---
 First and foremost, thank you for your interest in making qFlipper better by reporting bugs!
 
-## Bug report example
-A well put together bug report should answer the following questions:
-1. What were you trying to do?
-2. What results were you expecting to get?
-3. What is actually happening instead?
-4. Does the issue persist if you try multiple times?
-5. Does reconnecting/rebooting Flipper solve it?
+**Describe the bug**
+What were you trying to do?
 
-The report *must* also include at least one of the following:
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
+
+**Expected behavior**
+A clear and concise description of what you expected to happen.
+
+**Actual behavior**
+A clear and concise description of what happened instead.
+
+**Additional troubleshooting**
+1. Does the issue persist if you try multiple times?
+2. Does reconnecting/rebooting Flipper solve it?
+
+**The report *must* also include at least one of the following:**
 1. A **FULL LOG** of this application run. (see below).
 2. A screenshot of the application window (if it is a graphical issue).
 
-You are free to add any other information you deem helpful.
+**Additional context**
+You are free to add any other context about the problem you deem helpful here.
 
 ## IMPORTANT - Getting the full log
 Normally, the application log is shown upon pressing the "LOGS" button in the bottom left corner of the window. 
@@ -26,4 +46,4 @@ In order to access it, follow these steps:
 5. Find the most recent file, this is it!
 
 **Warning!** The log will contain your Flipper's unique name. If you wish not to disclose it, search/replace
-all its occurences before attaching the file.
+all its occurrences before attaching the file.
