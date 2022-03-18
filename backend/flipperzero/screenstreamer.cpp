@@ -50,9 +50,18 @@ void ScreenStreamer::sendInputEvent(int key, int type)
     });
 }
 
-bool ScreenStreamer::isActive() const
+bool ScreenStreamer::isEnabled() const
 {
     return m_streamState == Running;
+}
+
+void ScreenStreamer::setEnabled(bool set)
+{
+    if(set) {
+        start();
+    } else {
+        stop();
+    }
 }
 
 const QSize ScreenStreamer::screenSize()
@@ -67,8 +76,10 @@ const QByteArray &ScreenStreamer::screenData() const
 
 void ScreenStreamer::start()
 {
-    if(m_streamState != StreamState::Stopped) {
-        qCDebug(CATEGORY_SCREEN) << "Can't start while already running";
+    if(!m_device) {
+        return;
+    } else if(m_streamState != StreamState::Stopped) {
+        qCDebug(CATEGORY_SCREEN) << "Screen streaming is already running";
         return;
     }
 
@@ -90,7 +101,7 @@ void ScreenStreamer::start()
 void ScreenStreamer::stop()
 {
     if(m_streamState != StreamState::Running) {
-        qCDebug(CATEGORY_SCREEN) << "Can't stop while not running";
+        qCDebug(CATEGORY_SCREEN) << "Screen streaming is already stopped";
         return;
     }
 

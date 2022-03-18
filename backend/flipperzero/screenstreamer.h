@@ -15,7 +15,7 @@ class ScreenStreamer : public QObject
     Q_OBJECT
     Q_PROPERTY(QByteArray screenData READ screenData NOTIFY screenDataChanged)
     Q_PROPERTY(QSize screenSize READ screenSize CONSTANT)
-    Q_PROPERTY(bool isActive READ isActive NOTIFY streamStateChanged)
+    Q_PROPERTY(bool isEnabled READ isEnabled WRITE setEnabled NOTIFY streamStateChanged)
 
 public:
     enum StreamState {
@@ -32,7 +32,9 @@ public:
     void setDevice(FlipperZero *device);
     Q_INVOKABLE void sendInputEvent(int key, int type);
 
-    bool isActive() const;
+    bool isEnabled() const;
+    void setEnabled(bool set);
+
     StreamState streamState() const;
 
     static const QSize screenSize();
@@ -46,6 +48,7 @@ public slots:
     void start();
     void stop();
 
+private slots:
     void onProtobufSessionStateChanged();
     void onBroadcastResponseReceived(QObject *response);
 

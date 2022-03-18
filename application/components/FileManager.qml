@@ -14,6 +14,10 @@ Item {
 
     property ConfirmationDialog confirmationDialog
 
+    onVisibleChanged: {
+        Backend.screenStreamer.isEnabled = !visible
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.leftMargin: 7
