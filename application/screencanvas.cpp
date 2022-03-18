@@ -29,7 +29,7 @@ void ScreenCanvas::setData(const QByteArray &data)
     for (auto x = 0; x < canvasWidth(); x++) {
         for (auto y = 0; y < canvasHeight(); y++) {
             const auto i = y / 8 * canvasWidth() + x;
-            const auto z = y & 7;
+            const auto z = y % 8;
             const auto color = ((data.at(i) & (1 << z))) ? m_foreground : m_background;
             m_canvas.setPixelColor(x, y, color);
         }

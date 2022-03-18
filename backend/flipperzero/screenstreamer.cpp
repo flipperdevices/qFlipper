@@ -12,10 +12,34 @@
 #include "rpc/guistopscreenstreamoperation.h"
 #include "rpc/guisendinputoperation.h"
 
+#include "pixmaps/default.h"
+
 Q_LOGGING_CATEGORY(CATEGORY_SCREEN, "SCR")
 
 using namespace Flipper;
 using namespace Zero;
+
+// ScreenStream and VirtualDisplay formats differ
+static QByteArray transposeImage(const QByteArray &in, int width, int height)
+{
+    QByteArray out((width * height) / 8, 0x0);
+
+    for(auto y = 0; y < height; ++y) {
+        for(auto x = 0; x < width; ++x) {
+            const auto ii = (y * width + x) / 8;
+            const auto oi = y / 8 * width + x;
+
+            const auto iz = x % 8;
+            const auto oz = y % 8;
+
+            if(in[ii] & (1 << iz)) {
+                out[oi] = out[oi] | (1 << oz);
+            }
+        }
+    }
+
+    return out;
+}
 
 ScreenStreamer::ScreenStreamer(QObject *parent):
     QObject(parent),
@@ -30,6 +54,7 @@ void ScreenStreamer::setDevice(FlipperZero *device)
     }
 
     m_device = device;
+    setScreenData(transposeImage(QByteArray((char*)default_bits, sizeof(default_bits)), default_width, default_height));
 
     if(device) {
         auto *rpc = device->rpc();

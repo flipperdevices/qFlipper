@@ -111,6 +111,7 @@ HEADERS += \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
     flipperzero/filemanager.h \
+    flipperzero/pixmaps/default.h \
     flipperzero/pixmaps/updateok.h \
     flipperzero/pixmaps/updating.h \
     flipperzero/protobufsession.h \

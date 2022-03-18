@@ -212,15 +212,15 @@ void ApplicationBackend::onBackendStateChanged()
         return;
     }
 
-    if(m_backendState == BackendState::Ready) {
-        m_fileManager->setDevice(device());
-        m_screenStreamer->setDevice(device());
-        m_screenStreamer->start();
+    m_fileManager->setDevice(device());
+    m_screenStreamer->setDevice(device());
+    m_virtualDisplay->setDevice(device());
 
+    if(m_backendState == BackendState::Ready) {
+        m_screenStreamer->start();
     } else if(m_backendState == BackendState::Finished) {
-        m_virtualDisplay->setDevice(device());
     } else if(m_backendState > BackendState::ScreenStreaming && m_backendState < BackendState::Finished) {
-        m_virtualDisplay->setDevice(device());
+    } else {
     }
 }
 
@@ -238,12 +238,6 @@ void ApplicationBackend::onCurrentDeviceChanged()
         connect(device(), &FlipperZero::operationFinished, this, &ApplicationBackend::onDeviceOperationFinished);
         connect(device(), &FlipperZero::deviceStateChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
 
-//        connect(deviceState(), &DeviceState::isOnlineChanged, this, &ApplicationBackend::onDeviceOnlineChanged);
-
-//        if(deviceState()->isOnline()) {
-//            onDeviceOnlineChanged();
-//        }
-
         setBackendState(BackendState::Ready);
 
     } else {
@@ -251,29 +245,6 @@ void ApplicationBackend::onCurrentDeviceChanged()
         setBackendState(BackendState::WaitingForDevices);
     }
 }
-
-//void ApplicationBackend::onDeviceOnlineChanged()
-//{
-//    if(!deviceState()->isOnline()) {
-//        return;
-//    }
-
-//    m_screenStreamer->setDevice(device());
-//    m_virtualDisplay->setDevice(device());
-//    m_fileManager->setDevice(device());
-
-
-
-//    qDebug() << "!!!!! onDeviceOnlineChanged()" << device()->deviceState()->isOnline();
-//}
-
-//void ApplicationBackend::onCurrentDeviceReady()
-//{
-//    if(deviceState()->isStreamingEnabled()) {
-//        disconnect(deviceState(), &DeviceState::isStreamingEnabledChanged, this, &ApplicationBackend::onCurrentDeviceReady);
-//        setBackendState(BackendState::Ready);
-//    }
-//}
 
 void ApplicationBackend::onDeviceOperationFinished()
 {
@@ -349,15 +320,6 @@ void ApplicationBackend::setErrorType(BackendError::ErrorType newErrorType)
     m_errorType = newErrorType;
     emit errorTypeChanged();
 }
-
-//void ApplicationBackend::waitForDeviceReady()
-//{
-//    if(deviceState()->isRecoveryMode() || deviceState()->isStreamingEnabled()) {
-//        setBackendState(BackendState::Ready);
-//    } else {
-//        connect(deviceState(), &DeviceState::isStreamingEnabledChanged, this, &ApplicationBackend::onCurrentDeviceReady);
-//    }
-//}
 
 void ApplicationBackend::registerMetaTypes()
 {
