@@ -314,7 +314,6 @@ void ApplicationBackend::initConnections()
     connect(m_firmwareUpdateRegistry, &UpdateRegistry::latestVersionChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
 
     connect(m_deviceRegistry, &DeviceRegistry::errorChanged, this, &ApplicationBackend::onDeviceRegistryErrorChanged);
-//    connect(this, &ApplicationBackend::backendStateChanged, this, &ApplicationBackend::onAuxConditionChanged);
 }
 
 void ApplicationBackend::setBackendState(BackendState newState)

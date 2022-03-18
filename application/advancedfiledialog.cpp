@@ -21,9 +21,7 @@ void AdvancedFileDialog::setDefaultFileName(const QString &fileName)
 
 void AdvancedFileDialog::setSelectFolder(bool set)
 {
-    if(set == m_isSelectFolder) {
-        return;
-    } else if(set) {
+    if(set) {
         setFileMode(Directory);
     } else {
         setFileMode(m_isSelectExisting ? (m_isSelectMultiple ? ExistingFiles : ExistingFile) : AnyFile);
@@ -42,10 +40,6 @@ bool AdvancedFileDialog::isSelectFolder() const
 
 void AdvancedFileDialog::setSelectMultiple(bool set)
 {
-    if(set == m_isSelectMultiple) {
-        return;
-    }
-
     setFileMode(m_isSelectExisting ? (set ? ExistingFiles : ExistingFile) : AnyFile);
 
     m_isSelectMultiple = set;
@@ -59,10 +53,6 @@ bool AdvancedFileDialog::isSelectMultiple() const
 
 void AdvancedFileDialog::setSelectExisting(bool set)
 {
-    if(set == m_isSelectExisting) {
-        return;
-    }
-
     setFileMode(set ? (m_isSelectMultiple ? ExistingFiles : ExistingFile) : AnyFile);
     setAcceptMode(set ? AcceptOpen : AcceptSave);
 
