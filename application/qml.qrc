@@ -104,8 +104,6 @@
         <file>assets/gfx/images/error-internet.svg</file>
         <file>assets/gfx/images/warning-sdcard.svg</file>
         <file>components/TextBox.qml</file>
-        <file>imports/Strings/qmldir</file>
-        <file>imports/Strings/Strings.qml</file>
         <file>assets/gfx/images/spinner.svg</file>
         <file>assets/gfx/symbolic/developer-mode.svg</file>
         <file>assets/icons/qFlipper.icns</file>
@@ -136,7 +134,8 @@
         <file>assets/gfx/symbolic/filemgr/location-sdcard.svg</file>
         <file>components/ProgressDialog.qml</file>
         <file>style/Switch.qml</file>
-        <file>imports/Misc/Filetypes.qml</file>
         <file>imports/Misc/qmldir</file>
+        <file>imports/Misc/FileTypes.qml</file>
+        <file>imports/Misc/ErrorStrings.qml</file>
     </qresource>
 </RCC>

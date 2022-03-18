@@ -88,10 +88,10 @@ Item {
 
                     const extension = delegate.fileName.substring(delegate.fileName.lastIndexOf('.') + 1);
 
-                    if(extension in Filetypes.icons) {
-                        return Filetypes.icons[extension];
+                    if(extension in FileTypes.icons) {
+                        return FileTypes.icons[extension];
                     } else {
-                        return Filetypes.icons["default"];
+                        return FileTypes.icons["default"];
                     }
                 }
             }

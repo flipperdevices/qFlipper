@@ -1,3 +1,4 @@
 module Misc
 
-singleton Filetypes 1.0 Filetypes.qml
+singleton FileTypes 1.0 FileTypes.qml
+singleton ErrorStrings 1.0 ErrorStrings.qml
