@@ -130,8 +130,8 @@ signals:
     void isQueryInProgressChanged();
 
 private slots:
-    void onBackendStateChanged();
     void onCurrentDeviceChanged();
+    void onDeviceInfoChanged();
     void onDeviceOperationFinished();
     void onDeviceRegistryErrorChanged();
 

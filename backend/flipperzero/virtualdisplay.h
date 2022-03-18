@@ -13,7 +13,7 @@ class VirtualDisplay : public QObject
     Q_OBJECT
 
 public:
-    enum class DisplayState {
+    enum DisplayState {
         Starting,
         Running,
         Stopping,
@@ -34,6 +34,9 @@ public slots:
     void start(const QByteArray &firstFrame = QByteArray());
     void sendFrame(const QByteArray &screenFrame);
     void stop();
+
+private slots:
+    void onProtobufSessionStateChanged();
 
 private:
     void setDisplayState(DisplayState newState);

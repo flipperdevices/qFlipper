@@ -29,6 +29,10 @@ void VirtualDisplay::setDevice(FlipperZero *device)
     }
 
     m_device = device;
+
+    if(device) {
+        connect(device->rpc(), &ProtobufSession::sessionStateChanged, this, &VirtualDisplay::onProtobufSessionStateChanged);
+    }
 }
 
 VirtualDisplay::DisplayState VirtualDisplay::displayState() const
@@ -38,6 +42,10 @@ VirtualDisplay::DisplayState VirtualDisplay::displayState() const
 
 void VirtualDisplay::start(const QByteArray &firstFrame)
 {
+    if(m_displayState != DisplayState::Stopped) {
+        return;
+    }
+
     setDisplayState(DisplayState::Starting);
 
     auto *operation = m_device->rpc()->guiStartVirtualDisplay(firstFrame);
@@ -64,6 +72,10 @@ void VirtualDisplay::sendFrame(const QByteArray &screenFrame)
 
 void VirtualDisplay::stop()
 {
+    if(m_displayState != DisplayState::Running) {
+        return;
+    }
+
     setDisplayState(DisplayState::Stopping);
 
     auto *operation = m_device->rpc()->guiStopVirtualDisplay();
@@ -75,6 +87,13 @@ void VirtualDisplay::stop()
 
         setDisplayState(DisplayState::Stopped);
     });
+}
+
+void VirtualDisplay::onProtobufSessionStateChanged()
+{
+    if(!m_device->rpc()->isSessionUp()) {
+        setDisplayState(Stopped);
+    }
 }
 
 void VirtualDisplay::setDisplayState(DisplayState newState)

@@ -22,6 +22,9 @@
 
 #include "flipperzero/helper/toplevelhelper.h"
 
+#include "flipperzero/pixmaps/updateok.h"
+#include "flipperzero/pixmaps/updating.h"
+
 Q_LOGGING_CATEGORY(LOG_BACKEND, "BKD")
 
 using namespace Flipper;
@@ -202,25 +205,13 @@ void ApplicationBackend::finalizeOperation()
 
     } else {
         device()->finalizeOperation();
+
+        if(!deviceState()->isRecoveryMode()) {
+            m_virtualDisplay->stop();
+            m_screenStreamer->start();
+        }
+
         setBackendState(BackendState::Ready);
-    }
-}
-
-void ApplicationBackend::onBackendStateChanged()
-{
-    if(!deviceState() || deviceState()->isRecoveryMode()) {
-        return;
-    }
-
-    m_fileManager->setDevice(device());
-    m_screenStreamer->setDevice(device());
-    m_virtualDisplay->setDevice(device());
-
-    if(m_backendState == BackendState::Ready) {
-        m_screenStreamer->start();
-    } else if(m_backendState == BackendState::Finished) {
-    } else if(m_backendState > BackendState::ScreenStreaming && m_backendState < BackendState::Finished) {
-    } else {
     }
 }
 
@@ -238,11 +229,35 @@ void ApplicationBackend::onCurrentDeviceChanged()
         connect(device(), &FlipperZero::operationFinished, this, &ApplicationBackend::onDeviceOperationFinished);
         connect(device(), &FlipperZero::deviceStateChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
 
+        connect(deviceState(), &DeviceState::deviceInfoChanged, this, &ApplicationBackend::onDeviceInfoChanged);
+        connect(deviceState(), &DeviceState::isPersistentChanged, this, &ApplicationBackend::onDeviceInfoChanged);
+
+        onDeviceInfoChanged();
+
+        if(!deviceState()->isRecoveryMode()) {
+            m_screenStreamer->start();
+        }
+
         setBackendState(BackendState::Ready);
 
     } else {
         qCDebug(LOG_BACKEND) << "Last device was disconnected";
         setBackendState(BackendState::WaitingForDevices);
+    }
+}
+
+void ApplicationBackend::onDeviceInfoChanged()
+{
+    if(deviceState()->isRecoveryMode()) {
+        return;
+    }
+
+    m_fileManager->setDevice(device());
+    m_screenStreamer->setDevice(device());
+    m_virtualDisplay->setDevice(device());
+
+    if(deviceState()->isPersistent()) {
+        m_virtualDisplay->start(QByteArray((char*)updating_bits, sizeof(updating_bits)));
     }
 }
 
@@ -259,6 +274,7 @@ void ApplicationBackend::onDeviceOperationFinished()
         setBackendState(BackendState::ErrorOccured);
 
     } else {
+        m_virtualDisplay->sendFrame(QByteArray((char*)update_ok_bits, sizeof(update_ok_bits)));
         setBackendState(BackendState::Finished);
     }
 }
@@ -298,7 +314,7 @@ void ApplicationBackend::initConnections()
     connect(m_firmwareUpdateRegistry, &UpdateRegistry::latestVersionChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
 
     connect(m_deviceRegistry, &DeviceRegistry::errorChanged, this, &ApplicationBackend::onDeviceRegistryErrorChanged);
-    connect(this, &ApplicationBackend::backendStateChanged, this, &ApplicationBackend::onBackendStateChanged);
+//    connect(this, &ApplicationBackend::backendStateChanged, this, &ApplicationBackend::onAuxConditionChanged);
 }
 
 void ApplicationBackend::setBackendState(BackendState newState)
