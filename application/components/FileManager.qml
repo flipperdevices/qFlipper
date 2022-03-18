@@ -190,13 +190,9 @@ Item {
 
     Menu {
         id: emptyMenu
-        MenuItem {
-            action: uploadHereAction
-        }
 
-        MenuItem {
-            action: newDirAction
-        }
+        MenuItem { action: uploadHereAction }
+        MenuItem { action: newDirAction }
     }
 
     Action {

@@ -87,3 +87,12 @@ AdvancedFileDialog::StandardLocation AdvancedFileDialog::openLocation() const
     // Does nothing. Is here just to keep the compiler happy.
     return DefaultLocation;
 }
+
+QUrl AdvancedFileDialog::fileUrl() const
+{
+    if(selectedUrls().isEmpty()) {
+        return QUrl();
+    } else {
+        return selectedUrls().at(0);
+    }
+}

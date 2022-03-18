@@ -198,49 +198,25 @@ Item {
     Menu {
         id: storageMenu
 
-        MenuItem {
-            action: uploadHereAction
-        }
-
-        MenuItem {
-            action: downloadAction
-        }
+        MenuItem { action: uploadHereAction }
+        MenuItem { action: downloadAction }
     }
 
     Menu {
         id: fileMenu
 
-        MenuItem {
-            action: downloadAction
-        }
-
-        MenuItem {
-            action: renameAction
-        }
-
-        MenuItem {
-            action: removeAction
-        }
+        MenuItem { action: downloadAction }
+        MenuItem { action: renameAction }
+        MenuItem { action: removeAction }
     }
 
     Menu {
         id: dirMenu
 
-        MenuItem {
-            action: uploadHereAction
-        }
-
-        MenuItem {
-            action: downloadAction
-        }
-
-        MenuItem {
-            action: renameAction
-        }
-
-        MenuItem {
-            action: removeAction
-        }
+        MenuItem { action: uploadHereAction }
+        MenuItem { action: downloadAction }
+        MenuItem { action: renameAction }
+        MenuItem { action: removeAction }
     }
 
     Action {

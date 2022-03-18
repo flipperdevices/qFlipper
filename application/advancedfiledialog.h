@@ -9,7 +9,9 @@ class AdvancedFileDialog: public QFileDialog
     Q_PROPERTY(QString defaultFileName READ defaultFileName WRITE setDefaultFileName NOTIFY defaultFileNameChanged)
     Q_PROPERTY(QString title READ windowTitle WRITE setWindowTitle NOTIFY titleChanged)
     Q_PROPERTY(QStringList nameFilters READ nameFilters WRITE setNameFilters NOTIFY nameFiltersChanged)
+    Q_PROPERTY(QString selectedNameFilter READ selectedNameFilter CONSTANT)
     Q_PROPERTY(StandardLocation openLocation READ openLocation WRITE setOpenLocation NOTIFY openLocationChanged)
+    Q_PROPERTY(QUrl fileUrl READ fileUrl CONSTANT)
     Q_PROPERTY(QList<QUrl> fileUrls READ selectedUrls CONSTANT)
     Q_PROPERTY(bool selectFolder READ isSelectFolder WRITE setSelectFolder NOTIFY isSelectFolderChanged)
     Q_PROPERTY(bool selectMultiple READ isSelectMultiple WRITE setSelectMultiple NOTIFY isSelectMultipleChanged)
@@ -42,6 +44,8 @@ public:
 
     void setOpenLocation(StandardLocation location);
     StandardLocation openLocation() const;
+
+    QUrl fileUrl() const;
 
 signals:
     void defaultFileNameChanged();
