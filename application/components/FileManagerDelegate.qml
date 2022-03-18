@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.impl 2.15
 
+import Misc 1.0
 import Theme 1.0
 import QFlipper 1.0
 
@@ -87,17 +88,10 @@ Item {
 
                     const extension = delegate.fileName.substring(delegate.fileName.lastIndexOf('.') + 1);
 
-                    // TODO: move to a dictionary?
-                    if(extension === "ir") {
-                        return "qrc:/assets/gfx/symbolic/mimetypes/infrared.svg";
-                    } else if(extension === "nfc") {
-                        return "qrc:/assets/gfx/symbolic/mimetypes/nfc.svg";
-                    } else if(extension === "u2f") {
-                        return "qrc:/assets/gfx/symbolic/mimetypes/u2f.svg";
-                    } else if(extension === "sub") {
-                        return "qrc:/assets/gfx/symbolic/mimetypes/subghz.svg";
+                    if(extension in Filetypes.icons) {
+                        return Filetypes.icons[extension];
                     } else {
-                        return "qrc:/assets/gfx/symbolic/mimetypes/file.svg";
+                        return Filetypes.icons["default"];
                     }
                 }
             }

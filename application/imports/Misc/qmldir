@@ -1,0 +1,3 @@
+module Misc
+
+singleton Filetypes 1.0 Filetypes.qml

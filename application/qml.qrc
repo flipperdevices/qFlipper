@@ -136,5 +136,7 @@
         <file>assets/gfx/symbolic/filemgr/location-sdcard.svg</file>
         <file>components/ProgressDialog.qml</file>
         <file>style/Switch.qml</file>
+        <file>imports/Misc/Filetypes.qml</file>
+        <file>imports/Misc/qmldir</file>
     </qresource>
 </RCC>
