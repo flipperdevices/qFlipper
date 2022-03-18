@@ -94,6 +94,8 @@ Item {
                         return "qrc:/assets/gfx/symbolic/mimetypes/nfc.svg";
                     } else if(extension === "u2f") {
                         return "qrc:/assets/gfx/symbolic/mimetypes/u2f.svg";
+                    } else if(extension === "sub") {
+                        return "qrc:/assets/gfx/symbolic/mimetypes/subghz.svg";
                     } else {
                         return "qrc:/assets/gfx/symbolic/mimetypes/file.svg";
                     }
