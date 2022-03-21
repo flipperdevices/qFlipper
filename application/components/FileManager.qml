@@ -183,7 +183,7 @@ Item {
                 return;
             }
 
-            Backend.fileManager.upload(drop.urls);
+            control.uploadUrls(drop.urls);
             drop.accept()
         }
     }
@@ -238,24 +238,7 @@ Item {
             };
 
             const onAccepted = function() {
-                const doUpload = function() {
-                    Backend.fileManager.upload(AdvancedFileDialog.fileUrls);
-                };
-
-                if(Backend.fileManager.isTooLarge(AdvancedFileDialog.fileUrls)) {
-                    const isMultiple = AdvancedFileDialog.fileUrls.length > 1;
-                    const msgObj = {
-                        title: qsTr("Warning"),
-                        message: qsTr("Selected %1 too large.\nUpload anyway?").arg(isMultiple ? qsTr("files are") : qsTr("file is")),
-                        suggestedRole: ConfirmationDialog.RejectRole,
-                        customText: qsTr("Upload")
-                    };
-
-                    confirmationDialog.openWithMessage(doUpload, msgObj);
-
-                } else {
-                    doUpload();
-                }
+                control.uploadUrls(AdvancedFileDialog.fileUrls);
             };
 
             AdvancedFileDialog.accepted.connect(onAccepted);
@@ -283,5 +266,26 @@ Item {
         Backend.fileManager.refreshed.connect(function() {
             fileView.currentIndex = -1;
         });
+    }
+
+    function uploadUrls(urls) {
+        const doUpload = function() {
+            Backend.fileManager.upload(urls);
+        };
+
+        if(Backend.fileManager.isTooLarge(urls)) {
+            const isMultiple = urls.length > 1;
+            const msgObj = {
+                title: qsTr("Warning"),
+                message: qsTr("Selected %1 too large.\nUpload anyway?").arg(isMultiple ? qsTr("files are") : qsTr("file is")),
+                suggestedRole: ConfirmationDialog.RejectRole,
+                customText: qsTr("Upload")
+            };
+
+            confirmationDialog.openWithMessage(doUpload, msgObj);
+
+        } else {
+            doUpload();
+        }
     }
 }
