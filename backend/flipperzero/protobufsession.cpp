@@ -340,7 +340,9 @@ void ProtobufSession::doStopSession()
 {
     qCInfo(LOG_SESSION) << "Stopping RPC session...";
 
-    clearOperationQueue();
+    if(m_currentOperation) {
+        m_currentOperation->abort(QStringLiteral("RPC session was stopped with operations still running"));
+    }
 
     if(m_serialPort) {
         m_serialPort->close();
@@ -358,6 +360,9 @@ void ProtobufSession::onCurrentOperationFinished()
 {
     if(m_currentOperation->isError()) {
         qCCritical(LOG_SESSION).noquote() << prettyOperationDescription() << "ERROR:" << m_currentOperation->errorString();
+
+        clearOperationQueue();
+
     } else {
         qCInfo(LOG_SESSION).noquote() << prettyOperationDescription() << "SUCCESS";
     }
@@ -428,10 +433,6 @@ void ProtobufSession::clearOperationQueue()
 {
     while(!m_queue.isEmpty()) {
         m_queue.dequeue()->deleteLater();
-    }
-
-    if(m_currentOperation) {
-        m_currentOperation->abort(QStringLiteral("RPC session was stopped with operations still running"));
     }
 }
 
