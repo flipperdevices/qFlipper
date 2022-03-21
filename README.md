@@ -22,6 +22,11 @@ Download official qFlipper builds here: [update.flipperzero.one](https://update.
 * Command line interface
 
 ## Build from sources 
+### Cloning
+Make sure to clone the project together with submodules: 
+```sh
+git clone https://github.com/flipperdevices/qFlipper.git --recursive
+```
 ### Windows
 
 Build requirements:
