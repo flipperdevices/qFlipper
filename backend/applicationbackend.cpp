@@ -11,6 +11,10 @@
 #include "preferences.h"
 #include "flipperupdates.h"
 
+#include "flipperzero/screenstreamer.h"
+#include "flipperzero/virtualdisplay.h"
+#include "flipperzero/filemanager.h"
+
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/devicestate.h"
 #include "flipperzero/assetmanifest.h"
@@ -18,7 +22,10 @@
 
 #include "flipperzero/helper/toplevelhelper.h"
 
-Q_LOGGING_CATEGORY(LOG_BACKEND, "BACKEND")
+#include "flipperzero/pixmaps/updateok.h"
+#include "flipperzero/pixmaps/updating.h"
+
+Q_LOGGING_CATEGORY(LOG_BACKEND, "BKD")
 
 using namespace Flipper;
 using namespace Zero;
@@ -27,6 +34,9 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     QObject(parent),
     m_deviceRegistry(new DeviceRegistry(this)),
     m_firmwareUpdateRegistry(new FirmwareUpdateRegistry("https://update.flipperzero.one/firmware/directory.json", this)),
+    m_screenStreamer(new ScreenStreamer(this)),
+    m_virtualDisplay(new VirtualDisplay(this)),
+    m_fileManager(new FileManager(this)),
     m_backendState(BackendState::WaitingForDevices),
     m_errorType(BackendError::UnknownError)
 {
@@ -87,6 +97,21 @@ DeviceState *ApplicationBackend::deviceState() const
     } else {
         return nullptr;
     }
+}
+
+ScreenStreamer *ApplicationBackend::screenStreamer() const
+{
+    return m_screenStreamer;
+}
+
+VirtualDisplay *ApplicationBackend::virtualDisplay() const
+{
+    return m_virtualDisplay;
+}
+
+FileManager *ApplicationBackend::fileManager() const
+{
+    return m_fileManager;
 }
 
 const Updates::VersionInfo ApplicationBackend::latestFirmwareVersion() const
@@ -161,13 +186,6 @@ void ApplicationBackend::stopFullScreenStreaming()
     setBackendState(BackendState::Ready);
 }
 
-void ApplicationBackend::sendInputEvent(int key, int type)
-{
-    if(device()) {
-        device()->sendInputEvent(key, type);
-    }
-}
-
 void ApplicationBackend::checkFirmwareUpdates()
 {
     m_firmwareUpdateRegistry->check();
@@ -187,7 +205,16 @@ void ApplicationBackend::finalizeOperation()
 
     } else {
         device()->finalizeOperation();
-        waitForDeviceReady();
+
+        if(!deviceState()->isRecoveryMode()) {
+            m_virtualDisplay->stop();
+            m_screenStreamer->start();
+
+            m_fileManager->reset();
+            m_fileManager->refresh();
+        }
+
+        setBackendState(BackendState::Ready);
     }
 }
 
@@ -205,7 +232,16 @@ void ApplicationBackend::onCurrentDeviceChanged()
         connect(device(), &FlipperZero::operationFinished, this, &ApplicationBackend::onDeviceOperationFinished);
         connect(device(), &FlipperZero::deviceStateChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
 
-        waitForDeviceReady();
+        connect(deviceState(), &DeviceState::deviceInfoChanged, this, &ApplicationBackend::onDeviceInfoChanged);
+        connect(deviceState(), &DeviceState::isPersistentChanged, this, &ApplicationBackend::onDeviceInfoChanged);
+
+        onDeviceInfoChanged();
+
+        if(!deviceState()->isRecoveryMode()) {
+            m_screenStreamer->start();
+        }
+
+        setBackendState(BackendState::Ready);
 
     } else {
         qCDebug(LOG_BACKEND) << "Last device was disconnected";
@@ -213,11 +249,18 @@ void ApplicationBackend::onCurrentDeviceChanged()
     }
 }
 
-void ApplicationBackend::onCurrentDeviceReady()
+void ApplicationBackend::onDeviceInfoChanged()
 {
-    if(deviceState()->isStreamingEnabled()) {
-        disconnect(deviceState(), &DeviceState::isStreamingEnabledChanged, this, &ApplicationBackend::onCurrentDeviceReady);
-        setBackendState(BackendState::Ready);
+    if(deviceState()->isRecoveryMode()) {
+        return;
+    }
+
+    m_fileManager->setDevice(device());
+    m_screenStreamer->setDevice(device());
+    m_virtualDisplay->setDevice(device());
+
+    if(deviceState()->isPersistent()) {
+        m_virtualDisplay->start(QByteArray((char*)updating_bits, sizeof(updating_bits)));
     }
 }
 
@@ -234,11 +277,12 @@ void ApplicationBackend::onDeviceOperationFinished()
         setBackendState(BackendState::ErrorOccured);
 
     } else {
+        m_virtualDisplay->sendFrame(QByteArray((char*)update_ok_bits, sizeof(update_ok_bits)));
         setBackendState(BackendState::Finished);
     }
 }
 
-void ApplicationBackend::onDeviceRegistryErrorChanged()
+void ApplicationBackend::onDeviceRegistryErrorOccured()
 {
     if(m_backendState != BackendState::WaitingForDevices) {
         return;
@@ -248,6 +292,16 @@ void ApplicationBackend::onDeviceRegistryErrorChanged()
 
     if(err != BackendError::NoError) {
         setErrorType(err);
+        setBackendState(BackendState::ErrorOccured);
+    }
+}
+
+void ApplicationBackend::onFileManagerErrorOccured()
+{
+    const auto err = m_fileManager->error();
+
+    if(err != BackendError::NoError) {
+        setErrorType(m_fileManager->error());
         setBackendState(BackendState::ErrorOccured);
     }
 }
@@ -272,7 +326,8 @@ void ApplicationBackend::initConnections()
     connect(m_deviceRegistry, &DeviceRegistry::isQueryInProgressChanged, this, &ApplicationBackend::isQueryInProgressChanged);
     connect(m_firmwareUpdateRegistry, &UpdateRegistry::latestVersionChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
 
-    connect(m_deviceRegistry, &DeviceRegistry::errorChanged, this, &ApplicationBackend::onDeviceRegistryErrorChanged);
+    connect(m_deviceRegistry, &DeviceRegistry::errorOccured, this, &ApplicationBackend::onDeviceRegistryErrorOccured);
+    connect(m_fileManager, &FileManager::errorOccured, this, &ApplicationBackend::onFileManagerErrorOccured);
 }
 
 void ApplicationBackend::setBackendState(BackendState newState)
@@ -295,15 +350,6 @@ void ApplicationBackend::setErrorType(BackendError::ErrorType newErrorType)
     emit errorTypeChanged();
 }
 
-void ApplicationBackend::waitForDeviceReady()
-{
-    if(deviceState()->isRecoveryMode() || deviceState()->isStreamingEnabled()) {
-        setBackendState(BackendState::Ready);
-    } else {
-        connect(deviceState(), &DeviceState::isStreamingEnabledChanged, this, &ApplicationBackend::onCurrentDeviceReady);
-    }
-}
-
 void ApplicationBackend::registerMetaTypes()
 {
     qRegisterMetaType<Preferences*>("Preferences*");
@@ -318,6 +364,9 @@ void ApplicationBackend::registerMetaTypes()
 
     qRegisterMetaType<Flipper::FlipperZero*>("Flipper::FlipperZero*");
     qRegisterMetaType<Flipper::Zero::DeviceState*>("Flipper::Zero::DeviceState*");
+    qRegisterMetaType<Flipper::Zero::ScreenStreamer*>("Flipper::Zero::ScreenStreamer*");
+    qRegisterMetaType<Flipper::Zero::VirtualDisplay*>("Flipper::Zero::VirtualDisplay*");
+    qRegisterMetaType<Flipper::Zero::FileManager*>("Flipper::Zero::FileManager*");
     qRegisterMetaType<Flipper::Zero::ScreenStreamer*>("Flipper::Zero::ScreenStreamer*");
 
     qRegisterMetaType<Flipper::Zero::AssetManifest::FileInfo>();

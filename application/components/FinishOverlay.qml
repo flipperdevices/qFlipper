@@ -3,8 +3,8 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
 import QFlipper 1.0
-import Strings 1.0
 import Theme 1.0
+import Misc 1.0
 
 AbstractOverlay {
     id: overlay
@@ -116,29 +116,29 @@ AbstractOverlay {
             Layout.preferredWidth: 335
             Layout.alignment: Qt.AlignVCenter
 
-            style: Strings.errorStyle
+            style: ErrorStrings.errorStyle
             text: {
                 switch(Backend.errorType) {
                 case BackendError.InternetError:
-                    return Strings.errorInternet
+                    return ErrorStrings.errorInternet
                 case BackendError.InvalidDevice:
-                    return Strings.errorInvalidDevice
+                    return ErrorStrings.errorInvalidDevice
                 case BackendError.DiskError:
-                    return Strings.errorDisk
+                    return ErrorStrings.errorDisk
                 case BackendError.SerialAccessError:
-                    return Qt.platform.os === "linux" ? Strings.errorSerialLinux : Strings.errorSerial
+                    return Qt.platform.os === "linux" ? ErrorStrings.errorSerialLinux : ErrorStrings.errorSerial
                 case BackendError.RecoveryAccessError:
-                    return Qt.platform.os === "linux" ? Strings.errorRecoveryLinux :
-                           Qt.platform.os === "windows" ? Strings.errorRecoveryWindows :
-                                                          Strings.errorRecovery
+                    return Qt.platform.os === "linux" ? ErrorStrings.errorRecoveryLinux :
+                           Qt.platform.os === "windows" ? ErrorStrings.errorRecoveryWindows :
+                                                          ErrorStrings.errorRecovery
                 case BackendError.BackupError:
-                    return Strings.errorBackup
+                    return ErrorStrings.errorBackup
                 case BackendError.DataError:
-                    return Strings.errorData
+                    return ErrorStrings.errorData
                 case BackendError.OperationError:
-                    return Strings.errorOperation
+                    return ErrorStrings.errorOperation
                 default:
-                    return Strings.errorUnknown
+                    return ErrorStrings.errorUnknown
                 }
             }
         }

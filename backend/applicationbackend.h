@@ -14,6 +14,9 @@ class UpdateRegistry;
 
 namespace Zero {
 class DeviceState;
+class FileManager;
+class ScreenStreamer;
+class VirtualDisplay;
 }}
 
 class ApplicationBackend : public QObject
@@ -21,6 +24,9 @@ class ApplicationBackend : public QObject
     Q_OBJECT
     Q_PROPERTY(BackendState backendState READ backendState NOTIFY backendStateChanged)
     Q_PROPERTY(Flipper::Zero::DeviceState* deviceState READ deviceState NOTIFY currentDeviceChanged)
+    Q_PROPERTY(Flipper::Zero::ScreenStreamer* screenStreamer READ screenStreamer CONSTANT)
+    Q_PROPERTY(Flipper::Zero::VirtualDisplay* virtualDisplay READ virtualDisplay CONSTANT)
+    Q_PROPERTY(Flipper::Zero::FileManager* fileManager READ fileManager CONSTANT)
     Q_PROPERTY(FirmwareUpdateState firmwareUpdateState READ firmwareUpdateState NOTIFY firmwareUpdateStateChanged)
     Q_PROPERTY(QAbstractListModel* firmwareUpdateModel READ firmwareUpdateModel CONSTANT)
     Q_PROPERTY(Flipper::Updates::VersionInfo latestFirmwareVersion READ latestFirmwareVersion NOTIFY firmwareUpdateStateChanged)
@@ -87,6 +93,10 @@ public:
     Flipper::FlipperZero *device() const;
     Flipper::Zero::DeviceState *deviceState() const;
 
+    Flipper::Zero::ScreenStreamer *screenStreamer() const;
+    Flipper::Zero::VirtualDisplay *virtualDisplay() const;
+    Flipper::Zero::FileManager *fileManager() const;
+
     FirmwareUpdateState firmwareUpdateState() const;
     QAbstractListModel *firmwareUpdateModel() const;
     const Flipper::Updates::VersionInfo latestFirmwareVersion() const;
@@ -108,7 +118,6 @@ public:
 
     Q_INVOKABLE void startFullScreenStreaming();
     Q_INVOKABLE void stopFullScreenStreaming();
-    Q_INVOKABLE void sendInputEvent(int key, int type);
 
     Q_INVOKABLE void checkFirmwareUpdates();
     Q_INVOKABLE void finalizeOperation();
@@ -122,9 +131,10 @@ signals:
 
 private slots:
     void onCurrentDeviceChanged();
-    void onCurrentDeviceReady();
+    void onDeviceInfoChanged();
     void onDeviceOperationFinished();
-    void onDeviceRegistryErrorChanged();
+    void onDeviceRegistryErrorOccured();
+    void onFileManagerErrorOccured();
 
 private:
     static void initLibraryPaths();
@@ -136,10 +146,12 @@ private:
     void setBackendState(BackendState newState);
     void setErrorType(BackendError::ErrorType newErrorType);
 
-    void waitForDeviceReady();
-
     Flipper::DeviceRegistry *m_deviceRegistry;
     Flipper::UpdateRegistry *m_firmwareUpdateRegistry;
+
+    Flipper::Zero::ScreenStreamer *m_screenStreamer;
+    Flipper::Zero::VirtualDisplay *m_virtualDisplay;
+    Flipper::Zero::FileManager *m_fileManager;
 
     BackendState m_backendState;
     BackendError::ErrorType m_errorType;

@@ -14,8 +14,10 @@ AbstractOverlay {
     readonly property int centerX: 590
     readonly property int centerOffset: Math.min(overlay.width - (centerX + systemPathLabel.width + 12), 0)
 
+    onDeviceInfoChanged: tabs.currentIndex = 0;
+
     TabButton {
-        id: dangerTab
+        id: developerTab
         icon.source: "qrc:/assets/gfx/symbolic/developer-mode.svg"
         icon.width: 27
         icon.height: 27
@@ -45,6 +47,25 @@ AbstractOverlay {
         radius: backgroundRect.radius
     }
 
+    ProgressDialog {
+        id: progressDialog
+        parent: backgroundRect
+        radius: backgroundRect.radius
+
+        title: qsTr("Please wait")
+        text: qsTr("File operation in progress...")
+
+        value: deviceState ? deviceState.progress : -1
+        indeterminate: deviceState ? deviceState.progress < 0 : true
+
+        Component.onCompleted: {
+            Backend.fileManager.isBusyChanged.connect(function() {
+                if(Backend.fileManager.isBusy) open();
+                else close();
+            });
+        }
+    }
+
     ChangelogDialog {
         id: changelogDialog
         parent: backgroundRect
@@ -52,17 +73,18 @@ AbstractOverlay {
     }
 
     TabPane {
-        width: 322
-
+        z: fileButton.z + 1
         anchors.top: tabs.bottom
         anchors.left: tabs.left
         anchors.topMargin: -2
 
         currentIndex: tabs.currentIndex
+        backgroundColor: Qt.rgba(0, 0, 0, fileManagerTab.checked)
 
         items: [
             DeviceInfo { id: deviceInfoPane },
             DeviceActions { id: deviceActions },
+            FileManager { id: fileManager; confirmationDialog: confirmationDialog; },
             DeveloperActions { id: developerActions }
         ]
     }
@@ -92,6 +114,22 @@ AbstractOverlay {
 
             ToolTip {
                 text: qsTr("Advanced controls")
+                visible: parent.hovered
+            }
+        }
+
+        TabButton {
+            id: fileManagerTab
+            enabled: Backend.deviceState && !Backend.deviceState.isRecoveryMode
+
+            icon.source: "qrc:/assets/gfx/symbolic/file-symbolic.svg"
+            icon.width: 23
+            icon.height: 29
+
+            onCheckedChanged: if(checked) Backend.fileManager.refresh()
+
+            ToolTip {
+                text: qsTr("File manager")
                 visible: parent.hovered
             }
         }
@@ -441,7 +479,7 @@ AbstractOverlay {
         developerActions.installFusAction.triggered.connect(installFUSDangerDanger);
 
         if(App.isDeveloperMode) {
-            tabs.addItem(dangerTab);
+            tabs.addItem(developerTab);
         }
     }
 }

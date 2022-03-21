@@ -3,21 +3,20 @@
 #define FIRMWARE_UPDATE_CHANNEL_KEY (QStringLiteral("FirmwareUpdateChannel"))
 #define APPLICATION_UPDATE_CHANNEL_KEY (QStringLiteral("ApplicationUpdateChannel"))
 #define CHECK_APPLICATION_UPDATES_KEY (QStringLiteral("CheckApplicatonUpdates"))
+#define SHOW_HIDDEN_FILES_KEY (QStringLiteral("ShowHiddenFiles"))
+
+#define SET_DEFAULT_VALUE(key, value)\
+    if(!m_settings.contains(key)) {\
+        m_settings.setValue(key, value);\
+    }
 
 Preferences::Preferences(QObject *parent):
     QObject(parent)
 {
-    if(!m_settings.contains(FIRMWARE_UPDATE_CHANNEL_KEY)) {
-        m_settings.setValue(FIRMWARE_UPDATE_CHANNEL_KEY, QStringLiteral("release"));
-    }
-
-    if(!m_settings.contains(APPLICATION_UPDATE_CHANNEL_KEY)) {
-        m_settings.setValue(APPLICATION_UPDATE_CHANNEL_KEY, QStringLiteral("release"));
-    }
-
-    if(!m_settings.contains(CHECK_APPLICATION_UPDATES_KEY)) {
-        m_settings.setValue(CHECK_APPLICATION_UPDATES_KEY, true);
-    }
+    SET_DEFAULT_VALUE(FIRMWARE_UPDATE_CHANNEL_KEY, QStringLiteral("release"));
+    SET_DEFAULT_VALUE(APPLICATION_UPDATE_CHANNEL_KEY, QStringLiteral("release"));
+    SET_DEFAULT_VALUE(CHECK_APPLICATION_UPDATES_KEY, true);
+    SET_DEFAULT_VALUE(SHOW_HIDDEN_FILES_KEY, false);
 }
 
 Preferences *Preferences::instance()
@@ -73,4 +72,19 @@ void Preferences::setCheckApplicationUpdates(bool set)
 
     m_settings.setValue(CHECK_APPLICATION_UPDATES_KEY, set);
     emit checkApplicationUpdatesChanged();
+}
+
+bool Preferences::showHiddenFiles() const
+{
+    return m_settings.value(SHOW_HIDDEN_FILES_KEY).toBool();
+}
+
+void Preferences::setShowHiddenFiles(bool set)
+{
+    if(set == showHiddenFiles()) {
+        return;
+    }
+
+    m_settings.setValue(SHOW_HIDDEN_FILES_KEY, set);
+    emit showHiddenFilesChanged();
 }

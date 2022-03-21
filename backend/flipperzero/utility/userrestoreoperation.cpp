@@ -114,15 +114,8 @@ bool UserRestoreOperation::writeFiles()
         if(fileInfo.isFile()) {
             auto *file = new QFile(fileInfo.absoluteFilePath(), this);
 
-            if(!file->open(QIODevice::ReadOnly)) {
-                file->deleteLater();
-                error_msg(QStringLiteral("Failed to open file for reading: %1.").arg(file->errorString()));
-                return false;
-            }
-
             op = rpc()->storageWrite(filePath, file);
             connect(op, &AbstractOperation::finished, this, [=]() {
-                file->close();
                 file->deleteLater();
             });
 

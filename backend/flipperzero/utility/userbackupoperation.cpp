@@ -122,13 +122,8 @@ void UserBackupOperation::readFiles()
             const auto isLastFile = (--numFiles == 0);
 
             auto *file = new QFile(m_backupDir.absoluteFilePath(filePath), this);
-            if(!file->open(QIODevice::WriteOnly)) {
-                file->deleteLater();
-                finishWithError(BackendError::DiskError, QStringLiteral("Failed to open file for writing: %1").arg(QString(filePath)));
-                return;
-            }
-
             auto *op = rpc()->storageRead(fileInfo.absolutePath, file);
+
             connect(op, &AbstractOperation::finished, this, [=]() {
                 if(op->isError()) {
                     finishWithError(BackendError::BackupError, op->errorString());
@@ -136,8 +131,6 @@ void UserBackupOperation::readFiles()
                     finish();
                 }
 
-                file->close();
-                file->deleteLater();
             });
         }
     }

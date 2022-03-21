@@ -12,27 +12,6 @@ AbstractOverlay {
 
     signal closeRequested
 
-    FileDialog {
-        id: fileDialog
-
-        title: qsTr("Please choose a file")
-        folder: shortcuts.pictures
-        selectExisting: false
-
-        nameFilters: ["PNG images (*.png)", "JPEG images (*.jpg)"]
-
-        onAccepted: {
-            const ext = selectedNameFilter.match("\\.\\w+")[0];
-            let strurl = fileUrl.toString();
-
-            if(!strurl.endsWith(ext)) {
-                strurl += ext;
-            }
-
-            canvas.saveImage(Qt.resolvedUrl(strurl), 4);
-        }
-    }
-
     Rectangle {
         id: canvasBg
         anchors.fill: canvas
@@ -53,13 +32,13 @@ AbstractOverlay {
         foregroundColor: "black"
         backgroundColor: Theme.color.lightorange2
 
-        canvasWidth: deviceState ? deviceState.screenSize.width : 1
-        canvasHeight: deviceState ? deviceState.screenSize.height : 1
+        canvasWidth: Backend.screenStreamer.screenSize.width
+        canvasHeight: Backend.screenStreamer.screenSize.height
 
         width: canvasWidth * 4
         height: canvasHeight * 4
 
-        data: !!deviceState && enabled ? deviceState.screenData : ""
+        data: Backend.screenStreamer.screenData
     }
 
     RowLayout {
@@ -100,7 +79,7 @@ AbstractOverlay {
         y: 52
 
         onInputEvent: {
-            Backend.sendInputEvent(key, type);
+            Backend.screenStreamer.sendInputEvent(key, type);
         }
 
         // Prevent focus loss
@@ -145,7 +124,39 @@ AbstractOverlay {
         text: qsTr("Save Screenshot")
         shortcut: "Ctrl+S"
         enabled: overlay.enabled
-        onTriggered: fileDialog.open()
+
+        onTriggered: {
+            const onFinished = function() {
+                AdvancedFileDialog.accepted.disconnect(onAccepted);
+                AdvancedFileDialog.finished.disconnect(onFinished);
+            };
+
+            const onAccepted = function() {
+                const ext = AdvancedFileDialog.selectedNameFilter.match("\\.\\w+")[0];
+                let strurl = AdvancedFileDialog.fileUrl.toString();
+
+                if(!strurl.endsWith(ext)) {
+                    strurl += ext;
+                }
+
+                canvas.saveImage(Qt.resolvedUrl(strurl), 4);
+            };
+
+            AdvancedFileDialog.accepted.connect(onAccepted);
+            AdvancedFileDialog.finished.connect(onFinished);
+
+            const date = new Date();
+
+            AdvancedFileDialog.defaultFileName = "Screenshot-%1.png".arg(Qt.formatDateTime(date, "yyyyMMdd-hhmmss"));
+            AdvancedFileDialog.title = qsTr("Please choose a file");
+            AdvancedFileDialog.nameFilters = ["PNG images (*.png)", "JPEG images (*.jpg)"];
+            AdvancedFileDialog.openLocation = AdvancedFileDialog.PicturesLocation;
+            AdvancedFileDialog.selectMultiple = false;
+            AdvancedFileDialog.selectExisting = false;
+            AdvancedFileDialog.selectFolder = false;
+
+            AdvancedFileDialog.exec();
+        }
     }
 
     Action {

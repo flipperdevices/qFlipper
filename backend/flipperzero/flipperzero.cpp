@@ -8,8 +8,6 @@
 #include "flipperupdates.h"
 
 #include "devicestate.h"
-#include "screenstreamer.h"
-#include "virtualdisplay.h"
 
 #include "protobufsession.h"
 #include "utilityinterface.h"
@@ -25,10 +23,10 @@
 
 #include "preferences.h"
 
-#include "pixmaps/updating.h"
-#include "pixmaps/updateok.h"
+//#include "pixmaps/updating.h"
+//#include "pixmaps/updateok.h"
 
-Q_LOGGING_CATEGORY(CAT_DEVICE, "DEVICE")
+Q_LOGGING_CATEGORY(CAT_DEVICE, "DEV")
 
 #define CHANNEL_DEVELOPMENT "development"
 #define CHANNEL_RELEASE_CANDIDATE "release-candidate"
@@ -43,15 +41,12 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
     m_state(new DeviceState(info, this)),
     m_rpc(new ProtobufSession(info.portInfo, this)),
     m_recovery(new RecoveryInterface(m_state, this)),
-    m_utility(new UtilityInterface(m_state, m_rpc, this)),
-    m_streamer(new ScreenStreamer(m_state, m_rpc, this)),
-    m_virtualDisplay(new VirtualDisplay(m_state, m_rpc, this))
+    m_utility(new UtilityInterface(m_state, m_rpc, this))
 {
     connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::onDeviceInfoChanged);
     connect(m_state, &DeviceState::deviceInfoChanged, this, &FlipperZero::deviceStateChanged);
 
-    connect(m_rpc, &ProtobufSession::sessionStatusChanged, this, &FlipperZero::onSessionStatusChanged);
-    connect(m_rpc, &ProtobufSession::broadcastResponseReceived, m_streamer, &ScreenStreamer::onBroadcastResponseReceived);
+    connect(m_rpc, &ProtobufSession::sessionStateChanged, this, &FlipperZero::onSessionStatusChanged);
 
     onDeviceInfoChanged();
 }
@@ -59,6 +54,16 @@ FlipperZero::FlipperZero(const Zero::DeviceInfo &info, QObject *parent):
 DeviceState *FlipperZero::deviceState() const
 {
     return m_state;
+}
+
+ProtobufSession *FlipperZero::rpc() const
+{
+    return m_rpc;
+}
+
+UtilityInterface *FlipperZero::utility() const
+{
+    return m_utility;
 }
 
 // TODO: Handle -rcxx suffixes correctly
@@ -178,26 +183,15 @@ void FlipperZero::installFUS(const QUrl &fileUrl, uint32_t address)
     registerOperation(new FUSUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), address, this));
 }
 
-void FlipperZero::sendInputEvent(int key, int type)
-{
-    m_streamer->sendInputEvent(key, type);
-}
-
 void FlipperZero::finalizeOperation()
 {
     // TODO: write a better implementation that would:
     // 1. Check if the port is open and functional
     // 2. Test if the RPC session is up an running
     // 3. Open RPC session if necessary
-    // 4. Start screen streaming
 
     if(m_state->isError()) {
         m_state->clearError();
-    }
-
-    if(!m_state->isRecoveryMode()) {
-        m_virtualDisplay->stop();
-        m_streamer->start();
     }
 }
 
@@ -231,12 +225,6 @@ void FlipperZero::onSessionStatusChanged()
         qCritical() << "RPC ERROR:" << m_rpc->errorString();
 
     } else if(m_rpc->isSessionUp()) {
-        if(m_state->isPersistent()) {
-            m_virtualDisplay->start(QByteArray((char*)updating_bits, sizeof(updating_bits)));
-        } else {
-            m_streamer->start();
-        }
-
         m_state->setOnline(true);
     }
 }
@@ -249,7 +237,6 @@ void FlipperZero::registerOperation(AbstractOperation *operation)
             m_state->setError(operation->error(), operation->errorString());
 
         } else {
-            m_virtualDisplay->sendFrame(QByteArray((char*)update_ok_bits, sizeof(update_ok_bits)));
             qCInfo(CAT_DEVICE).noquote() << operation->description() << "SUCCESS";
         }
 
@@ -258,21 +245,5 @@ void FlipperZero::registerOperation(AbstractOperation *operation)
     });
 
     qCInfo(CAT_DEVICE).noquote() << operation->description() << "START";
-
-    if(m_state->isRecoveryMode()) {
-        operation->start();
-
-    } else {
-        connect(m_state, &DeviceState::isStreamingEnabledChanged, operation, [=]() {
-            //TODO: Check that ScreenStreamer has stopped without errors
-            if(m_state->isStreamingEnabled()) {
-                // TODO: Finish with error
-            } else {
-                m_virtualDisplay->start(QByteArray((char*)updating_bits, sizeof(updating_bits)));
-                operation->start();
-            }
-        });
-
-        m_streamer->stop();
-    }
+    operation->start();
 }

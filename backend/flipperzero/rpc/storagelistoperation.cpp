@@ -38,7 +38,7 @@ bool StorageListOperation::processResponse(QObject *response)
 
     for(const auto &file : files) {
         m_result.append({
-            file.name, m_path + QByteArrayLiteral("/") + file.name,
+            file.name, m_path == QByteArrayLiteral("/") ? m_path + file.name : m_path + QByteArrayLiteral("/") + file.name,
             file.type == StorageFile::Directory ? FileType::Directory : FileType::RegularFile,
             (qint64)file.size // TODO: see if a negative value is actually used anywhere
         });

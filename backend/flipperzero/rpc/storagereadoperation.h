@@ -19,6 +19,7 @@ public:
     const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
 
 private:
+    bool begin() override;
     bool processResponse(QObject *response) override;
 
     QByteArray m_path;

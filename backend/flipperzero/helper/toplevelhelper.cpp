@@ -13,7 +13,9 @@ AbstractTopLevelHelper::AbstractTopLevelHelper(UpdateRegistry *updateRegistry, F
     m_updateRegistry(updateRegistry),
     m_device(device)
 {
+    m_device->deviceState()->setProgress(-1);
     m_device->deviceState()->setPersistent(true);
+
     connect(m_device, &FlipperZero::operationFinished, this, &AbstractTopLevelHelper::finish);
 }
 

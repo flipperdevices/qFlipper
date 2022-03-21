@@ -104,12 +104,38 @@
         <file>assets/gfx/images/error-internet.svg</file>
         <file>assets/gfx/images/warning-sdcard.svg</file>
         <file>components/TextBox.qml</file>
-        <file>imports/Strings/qmldir</file>
-        <file>imports/Strings/Strings.qml</file>
         <file>assets/gfx/images/spinner.svg</file>
         <file>assets/gfx/symbolic/developer-mode.svg</file>
         <file>assets/icons/qFlipper.icns</file>
         <file>assets/icons/qFlipper.ico</file>
         <file>assets/icons/qFlipper.png</file>
+        <file>assets/gfx/symbolic/file-symbolic.svg</file>
+        <file>components/FileManager.qml</file>
+        <file>components/FileManagerDelegate.qml</file>
+        <file>assets/gfx/symbolic/arrow-back-small.svg</file>
+        <file>assets/gfx/symbolic/arrow-forward-small.svg</file>
+        <file>assets/gfx/symbolic/refresh-small.svg</file>
+        <file>assets/gfx/symbolic/mimetypes/badusb.svg</file>
+        <file>assets/gfx/symbolic/mimetypes/file.svg</file>
+        <file>assets/gfx/symbolic/mimetypes/folder.svg</file>
+        <file>assets/gfx/symbolic/mimetypes/ibutton.svg</file>
+        <file>assets/gfx/symbolic/mimetypes/infrared.svg</file>
+        <file>assets/gfx/symbolic/mimetypes/internal.svg</file>
+        <file>assets/gfx/symbolic/mimetypes/nfc.svg</file>
+        <file>assets/gfx/symbolic/mimetypes/rfid.svg</file>
+        <file>assets/gfx/symbolic/mimetypes/sdcard.svg</file>
+        <file>assets/gfx/symbolic/mimetypes/subghz.svg</file>
+        <file>assets/gfx/symbolic/mimetypes/u2f.svg</file>
+        <file>assets/gfx/symbolic/filemgr/action-new.svg</file>
+        <file>assets/gfx/symbolic/filemgr/action-remove.svg</file>
+        <file>assets/gfx/symbolic/filemgr/action-rename.svg</file>
+        <file>assets/gfx/symbolic/filemgr/action-save.svg</file>
+        <file>assets/gfx/symbolic/filemgr/location-internal.svg</file>
+        <file>assets/gfx/symbolic/filemgr/location-sdcard.svg</file>
+        <file>components/ProgressDialog.qml</file>
+        <file>style/Switch.qml</file>
+        <file>imports/Misc/qmldir</file>
+        <file>imports/Misc/FileTypes.qml</file>
+        <file>imports/Misc/ErrorStrings.qml</file>
     </qresource>
 </RCC>

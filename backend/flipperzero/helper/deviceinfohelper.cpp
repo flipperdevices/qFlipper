@@ -114,7 +114,7 @@ void VCPDeviceInfoHelper::findSerialPort()
 void VCPDeviceInfoHelper::startRPCSession()
 {
     m_rpc = new ProtobufSession(m_deviceInfo.portInfo, this);
-    connect(m_rpc, &ProtobufSession::sessionStatusChanged, this, &VCPDeviceInfoHelper::onSessionStatusChanged);
+    connect(m_rpc, &ProtobufSession::sessionStateChanged, this, &VCPDeviceInfoHelper::onSessionStatusChanged);
     m_rpc->startSession();
 }
 

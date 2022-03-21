@@ -75,3 +75,12 @@ StorageWriteRequest::~StorageWriteRequest()
         free(content.file.data);
     }
 }
+
+StorageRenameRequest::StorageRenameRequest(uint32_t id, const QByteArray &oldPath, const QByteArray &newPath):
+    AbstractStorageRequest(id, PB_Main_storage_rename_request_tag, oldPath),
+    m_newPath(newPath)
+{
+    auto &request = m_message.content.storage_rename_request;
+    request.old_path = pathData();
+    request.new_path = (char*)newPath.data();
+}

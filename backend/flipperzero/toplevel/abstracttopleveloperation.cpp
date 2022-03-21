@@ -12,6 +12,7 @@ AbstractTopLevelOperation::AbstractTopLevelOperation(DeviceState *deviceState, Q
     m_deviceState(deviceState)
 {
     m_deviceState->clearError();
+    m_deviceState->setProgress(-1);
     m_deviceState->setPersistent(true);
 }
 

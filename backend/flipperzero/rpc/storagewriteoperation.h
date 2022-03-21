@@ -20,6 +20,8 @@ public:
     const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
 
 private:
+    bool begin() override;
+
     QByteArray m_path;
     QIODevice *m_file;
 };

@@ -174,15 +174,11 @@ void AssetsDownloadOperation::checkForDeviceManifest()
 void AssetsDownloadOperation::readDeviceManifest()
 {
     auto *buf = new QBuffer(this);
-
-    if(!buf->open(QIODevice::ReadWrite)) {
-        return finishWithError(BackendError::UnknownError, buf->errorString());
-    }
-
     auto *operation = rpc()->storageRead(QByteArrayLiteral("/ext/Manifest"), buf);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(!operation->isError()) {
+            buf->open(QIODevice::ReadOnly);
             const auto test = buf->readAll();
             m_deviceManifest = AssetManifest(test);
         }
@@ -261,15 +257,18 @@ void AssetsDownloadOperation::deleteFiles()
 
     deviceState()->setStatusString(tr("Deleting unneeded files..."));
 
-    int numFiles = m_deleteList.size();
+    auto filesRemaining = m_deleteList.size();
+    const auto increment = 100.0 / filesRemaining;
 
     for(const auto &fileInfo : qAsConst(m_deleteList)) {
-        const auto isLastFile = (--numFiles == 0);
+        const auto isLastFile = (--filesRemaining == 0);
         const auto fileName = QByteArrayLiteral("/ext/") + fileInfo.absolutePath.toLocal8Bit();
 
         auto *operation = rpc()->storageRemove(fileName);
 
         connect(operation, &AbstractOperation::finished, this, [=]() {
+            deviceState()->setProgress(100.0 - increment * filesRemaining);
+
             if(operation->isError()) {
                 finishWithError(operation->error(), operation->errorString());
             } else if(isLastFile) {
@@ -286,12 +285,13 @@ void AssetsDownloadOperation::writeFiles()
         advanceOperationState();
     }
 
-    deviceState()->setStatusString(tr("Writing new files..."));
+    deviceState()->setStatusString(tr("Installing databases..."));
 
-    int i = m_writeList.size();
+    auto filesRemaining = m_writeList.size();
+    const auto increment = 100.0 / filesRemaining;
 
     for(const auto &fileInfo : qAsConst(m_writeList)) {
-        --i;
+        --filesRemaining;
 
         AbstractOperation *op;
         const auto filePath = QByteArrayLiteral("/ext/") + fileInfo.absolutePath.toLocal8Bit();
@@ -301,13 +301,18 @@ void AssetsDownloadOperation::writeFiles()
 
         } else if(fileInfo.type == FileNode::Type::RegularFile) {
             auto *buf = new QBuffer(this);
+
             if(!buf->open(QIODevice::ReadWrite)) {
+                buf->deleteLater();
                 return finishWithError(BackendError::UnknownError, buf->errorString());
             }
 
             const auto resourcePath = QStringLiteral("resources/") + fileInfo.absolutePath;
-            if((buf->write(m_archive.fileData(resourcePath)) < 0) || (!buf->seek(0))) {
+            if((buf->write(m_archive.fileData(resourcePath)) < 0)) {
+                buf->deleteLater();
                 return finishWithError(BackendError::UnknownError, buf->errorString());
+            } else {
+                buf->close();
             }
 
             op = rpc()->storageWrite(filePath, buf);
@@ -317,9 +322,11 @@ void AssetsDownloadOperation::writeFiles()
         }
 
         connect(op, &AbstractOperation::finished, this, [=]() {
+            deviceState()->setProgress(100.0 - increment * filesRemaining);
+
             if(op->isError()) {
                 finishWithError(op->error(), op->errorString());
-            } else if(i == 0) {
+            } else if(filesRemaining == 0) {
                 advanceOperationState();
             }
         });

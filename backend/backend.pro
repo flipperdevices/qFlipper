@@ -20,6 +20,7 @@ SOURCES += \
     firmwareupdateregistry.cpp \
     flipperupdates.cpp \
     flipperzero/assetmanifest.cpp \
+    flipperzero/filemanager.cpp \
     flipperzero/protobufsession.cpp \
     flipperzero/rpc/abstractprotobufoperation.cpp \
     flipperzero/rpc/guiscreenframeoperation.cpp \
@@ -35,6 +36,7 @@ SOURCES += \
     flipperzero/rpc/storagemkdiroperation.cpp \
     flipperzero/rpc/storagereadoperation.cpp \
     flipperzero/rpc/storageremoveoperation.cpp \
+    flipperzero/rpc/storagerenameoperation.cpp \
     flipperzero/rpc/storagestatoperation.cpp \
     flipperzero/rpc/storagewriteoperation.cpp \
     flipperzero/rpc/systemdeviceinfooperation.cpp \
@@ -72,6 +74,8 @@ SOURCES += \
     flipperzero/toplevel/wirelessstackupdateoperation.cpp \
     flipperzero/utility/abstractutilityoperation.cpp \
     flipperzero/utility/assetsdownloadoperation.cpp \
+    flipperzero/utility/directorydownloadoperation.cpp \
+    flipperzero/utility/directoryuploadoperation.cpp \
     flipperzero/utility/factoryresetutiloperation.cpp \
     flipperzero/utility/getfiletreeoperation.cpp \
     flipperzero/utility/restartoperation.cpp \
@@ -106,6 +110,8 @@ HEADERS += \
     firmwareupdateregistry.h \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
+    flipperzero/filemanager.h \
+    flipperzero/pixmaps/default.h \
     flipperzero/pixmaps/updateok.h \
     flipperzero/pixmaps/updating.h \
     flipperzero/protobufsession.h \
@@ -123,6 +129,7 @@ HEADERS += \
     flipperzero/rpc/storagemkdiroperation.h \
     flipperzero/rpc/storagereadoperation.h \
     flipperzero/rpc/storageremoveoperation.h \
+    flipperzero/rpc/storagerenameoperation.h \
     flipperzero/rpc/storagestatoperation.h \
     flipperzero/rpc/storagewriteoperation.h \
     flipperzero/rpc/systemdeviceinfooperation.h \
@@ -161,6 +168,8 @@ HEADERS += \
     flipperzero/toplevel/wirelessstackupdateoperation.h \
     flipperzero/utility/abstractutilityoperation.h \
     flipperzero/utility/assetsdownloadoperation.h \
+    flipperzero/utility/directorydownloadoperation.h \
+    flipperzero/utility/directoryuploadoperation.h \
     flipperzero/utility/factoryresetutiloperation.h \
     flipperzero/utility/getfiletreeoperation.h \
     flipperzero/utility/restartoperation.h \

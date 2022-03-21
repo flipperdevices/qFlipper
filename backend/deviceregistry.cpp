@@ -171,7 +171,7 @@ void DeviceRegistry::setError(BackendError::ErrorType newError)
     }
 
     m_error = newError;
-    emit errorChanged();
+    emit errorOccured();
 }
 
 void DeviceRegistry::setQueryInProgress(bool set)

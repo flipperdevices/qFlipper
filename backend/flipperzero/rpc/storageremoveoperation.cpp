@@ -5,9 +5,10 @@
 using namespace Flipper;
 using namespace Zero;
 
-StorageRemoveOperation::StorageRemoveOperation(uint32_t id, const QByteArray &path, QObject *parent):
+StorageRemoveOperation::StorageRemoveOperation(uint32_t id, const QByteArray &path, bool recursive, QObject *parent):
     AbstractProtobufOperation(id, parent),
-    m_path(path)
+    m_path(path),
+    m_recursive(recursive)
 {}
 
 const QString StorageRemoveOperation::description() const
@@ -17,5 +18,5 @@ const QString StorageRemoveOperation::description() const
 
 const QByteArray StorageRemoveOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
-    return encoder->storageRemove(id(), m_path);
+    return encoder->storageRemove(id(), m_path, m_recursive);
 }

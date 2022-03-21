@@ -34,3 +34,14 @@ const QByteArray StorageWriteOperation::encodeRequest(ProtobufPluginInterface *e
     const auto hasNext = m_file->bytesAvailable() > 0;
     return encoder->storageWrite(id(), m_path, buf, hasNext);
 }
+
+bool StorageWriteOperation::begin()
+{
+    const auto success = m_file->open(QIODevice::ReadOnly);
+
+    if(!success) {
+        setError(BackendError::DiskError, QStringLiteral("Failed to open file for reading: %1").arg(m_file->errorString()));
+    }
+
+    return success;
+}

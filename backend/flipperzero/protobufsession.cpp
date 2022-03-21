@@ -18,6 +18,7 @@
 #include "rpc/storagemkdiroperation.h"
 #include "rpc/storagewriteoperation.h"
 #include "rpc/storageremoveoperation.h"
+#include "rpc/storagerenameoperation.h"
 
 #include "rpc/systemrebootoperation.h"
 #include "rpc/systemdeviceinfooperation.h"
@@ -130,9 +131,14 @@ StorageMkdirOperation *ProtobufSession::storageMkdir(const QByteArray &path)
     return enqueueOperation(new StorageMkdirOperation(getAndIncrementCounter(), path, this));
 }
 
-StorageRemoveOperation *ProtobufSession::storageRemove(const QByteArray &path)
+StorageRenameOperation *ProtobufSession::storageRename(const QByteArray &oldPath, const QByteArray &newPath)
 {
-    return enqueueOperation(new StorageRemoveOperation(getAndIncrementCounter(), path, this));
+    return enqueueOperation(new StorageRenameOperation(getAndIncrementCounter(), oldPath, newPath, this));
+}
+
+StorageRemoveOperation *ProtobufSession::storageRemove(const QByteArray &path, bool recursive)
+{
+    return enqueueOperation(new StorageRemoveOperation(getAndIncrementCounter(), path, recursive, this));
 }
 
 StorageReadOperation *ProtobufSession::storageRead(const QByteArray &path, QIODevice *file)
@@ -186,7 +192,7 @@ void ProtobufSession::startSession()
     m_receivedData.clear();
 
     qCInfo(LOG_SESSION) << "Starting RPC session...";
-    m_sessionState = Starting;
+    setSessionState(Starting);
 
     if(!loadProtobufPlugin()) {
         stopEarly(BackendError::UnknownError, QStringLiteral("Failed to load protobuf plugin: %1").arg(m_loader->errorString()));
@@ -211,8 +217,12 @@ void ProtobufSession::startSession()
 
         qCInfo(LOG_SESSION) << "RPC session started successfully.";
 
-        m_sessionState = Idle;
-        emit sessionStatusChanged();
+        if(!m_queue.isEmpty()) {
+            setSessionState(Running);
+            QTimer::singleShot(0, this, &ProtobufSession::processQueue);
+        } else {
+            setSessionState(Idle);
+        }
     });
 }
 
@@ -278,18 +288,19 @@ void ProtobufSession::onSerialPortErrorOccured()
 void ProtobufSession::processQueue()
 {
     if(m_queue.isEmpty()) {
-        m_sessionState = Idle;
+        setSessionState(Idle);
         return;
     }
 
     m_currentOperation = m_queue.dequeue();
-    m_currentOperation->start();
-
-    connect(m_currentOperation, &AbstractOperation::finished, this, &ProtobufSession::onCurrentOperationFinished);
-
     qCInfo(LOG_SESSION).noquote() << prettyOperationDescription() << "START";
 
-    writeToPort();
+    connect(m_currentOperation, &AbstractOperation::finished, this, &ProtobufSession::onCurrentOperationFinished);
+    m_currentOperation->start();
+
+    if(!m_currentOperation->isError()) {
+        writeToPort();
+    }
 }
 
 void ProtobufSession::writeToPort()
@@ -329,7 +340,9 @@ void ProtobufSession::doStopSession()
 {
     qCInfo(LOG_SESSION) << "Stopping RPC session...";
 
-    clearOperationQueue();
+    if(m_currentOperation) {
+        m_currentOperation->abort(QStringLiteral("RPC session was stopped with operations still running"));
+    }
 
     if(m_serialPort) {
         m_serialPort->close();
@@ -340,14 +353,16 @@ void ProtobufSession::doStopSession()
 
     qCInfo(LOG_SESSION) << "RPC session stopped successfully.";
 
-    m_sessionState = Stopped;
-    emit sessionStatusChanged();
+    setSessionState(Stopped);
 }
 
 void ProtobufSession::onCurrentOperationFinished()
 {
     if(m_currentOperation->isError()) {
         qCCritical(LOG_SESSION).noquote() << prettyOperationDescription() << "ERROR:" << m_currentOperation->errorString();
+
+        clearOperationQueue();
+
     } else {
         qCInfo(LOG_SESSION).noquote() << prettyOperationDescription() << "SUCCESS";
     }
@@ -356,6 +371,16 @@ void ProtobufSession::onCurrentOperationFinished()
     m_currentOperation = nullptr;
 
     QTimer::singleShot(0, this, &ProtobufSession::processQueue);
+}
+
+void ProtobufSession::setSessionState(SessionState newState)
+{
+    if(m_sessionState == newState) {
+        return;
+    }
+
+    m_sessionState = newState;
+    emit sessionStateChanged();
 }
 
 bool ProtobufSession::loadProtobufPlugin()
@@ -390,9 +415,8 @@ void ProtobufSession::unloadProtobufPlugin()
 
 void ProtobufSession::stopEarly(BackendError::ErrorType error, const QString &errorString)
 {
-    m_sessionState = Stopped;
     setError(error, errorString);
-    emit sessionStatusChanged();
+    setSessionState(Stopped);
 }
 
 uint32_t ProtobufSession::getAndIncrementCounter()
@@ -409,10 +433,6 @@ void ProtobufSession::clearOperationQueue()
 {
     while(!m_queue.isEmpty()) {
         m_queue.dequeue()->deleteLater();
-    }
-
-    if(m_currentOperation) {
-        m_currentOperation->abort(QStringLiteral("RPC session was stopped with operations still running"));
     }
 }
 
@@ -462,8 +482,8 @@ T *ProtobufSession::enqueueOperation(T *operation)
     m_queue.enqueue(operation);
 
     if(m_sessionState == Idle) {
-        m_sessionState = Running;
         QTimer::singleShot(0, this, &ProtobufSession::processQueue);
+        setSessionState(Running);
     }
 
     return operation;

@@ -36,6 +36,14 @@ public:
     StorageMkDirRequest(uint32_t id, const QByteArray &path);
 };
 
+class StorageRenameRequest : public AbstractStorageRequest
+{
+public:
+    StorageRenameRequest(uint32_t id, const QByteArray &oldPath, const QByteArray &newPath);
+private:
+    QByteArray m_newPath;
+};
+
 class StorageRemoveRequest : public AbstractStorageRequest
 {
 public:

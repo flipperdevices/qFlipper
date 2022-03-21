@@ -130,13 +130,16 @@ void Application::initTranslations()
 void Application::initQmlTypes()
 {
     qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
-    qmlRegisterType<ApplicationUpdater>("QFlipper", 1, 0, "AppUpdater");
+
     qmlRegisterUncreatableType<BackendError>("QFlipper", 1, 0, "BackendError", QStringLiteral("This class is only a enum container"));
+    qmlRegisterUncreatableType<ApplicationBackend>("QFlipper", 1, 0, "ApplicationBackend", QStringLiteral("This class is meant to be created from c++"));
+    qmlRegisterUncreatableType<ApplicationUpdater>("QFlipper", 1, 0, "ApplicationUpdater", QStringLiteral("This class is meant to be created from c++"));
 
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Logger", globalLogger);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Preferences", globalPrefs);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Backend", &m_backend);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "App", this);
+    qmlRegisterSingletonInstance("QFlipper", 1, 0, "AdvancedFileDialog", &m_fileDialog);
 }
 
 void Application::initImports()
