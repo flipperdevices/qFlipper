@@ -1,4 +1,4 @@
-#include "tool.h"
+#include "cli.h"
 
 #include <QDebug>
 #include <QLoggingCategory>
@@ -9,9 +9,9 @@
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/devicestate.h"
 
-Q_LOGGING_CATEGORY(LOG_TOOL, "TOOL")
+Q_LOGGING_CATEGORY(LOG_CLI, "CLI")
 
-Tool::Tool(int argc, char *argv[]):
+Cli::Cli(int argc, char *argv[]):
     QCoreApplication(argc, argv),
     m_pendingOperation(NoOperation),
     m_repeatCount(1)
@@ -23,21 +23,21 @@ Tool::Tool(int argc, char *argv[]):
     processOptions();
     processArguments();
 
-    qCInfo(LOG_TOOL) << "Waiting for devices...";
+    qCInfo(LOG_CLI) << "Waiting for devices...";
 }
 
-Tool::~Tool()
+Cli::~Cli()
 {}
 
-void Tool::onBackendStateChanged()
+void Cli::onBackendStateChanged()
 {
     const auto state = m_backend.backendState();
     if(state == ApplicationBackend::BackendState::ErrorOccured) {
-        qCCritical(LOG_TOOL).nospace() << "An error has occured: " << m_backend.errorType() << ". Exiting.";
+        qCCritical(LOG_CLI).nospace() << "An error has occured: " << m_backend.errorType() << ". Exiting.";
         return exit(-1);
 
     } else if(state == ApplicationBackend::BackendState::WaitingForDevices) {
-        qCCritical(LOG_TOOL) << "All devices disconnected. Exiting.";
+        qCCritical(LOG_CLI) << "All devices disconnected. Exiting.";
         return exit(0);
 
     } else if(state == ApplicationBackend::BackendState::Ready) {
@@ -47,7 +47,7 @@ void Tool::onBackendStateChanged()
             return;
 
         } else if(m_backend.firmwareUpdateState() == ApplicationBackend::FirmwareUpdateState::ErrorOccured) {
-            qCCritical(LOG_TOOL) << "Failed to get firmware updates. Exiting.";
+            qCCritical(LOG_CLI) << "Failed to get firmware updates. Exiting.";
             return exit(-1);
         }
 
@@ -57,7 +57,7 @@ void Tool::onBackendStateChanged()
             startPendingOperation();
         } else {
             // ... But there are special cases when we might have to wait for the firmware update to become available.
-            connect(&m_backend, &ApplicationBackend::firmwareUpdateStateChanged, this, &Tool::onUpdateStateChanged);
+            connect(&m_backend, &ApplicationBackend::firmwareUpdateStateChanged, this, &Cli::onUpdateStateChanged);
         }
 
     } else if(state == ApplicationBackend::BackendState::Finished) {
@@ -65,33 +65,33 @@ void Tool::onBackendStateChanged()
     }
 }
 
-void Tool::onUpdateStateChanged()
+void Cli::onUpdateStateChanged()
 {
     if(m_backend.firmwareUpdateState() == ApplicationBackend::FirmwareUpdateState::ErrorOccured) {
-        qCCritical(LOG_TOOL) << "Failed to get firmware updates. Exiting.";
+        qCCritical(LOG_CLI) << "Failed to get firmware updates. Exiting.";
         return exit(-1);
     }
 
     const auto isFirmwareReady = m_backend.firmwareUpdateState() != ApplicationBackend::FirmwareUpdateState::Checking &&
                                      m_backend.firmwareUpdateState() != ApplicationBackend::FirmwareUpdateState::Unknown;
     if(isFirmwareReady) {
-        disconnect(&m_backend, &ApplicationBackend::firmwareUpdateStateChanged, this, &Tool::onUpdateStateChanged);
+        disconnect(&m_backend, &ApplicationBackend::firmwareUpdateStateChanged, this, &Cli::onUpdateStateChanged);
         startPendingOperation();
     }
 }
 
-void Tool::initConnections()
+void Cli::initConnections()
 {
-    connect(&m_backend, &ApplicationBackend::backendStateChanged, this, &Tool::onBackendStateChanged);
+    connect(&m_backend, &ApplicationBackend::backendStateChanged, this, &Cli::onBackendStateChanged);
 }
 
-void Tool::initLogger()
+void Cli::initLogger()
 {
     qInstallMessageHandler(Logger::messageOutput);
     globalLogger->setLogLevel(Logger::Terse);
 }
 
-void Tool::initParser()
+void Cli::initParser()
 {
     m_parser.addPositionalArgument(QStringLiteral("backup"), QStringLiteral("Backup Internal Memory contents"), QStringLiteral("{backup <target_directory>,"));
     m_parser.addPositionalArgument(QStringLiteral("restore"), QStringLiteral("Restore Internal Memory contents"), QStringLiteral("restore <source_directory>,"));
@@ -114,14 +114,14 @@ void Tool::initParser()
     m_parser.process(*this);
 }
 
-void Tool::processOptions()
+void Cli::processOptions()
 {
     processDebugLevelOption();
     processRepeatNumberOption();
     processUpdateChannelOption();
 }
 
-void Tool::processArguments()
+void Cli::processArguments()
 {
     const auto args = m_parser.positionalArguments();
 
@@ -146,7 +146,7 @@ void Tool::processArguments()
     }
 }
 
-void Tool::processDebugLevelOption()
+void Cli::processDebugLevelOption()
 {
     const auto &debugLevelOption = m_options[DebugLevelOption];
 
@@ -158,14 +158,14 @@ void Tool::processDebugLevelOption()
     const auto num = m_parser.value(debugLevelOption).toInt(&canConvert);
 
     if(!canConvert || (num < 0 || num > 2)) {
-        qCCritical(LOG_TOOL) << "Debug level must be one of the following values: 0, 1, 2.";
+        qCCritical(LOG_CLI) << "Debug level must be one of the following values: 0, 1, 2.";
         std::exit(-1);
     }
 
     globalLogger->setLogLevel((Logger::LogLevel)num);
 }
 
-void Tool::processRepeatNumberOption()
+void Cli::processRepeatNumberOption()
 {
     const auto &repeatNumberOption = m_options[RepeatNumberOption];
 
@@ -177,16 +177,16 @@ void Tool::processRepeatNumberOption()
     const auto num = m_parser.value(repeatNumberOption).toInt(&canConvert);
 
     if(!canConvert || (num < 0)) {
-        qCCritical(LOG_TOOL) << "Repeat number must be a whole non-negative number.";
+        qCCritical(LOG_CLI) << "Repeat number must be a whole non-negative number.";
         std::exit(-1);
     }
 
-    qCInfo(LOG_TOOL).noquote() << "Will repeat the operation" << (num ? QStringLiteral("%1 times.").arg(num) : QStringLiteral("indefinitely."));
+    qCInfo(LOG_CLI).noquote() << "Will repeat the operation" << (num ? QStringLiteral("%1 times.").arg(num) : QStringLiteral("indefinitely."));
 
     m_repeatCount = num ? num : -1;
 }
 
-void Tool::processUpdateChannelOption()
+void Cli::processUpdateChannelOption()
 {
     const auto &updateChannelOption = m_options[UpdateChannelOption];
 
@@ -203,83 +203,83 @@ void Tool::processUpdateChannelOption()
     const auto channelName = m_parser.value(updateChannelOption);
 
     if(!allowedChannelNames.contains(channelName)) {
-        qCCritical(LOG_TOOL) << "Unknown update channel. Possible channels are:" << allowedChannelNames;
+        qCCritical(LOG_CLI) << "Unknown update channel. Possible channels are:" << allowedChannelNames;
         std::exit(-1);
     }
 
     globalPrefs->setFirmwareUpdateChannel(channelName);
 }
 
-void Tool::beginDefaultAction()
+void Cli::beginDefaultAction()
 {
-    qCInfo(LOG_TOOL) << "Performing full firmware update...";
+    qCInfo(LOG_CLI) << "Performing full firmware update...";
     m_pendingOperation = DefaultAction;
 }
 
-void Tool::beginBackup()
+void Cli::beginBackup()
 {
     verifyArgumentCount(2);
     m_fileParameter = QUrl::fromLocalFile(m_parser.positionalArguments().at(1));
 
-    qCInfo(LOG_TOOL).noquote().nospace() << "Performing internal storage backup to " << m_fileParameter << "...";
+    qCInfo(LOG_CLI).noquote().nospace() << "Performing internal storage backup to " << m_fileParameter << "...";
     m_pendingOperation = Backup;
 }
 
-void Tool::beginRestore()
+void Cli::beginRestore()
 {
     verifyArgumentCount(2);
     m_fileParameter = QUrl::fromLocalFile(m_parser.positionalArguments().at(1));
 
-    qCInfo(LOG_TOOL).noquote().nospace() << "Performing internal restore from " << m_fileParameter << "...";
+    qCInfo(LOG_CLI).noquote().nospace() << "Performing internal restore from " << m_fileParameter << "...";
     m_pendingOperation = Restore;
 }
 
-void Tool::beginErase()
+void Cli::beginErase()
 {
     verifyArgumentCount(1);
-    qCInfo(LOG_TOOL) << "Performing device factory reset...";
+    qCInfo(LOG_CLI) << "Performing device factory reset...";
     m_pendingOperation = Erase;
 }
 
-void Tool::beginWipe()
+void Cli::beginWipe()
 {
-    qCCritical(LOG_TOOL) << "Wipe is not implemented yet. Sorry!";
+    qCCritical(LOG_CLI) << "Wipe is not implemented yet. Sorry!";
     std::exit(-1);
 }
 
-void Tool::beginFirmware()
+void Cli::beginFirmware()
 {
     verifyArgumentCount(2);
     const auto arg = m_parser.positionalArguments().at(1);
 
     if(!arg.endsWith(QStringLiteral(".dfu"), Qt::CaseInsensitive)) {
-        qCCritical(LOG_TOOL) << "Please provide a firmware file in DFUse format.";
+        qCCritical(LOG_CLI) << "Please provide a firmware file in DFUse format.";
         std::exit(-1);
     }
 
     m_fileParameter = QUrl::fromLocalFile(arg);
 
-    qCInfo(LOG_TOOL).noquote().nospace() << "Performing Firmware installation from " << m_fileParameter << "...";
+    qCInfo(LOG_CLI).noquote().nospace() << "Performing Firmware installation from " << m_fileParameter << "...";
     m_pendingOperation = Firmware;
 }
 
-void Tool::beginCore2Radio()
+void Cli::beginCore2Radio()
 {
     verifyArgumentCount(2);
     const auto arg = m_parser.positionalArguments().at(1);
 
     if(!arg.endsWith(QStringLiteral(".bin"), Qt::CaseInsensitive)) {
-        qCCritical(LOG_TOOL) << "Please provide a firmware file in .bin format.";
+        qCCritical(LOG_CLI) << "Please provide a firmware file in .bin format.";
         std::exit(-1);
     }
 
     m_fileParameter = QUrl::fromLocalFile(arg);
 
-    qCInfo(LOG_TOOL).noquote().nospace() << "Performing Radio Firmware installation from " << m_fileParameter << "...";
+    qCInfo(LOG_CLI).noquote().nospace() << "Performing Radio Firmware installation from " << m_fileParameter << "...";
     m_pendingOperation = Core2Radio;
 }
 
-void Tool::beginCore2FUS()
+void Cli::beginCore2FUS()
 {
     verifyArgumentCount(3);
 
@@ -288,7 +288,7 @@ void Tool::beginCore2FUS()
     const auto &arg2 = args[2];
 
     if(!arg1.endsWith(QStringLiteral(".bin"), Qt::CaseInsensitive)) {
-        qCCritical(LOG_TOOL) << "Please provide a firmware file in .bin format.";
+        qCCritical(LOG_CLI) << "Please provide a firmware file in .bin format.";
         std::exit(-1);
     }
 
@@ -298,17 +298,17 @@ void Tool::beginCore2FUS()
     m_core2Address = arg2.toULong(&canConvert, 16);
 
     if(!canConvert) {
-        qCCritical(LOG_TOOL) << "Please provide a valid hexadecimal address.";
+        qCCritical(LOG_CLI) << "Please provide a valid hexadecimal address.";
         std::exit(-1);
     }
 
     m_pendingOperation = Core2FUS;
 }
 
-void Tool::startPendingOperation()
+void Cli::startPendingOperation()
 {
     if(m_repeatCount == 0) {
-        qCInfo(LOG_TOOL) << "All done! Thank you.";
+        qCInfo(LOG_CLI) << "All done! Thank you.";
         return exit(0);
 
     } else if(m_repeatCount > 0) {
@@ -333,17 +333,17 @@ void Tool::startPendingOperation()
     } else if(m_pendingOperation == Core2FUS) {
         m_backend.installFUS(m_fileParameter, m_core2Address);
     } else {
-        qCCritical(LOG_TOOL) << "Unhandled operation. Probably a bug!";
+        qCCritical(LOG_CLI) << "Unhandled operation. Probably a bug!";
         exit(-1);
     }
 }
 
-void Tool::verifyArgumentCount(int num)
+void Cli::verifyArgumentCount(int num)
 {
     const auto argCount = m_parser.positionalArguments().size();
 
     if(argCount != num) {
-        qCCritical(LOG_TOOL).nospace() << "Expected " << num << " arguments, got " << argCount << ". Exiting.";
+        qCCritical(LOG_CLI).nospace() << "Expected " << num << " arguments, got " << argCount << ". Exiting.";
         std::exit(-1);
     }
 }

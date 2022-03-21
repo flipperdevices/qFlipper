@@ -11,7 +11,7 @@ elif [[ "$1" = 'gui' ]]; then
     "$this_dir"/usr/bin/qFlipper "$@"
 elif [[ "$1" = 'cli' ]]; then
     shift 1
-    "$this_dir"/usr/bin/qFlipperTool "$@"
+    "$this_dir"/usr/bin/qFlipper-cli "$@"
 else
     echo 'Usage: <Appimage> {[gui], cli} [parameters]'
     exit 255

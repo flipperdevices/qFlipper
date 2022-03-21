@@ -3,7 +3,7 @@ QT += serialport network
 
 include(../qflipper_common.pri)
 
-TARGET = $${NAME}Tool
+TARGET = $${NAME}-cli
 
 DESTDIR = $$OUT_PWD/..
 CONFIG += c++11 console
@@ -58,10 +58,10 @@ DEPENDPATH += \
 
 SOURCES += \
         main.cpp \
-        tool.cpp
+        cli.cpp
 
 HEADERS += \
-    tool.h
+    cli.h
 
 unix:!macx {
     target.path = $$PREFIX/bin

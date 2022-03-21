@@ -31,15 +31,15 @@ LicenseData LICENSE
 Section "-Main Application"
 	IfFileExists "${UNINSTALL_EXE}" 0 +2
 	ExecWait "${UNINSTALL_EXE} /S"
-	
+
 	SetOutPath $INSTDIR
 	File /r "build\${NAME}\*"
-	
+
 	ExecWait "${VCREDIST2010_EXE} /passive /norestart"
 	ExecWait "${VCREDIST2019_EXE} /install /passive /norestart"
-	
+
 	WriteUninstaller "${UNINSTALL_EXE}"
-	
+
 	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayName" "${NAME}"
 	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "UninstallString" "$\"${UNINSTALL_EXE}$\""
 	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "QuietUninstallString" "$\"${UNINSTALL_EXE}$\" /S"
@@ -64,7 +64,7 @@ Section "-Cleanup"
 	Delete ${VCREDIST2019_EXE}
 	Delete ${VCREDIST2010_EXE}
 	Delete ${DRIVER_TOOL_EXE}
-	
+
 	${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
 	IntFmt $0 "0x%08X" $0
 	WriteRegDWORD HKLM "${UNINSTALL_REG_PATH}" "EstimatedSize" "$0"

@@ -18,7 +18,7 @@ set WINDEPLOYQT=%QT_BIN_DIR%\windeployqt.exe
 set JOM=%QT_DIR%\Tools\QtCreator\bin\jom.exe
 
 set TARGET=qFlipper
-set TESTS_TOOL=%TARGET%Tool
+set TARGET_CLI=%TARGET%-cli
 set PROTO_TARGET=flipperproto
 set DRIVER_TOOL=FlipperDriverTool
 
@@ -51,7 +51,7 @@ cd %DIST_DIR%
 
 %WINDEPLOYQT% --release --no-compiler-runtime --dir %DIST_DIR% %PLUGINS_DIR%/%PROTO_TARGET%0.dll &&^
 %WINDEPLOYQT% --release --no-compiler-runtime --qmldir %QML_DIR% %TARGET%.exe &&^
-%WINDEPLOYQT% --release --no-compiler-runtime %TESTS_TOOL%.exe || goto error
+%WINDEPLOYQT% --release --no-compiler-runtime %TARGET_CLI%.exe || goto error
 
 rem Copy OpenSSL binaries
 copy /Y %OPENSSL_DIR%\*.dll .
@@ -70,7 +70,7 @@ copy /Y %VCREDIST2010_EXE% .
 if defined SIGNING_TOOL (
 	rem Sign the executables
 	call %SIGNING_TOOL% %DIST_DIR%\%TARGET%.exe || goto error
-	call %SIGNING_TOOL% %DIST_DIR%\%TESTS_TOOL%.exe || goto error
+	call %SIGNING_TOOL% %DIST_DIR%\%TARGET_CLI%.exe || goto error
 	call %SIGNING_TOOL% %DIST_DIR%\%DRIVER_TOOL%.exe || goto error
 )
 

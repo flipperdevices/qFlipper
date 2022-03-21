@@ -6,7 +6,7 @@
 
 #include "applicationbackend.h"
 
-class Tool : public QCoreApplication
+class Cli : public QCoreApplication
 {
     Q_OBJECT
 
@@ -29,8 +29,8 @@ class Tool : public QCoreApplication
     };
 
 public:
-    Tool(int argc, char *argv[]);
-    ~Tool();
+    Cli(int argc, char *argv[]);
+    ~Cli();
 
 private slots:
     void onBackendStateChanged();

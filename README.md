@@ -96,9 +96,9 @@ See [contrib](./contrib) for available options.
 
 ## Project structure
 - `application` - The main graphical application, written mostly in QML.
+- `cli` - The command line interface, provides nearly all main application's functionality.
 - `backend` - The backend library, written in C++. Takes care of most of the logic.
 - `dfu` - Low level library for accessing USB and DFU devices.
-- `tool` - The command line interface, provides nearly all main application's functionality.
 - `plugins` - Protobuf-based communication protocol support.
 - `3rdparty` - Third-party libraries.
 - `contrib` - Contributed packages and scripts.

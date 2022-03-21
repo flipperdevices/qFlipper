@@ -1,12 +1,12 @@
-# qFlipperTool
+# qFlipper-cli
 ### A non-interactive text mode interface for qFlipper
 This program is mostly meant for testing purposes, although it can also provide all of the qFlipper's features from the comfort of the terminal emulator.
 
 ## Running:
 ### Windows:
-`<Program_files_directory>\qFlipper\qFlipperTool.exe [args] [parameters]`
+`<Program_files_directory>\qFlipper\qFlipper-cli.exe [args] [parameters]`
 ### MacOS:
-`<Applications_directory>/qFlipper.app/Contents/MacOS/qFlipperTool [args] [parameters]`
+`<Applications_directory>/qFlipper.app/Contents/MacOS/qFlipper-cli [args] [parameters]`
 ### Linux:
 `<AppImage_directory>/qFlipper-x86_64-x.y.z.AppImage cli [args] [parameters]`
 
