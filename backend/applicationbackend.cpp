@@ -209,6 +209,9 @@ void ApplicationBackend::finalizeOperation()
         if(!deviceState()->isRecoveryMode()) {
             m_virtualDisplay->stop();
             m_screenStreamer->start();
+
+            m_fileManager->reset();
+            m_fileManager->refresh();
         }
 
         setBackendState(BackendState::Ready);
@@ -279,7 +282,7 @@ void ApplicationBackend::onDeviceOperationFinished()
     }
 }
 
-void ApplicationBackend::onDeviceRegistryErrorChanged()
+void ApplicationBackend::onDeviceRegistryErrorOccured()
 {
     if(m_backendState != BackendState::WaitingForDevices) {
         return;
@@ -289,6 +292,16 @@ void ApplicationBackend::onDeviceRegistryErrorChanged()
 
     if(err != BackendError::NoError) {
         setErrorType(err);
+        setBackendState(BackendState::ErrorOccured);
+    }
+}
+
+void ApplicationBackend::onFileManagerErrorOccured()
+{
+    const auto err = m_fileManager->error();
+
+    if(err != BackendError::NoError) {
+        setErrorType(m_fileManager->error());
         setBackendState(BackendState::ErrorOccured);
     }
 }
@@ -313,7 +326,8 @@ void ApplicationBackend::initConnections()
     connect(m_deviceRegistry, &DeviceRegistry::isQueryInProgressChanged, this, &ApplicationBackend::isQueryInProgressChanged);
     connect(m_firmwareUpdateRegistry, &UpdateRegistry::latestVersionChanged, this, &ApplicationBackend::firmwareUpdateStateChanged);
 
-    connect(m_deviceRegistry, &DeviceRegistry::errorChanged, this, &ApplicationBackend::onDeviceRegistryErrorChanged);
+    connect(m_deviceRegistry, &DeviceRegistry::errorOccured, this, &ApplicationBackend::onDeviceRegistryErrorOccured);
+    connect(m_fileManager, &FileManager::errorOccured, this, &ApplicationBackend::onFileManagerErrorOccured);
 }
 
 void ApplicationBackend::setBackendState(BackendState newState)

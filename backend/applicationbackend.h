@@ -133,7 +133,8 @@ private slots:
     void onCurrentDeviceChanged();
     void onDeviceInfoChanged();
     void onDeviceOperationFinished();
-    void onDeviceRegistryErrorChanged();
+    void onDeviceRegistryErrorOccured();
+    void onFileManagerErrorOccured();
 
 private:
     static void initLibraryPaths();

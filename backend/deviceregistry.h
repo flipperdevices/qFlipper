@@ -33,7 +33,7 @@ signals:
     void isQueryInProgressChanged();
     void currentDeviceChanged();
     void deviceCountChanged();
-    void errorChanged();
+    void errorOccured();
 
 public slots:
     void insertDevice(const USBDeviceInfo &info);

@@ -285,7 +285,9 @@ void FileManager::listCurrentPath()
         emit currentPathChanged();
 
         if(operation->isError()) {
-            //TODO: Error handling
+            setError(BackendError::OperationError, operation->errorString());
+            emit errorOccured();
+
         } else {
             setModelData(operation->files());
             emit refreshed();
@@ -365,7 +367,9 @@ void FileManager::registerOperation(AbstractOperation *operation)
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
-            //TODO: error handling
+            setError(BackendError::OperationError, operation->errorString());
+            emit errorOccured();
+
         } else {
             listCurrentPath();
         }

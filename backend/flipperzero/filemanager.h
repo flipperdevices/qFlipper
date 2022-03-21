@@ -5,6 +5,7 @@
 #include <QStringList>
 #include <QAbstractListModel>
 
+#include "failable.h"
 #include "fileinfo.h"
 
 class QTimer;
@@ -17,7 +18,7 @@ class FlipperZero;
 
 namespace Zero {
 
-class FileManager : public QAbstractListModel
+class FileManager : public QAbstractListModel, public Failable
 {
     Q_OBJECT
     Q_PROPERTY(bool isBusy READ isBusy NOTIFY isBusyChanged)
@@ -78,6 +79,7 @@ signals:
     void currentPathChanged();
     void newDirectoryIndexChanged();
     void refreshed();
+    void errorOccured();
 
 private slots:
     void onBusyTimerTimeout();
