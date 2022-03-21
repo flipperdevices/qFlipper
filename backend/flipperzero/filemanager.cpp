@@ -3,7 +3,9 @@
 #include <QFile>
 #include <QDebug>
 #include <QTimer>
+#include <QQueue>
 #include <QFileInfo>
+#include <QDirIterator>
 #include <QLoggingCategory>
 
 #include "flipperzero.h"
@@ -23,6 +25,8 @@
 #include "utility/directorydownloadoperation.h"
 
 #include "preferences.h"
+
+#define MAX_UPLOAD_SIZE_BYTES (2000000)
 
 Q_LOGGING_CATEGORY(LOG_FILEMGR, "FILEMGR")
 
@@ -167,6 +171,17 @@ void FileManager::download(const QString &remoteFileName, const QUrl &localUrl, 
     } else {
         downloadFile(remote, local);
     }
+}
+
+bool FileManager::isTooLarge(const QList<QUrl> &urlList) const
+{
+    qint64 totalSize = 0;
+
+    for(const auto &url : urlList) {
+        totalSize += localFileSize(url);
+    }
+
+    return totalSize > MAX_UPLOAD_SIZE_BYTES;
 }
 
 bool FileManager::isBusy() const
@@ -382,4 +397,30 @@ const QByteArray FileManager::remoteFilePath(const QString &fileName) const
 {
     const auto isRoot = currentPath() == QStringLiteral("/");
     return QStringLiteral("%1/%2").arg(currentPath(), fileName).mid(isRoot ? 1 : 0).toLocal8Bit();
+}
+
+qint64 FileManager::localFileSize(const QUrl &localUrl)
+{
+    const QFileInfo info(localUrl.toLocalFile());
+
+    if(info.isFile()) {
+        return info.size();
+
+    } else if(info.isDir()) {
+        qint64 totalSize = 0;
+        QDirIterator it(localUrl.toLocalFile(), QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
+
+        while(it.hasNext()) {
+            const QFileInfo info(it.next());
+            if(info.isFile()) {
+                // Not counting the directories, because directories are not actually transmitted
+                totalSize += info.size();
+            }
+        }
+
+        return totalSize;
+
+    } else {
+        return 0;
+    }
 }

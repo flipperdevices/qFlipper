@@ -226,7 +226,24 @@ Item {
             };
 
             const onAccepted = function() {
-                Backend.fileManager.uploadTo(delegate.fileName, AdvancedFileDialog.fileUrls);
+                const doUpload = function() {
+                    Backend.fileManager.uploadTo(delegate.fileName, AdvancedFileDialog.fileUrls);
+                };
+
+                if(Backend.fileManager.isTooLarge(AdvancedFileDialog.fileUrls)) {
+                    const isMultiple = AdvancedFileDialog.fileUrls.length > 1;
+                    const msgObj = {
+                        title: qsTr("Warning"),
+                        message: qsTr("Selected %1 too large.\nUpload anyway?").arg(isMultiple ? qsTr("files are") : qsTr("file is")),
+                        suggestedRole: ConfirmationDialog.RejectRole,
+                        customText: qsTr("Upload")
+                    };
+
+                    confirmationDialog.openWithMessage(doUpload, msgObj);
+
+                } else {
+                    doUpload();
+                }
             };
 
             AdvancedFileDialog.accepted.connect(onAccepted);

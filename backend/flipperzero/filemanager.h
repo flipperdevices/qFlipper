@@ -61,6 +61,8 @@ public:
     Q_INVOKABLE void uploadTo(const QString &remoteDirName, const QList<QUrl> &urlList);
     Q_INVOKABLE void download(const QString &remoteFileName, const QUrl &localUrl, bool recursive = false);
 
+    Q_INVOKABLE bool isTooLarge(const QList<QUrl> &urlList) const;
+
     // Properties
     bool isBusy() const;
     bool isRoot() const;
@@ -102,6 +104,8 @@ private:
     void registerOperation(AbstractOperation *operation);
 
     const QByteArray remoteFilePath(const QString &fileName) const;
+
+    static qint64 localFileSize(const QUrl &localUrl);
 
     FlipperZero *m_device;
     FileInfoList m_modelData;
