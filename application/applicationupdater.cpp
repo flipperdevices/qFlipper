@@ -12,7 +12,7 @@
 #include "preferences.h"
 #include "remotefilefetcher.h"
 
-Q_LOGGING_CATEGORY(CATEGORY_SELFUPDATES, "SELFUPD")
+Q_LOGGING_CATEGORY(CATEGORY_SELFUPDATES, "SFU")
 
 using namespace Flipper;
 using namespace Updates;

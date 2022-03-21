@@ -6,7 +6,7 @@
 
 #include "abstractoperation.h"
 
-Q_LOGGING_CATEGORY(CATEGORY_DEFAULT, "DEFAULT")
+Q_LOGGING_CATEGORY(CATEGORY_DEFAULT, "DEF")
 
 AbstractOperationRunner::AbstractOperationRunner(QObject *parent):
     QObject(parent),

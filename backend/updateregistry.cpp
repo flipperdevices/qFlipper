@@ -13,7 +13,7 @@
 
 #include "remotefilefetcher.h"
 
-Q_LOGGING_CATEGORY(CATEGORY_UPDATES, "UPDATES")
+Q_LOGGING_CATEGORY(CATEGORY_UPDATES, "UPD")
 
 using namespace Flipper;
 

@@ -7,7 +7,7 @@
 #include <QDebug>
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(LOG_DETECTOR, "USBDET")
+Q_LOGGING_CATEGORY(LOG_DETECTOR, "USB")
 
 static LRESULT CALLBACK hotplugWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

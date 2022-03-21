@@ -8,7 +8,7 @@
 
 #include <zlib.h>
 
-Q_LOGGING_CATEGORY(LOG_UNZIP, "UNZIP")
+Q_LOGGING_CATEGORY(LOG_UNZIP, "ZIP")
 
 #define CHUNK_SIZE 1024
 

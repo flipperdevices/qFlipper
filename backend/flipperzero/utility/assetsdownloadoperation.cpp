@@ -21,7 +21,7 @@
 #include "tempdirectories.h"
 #include "tararchive.h"
 
-Q_LOGGING_CATEGORY(CATEGORY_ASSETS, "ASSETS")
+Q_LOGGING_CATEGORY(CATEGORY_ASSETS, "DBS")
 
 #define RESOURCES_PREFIX QByteArrayLiteral("resources")
 #define DEVICE_MANIFEST QByteArrayLiteral("/ext/Manifest")

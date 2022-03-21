@@ -28,7 +28,7 @@
 
 #define MAX_UPLOAD_SIZE_BYTES (2000000)
 
-Q_LOGGING_CATEGORY(LOG_FILEMGR, "FILEMGR")
+Q_LOGGING_CATEGORY(LOG_FILEMGR, "FMG")
 
 using namespace Flipper;
 using namespace Zero;

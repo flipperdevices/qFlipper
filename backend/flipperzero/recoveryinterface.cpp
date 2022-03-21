@@ -11,7 +11,7 @@
 #include "recovery.h"
 #include "debug.h"
 
-Q_LOGGING_CATEGORY(LOG_RECOVERY, "RECOVERY")
+Q_LOGGING_CATEGORY(LOG_RECOVERY, "RCY")
 
 using namespace Flipper;
 using namespace Zero;

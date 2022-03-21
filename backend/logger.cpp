@@ -8,7 +8,7 @@
 #include <QStandardPaths>
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(CATEGORY_LOGGER, "LOGGER")
+Q_LOGGING_CATEGORY(CATEGORY_LOGGER, "LOG")
 
 Logger::Logger(QObject *parent):
     QObject(parent),
