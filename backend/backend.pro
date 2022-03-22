@@ -93,7 +93,8 @@ SOURCES += \
     tararchive.cpp \
     tarziparchive.cpp \
     tempdirectories.cpp \
-    updateregistry.cpp
+    updateregistry.cpp \
+    versioninfo.cpp
 
 HEADERS += \
     abstractoperation.h \
@@ -187,7 +188,8 @@ HEADERS += \
     tararchive.h \
     tarziparchive.h \
     tempdirectories.h \
-    updateregistry.h
+    updateregistry.h \
+    versioninfo.h
 
 unix|win32 {
     LIBS += -L$$OUT_PWD/../dfu/ -ldfu
