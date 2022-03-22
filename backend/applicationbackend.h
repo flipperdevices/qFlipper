@@ -135,6 +135,7 @@ private slots:
     void onDeviceOperationFinished();
     void onDeviceRegistryErrorOccured();
     void onFileManagerErrorOccured();
+    void onScreenStreamerStateChanged();
 
 private:
     static void initLibraryPaths();

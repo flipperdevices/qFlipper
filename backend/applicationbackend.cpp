@@ -238,10 +238,12 @@ void ApplicationBackend::onCurrentDeviceChanged()
         onDeviceInfoChanged();
 
         if(!deviceState()->isRecoveryMode()) {
+            connect(m_screenStreamer, &ScreenStreamer::streamStateChanged, this, &ApplicationBackend::onScreenStreamerStateChanged);
             m_screenStreamer->start();
-        }
 
-        setBackendState(BackendState::Ready);
+        } else {
+            setBackendState(BackendState::Ready);
+        }
 
     } else {
         qCDebug(LOG_BACKEND) << "Last device was disconnected";
@@ -304,6 +306,15 @@ void ApplicationBackend::onFileManagerErrorOccured()
         setErrorType(m_fileManager->error());
         setBackendState(BackendState::ErrorOccured);
     }
+}
+
+void ApplicationBackend::onScreenStreamerStateChanged()
+{
+    if(m_screenStreamer->isEnabled()) {
+        disconnect(m_screenStreamer, &ScreenStreamer::streamStateChanged, this, &ApplicationBackend::onScreenStreamerStateChanged);
+        setBackendState(BackendState::Ready);
+    }
+    // TODO: check for ScreenStreamer errors
 }
 
 void ApplicationBackend::initLibraryPaths()
