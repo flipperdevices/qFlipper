@@ -107,7 +107,9 @@ void Application::initLogger()
 
 void Application::initStyles()
 {
+#ifdef Q_OS_LINUX
     setWindowIcon(QIcon(":/assets/icons/qFlipper.ico"));
+#endif
 
     QQuickWindow::setDefaultAlphaBuffer(true);
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
