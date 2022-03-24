@@ -12,7 +12,7 @@ AbstractOverlay {
     TextLabel {
         id: successLabel
 
-        y: 24
+        y: 19
 
         capitalized: false
         visible: Backend.backendState === Backend.Finished
@@ -165,7 +165,7 @@ AbstractOverlay {
         anchors.horizontalCenter: parent.horizontalCenter
         visible: Backend.backendState === Backend.Finished
         focus: visible
-        y: 265
+        y: 270
 
         Keys.onPressed: continueAction.trigger()
     }

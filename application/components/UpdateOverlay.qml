@@ -12,7 +12,7 @@ AbstractOverlay {
         id: updateLabel
         capitalized: false
         anchors.horizontalCenter: parent.horizontalCenter
-        y: 24
+        y: 19
 
         color: Theme.color.lightorange2
 
@@ -53,7 +53,7 @@ AbstractOverlay {
         to: 100
 
         x: Math.round((parent.width - width) / 2)
-        y: 265
+        y: 270
 
         value: deviceState ? deviceState.progress : 0
         indeterminate: !deviceState ? true : deviceState.progress < 0
