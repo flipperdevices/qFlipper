@@ -344,11 +344,10 @@ Item {
 
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 7
+        anchors.bottomMargin: 6
 
         font.pixelSize: 14
-        font.letterSpacing: -1
-        font.family: "Share Tech Mono"
+        font.family: "Share Tech"
         font.capitalization: Font.AllUppercase
 
         color: Theme.color.lightorange2

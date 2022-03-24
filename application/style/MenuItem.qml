@@ -84,8 +84,7 @@ T.MenuItem {
     icon.height: 24
 
     font.pixelSize: 16
-    font.letterSpacing: -1
-    font.family: "Share Tech Mono"
+    font.family: "Share Tech"
 
     contentItem: IconLabel {
         antialiasing: false

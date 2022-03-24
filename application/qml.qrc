@@ -137,5 +137,6 @@
         <file>imports/Misc/qmldir</file>
         <file>imports/Misc/FileTypes.qml</file>
         <file>imports/Misc/ErrorStrings.qml</file>
+        <file>assets/fonts/ShareTech-Regular.ttf</file>
     </qresource>
 </RCC>

@@ -126,8 +126,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 font.pixelSize: 16
-                font.letterSpacing: -1
-                font.family: "Share Tech Mono"
+                font.family: "Share Tech"
 
                 color: Theme.color.lightorange2
                 horizontalAlignment: Text.AlignHCenter

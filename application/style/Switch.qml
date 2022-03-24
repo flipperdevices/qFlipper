@@ -49,11 +49,10 @@ T.Switch {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
-    spacing: 5
+    spacing: 6
 
-    font.pixelSize: 13
-    font.letterSpacing: -1
-    font.family: "Share Tech Mono"
+    font.pixelSize: 14
+    font.family: "Share Tech"
 
     indicator: Rectangle {
         implicitWidth: 32

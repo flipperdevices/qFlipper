@@ -85,9 +85,8 @@ Item {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignVCenter
 
-                        font.pixelSize: 16
-                        font.letterSpacing: -1
-                        font.family: "Share Tech Mono"
+                        font.pixelSize: 18
+                        font.family: "Share Tech"
 
                         color: Theme.color.lightorange2
                         elide: Text.ElideMiddle

@@ -152,6 +152,7 @@ void Application::initFonts()
     QFontDatabase::addApplicationFont(":/assets/fonts/haxrcorp-4089.ttf");
     QFontDatabase::addApplicationFont(":/assets/fonts/Born2bSportyV2.ttf");
     QFontDatabase::addApplicationFont(":/assets/fonts/ProggySquare.ttf");
+    QFontDatabase::addApplicationFont(":/assets/fonts/ShareTech-Regular.ttf");
     QFontDatabase::addApplicationFont(":/assets/fonts/ShareTechMono-Regular.ttf");
 }
 
