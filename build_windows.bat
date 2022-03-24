@@ -13,6 +13,8 @@ set QT_VERSION=5.15.2
 set QT_COMPILER=msvc2019_%ARCH_BITS%
 set QT_BIN_DIR=%QT_DIR%\%QT_VERSION%\%QT_COMPILER%\bin
 
+set STM32_DRIVER_DIR="C:\STM32 Driver"
+
 set QMAKE=%QT_BIN_DIR%\qmake.exe
 set WINDEPLOYQT=%QT_BIN_DIR%\windeployqt.exe
 set JOM=%QT_DIR%\Tools\QtCreator\bin\jom.exe
@@ -56,23 +58,12 @@ cd %DIST_DIR%
 rem Copy OpenSSL binaries
 copy /Y %OPENSSL_DIR%\*.dll .
 
-rem Build the driver tool
-msbuild %DRIVER_TOOL_DIR%\%DRIVER_TOOL%.sln /p:Configuration=Release /p:Platform=x%ARCH_BITS% || goto error
-
-rem Copy the built driver tool
-copy /Y %DRIVER_TOOL_DIR%\x%ARCH_BITS%\Release\%DRIVER_TOOL%.exe .
-
+rem Copy the driver
+xcopy /Y /E /I %STM32_DRIVER_DIR% %DIST_DIR%\"STM32 Driver"
 
 rem Copy Microsoft Visual C++ redistributable packages
 copy /Y %VCREDIST2019_EXE% .
 copy /Y %VCREDIST2010_EXE% .
-
-if defined SIGNING_TOOL (
-	rem Sign the executables
-	call %SIGNING_TOOL% %DIST_DIR%\%TARGET%.exe || goto error
-	call %SIGNING_TOOL% %DIST_DIR%\%TARGET_CLI%.exe || goto error
-	call %SIGNING_TOOL% %DIST_DIR%\%DRIVER_TOOL%.exe || goto error
-)
 
 rem Make the zip archive as well
 tar -a -cf %BUILD_DIR%\%TARGET%-%ARCH_BITS%bit.zip *
@@ -80,13 +71,6 @@ tar -a -cf %BUILD_DIR%\%TARGET%-%ARCH_BITS%bit.zip *
 rem Make the installer
 cd %PROJECT_DIR%
 %NSIS% /DNAME=%TARGET% /DARCH_BITS=%ARCH_BITS% installer_windows.nsi || goto error
-
-timeout /T 5 /NOBREAK > nul
-
-if defined SIGNING_TOOL (
-	rem Sign the installer
-	call %SIGNING_TOOL% %BUILD_DIR%\%TARGET%Setup-%ARCH_BITS%bit.exe || goto error
-)
 
 echo The resulting installer is %BUILD_DIR%\%TARGET%Setup-%ARCH_BITS%bit.exe.
 echo Finished.

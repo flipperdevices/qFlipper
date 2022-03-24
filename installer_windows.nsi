@@ -5,12 +5,13 @@ SetCompressor /solid /final lzma
 !define /ifndef NAME "qFlipper"
 !define /ifndef ARCH_BITS 64
 !define UNINSTALL_EXE "$INSTDIR\uninstall.exe"
-!define DRIVER_TOOL_EXE "$INSTDIR\FlipperDriverTool.exe"
 !define VCREDIST2019_EXE "$INSTDIR\vcredist_msvc2019_x${ARCH_BITS}.exe"
 !define VCREDIST2010_EXE "$INSTDIR\vcredist_x${ARCH_BITS}.exe"
 !define UNINSTALL_REG_PATH "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
+!define STM32_DRIVER_PATH "$INSTDIR\STM32 Driver"
 
 !include "FileFunc.nsh"
+!include "x64.nsh"
 
 Name ${NAME}
 Icon "installer-assets\icons\${NAME}-installer.ico"
@@ -49,7 +50,9 @@ Section "-Main Application"
 SectionEnd
 
 Section "USB Driver"
-	nsExec::ExecToLog '"${DRIVER_TOOL_EXE}" $HWNDPARENT'
+	${DisableX64FSRedirection}
+	nsExec::ExecToLog '"$SYSDIR\pnputil.exe" /add-driver "${STM32_DRIVER_PATH}\STM32Bootloader.inf" /install'
+	${EnableX64FSRedirection}
 SectionEnd
 
 Section "Start menu entry"
@@ -63,7 +66,7 @@ SectionEnd
 Section "-Cleanup"
 	Delete ${VCREDIST2019_EXE}
 	Delete ${VCREDIST2010_EXE}
-	Delete ${DRIVER_TOOL_EXE}
+	RMDir /r "${STM32_DRIVER_PATH}"
 
 	${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
 	IntFmt $0 "0x%08X" $0
