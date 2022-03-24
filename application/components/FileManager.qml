@@ -15,7 +15,9 @@ Item {
     property ConfirmationDialog confirmationDialog
 
     onVisibleChanged: {
-        Backend.screenStreamer.isEnabled = !visible
+        if(Backend.backendState === ApplicationBackend.Ready) {
+            Backend.screenStreamer.isEnabled = !visible
+        }
     }
 
     ColumnLayout {
