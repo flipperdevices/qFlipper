@@ -304,7 +304,7 @@ Item {
 
     Action {
         id: removeAction
-        text: qsTr("!Delete")
+        text: qsTr("!Delete...")
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-remove.svg"
 
         onTriggered: {

@@ -168,7 +168,7 @@ Item {
                      Backend.backendState !== Backend.ErrorOccured ? 1 : 0
 
             x: Backend.backendState === Backend.Ready ? Math.round(mainContent.width / 2) : 216
-            y: 85
+            y: 82
 
             onScreenStreamRequested: Backend.startFullScreenStreaming()
         }

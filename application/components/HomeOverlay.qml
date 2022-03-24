@@ -138,7 +138,7 @@ AbstractOverlay {
     TextLabel {
         id: nameLabel
         x: centerX + centerOffset - width - 4
-        y: 24
+        y: 19
 
         color: Theme.color.lightorange2
 
