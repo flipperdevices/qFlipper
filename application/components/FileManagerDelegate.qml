@@ -183,6 +183,10 @@ Item {
 
                     onAccepted: isNewDirectory ? delegate.commitMkDir() : delegate.commitEdit();
                     onEditingFinished: delegate.finishEdit();
+
+                    validator: RegularExpressionValidator {
+                        regularExpression: /[\x20-\x7E]+/ //Printable ASCII characters
+                    }
                 }
             }
         }
