@@ -32,13 +32,14 @@ git clone https://github.com/flipperdevices/qFlipper.git --recursive
 Build requirements:
 - MS Visual Studio 2019 or newer
 - Qt (MSVC build) >= 5.15.0
-- Windows Driver Kit (to build libwdi)
 - NSIS (to generate the installer)
 
 Edit `build_windows.bat` to adjust to your build environment and then run:
 ```cmd
 build_windows.bat
 ```
+
+Note: STM32 Bootloader driver is not provided in this repository.
 
 ### Linux
 #### Docker build (AppImage, official)
