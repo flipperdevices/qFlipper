@@ -11,7 +11,9 @@
   <defs
      id="defs8" />
   <path
+     fill-rule="evenodd"
+     clip-rule="evenodd"
+     d="M15 16L2 16L2 12L3 12L3 11L3 10.5L3 10L3 9L2 9L2 6L3 6L3 5L4 5L4 4L4 1L4 0L5 0L14 0L15 0L15 1L15 16ZM6 1L7 1L7 3L6 3L6 1ZM9 1L8 1L8 3L9 3L9 1ZM10 1L10 3L11 3L11 1L10 1ZM13 3L12 3L12 1L13 1L13 3Z"
      id="path2"
-     d="M 4 0 L 4 1 L 4 4 L 4 5 L 3 5 L 3 6 L 2 6 L 2 9 L 3 9 L 3 10 L 3 10.5 L 3 11 L 3 12 L 2 12 L 2 16 L 15 16 L 15 1 L 15 0 L 14 0 L 5 0 L 4 0 z M 8 1 L 9 1 L 9 3 L 8 3 L 8 1 z M 10 1 L 11 1 L 11 3 L 10 3 L 10 1 z "
      style="fill:#ffffff" />
 </svg>
