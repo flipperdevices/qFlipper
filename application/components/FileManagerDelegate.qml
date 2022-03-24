@@ -221,6 +221,7 @@ Item {
     Action {
         id: uploadHereAction
         text: qsTr("Upload here...")
+        icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-upload.svg"
 
         onTriggered: {
             const onFinished = function() {
@@ -267,6 +268,7 @@ Item {
     Action {
         id: downloadAction
         text: qsTr("Download...")
+        icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-download.svg"
 
         onTriggered: {
             const onFinished = function() {
@@ -296,12 +298,14 @@ Item {
     Action {
         id: renameAction
         text: qsTr("Rename")
+        icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-rename.svg"
         onTriggered: delegate.beginEdit();
     }
 
     Action {
         id: removeAction
-        text: qsTr("Delete")
+        text: qsTr("!Delete")
+        icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-remove.svg"
 
         onTriggered: {
             const doRemove = function() {

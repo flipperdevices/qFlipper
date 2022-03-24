@@ -41,30 +41,24 @@ import QtQuick.Templates 2.15 as T
 import QtQml.Models 2.15
 
 import Theme 1.0
-import Primitives 1.0
 
 T.MenuItem {
     id: control
 
+    readonly property bool destructive : text.startsWith("!")
+
     property var foregroundColor: ColorGroup {
-        normal: Theme.color.lightorange2
-        hover: Theme.color.lightorange1
-        down: Theme.color.darkorange1
-        disabled: Theme.color.mediumorange1
+        normal: destructive ? Theme.color.lightred4 : Theme.color.lightorange2
+        hover: destructive ? Theme.color.lightred4 : Theme.color.lightorange1
+        down: destructive ? Theme.color.darkred1 : Theme.color.darkorange1
+        disabled: destructive ? Theme.color.mediumred1 : Theme.color.mediumorange1
     }
 
     property var backgroundColor: ColorGroup {
         normal: Theme.color.darkorange1
-        hover: Theme.color.mediumorange2
-        down: Theme.color.lightorange2
-        disabled: Theme.color.darkorange2
-    }
-
-    property var strokeColor: ColorGroup {
-        normal: Theme.color.lightorange2
-        hover: Theme.color.lightorange1
-        down: Theme.color.lightorange2
-        disabled: Theme.color.darkorange2
+        hover: destructive ? Theme.color.mediumred2 : Theme.color.mediumorange2
+        down: destructive ? Theme.color.lightred4 : Theme.color.lightorange2
+        disabled: Theme.color.transparent
     }
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
@@ -73,15 +67,17 @@ T.MenuItem {
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding) + 5
     padding: 0
-    spacing: 0
+    spacing: 10
 
     horizontalPadding: 8
 
     topInset: 0
     bottomInset: 0
 
-    icon.width: 24
-    icon.height: 24
+    icon.width: 16
+    icon.height: 16
+    icon.color: !control.enabled ? foregroundColor.disabled : control.down ? foregroundColor.down :
+                 control.hovered ? foregroundColor.hover : foregroundColor.normal
 
     font.pixelSize: 16
     font.family: "Share Tech"
@@ -99,7 +95,7 @@ T.MenuItem {
         alignment: Qt.AlignLeft
 
         icon: control.icon
-        text: control.text
+        text: control.destructive ? control.text.substring(1) : control.text
         font: control.font
         color: !control.enabled ? foregroundColor.disabled : control.down ? foregroundColor.down :
                 control.hovered ? foregroundColor.hover : foregroundColor.normal
@@ -133,7 +129,7 @@ T.MenuItem {
         y: 1
 
         implicitWidth: 150
-        implicitHeight: 24
+        implicitHeight: 25
 
         width: control.width - 2
         color: !control.enabled ? backgroundColor.disabled : control.down ? backgroundColor.down :

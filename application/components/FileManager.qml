@@ -231,6 +231,7 @@ Item {
     Action {
         id: uploadHereAction
         text: qsTr("Upload here...")
+        icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-upload.svg"
 
         onTriggered: {
             const onFinished = function() {
@@ -259,8 +260,9 @@ Item {
 
     Action {
         id: newDirAction
-        text: qsTr("New Folder...")
+        text: qsTr("New Folder")
         onTriggered: Backend.fileManager.beginMkDir();
+        icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-new.svg"
     }
 
     Component.onCompleted: {

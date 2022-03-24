@@ -129,7 +129,6 @@
         <file>assets/gfx/symbolic/filemgr/action-new.svg</file>
         <file>assets/gfx/symbolic/filemgr/action-remove.svg</file>
         <file>assets/gfx/symbolic/filemgr/action-rename.svg</file>
-        <file>assets/gfx/symbolic/filemgr/action-save.svg</file>
         <file>assets/gfx/symbolic/filemgr/location-internal.svg</file>
         <file>assets/gfx/symbolic/filemgr/location-sdcard.svg</file>
         <file>components/ProgressDialog.qml</file>
@@ -138,5 +137,7 @@
         <file>imports/Misc/FileTypes.qml</file>
         <file>imports/Misc/ErrorStrings.qml</file>
         <file>assets/fonts/ShareTech-Regular.ttf</file>
+        <file>assets/gfx/symbolic/filemgr/action-upload.svg</file>
+        <file>assets/gfx/symbolic/filemgr/action-download.svg</file>
     </qresource>
 </RCC>

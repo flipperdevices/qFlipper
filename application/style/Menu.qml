@@ -84,7 +84,7 @@ T.Menu {
 
     background: Rectangle {
         implicitWidth: 150
-        implicitHeight: 24
+        implicitHeight: 25
         border.width: 1
 
         color: Theme.color.darkorange1
