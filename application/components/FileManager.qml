@@ -266,7 +266,7 @@ Item {
     }
 
     Component.onCompleted: {
-        Backend.fileManager.refreshed.connect(function() {
+        Backend.fileManager.currentPathChanged.connect(function() {
             fileView.currentIndex = -1;
         });
     }

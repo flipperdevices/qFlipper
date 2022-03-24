@@ -8,6 +8,7 @@
 #include "flipperzero/utility/startrecoveryoperation.h"
 #include "flipperzero/utility/assetsdownloadoperation.h"
 #include "flipperzero/utility/factoryresetutiloperation.h"
+#include "flipperzero/utility/directorylistoperation.h"
 #include "flipperzero/utility/directoryuploadoperation.h"
 #include "flipperzero/utility/directorydownloadoperation.h"
 
@@ -60,6 +61,13 @@ RestartOperation *UtilityInterface::restartDevice()
 FactoryResetUtilOperation *UtilityInterface::factoryReset()
 {
     auto *operation = new FactoryResetUtilOperation(m_rpc, m_deviceState, this);
+    enqueueOperation(operation);
+    return operation;
+}
+
+DirectoryListOperation *UtilityInterface::listDirectory(const QByteArray &remotePath)
+{
+    auto *operation = new DirectoryListOperation(m_rpc, m_deviceState, remotePath, this);
     enqueueOperation(operation);
     return operation;
 }

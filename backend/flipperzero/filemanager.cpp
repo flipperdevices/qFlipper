@@ -21,6 +21,7 @@
 #include "rpc/storageremoveoperation.h"
 #include "rpc/storagerenameoperation.h"
 
+#include "utility/directorylistoperation.h"
 #include "utility/directoryuploadoperation.h"
 #include "utility/directorydownloadoperation.h"
 
@@ -38,6 +39,7 @@ FileManager::FileManager(QObject *parent):
     m_device(nullptr),
     m_busyTimer(new QTimer(this)),
     m_isBusy(false),
+    m_isSDCardPresent(false),
     m_newDirectoryIndex(-1)
 {
     m_busyTimer->setSingleShot(true);
@@ -294,19 +296,24 @@ void FileManager::listCurrentPath()
         return;
     }
 
-    auto *operation = m_device->rpc()->storageList(currentPath().toLocal8Bit());
+    auto *operation = m_device->utility()->listDirectory(currentPath().toLocal8Bit());
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
-        emit currentPathChanged();
-
         if(operation->isError()) {
             setError(BackendError::OperationError, operation->errorString());
             emit errorOccured();
+            return;
 
-        } else {
-            setModelData(operation->files());
-            emit refreshed();
+        } else if(operation->isSDCardPath() && !operation->isSDCardPresent()) {
+            reset();
+            listCurrentPath();
+            return;
         }
+
+        m_isSDCardPresent = operation->isSDCardPresent();
+
+        setModelData(operation->files());
+        emit currentPathChanged();
     });
 }
 
@@ -345,10 +352,8 @@ void FileManager::setModelData(const FileInfoList &newData)
     m_modelData = newData;
 
     if(isRoot()) {
-        const auto hasSDCard = m_device->deviceState()->deviceInfo().storage.isExternalPresent;
-
-        m_modelData.erase(std::remove_if(m_modelData.begin(), m_modelData.end(), [hasSDCard](const FileInfo &arg) {
-            return arg.absolutePath != QStringLiteral("/int") && (!hasSDCard || arg.absolutePath != QStringLiteral("/ext"));
+        m_modelData.erase(std::remove_if(m_modelData.begin(), m_modelData.end(), [this](const FileInfo &arg) {
+            return arg.absolutePath != QStringLiteral("/int") && (!m_isSDCardPresent || arg.absolutePath != QStringLiteral("/ext"));
         }), m_modelData.end());
 
     } else {

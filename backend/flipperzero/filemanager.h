@@ -80,7 +80,6 @@ signals:
     void isBusyChanged();
     void currentPathChanged();
     void newDirectoryIndexChanged();
-    void refreshed();
     void errorOccured();
 
 private slots:
@@ -112,7 +111,10 @@ private:
     QStringList m_history;
     QStringList m_forwardHistory;
     QTimer *m_busyTimer;
+
     bool m_isBusy;
+    bool m_isSDCardPresent;
+
     int m_newDirectoryIndex;
 };
 
