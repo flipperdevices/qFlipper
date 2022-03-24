@@ -88,7 +88,6 @@ struct DeviceInfo {
     Q_PROPERTY(QString systemLocation MEMBER systemLocation)
 
     Q_PROPERTY(Flipper::Zero::HardwareInfo hardware MEMBER hardware)
-    Q_PROPERTY(Flipper::Zero::SoftwareInfo bootloader MEMBER bootloader)
     Q_PROPERTY(Flipper::Zero::SoftwareInfo firmware MEMBER firmware)
     Q_PROPERTY(Flipper::Zero::StorageInfo storage MEMBER storage)
 
@@ -101,7 +100,6 @@ public:
     int stackType;
 
     HardwareInfo hardware;
-    SoftwareInfo bootloader;
     SoftwareInfo firmware;
     ProtobufInfo protobuf;
     StorageInfo storage;

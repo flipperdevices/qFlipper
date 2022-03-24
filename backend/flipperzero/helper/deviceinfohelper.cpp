@@ -130,14 +130,6 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
 
         m_deviceInfo.name = operation->value(QByteArrayLiteral("hardware_name"));
 
-        m_deviceInfo.bootloader = {
-            operation->value(QByteArrayLiteral("bootloader_version")),
-            operation->value(QByteArrayLiteral("bootloader_commit")),
-            operation->value(QByteArrayLiteral("bootloader_branch")),
-            branchToChannelName(operation->value(QByteArrayLiteral("bootloader_branch"))),
-            QDateTime::fromString(operation->value(QByteArrayLiteral("bootloader_build_date")), "dd-MM-yyyy").date()
-        };
-
         m_deviceInfo.firmware = {
             operation->value(QByteArrayLiteral("firmware_version")),
             operation->value(QByteArrayLiteral("firmware_commit")),
