@@ -14,6 +14,7 @@ public:
     StorageListOperation(uint32_t id, const QByteArray &path, QObject *parent = nullptr);
     const QString description() const override;
     const FileInfoList &files() const;
+    bool hasPath() const;
 
     const QByteArray encodeRequest(ProtobufPluginInterface *encoder) override;
 
@@ -22,6 +23,7 @@ private:
 
     QByteArray m_path;
     FileInfoList m_result;
+    bool m_hasPath;
 };
 
 }

@@ -99,6 +99,7 @@ private:
     void downloadFile(const QByteArray &remoteFileName, const QString &localFileName);
     void downloadDirectory(const QByteArray &remoteDirName, const QString &localDirName);
 
+    void setModelDataRoot();
     void setModelData(const FileInfoList &newData);
     void registerOperation(AbstractOperation *operation);
 
@@ -113,7 +114,7 @@ private:
     QTimer *m_busyTimer;
 
     bool m_isBusy;
-    bool m_isSDCardPresent;
+    bool m_hasSDCard;
 
     int m_newDirectoryIndex;
 };

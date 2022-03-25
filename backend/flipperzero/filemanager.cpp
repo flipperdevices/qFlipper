@@ -14,6 +14,7 @@
 
 #include "flipperzero/devicestate.h"
 
+#include "rpc/storageinfooperation.h"
 #include "rpc/storagelistoperation.h"
 #include "rpc/storagereadoperation.h"
 #include "rpc/storagewriteoperation.h"
@@ -21,7 +22,6 @@
 #include "rpc/storageremoveoperation.h"
 #include "rpc/storagerenameoperation.h"
 
-#include "utility/directorylistoperation.h"
 #include "utility/directoryuploadoperation.h"
 #include "utility/directorydownloadoperation.h"
 
@@ -39,7 +39,7 @@ FileManager::FileManager(QObject *parent):
     m_device(nullptr),
     m_busyTimer(new QTimer(this)),
     m_isBusy(false),
-    m_isSDCardPresent(false),
+    m_hasSDCard(false),
     m_newDirectoryIndex(-1)
 {
     m_busyTimer->setSingleShot(true);
@@ -294,27 +294,40 @@ void FileManager::listCurrentPath()
 {
     if(!m_device) {
         return;
+
+    } else if(isRoot()) {
+        auto *operation = m_device->rpc()->storageInfo(QByteArrayLiteral("/ext"));
+
+        connect(operation, &AbstractOperation::finished, this, [=]() {
+            if(operation->isError()) {
+                setError(BackendError::OperationError, operation->errorString());
+                emit errorOccured();
+
+            } else {
+                m_hasSDCard = operation->isPresent();
+                setModelDataRoot();
+                emit currentPathChanged();
+            }
+        });
+
+    } else {
+        auto *operation = m_device->rpc()->storageList(currentPath().toLocal8Bit());
+
+        connect(operation, &AbstractOperation::finished, this, [=]() {
+            if(operation->isError()) {
+                setError(BackendError::OperationError, operation->errorString());
+                emit errorOccured();
+
+            } else if(!operation->hasPath()) {
+                reset();
+                listCurrentPath();
+
+            } else {
+                setModelData(operation->files());
+                emit currentPathChanged();
+            }
+        });
     }
-
-    auto *operation = m_device->utility()->listDirectory(currentPath().toLocal8Bit());
-
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            setError(BackendError::OperationError, operation->errorString());
-            emit errorOccured();
-            return;
-
-        } else if(operation->isSDCardPath() && !operation->isSDCardPresent()) {
-            reset();
-            listCurrentPath();
-            return;
-        }
-
-        m_isSDCardPresent = operation->isSDCardPresent();
-
-        setModelData(operation->files());
-        emit currentPathChanged();
-    });
 }
 
 void FileManager::uploadFile(const QFileInfo &info)
@@ -345,33 +358,50 @@ void FileManager::downloadDirectory(const QByteArray &remoteDirName, const QStri
     registerOperation(m_device->utility()->downloadDirectory(localDirName, remoteFilePath(remoteDirName)));
 }
 
+void FileManager::setModelDataRoot()
+{
+    beginResetModel();
+
+    m_modelData.clear();
+
+    m_modelData.append({
+        QByteArrayLiteral("int"),
+        QByteArrayLiteral("/int"),
+        FileType::Directory,
+        0
+    });
+
+    if(m_hasSDCard) {
+        m_modelData.append({
+            QByteArrayLiteral("ext"),
+            QByteArrayLiteral("/ext"),
+            FileType::Directory,
+            0
+        });
+    }
+
+    endResetModel();
+}
+
 void FileManager::setModelData(const FileInfoList &newData)
 {
     beginResetModel();
 
     m_modelData = newData;
 
-    if(isRoot()) {
-        m_modelData.erase(std::remove_if(m_modelData.begin(), m_modelData.end(), [this](const FileInfo &arg) {
-            return arg.absolutePath != QStringLiteral("/int") && (!m_isSDCardPresent || arg.absolutePath != QStringLiteral("/ext"));
+    if(!globalPrefs->showHiddenFiles()) {
+        m_modelData.erase(std::remove_if(m_modelData.begin(), m_modelData.end(), [](const FileInfo &arg) {
+            return arg.name.startsWith('.');
         }), m_modelData.end());
-
-    } else {
-
-        if(!globalPrefs->showHiddenFiles()) {
-            m_modelData.erase(std::remove_if(m_modelData.begin(), m_modelData.end(), [](const FileInfo &arg) {
-                return arg.name.startsWith('.');
-            }), m_modelData.end());
-        }
-
-        std::sort(m_modelData.begin(), m_modelData.end(), [](const FileInfo &a, const FileInfo &b) {
-            if(a.type != b.type) {
-                return a.type < b.type;
-            } else {
-                return a.name.toLower() < b.name.toLower();
-            }
-        });
     }
+
+    std::sort(m_modelData.begin(), m_modelData.end(), [](const FileInfo &a, const FileInfo &b) {
+        if(a.type != b.type) {
+            return a.type < b.type;
+        } else {
+            return a.name.toLower() < b.name.toLower();
+        }
+    });
 
     endResetModel();
 }

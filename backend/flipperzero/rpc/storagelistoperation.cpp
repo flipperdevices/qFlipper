@@ -1,6 +1,8 @@
 #include "storagelistoperation.h"
 
 #include "protobufplugininterface.h"
+
+#include "mainresponseinterface.h"
 #include "storageresponseinterface.h"
 
 using namespace Flipper;
@@ -8,7 +10,8 @@ using namespace Zero;
 
 StorageListOperation::StorageListOperation(uint32_t id, const QByteArray &path, QObject *parent):
     AbstractProtobufOperation(id, parent),
-    m_path(path)
+    m_path(path),
+    m_hasPath(false)
 {}
 
 const QString StorageListOperation::description() const
@@ -21,6 +24,11 @@ const FileInfoList &StorageListOperation::files() const
     return m_result;
 }
 
+bool StorageListOperation::hasPath() const
+{
+    return m_hasPath;
+}
+
 const QByteArray StorageListOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
     return encoder->storageList(id(), m_path);
@@ -30,8 +38,10 @@ bool StorageListOperation::processResponse(QObject *response)
 {
     auto *listResponse = qobject_cast<StorageListResponseInterface*>(response);
 
-    if(!listResponse) {
-        return false;
+    m_hasPath = listResponse;
+
+    if(!m_hasPath) {
+        return qobject_cast<EmptyResponseInterface*>(response);
     }
 
     const auto &files = listResponse->files();
