@@ -65,12 +65,25 @@ rem Copy Microsoft Visual C++ redistributable packages
 copy /Y %VCREDIST2019_EXE% .
 copy /Y %VCREDIST2010_EXE% .
 
+if defined SIGNING_TOOL (
+    rem Sign the executables
+    call %SIGNING_TOOL% %DIST_DIR%\%TARGET%.exe || goto error
+    call %SIGNING_TOOL% %DIST_DIR%\%TARGET_CLI%.exe || goto error
+)
+
 rem Make the zip archive as well
 tar -a -cf %BUILD_DIR%\%TARGET%-%ARCH_BITS%bit.zip *
 
 rem Make the installer
 cd %PROJECT_DIR%
 %NSIS% /DNAME=%TARGET% /DARCH_BITS=%ARCH_BITS% installer_windows.nsi || goto error
+
+timeout /T 5 /NOBREAK > nul
+
+if defined SIGNING_TOOL (
+    rem Sign the installer
+    call %SIGNING_TOOL% %BUILD_DIR%\%TARGET%Setup-%ARCH_BITS%bit.exe || goto error
+)
 
 echo The resulting installer is %BUILD_DIR%\%TARGET%Setup-%ARCH_BITS%bit.exe.
 echo Finished.
