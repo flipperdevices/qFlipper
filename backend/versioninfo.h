@@ -5,6 +5,12 @@
 
 class VersionInfo
 {
+    enum VersionIndex {
+        VersionMajor = 0,
+        VersionMinor,
+        VersionSub
+    };
+
 public:
     VersionInfo();
     VersionInfo(int major, int minor, int sub);
@@ -33,9 +39,14 @@ public:
 
     QString toString() const;
 
-//    bool operator >(const VersionInfo &other) const;
+    bool operator >(const VersionInfo &other) const;
 
 private:
+    bool isVersionGreaterThan(const VersionInfo &other) const;
+    bool isRCNumGreaterThan(const VersionInfo &other) const;
+    bool isDateGreaterThan(const VersionInfo &other) const;
+    bool isCommitDifferent(const VersionInfo &other) const;
+
     QVector<int> m_version;
     int m_rc;
 

@@ -121,17 +121,17 @@ bool VersionInfo::isReleaseCandidate() const
 
 int VersionInfo::major() const
 {
-    return m_version[0];
+    return m_version[VersionMajor];
 }
 
 int VersionInfo::minor() const
 {
-    return m_version[1];
+    return m_version[VersionMinor];
 }
 
 int VersionInfo::sub() const
 {
-    return m_version[2];
+    return m_version[VersionSub];
 }
 
 int VersionInfo::rc() const
@@ -178,44 +178,54 @@ QString VersionInfo::toString() const
     }
 }
 
-//bool VersionInfo::operator >(const VersionInfo &other) const
-//{
-//    if(!isValid() || !other.isValid()) {
-//        return false;
+bool VersionInfo::isVersionGreaterThan(const VersionInfo &other) const
+{
+    return (major() > other.major()) || ((major() == other.major()) && (minor() > other.minor() || (minor() == other.minor() && sub() > other.sub())));
+}
 
-//    } else if(other.isDevelopment()) {
-//        if(isDevelopment()) {
+bool VersionInfo::isRCNumGreaterThan(const VersionInfo &other) const
+{
+    return rc() > other.rc();
+}
 
-//        } else if(isReleaseCandidate()) {
+bool VersionInfo::isDateGreaterThan(const VersionInfo &other) const
+{
+    return other.date().daysTo(date()) > 0;
+}
 
-//        } else {
+bool VersionInfo::isCommitDifferent(const VersionInfo &other) const
+{
+    return commit() != other.commit();
+}
 
-//        }
+bool VersionInfo::operator >(const VersionInfo &other) const
+{
+    if(!isValid() || !other.isValid()) {
+        return false;
 
-//    } else if(other.isReleaseCandidate()) {
-//        if(isDevelopment()) {
+    } else if(other.isDevelopment()) {
+        if(isDevelopment()) {
+            return isCommitDifferent(other) || isDateGreaterThan(other);
+        } else {
+            return isDateGreaterThan(other);
+        }
 
-//        } else if(isReleaseCandidate()) {
+    } else if(other.isReleaseCandidate()) {
+        if(isDevelopment()) {
+            return isDateGreaterThan(other);
+        } else if(isReleaseCandidate()) {
+            return isVersionGreaterThan(other) || isRCNumGreaterThan(other);
+        } else {
+            return isVersionGreaterThan(other);
+        }
 
-//        } else {
-
-//        }
-
-//    } else {
-//        if(isDevelopment()) {
-
-//        } else if(isReleaseCandidate()) {
-
-//        } else {
-//            if(major() != other.major()) {
-//                return major() > other.major();
-//            } else if(minor() != other.minor()) {
-//                return minor() > other.minor();
-//            } else {
-//                return sub() > other.sub();
-//            }
-//        }
-//    }
-
-//    return false;
-//}
+    } else {
+        if(isDevelopment()) {
+            return isDateGreaterThan(other);
+        } else if(isReleaseCandidate()) {
+            return isVersionGreaterThan(other);
+        } else {
+            return isVersionGreaterThan(other);
+        }
+    }
+}
