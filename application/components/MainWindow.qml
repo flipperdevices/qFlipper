@@ -4,6 +4,8 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.15
 
+import Qt.labs.platform 1.1 as Pf
+
 import Theme 1.0
 import QFlipper 1.0
 
@@ -44,6 +46,22 @@ Item {
 
     x: shadowSize
     y: shadowSize - shadowOffset
+
+    Pf.Menu {
+        Pf.MenuItem {
+            text: qsTr("Check for updates")
+            role: Pf.MenuItem.ApplicationSpecificRole
+            shortcut: "Ctrl+U"
+            onTriggered: App.checkForUpdates()
+        }
+
+        Pf.MenuItem {
+            text: qsTr("Refresh firmware")
+            role: Pf.MenuItem.ApplicationSpecificRole
+            shortcut: "Ctrl+R"
+            onTriggered: Backend.checkFirmwareUpdates()
+        }
+    }
 
     PropertyAnimation {
         id: logExpand
