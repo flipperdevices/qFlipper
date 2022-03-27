@@ -1,33 +1,79 @@
-Unicode true
+; qFlipper Windows Installer Build Script 
+; requires NullSoft Installer 3.08 or later
 
-SetCompressor /solid /final lzma
+;--------------------------------
+;Include Modern UI
 
-!define /ifndef NAME "qFlipper"
-!define /ifndef ARCH_BITS 64
-!define UNINSTALL_EXE "$INSTDIR\uninstall.exe"
-!define VCREDIST2019_EXE "$INSTDIR\vcredist_msvc2019_x${ARCH_BITS}.exe"
-!define VCREDIST2010_EXE "$INSTDIR\vcredist_x${ARCH_BITS}.exe"
-!define UNINSTALL_REG_PATH "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
-!define STM32_DRIVER_PATH "$INSTDIR\STM32 Driver"
+  !include "MUI2.nsh"
+  !include nsDialogs.nsh
 
-!include "FileFunc.nsh"
-!include "x64.nsh"
+;--------------------------------
+;General
 
-Name ${NAME}
-Icon "installer-assets\icons\${NAME}-installer.ico"
+  Unicode true
+  
+  ;Compression algorithm used to compress files/data in the installer
+  SetCompressor /solid /final lzma
 
-OutFile "build\${NAME}Setup-${ARCH_BITS}bit.exe"
-InstallDir "$PROGRAMFILES64\${NAME}"
+  !define /ifndef NAME "qFlipper"
+  !define /ifndef ARCH_BITS 64
+  !define UNINSTALL_EXE "$INSTDIR\uninstall.exe"
+  !define VCREDIST2019_EXE "$INSTDIR\vcredist_msvc2019_x${ARCH_BITS}.exe"
+  !define VCREDIST2010_EXE "$INSTDIR\vcredist_x${ARCH_BITS}.exe"
+  !define UNINSTALL_REG_PATH "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
+  !define STM32_DRIVER_PATH "$INSTDIR\STM32 Driver"
 
-Page license
-Page directory
-Page components
-Page instfiles
+  ; Include File Functions Header
+  !include "FileFunc.nsh"
 
-UninstPage uninstConfirm
-UninstPage instfiles
+  ; Include macros to handle installations on x64 machines
+  !include "x64.nsh"
 
-LicenseData LICENSE
+  Name ${NAME}
+  OutFile "build\${NAME}Setup-${ARCH_BITS}bit.exe"
+
+  ; Default installation Dir. On Windows it will be C:\Program Files\qFlipper
+  InstallDir "$PROGRAMFILES64\${NAME}"
+
+  ; TODO: FIX THE  REGISTRY PATH
+  ;Get installation folder from registry if available
+  ;InstallDirRegKey HKCU "Software\Modern UI Test" ""
+
+  
+  !define MUI_ICON "installer-assets\icons\${NAME}-installer.ico"
+
+
+;--------------------------------
+;Installer wizard pages
+
+  !define MUI_HEADERIMAGE
+  !define MUI_HEADERIMAGE_BITMAP "installer-assets\backgrounds\windows_installer_header.bmp"
+  !define MUI_HEADERIMAGE_UNBITMAP "installer-assets\backgrounds\windows_uninstaller_header.bmp"
+
+  ; Welcome and Finish page settings
+  !define MUI_WELCOMEPAGE_TITLE  "Welcome to qFlipepr Installer"
+  !define MUI_WELCOMEPAGE_TEXT "qFlipepr is a desktop application for updating Flipper Zero firmware and databases. Its open source and developed by Flipper Devices. Distrubted under GPL v3 License."
+  !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_installer_welcome.bmp"
+  !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_uninstaller_welcome.bmp"
+  !insertmacro MUI_PAGE_WELCOME
+
+  !insertmacro MUI_PAGE_COMPONENTS
+  !insertmacro MUI_PAGE_DIRECTORY
+  !insertmacro MUI_PAGE_INSTFILES
+  !insertmacro MUI_PAGE_FINISH
+
+  !insertmacro MUI_UNPAGE_WELCOME
+  !insertmacro MUI_UNPAGE_CONFIRM
+  !insertmacro MUI_UNPAGE_INSTFILES
+  !insertmacro MUI_UNPAGE_FINISH
+
+;--------------------------------
+; Languages
+
+  !insertmacro MUI_LANGUAGE "English"
+
+;--------------------------------
+;Installer Sections
 
 Section "-Main Application"
 	IfFileExists "${UNINSTALL_EXE}" 0 +2
@@ -49,17 +95,17 @@ Section "-Main Application"
 	WriteRegDWORD HKLM "${UNINSTALL_REG_PATH}" "NoRepair" 1
 SectionEnd
 
-Section "USB Driver"
+Section "USB DFU Driver" UsbDriverSection
 	${DisableX64FSRedirection}
 	nsExec::ExecToLog '"$SYSDIR\pnputil.exe" /add-driver "${STM32_DRIVER_PATH}\STM32Bootloader.inf" /install'
 	${EnableX64FSRedirection}
 SectionEnd
 
-Section "Start menu entry"
+Section "Start menu entry" StartMenuSection
 	CreateShortCut "$SMPROGRAMS\${NAME}.lnk" "$INSTDIR\${NAME}.exe"
 SectionEnd
 
-Section "Desktop shortcut"
+Section "Desktop shortcut" DesktopShortcutSection
 	CreateShortCut "$DESKTOP\${NAME}.lnk" "$INSTDIR\${NAME}.exe"
 SectionEnd
 
@@ -72,6 +118,25 @@ Section "-Cleanup"
 	IntFmt $0 "0x%08X" $0
 	WriteRegDWORD HKLM "${UNINSTALL_REG_PATH}" "EstimatedSize" "$0"
 SectionEnd
+
+
+;--------------------------------
+; Descriptions
+; A text hovers over a component on choosing components to install on MUI_PAGE_COMPONENTS
+   
+  ;Language strings
+  LangString DESC_UsbDriverSection ${LANG_ENGLISH} "STM32 Bootloader Driver for Flipper DFU mode"
+  LangString DESC_StartMenuSection ${LANG_ENGLISH} "Add qFlipper to Windows Start menu"
+  LangString DESC_DesktopShortcutSection ${LANG_ENGLISH} "Create qFlipper shortcut on Desktop"
+  ;Assign language strings to sections
+  !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+    !insertmacro MUI_DESCRIPTION_TEXT ${UsbDriverSection} $(DESC_UsbDriverSection)
+    !insertmacro MUI_DESCRIPTION_TEXT ${StartMenuSection} $(DESC_StartMenuSection)
+    !insertmacro MUI_DESCRIPTION_TEXT ${DesktopShortcutSection} $(DESC_DesktopShortcutSection)
+  !insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+;--------------------------------
+;Uninstaller Section
 
 Section "Uninstall"
 	Delete "$DESKTOP\${NAME}.lnk"
