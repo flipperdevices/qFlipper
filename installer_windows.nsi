@@ -5,7 +5,6 @@
 ;Include Modern UI
 
   !include "MUI2.nsh"
-  !include nsDialogs.nsh
 
 ;--------------------------------
 ;General
@@ -54,7 +53,7 @@
   !define MUI_WELCOMEPAGE_TITLE  "Welcome to qFlipepr Installer"
   !define MUI_WELCOMEPAGE_TEXT "qFlipepr is a desktop application for updating Flipper Zero firmware and databases. Its open source and developed by Flipper Devices. Distrubted under GPL v3 License."
   !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_installer_welcome.bmp"
-  !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_uninstaller_welcome.bmp"
+  !define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_uninstaller_welcome.bmp"
   !insertmacro MUI_PAGE_WELCOME
 
   !insertmacro MUI_PAGE_COMPONENTS
