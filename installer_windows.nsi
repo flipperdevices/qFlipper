@@ -31,8 +31,7 @@
   Name ${NAME}
   OutFile "build\${NAME}Setup-${ARCH_BITS}bit.exe"
 
-  ; Get version tag from git
-  ; will be used in titles
+  ; Get version tag from git. Will be used in titles
   !tempfile StdOut
   !echo "${StdOut}"
   !system '"git" describe --tags --abbrev=0 > "${StdOut}"'
@@ -55,7 +54,7 @@
 ;Installer wizard pages
 
   ; Global window title 
-  Caption "qFLipper ${VERSION} Setup"
+  Caption "qFlipper ${VERSION} Setup"
 
   !define MUI_HEADERIMAGE
   !define MUI_HEADERIMAGE_BITMAP "installer-assets\backgrounds\windows_installer_header.bmp"
@@ -63,11 +62,11 @@
 
   ; Welcome and Finish page settings
   !define MUI_WELCOMEPAGE_TITLE  "Welcome to qFlipepr ${VERSION} Setup"
-  !define MUI_WELCOMEPAGE_TEXT "qFlipepr is a desktop application for updating Flipper Zero firmware and databases. Its open source and developed by Flipper Devices. Distrubted under GPL v3 License."
+  !define MUI_WELCOMEPAGE_TEXT "qFlipepr is a desktop application for updating Flipper Zero firmware and databases, manage files on SD card, and repair corrupted device.$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\nCredits$\r$\nCode:   Georgii Surkov$\r$\nDesign: Valerie Aquamine, Dmitry Pavlov$\n$\r$\nOpen Source and Distrubted under GPL v3 License$\r$\nCopyright (C) 2022 Flipper Devices Inc."
   !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_installer_welcome.bmp"
   !define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_uninstaller_welcome.bmp"
   !insertmacro MUI_PAGE_WELCOME
-
+ 
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
