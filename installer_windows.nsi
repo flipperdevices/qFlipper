@@ -42,11 +42,11 @@
   ; Default installation Dir. On Windows it will be C:\Program Files\qFlipper
   InstallDir "$PROGRAMFILES64\${NAME}"
 
-  ; TODO: FIX THE  REGISTRY PATH
-  ;Get installation folder from registry if available
-  ;InstallDirRegKey HKCU "Software\Modern UI Test" ""
+  ; Get installation folder from registry if available
+  ; Variables not supported here
+  InstallDirRegKey HKLM "Software\qFlipper" ""
 
-  
+  ; Installer Icon on left window corner and exe file
   !define MUI_ICON "installer-assets\icons\${NAME}-installer.ico"
 
 
