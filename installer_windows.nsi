@@ -31,6 +31,15 @@
   Name ${NAME}
   OutFile "build\${NAME}Setup-${ARCH_BITS}bit.exe"
 
+  ; Get version tag from git
+  ; will be used in titles
+  !tempfile StdOut
+  !echo "${StdOut}"
+  !system '"git" describe --tags --abbrev=0 > "${StdOut}"'
+  !define /file VERSION "${StdOut}"
+  !delfile "${StdOut}"
+  !undef StdOut
+
   ; Default installation Dir. On Windows it will be C:\Program Files\qFlipper
   InstallDir "$PROGRAMFILES64\${NAME}"
 
@@ -45,12 +54,15 @@
 ;--------------------------------
 ;Installer wizard pages
 
+  ; Global window title 
+  Caption "qFLipper ${VERSION} Setup"
+
   !define MUI_HEADERIMAGE
   !define MUI_HEADERIMAGE_BITMAP "installer-assets\backgrounds\windows_installer_header.bmp"
   !define MUI_HEADERIMAGE_UNBITMAP "installer-assets\backgrounds\windows_uninstaller_header.bmp"
 
   ; Welcome and Finish page settings
-  !define MUI_WELCOMEPAGE_TITLE  "Welcome to qFlipepr Installer"
+  !define MUI_WELCOMEPAGE_TITLE  "Welcome to qFlipepr ${VERSION} Setup"
   !define MUI_WELCOMEPAGE_TEXT "qFlipepr is a desktop application for updating Flipper Zero firmware and databases. Its open source and developed by Flipper Devices. Distrubted under GPL v3 License."
   !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_installer_welcome.bmp"
   !define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_uninstaller_welcome.bmp"
@@ -59,6 +71,12 @@
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
+
+  !define MUI_FINISHPAGE_TITLE "qFlipper ${VERSION} Setup Complete"
+  !define MUI_FINISHPAGE_RUN "$INSTDIR\${NAME}.exe"
+  !define MUI_FINISHPAGE_RUN_TEXT "Run qFlipper now"
+  !define MUI_FINISHPAGE_LINK "More Info --> Flipper Zero Documentation"
+  !define MUI_FINISHPAGE_LINK_LOCATION "https://docs.flipperzero.one"
   !insertmacro MUI_PAGE_FINISH
 
   !insertmacro MUI_UNPAGE_WELCOME
