@@ -49,6 +49,8 @@
   ; Installer Icon on left window corner and exe file
   !define MUI_ICON "installer-assets\icons\${NAME}-installer.ico"
 
+  ; Enable scaling for high DPI screen
+  ManifestDPIAware true
 
 ;--------------------------------
 ;Installer wizard pages
@@ -66,9 +68,9 @@
   !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_installer_welcome.bmp"
   !define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_uninstaller_welcome.bmp"
   !insertmacro MUI_PAGE_WELCOME
- 
+
+  !insertmacro MUI_PAGE_DIRECTORY 
   !insertmacro MUI_PAGE_COMPONENTS
-  !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
 
   !define MUI_FINISHPAGE_TITLE "qFlipper ${VERSION} Setup Complete"
