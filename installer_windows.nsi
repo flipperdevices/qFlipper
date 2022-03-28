@@ -125,11 +125,7 @@
         StrCpy $0 96
     ${EndIf}
 
-    ${Unless} $0 == 120
-    ${AndUnless} $0 == 144
-    ${AndUnless} $0 == 168
-    ${AndUnless} $0 == 192
-    ${AndUnless} $0 >= 216
+    ${If} $0 >= 216
         StrCpy $0 216
     ${EndIf}
 
