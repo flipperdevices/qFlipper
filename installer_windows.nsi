@@ -67,7 +67,7 @@
   !define MUI_WELCOMEPAGE_TEXT "qFlipepr is a desktop application for updating Flipper Zero firmware and databases, manage files on SD card, and repair corrupted device.$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\nCredits$\r$\nCode:   Georgii Surkov$\r$\nDesign: Valerie Aquamine, Dmitry Pavlov$\n$\r$\nOpen Source and Distrubted under GPL v3 License$\r$\nCopyright (C) 2022 Flipper Devices Inc."
   !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_installer_welcome.bmp"
   !define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_uninstaller_welcome.bmp"
-  !define MUI_PAGE_CUSTOMFUNCTION_SHOW showHiDpi ; HiDpi replace image hack
+  !define MUI_PAGE_CUSTOMFUNCTION_SHOW showHiDpi ; HiDpi replace image hack for welcome page
   !insertmacro MUI_PAGE_WELCOME
 
   !insertmacro MUI_PAGE_DIRECTORY 
@@ -79,12 +79,12 @@
   !define MUI_FINISHPAGE_RUN_TEXT "Run qFlipper now"
   !define MUI_FINISHPAGE_LINK "More Info --> Flipper Zero Documentation"
   !define MUI_FINISHPAGE_LINK_LOCATION "https://docs.flipperzero.one"
+  !define MUI_PAGE_CUSTOMFUNCTION_SHOW showHiDpi ; HiDpi replace image hack for finish page
   !insertmacro MUI_PAGE_FINISH
 
   !insertmacro MUI_UNPAGE_WELCOME
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_INSTFILES
-  !define MUI_PAGE_CUSTOMFUNCTION_SHOW showHiDpi ; HiDpi replace image hack
   !insertmacro MUI_UNPAGE_FINISH
 
 ;--------------------------------
