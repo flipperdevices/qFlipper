@@ -90,8 +90,8 @@
 ;--------------------------------
 ; Initialize images files for HiDpi hack on every installer start
 
-  InitPluginsDir
   Function .onInit
+    InitPluginsDir
     File /oname=$PLUGINSDIR\windows_installer_welcome96.bmp installer-assets\backgrounds\windows_installer_welcome96.bmp
     File /oname=$PLUGINSDIR\windows_installer_welcome120.bmp installer-assets\backgrounds\windows_installer_welcome120.bmp
     File /oname=$PLUGINSDIR\windows_installer_welcome144.bmp installer-assets\backgrounds\windows_installer_welcome144.bmp
