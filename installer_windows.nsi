@@ -63,10 +63,11 @@
   !define MUI_HEADERIMAGE_UNBITMAP "installer-assets\backgrounds\windows_uninstaller_header.bmp"
 
   ; Welcome and Finish page settings
-  !define MUI_WELCOMEPAGE_TITLE  "Welcome to qFlipepr ${VERSION} Setup"
+  !define MUI_WELCOMEPAGE_TITLE  "Welcome to qFlipper ${VERSION} Setup"
   !define MUI_WELCOMEPAGE_TEXT "qFlipepr is a desktop application for updating Flipper Zero firmware and databases, manage files on SD card, and repair corrupted device.$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\nCredits$\r$\nCode:   Georgii Surkov$\r$\nDesign: Valerie Aquamine, Dmitry Pavlov$\n$\r$\nOpen Source and Distrubted under GPL v3 License$\r$\nCopyright (C) 2022 Flipper Devices Inc."
   !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_installer_welcome.bmp"
   !define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_uninstaller_welcome.bmp"
+  !define MUI_PAGE_CUSTOMFUNCTION_SHOW showHiDpi ; HiDpi replace image hack
   !insertmacro MUI_PAGE_WELCOME
 
   !insertmacro MUI_PAGE_DIRECTORY 
@@ -83,7 +84,42 @@
   !insertmacro MUI_UNPAGE_WELCOME
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_INSTFILES
+  !define MUI_PAGE_CUSTOMFUNCTION_SHOW showHiDpi ; HiDpi replace image hack
   !insertmacro MUI_UNPAGE_FINISH
+
+;--------------------------------
+; Initialize images files for HiDpi hack on every installer start
+Function .onInit
+    File /oname=$PLUGINSDIR\windows_installer_welcome96.bmp installer-assets\backgrounds\windows_installer_welcome96.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome120.bmp installer-assets\backgrounds\windows_installer_welcome120.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome144.bmp installer-assets\backgrounds\windows_installer_welcome144.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome192.bmp installer-assets\backgrounds\windows_installer_welcome192.bmp
+
+    File /oname=$PLUGINSDIR\windows_installer_header96.bmp installer-assets\backgrounds\windows_installer_header96.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header120.bmp installer-assets\backgrounds\windows_installer_header120.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header144.bmp installer-assets\backgrounds\windows_installer_header144.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header192.bmp installer-assets\backgrounds\windows_installer_header192.bmp
+FunctionEnd
+
+; Function for dirty hijack image depends on DPI
+Function showHiDpi
+    System::Call USER32::GetDpiForSystem()i.r0 
+    ${If} $0 U<= 0 
+        System::Call USER32::GetDC(i0)i.r1 
+        System::Call GDI32::GetDeviceCaps(ir1,i88)i.r0 
+        System::Call USER32::ReleaseDC(i0,ir1) 
+    ${EndIf} 
+
+    ${Unless} $0 == 120
+    ${AndUnless} $0 == 144
+    ${AndUnless} $0 == 192
+        StrCpy $0 96
+    ${EndIf}
+
+    ${NSD_SetImage} $mui.WelcomePage.Image $PLUGINSDIR\windows_installer_welcome$0.bmp $mui.WelcomePage.Image.Bitmap
+    ${NSD_SetImage} $mui.FinishPage.Image $PLUGINSDIR\windows_installer_welcome$0.bmp $mui.FinishPage.Image.Bitmap
+    SetBrandingImage /IMGID=1046 "$PLUGINSDIR\windows_installer_header$0.bmp"
+FunctionEnd 
 
 ;--------------------------------
 ; Languages
