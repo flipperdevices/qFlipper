@@ -28,6 +28,9 @@
   ; Include macros to handle installations on x64 machines
   !include "x64.nsh"
 
+  ; Logic operators lib for calculating DPI
+  !include 'LogicLib.nsh'
+
   Name ${NAME}
   OutFile "build\${NAME}Setup-${ARCH_BITS}bit.exe"
 
@@ -64,7 +67,7 @@
 
   ; Welcome and Finish page settings
   !define MUI_WELCOMEPAGE_TITLE  "Welcome to qFlipper ${VERSION} Setup"
-  !define MUI_WELCOMEPAGE_TEXT "qFlipepr is a desktop application for updating Flipper Zero firmware and databases, manage files on SD card, and repair corrupted device.$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\nCredits$\r$\nCode:   Georgii Surkov$\r$\nDesign: Valerie Aquamine, Dmitry Pavlov$\n$\r$\nOpen Source and Distrubted under GPL v3 License$\r$\nCopyright (C) 2022 Flipper Devices Inc."
+  !define MUI_WELCOMEPAGE_TEXT "qFlipper is a desktop application for updating Flipper Zero firmware and databases, manage files on SD card, and repair corrupted device.$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\nCredits$\r$\nCode:   Georgii Surkov$\r$\nDesign: Valerie Aquamine, Dmitry Pavlov$\n$\r$\nOpen Source and Distrubted under GPL v3 License$\r$\nCopyright (C) 2022 Flipper Devices Inc."
   !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_installer_welcome.bmp"
   !define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_uninstaller_welcome.bmp"
   !define MUI_PAGE_CUSTOMFUNCTION_SHOW showHiDpi ; HiDpi replace image hack for welcome page
@@ -89,18 +92,24 @@
 
 ;--------------------------------
 ; Initialize images files for HiDpi hack on every installer start
+; Refers to https://gist.github.com/sredna/c294cdf9014e03d8cd6f8bd4a39437ec
+; http://forums.winamp.com/showthread.php?t=443754
 
   Function .onInit
     InitPluginsDir
     File /oname=$PLUGINSDIR\windows_installer_welcome96.bmp installer-assets\backgrounds\windows_installer_welcome96.bmp
     File /oname=$PLUGINSDIR\windows_installer_welcome120.bmp installer-assets\backgrounds\windows_installer_welcome120.bmp
     File /oname=$PLUGINSDIR\windows_installer_welcome144.bmp installer-assets\backgrounds\windows_installer_welcome144.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome168.bmp installer-assets\backgrounds\windows_installer_welcome168.bmp
     File /oname=$PLUGINSDIR\windows_installer_welcome192.bmp installer-assets\backgrounds\windows_installer_welcome192.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome216.bmp installer-assets\backgrounds\windows_installer_welcome216.bmp
 
     File /oname=$PLUGINSDIR\windows_installer_header96.bmp installer-assets\backgrounds\windows_installer_header96.bmp
     File /oname=$PLUGINSDIR\windows_installer_header120.bmp installer-assets\backgrounds\windows_installer_header120.bmp
     File /oname=$PLUGINSDIR\windows_installer_header144.bmp installer-assets\backgrounds\windows_installer_header144.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header168.bmp installer-assets\backgrounds\windows_installer_header168.bmp
     File /oname=$PLUGINSDIR\windows_installer_header192.bmp installer-assets\backgrounds\windows_installer_header192.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header216.bmp installer-assets\backgrounds\windows_installer_header216.bmp
   FunctionEnd
 
 ; Function for dirty hijack image depends on DPI
@@ -112,10 +121,16 @@
         System::Call USER32::ReleaseDC(i0,ir1) 
     ${EndIf} 
 
+    ${If} $0 U< 120
+        StrCpy $0 96
+    ${EndIf}
+
     ${Unless} $0 == 120
     ${AndUnless} $0 == 144
+    ${AndUnless} $0 == 168
     ${AndUnless} $0 == 192
-        StrCpy $0 96
+    ${AndUnless} $0 >= 216
+        StrCpy $0 216
     ${EndIf}
 
     ${NSD_SetImage} $mui.WelcomePage.Image $PLUGINSDIR\windows_installer_welcome$0.bmp $mui.WelcomePage.Image.Bitmap
