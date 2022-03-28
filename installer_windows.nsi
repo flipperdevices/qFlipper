@@ -89,7 +89,9 @@
 
 ;--------------------------------
 ; Initialize images files for HiDpi hack on every installer start
-Function .onInit
+
+  InitPluginsDir
+  Function .onInit
     File /oname=$PLUGINSDIR\windows_installer_welcome96.bmp installer-assets\backgrounds\windows_installer_welcome96.bmp
     File /oname=$PLUGINSDIR\windows_installer_welcome120.bmp installer-assets\backgrounds\windows_installer_welcome120.bmp
     File /oname=$PLUGINSDIR\windows_installer_welcome144.bmp installer-assets\backgrounds\windows_installer_welcome144.bmp
@@ -99,10 +101,10 @@ Function .onInit
     File /oname=$PLUGINSDIR\windows_installer_header120.bmp installer-assets\backgrounds\windows_installer_header120.bmp
     File /oname=$PLUGINSDIR\windows_installer_header144.bmp installer-assets\backgrounds\windows_installer_header144.bmp
     File /oname=$PLUGINSDIR\windows_installer_header192.bmp installer-assets\backgrounds\windows_installer_header192.bmp
-FunctionEnd
+  FunctionEnd
 
 ; Function for dirty hijack image depends on DPI
-Function showHiDpi
+  Function showHiDpi
     System::Call USER32::GetDpiForSystem()i.r0 
     ${If} $0 U<= 0 
         System::Call USER32::GetDC(i0)i.r1 
@@ -119,7 +121,7 @@ Function showHiDpi
     ${NSD_SetImage} $mui.WelcomePage.Image $PLUGINSDIR\windows_installer_welcome$0.bmp $mui.WelcomePage.Image.Bitmap
     ${NSD_SetImage} $mui.FinishPage.Image $PLUGINSDIR\windows_installer_welcome$0.bmp $mui.FinishPage.Image.Bitmap
     SetBrandingImage /IMGID=1046 "$PLUGINSDIR\windows_installer_header$0.bmp"
-FunctionEnd 
+  FunctionEnd 
 
 ;--------------------------------
 ; Languages
