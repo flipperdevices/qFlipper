@@ -121,10 +121,12 @@
         System::Call USER32::ReleaseDC(i0,ir1) 
     ${EndIf} 
 
+    ; If DPI lower than, set max pic size
     ${If} $0 U< 120
         StrCpy $0 96
     ${EndIf}
-
+    
+    ; If DPI greater or equal 216, set max pic size
     ${If} $0 >= 216
         StrCpy $0 216
     ${EndIf}
