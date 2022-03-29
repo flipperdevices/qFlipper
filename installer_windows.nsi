@@ -217,6 +217,10 @@ SectionEnd
     ${If} $R0 != ""  
       StrCpy $INSTDIR $R0
     ${EndIf}
+
+    ; Enable install log, need NSIS special build https://nsis.sourceforge.io/Special_Builds
+    LogSet on
+
  
     ;-------------------------------
     ; Initialize images files for HiDpi hack on every installer start
