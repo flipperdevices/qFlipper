@@ -1,5 +1,7 @@
 ; qFlipper Windows Installer Build Script 
 ; requires NullSoft Installer 3.08 or later
+; Reference http://kkmalar.org/WebApplication/qz-print-2.0.0-RC1/ant/windows/windows-packager.nsi.in
+
 
 ;--------------------------------
 ;Include Modern UI
@@ -45,10 +47,6 @@
   ; Default installation Dir. On Windows it will be C:\Program Files\qFlipper
   InstallDir "$PROGRAMFILES64\${NAME}"
 
-  ; Get installation folder from registry if available
-  ; Override the InstallDir if found. !!! Variables not supported here
-  InstallDirRegKey HKLM "Software\qFlipper" "InstallLocation"
-
   ; Installer Icon on left window corner and exe file
   !define MUI_ICON "installer-assets\icons\${NAME}-installer.ico"
 
@@ -91,52 +89,6 @@
   !insertmacro MUI_UNPAGE_FINISH
 
 ;--------------------------------
-; Initialize images files for HiDpi hack on every installer start
-; Refers to https://gist.github.com/sredna/c294cdf9014e03d8cd6f8bd4a39437ec
-; http://forums.winamp.com/showthread.php?t=443754
-
-  Function .onInit
-    InitPluginsDir
-    File /oname=$PLUGINSDIR\windows_installer_welcome96.bmp installer-assets\backgrounds\windows_installer_welcome96.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome120.bmp installer-assets\backgrounds\windows_installer_welcome120.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome144.bmp installer-assets\backgrounds\windows_installer_welcome144.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome168.bmp installer-assets\backgrounds\windows_installer_welcome168.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome192.bmp installer-assets\backgrounds\windows_installer_welcome192.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome216.bmp installer-assets\backgrounds\windows_installer_welcome216.bmp
-
-    File /oname=$PLUGINSDIR\windows_installer_header96.bmp installer-assets\backgrounds\windows_installer_header96.bmp
-    File /oname=$PLUGINSDIR\windows_installer_header120.bmp installer-assets\backgrounds\windows_installer_header120.bmp
-    File /oname=$PLUGINSDIR\windows_installer_header144.bmp installer-assets\backgrounds\windows_installer_header144.bmp
-    File /oname=$PLUGINSDIR\windows_installer_header168.bmp installer-assets\backgrounds\windows_installer_header168.bmp
-    File /oname=$PLUGINSDIR\windows_installer_header192.bmp installer-assets\backgrounds\windows_installer_header192.bmp
-    File /oname=$PLUGINSDIR\windows_installer_header216.bmp installer-assets\backgrounds\windows_installer_header216.bmp
-  FunctionEnd
-
-; Function for dirty hijack image depends on DPI
-  Function showHiDpi
-    System::Call USER32::GetDpiForSystem()i.r0 
-    ${If} $0 U<= 0 
-        System::Call USER32::GetDC(i0)i.r1 
-        System::Call GDI32::GetDeviceCaps(ir1,i88)i.r0 
-        System::Call USER32::ReleaseDC(i0,ir1) 
-    ${EndIf} 
-
-    ; If DPI lower than, set max pic size
-    ${If} $0 U< 120
-        StrCpy $0 96
-    ${EndIf}
-    
-    ; If DPI greater or equal 216, set max pic size
-    ${If} $0 >= 216
-        StrCpy $0 216
-    ${EndIf}
-
-    ${NSD_SetImage} $mui.WelcomePage.Image $PLUGINSDIR\windows_installer_welcome$0.bmp $mui.WelcomePage.Image.Bitmap
-    ${NSD_SetImage} $mui.FinishPage.Image $PLUGINSDIR\windows_installer_welcome$0.bmp $mui.FinishPage.Image.Bitmap
-    SetBrandingImage /IMGID=1046 "$PLUGINSDIR\windows_installer_header$0.bmp"
-  FunctionEnd 
-
-;--------------------------------
 ; Languages
 
   !insertmacro MUI_LANGUAGE "English"
@@ -160,7 +112,7 @@ Section "-Main Application"
 
 	WriteUninstaller "${UNINSTALL_EXE}"
 
-    WriteRegStr HKLM "Software\qFlipper" "InstallLocation" $INSTDIR ; Save real install dir for update
+    WriteRegStr HKLM "Software\qFlipper" "" $INSTDIR ; Save real install path for next update
     WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayName" "${NAME}"
 	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayName" "${NAME}"
 	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "UninstallString" "$\"${UNINSTALL_EXE}$\""
@@ -229,3 +181,67 @@ Section "Uninstall"
 	DeleteRegKey HKLM "Software\qFlipper"
 	RMDir /r $INSTDIR
 SectionEnd
+
+
+;-------------------------------
+; Function runs on every installer exe start
+
+  Function .onInit
+    ; Get install dir from Registry
+    SetRegView 64 ; Use 64bit registry keys, not WOW6432Node
+    ReadRegStr $INSTDIR HKLM Software\NSIS ""
+ 
+    ;-------------------------------
+    ; Initialize images files for HiDpi hack on every installer start
+    ; Refers to https://gist.github.com/sredna/c294cdf9014e03d8cd6f8bd4a39437ec
+    ; http://forums.winamp.com/showthread.php?t=443754
+
+    InitPluginsDir
+    File /oname=$PLUGINSDIR\windows_installer_welcome96.bmp installer-assets\backgrounds\windows_installer_welcome96.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome120.bmp installer-assets\backgrounds\windows_installer_welcome120.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome144.bmp installer-assets\backgrounds\windows_installer_welcome144.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome168.bmp installer-assets\backgrounds\windows_installer_welcome168.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome192.bmp installer-assets\backgrounds\windows_installer_welcome192.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome216.bmp installer-assets\backgrounds\windows_installer_welcome216.bmp
+
+    File /oname=$PLUGINSDIR\windows_installer_header96.bmp installer-assets\backgrounds\windows_installer_header96.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header120.bmp installer-assets\backgrounds\windows_installer_header120.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header144.bmp installer-assets\backgrounds\windows_installer_header144.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header168.bmp installer-assets\backgrounds\windows_installer_header168.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header192.bmp installer-assets\backgrounds\windows_installer_header192.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header216.bmp installer-assets\backgrounds\windows_installer_header216.bmp
+  FunctionEnd
+
+;-------------------------------
+; Function runs on every UNinstaller exe start
+Function un.onInit
+    ${If} ${RunningX64}
+        SetRegView 64
+    ${EndIf}
+FunctionEnd
+
+;-------------------------------
+; Function for dirty hijack image depends on DPI
+  Function showHiDpi
+    System::Call USER32::GetDpiForSystem()i.r0 
+    ${If} $0 U<= 0 
+        System::Call USER32::GetDC(i0)i.r1 
+        System::Call GDI32::GetDeviceCaps(ir1,i88)i.r0 
+        System::Call USER32::ReleaseDC(i0,ir1) 
+    ${EndIf} 
+
+    ; If DPI lower than, set max pic size
+    ${If} $0 U< 120
+        StrCpy $0 96
+    ${EndIf}
+    
+    ; If DPI greater or equal 216, set max pic size
+    ${If} $0 >= 216
+        StrCpy $0 216
+    ${EndIf}
+
+    ${NSD_SetImage} $mui.WelcomePage.Image $PLUGINSDIR\windows_installer_welcome$0.bmp $mui.WelcomePage.Image.Bitmap
+    ${NSD_SetImage} $mui.FinishPage.Image $PLUGINSDIR\windows_installer_welcome$0.bmp $mui.FinishPage.Image.Bitmap
+    SetBrandingImage /IMGID=1046 "$PLUGINSDIR\windows_installer_header$0.bmp"
+  FunctionEnd 
+
