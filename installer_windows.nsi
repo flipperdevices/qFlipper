@@ -27,6 +27,8 @@
 
   ; Include macros to handle installations on x64 machines
   !include "x64.nsh"
+  ; Use 64bit registry keys, not WOW6432Node
+  SetRegView 64 
 
   ; Logic operators lib for calculating DPI
   !include 'LogicLib.nsh'
@@ -156,7 +158,7 @@ Section "-Main Application"
 
 	WriteUninstaller "${UNINSTALL_EXE}"
 
-    WriteRegStr HKLM "Software\qFlipper" "InstallLocation" "${INSTDIR}" ; Save real install dir for update
+    WriteRegStr HKLM "Software\qFlipper" "InstallLocation" $INSTDIR ; Save real install dir for update
     WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayName" "${NAME}"
 	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayName" "${NAME}"
 	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "UninstallString" "$\"${UNINSTALL_EXE}$\""
