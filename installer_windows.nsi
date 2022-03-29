@@ -214,5 +214,6 @@ Section "Uninstall"
 	Delete "$SMPROGRAMS\${NAME}.lnk"
 	Delete "$INSTDIR\uninstall.exe"
 	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
+	DeleteRegKey HKLM "Software\qFlipper"
 	RMDir /r $INSTDIR
 SectionEnd
