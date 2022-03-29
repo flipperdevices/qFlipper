@@ -27,8 +27,6 @@
 
   ; Include macros to handle installations on x64 machines
   !include "x64.nsh"
-  ; Use 64bit registry keys, not WOW6432Node
-  SetRegView 64 
 
   ; Logic operators lib for calculating DPI
   !include 'LogicLib.nsh'
@@ -147,6 +145,10 @@
 ;Installer Sections
 
 Section "-Main Application"
+
+    ; Use 64bit registry keys, not WOW6432Node
+    SetRegView 64 
+
 	IfFileExists "${UNINSTALL_EXE}" 0 +2
 	ExecWait "${UNINSTALL_EXE} /S"
 
@@ -183,6 +185,10 @@ Section "Desktop shortcut" DesktopShortcutSection
 SectionEnd
 
 Section "-Cleanup"
+
+    ; Use 64bit registry keys, not WOW6432Node
+    SetRegView 64 
+
 	Delete ${VCREDIST2019_EXE}
 	Delete ${VCREDIST2010_EXE}
 	RMDir /r "${STM32_DRIVER_PATH}"
@@ -212,6 +218,10 @@ SectionEnd
 ;Uninstaller Section
 
 Section "Uninstall"
+
+    ; Use 64bit registry keys, not WOW6432Node
+    SetRegView 64 
+
 	Delete "$DESKTOP\${NAME}.lnk"
 	Delete "$SMPROGRAMS\${NAME}.lnk"
 	Delete "$INSTDIR\uninstall.exe"
