@@ -17,6 +17,7 @@
   SetCompressor /solid /final lzma
 
   !define /ifndef NAME "qFlipper"
+  !define /ifndef COMPANY "Flipper Devices Inc."
   !define /ifndef ARCH_BITS 64
   !define UNINSTALL_EXE "$INSTDIR\uninstall.exe"
   !define VCREDIST2019_EXE "$INSTDIR\vcredist_msvc2019_x${ARCH_BITS}.exe"
@@ -100,7 +101,12 @@ Section "-Main Application"
 
     ; Use 64bit registry keys, not WOW6432Node
     SetRegView 64 
+    
+    ; Kills running qFlipper.exe processes
+    DetailPrint "Looking for running qFlipper.exe..."
+    nsExec::ExecToLog "wmic.exe PROCESS where $\"Name like 'qFlipper.exe'$\" CALL terminate"
 
+    DetailPrint "Uninstalling previous version..."
 	IfFileExists "${UNINSTALL_EXE}" 0 +2
 	ExecWait "${UNINSTALL_EXE} /S"
 
@@ -113,11 +119,12 @@ Section "-Main Application"
 	WriteUninstaller "${UNINSTALL_EXE}"
 
     WriteRegStr HKLM "Software\qFlipper" "" $INSTDIR ; Save real install path for next update
-    WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayName" "${NAME}"
-	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayName" "${NAME}"
+    WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayName" "${NAME} ${VERSION}"
+	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "Publisher" "${COMPANY}"
 	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "UninstallString" "$\"${UNINSTALL_EXE}$\""
 	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "QuietUninstallString" "$\"${UNINSTALL_EXE}$\" /S"
 	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayIcon" "$\"$INSTDIR\${NAME}.exe$\""
+    WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayVersion" "${VERSION}"
 	WriteRegDWORD HKLM "${UNINSTALL_REG_PATH}" "NoModify" 1
 	WriteRegDWORD HKLM "${UNINSTALL_REG_PATH}" "NoRepair" 1
 SectionEnd
@@ -143,13 +150,39 @@ Section "-Cleanup"
 
 	Delete ${VCREDIST2019_EXE}
 	Delete ${VCREDIST2010_EXE}
-	RMDir /r "${STM32_DRIVER_PATH}"
+	;RMDir /r "${STM32_DRIVER_PATH}"
 
 	${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
 	IntFmt $0 "0x%08X" $0
 	WriteRegDWORD HKLM "${UNINSTALL_REG_PATH}" "EstimatedSize" "$0"
 SectionEnd
 
+
+;--------------------------------
+;Uninstaller Section
+
+Section "Uninstall"
+
+  ; Use 64bit registry keys, not WOW6432Node
+  SetRegView 64 
+
+  ; Kills running qFlipper.exe processes
+  DetailPrint "Looking for running qFlipper.exe..."
+  nsExec::ExecToLog "wmic.exe PROCESS where $\"Name like 'qFlipper.exe'$\" CALL terminate"
+
+
+  Delete "$DESKTOP\${NAME}.lnk"
+  Delete "$SMPROGRAMS\${NAME}.lnk"
+  Delete "$INSTDIR\uninstall.exe"
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
+  DeleteRegKey HKLM "Software\qFlipper"
+  RMDir /r $INSTDIR
+SectionEnd
+
+; Section to remove all Flipper Drivers, uncheked by default
+Section /o "un.RemoveDrivers" RemoveDriversSection
+  DetailPrint "Removing DFU drivers..."
+SectionEnd
 
 ;--------------------------------
 ; Descriptions
@@ -159,37 +192,31 @@ SectionEnd
   LangString DESC_UsbDriverSection ${LANG_ENGLISH} "STM32 Bootloader Driver for Flipper DFU mode"
   LangString DESC_StartMenuSection ${LANG_ENGLISH} "Add qFlipper to Windows Start menu"
   LangString DESC_DesktopShortcutSection ${LANG_ENGLISH} "Create qFlipper shortcut on Desktop"
-  ;Assign language strings to sections
+  LangString DESC_RemoveDriversSection ${LANG_ENGLISH} "Remove all STM32 USB drivers from the system"
+  ;Assign language strings to install sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
     !insertmacro MUI_DESCRIPTION_TEXT ${UsbDriverSection} $(DESC_UsbDriverSection)
     !insertmacro MUI_DESCRIPTION_TEXT ${StartMenuSection} $(DESC_StartMenuSection)
     !insertmacro MUI_DESCRIPTION_TEXT ${DesktopShortcutSection} $(DESC_DesktopShortcutSection)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
-
-;--------------------------------
-;Uninstaller Section
-
-Section "Uninstall"
-
-    ; Use 64bit registry keys, not WOW6432Node
-    SetRegView 64 
-
-	Delete "$DESKTOP\${NAME}.lnk"
-	Delete "$SMPROGRAMS\${NAME}.lnk"
-	Delete "$INSTDIR\uninstall.exe"
-	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
-	DeleteRegKey HKLM "Software\qFlipper"
-	RMDir /r $INSTDIR
-SectionEnd
+  ;Assign language strings to UNinstall sections
+  !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN
+    !insertmacro MUI_DESCRIPTION_TEXT ${RemoveDriversSection} $(DESC_RemoveDriversSection)
+  !insertmacro MUI_UNFUNCTION_DESCRIPTION_END
 
 
 ;-------------------------------
 ; Function runs on every installer exe start
 
   Function .onInit
+
     ; Get install dir from Registry
     SetRegView 64 ; Use 64bit registry keys, not WOW6432Node
-    ReadRegStr $INSTDIR HKLM Software\NSIS ""
+    ReadRegStr $R0 HKLM Software\qFlipper ""
+    ; Set $INSTDIR only if registry value not empty
+    ${If} $R0 != ""  
+      StrCpy $INSTDIR $R0
+    ${EndIf}
  
     ;-------------------------------
     ; Initialize images files for HiDpi hack on every installer start
