@@ -46,8 +46,8 @@
   InstallDir "$PROGRAMFILES64\${NAME}"
 
   ; Get installation folder from registry if available
-  ; Variables not supported here
-  InstallDirRegKey HKLM "Software\qFlipper" ""
+  ; Override the InstallDir if found. !!! Variables not supported here
+  InstallDirRegKey HKLM "Software\qFlipper" "InstallLocation"
 
   ; Installer Icon on left window corner and exe file
   !define MUI_ICON "installer-assets\icons\${NAME}-installer.ico"
@@ -156,6 +156,8 @@ Section "-Main Application"
 
 	WriteUninstaller "${UNINSTALL_EXE}"
 
+    WriteRegStr HKLM "Software\qFlipper" "InstallLocation" "${INSTDIR}" ; Save real install dir for update
+    WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayName" "${NAME}"
 	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayName" "${NAME}"
 	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "UninstallString" "$\"${UNINSTALL_EXE}$\""
 	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "QuietUninstallString" "$\"${UNINSTALL_EXE}$\" /S"
