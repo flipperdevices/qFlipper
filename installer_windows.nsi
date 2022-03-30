@@ -16,6 +16,8 @@
   ;Compression algorithm used to compress files/data in the installer
   SetCompressor /solid /final lzma
 
+  !define /ifndef DEBUG true
+
   !define /ifndef NAME "qFlipper"
   !define /ifndef COMPANY "Flipper Devices Inc."
   !define /ifndef ARCH_BITS 64
@@ -74,6 +76,9 @@
 
   !insertmacro MUI_PAGE_DIRECTORY 
   !insertmacro MUI_PAGE_COMPONENTS
+  ${If} $DEBUG
+    !define MUI_FINISHPAGE_NOAUTOCLOSE
+  ${EndIf}
   !insertmacro MUI_PAGE_INSTFILES
 
   !define MUI_FINISHPAGE_TITLE "qFlipper ${VERSION} Setup Complete"
@@ -86,6 +91,7 @@
 
   !insertmacro MUI_UNPAGE_WELCOME
   !insertmacro MUI_UNPAGE_CONFIRM
+  !insertmacro MUI_UNPAGE_COMPONENTS
   !insertmacro MUI_UNPAGE_INSTFILES
   !insertmacro MUI_UNPAGE_FINISH
 
@@ -114,7 +120,16 @@ Section "-Main Application"
 	ExecWait "${UNINSTALL_EXE} /S"
 
 	SetOutPath $INSTDIR
+
+    ; Extract files
+    ; Due to this bug https://stackoverflow.com/questions/25114946/my-nsis-installer-doesnt-always-extract-all-files
+    ; File command sometimes not extracting all files
+    ; To fix this 
 	File /r "build\${NAME}\*"
+    ${If} $DEBUG
+      DetailPrint "Counting installed Files"
+	  nsExec::ExecToLog 'dir "${INSTDIR}" /s'
+	${EndIf}
 
 	ExecWait "${VCREDIST2010_EXE} /passive /norestart"
 	ExecWait "${VCREDIST2019_EXE} /install /passive /norestart"
@@ -228,9 +243,10 @@ SectionEnd
     ${EndIf}
 
     ; Enable install log, need NSIS special build https://nsis.sourceforge.io/Special_Builds
-    LogSet on
+    ${If} $DEBUG
+      LogSet on
+	${EndIf}
 
- 
     ;-------------------------------
     ; Initialize images files for HiDpi hack on every installer start
     ; Refers to https://gist.github.com/sredna/c294cdf9014e03d8cd6f8bd4a39437ec
