@@ -107,6 +107,9 @@
 
 Section "-Main Application"
 
+	IfFileExists "${UNINSTALL_EXE}" 0 +2
+	ExecWait "${UNINSTALL_EXE} /S"
+
     ; Use 64bit registry keys, not WOW6432Node
     SetRegView 64 
 
@@ -117,10 +120,6 @@ Section "-Main Application"
     nsExec::ExecToLog "wmic.exe PROCESS where $\"Name like 'qFlipper.exe'$\" CALL terminate"
     nsExec::ExecToLog "wmic.exe PROCESS where $\"Name like 'qFlipper.exe'$\" CALL terminate" ;Twice to avoid long time exiting
     SetShellVarContext current
-
-    ;DetailPrint "Uninstalling previous version..."
-	;IfFileExists "${UNINSTALL_EXE}" 0 +2
-	;ExecWait "${UNINSTALL_EXE} /S"
 
 	SetOutPath $INSTDIR
 
