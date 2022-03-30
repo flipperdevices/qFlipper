@@ -107,8 +107,7 @@
 
 Section "-Main Application"
 
-	IfFileExists "${UNINSTALL_EXE}" 0 +2
-	ExecWait "${UNINSTALL_EXE} /S"
+	RMDir /r "${INSTDIR}"
 
     ; Use 64bit registry keys, not WOW6432Node
     SetRegView 64 
