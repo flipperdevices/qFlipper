@@ -107,7 +107,7 @@
 
 Section "-Main Application"
 
-	RMDir /r "${INSTDIR}"
+	RMDir /r $INSTDIR
 
     ; Use 64bit registry keys, not WOW6432Node
     SetRegView 64 
