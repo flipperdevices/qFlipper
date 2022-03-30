@@ -57,6 +57,9 @@
   ; Enable scaling for high DPI screen
   ManifestDPIAware true
 
+  ; Sign the Uninstaller.exe file
+  !uninstfinalize 'flipper_code_sign.bat "%1"'
+
 ;--------------------------------
 ;Installer wizard pages
 
