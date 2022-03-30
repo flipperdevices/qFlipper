@@ -34,6 +34,9 @@
   ; Logic operators lib for calculating DPI
   !include 'LogicLib.nsh'
 
+  ; Detect Windows Version lib
+
+
   Name ${NAME}
   OutFile "build\${NAME}Setup-${ARCH_BITS}bit.exe"
 
@@ -74,7 +77,7 @@
 
   !insertmacro MUI_PAGE_DIRECTORY 
   !insertmacro MUI_PAGE_COMPONENTS
-  !define MUI_FINISHPAGE_NOAUTOCLOSE ; Debug
+  ;!define MUI_FINISHPAGE_NOAUTOCLOSE ; Debug
   !insertmacro MUI_PAGE_INSTFILES
 
   !define MUI_FINISHPAGE_TITLE "qFlipper ${VERSION} Setup Complete"
@@ -111,35 +114,34 @@ Section "-Main Application"
     nsExec::ExecToLog "wmic.exe PROCESS where $\"Name like 'qFlipper.exe'$\" CALL terminate"
     SetShellVarContext current
 
-    DetailPrint "Uninstalling previous version..."
-	IfFileExists "${UNINSTALL_EXE}" 0 +2
-	ExecWait "${UNINSTALL_EXE} /S"
+    ;DetailPrint "Uninstalling previous version..."
+	;IfFileExists "${UNINSTALL_EXE}" 0 +2
+	;ExecWait "${UNINSTALL_EXE} /S"
 
 	SetOutPath $INSTDIR
 
     ; Extract files
-    ; Due to this bug https://stackoverflow.com/questions/25114946/my-nsis-installer-doesnt-always-extract-all-files
-    ; File command sometimes not extracting all files
-    ; To fix this 
+    SetOverwrite on
 	File /r "build\${NAME}\*"
-    DetailPrint "Counting installed Files" ; Debug
-    nsExec::ExecToLog 'dir "${INSTDIR}" /s' ; Debug
+
+    ;DetailPrint "Counting installed Files" ; Debug
+    ;nsExec::ExecToLog '"$SYSDIR\cmd.exe" /c dir "C:\Program Files\qFlipper" /s' ; Debug
 
 
-	ExecWait "${VCREDIST2010_EXE} /passive /norestart"
-	ExecWait "${VCREDIST2019_EXE} /install /passive /norestart"
+    ExecWait "${VCREDIST2010_EXE} /passive /norestart"
+    ExecWait "${VCREDIST2019_EXE} /install /passive /norestart"
 
-	WriteUninstaller "${UNINSTALL_EXE}"
+    WriteUninstaller "${UNINSTALL_EXE}"
 
     WriteRegStr HKLM "Software\qFlipper" "" $INSTDIR ; Save real install path for next update
     WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayName" "${NAME} ${VERSION}"
-	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "Publisher" "${COMPANY}"
-	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "UninstallString" "$\"${UNINSTALL_EXE}$\""
-	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "QuietUninstallString" "$\"${UNINSTALL_EXE}$\" /S"
-	WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayIcon" "$\"$INSTDIR\${NAME}.exe$\""
+    WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "Publisher" "${COMPANY}"
+    WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "UninstallString" "$\"${UNINSTALL_EXE}$\""
+    WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "QuietUninstallString" "$\"${UNINSTALL_EXE}$\" /S"
+    WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayIcon" "$\"$INSTDIR\${NAME}.exe$\""
     WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayVersion" "${VERSION}"
-	WriteRegDWORD HKLM "${UNINSTALL_REG_PATH}" "NoModify" 1
-	WriteRegDWORD HKLM "${UNINSTALL_REG_PATH}" "NoRepair" 1
+    WriteRegDWORD HKLM "${UNINSTALL_REG_PATH}" "NoModify" 1
+    WriteRegDWORD HKLM "${UNINSTALL_REG_PATH}" "NoRepair" 1
 SectionEnd
 
 Section "USB DFU Driver" UsbDriverSection
@@ -222,11 +224,17 @@ SectionEnd
 
   Function .onInit
 
+    ; Abort if not Windows 10 and newer
+    ${IfNot} ${AtLeastWin10}
+      MessageBox MB_OK|MB_ICONSTOP "Can not install qFlipper. Windows 10 and newer required"
+      Abort
+    ${EndIf}
+
     ${If} ${RunningX64}
       ${DisableX64FSRedirection} ; Disable using SysWOW64 for 32-bit files
       SetRegView 64 ; Use 64bit registry keys, not WOW6432Node
     ${Else}
-      MessageBox MB_OK "Error: Can't install qFlipper on 32-bit Windows. Use 64-bit version of Windows"
+      MessageBox MB_OK|MB_ICONSTOP "Error: Can't install qFlipper on 32-bit Windows. Use 64-bit version of Windows"
       Abort ; Exit installer if 32 bit windows
      ${EndIf}  
 
@@ -238,7 +246,7 @@ SectionEnd
     ${EndIf}
 
     ; Enable install log, need NSIS special build https://nsis.sourceforge.io/Special_Builds
-    LogSet on ;  Debug
+    ;LogSet on ;  Debug
 
 
     ;-------------------------------
