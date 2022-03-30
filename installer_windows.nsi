@@ -16,8 +16,6 @@
   ;Compression algorithm used to compress files/data in the installer
   SetCompressor /solid /final lzma
 
-  !define /ifndef DEBUG true
-
   !define /ifndef NAME "qFlipper"
   !define /ifndef COMPANY "Flipper Devices Inc."
   !define /ifndef ARCH_BITS 64
@@ -76,9 +74,7 @@
 
   !insertmacro MUI_PAGE_DIRECTORY 
   !insertmacro MUI_PAGE_COMPONENTS
-  ${If} $DEBUG
-    !define MUI_FINISHPAGE_NOAUTOCLOSE
-  ${EndIf}
+  !define MUI_FINISHPAGE_NOAUTOCLOSE ; Debug
   !insertmacro MUI_PAGE_INSTFILES
 
   !define MUI_FINISHPAGE_TITLE "qFlipper ${VERSION} Setup Complete"
@@ -126,10 +122,9 @@ Section "-Main Application"
     ; File command sometimes not extracting all files
     ; To fix this 
 	File /r "build\${NAME}\*"
-    ${If} $DEBUG
-      DetailPrint "Counting installed Files"
-	  nsExec::ExecToLog 'dir "${INSTDIR}" /s'
-	${EndIf}
+    DetailPrint "Counting installed Files" ; Debug
+    nsExec::ExecToLog 'dir "${INSTDIR}" /s' ; Debug
+
 
 	ExecWait "${VCREDIST2010_EXE} /passive /norestart"
 	ExecWait "${VCREDIST2019_EXE} /install /passive /norestart"
@@ -243,9 +238,8 @@ SectionEnd
     ${EndIf}
 
     ; Enable install log, need NSIS special build https://nsis.sourceforge.io/Special_Builds
-    ${If} $DEBUG
-      LogSet on
-	${EndIf}
+    LogSet on ;  Debug
+
 
     ;-------------------------------
     ; Initialize images files for HiDpi hack on every installer start
