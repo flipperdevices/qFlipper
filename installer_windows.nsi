@@ -35,7 +35,7 @@
   !include 'LogicLib.nsh'
 
   ; Detect Windows Version lib
-
+  !include 'WinVer.nsh'
 
   Name ${NAME}
   OutFile "build\${NAME}Setup-${ARCH_BITS}bit.exe"
