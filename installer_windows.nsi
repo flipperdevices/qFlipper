@@ -174,7 +174,7 @@ SectionEnd
 ;--------------------------------
 ;Uninstaller Section
 
-Section "Uninstall qFlipper"
+Section "un.Uninstall qFlipper" UninstallqFlipperSection
 
   ; Use 64bit registry keys, not WOW6432Node
   SetRegView 64 
@@ -205,6 +205,7 @@ SectionEnd
   LangString DESC_StartMenuSection ${LANG_ENGLISH} "Add qFlipper to Windows Start menu"
   LangString DESC_DesktopShortcutSection ${LANG_ENGLISH} "Create qFlipper shortcut on Desktop"
   LangString DESC_RemoveDriversSection ${LANG_ENGLISH} "Remove all STM32 USB drivers from the system"
+  LangString DESC_UninstallqFlipperSection ${LANG_ENGLISH} "Remove all STM32 USB drivers from the system"
   ;Assign language strings to install sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
     !insertmacro MUI_DESCRIPTION_TEXT ${UsbDriverSection} $(DESC_UsbDriverSection)
