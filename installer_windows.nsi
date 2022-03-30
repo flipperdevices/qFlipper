@@ -101,10 +101,13 @@ Section "-Main Application"
 
     ; Use 64bit registry keys, not WOW6432Node
     SetRegView 64 
-    
+
+    ; Sets the context of shell folders to "All Users"
+    SetShellVarContext all    
     ; Kills running qFlipper.exe processes
     DetailPrint "Looking for running qFlipper.exe..."
     nsExec::ExecToLog "wmic.exe PROCESS where $\"Name like 'qFlipper.exe'$\" CALL terminate"
+    SetShellVarContext current
 
     DetailPrint "Uninstalling previous version..."
 	IfFileExists "${UNINSTALL_EXE}" 0 +2
@@ -130,9 +133,9 @@ Section "-Main Application"
 SectionEnd
 
 Section "USB DFU Driver" UsbDriverSection
-	${DisableX64FSRedirection}
+	;${DisableX64FSRedirection}
 	nsExec::ExecToLog '"$SYSDIR\pnputil.exe" /add-driver "${STM32_DRIVER_PATH}\STM32Bootloader.inf" /install'
-	${EnableX64FSRedirection}
+	;${EnableX64FSRedirection}
 SectionEnd
 
 Section "Start menu entry" StartMenuSection
@@ -169,7 +172,6 @@ Section "Uninstall"
   ; Kills running qFlipper.exe processes
   DetailPrint "Looking for running qFlipper.exe..."
   nsExec::ExecToLog "wmic.exe PROCESS where $\"Name like 'qFlipper.exe'$\" CALL terminate"
-
 
   Delete "$DESKTOP\${NAME}.lnk"
   Delete "$SMPROGRAMS\${NAME}.lnk"
@@ -210,8 +212,15 @@ SectionEnd
 
   Function .onInit
 
+    ${If} ${RunningX64}
+      ${DisableX64FSRedirection} ; Disable using SysWOW64 for 32-bit files
+      SetRegView 64 ; Use 64bit registry keys, not WOW6432Node
+    ${Else}
+      MessageBox MB_OK "Error: Can't install qFlipper on 32-bit Windows. Use 64-bit version of Windows"
+      Abort ; Exit installer if 32 bit windows
+     ${EndIf}  
+
     ; Get install dir from Registry
-    SetRegView 64 ; Use 64bit registry keys, not WOW6432Node
     ReadRegStr $R0 HKLM Software\qFlipper ""
     ; Set $INSTDIR only if registry value not empty
     ${If} $R0 != ""  
@@ -247,7 +256,8 @@ SectionEnd
 ; Function runs on every UNinstaller exe start
 Function un.onInit
     ${If} ${RunningX64}
-        SetRegView 64
+      ${DisableX64FSRedirection} ; Disable using SysWOW64 for 32-bit files
+      SetRegView 64 ; Use 64bit registry keys, not WOW6432Node
     ${EndIf}
 FunctionEnd
 
