@@ -58,7 +58,7 @@
   ManifestDPIAware true
 
   ; Sign the Uninstaller.exe file
-  !uninstfinalize 'flipper_code_sign.bat "%1"'
+  !uninstfinalize 'flipper_code_sign.bat "%1" wow64shit'
 
 ;--------------------------------
 ;Installer wizard pages
