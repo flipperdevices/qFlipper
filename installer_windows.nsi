@@ -145,9 +145,7 @@ Section "-Main Application"
 SectionEnd
 
 Section "USB DFU Driver" UsbDriverSection
-	;${DisableX64FSRedirection}
 	nsExec::ExecToLog '"$SYSDIR\pnputil.exe" /add-driver "${STM32_DRIVER_PATH}\STM32Bootloader.inf" /install'
-	;${EnableX64FSRedirection}
 SectionEnd
 
 Section "Start menu entry" StartMenuSection
@@ -176,7 +174,7 @@ SectionEnd
 ;--------------------------------
 ;Uninstaller Section
 
-Section "Uninstall"
+Section "Uninstall qFlipper"
 
   ; Use 64bit registry keys, not WOW6432Node
   SetRegView 64 
@@ -194,8 +192,8 @@ Section "Uninstall"
 SectionEnd
 
 ; Section to remove all Flipper Drivers, uncheked by default
-Section /o "un.RemoveDrivers" RemoveDriversSection
-  DetailPrint "Removing DFU drivers..."
+Section /o "un.Remove Drivers" RemoveDriversSection
+  DetailPrint "TODO Removing DFU drivers..."
 SectionEnd
 
 ;--------------------------------
