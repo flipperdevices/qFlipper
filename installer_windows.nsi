@@ -112,6 +112,7 @@ Section "-Main Application"
     ; Kills running qFlipper.exe processes
     DetailPrint "Looking for running qFlipper.exe..."
     nsExec::ExecToLog "wmic.exe PROCESS where $\"Name like 'qFlipper.exe'$\" CALL terminate"
+    nsExec::ExecToLog "wmic.exe PROCESS where $\"Name like 'qFlipper.exe'$\" CALL terminate" ;Twice to avoid long time exiting
     SetShellVarContext current
 
     ;DetailPrint "Uninstalling previous version..."
@@ -133,7 +134,7 @@ Section "-Main Application"
 
     WriteUninstaller "${UNINSTALL_EXE}"
 
-    WriteRegStr HKLM "Software\qFlipper" "" $INSTDIR ; Save real install path for next update
+    WriteRegStr HKLM "Software\${NAME}" "" $INSTDIR ; Save real install path for next update
     WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "DisplayName" "${NAME} ${VERSION}"
     WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "Publisher" "${COMPANY}"
     WriteRegStr HKLM "${UNINSTALL_REG_PATH}" "UninstallString" "$\"${UNINSTALL_EXE}$\""
@@ -182,12 +183,13 @@ Section "un.Uninstall qFlipper" UninstallqFlipperSection
   ; Kills running qFlipper.exe processes
   DetailPrint "Looking for running qFlipper.exe..."
   nsExec::ExecToLog "wmic.exe PROCESS where $\"Name like 'qFlipper.exe'$\" CALL terminate"
+  nsExec::ExecToLog "wmic.exe PROCESS where $\"Name like 'qFlipper.exe'$\" CALL terminate" ;Twice to avoid long time exiting
 
   Delete "$DESKTOP\${NAME}.lnk"
   Delete "$SMPROGRAMS\${NAME}.lnk"
   Delete "$INSTDIR\uninstall.exe"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
-  DeleteRegKey HKLM "Software\qFlipper"
+  DeleteRegKey HKLM "Software\${NAME}"
   RMDir /r $INSTDIR
 SectionEnd
 
@@ -238,7 +240,7 @@ SectionEnd
      ${EndIf}  
 
     ; Get install dir from Registry
-    ReadRegStr $R0 HKLM Software\qFlipper ""
+    ReadRegStr $R0 HKLM "Software\${NAME}" ""
     ; Set $INSTDIR only if registry value not empty
     ${If} $R0 != ""  
       StrCpy $INSTDIR $R0
