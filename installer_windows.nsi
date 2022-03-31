@@ -173,6 +173,11 @@ Section "-Cleanup"
 SectionEnd
 
 
+; Section to remove all Flipper Drivers, uncheked by default
+Section /o "un.Remove Drivers" RemoveDriversSection
+  nsExec::ExecToLog 'powershell -ExecutionPolicy RemoteSigned -File "${STM32_DRIVER_PATH}\delete_all_dfu_drivers.ps1"'
+SectionEnd
+
 ;--------------------------------
 ;Uninstaller Section
 
@@ -194,10 +199,6 @@ Section "un.Uninstall qFlipper" UninstallqFlipperSection
   RMDir /r $INSTDIR
 SectionEnd
 
-; Section to remove all Flipper Drivers, uncheked by default
-Section /o "un.Remove Drivers" RemoveDriversSection
-  nsExec::ExecToLog 'powershell -ExecutionPolicy RemoteSigned -File "${STM32_DRIVER_PATH}\delete_all_dfu_drivers.ps1"'
-SectionEnd
 
 ;--------------------------------
 ; Descriptions
