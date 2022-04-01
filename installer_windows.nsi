@@ -177,7 +177,7 @@ SectionEnd
 ; Section to remove all Flipper Drivers, uncheked by default
 Section /o "un.Remove Drivers" RemoveDriversSection
   DetailPrint "Removing drivers. This may take a while..."
-  nsExec::ExecToLog 'powershell -ExecutionPolicy RemoteSigned -File "${STM32_DRIVER_PATH}\delete_all_dfu_drivers.ps1"'
+  nsExec::ExecToLog '$SYSDIR\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy RemoteSigned -File "${STM32_DRIVER_PATH}\delete_all_dfu_drivers.ps1"'
 SectionEnd
 
 ;--------------------------------
