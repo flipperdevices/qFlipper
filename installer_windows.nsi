@@ -305,8 +305,8 @@ FunctionEnd
         StrCpy $0 216
     ${EndIf}
 
-    ${NSD_SetImage} $mui.WelcomePage.Image $PLUGINSDIR\windows_installer\windows_installer_welcome$0.bmp $mui.WelcomePage.Image.Bitmap
-    ${NSD_SetImage} $mui.FinishPage.Image $PLUGINSDIR\windows_installer\windows_installer_finish$0.bmp $mui.FinishPage.Image.Bitmap
-    SetBrandingImage /IMGID=1046 "$PLUGINSDIR\windows_installer\windows_installer_header$0.bmp"
+    ${NSD_SetImage} $mui.WelcomePage.Image $PLUGINSDIR\windows_installer_welcome$0.bmp $mui.WelcomePage.Image.Bitmap
+    ${NSD_SetImage} $mui.FinishPage.Image $PLUGINSDIR\windows_installer_finish$0.bmp $mui.FinishPage.Image.Bitmap
+    SetBrandingImage /IMGID=1046 "$PLUGINSDIR\windows_installer_header$0.bmp"
   FunctionEnd 
 
