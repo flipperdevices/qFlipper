@@ -261,6 +261,7 @@ SectionEnd
     ; http://forums.winamp.com/showthread.php?t=443754
 
     InitPluginsDir
+    ; Installer Welcome images
     File /oname=$PLUGINSDIR\windows_installer_welcome96.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome96.bmp
     File /oname=$PLUGINSDIR\windows_installer_welcome120.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome120.bmp
     File /oname=$PLUGINSDIR\windows_installer_welcome144.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome144.bmp
@@ -268,6 +269,15 @@ SectionEnd
     File /oname=$PLUGINSDIR\windows_installer_welcome192.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome192.bmp
     File /oname=$PLUGINSDIR\windows_installer_welcome216.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome216.bmp
 
+    ; Installer Finish images 
+    File /oname=$PLUGINSDIR\windows_installer_welcome96.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome96.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome120.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome120.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome144.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome144.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome168.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome168.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome192.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome192.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome216.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome216.bmp
+
+    ; Installer/Uninstaller header
     File /oname=$PLUGINSDIR\windows_installer_header96.bmp installer-assets\backgrounds\windows_installer\windows_installer_header96.bmp
     File /oname=$PLUGINSDIR\windows_installer_header120.bmp installer-assets\backgrounds\windows_installer\windows_installer_header120.bmp
     File /oname=$PLUGINSDIR\windows_installer_header144.bmp installer-assets\backgrounds\windows_installer\windows_installer_header144.bmp
