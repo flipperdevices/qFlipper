@@ -51,8 +51,9 @@
   ; Default installation Dir. On Windows it will be C:\Program Files\qFlipper
   InstallDir "$PROGRAMFILES64\${NAME}"
 
-  ; Installer Icon on left window corner and exe file
+  ; Installer/Uninstaller Icon
   !define MUI_ICON "installer-assets\icons\${NAME}-installer.ico"
+  !define MUI_UNICON "installer-assets\icons\${NAME}-uninstaller.ico"
 
   ; Enable scaling for high DPI screen
   ManifestDPIAware true
@@ -67,14 +68,14 @@
   Caption "qFlipper ${VERSION} Setup"
 
   !define MUI_HEADERIMAGE
-  !define MUI_HEADERIMAGE_BITMAP "installer-assets\backgrounds\windows_installer_header.bmp"
-  !define MUI_HEADERIMAGE_UNBITMAP "installer-assets\backgrounds\windows_uninstaller_header.bmp"
+  !define MUI_HEADERIMAGE_BITMAP "installer-assets\backgrounds\windows_installer\windows_installer_header.bmp"
+  !define MUI_HEADERIMAGE_UNBITMAP "installer-assets\backgrounds\windows_installer\windows_installer_header.bmp"
 
   ; Welcome and Finish page settings
   !define MUI_WELCOMEPAGE_TITLE  "Welcome to qFlipper ${VERSION} Setup"
   !define MUI_WELCOMEPAGE_TEXT "qFlipper is a desktop application for updating Flipper Zero firmware and databases, manage files on SD card, and repair corrupted device.$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\nCredits$\r$\nCode:   Georgii Surkov$\r$\nDesign: Valerie Aquamine, Dmitry Pavlov$\n$\r$\nOpen Source and Distributed under GPL v3 License$\r$\nCopyright (C) 2022 Flipper Devices Inc."
-  !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_installer_welcome.bmp"
-  !define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_uninstaller_welcome.bmp"
+  !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_installer\windows_installer_welcome.bmp"
+  !define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_uninstaller\windows_uninstaller_welcome192.bmp"
   !define MUI_PAGE_CUSTOMFUNCTION_SHOW showHiDpi ; HiDpi replace image hack for welcome page
   !insertmacro MUI_PAGE_WELCOME
 
@@ -260,19 +261,19 @@ SectionEnd
     ; http://forums.winamp.com/showthread.php?t=443754
 
     InitPluginsDir
-    File /oname=$PLUGINSDIR\windows_installer_welcome96.bmp installer-assets\backgrounds\windows_installer_welcome96.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome120.bmp installer-assets\backgrounds\windows_installer_welcome120.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome144.bmp installer-assets\backgrounds\windows_installer_welcome144.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome168.bmp installer-assets\backgrounds\windows_installer_welcome168.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome192.bmp installer-assets\backgrounds\windows_installer_welcome192.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome216.bmp installer-assets\backgrounds\windows_installer_welcome216.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome96.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome96.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome120.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome120.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome144.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome144.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome168.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome168.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome192.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome192.bmp
+    File /oname=$PLUGINSDIR\windows_installer_welcome216.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome216.bmp
 
-    File /oname=$PLUGINSDIR\windows_installer_header96.bmp installer-assets\backgrounds\windows_installer_header96.bmp
-    File /oname=$PLUGINSDIR\windows_installer_header120.bmp installer-assets\backgrounds\windows_installer_header120.bmp
-    File /oname=$PLUGINSDIR\windows_installer_header144.bmp installer-assets\backgrounds\windows_installer_header144.bmp
-    File /oname=$PLUGINSDIR\windows_installer_header168.bmp installer-assets\backgrounds\windows_installer_header168.bmp
-    File /oname=$PLUGINSDIR\windows_installer_header192.bmp installer-assets\backgrounds\windows_installer_header192.bmp
-    File /oname=$PLUGINSDIR\windows_installer_header216.bmp installer-assets\backgrounds\windows_installer_header216.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header96.bmp installer-assets\backgrounds\windows_installer\windows_installer_header96.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header120.bmp installer-assets\backgrounds\windows_installer\windows_installer_header120.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header144.bmp installer-assets\backgrounds\windows_installer\windows_installer_header144.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header168.bmp installer-assets\backgrounds\windows_installer\windows_installer_header168.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header192.bmp installer-assets\backgrounds\windows_installer\windows_installer_header192.bmp
+    File /oname=$PLUGINSDIR\windows_installer_header216.bmp installer-assets\backgrounds\windows_installer\windows_installer_header216.bmp
   FunctionEnd
 
 ;-------------------------------
@@ -304,8 +305,8 @@ FunctionEnd
         StrCpy $0 216
     ${EndIf}
 
-    ${NSD_SetImage} $mui.WelcomePage.Image $PLUGINSDIR\windows_installer_welcome$0.bmp $mui.WelcomePage.Image.Bitmap
-    ${NSD_SetImage} $mui.FinishPage.Image $PLUGINSDIR\windows_installer_finish$0.bmp $mui.FinishPage.Image.Bitmap
-    SetBrandingImage /IMGID=1046 "$PLUGINSDIR\windows_installer_header$0.bmp"
+    ${NSD_SetImage} $mui.WelcomePage.Image $PLUGINSDIR\windows_installer\windows_installer_welcome$0.bmp $mui.WelcomePage.Image.Bitmap
+    ${NSD_SetImage} $mui.FinishPage.Image $PLUGINSDIR\windows_installer\windows_installer_finish$0.bmp $mui.FinishPage.Image.Bitmap
+    SetBrandingImage /IMGID=1046 "$PLUGINSDIR\windows_installer\windows_installer_header$0.bmp"
   FunctionEnd 
 

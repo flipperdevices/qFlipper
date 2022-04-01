@@ -13,6 +13,7 @@ set QT_VERSION=5.15.2
 set QT_COMPILER=msvc2019_%ARCH_BITS%
 set QT_BIN_DIR=%QT_DIR%\%QT_VERSION%\%QT_COMPILER%\bin
 
+# Download here https://cdn.flipperzero.one/STM32_DFU_Driver.zip
 set STM32_DRIVER_DIR="C:\STM32 Driver"
 
 set QMAKE=%QT_BIN_DIR%\qmake.exe
