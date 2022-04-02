@@ -270,12 +270,12 @@ SectionEnd
     File /oname=$PLUGINSDIR\windows_installer_welcome216.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome216.bmp
 
     ; Installer Finish images 
-    File /oname=$PLUGINSDIR\windows_installer_welcome96.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome96.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome120.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome120.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome144.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome144.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome168.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome168.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome192.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome192.bmp
-    File /oname=$PLUGINSDIR\windows_installer_welcome216.bmp installer-assets\backgrounds\windows_installer\windows_installer_welcome216.bmp
+    File /oname=$PLUGINSDIR\windows_installer_finish96.bmp installer-assets\backgrounds\windows_installer\windows_installer_finish96.bmp
+    File /oname=$PLUGINSDIR\windows_installer_finish120.bmp installer-assets\backgrounds\windows_installer\windows_installer_finish120.bmp
+    File /oname=$PLUGINSDIR\windows_installer_finish144.bmp installer-assets\backgrounds\windows_installer\windows_installer_finish144.bmp
+    File /oname=$PLUGINSDIR\windows_installer_finish168.bmp installer-assets\backgrounds\windows_installer\windows_installer_finish168.bmp
+    File /oname=$PLUGINSDIR\windows_installer_finish192.bmp installer-assets\backgrounds\windows_installer\windows_installer_finish192.bmp
+    File /oname=$PLUGINSDIR\windows_installer_finish120.bmp installer-assets\backgrounds\windows_installer\windows_installer_finish216.bmp
 
     ; Installer/Uninstaller header
     File /oname=$PLUGINSDIR\windows_installer_header96.bmp installer-assets\backgrounds\windows_installer\windows_installer_header96.bmp
