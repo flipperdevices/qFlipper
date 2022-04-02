@@ -126,11 +126,7 @@ Section "-Main Application"
 
     ; Extract files
     SetOverwrite on
-	File /r "build\${NAME}\*"
-
-    ;DetailPrint "Counting installed Files" ; Debug
-    ;nsExec::ExecToLog '"$SYSDIR\cmd.exe" /c dir "C:\Program Files\qFlipper" /s' ; Debug
-
+    File /r "build\${NAME}\*"
 
     ExecWait "${VCREDIST2010_EXE} /passive /norestart"
     ExecWait "${VCREDIST2019_EXE} /install /passive /norestart"
@@ -150,6 +146,7 @@ SectionEnd
 
 Section "USB DFU Driver" UsbDriverSection
   DetailPrint "Installing STM32 DFU Driver..."
+  ${DisableX64FSRedirection}
 	nsExec::ExecToLog '"$SYSDIR\pnputil.exe" /add-driver "${STM32_DRIVER_PATH}\STM32Bootloader.inf" /install'
 SectionEnd
 
