@@ -275,7 +275,7 @@ SectionEnd
     File /oname=$PLUGINSDIR\windows_installer_finish144.bmp installer-assets\backgrounds\windows_installer\windows_installer_finish144.bmp
     File /oname=$PLUGINSDIR\windows_installer_finish168.bmp installer-assets\backgrounds\windows_installer\windows_installer_finish168.bmp
     File /oname=$PLUGINSDIR\windows_installer_finish192.bmp installer-assets\backgrounds\windows_installer\windows_installer_finish192.bmp
-    File /oname=$PLUGINSDIR\windows_installer_finish120.bmp installer-assets\backgrounds\windows_installer\windows_installer_finish216.bmp
+    File /oname=$PLUGINSDIR\windows_installer_finish216.bmp installer-assets\backgrounds\windows_installer\windows_installer_finish216.bmp
 
     ; Installer/Uninstaller header
     File /oname=$PLUGINSDIR\windows_installer_header96.bmp installer-assets\backgrounds\windows_installer\windows_installer_header96.bmp
