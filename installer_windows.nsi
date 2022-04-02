@@ -149,6 +149,7 @@ Section "-Main Application"
 SectionEnd
 
 Section "USB DFU Driver" UsbDriverSection
+  DetailPrint "Installing STM32 DFU Driver..."
 	nsExec::ExecToLog '"$SYSDIR\pnputil.exe" /add-driver "${STM32_DRIVER_PATH}\STM32Bootloader.inf" /install'
 SectionEnd
 
