@@ -81,7 +81,7 @@
 
   !insertmacro MUI_PAGE_DIRECTORY 
   !insertmacro MUI_PAGE_COMPONENTS
-  !define MUI_FINISHPAGE_NOAUTOCLOSE ; Debug
+  ;!define MUI_FINISHPAGE_NOAUTOCLOSE ; Debug
   !insertmacro MUI_PAGE_INSTFILES
 
   !define MUI_FINISHPAGE_TITLE "qFlipper ${VERSION} Setup Complete"
@@ -95,7 +95,7 @@
   !insertmacro MUI_UNPAGE_WELCOME
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_COMPONENTS
-  !define MUI_UNFINISHPAGE_NOAUTOCLOSE ; do not close log
+  !define MUI_UNFINISHPAGE_NOAUTOCLOSE ; do not close uninstall log
   !insertmacro MUI_UNPAGE_INSTFILES
   !insertmacro MUI_UNPAGE_FINISH
 
