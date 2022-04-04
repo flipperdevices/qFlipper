@@ -128,8 +128,8 @@ Section "-Main Application"
     SetOverwrite on
     File /r "build\${NAME}\*"
 
-    ExecWait "${VCREDIST2010_EXE} /passive /norestart"
-    ExecWait "${VCREDIST2019_EXE} /install /passive /norestart"
+    ExecWait "${VCREDIST2010_EXE} /q /norestart"
+    ExecWait "${VCREDIST2019_EXE} /install /quiet /norestart"
 
     WriteUninstaller "${UNINSTALL_EXE}"
 
