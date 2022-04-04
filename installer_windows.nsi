@@ -68,14 +68,14 @@
   Caption "qFlipper ${VERSION} Setup"
 
   !define MUI_HEADERIMAGE
-  !define MUI_HEADERIMAGE_BITMAP "installer-assets\backgrounds\windows_installer\windows_installer_header.bmp"
-  !define MUI_HEADERIMAGE_UNBITMAP "installer-assets\backgrounds\windows_installer\windows_installer_header.bmp"
+  !define MUI_HEADERIMAGE_BITMAP "installer-assets\backgrounds\windows_installer\windows_installer_header216.bmp"
+  !define MUI_HEADERIMAGE_UNBITMAP "installer-assets\backgrounds\windows_installer\windows_installer_header216.bmp"
 
   ; Welcome and Finish page settings
   !define MUI_WELCOMEPAGE_TITLE  "Welcome to qFlipper ${VERSION} Setup"
   !define MUI_WELCOMEPAGE_TEXT "qFlipper is a desktop application for updating Flipper Zero firmware and databases, manage files on SD card, and repair corrupted device.$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\n$\r$\nCredits$\r$\nCode:   Georgii Surkov$\r$\nDesign: Valerie Aquamine, Dmitry Pavlov$\n$\r$\nOpen Source and Distributed under GPL v3 License$\r$\nCopyright (C) 2022 Flipper Devices Inc."
-  !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_installer\windows_installer_welcome.bmp"
-  !define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_uninstaller\windows_uninstaller_welcome192.bmp"
+  !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_installer\windows_installer_welcome216.bmp"
+  !define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer-assets\backgrounds\windows_uninstaller\windows_uninstaller_welcome216.bmp"
   !define MUI_PAGE_CUSTOMFUNCTION_SHOW showHiDpi ; HiDpi replace image hack for welcome page
   !insertmacro MUI_PAGE_WELCOME
 
@@ -302,19 +302,12 @@ FunctionEnd
         System::Call GDI32::GetDeviceCaps(ir1,i88)i.r0 
         System::Call USER32::ReleaseDC(i0,ir1) 
     ${EndIf} 
-
-    ; If DPI lower than, set max pic size
-    ${If} $0 U< 120
-        StrCpy $0 96
-    ${EndIf}
     
-    ; If DPI greater or equal 216, set max pic size
-    ${If} $0 >= 216
-        StrCpy $0 216
+    ; If DPI greater than 216, do nothing and use default image and scaling
+    ${If} $0 <= 216
+      ${NSD_SetImage} $mui.WelcomePage.Image $PLUGINSDIR\windows_installer_welcome$0.bmp $mui.WelcomePage.Image.Bitmap
+      ${NSD_SetImage} $mui.FinishPage.Image $PLUGINSDIR\windows_installer_finish$0.bmp $mui.FinishPage.Image.Bitmap
+      SetBrandingImage /IMGID=1046 "$PLUGINSDIR\windows_installer_header$0.bmp"
     ${EndIf}
-
-    ${NSD_SetImage} $mui.WelcomePage.Image $PLUGINSDIR\windows_installer_welcome$0.bmp $mui.WelcomePage.Image.Bitmap
-    ${NSD_SetImage} $mui.FinishPage.Image $PLUGINSDIR\windows_installer_finish$0.bmp $mui.FinishPage.Image.Bitmap
-    SetBrandingImage /IMGID=1046 "$PLUGINSDIR\windows_installer_header$0.bmp"
   FunctionEnd 
 
