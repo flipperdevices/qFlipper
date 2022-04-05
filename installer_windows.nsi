@@ -127,18 +127,9 @@ Section "-Main Application"
     ; Extract files
     SetOverwrite on
     File /r "build\${NAME}\*"
-    
+
     ExecWait "${VCREDIST2010_EXE} /q /norestart"
-    
-    ; Check if VC2019 installed and install it if not
-    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Version"
-    ${If} $0 == ""
-      DetailPrint "Microsoft Visual C++ 2019 libs not found. Installing..."
-      ExecWait "${VCREDIST2019_EXE} /install /quiet /norestart"
-    ${Else}
-      DetailPrint "Found Microsoft Visual C++ Version: $0"
-    ${EndIf}
-    
+    ExecWait "${VCREDIST2019_EXE} /install /quiet /norestart"
 
     WriteUninstaller "${UNINSTALL_EXE}"
 
