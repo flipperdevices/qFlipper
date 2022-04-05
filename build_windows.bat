@@ -38,6 +38,8 @@ set VCREDIST_DIR=%QT_DIR%\vcredist
 set NSIS="%programfiles(x86)%\NSIS\makensis.exe"
 
 set VCREDIST2019_EXE=%VCREDIST_DIR%\vcredist_msvc%MSVC_VERSION%_x%ARCH_BITS%.exe
+rem Visual C++ 2010 from Qt5 package is outdated and have exe sign from 2014.
+rem It should be replaced with new version that have year 2021 signature, downloaded from Microsoft website
 set VCREDIST2010_EXE=%VCREDIST_DIR%\vcredist_x%ARCH_BITS%.exe
 
 rem if exist %BUILD_DIR% (rmdir /S /Q %BUILD_DIR%)
