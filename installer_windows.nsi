@@ -81,7 +81,7 @@
 
   !insertmacro MUI_PAGE_DIRECTORY 
   !insertmacro MUI_PAGE_COMPONENTS
-  !define MUI_FINISHPAGE_NOAUTOCLOSE ; Debug
+  ;!define MUI_FINISHPAGE_NOAUTOCLOSE ; Debug
   !insertmacro MUI_PAGE_INSTFILES
 
   !define MUI_FINISHPAGE_TITLE "qFlipper ${VERSION} Setup Complete"
