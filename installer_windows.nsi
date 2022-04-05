@@ -128,7 +128,15 @@ Section "-Main Application"
     SetOverwrite on
     File /r "build\${NAME}\*"
     
-    ExecWait "${VCREDIST2010_EXE} /q /norestart"
+
+    ; Check if VC2010 installed and install it if not
+    ReadRegStr $0 HKLM "SOFTWARE\WOW6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64" "Version"
+    ${If} $0 == ""
+      DetailPrint "Microsoft Visual C++ 2010 libs not found. Installing..."
+      ExecWait "${VCREDIST2010_EXE} /q /norestart"
+    ${Else}
+      DetailPrint "Found Microsoft Visual C++ 2010 Version: $0"
+    ${EndIf}
     
     ; Check if VC2019 installed and install it if not
     ReadRegStr $0 HKLM "SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Version"
@@ -136,10 +144,9 @@ Section "-Main Application"
       DetailPrint "Microsoft Visual C++ 2019 libs not found. Installing..."
       ExecWait "${VCREDIST2019_EXE} /install /quiet /norestart"
     ${Else}
-      DetailPrint "Found Microsoft Visual C++ Version: $0"
+      DetailPrint "Found Microsoft Visual C++ 2015-2019 Version: $0"
     ${EndIf}
     
-
     WriteUninstaller "${UNINSTALL_EXE}"
 
     WriteRegStr HKLM "Software\${NAME}" "" $INSTDIR ; Save real install path for next update
