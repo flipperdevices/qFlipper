@@ -13,6 +13,7 @@ set QT_VERSION=5.15.2
 set QT_COMPILER=msvc2019_%ARCH_BITS%
 set QT_BIN_DIR=%QT_DIR%\%QT_VERSION%\%QT_COMPILER%\bin
 
+# Download here https://cdn.flipperzero.one/STM32_DFU_USB_Driver.zip
 set STM32_DRIVER_DIR="C:\STM32 Driver"
 
 set QMAKE=%QT_BIN_DIR%\qmake.exe
@@ -37,6 +38,8 @@ set VCREDIST_DIR=%QT_DIR%\vcredist
 set NSIS="%programfiles(x86)%\NSIS\makensis.exe"
 
 set VCREDIST2019_EXE=%VCREDIST_DIR%\vcredist_msvc%MSVC_VERSION%_x%ARCH_BITS%.exe
+rem Visual C++ 2010 from Qt5 package is outdated and have exe sign from 2014.
+rem It should be replaced with new version that have year 2021 signature, downloaded from Microsoft website
 set VCREDIST2010_EXE=%VCREDIST_DIR%\vcredist_x%ARCH_BITS%.exe
 
 rem if exist %BUILD_DIR% (rmdir /S /Q %BUILD_DIR%)
