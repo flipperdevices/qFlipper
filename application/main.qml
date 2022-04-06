@@ -1,6 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
 
+import QFlipper 1.0
+
 import "components"
 
 Window {
@@ -58,6 +60,7 @@ Window {
     }
 
     Component.onCompleted: {
+        App.messageReceived.connect(root.raise);
         mainWindow.controls.minimizeRequested.connect(root.showMinimized);
         mainWindow.controls.closeRequested.connect(Qt.quit);
     }

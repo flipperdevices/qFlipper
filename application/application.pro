@@ -13,6 +13,12 @@ SOURCES += \
         applicationupdater.cpp \
         applicationupdateregistry.cpp \
         main.cpp \
+        qtsingleapplication/qtlocalpeer.cpp \
+        qtsingleapplication/qtlockedfile.cpp \
+        qtsingleapplication/qtlockedfile_unix.cpp \
+        qtsingleapplication/qtlockedfile_win.cpp \
+        qtsingleapplication/qtsingleapplication.cpp \
+        qtsingleapplication/qtsinglecoreapplication.cpp \
         screencanvas.cpp
 
 RESOURCES += qml.qrc
@@ -77,6 +83,10 @@ HEADERS += \
     application.h \
     applicationupdater.h \
     applicationupdateregistry.h \
+    qtsingleapplication/qtlocalpeer.h \
+    qtsingleapplication/qtlockedfile.h \
+    qtsingleapplication/qtsingleapplication.h \
+    qtsingleapplication/qtsinglecoreapplication.h \
     screencanvas.h
 
 DISTFILES +=

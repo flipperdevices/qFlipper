@@ -3,12 +3,14 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 
+#include "qtsingleapplication/qtsingleapplication.h"
+
 #include "applicationupdater.h"
 #include "applicationbackend.h"
 #include "advancedfiledialog.h"
 #include "applicationupdateregistry.h"
 
-class Application : public QApplication
+class Application : public QtSingleApplication
 {
     Q_OBJECT
     Q_PROPERTY(QString name READ applicationName NOTIFY applicationNameChanged)
@@ -45,6 +47,7 @@ signals:
     void updateStatusChanged();
 
 private slots:
+    void onMessageReceived();
     void onLatestVersionChanged();
 
 private:

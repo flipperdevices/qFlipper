@@ -19,14 +19,20 @@
 #include "backenderror.h"
 #include "logger.h"
 
-Q_LOGGING_CATEGORY(CATEGORY_APP, "APP")
+Q_LOGGING_CATEGORY(LOG_APP, "APP")
 
 Application::Application(int &argc, char **argv):
-    QApplication(argc, argv),
+    QtSingleApplication(argc, argv),
     m_updateRegistry(globalPrefs->checkApplicationUpdates() ? QStringLiteral("https://update.flipperzero.one/qFlipper/directory.json") : QString()),
     m_isDeveloperMode(QGuiApplication::queryKeyboardModifiers() & Qt::KeyboardModifier::AltModifier),
     m_updateStatus(UpdateStatus::NoUpdates)
 {
+    if(isRunning()) {
+        sendMessage(QStringLiteral("IT'S ME."));
+        exit(0);
+        return;
+    }
+
     initConnections();
     initLogger();
     initQmlTypes();
@@ -36,19 +42,19 @@ Application::Application(int &argc, char **argv):
     initFonts();
     initGUI();
 
-    qCInfo(CATEGORY_APP).noquote() << APP_NAME << "version" << APP_VERSION << "commit"
-                                   << APP_COMMIT << QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).toString(Qt::ISODate);
+    qCInfo(LOG_APP).noquote() << APP_NAME << "version" << APP_VERSION << "commit"
+                              << APP_COMMIT << QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).toString(Qt::ISODate);
 
-    qCInfo(CATEGORY_APP).noquote() << "OS info:" << QSysInfo::prettyProductName() << QSysInfo::productVersion() << QSysInfo::kernelVersion();
+    qCInfo(LOG_APP).noquote() << "OS info:" << QSysInfo::prettyProductName() << QSysInfo::productVersion() << QSysInfo::kernelVersion();
 
     if(m_isDeveloperMode) {
-        qCCritical(CATEGORY_APP) << "Developer mode is enabled! Please be careful.";
+        qCCritical(LOG_APP) << "Developer mode is enabled! Please be careful.";
     }
 }
 
 Application::~Application()
 {
-    qCInfo(CATEGORY_APP).noquote() << APP_NAME << "exited";
+    qCInfo(LOG_APP).noquote() << APP_NAME << "exited";
 }
 
 ApplicationUpdater *Application::updater()
@@ -86,6 +92,11 @@ void Application::checkForUpdates()
     m_updateRegistry.check();
 }
 
+void Application::onMessageReceived()
+{
+    qCDebug(LOG_APP) << "Another instance was prevented from running";
+}
+
 void Application::onLatestVersionChanged()
 {
     if(m_updateRegistry.state() == ApplicationUpdateRegistry::State::Ready && m_updater.canUpdate(m_updateRegistry.latestVersion())) {
@@ -97,6 +108,7 @@ void Application::onLatestVersionChanged()
 
 void Application::initConnections()
 {
+    connect(this, &QtSingleApplication::messageReceived, this, &Application::onMessageReceived);
     connect(&m_updateRegistry, &Flipper::UpdateRegistry::latestVersionChanged, this, &Application::onLatestVersionChanged);
 }
 
