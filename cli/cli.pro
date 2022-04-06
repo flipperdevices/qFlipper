@@ -45,7 +45,7 @@ win32 {
 }
 
 macx: ICON = $$PWD/../application/assets/icons/$${NAME}.icns
-else:win32: RC_ICONS = $$PWD/../application/assets/icons/$${NAME}.ico
+else:win32: RC_ICONS = $$PWD/../application/assets/icons/$${NAME}-cli.ico
 
 INCLUDEPATH += \
     $$PWD/../dfu \
