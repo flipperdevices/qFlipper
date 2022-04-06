@@ -60,7 +60,7 @@ Window {
     }
 
     Component.onCompleted: {
-        App.messageReceived.connect(root.raise);
+        App.messageReceived.connect(root.alert);
         mainWindow.controls.minimizeRequested.connect(root.showMinimized);
         mainWindow.controls.closeRequested.connect(Qt.quit);
     }
