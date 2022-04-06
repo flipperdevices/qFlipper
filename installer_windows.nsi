@@ -69,7 +69,7 @@
   VIAddVersionKey "ProductName" "qFlipper"  
   VIAddVersionKey "ProductVersion" "${VERSION}.0"
   VIAddVersionKey "CompanyName" "Flipper Devices Inc."
-  VIAddVersionKey "LegalCopyright" "© Flipper Devices Inc."
+  VIAddVersionKey "LegalCopyright" "(C) Flipper Devices Inc."
 
 ;--------------------------------
 ;Installer wizard pages
