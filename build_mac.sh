@@ -53,7 +53,7 @@ fi
 mkdir disk_image
 mv $PROJECT.app disk_image
 create-dmg \
-    --volname "$PROJECT" \
+    --volname "$PROJECT-$(git describe --tags --abbrev=0)" \
     --volicon "../installer-assets/icons/${PROJECT}-installer.icns" \
     --background "../installer-assets/backgrounds/qFlipper_disk_background.png" \
     --window-pos 200 120 \
