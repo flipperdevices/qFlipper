@@ -22,7 +22,7 @@
 Q_LOGGING_CATEGORY(LOG_APP, "APP")
 
 Application::Application(int &argc, char **argv):
-    QtSingleApplication(argc, argv),
+    QtSingleApplication(QStringLiteral(APP_NAME), argc, argv),
     m_updateRegistry(globalPrefs->checkApplicationUpdates() ? QStringLiteral("https://update.flipperzero.one/qFlipper/directory.json") : QString()),
     m_isDeveloperMode(QGuiApplication::queryKeyboardModifiers() & Qt::KeyboardModifier::AltModifier),
     m_updateStatus(UpdateStatus::NoUpdates)
