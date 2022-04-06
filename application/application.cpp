@@ -29,7 +29,7 @@ Application::Application(int &argc, char **argv):
 {
     if(isRunning()) {
         sendMessage(QStringLiteral("IT'S ME."));
-        exit(0);
+        std::exit(0);
         return;
     }
 
@@ -176,7 +176,7 @@ void Application::initGUI()
 
     const auto onObjectCreated = [url](QObject *obj, const QUrl &objUrl) {
         if (!obj && url == objUrl) {
-            QCoreApplication::exit(-1);
+            std::exit(-1);
         }
     };
 
