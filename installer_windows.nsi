@@ -66,10 +66,10 @@
   VIProductVersion "${VERSION}.0" ; Only exact 4 numbers allowed x.x.x.x
   VIAddVersionKey "FileDescription" "qFlipper Windows Installer"
   VIAddVersionKey "FileVersion" "${VERSION}.0"
-  VIAddVersionKey "ProductName" "qFlipper"
+  VIAddVersionKey "ProductName" "qFlipper"  
+  VIAddVersionKey "ProductVersion" "${VERSION}.0"
   VIAddVersionKey "CompanyName" "Flipper Devices Inc."
-  VIAddVersionKey "LegalTrademarks" "Flipper is a trademark of Flipper Devices Inc."
-  VIAddVersionKey "LegalCopyright" "(c) Flipper Devices Inc."
+  VIAddVersionKey "LegalCopyright" "© Flipper Devices Inc."
 
 ;--------------------------------
 ;Installer wizard pages
