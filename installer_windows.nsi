@@ -61,6 +61,16 @@
   ; Sign the Uninstaller.exe file
   !uninstfinalize 'flipper_code_sign.bat "%1" wow64shit'
 
+  ; Version Information displayer in Properties -> Details tab
+  ; Required for antivirus databases
+  VIProductVersion "${VERSION}.0" ; Only exact 4 numbers allowed x.x.x.x
+  VIAddVersionKey "FileDescription" "qFlipper Windows Installer"
+  VIAddVersionKey "FileVersion" "${VERSION}.0"
+  VIAddVersionKey "ProductName" "qFlipper"
+  VIAddVersionKey "CompanyName" "Flipper Devices Inc."
+  VIAddVersionKey "LegalTrademarks" "Flipper is a trademark of Flipper Devices Inc."
+  VIAddVersionKey "LegalCopyright" "(c) Flipper Devices Inc."
+
 ;--------------------------------
 ;Installer wizard pages
 
