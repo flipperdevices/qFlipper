@@ -27,7 +27,7 @@ public:
     void finishLater();
     void abort(const QString &reason);
 
-    void feedResponse(QObject *response);
+    virtual void feedResponse(QObject *response);
 
     virtual const QByteArray encodeRequest(ProtobufPluginInterface *encoder) = 0;
 
