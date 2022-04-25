@@ -74,7 +74,7 @@ bool StorageWriteOperation::begin()
         setError(BackendError::DiskError, QStringLiteral("Failed to open file for reading: %1").arg(m_file->errorString()));
     } else if(m_file->bytesAvailable() >= CHUNK_SIZE * 100) {
         // Insert a ping for each 1% of the file size
-        m_chunksPerPing = m_file->bytesAvailable() / (CHUNK_SIZE * 100);
+        m_chunksPerPing = qMin<qint64>(m_file->bytesAvailable() / (CHUNK_SIZE * 100), 1000);
     }
 
     return success;
