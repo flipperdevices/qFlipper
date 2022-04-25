@@ -34,6 +34,7 @@ private:
     QDir m_localDir;
     QByteArray m_remotePath;
     QFileInfoList m_files;
+    qint64 m_totalSize;
 };
 
 }
