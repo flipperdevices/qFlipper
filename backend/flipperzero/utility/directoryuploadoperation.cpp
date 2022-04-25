@@ -16,11 +16,13 @@ DirectoryUploadOperation::DirectoryUploadOperation(ProtobufSession *rpc, DeviceS
     m_localDir(localDir),
     m_remotePath(remotePath),
     m_totalSize(0)
-{}
+{
+    m_localDir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+}
 
 const QString DirectoryUploadOperation::description() const
 {
-    return QStringLiteral("Upload Directory %1").arg(QString(m_remotePath));
+    return QStringLiteral("Upload Directory %1").arg(QString(m_localDir.dirName()));
 }
 
 void DirectoryUploadOperation::nextStateLogic()
