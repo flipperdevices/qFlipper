@@ -6,8 +6,6 @@
 using namespace Flipper;
 using namespace Zero;
 
-#include <QDebug>
-
 StorageReadOperation::StorageReadOperation(uint32_t id, const QByteArray &path, QIODevice *file, QObject *parent):
     AbstractProtobufOperation(id, parent),
     m_path(path),
@@ -46,7 +44,6 @@ bool StorageReadOperation::processResponse(QObject *response)
     if(!storageReadResponse) {
         return false;
     } else if(storageReadResponse->hasFile()) {
-        qDebug() << "Hello there!" << storageReadResponse->file().size;
         return m_file->write(storageReadResponse->file().data);
     }
 
