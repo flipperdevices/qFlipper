@@ -61,10 +61,11 @@ void Logger::messageOutput(QtMsgType type, const QMessageLogContext &context, co
 {
     const auto text = QStringLiteral("[%1] %2").arg(context.category, msg);
     const auto criticalText = QStringLiteral("<font color=\"#ff1f00\">%1</font>");
+    const auto timestamp = QString::number(globalLogger->m_startTime.msecsTo(QDateTime::currentDateTime()));
 
     // Writing everything in the file regardless of the log level
     if(globalLogger->m_logFile->isOpen()) {
-        globalLogger->m_fileOut << text << Qt::endl;
+        globalLogger->m_fileOut << timestamp << ' ' <<  text << Qt::endl;
     }
 
     const auto filterNonError = globalLogger->m_logLevel == ErrorsOnly && type != QtCriticalMsg;
@@ -74,7 +75,7 @@ void Logger::messageOutput(QtMsgType type, const QMessageLogContext &context, co
         return;
     }
 
-    globalLogger->m_stderr << text << Qt::endl;
+    globalLogger->m_stderr << timestamp << ' ' << text << Qt::endl;
 
     const auto filterWithoutCategory = !strcmp(context.category, "default");
     const auto filterPretty = type == QtDebugMsg;
