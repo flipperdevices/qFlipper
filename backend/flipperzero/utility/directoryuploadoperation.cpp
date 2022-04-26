@@ -14,12 +14,15 @@ DirectoryUploadOperation::DirectoryUploadOperation(ProtobufSession *rpc, DeviceS
                                                    const QByteArray &remotePath, QObject *parent):
     AbstractUtilityOperation(rpc, deviceState, parent),
     m_localDir(localDir),
-    m_remotePath(remotePath)
-{}
+    m_remotePath(remotePath),
+    m_totalSize(0)
+{
+    m_localDir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+}
 
 const QString DirectoryUploadOperation::description() const
 {
-    return QStringLiteral("Upload Directory %1").arg(QString(m_remotePath));
+    return QStringLiteral("Upload Directory %1").arg(QString(m_localDir.dirName()));
 }
 
 void DirectoryUploadOperation::nextStateLogic()
@@ -47,7 +50,11 @@ void DirectoryUploadOperation::readLocalDir()
 
     while(it.hasNext()) {
         it.next();
-        m_files.append(it.fileInfo());
+        const auto &fileInfo = it.fileInfo();
+        if(fileInfo.isFile()) {
+            m_totalSize += fileInfo.size();
+        }
+        m_files.append(fileInfo);
     }
 
     if(m_files.isEmpty()) {
@@ -74,7 +81,7 @@ void DirectoryUploadOperation::createRemoteDir()
 void DirectoryUploadOperation::writeFiles()
 {
     auto numFiles = m_files.size();
-    const auto increment = 100.0 / numFiles;
+    auto startProgress = 0.0;
 
     for(const auto &fileInfo: qAsConst(m_files)) {
         const auto relativeFilePath = m_localDir.relativeFilePath(fileInfo.absoluteFilePath()).toLocal8Bit();
@@ -87,16 +94,20 @@ void DirectoryUploadOperation::writeFiles()
             operation = rpc()->storageMkdir(remoteFilePath);
         } else {
             auto *file = new QFile(fileInfo.absoluteFilePath(), this);
+            const auto sizeWeight = (double)fileInfo.size() / m_totalSize;
 
             operation = rpc()->storageWrite(remoteFilePath, file);
+            connect(operation, &AbstractOperation::progressChanged, this, [=]() {
+                setProgress(startProgress + operation->progress() * sizeWeight);
+            });
             connect(operation, &AbstractOperation::finished, this, [=]() {
                 file->deleteLater();
             });
+
+            startProgress += sizeWeight * 100.0;
         }
 
         connect(operation, &AbstractOperation::finished, this, [=]() {
-            setProgress(100.0 - increment * numFiles);
-
             if(operation->isError()) {
                 finishWithError(BackendError::OperationError, operation->errorString());
             } else if(isLastFile) {
