@@ -68,7 +68,14 @@ void SerialInitHelper::skipMOTD()
         operation->deleteLater();
     });
 
-    operation->start();
+    if(m_serialPort->isDataTerminalReady()) {
+        // Serial port was not reset correctly (e.g. by minicom)
+        m_serialPort->setDataTerminalReady(false);
+        // Wait a bit before setting DTR high again
+        QTimer::singleShot(50, operation, &AbstractOperation::start);
+    } else {
+        operation->start();
+    }
 }
 
 void SerialInitHelper::startRPCSession()
