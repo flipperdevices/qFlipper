@@ -43,7 +43,7 @@
   ; Get version tag from git. Will be used in titles
   !tempfile StdOut
   !echo "${StdOut}"
-  !system '"git" describe --tags --abbrev=0 > "${StdOut}"'
+  !system '"git" describe --tags --abbrev=0 --exclude "*-rc*" > "${StdOut}"'
   !define /file VERSION "${StdOut}"
   !delfile "${StdOut}"
   !undef StdOut
