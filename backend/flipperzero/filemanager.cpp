@@ -28,6 +28,7 @@
 #include "preferences.h"
 
 #define MAX_UPLOAD_SIZE_BYTES (2000000)
+#define NEW_DIRECTORY_INDEX_INVALID -10 //IMPORTANT! Should not be -1!
 
 Q_LOGGING_CATEGORY(LOG_FILEMGR, "FMG")
 
@@ -40,7 +41,7 @@ FileManager::FileManager(QObject *parent):
     m_busyTimer(new QTimer(this)),
     m_isBusy(false),
     m_hasSDCard(false),
-    m_newDirectoryIndex(-1)
+    m_newDirectoryIndex(NEW_DIRECTORY_INDEX_INVALID)
 {
     m_busyTimer->setSingleShot(true);
     connect(m_busyTimer, &QTimer::timeout, this, &FileManager::onBusyTimerTimeout);
@@ -140,7 +141,7 @@ void FileManager::beginMkDir()
 
 void FileManager::commitMkDir(const QString &dirName)
 {
-    setNewDirectoryIndex(-1);
+    setNewDirectoryIndex(NEW_DIRECTORY_INDEX_INVALID);
     registerOperation(m_device->rpc()->storageMkdir(remoteFilePath(dirName)));
 }
 

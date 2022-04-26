@@ -181,8 +181,7 @@ Item {
 
                     selectByMouse: true
 
-                    onAccepted: isNewDirectory ? delegate.commitMkDir() : delegate.commitEdit();
-                    onEditingFinished: delegate.finishEdit();
+                    onEditingFinished: delegate.commitEdit();
 
                     validator: RegularExpressionValidator {
                         regularExpression: /[\x20-\x7E]+/ //Printable ASCII characters
@@ -348,30 +347,24 @@ Item {
     }
 
     function beginEdit() {
-        editBox.visible = true;
-
         nameEdit.text = nameLabel.text;
         nameEdit.selectAll();
         nameEdit.forceActiveFocus(Qt.MouseFocusReason);
+
+        editBox.visible = true;
     }
 
     function commitEdit() {
         const oldName = delegate.fileName;
         const newName = nameEdit.text;
 
-        if(oldName === newName) {
-            return;
+        if(delegate.isNewDirectory) {
+            Backend.fileManager.commitMkDir(newName);
+        } else if(oldName !== newName) {
+            Backend.fileManager.rename(oldName, newName);
         }
 
-        Backend.fileManager.rename(oldName, newName);
-    }
-
-    function commitMkDir() {
-        const newName = nameEdit.text;
-        Backend.fileManager.commitMkDir(newName);
-    }
-
-    function finishEdit() {
+        nameLabel.text = newName;
         editBox.visible = false;
     }
 }
