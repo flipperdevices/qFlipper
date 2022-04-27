@@ -100,7 +100,7 @@ void VCPDeviceInfoHelper::findSerialPort()
 
     connect(finder, &SerialFinder::finished, this, [=](const QSerialPortInfo &portInfo) {
         if(portInfo.isNull()) {
-            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to find a suitable serial port"));
+            finishWithError(BackendError::SerialAccessError, QStringLiteral("Failed to find a suitable serial port"));
 
         } else {
             m_deviceInfo.portInfo = portInfo;
