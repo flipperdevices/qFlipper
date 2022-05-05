@@ -72,7 +72,7 @@ VersionInfo::VersionInfo(const QJsonValue &val)
 
     const auto &filesArray = json["files"].toArray();
     for(const auto &file : filesArray) {
-        m_files.append(file);
+        m_files.append(FileInfo(file));
     }
 }
 
@@ -158,7 +158,7 @@ ChannelInfo::ChannelInfo(const QJsonValue &val)
 
     const auto &versionArray = json["versions"].toArray();
     for(const auto &version : versionArray) {
-        m_versions.append(version);
+        m_versions.append(VersionInfo(version));
     }
 
     // Json data is not guaranteed to be sorted?

@@ -26,6 +26,7 @@
 #include "flipperzero/pixmaps/updating.h"
 
 Q_LOGGING_CATEGORY(LOG_BACKEND, "BKD")
+Q_DECLARE_METATYPE(QAbstractListModel*)
 
 using namespace Flipper;
 using namespace Zero;
@@ -41,7 +42,9 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     m_errorType(BackendError::UnknownError)
 {
     registerMetaTypes();
+#if QT_VERSION < 0x060000
     registerComparators();
+#endif
 
     initLibraryPaths();
     initConnections();
@@ -385,7 +388,9 @@ void ApplicationBackend::registerMetaTypes()
     qRegisterMetaType<QAbstractListModel*>();
 }
 
+#if QT_VERSION < 0x060000
 void ApplicationBackend::registerComparators()
 {
     QMetaType::registerComparators<Flipper::Zero::AssetManifest::FileInfo>();
 }
+#endif

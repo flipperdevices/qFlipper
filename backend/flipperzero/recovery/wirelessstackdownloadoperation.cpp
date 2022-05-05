@@ -139,7 +139,7 @@ void WirelessStackDownloadOperation::downloadWirelessStack()
         watcher->deleteLater();
     });
 
-    watcher->setFuture(QtConcurrent::run(recovery(), &Recovery::downloadWirelessStack, m_file, m_targetAddress));
+    watcher->setFuture(QtConcurrent::run([this] { return recovery()->downloadWirelessStack(m_file, m_targetAddress); }));
 }
 
 void WirelessStackDownloadOperation::upgradeWirelessStack()

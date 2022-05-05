@@ -6,6 +6,7 @@
 #include "flipperupdates.h"
 
 class QAbstractListModel;
+Q_DECLARE_OPAQUE_POINTER(QAbstractListModel*)
 
 namespace Flipper {
 class FlipperZero;
@@ -18,6 +19,11 @@ class FileManager;
 class ScreenStreamer;
 class VirtualDisplay;
 }}
+
+Q_DECLARE_OPAQUE_POINTER(Flipper::Zero::DeviceState*)
+Q_DECLARE_OPAQUE_POINTER(Flipper::Zero::ScreenStreamer*)
+Q_DECLARE_OPAQUE_POINTER(Flipper::Zero::VirtualDisplay*)
+Q_DECLARE_OPAQUE_POINTER(Flipper::Zero::FileManager*)
 
 class ApplicationBackend : public QObject
 {
@@ -140,7 +146,9 @@ private slots:
 private:
     static void initLibraryPaths();
     static void registerMetaTypes();
+#if QT_VERSION < 0x060000
     static void registerComparators();
+#endif
 
     void initConnections();
 
