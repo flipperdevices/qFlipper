@@ -27,6 +27,30 @@ VersionInfo::VersionInfo(const QString &versionString):
 
     bool canConvert;
 
+    // Parse release-candidate suffix first
+    if(tokens.size() == 2) {
+        const auto &suffix = tokens[1];
+        const auto correctSuffix = QStringLiteral("rc");
+
+        if(!suffix.startsWith(correctSuffix)) {
+            qCDebug(CATEGORY_DEBUG) << "Malformed release candidate suffix";
+            return;
+
+        } else if(suffix == correctSuffix) {
+            m_rc = 0;
+
+        } else {
+            const auto rc = suffix.midRef(2).toInt(&canConvert);
+            if(canConvert) {
+                m_rc = rc;
+            } else {
+                qCDebug(CATEGORY_DEBUG) << "Illegal characters in release candidate suffix";
+                return;
+            }
+        }
+    }
+
+    // Parse version
     for(auto it = versionTokens.cbegin(); it != versionTokens.cend(); ++it) {
         const auto num = (*it).toInt(&canConvert);
 
@@ -37,26 +61,6 @@ VersionInfo::VersionInfo(const QString &versionString):
             qCDebug(CATEGORY_DEBUG) << "Illegal characters in version";
             return;
         }
-    }
-
-    if(tokens.size() == 2) {
-        const auto &suffix = tokens[1];
-        if(suffix.startsWith(QStringLiteral("rc"))) {
-            if(suffix.length() == 2) {
-                m_rc = 0;
-                return;
-            }
-
-            const auto rc = suffix.midRef(2).toInt(&canConvert);
-            if(canConvert) {
-                m_rc = rc;
-            } else {
-                qCDebug(CATEGORY_DEBUG) << "Illegal characters in release candidate suffix";
-            }
-        }
-
-    } else {
-        qCDebug(CATEGORY_DEBUG) << "Malformed release candidate suffix";
     }
 }
 
@@ -180,7 +184,13 @@ QString VersionInfo::toString() const
 
 bool VersionInfo::isVersionGreaterThan(const VersionInfo &other) const
 {
-    return (major() > other.major()) || ((major() == other.major()) && (minor() > other.minor() || (minor() == other.minor() && sub() > other.sub())));
+    if(major() != other.major()) {
+        return major() > other.major();
+    } else if(minor() != other.minor()) {
+        return minor() > other.minor();
+    } else {
+        return sub() > other.sub();
+    }
 }
 
 bool VersionInfo::isRCNumGreaterThan(const VersionInfo &other) const
@@ -200,32 +210,62 @@ bool VersionInfo::isCommitDifferent(const VersionInfo &other) const
 
 bool VersionInfo::operator >(const VersionInfo &other) const
 {
+    Q_UNUSED(other)
+//    if(!isValid() || !other.isValid()) {
+//        return false;
+
+//    } else if(other.isDevelopment()) {
+//        if(isDevelopment()) {
+//            return isCommitDifferent(other) || isDateGreaterThan(other);
+//        } else {
+//            return isDateGreaterThan(other);
+//        }
+
+//    } else if(other.isReleaseCandidate()) {
+//        if(isDevelopment()) {
+//            return isDateGreaterThan(other);
+//        } else if(isReleaseCandidate()) {
+//            return isVersionGreaterThan(other) || isRCNumGreaterThan(other);
+//        } else {
+//            return isVersionGreaterThan(other);
+//        }
+
+//    } else {
+//        if(isDevelopment()) {
+//            return isDateGreaterThan(other);
+//        } else if(isReleaseCandidate()) {
+//            return isVersionGreaterThan(other);
+//        } else {
+//            return isVersionGreaterThan(other);
+//        }
+//    }
+    return false;
+}
+
+bool VersionInfo::operator ==(const VersionInfo &other) const
+{
     if(!isValid() || !other.isValid()) {
         return false;
 
     } else if(other.isDevelopment()) {
         if(isDevelopment()) {
-            return isCommitDifferent(other) || isDateGreaterThan(other);
+            return (m_commit == other.m_commit) && (m_branch == other.m_branch) && (m_date == other.m_date);
         } else {
-            return isDateGreaterThan(other);
+            return false;
         }
 
     } else if(other.isReleaseCandidate()) {
-        if(isDevelopment()) {
-            return isDateGreaterThan(other);
-        } else if(isReleaseCandidate()) {
-            return isVersionGreaterThan(other) || isRCNumGreaterThan(other);
+        if(isReleaseCandidate()) {
+            return (m_version == other.m_version) && (m_rc == other.m_rc);
         } else {
-            return isVersionGreaterThan(other);
+            return false;
         }
 
     } else {
-        if(isDevelopment()) {
-            return isDateGreaterThan(other);
-        } else if(isReleaseCandidate()) {
-            return isVersionGreaterThan(other);
+        if(!isDevelopment() && !isReleaseCandidate()) {
+            return m_version == other.m_version;
         } else {
-            return isVersionGreaterThan(other);
+            return false;
         }
     }
 }

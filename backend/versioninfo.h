@@ -40,6 +40,7 @@ public:
     QString toString() const;
 
     bool operator >(const VersionInfo &other) const;
+    bool operator ==(const VersionInfo &other) const;
 
 private:
     bool isVersionGreaterThan(const VersionInfo &other) const;
