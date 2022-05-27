@@ -17,14 +17,12 @@
 #include "toplevel/firmwareinstalloperation.h"
 #include "toplevel/settingsrestoreoperation.h"
 #include "toplevel/settingsbackupoperation.h"
+#include "toplevel/internalupdateoperation.h"
 #include "toplevel/factoryresetoperation.h"
 #include "toplevel/fullrepairoperation.h"
 #include "toplevel/fullupdateoperation.h"
 
 #include "preferences.h"
-
-//#include "pixmaps/updating.h"
-//#include "pixmaps/updateok.h"
 
 Q_LOGGING_CATEGORY(CAT_DEVICE, "DEV")
 
@@ -145,7 +143,14 @@ bool FlipperZero::canRepair(const Updates::VersionInfo &versionInfo) const
 
 void FlipperZero::fullUpdate(const Updates::VersionInfo &versionInfo)
 {
-    registerOperation(new FullUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this));
+    const auto &protobufInfo = m_state->deviceInfo().protobuf;
+    const auto canUseInternal = (protobufInfo.versionMajor > 0) || (protobufInfo.versionMinor >= 6);
+
+    if(canUseInternal) {
+        registerOperation(new InternalUpdateOperation(m_utility, m_state, versionInfo, this));
+    } else {
+        registerOperation(new FullUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this));
+    }
 }
 
 void FlipperZero::fullRepair(const Updates::VersionInfo &versionInfo)
