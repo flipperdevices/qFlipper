@@ -248,24 +248,13 @@ bool VersionInfo::operator ==(const VersionInfo &other) const
         return false;
 
     } else if(other.isDevelopment()) {
-        if(isDevelopment()) {
-            return (m_commit == other.m_commit) && (m_branch == other.m_branch) && (m_date == other.m_date);
-        } else {
-            return false;
-        }
+        return isDevelopment() && (m_commit == other.m_commit) &&
+                (m_branch == other.m_branch) && (m_date == other.m_date);
 
     } else if(other.isReleaseCandidate()) {
-        if(isReleaseCandidate()) {
-            return (m_version == other.m_version) && (m_rc == other.m_rc);
-        } else {
-            return false;
-        }
+        return isReleaseCandidate() && (m_version == other.m_version) && (m_rc == other.m_rc);
 
     } else {
-        if(!isDevelopment() && !isReleaseCandidate()) {
-            return m_version == other.m_version;
-        } else {
-            return false;
-        }
+        return !isDevelopment() && !isReleaseCandidate() && (m_version == other.m_version);
     }
 }
