@@ -143,8 +143,9 @@ bool FlipperZero::canRepair(const Updates::VersionInfo &versionInfo) const
 
 void FlipperZero::fullUpdate(const Updates::VersionInfo &versionInfo)
 {
+    const auto &storageInfo = m_state->deviceInfo().storage;
     const auto &protobufInfo = m_state->deviceInfo().protobuf;
-    const auto canUseInternal = (protobufInfo.versionMajor > 0) || (protobufInfo.versionMinor >= 6);
+    const auto canUseInternal = storageInfo.isExternalPresent && ((protobufInfo.versionMajor > 0) || (protobufInfo.versionMinor >= 6));
 
     if(canUseInternal) {
         registerOperation(new InternalUpdateOperation(m_utility, m_state, versionInfo, this));

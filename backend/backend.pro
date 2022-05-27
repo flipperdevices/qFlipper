@@ -94,6 +94,7 @@ SOURCES += \
     simpleserialoperation.cpp \
     tararchive.cpp \
     tarziparchive.cpp \
+    tarzipuncompressor.cpp \
     tempdirectories.cpp \
     updateregistry.cpp \
     versioninfo.cpp
@@ -191,6 +192,7 @@ HEADERS += \
     simpleserialoperation.h \
     tararchive.h \
     tarziparchive.h \
+    tarzipuncompressor.h \
     tempdirectories.h \
     updateregistry.h \
     versioninfo.h

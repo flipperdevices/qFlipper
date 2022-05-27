@@ -2,12 +2,15 @@
 
 #include "abstracttopleveloperation.h"
 
+#include <QDir>
+
 #include "flipperupdates.h"
+
+class QFile;
 
 namespace Flipper {
 namespace Zero {
 
-//class FirmwareHelper;
 class UtilityInterface;
 
 class InternalUpdateOperation : public Flipper::Zero::AbstractTopLevelOperation
@@ -16,6 +19,7 @@ class InternalUpdateOperation : public Flipper::Zero::AbstractTopLevelOperation
 
     enum OperationState {
         FetchingFirmware = AbstractOperation::User,
+        ExtractingFirmware,
         UploadingFimware,
         WaitingForUpdate
     };
@@ -29,14 +33,12 @@ private slots:
 
 private:
     void fetchFirmware();
+    void extractFirmware();
     void uploadFirmware();
     void startUpdate();
 
-    void onSubOperationError(AbstractOperation *operation) override;
-
+    QFile *m_firmwareFile;
     UtilityInterface *m_utility;
-//    FirmwareHelper *m_helper;
-
     Updates::VersionInfo m_versionInfo;
 };
 
