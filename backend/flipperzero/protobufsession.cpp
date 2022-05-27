@@ -25,6 +25,7 @@
 #include "rpc/systemgetdatetimeoperation.h"
 #include "rpc/systemsetdatetimeoperation.h"
 #include "rpc/systemfactoryresetoperation.h"
+#include "rpc/systemupdateoperation.h"
 
 #include "rpc/guisendinputoperation.h"
 #include "rpc/guiscreenframeoperation.h"
@@ -109,6 +110,11 @@ SystemFactoryResetOperation *ProtobufSession::factoryReset()
 SystemDeviceInfoOperation *ProtobufSession::systemDeviceInfo()
 {
     return enqueueOperation(new SystemDeviceInfoOperation(getAndIncrementCounter(), this));
+}
+
+SystemUpdateOperation *ProtobufSession::systemUpdate(const QByteArray &manifestPath)
+{
+    return enqueueOperation(new SystemUpdateOperation(getAndIncrementCounter(), manifestPath, this));
 }
 
 StorageListOperation *ProtobufSession::storageList(const QByteArray &path)

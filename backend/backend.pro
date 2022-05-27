@@ -63,6 +63,7 @@ SOURCES += \
     flipperzero/recovery/setbootmodeoperation.cpp \
     flipperzero/recovery/wirelessstackdownloadoperation.cpp \
     flipperzero/recoveryinterface.cpp \
+    flipperzero/rpc/systemupdateoperation.cpp \
     flipperzero/screenstreamer.cpp \
     flipperzero/toplevel/abstracttopleveloperation.cpp \
     flipperzero/toplevel/factoryresetoperation.cpp \
@@ -158,6 +159,7 @@ HEADERS += \
     flipperzero/recovery/setbootmodeoperation.h \
     flipperzero/recovery/wirelessstackdownloadoperation.h \
     flipperzero/recoveryinterface.h \
+    flipperzero/rpc/systemupdateoperation.h \
     flipperzero/screenstreamer.h \
     flipperzero/toplevel/abstracttopleveloperation.h \
     flipperzero/toplevel/factoryresetoperation.h \

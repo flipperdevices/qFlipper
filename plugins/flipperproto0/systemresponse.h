@@ -23,3 +23,14 @@ public:
     SystemGetDateTimeResponse(MessageWrapper &wrapper, QObject *parent = nullptr);
     const QDateTime dateTime() const override;
 };
+
+class SystemUpdateResponse : public MainResponse, public SystemUpdateResponseInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(SystemUpdateResponseInterface)
+
+public:
+    SystemUpdateResponse(MessageWrapper &wrapper, QObject *parent = nullptr);
+    bool isResultOk() const;
+    const QString resultString() const;
+};

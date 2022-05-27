@@ -31,3 +31,36 @@ const QDateTime SystemGetDateTimeResponse::dateTime() const
 
     return QDateTime(date, time);
 }
+
+SystemUpdateResponse::SystemUpdateResponse(MessageWrapper &wrapper, QObject *parent):
+    MainResponse(wrapper, parent)
+{}
+
+bool SystemUpdateResponse::isResultOk() const
+{
+    return message().content.system_update_response.code == PB_System_UpdateResponse_UpdateResultCode_OK;
+}
+
+const QString SystemUpdateResponse::resultString() const
+{
+    switch(message().content.system_update_response.code) {
+    case PB_System_UpdateResponse_UpdateResultCode_OK:
+        return QStringLiteral("System update is go");
+    case PB_System_UpdateResponse_UpdateResultCode_ManifestPathInvalid:
+        return QStringLiteral("Manifest path invalid");
+    case PB_System_UpdateResponse_UpdateResultCode_ManifestFolderNotFound:
+        return QStringLiteral("Manifest folder not found");
+    case PB_System_UpdateResponse_UpdateResultCode_ManifestInvalid:
+        return QStringLiteral("Manifest is invalid");
+    case PB_System_UpdateResponse_UpdateResultCode_StageMissing:
+        return QStringLiteral("Stage missing");
+    case PB_System_UpdateResponse_UpdateResultCode_StageIntegrityError:
+        return QStringLiteral("Stage integrity error");
+    case PB_System_UpdateResponse_UpdateResultCode_ManifestPointerError:
+        return QStringLiteral("Manifest pointer error");
+    case PB_System_UpdateResponse_UpdateResultCode_TargetMismatch:
+        return QStringLiteral("Target mismatch");
+    default:
+        return QStringLiteral("Unknown error");
+    }
+}

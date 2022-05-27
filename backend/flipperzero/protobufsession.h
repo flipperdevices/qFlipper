@@ -20,6 +20,7 @@ class SystemDeviceInfoOperation;
 class SystemGetDateTimeOperation;
 class SystemSetDateTimeOperation;
 class SystemFactoryResetOperation;
+class SystemUpdateOperation;
 
 class StorageListOperation;
 class StorageInfoOperation;
@@ -66,6 +67,7 @@ public:
     SystemSetDateTimeOperation *setDateTime(const QDateTime &dateTime);
     SystemFactoryResetOperation *factoryReset();
     SystemDeviceInfoOperation *systemDeviceInfo();
+    SystemUpdateOperation *systemUpdate(const QByteArray &manifestPath);
 
     StorageListOperation *storageList(const QByteArray &path);
     StorageInfoOperation *storageInfo(const QByteArray &path);
