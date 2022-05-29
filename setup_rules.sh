@@ -9,10 +9,10 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", ATTRS{manu
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", ATTRS{manufacturer}=="STMicroelectronics", TAG+="uaccess"
 '
 
-alias warning_message='printf "You will now be asked for SUDO password.\n"'
+
 
 rules_install() {
-    warning_message
+    printf "The installtion will now begin. Device rules will be configured on your systemt to communicate with your flipper!\n"
 
     # The danger zone
     if \
