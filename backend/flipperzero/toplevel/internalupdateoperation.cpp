@@ -1,18 +1,28 @@
 #include "internalupdateoperation.h"
 
+#include <QDebug>
+#include <QDirIterator>
+#include <QLoggingCategory>
+
 #include "flipperzero/devicestate.h"
 #include "flipperzero/utilityinterface.h"
+#include "flipperzero/utility/updateprepareoperation.h"
+#include "flipperzero/utility/directoryuploadoperation.h"
 
 #include "tarzipuncompressor.h"
 #include "tempdirectories.h"
 #include "remotefilefetcher.h"
+
+#define REMOTE_DIR "/ext/update"
+
+Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
 
 using namespace Flipper;
 using namespace Zero;
 
 InternalUpdateOperation::InternalUpdateOperation(UtilityInterface *utility, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent):
     Flipper::Zero::AbstractTopLevelOperation(state, parent),
-    m_firmwareFile(nullptr),
+    m_updateFile(nullptr),
     m_utility(utility),
     m_versionInfo(versionInfo)
 {}
@@ -25,18 +35,22 @@ const QString InternalUpdateOperation::description() const
 void InternalUpdateOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
-        setOperationState(InternalUpdateOperation::FetchingFirmware);
-        fetchFirmware();
+        setOperationState(InternalUpdateOperation::FetchingUpdate);
+        fetchUpdateFile();
 
-    } else if(operationState() == InternalUpdateOperation::FetchingFirmware) {
-        setOperationState(InternalUpdateOperation::ExtractingFirmware);
-        extractFirmware();
+    } else if(operationState() == InternalUpdateOperation::FetchingUpdate) {
+        setOperationState(InternalUpdateOperation::ExtractingUpdate);
+        extractUpdate();
 
-    } else if(operationState() == InternalUpdateOperation::ExtractingFirmware) {
-        setOperationState(InternalUpdateOperation::UploadingFimware);
-        uploadFirmware();
+    } else if(operationState() == InternalUpdateOperation::ExtractingUpdate) {
+        setOperationState(InternalUpdateOperation::PreparingUpdateDir);
+        prepareUpdateDir();
 
-    } else if(operationState() == InternalUpdateOperation::UploadingFimware) {
+    } else if(operationState() == InternalUpdateOperation::PreparingUpdateDir) {
+        setOperationState(InternalUpdateOperation::UploadingUpdateDir);
+        uploadUpdateDir();
+
+    } else if(operationState() == InternalUpdateOperation::UploadingUpdateDir) {
         setOperationState(InternalUpdateOperation::WaitingForUpdate);
         startUpdate();
 
@@ -45,8 +59,10 @@ void InternalUpdateOperation::nextStateLogic()
     }
 }
 
-void InternalUpdateOperation::fetchFirmware()
+void InternalUpdateOperation::fetchUpdateFile()
 {
+    deviceState()->setStatusString(QStringLiteral("Fetchig fimware update..."));
+
     const auto target = deviceState()->deviceInfo().hardware.target;
     const auto fileInfo = m_versionInfo.fileInfo(QStringLiteral("update_tgz"), target);
 
@@ -55,11 +71,11 @@ void InternalUpdateOperation::fetchFirmware()
         return;
     }
 
-    const auto fileName = QUrl(fileInfo.url()).fileName();
-    m_firmwareFile = globalTempDirs->createFile(fileName, this);
+    m_updateFile = globalTempDirs->createTempFile(this);
+    m_updateDirectory = globalTempDirs->subdir(QFileInfo(fileInfo.url()).baseName());
 
     auto *fetcher = new RemoteFileFetcher(this);
-    if(!fetcher->fetch(fileInfo, m_firmwareFile)) {
+    if(!fetcher->fetch(fileInfo, m_updateFile)) {
         finishWithError(fetcher->error(), fetcher->errorString());
         return;
     }
@@ -77,27 +93,97 @@ void InternalUpdateOperation::fetchFirmware()
 
         fetcher->deleteLater();
     });
-
-    deviceState()->setStatusString(QStringLiteral("Fetchig fimware update..."));
 }
 
-void InternalUpdateOperation::extractFirmware()
+void InternalUpdateOperation::extractUpdate()
 {
-    auto *uncompressor = new TarZipUncompressor(m_firmwareFile, globalTempDirs->root(), this);
+    deviceState()->setStatusString(QStringLiteral("Extracting fimware update ..."));
+    deviceState()->setProgress(-1.0);
+
+    auto *uncompressor = new TarZipUncompressor(m_updateFile, m_updateDirectory, this);
+
+//    connect(uncompressor, &TarZipUncompressor::progressChanged, this, [=]() {
+//        deviceState()->setProgress(uncompressor->progress());
+//    });
 
     connect(uncompressor, &TarZipUncompressor::finished, this, [=]() {
+        if(uncompressor->isError()) {
+            finishWithError(uncompressor->error(), uncompressor->errorString());
+        } else {
+            advanceOperationState();
+        }
+
         uncompressor->deleteLater();
     });
-
-    deviceState()->setStatusString(QStringLiteral("Extracting fimware update..."));
 }
 
-void InternalUpdateOperation::uploadFirmware()
+void InternalUpdateOperation::prepareUpdateDir()
 {
+    deviceState()->setStatusString(QStringLiteral("Preparing fimware update ..."));
+    deviceState()->setProgress(-1.0);
 
+    if(!findAndCdToUpdateDir()) {
+        finishWithError(BackendError::DataError, QStringLiteral("Cannot find update directory"));
+        return;
+    }
+
+    auto *operation = m_utility->prepareUpdateDirectory(m_updateDirectory.dirName().toLocal8Bit(), QByteArrayLiteral(REMOTE_DIR));
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(operation->error(), operation->errorString());
+            return;
+
+        } else if(operation->updateDirectoryExists()) {
+            qCDebug(CATEGORY_DEBUG) << "Update package has been already uploaded, skipping to update...";
+            setOperationState(InternalUpdateOperation::UploadingUpdateDir);
+        }
+
+        advanceOperationState();
+    });
+}
+
+void InternalUpdateOperation::uploadUpdateDir()
+{
+    deviceState()->setStatusString(QStringLiteral("Uploading fimware update ..."));
+
+    auto *operation = m_utility->uploadDirectory(m_updateDirectory.absolutePath(), QByteArrayLiteral(REMOTE_DIR));
+
+    connect(operation, &AbstractOperation::progressChanged, this, [=]() {
+        deviceState()->setProgress(operation->progress());
+    });
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(operation->error(), operation->errorString());
+        } else {
+            advanceOperationState();
+        }
+    });
 }
 
 void InternalUpdateOperation::startUpdate()
 {
 
+}
+
+bool InternalUpdateOperation::findAndCdToUpdateDir()
+{
+    m_updateDirectory.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+    QDirIterator it(m_updateDirectory);
+
+    while(it.hasNext()) {
+        it.next();
+
+        const auto &fileInfo = it.fileInfo();
+        const auto baseName = fileInfo.baseName();
+
+        if(fileInfo.isDir() && m_updateDirectory.dirName().endsWith(baseName)) {
+            m_updateDirectory.cd(baseName);
+            return true;
+        }
+    }
+
+    return false;
 }

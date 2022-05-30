@@ -13,14 +13,15 @@ namespace Zero {
 
 class UtilityInterface;
 
-class InternalUpdateOperation : public Flipper::Zero::AbstractTopLevelOperation
+class InternalUpdateOperation : public AbstractTopLevelOperation
 {
     Q_OBJECT
 
     enum OperationState {
-        FetchingFirmware = AbstractOperation::User,
-        ExtractingFirmware,
-        UploadingFimware,
+        FetchingUpdate = AbstractOperation::User,
+        ExtractingUpdate,
+        PreparingUpdateDir,
+        UploadingUpdateDir,
         WaitingForUpdate
     };
 
@@ -32,12 +33,16 @@ private slots:
     void nextStateLogic() override;
 
 private:
-    void fetchFirmware();
-    void extractFirmware();
-    void uploadFirmware();
+    void fetchUpdateFile();
+    void extractUpdate();
+    void prepareUpdateDir();
+    void uploadUpdateDir();
     void startUpdate();
 
-    QFile *m_firmwareFile;
+    bool findAndCdToUpdateDir();
+
+    QFile *m_updateFile;
+    QDir m_updateDirectory;
     UtilityInterface *m_utility;
     Updates::VersionInfo m_versionInfo;
 };
