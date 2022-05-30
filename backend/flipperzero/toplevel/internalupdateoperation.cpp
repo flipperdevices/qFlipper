@@ -8,6 +8,7 @@
 #include "flipperzero/utilityinterface.h"
 #include "flipperzero/utility/updateprepareoperation.h"
 #include "flipperzero/utility/directoryuploadoperation.h"
+#include "flipperzero/utility/startupdateroperation.h"
 
 #include "tarzipuncompressor.h"
 #include "tempdirectories.h"
@@ -164,7 +165,18 @@ void InternalUpdateOperation::uploadUpdateDir()
 
 void InternalUpdateOperation::startUpdate()
 {
+    deviceState()->setStatusString(QStringLiteral("Uploading fimware update ..."));
 
+    const auto manifestPath = QStringLiteral("%1/%2/update.fuf").arg(QStringLiteral(REMOTE_DIR), m_updateDirectory.dirName()).toLocal8Bit();
+    auto *operation = m_utility->startUpdater(manifestPath);
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(operation->error(), operation->errorString());
+        } else {
+            advanceOperationState();
+        }
+    });
 }
 
 bool InternalUpdateOperation::findAndCdToUpdateDir()

@@ -63,6 +63,7 @@ public:
     // Operations
     SystemRebootOperation *rebootToOS();
     SystemRebootOperation *rebootToRecovery();
+    SystemRebootOperation *rebootToUpdater();
     SystemGetDateTimeOperation *getDateTime();
     SystemSetDateTimeOperation *setDateTime(const QDateTime &dateTime);
     SystemFactoryResetOperation *factoryReset();

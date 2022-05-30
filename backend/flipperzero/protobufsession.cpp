@@ -92,6 +92,11 @@ SystemRebootOperation *ProtobufSession::rebootToRecovery()
     return enqueueOperation(new SystemRebootOperation(getAndIncrementCounter(), SystemRebootOperation::RebootModeRecovery, this));
 }
 
+SystemRebootOperation *ProtobufSession::rebootToUpdater()
+{
+    return enqueueOperation(new SystemRebootOperation(getAndIncrementCounter(), SystemRebootOperation::RebootModeUpdate, this));
+}
+
 SystemGetDateTimeOperation *ProtobufSession::getDateTime()
 {
     return enqueueOperation(new SystemGetDateTimeOperation(getAndIncrementCounter(), this));

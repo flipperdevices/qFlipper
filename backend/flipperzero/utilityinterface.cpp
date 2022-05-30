@@ -11,6 +11,7 @@
 #include "flipperzero/utility/directoryuploadoperation.h"
 #include "flipperzero/utility/directorydownloadoperation.h"
 #include "flipperzero/utility/updateprepareoperation.h"
+#include "flipperzero/utility/startupdateroperation.h"
 
 Q_LOGGING_CATEGORY(LOG_UTILITY, "UTL")
 
@@ -82,6 +83,13 @@ DirectoryDownloadOperation *UtilityInterface::downloadDirectory(const QString &l
 UpdatePrepareOperation *UtilityInterface::prepareUpdateDirectory(const QByteArray &updateDirName, const QByteArray &remotePath)
 {
     auto *operation = new UpdatePrepareOperation(m_rpc, m_deviceState, updateDirName, remotePath, this);
+    enqueueOperation(operation);
+    return operation;
+}
+
+StartUpdaterOperation *UtilityInterface::startUpdater(const QByteArray &manifestPath)
+{
+    auto *operation = new StartUpdaterOperation(m_rpc, m_deviceState, manifestPath, this);
     enqueueOperation(operation);
     return operation;
 }
