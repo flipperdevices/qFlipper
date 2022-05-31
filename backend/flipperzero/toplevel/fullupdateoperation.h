@@ -2,62 +2,49 @@
 
 #include "abstracttopleveloperation.h"
 
-#include <QMap>
-#include <QFile>
+#include <QDir>
 
 #include "flipperupdates.h"
+
+class QFile;
 
 namespace Flipper {
 namespace Zero {
 
-class FirmwareHelper;
 class UtilityInterface;
-class RecoveryInterface;
 
 class FullUpdateOperation : public AbstractTopLevelOperation
 {
     Q_OBJECT
 
     enum OperationState {
-        FetchingFirmware = AbstractOperation::User,
-        SavingBackup,
-        StartingRecovery,
-        SettingBootMode,
-        DownloadingRadioFirmware,
-        DownloadingFirmware,
-        CorrectingOptionBytes,
-        ExitingRecovery,
-        DownloadingAssets,
-        RestoringBackup,
-        RestartingDevice
+        FetchingUpdate = AbstractOperation::User,
+        ExtractingUpdate,
+        PreparingUpdateDir,
+        UploadingUpdateDir,
+        WaitingForUpdate
     };
 
 public:
-    FullUpdateOperation(RecoveryInterface *recovery, UtilityInterface *utility, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent = nullptr);
+    FullUpdateOperation(UtilityInterface *utility, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent = nullptr);
+    ~FullUpdateOperation();
     const QString description() const override;
 
 private slots:
     void nextStateLogic() override;
 
 private:
-    void fetchFirmware();
-    void saveBackup();
-    void startRecovery();
-    void setBootMode();
-    void downloadRadioFirmware();
-    void downloadFirmware();
-    void correctOptionBytes();
-    void exitRecovery();
-    void downloadAssets();
-    void restoreBackup();
-    void restartDevice();
+    void fetchUpdateFile();
+    void extractUpdate();
+    void prepareUpdateDir();
+    void uploadUpdateDir();
+    void startUpdate();
 
-    void onSubOperationError(AbstractOperation *operation) override;
+    bool findAndCdToUpdateDir();
 
-    RecoveryInterface *m_recovery;
+    QFile *m_updateFile;
+    QDir m_updateDirectory;
     UtilityInterface *m_utility;
-    FirmwareHelper *m_helper;
-
     Updates::VersionInfo m_versionInfo;
 };
 

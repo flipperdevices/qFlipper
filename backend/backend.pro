@@ -70,7 +70,7 @@ SOURCES += \
     flipperzero/toplevel/firmwareinstalloperation.cpp \
     flipperzero/toplevel/fullrepairoperation.cpp \
     flipperzero/toplevel/fullupdateoperation.cpp \
-    flipperzero/toplevel/internalupdateoperation.cpp \
+    flipperzero/toplevel/legacyupdateoperation.cpp \
     flipperzero/toplevel/settingsbackupoperation.cpp \
     flipperzero/toplevel/settingsrestoreoperation.cpp \
     flipperzero/toplevel/wirelessstackupdateoperation.cpp \
@@ -170,7 +170,7 @@ HEADERS += \
     flipperzero/toplevel/firmwareinstalloperation.h \
     flipperzero/toplevel/fullrepairoperation.h \
     flipperzero/toplevel/fullupdateoperation.h \
-    flipperzero/toplevel/internalupdateoperation.h \
+    flipperzero/toplevel/legacyupdateoperation.h \
     flipperzero/toplevel/settingsbackupoperation.h \
     flipperzero/toplevel/settingsrestoreoperation.h \
     flipperzero/toplevel/wirelessstackupdateoperation.h \
