@@ -12,7 +12,7 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", ATTRS{manu
 
 
 rules_install() {
-    printf "The installtion will now begin. Device rules will be configured on your systemt to communicate with your flipper!\n"
+    printf "The installtion will now begin. Device rules will be configured on your system to communicate with your flipper!\n"
 
     # The danger zone
     if \
