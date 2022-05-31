@@ -7,6 +7,7 @@
 #include "mainresponseinterface.h"
 
 static constexpr qint64 CHUNK_SIZE = 512;
+static constexpr qint64 CHUNKS_PER_PING_CAP = 1000;
 
 using namespace Flipper;
 using namespace Zero;
@@ -49,6 +50,8 @@ void StorageWriteOperation::feedResponse(QObject *response)
 const QByteArray StorageWriteOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
     if(m_subRequest == StorageWrite) {
+        // Never true for files smaller than 100 chunks
+        // Such small files don't get progress reports at all
         if(++m_chunksWritten == m_chunksPerPing) {
             m_chunksWritten = 0;
             m_subRequest = StatusPing;
@@ -68,21 +71,25 @@ const QByteArray StorageWriteOperation::encodeRequest(ProtobufPluginInterface *e
 
 bool StorageWriteOperation::begin()
 {
-    const auto success = m_file->open(QIODevice::ReadOnly);
-
-    if(!success) {
+    if(!m_file->open(QIODevice::ReadOnly)) {
         setError(BackendError::DiskError, QStringLiteral("Failed to open file for reading: %1").arg(m_file->errorString()));
-    } else if(m_file->bytesAvailable() >= CHUNK_SIZE * 100) {
-        // Insert a ping for each 1% of the file size
-        m_chunksPerPing = qMin<qint64>(m_file->bytesAvailable() / (CHUNK_SIZE * 100), 1000);
+        return false;
     }
 
-    return success;
+    const auto fileSize = m_file->bytesAvailable();
+
+    if(fileSize >= CHUNK_SIZE * 100) {
+        // Insert a ping for roughly each 1% of the file size
+        m_chunksPerPing = qMin<qint64>(fileSize / (CHUNK_SIZE * 100), CHUNKS_PER_PING_CAP);
+        m_percentPerPing = 100.0 * (double)(CHUNK_SIZE * m_chunksPerPing) / fileSize;
+    }
+
+    return true;
 }
 
 bool StorageWriteOperation::processResponse(QObject *response)
 {
-    setProgress(m_chunksPerPing ? progress() + 1.0 : 100.0);
+    setProgress(m_chunksPerPing ? progress() + m_percentPerPing : 100.0);
     return qobject_cast<StatusPingResponseInterface*>(response) ||
            qobject_cast<EmptyResponseInterface*>(response);
 }

@@ -35,6 +35,7 @@ private:
     RequestType m_subRequest;
     qint64 m_chunksPerPing;
     qint64 m_chunksWritten;
+    double m_percentPerPing;
 };
 
 }
