@@ -17,14 +17,10 @@
 #include "toplevel/firmwareinstalloperation.h"
 #include "toplevel/settingsrestoreoperation.h"
 #include "toplevel/settingsbackupoperation.h"
+#include "toplevel/fullupdateoperation.h"
 #include "toplevel/factoryresetoperation.h"
 #include "toplevel/fullrepairoperation.h"
-#include "toplevel/fullupdateoperation.h"
-
-#include "preferences.h"
-
-//#include "pixmaps/updating.h"
-//#include "pixmaps/updateok.h"
+#include "toplevel/legacyupdateoperation.h"
 
 Q_LOGGING_CATEGORY(CAT_DEVICE, "DEV")
 
@@ -145,7 +141,15 @@ bool FlipperZero::canRepair(const Updates::VersionInfo &versionInfo) const
 
 void FlipperZero::fullUpdate(const Updates::VersionInfo &versionInfo)
 {
-    registerOperation(new FullUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this));
+    const auto &storageInfo = m_state->deviceInfo().storage;
+    const auto &protobufInfo = m_state->deviceInfo().protobuf;
+    const auto isLegacyUpdate = !storageInfo.isExternalPresent || ((protobufInfo.versionMajor == 0) && (protobufInfo.versionMinor < 7));
+
+    if(isLegacyUpdate) {
+        registerOperation(new LegacyUpdateOperation(m_recovery, m_utility, m_state, versionInfo, this));
+    } else {
+        registerOperation(new FullUpdateOperation(m_utility, m_state, versionInfo, this));
+    }
 }
 
 void FlipperZero::fullRepair(const Updates::VersionInfo &versionInfo)

@@ -12,7 +12,8 @@ class SystemRebootOperation : public AbstractProtobufOperation
 public:
     enum RebootMode {
         RebootModeOS = 0,
-        RebootModeRecovery = 1
+        RebootModeRecovery = 1,
+        RebootModeUpdate = 2,
     };
 
     SystemRebootOperation(uint32_t id, RebootMode rebootType, QObject *parent = nullptr);

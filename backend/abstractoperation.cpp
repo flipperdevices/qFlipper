@@ -6,7 +6,7 @@ AbstractOperation::AbstractOperation(QObject *parent):
     QObject(parent),
     m_timeoutTimer(new QTimer(this)),
     m_operationState(BasicOperationState::Ready),
-    m_progress(-1)
+    m_progress(0.0)
 {
     connect(m_timeoutTimer, &QTimer::timeout, this, &AbstractOperation::onOperationTimeout);
 

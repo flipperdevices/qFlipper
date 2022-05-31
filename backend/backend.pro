@@ -63,12 +63,14 @@ SOURCES += \
     flipperzero/recovery/setbootmodeoperation.cpp \
     flipperzero/recovery/wirelessstackdownloadoperation.cpp \
     flipperzero/recoveryinterface.cpp \
+    flipperzero/rpc/systemupdateoperation.cpp \
     flipperzero/screenstreamer.cpp \
     flipperzero/toplevel/abstracttopleveloperation.cpp \
     flipperzero/toplevel/factoryresetoperation.cpp \
     flipperzero/toplevel/firmwareinstalloperation.cpp \
     flipperzero/toplevel/fullrepairoperation.cpp \
     flipperzero/toplevel/fullupdateoperation.cpp \
+    flipperzero/toplevel/legacyupdateoperation.cpp \
     flipperzero/toplevel/settingsbackupoperation.cpp \
     flipperzero/toplevel/settingsrestoreoperation.cpp \
     flipperzero/toplevel/wirelessstackupdateoperation.cpp \
@@ -80,6 +82,8 @@ SOURCES += \
     flipperzero/utility/getfiletreeoperation.cpp \
     flipperzero/utility/restartoperation.cpp \
     flipperzero/utility/startrecoveryoperation.cpp \
+    flipperzero/utility/startupdateroperation.cpp \
+    flipperzero/utility/updateprepareoperation.cpp \
     flipperzero/utility/userbackupoperation.cpp \
     flipperzero/utility/userrestoreoperation.cpp \
     flipperzero/utilityinterface.cpp \
@@ -92,6 +96,7 @@ SOURCES += \
     simpleserialoperation.cpp \
     tararchive.cpp \
     tarziparchive.cpp \
+    tarzipuncompressor.cpp \
     tempdirectories.cpp \
     updateregistry.cpp \
     versioninfo.cpp
@@ -158,12 +163,14 @@ HEADERS += \
     flipperzero/recovery/setbootmodeoperation.h \
     flipperzero/recovery/wirelessstackdownloadoperation.h \
     flipperzero/recoveryinterface.h \
+    flipperzero/rpc/systemupdateoperation.h \
     flipperzero/screenstreamer.h \
     flipperzero/toplevel/abstracttopleveloperation.h \
     flipperzero/toplevel/factoryresetoperation.h \
     flipperzero/toplevel/firmwareinstalloperation.h \
     flipperzero/toplevel/fullrepairoperation.h \
     flipperzero/toplevel/fullupdateoperation.h \
+    flipperzero/toplevel/legacyupdateoperation.h \
     flipperzero/toplevel/settingsbackupoperation.h \
     flipperzero/toplevel/settingsrestoreoperation.h \
     flipperzero/toplevel/wirelessstackupdateoperation.h \
@@ -175,6 +182,8 @@ HEADERS += \
     flipperzero/utility/getfiletreeoperation.h \
     flipperzero/utility/restartoperation.h \
     flipperzero/utility/startrecoveryoperation.h \
+    flipperzero/utility/startupdateroperation.h \
+    flipperzero/utility/updateprepareoperation.h \
     flipperzero/utility/userbackupoperation.h \
     flipperzero/utility/userrestoreoperation.h \
     flipperzero/utilityinterface.h \
@@ -187,6 +196,7 @@ HEADERS += \
     simpleserialoperation.h \
     tararchive.h \
     tarziparchive.h \
+    tarzipuncompressor.h \
     tempdirectories.h \
     updateregistry.h \
     versioninfo.h

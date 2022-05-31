@@ -13,6 +13,7 @@ public:
         StatusPing,
         SystemDeviceInfo,
         SystemGetDateTime,
+        SystemUpdate,
 
         StorageList,
         StorageRead,

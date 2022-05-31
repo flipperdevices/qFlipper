@@ -207,7 +207,10 @@ void ApplicationBackend::finalizeOperation()
         device()->finalizeOperation();
 
         if(!deviceState()->isRecoveryMode()) {
-            m_virtualDisplay->stop();
+            if(deviceState()->isAllowVirtualDisplay()) {
+                m_virtualDisplay->stop();
+            }
+
             m_screenStreamer->start();
 
             m_fileManager->reset();
@@ -261,7 +264,7 @@ void ApplicationBackend::onDeviceInfoChanged()
     m_screenStreamer->setDevice(device());
     m_virtualDisplay->setDevice(device());
 
-    if(deviceState()->isPersistent()) {
+    if(deviceState()->isPersistent() && deviceState()->isAllowVirtualDisplay()) {
         m_virtualDisplay->start(QByteArray((char*)updating_bits, sizeof(updating_bits)));
     }
 }
@@ -279,7 +282,10 @@ void ApplicationBackend::onDeviceOperationFinished()
         setBackendState(BackendState::ErrorOccured);
 
     } else {
-        m_virtualDisplay->sendFrame(QByteArray((char*)update_ok_bits, sizeof(update_ok_bits)));
+        if(deviceState()->isAllowVirtualDisplay()) {
+            m_virtualDisplay->sendFrame(QByteArray((char*)update_ok_bits, sizeof(update_ok_bits)));
+        }
+
         setBackendState(BackendState::Finished);
     }
 }
