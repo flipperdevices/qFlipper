@@ -16,9 +16,6 @@ TarZipUncompressor::TarZipUncompressor(QFile *tarZipFile, const QDir &targetDir,
     connect(m_archive, &TarZipArchive::ready, this, &TarZipUncompressor::onArchiveReady);
 }
 
-TarZipUncompressor::~TarZipUncompressor()
-{}
-
 void TarZipUncompressor::onArchiveReady()
 {
     auto *watcher = new QFutureWatcher<void>(this);
@@ -38,13 +35,13 @@ void TarZipUncompressor::extractFiles()
             continue;
         } else if(fileInfo.type == FileNode::Type::Directory) {
             m_targetDir.mkpath(absolutePath);
-        } else {
-            extractFile(absolutePath, m_targetDir.absoluteFilePath(absolutePath));
+        } else if(!extractFile(absolutePath, m_targetDir.absoluteFilePath(absolutePath))) {
+            break;
         }
     }
 }
 
-void TarZipUncompressor::extractFile(const QString &src, const QString &dst)
+bool TarZipUncompressor::extractFile(const QString &src, const QString &dst)
 {
     // TODO: Write files to disk in chunks
     // Preferably rewrite all tar.gz operations in stream-friendly style
@@ -52,7 +49,17 @@ void TarZipUncompressor::extractFile(const QString &src, const QString &dst)
 
     QFile file(dst);
     // TODO: check for errors
-    file.open(QIODevice::WriteOnly);
-    file.write(m_archive->archiveIndex()->fileData(src));
+    if(!file.open(QIODevice::WriteOnly)) {
+        setError(BackendError::DiskError, file.errorString());
+        return false;
+    }
+
+    const auto fileData = m_archive->archiveIndex()->fileData(src);
+    if(file.write(fileData) != fileData.size()) {
+        setError(BackendError::DiskError, file.errorString());
+        return false;
+    }
+
     file.close();
+    return true;
 }

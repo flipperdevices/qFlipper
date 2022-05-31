@@ -14,10 +14,8 @@ class TarZipUncompressor : public QObject, public Failable
 
 public:
     TarZipUncompressor(QFile *tarZipFile, const QDir &targetDir, QObject *parent = nullptr);
-    virtual ~TarZipUncompressor();
 
 signals:
-    void progressChanged();
     void finished();
 
 private slots:
@@ -25,7 +23,7 @@ private slots:
 
 private:
     void extractFiles();
-    void extractFile(const QString &src, const QString &dst);
+    bool extractFile(const QString &src, const QString &dst);
 
     TarZipArchive *m_archive;
     QDir m_targetDir;

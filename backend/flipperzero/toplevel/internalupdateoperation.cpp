@@ -103,10 +103,6 @@ void InternalUpdateOperation::extractUpdate()
 
     auto *uncompressor = new TarZipUncompressor(m_updateFile, m_updateDirectory, this);
 
-//    connect(uncompressor, &TarZipUncompressor::progressChanged, this, [=]() {
-//        deviceState()->setProgress(uncompressor->progress());
-//    });
-
     connect(uncompressor, &TarZipUncompressor::finished, this, [=]() {
         if(uncompressor->isError()) {
             finishWithError(uncompressor->error(), uncompressor->errorString());
@@ -167,8 +163,8 @@ void InternalUpdateOperation::startUpdate()
 {
     deviceState()->setStatusString(QStringLiteral("Uploading fimware update ..."));
 
-    const auto manifestPath = QStringLiteral("%1/%2/update.fuf").arg(QStringLiteral(REMOTE_DIR), m_updateDirectory.dirName()).toLocal8Bit();
-    auto *operation = m_utility->startUpdater(manifestPath);
+    const auto manifestPath = QStringLiteral("%1/%2/update.fuf").arg(QStringLiteral(REMOTE_DIR), m_updateDirectory.dirName());
+    auto *operation = m_utility->startUpdater(manifestPath.toLocal8Bit());
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
