@@ -22,8 +22,6 @@
 #include "toplevel/fullrepairoperation.h"
 #include "toplevel/fullupdateoperation.h"
 
-#include "preferences.h"
-
 Q_LOGGING_CATEGORY(CAT_DEVICE, "DEV")
 
 #define CHANNEL_DEVELOPMENT "development"
