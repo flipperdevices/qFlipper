@@ -13,6 +13,7 @@ DeviceState::DeviceState(const DeviceInfo &deviceInfo, QObject *parent):
     m_deviceInfo(deviceInfo),
     m_isPersistent(false),
     m_isOnline(false),
+    m_isAllowVirtualDisplay(true),
     m_error(BackendError::NoError),
     m_progress(-1.0)
 {
@@ -85,6 +86,20 @@ bool DeviceState::isError() const
 bool DeviceState::isRecoveryMode() const
 {
     return m_deviceInfo.usbInfo.productID() == 0xdf11;
+}
+
+bool DeviceState::isAllowVirtualDisplay() const
+{
+    return m_isAllowVirtualDisplay;
+}
+
+void DeviceState::setAllowVirtualDisplay(bool set)
+{
+    if(m_isAllowVirtualDisplay == set) {
+        return;
+    }
+
+    m_isAllowVirtualDisplay = set;
 }
 
 double DeviceState::progress() const

@@ -28,6 +28,11 @@ InternalUpdateOperation::InternalUpdateOperation(UtilityInterface *utility, Devi
     m_versionInfo(versionInfo)
 {}
 
+InternalUpdateOperation::~InternalUpdateOperation()
+{
+    deviceState()->setAllowVirtualDisplay(true);
+}
+
 const QString InternalUpdateOperation::description() const
 {
     return QStringLiteral("Internal Update @%1").arg(deviceState()->name());
@@ -161,6 +166,7 @@ void InternalUpdateOperation::uploadUpdateDir()
 
 void InternalUpdateOperation::startUpdate()
 {
+    deviceState()->setAllowVirtualDisplay(false);
     deviceState()->setStatusString(QStringLiteral("Uploading fimware update ..."));
 
     const auto manifestPath = QStringLiteral("%1/%2/update.fuf").arg(QStringLiteral(REMOTE_DIR), m_updateDirectory.dirName());

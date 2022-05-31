@@ -27,6 +27,7 @@ class InternalUpdateOperation : public AbstractTopLevelOperation
 
 public:
     InternalUpdateOperation(UtilityInterface *utility, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent = nullptr);
+    ~InternalUpdateOperation();
     const QString description() const override;
 
 private slots:
