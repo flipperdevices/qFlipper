@@ -4,10 +4,10 @@ set -e
 
 THIS_DIR="$(readlink -f "$(dirname "$0")")"
 
-RULES_FILE='42-flipperzero.rules'
+RULES_FILE_NAME='42-flipperzero.rules'
 RULES_DIR=${3:-'/etc/udev/rules.d'}
-TARGET_RULES_PATH="$RULES_DIR/$RULES_FILE"
-SOURCE_RULES_PATH="$THIS_DIR/usr/lib/udev/rules.d/$RULES_FILE"
+TARGET_RULES_FILE="$RULES_DIR/$RULES_FILE_NAME"
+SOURCE_RULES_FILE="$THIS_DIR/usr/lib/udev/rules.d/$RULES_FILE_NAME"
 
 SUDO_MESSAGE='You will now be asked for SUDO password.\n'
 
@@ -21,7 +21,7 @@ check_rules_dir() {
 install_udev_rules() {
     check_rules_dir
 
-    if [ -f "$TARGET_RULES_PATH" ]; then
+    if [ -f "$TARGET_RULES_FILE" ]; then
         printf 'The rules have already been installed. Bye!\n'
         exit
     fi
@@ -31,7 +31,7 @@ install_udev_rules() {
     # The danger zone
     if \
         sudo -K \
-        && cat "$SOURCE_RULES_PATH" | sudo dd of="$TARGET_RULES_PATH" >/dev/null 2>&1 \
+        && cat "$SOURCE_RULES_FILE" | sudo dd of="$TARGET_RULES_FILE" >/dev/null 2>&1 \
         && sudo udevadm control --reload-rules \
         && sudo udevadm trigger
     # End of danger zone
@@ -45,7 +45,7 @@ install_udev_rules() {
 uninstall_udev_rules() {
     check_rules_dir
 
-    if ! [ -f "$TARGET_RULES_PATH" ]; then
+    if ! [ -f "$TARGET_RULES_FILE" ]; then
         printf 'Nothing to uninstall. Bye!\n'
         exit
     fi
@@ -55,7 +55,7 @@ uninstall_udev_rules() {
     # The danger zone
     if
         sudo -K \
-        && sudo rm -rf "$TARGET_RULES_PATH" \
+        && sudo rm -f "$TARGET_RULES_FILE" \
         && sudo udevadm control --reload-rules \
         && sudo udevadm trigger
     # End of danger zone
