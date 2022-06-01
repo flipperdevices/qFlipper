@@ -31,7 +31,7 @@ install_udev_rules() {
     # The danger zone
     if \
         sudo -K \
-        && sudo cp "$SOURCE_RULES_PATH" "$TARGET_RULES_PATH" \
+        && cat "$SOURCE_RULES_PATH" | sudo dd of="$TARGET_RULES_PATH" >/dev/null 2>&1 \
         && sudo udevadm control --reload-rules \
         && sudo udevadm trigger
     # End of danger zone
