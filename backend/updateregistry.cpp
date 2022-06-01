@@ -80,7 +80,14 @@ void UpdateRegistry::fillFromJson(const QByteArray &text)
 
 const QStringList UpdateRegistry::channelNames() const
 {
-    return m_channels.keys();
+    auto names = m_channels.keys();
+
+    // Move Development channel to the bottom of the list
+    if(names.first().startsWith(QStringLiteral("dev"))) {
+        names.move(0, names.size() - 1);
+    }
+
+    return names;
 }
 
 UpdateRegistry::State UpdateRegistry::state() const
@@ -106,8 +113,15 @@ int UpdateRegistry::rowCount(const QModelIndex &parent) const
 
 QVariant UpdateRegistry::data(const QModelIndex &index, int role) const
 {
-    const auto it = m_channels.cbegin();
-    const auto &channel = *(it+index.row());
+    const auto row = index.row();
+
+    if(row >= m_channels.size()) {
+        qCDebug(CATEGORY_UPDATES) << "Invalid row index:" << row;
+        return QVariant();
+    }
+
+    const auto key = channelNames()[row];
+    const auto &channel = m_channels[key];
 
     switch(role) {
     case NameRole:
