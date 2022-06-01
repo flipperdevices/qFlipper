@@ -59,6 +59,7 @@ private:
     FirmwareHelper *m_helper;
 
     Updates::VersionInfo m_versionInfo;
+    bool m_skipBackup;
 };
 
 }

@@ -23,6 +23,8 @@
 
 #include "tempdirectories.h"
 
+#define SHIPPED_VERSION QStringLiteral("0.43.1") // Old version that is shipped by default
+
 using namespace Flipper;
 using namespace Zero;
 
@@ -30,7 +32,8 @@ LegacyUpdateOperation::LegacyUpdateOperation(RecoveryInterface *recovery, Utilit
     AbstractTopLevelOperation(state, parent),
     m_recovery(recovery),
     m_utility(utility),
-    m_versionInfo(versionInfo)
+    m_versionInfo(versionInfo),
+    m_skipBackup(deviceState()->deviceInfo().firmware.version == SHIPPED_VERSION)
 {}
 
 const QString LegacyUpdateOperation::description() const
@@ -115,7 +118,11 @@ void LegacyUpdateOperation::fetchFirmware()
 
 void LegacyUpdateOperation::saveBackup()
 {
-    registerSubOperation(m_utility->backupInternalStorage(globalTempDirs->root().absolutePath()));
+    if(m_skipBackup) {
+        advanceOperationState();
+    } else {
+        registerSubOperation(m_utility->backupInternalStorage(globalTempDirs->root().absolutePath()));
+    }
 }
 
 void LegacyUpdateOperation::startRecovery()
@@ -159,12 +166,20 @@ void LegacyUpdateOperation::downloadAssets()
 
 void LegacyUpdateOperation::restoreBackup()
 {
-    registerSubOperation(m_utility->restoreInternalStorage(globalTempDirs->root().absolutePath()));
+    if(m_skipBackup) {
+        advanceOperationState();
+    } else {
+        registerSubOperation(m_utility->restoreInternalStorage(globalTempDirs->root().absolutePath()));
+    }
 }
 
 void LegacyUpdateOperation::restartDevice()
 {
-    registerSubOperation(m_utility->restartDevice());
+    if(m_skipBackup) {
+        advanceOperationState();
+    } else {
+        registerSubOperation(m_utility->restartDevice());
+    }
 }
 
 void LegacyUpdateOperation::onSubOperationError(AbstractOperation *operation)
