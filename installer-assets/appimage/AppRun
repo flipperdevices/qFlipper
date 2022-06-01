@@ -45,7 +45,7 @@ install_udev_rules() {
 uninstall_udev_rules() {
     check_rules_dir
 
-    if ! [ -f "$RULES_FILE" ]; then
+    if ! [ -f "$TARGET_RULES_PATH" ]; then
         printf 'Nothing to uninstall. Bye!\n'
         exit
     fi
