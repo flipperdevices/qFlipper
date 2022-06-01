@@ -100,7 +100,10 @@ unix:!macx {
     iconfiles.files = $$PWD/assets/icons/$${TARGET}.png
     iconfiles.path = $$PREFIX/share/icons/hicolor/512x512/apps
 
-    INSTALLS += target desktopfiles iconfiles
+    udevfiles.files = $$PWD/installer-assets/udev/42-flipperzero.rules
+    udevfiles.path = $$PREFIX/lib/udev/rules.d
+
+    INSTALLS += target desktopfiles iconfiles udevfiles
 
 } else:win32 {
     target.path = $$DESTDIR/$$NAME
