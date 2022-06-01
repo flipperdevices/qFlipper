@@ -18,6 +18,13 @@
 
 Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
 
+static inline const QString getFileName(const QString &url)
+{
+    const auto start = url.lastIndexOf('/') + 1;
+    const auto end = url.lastIndexOf('.');
+    return url.mid(start, end - start);
+}
+
 using namespace Flipper;
 using namespace Zero;
 
@@ -78,7 +85,7 @@ void FullUpdateOperation::fetchUpdateFile()
     }
 
     m_updateFile = globalTempDirs->createTempFile(this);
-    m_updateDirectory = globalTempDirs->subdir(QFileInfo(fileInfo.url()).baseName());
+    m_updateDirectory = globalTempDirs->subdir(getFileName(fileInfo.url()));
 
     auto *fetcher = new RemoteFileFetcher(this);
     if(!fetcher->fetch(fileInfo, m_updateFile)) {
@@ -191,10 +198,10 @@ bool FullUpdateOperation::findAndCdToUpdateDir()
         it.next();
 
         const auto &fileInfo = it.fileInfo();
-        const auto baseName = fileInfo.baseName();
+        const auto fileName = fileInfo.fileName();
 
-        if(fileInfo.isDir() && m_updateDirectory.dirName().endsWith(baseName)) {
-            m_updateDirectory.cd(baseName);
+        if(fileInfo.isDir() && m_updateDirectory.dirName().endsWith(fileName)) {
+            m_updateDirectory.cd(fileName);
             return true;
         }
     }
