@@ -53,6 +53,8 @@ void ScreenStreamer::setDevice(FlipperZero *device)
         return;
     }
 
+    setStreamState(StreamState::Stopped);
+
     m_device = device;
     setScreenData(transposeImage(QByteArray((char*)default_bits, sizeof(default_bits)), default_width, default_height));
 

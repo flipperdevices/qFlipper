@@ -317,7 +317,11 @@ void ProtobufSession::processQueue()
 void ProtobufSession::writeToPort()
 {
     if(!m_currentOperation || !m_plugin) {
-       return;
+        return;
+    } else if(!m_loader->isLoaded()) {
+        // For some weird reason the plugin can be unloaded by connecting
+        // multiple devices (although the docs say it shouldn't)
+        loadProtobufPlugin();
     }
 
     bool success;
