@@ -3,6 +3,7 @@
 set -e
 
 THIS_DIR="$(readlink -f "$(dirname "$0")")"
+APPIMAGE_NAME="$(basename $APPIMAGE)"
 
 RULES_FILE_NAME='42-flipperzero.rules'
 RULES_DIR=${3:-'/etc/udev/rules.d'}
@@ -78,9 +79,9 @@ elif [[ "$1" = 'rules' ]]; then
     case "$2" in
         'install') install_udev_rules ;;
         'uninstall') uninstall_udev_rules ;;
-        *) printf "Usage: $APPIMAGE rules {install, uninstall} [/path/to/rules.d]\n"; exit 255 ;;
+        *) printf "Usage: $APPIMAGE_NAME rules {install, uninstall} [/path/to/rules.d]\n"; exit 255 ;;
     esac
 else
-    printf "Usage: $APPIMAGE {[gui], cli, rules} [parameters]\n"
+    printf "Usage: $APPIMAGE_NAME {[gui], cli, rules} [parameters]\n"
     exit 255
 fi
