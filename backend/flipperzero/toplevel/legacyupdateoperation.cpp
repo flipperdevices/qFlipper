@@ -175,7 +175,7 @@ void LegacyUpdateOperation::restoreBackup()
 
 void LegacyUpdateOperation::restartDevice()
 {
-    if(m_skipBackup) {
+    if(m_skipBackup && deviceState()->deviceInfo().storage.isAssetsInstalled) {
         advanceOperationState();
     } else {
         registerSubOperation(m_utility->restartDevice());
