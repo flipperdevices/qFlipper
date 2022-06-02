@@ -269,10 +269,10 @@ const QString &VCPDeviceInfoHelper::branchToChannelName(const QByteArray &branch
     const QRegExp validVersion(QStringLiteral("^\\d+\\.\\d+\\.\\d+(-rc)?$"));
 
     if(validVersion.exactMatch(branchName)) {
-        if(validVersion.captureCount()) {
-            return RELEASE_CANDIDATE;
-        } else {
+        if(validVersion.cap(1).isEmpty()) {
             return RELEASE;
+        } else {
+            return RELEASE_CANDIDATE;
         }
 
     } else if(branchName == QByteArrayLiteral("dev")) {
