@@ -173,6 +173,20 @@ AbstractOverlay {
             color: connectionLabel.color
             text: deviceInfo ? deviceInfo.systemLocation : text
             capitalized: false
+
+            TextEdit {
+                id: systemPathLabelTextCopy
+                text: parent.text
+                visible: false
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onDoubleClicked: {
+                    systemPathLabelTextCopy.selectAll();
+                    systemPathLabelTextCopy.copy();
+                }
+            }
         }
     }
 
