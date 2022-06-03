@@ -139,5 +139,6 @@
         <file>assets/fonts/ShareTech-Regular.ttf</file>
         <file>assets/gfx/symbolic/filemgr/action-upload.svg</file>
         <file>assets/gfx/symbolic/filemgr/action-download.svg</file>
+        <file>assets/gfx/images/streaming-help-mac.svg</file>
     </qresource>
 </RCC>

@@ -105,8 +105,8 @@ AbstractOverlay {
                 visible: parent.hovered
 
                 contentItem: Image {
-                    source: "qrc:/assets/gfx/images/streaming-help.svg"
-                    sourceSize: Qt.size(207, 80)
+                    source: "qrc:/assets/gfx/images/streaming-help%1.svg".arg(Qt.platform.os === "osx" ? "-mac" : "")
+                    sourceSize: Qt.size(207, 102)
                 }
             }
         }
