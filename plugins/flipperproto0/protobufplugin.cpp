@@ -24,8 +24,17 @@ const QByteArray ProtobufPlugin::statusPing(uint32_t id, const QByteArray &data)
 
 const QByteArray ProtobufPlugin::systemReboot(uint32_t id, RebootMode mode) const
 {
-    const auto rm = mode == RebootModeOS ? PB_System_RebootRequest_RebootMode_OS :
-                                           PB_System_RebootRequest_RebootMode_DFU;
+    PB_System_RebootRequest_RebootMode rm;
+
+    if(mode == RebootModeOS) {
+        rm = PB_System_RebootRequest_RebootMode_OS;
+    } else if(mode == RebootModeRecovery) {
+        rm = PB_System_RebootRequest_RebootMode_DFU;
+    } else if(mode == RebootModeUpdate) {
+        rm = PB_System_RebootRequest_RebootMode_UPDATE;
+    } else {
+        return QByteArray();
+    }
 
     return SystemRebootRequest(id, rm).encode();
 }
@@ -48,6 +57,11 @@ const QByteArray ProtobufPlugin::systemGetDateTime(uint32_t id) const
 const QByteArray ProtobufPlugin::systemSetDateTime(uint32_t id, const QDateTime &dateTime) const
 {
     return SystemSetDateTimeRequest(id, dateTime).encode();
+}
+
+const QByteArray ProtobufPlugin::systemUpdateRequest(uint32_t id, const QByteArray &manifestPath) const
+{
+    return SystemUpdateRequest(id, manifestPath).encode();
 }
 
 const QByteArray ProtobufPlugin::guiStartScreenStream(uint32_t id) const

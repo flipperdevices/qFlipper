@@ -88,6 +88,7 @@ QObject *MainResponse::create(MessageWrapper &wrapper, QObject *parent)
     case StatusPing: return new StatusPingResponse(wrapper, parent);
     case SystemDeviceInfo: return new SystemDeviceInfoResponse(wrapper, parent);
     case SystemGetDateTime: return new SystemGetDateTimeResponse(wrapper, parent);
+    case SystemUpdate: return new SystemUpdateResponse(wrapper, parent);
     case StorageInfo: return new StorageInfoResponse(wrapper, parent);
     case StorageStat: return new StorageStatResponse(wrapper, parent);
     case StorageList: return new StorageListResponse(wrapper, parent);
@@ -111,6 +112,7 @@ MainResponseInterface::ResponseType MainResponse::tagToResponseType(pb_size_t ta
     case PB_Main_system_ping_response_tag: return StatusPing;
     case PB_Main_system_device_info_response_tag: return SystemDeviceInfo;
     case PB_Main_system_get_datetime_response_tag: return SystemGetDateTime;
+    case PB_Main_system_update_response_tag: return SystemUpdate;
 
     case PB_Main_storage_list_response_tag: return StorageList;
     case PB_Main_storage_read_response_tag: return StorageRead;

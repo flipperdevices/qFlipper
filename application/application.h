@@ -22,6 +22,10 @@ class Application : public QtSingleApplication
     Q_PROPERTY(bool isDeveloperMode READ isDeveloperMode CONSTANT)
     Q_PROPERTY(UpdateStatus updateStatus READ updateStatus NOTIFY updateStatusChanged)
 
+    enum OptionIndex {
+        DeveloperModeOption = 0,
+    };
+
 public:
     enum class UpdateStatus {
         NoUpdates,
@@ -51,6 +55,7 @@ private slots:
     void onLatestVersionChanged();
 
 private:
+    void initCommandOptions();
     void initConnections();
     void initLogger();
     void initStyles();

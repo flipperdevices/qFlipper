@@ -23,6 +23,7 @@ public:
     const QByteArray systemDeviceInfo(uint32_t id) const override;
     const QByteArray systemGetDateTime(uint32_t id) const override;
     const QByteArray systemSetDateTime(uint32_t id, const QDateTime &dateTime) const override;
+    const QByteArray systemUpdateRequest(uint32_t id, const QByteArray &manifestPath) const override;
 
     const QByteArray guiStartScreenStream(uint32_t id) const override;
     const QByteArray guiStopScreenStream(uint32_t id) const override;

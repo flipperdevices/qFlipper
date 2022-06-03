@@ -120,10 +120,19 @@ Item {
             }
 
             TextLabel {
-                text: deviceInfo && deviceInfo.radioVersion.length ? deviceInfo.radioVersion : qsTr("Corrupted")
+                text: deviceInfo && deviceInfo.radioVersion.length ? "%1 %2".arg(deviceInfo.radioVersion).arg(stackTypeString(deviceInfo.stackType)) : qsTr("Corrupted")
                 color: deviceInfo && deviceInfo.radioVersion.length ? Theme.color.lightorange3 : Theme.color.lightred3
                 visible: extraFields
             }
+        }
+    }
+
+    function stackTypeString(num) {
+        switch(num) {
+        case 1: return "Full";
+        case 2: return "HCI";
+        case 3: return "Lite";
+        default: return num;
         }
     }
 }

@@ -95,6 +95,15 @@ typedef struct _PB_Main {
         PB_System_GetDateTimeRequest system_get_datetime_request;
         PB_System_GetDateTimeResponse system_get_datetime_response;
         PB_System_SetDateTimeRequest system_set_datetime_request;
+        PB_System_PlayAudiovisualAlertRequest system_play_audiovisual_alert_request;
+        PB_System_ProtobufVersionRequest system_protobuf_version_request;
+        PB_System_ProtobufVersionResponse system_protobuf_version_response;
+        PB_System_UpdateRequest system_update_request;
+        PB_Storage_BackupCreateRequest storage_backup_create_request;
+        PB_Storage_BackupRestoreRequest storage_backup_restore_request;
+        PB_System_PowerInfoRequest system_power_info_request;
+        PB_System_PowerInfoResponse system_power_info_response;
+        PB_System_UpdateResponse system_update_response;
     } content; 
 } PB_Main;
 
@@ -155,6 +164,15 @@ extern "C" {
 #define PB_Main_system_get_datetime_request_tag  35
 #define PB_Main_system_get_datetime_response_tag 36
 #define PB_Main_system_set_datetime_request_tag  37
+#define PB_Main_system_play_audiovisual_alert_request_tag 38
+#define PB_Main_system_protobuf_version_request_tag 39
+#define PB_Main_system_protobuf_version_response_tag 40
+#define PB_Main_system_update_request_tag        41
+#define PB_Main_storage_backup_create_request_tag 42
+#define PB_Main_storage_backup_restore_request_tag 43
+#define PB_Main_system_power_info_request_tag    44
+#define PB_Main_system_power_info_response_tag   45
+#define PB_Main_system_update_response_tag       46
 
 /* Struct field encoding specification for nanopb */
 #define PB_Empty_FIELDLIST(X, a) \
@@ -204,7 +222,16 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_device_info_response,content.
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_factory_reset_request,content.system_factory_reset_request),  34) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_get_datetime_request,content.system_get_datetime_request),  35) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_get_datetime_response,content.system_get_datetime_response),  36) \
-X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_set_datetime_request,content.system_set_datetime_request),  37)
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_set_datetime_request,content.system_set_datetime_request),  37) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_play_audiovisual_alert_request,content.system_play_audiovisual_alert_request),  38) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_protobuf_version_request,content.system_protobuf_version_request),  39) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_protobuf_version_response,content.system_protobuf_version_response),  40) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_update_request,content.system_update_request),  41) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_backup_create_request,content.storage_backup_create_request),  42) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_backup_restore_request,content.storage_backup_restore_request),  43) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_power_info_request,content.system_power_info_request),  44) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_power_info_response,content.system_power_info_response),  45) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_update_response,content.system_update_response),  46)
 #define PB_Main_CALLBACK NULL
 #define PB_Main_DEFAULT NULL
 #define PB_Main_content_empty_MSGTYPE PB_Empty
@@ -241,6 +268,15 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_set_datetime_request,content.
 #define PB_Main_content_system_get_datetime_request_MSGTYPE PB_System_GetDateTimeRequest
 #define PB_Main_content_system_get_datetime_response_MSGTYPE PB_System_GetDateTimeResponse
 #define PB_Main_content_system_set_datetime_request_MSGTYPE PB_System_SetDateTimeRequest
+#define PB_Main_content_system_play_audiovisual_alert_request_MSGTYPE PB_System_PlayAudiovisualAlertRequest
+#define PB_Main_content_system_protobuf_version_request_MSGTYPE PB_System_ProtobufVersionRequest
+#define PB_Main_content_system_protobuf_version_response_MSGTYPE PB_System_ProtobufVersionResponse
+#define PB_Main_content_system_update_request_MSGTYPE PB_System_UpdateRequest
+#define PB_Main_content_storage_backup_create_request_MSGTYPE PB_Storage_BackupCreateRequest
+#define PB_Main_content_storage_backup_restore_request_MSGTYPE PB_Storage_BackupRestoreRequest
+#define PB_Main_content_system_power_info_request_MSGTYPE PB_System_PowerInfoRequest
+#define PB_Main_content_system_power_info_response_MSGTYPE PB_System_PowerInfoResponse
+#define PB_Main_content_system_update_response_MSGTYPE PB_System_UpdateResponse
 
 extern const pb_msgdesc_t PB_Empty_msg;
 extern const pb_msgdesc_t PB_StopSession_msg;
@@ -252,12 +288,12 @@ extern const pb_msgdesc_t PB_Main_msg;
 #define PB_Main_fields &PB_Main_msg
 
 /* Maximum encoded size of messages (where known) */
-#if defined(PB_System_PingRequest_size) && defined(PB_System_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size) && defined(PB_Gui_StartVirtualDisplayRequest_size) && defined(PB_Storage_InfoRequest_size) && defined(PB_Storage_RenameRequest_size) && defined(PB_System_DeviceInfoResponse_size)
-union PB_Main_content_size_union {char f5[(6 + PB_System_PingRequest_size)]; char f6[(6 + PB_System_PingResponse_size)]; char f7[(6 + PB_Storage_ListRequest_size)]; char f8[(6 + PB_Storage_ListResponse_size)]; char f9[(6 + PB_Storage_ReadRequest_size)]; char f10[(6 + PB_Storage_ReadResponse_size)]; char f11[(6 + PB_Storage_WriteRequest_size)]; char f12[(6 + PB_Storage_DeleteRequest_size)]; char f13[(6 + PB_Storage_MkdirRequest_size)]; char f14[(6 + PB_Storage_Md5sumRequest_size)]; char f16[(7 + PB_App_StartRequest_size)]; char f22[(7 + PB_Gui_ScreenFrame_size)]; char f24[(7 + PB_Storage_StatRequest_size)]; char f25[(7 + PB_Storage_StatResponse_size)]; char f26[(7 + PB_Gui_StartVirtualDisplayRequest_size)]; char f28[(7 + PB_Storage_InfoRequest_size)]; char f30[(7 + PB_Storage_RenameRequest_size)]; char f33[(7 + PB_System_DeviceInfoResponse_size)]; char f0[36];};
+#if defined(PB_System_PingRequest_size) && defined(PB_System_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size) && defined(PB_Gui_StartVirtualDisplayRequest_size) && defined(PB_Storage_InfoRequest_size) && defined(PB_Storage_RenameRequest_size) && defined(PB_System_DeviceInfoResponse_size) && defined(PB_System_UpdateRequest_size) && defined(PB_Storage_BackupCreateRequest_size) && defined(PB_Storage_BackupRestoreRequest_size) && defined(PB_System_PowerInfoResponse_size)
+union PB_Main_content_size_union {char f5[(6 + PB_System_PingRequest_size)]; char f6[(6 + PB_System_PingResponse_size)]; char f7[(6 + PB_Storage_ListRequest_size)]; char f8[(6 + PB_Storage_ListResponse_size)]; char f9[(6 + PB_Storage_ReadRequest_size)]; char f10[(6 + PB_Storage_ReadResponse_size)]; char f11[(6 + PB_Storage_WriteRequest_size)]; char f12[(6 + PB_Storage_DeleteRequest_size)]; char f13[(6 + PB_Storage_MkdirRequest_size)]; char f14[(6 + PB_Storage_Md5sumRequest_size)]; char f16[(7 + PB_App_StartRequest_size)]; char f22[(7 + PB_Gui_ScreenFrame_size)]; char f24[(7 + PB_Storage_StatRequest_size)]; char f25[(7 + PB_Storage_StatResponse_size)]; char f26[(7 + PB_Gui_StartVirtualDisplayRequest_size)]; char f28[(7 + PB_Storage_InfoRequest_size)]; char f30[(7 + PB_Storage_RenameRequest_size)]; char f33[(7 + PB_System_DeviceInfoResponse_size)]; char f41[(7 + PB_System_UpdateRequest_size)]; char f42[(7 + PB_Storage_BackupCreateRequest_size)]; char f43[(7 + PB_Storage_BackupRestoreRequest_size)]; char f45[(7 + PB_System_PowerInfoResponse_size)]; char f0[36];};
 #endif
 #define PB_Empty_size                            0
 #define PB_StopSession_size                      0
-#if defined(PB_System_PingRequest_size) && defined(PB_System_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size) && defined(PB_Gui_StartVirtualDisplayRequest_size) && defined(PB_Storage_InfoRequest_size) && defined(PB_Storage_RenameRequest_size) && defined(PB_System_DeviceInfoResponse_size)
+#if defined(PB_System_PingRequest_size) && defined(PB_System_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size) && defined(PB_Gui_StartVirtualDisplayRequest_size) && defined(PB_Storage_InfoRequest_size) && defined(PB_Storage_RenameRequest_size) && defined(PB_System_DeviceInfoResponse_size) && defined(PB_System_UpdateRequest_size) && defined(PB_Storage_BackupCreateRequest_size) && defined(PB_Storage_BackupRestoreRequest_size) && defined(PB_System_PowerInfoResponse_size)
 #define PB_Main_size                             (10 + sizeof(union PB_Main_content_size_union))
 #endif
 

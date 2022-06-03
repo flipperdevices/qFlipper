@@ -4,6 +4,7 @@
 
 #include <QDebug>
 #include <QTimer>
+#include <QRegExp>
 #include <QSerialPort>
 #include <QLoggingCategory>
 
@@ -263,13 +264,21 @@ const QString &VCPDeviceInfoHelper::branchToChannelName(const QByteArray &branch
     static const auto DEVELOPMENT = QStringLiteral("development");
     static const auto RELEASE_CANDIDATE = QStringLiteral("release-candidate");
     static const auto RELEASE = QStringLiteral("release");
+    static const auto CUSTOM = QStringLiteral("custom");
 
-    if(branchName == QByteArrayLiteral("dev")) {
+    const QRegExp validVersion(QStringLiteral("^\\d+\\.\\d+\\.\\d+(-rc)?$"));
+
+    if(validVersion.exactMatch(branchName)) {
+        if(validVersion.cap(1).isEmpty()) {
+            return RELEASE;
+        } else {
+            return RELEASE_CANDIDATE;
+        }
+
+    } else if(branchName == QByteArrayLiteral("dev")) {
         return DEVELOPMENT;
-    } else if(branchName.contains(QByteArrayLiteral("-rc"))) {
-        return RELEASE_CANDIDATE;
     } else {
-        return RELEASE;
+        return CUSTOM;
     }
 }
 

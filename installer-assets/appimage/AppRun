@@ -2,18 +2,86 @@
 
 set -e
 
-this_dir="$(readlink -f "$(dirname "$0")")"
+THIS_DIR="$(readlink -f "$(dirname "$0")")"
+APPIMAGE_NAME="$(basename $APPIMAGE)"
+
+RULES_FILE_NAME='42-flipperzero.rules'
+RULES_DIR=${3:-'/etc/udev/rules.d'}
+TARGET_RULES_FILE="$RULES_DIR/$RULES_FILE_NAME"
+SOURCE_RULES_FILE="$THIS_DIR/usr/lib/udev/rules.d/$RULES_FILE_NAME"
+
+SUDO_MESSAGE='You will now be asked for SUDO password.\n'
+
+check_rules_dir() {
+    if ! [ -d "$RULES_DIR" ]; then
+        printf "Error: directory \"$RULES_DIR\" does not exist.\n"
+        exit 255
+    fi
+}
+
+install_udev_rules() {
+    check_rules_dir
+
+    if [ -f "$TARGET_RULES_FILE" ]; then
+        printf 'The rules have already been installed. Bye!\n'
+        exit
+    fi
+
+    printf "$SUDO_MESSAGE"
+
+    # The danger zone
+    if \
+        sudo -K \
+        && cat "$SOURCE_RULES_FILE" | sudo dd of="$TARGET_RULES_FILE" >/dev/null 2>&1 \
+        && sudo udevadm control --reload-rules \
+        && sudo udevadm trigger
+    # End of danger zone
+    then
+        printf "Device rules have been installed successfully. You're good to go!\n"
+    else
+        printf "Something went wrong. Device rules may have not been installed correctly.\n"
+    fi
+}
+
+uninstall_udev_rules() {
+    check_rules_dir
+
+    if ! [ -f "$TARGET_RULES_FILE" ]; then
+        printf 'Nothing to uninstall. Bye!\n'
+        exit
+    fi
+
+    printf "$SUDO_MESSAGE"
+
+    # The danger zone
+    if
+        sudo -K \
+        && sudo rm -f "$TARGET_RULES_FILE" \
+        && sudo udevadm control --reload-rules \
+        && sudo udevadm trigger
+    # End of danger zone
+    then
+        printf "Device rules have been uninstalled successfully. Thank you.\n"
+    else
+        printf "Something went wrong. Device rules may have not been uninstalled correctly.\n"
+    fi
+}
 
 if [[ $# -eq 0 ]]; then
-    "$this_dir"/usr/bin/qFlipper
+    "$THIS_DIR"/usr/bin/qFlipper
 elif [[ "$1" = 'gui' ]]; then
     shift 1
-    "$this_dir"/usr/bin/qFlipper "$@"
+    "$THIS_DIR"/usr/bin/qFlipper "$@"
 elif [[ "$1" = 'cli' ]]; then
     shift 1
-    "$this_dir"/usr/bin/qFlipper-cli "$@"
+    "$THIS_DIR"/usr/bin/qFlipper-cli "$@"
+elif [[ "$1" = 'rules' ]]; then
+    case "$2" in
+        'install') install_udev_rules ;;
+        'uninstall') uninstall_udev_rules ;;
+        *) printf "Usage: $APPIMAGE_NAME rules {install, uninstall} [/path/to/rules.d]\n"; exit 255 ;;
+    esac
 else
-    echo 'Usage: <Appimage> {[gui], cli} [parameters]'
+    printf "Usage: $APPIMAGE_NAME {[gui], cli, rules} [parameters]\n"
     exit 255
 fi
-

@@ -28,7 +28,7 @@ QtObject {
 <p>=========== HOW TO FIX ============</p>
 <p>1. Ensure that Flipper is not connected via Bluetooth or Terminal session.</p>
 <p>2. Grant user permissions to access Serial devices.</p>
-<p>Run <a href='https://github.com/flipperdevices/qFlipper/raw/dev/setup_rules.sh'>this script</a> to do so automatically.</p>
+<p>Run \"qFlipper-x86_64-{version}.Appimage rules install\" to do so automatically.</p>
 <p>3. Reconnect your Flipper.</p>
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
@@ -58,7 +58,7 @@ QtObject {
 <p>1. Check that Flipper is in Update & Recovery mode.</p>
 <p>2. Reconnect your Flipper.</p>
 <p>3. Grant user permissions to access DFU devices.</p>
-<p>Run <a href='https://github.com/flipperdevices/qFlipper/raw/dev/setup_rules.sh'>this script</a> to do so automatically.</p>
+<p>Run \"qFlipper-x86_64-{version}.Appimage rules install\" to do so automatically.</p>
 <p>4. Reboot Flipper to Flipper OS and try again.</p>
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"

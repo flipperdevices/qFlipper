@@ -18,6 +18,8 @@ class AssetsDownloadOperation;
 class UserBackupOperation;
 class UserRestoreOperation;
 class RestartOperation;
+class UpdatePrepareOperation;
+class StartUpdaterOperation;
 
 class UtilityInterface : public AbstractOperationRunner
 {
@@ -34,6 +36,8 @@ public:
     FactoryResetUtilOperation *factoryReset();
     DirectoryUploadOperation *uploadDirectory(const QString &localDirectory, const QByteArray &remotePath);
     DirectoryDownloadOperation *downloadDirectory(const QString &localDirectory, const QByteArray &remotePath);
+    UpdatePrepareOperation *prepareUpdateDirectory(const QByteArray &updateDirName, const QByteArray &remotePath);
+    StartUpdaterOperation *startUpdater(const QByteArray &manifestPath);
 
 private:
     const QLoggingCategory &loggingCategory() const override;

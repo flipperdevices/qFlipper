@@ -10,6 +10,7 @@
 #include <QQuickWindow>
 #include <QFontDatabase>
 #include <QLoggingCategory>
+#include <QCommandLineParser>
 #include <QtQuickControls2/QQuickStyle>
 
 #include "updateregistry.h"
@@ -33,6 +34,7 @@ Application::Application(int &argc, char **argv):
         return;
     }
 
+    initCommandOptions();
     initConnections();
     initLogger();
     initQmlTypes();
@@ -110,6 +112,21 @@ void Application::initConnections()
 {
     connect(this, &QtSingleApplication::messageReceived, this, &Application::onMessageReceived);
     connect(&m_updateRegistry, &Flipper::UpdateRegistry::latestVersionChanged, this, &Application::onLatestVersionChanged);
+}
+
+void Application::initCommandOptions()
+{
+    QCommandLineParser parser;
+
+    const auto developerModeOption = QCommandLineOption({QStringLiteral("x"), QStringLiteral("developer-mode")}, QStringLiteral("Enable developer mode."));
+
+    parser.addOption(developerModeOption);
+    parser.addVersionOption();
+    parser.addHelpOption();
+
+    parser.process(*this);
+
+    m_isDeveloperMode |= parser.isSet(developerModeOption);
 }
 
 void Application::initLogger()

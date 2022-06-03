@@ -1,37 +1,44 @@
 #include "fullupdateoperation.h"
 
-#include <QFile>
-#include <QTemporaryFile>
+#include <QDebug>
+#include <QDirIterator>
+#include <QLoggingCategory>
 
 #include "flipperzero/devicestate.h"
-
 #include "flipperzero/utilityinterface.h"
-#include "flipperzero/utility/restartoperation.h"
-#include "flipperzero/utility/userbackupoperation.h"
-#include "flipperzero/utility/userrestoreoperation.h"
-#include "flipperzero/utility/startrecoveryoperation.h"
-#include "flipperzero/utility/assetsdownloadoperation.h"
+#include "flipperzero/utility/updateprepareoperation.h"
+#include "flipperzero/utility/directoryuploadoperation.h"
+#include "flipperzero/utility/startupdateroperation.h"
 
-#include "flipperzero/recoveryinterface.h"
-#include "flipperzero/recovery/setbootmodeoperation.h"
-#include "flipperzero/recovery/exitrecoveryoperation.h"
-#include "flipperzero/recovery/correctoptionbytesoperation.h"
-#include "flipperzero/recovery/firmwaredownloadoperation.h"
-#include "flipperzero/recovery/wirelessstackdownloadoperation.h"
-
-#include "flipperzero/helper/firmwarehelper.h"
-
+#include "tarzipuncompressor.h"
 #include "tempdirectories.h"
+#include "remotefilefetcher.h"
+
+#define REMOTE_DIR "/ext/update"
+
+Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
+
+static inline const QString getFileName(const QString &url)
+{
+    const auto start = url.lastIndexOf('/') + 1;
+    const auto end = url.lastIndexOf('.');
+    return url.mid(start, end - start);
+}
 
 using namespace Flipper;
 using namespace Zero;
 
-FullUpdateOperation::FullUpdateOperation(RecoveryInterface *recovery, UtilityInterface *utility, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent):
-    AbstractTopLevelOperation(state, parent),
-    m_recovery(recovery),
+FullUpdateOperation::FullUpdateOperation(UtilityInterface *utility, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent):
+    Flipper::Zero::AbstractTopLevelOperation(state, parent),
+    m_updateFile(nullptr),
     m_utility(utility),
     m_versionInfo(versionInfo)
 {}
+
+FullUpdateOperation::~FullUpdateOperation()
+{
+    deviceState()->setAllowVirtualDisplay(true);
+}
 
 const QString FullUpdateOperation::description() const
 {
@@ -40,137 +47,164 @@ const QString FullUpdateOperation::description() const
 
 void FullUpdateOperation::nextStateLogic()
 {
-    if(operationState() == FullUpdateOperation::Ready) {
-        setOperationState(FullUpdateOperation::FetchingFirmware);
-        fetchFirmware();
+    if(operationState() == AbstractOperation::Ready) {
+        setOperationState(FullUpdateOperation::FetchingUpdate);
+        fetchUpdateFile();
 
-    } else if(operationState() == FullUpdateOperation::FetchingFirmware) {
-        setOperationState(FullUpdateOperation::SavingBackup);
-        saveBackup();
+    } else if(operationState() == FullUpdateOperation::FetchingUpdate) {
+        setOperationState(FullUpdateOperation::ExtractingUpdate);
+        extractUpdate();
 
-    } else if(operationState() == FullUpdateOperation::SavingBackup) {
-        setOperationState(FullUpdateOperation::StartingRecovery);
-        startRecovery();
+    } else if(operationState() == FullUpdateOperation::ExtractingUpdate) {
+        setOperationState(FullUpdateOperation::PreparingUpdateDir);
+        prepareUpdateDir();
 
-    } else if(operationState() == FullUpdateOperation::StartingRecovery) {
+    } else if(operationState() == FullUpdateOperation::PreparingUpdateDir) {
+        setOperationState(FullUpdateOperation::UploadingUpdateDir);
+        uploadUpdateDir();
 
-        if(m_helper->hasRadioUpdate()) {
-            setOperationState(FullUpdateOperation::SettingBootMode);
-            setBootMode();
+    } else if(operationState() == FullUpdateOperation::UploadingUpdateDir) {
+        setOperationState(FullUpdateOperation::WaitingForUpdate);
+        startUpdate();
 
-        } else{
-            setOperationState(FullUpdateOperation::DownloadingRadioFirmware);
-            advanceOperationState();
-        }
-
-    } else if(operationState() == FullUpdateOperation::SettingBootMode) {
-        setOperationState(FullUpdateOperation::DownloadingRadioFirmware);
-        downloadRadioFirmware();
-
-    } else if(operationState() == FullUpdateOperation::DownloadingRadioFirmware) {
-        setOperationState(FullUpdateOperation::DownloadingFirmware);
-        downloadFirmware();
-
-    } else if(operationState() == FullUpdateOperation::DownloadingFirmware) {
-
-        if(m_helper->hasRadioUpdate()) {
-            setOperationState(FullUpdateOperation::CorrectingOptionBytes);
-            correctOptionBytes();
-
-        } else {
-            setOperationState(FullUpdateOperation::ExitingRecovery);
-            exitRecovery();
-        }
-
-    } else if((operationState() == FullUpdateOperation::ExitingRecovery) ||
-              (operationState() == FullUpdateOperation::CorrectingOptionBytes)) {
-        setOperationState(FullUpdateOperation::DownloadingAssets);
-        downloadAssets();
-
-    } else if(operationState() == FullUpdateOperation::DownloadingAssets) {
-        setOperationState(FullUpdateOperation::RestoringBackup);
-        restoreBackup();
-
-    } else if(operationState() == FullUpdateOperation::RestoringBackup) {
-        setOperationState(FullUpdateOperation::RestartingDevice);
-        restartDevice();
-
-    } else if(operationState() == FullUpdateOperation::RestartingDevice) {
+    } else if(operationState() == FullUpdateOperation::WaitingForUpdate) {
         finish();
     }
 }
 
-void FullUpdateOperation::fetchFirmware()
+void FullUpdateOperation::fetchUpdateFile()
 {
-    m_helper = new FirmwareHelper(deviceState(), m_versionInfo, this);
+    deviceState()->setStatusString(QStringLiteral("Fetchig fimware update..."));
 
-    connect(m_helper, &AbstractOperationHelper::finished, this, [=]() {
-        if(m_helper->isError()) {
-            finishWithError(m_helper->error(), QStringLiteral("Failed to fetch the files: %1").arg(m_helper->errorString()));
+    const auto target = deviceState()->deviceInfo().hardware.target;
+    const auto fileInfo = m_versionInfo.fileInfo(QStringLiteral("update_tgz"), target);
+
+    if(fileInfo.target() != target) {
+        finishWithError(BackendError::DataError, QStringLiteral("Required file type or target not found"));
+        return;
+    }
+
+    m_updateFile = globalTempDirs->createTempFile(this);
+    m_updateDirectory = globalTempDirs->subdir(getFileName(fileInfo.url()));
+
+    auto *fetcher = new RemoteFileFetcher(this);
+    if(!fetcher->fetch(fileInfo, m_updateFile)) {
+        finishWithError(fetcher->error(), fetcher->errorString());
+        return;
+    }
+
+    connect(fetcher, &RemoteFileFetcher::progressChanged, this, [=](double progress) {
+        deviceState()->setProgress(progress);
+    });
+
+    connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
+        if(fetcher->isError()) {
+            finishWithError(fetcher->error(), fetcher->errorString());
+        } else {
+            advanceOperationState();
+        }
+
+        fetcher->deleteLater();
+    });
+}
+
+void FullUpdateOperation::extractUpdate()
+{
+    deviceState()->setStatusString(QStringLiteral("Extracting fimware update ..."));
+    deviceState()->setProgress(-1.0);
+
+    auto *uncompressor = new TarZipUncompressor(m_updateFile, m_updateDirectory, this);
+
+    connect(uncompressor, &TarZipUncompressor::finished, this, [=]() {
+        if(uncompressor->isError()) {
+            finishWithError(uncompressor->error(), uncompressor->errorString());
+        } else {
+            advanceOperationState();
+        }
+
+        uncompressor->deleteLater();
+    });
+}
+
+void FullUpdateOperation::prepareUpdateDir()
+{
+    deviceState()->setStatusString(QStringLiteral("Preparing fimware update ..."));
+    deviceState()->setProgress(-1.0);
+
+    if(!findAndCdToUpdateDir()) {
+        finishWithError(BackendError::DataError, QStringLiteral("Cannot find update directory"));
+        return;
+    }
+
+    auto *operation = m_utility->prepareUpdateDirectory(m_updateDirectory.dirName().toLocal8Bit(), QByteArrayLiteral(REMOTE_DIR));
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(operation->error(), operation->errorString());
+            return;
+
+        } else if(operation->updateDirectoryExists()) {
+            qCDebug(CATEGORY_DEBUG) << "Update package has been already uploaded, skipping to update...";
+            setOperationState(FullUpdateOperation::UploadingUpdateDir);
+        }
+
+        advanceOperationState();
+    });
+}
+
+void FullUpdateOperation::uploadUpdateDir()
+{
+    deviceState()->setStatusString(QStringLiteral("Uploading fimware update ..."));
+
+    auto *operation = m_utility->uploadDirectory(m_updateDirectory.absolutePath(), QByteArrayLiteral(REMOTE_DIR));
+
+    connect(operation, &AbstractOperation::progressChanged, this, [=]() {
+        deviceState()->setProgress(operation->progress());
+    });
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(operation->error(), operation->errorString());
         } else {
             advanceOperationState();
         }
     });
 }
 
-void FullUpdateOperation::saveBackup()
+void FullUpdateOperation::startUpdate()
 {
-    registerSubOperation(m_utility->backupInternalStorage(globalTempDirs->root().absolutePath()));
+    deviceState()->setAllowVirtualDisplay(false);
+    deviceState()->setStatusString(QStringLiteral("Uploading fimware update ..."));
+
+    const auto manifestPath = QStringLiteral("%1/%2/update.fuf").arg(QStringLiteral(REMOTE_DIR), m_updateDirectory.dirName());
+    auto *operation = m_utility->startUpdater(manifestPath.toLocal8Bit());
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(operation->error(), operation->errorString());
+        } else {
+            advanceOperationState();
+        }
+    });
 }
 
-void FullUpdateOperation::startRecovery()
+bool FullUpdateOperation::findAndCdToUpdateDir()
 {
-    registerSubOperation(m_utility->startRecoveryMode());
-}
+    m_updateDirectory.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
 
-void FullUpdateOperation::setBootMode()
-{
-    registerSubOperation(m_recovery->setRecoveryBootMode());
-}
+    QDirIterator it(m_updateDirectory);
 
-void FullUpdateOperation::downloadFirmware()
-{
-    auto *file = m_helper->file(FirmwareHelper::FileIndex::Firmware);
-    registerSubOperation(m_recovery->downloadFirmware(file));
-}
+    while(it.hasNext()) {
+        it.next();
 
-void FullUpdateOperation::downloadRadioFirmware()
-{
-    auto *file = m_helper->file(FirmwareHelper::FileIndex::RadioFirmware);
-    registerSubOperation(m_recovery->downloadWirelessStack(file));
-}
+        const auto &fileInfo = it.fileInfo();
+        const auto fileName = fileInfo.fileName();
 
-void FullUpdateOperation::correctOptionBytes()
-{
-    auto *file = m_helper->file(FirmwareHelper::FileIndex::OptionBytes);
-    registerSubOperation(m_recovery->fixOptionBytes(file));
-}
+        if(fileInfo.isDir() && m_updateDirectory.dirName().endsWith(fileName)) {
+            m_updateDirectory.cd(fileName);
+            return true;
+        }
+    }
 
-void FullUpdateOperation::exitRecovery()
-{
-    registerSubOperation(m_recovery->exitRecoveryMode());
-}
-
-void FullUpdateOperation::downloadAssets()
-{
-    auto *file = m_helper->file(FirmwareHelper::FileIndex::AssetsTgz);
-    registerSubOperation(m_utility->downloadAssets(file));
-}
-
-void FullUpdateOperation::restoreBackup()
-{
-    registerSubOperation(m_utility->restoreInternalStorage(globalTempDirs->root().absolutePath()));
-}
-
-void FullUpdateOperation::restartDevice()
-{
-    registerSubOperation(m_utility->restartDevice());
-}
-
-void FullUpdateOperation::onSubOperationError(AbstractOperation *operation)
-{
-    const auto keepError = operationState() == FullUpdateOperation::SavingBackup ||
-                           operationState() == FullUpdateOperation::StartingRecovery;
-
-    finishWithError(keepError ? operation->error() : BackendError::OperationError, operation->errorString());
+    return false;
 }

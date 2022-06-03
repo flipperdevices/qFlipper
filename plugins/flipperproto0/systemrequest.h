@@ -33,3 +33,11 @@ class SystemSetDateTimeRequest : public MainRequest
 public:
     SystemSetDateTimeRequest(uint32_t id, const QDateTime &dateTime);
 };
+
+class SystemUpdateRequest : public MainRequest
+{
+public:
+    SystemUpdateRequest(uint32_t id, const QByteArray &manifestPath);
+private:
+    QByteArray m_manifestPath;
+};

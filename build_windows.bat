@@ -1,19 +1,30 @@
 @echo off
+setlocal EnableDelayedExpansion
 
 set ARCH_BITS=64
 
 set MSVC_VERSION=2019
-set MSVC_DIR="%programfiles(x86)%\Microsoft Visual Studio\"%MSVC_VERSION%
+set "MSVC_DIR=%programfiles(x86)%\Microsoft Visual Studio\%MSVC_VERSION%"
 
 rem Import build environment
-call %MSVC_DIR%\"Community\VC\Auxiliary\Build\"vcvars%ARCH_BITS%.bat
+for %%s in (Community Professional Enterprise) do (
+    set "MSVC_VCVARS_PATH=%MSVC_DIR%\%%s\VC\Auxiliary\Build\vcvars%ARCH_BITS%.bat"
+    if exist !MSVC_VCVARS_PATH! (
+        goto foundmsvc
+    )
+)
+
+echo Could not find MSVC && goto error
+
+:foundmsvc
+call "!MSVC_VCVARS_PATH!"
 
 set QT_DIR=C:\Qt
 set QT_VERSION=5.15.2
 set QT_COMPILER=msvc2019_%ARCH_BITS%
 set QT_BIN_DIR=%QT_DIR%\%QT_VERSION%\%QT_COMPILER%\bin
 
-# Download here https://cdn.flipperzero.one/STM32_DFU_USB_Driver.zip
+rem Download here https://cdn.flipperzero.one/STM32_DFU_USB_Driver.zip
 set STM32_DRIVER_DIR="C:\STM32 Driver"
 
 set QMAKE=%QT_BIN_DIR%\qmake.exe

@@ -86,10 +86,9 @@ Resulting image can be found in: `build_mac/qFlipper.dmg`
 ```
 
 or just launch the file above from your favourite file manager.
-You will likely need to set up udev rules in order to use qFlipper as a normal user. It can be done automatically by running [this script](setup_rules.sh):
+You will likely need to set up udev rules in order to use qFlipper as a normal user:
 ```sh
-chmod +x setup_rules.sh
-./setup_rules.sh
+./qFlipper-x86_64.AppImage rules install [/optional/path/to/rules/dir]
 ```
 
 #### Package managers support

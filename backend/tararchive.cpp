@@ -47,6 +47,11 @@ TarArchive::TarArchive(QIODevice *file):
 TarArchive::~TarArchive()
 {}
 
+FileNode *TarArchive::root() const
+{
+    return m_root.get();
+}
+
 FileNode *TarArchive::file(const QString &fullName)
 {
     return m_root->find(fullName);

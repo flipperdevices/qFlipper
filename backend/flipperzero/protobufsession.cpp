@@ -25,6 +25,7 @@
 #include "rpc/systemgetdatetimeoperation.h"
 #include "rpc/systemsetdatetimeoperation.h"
 #include "rpc/systemfactoryresetoperation.h"
+#include "rpc/systemupdateoperation.h"
 
 #include "rpc/guisendinputoperation.h"
 #include "rpc/guiscreenframeoperation.h"
@@ -91,6 +92,11 @@ SystemRebootOperation *ProtobufSession::rebootToRecovery()
     return enqueueOperation(new SystemRebootOperation(getAndIncrementCounter(), SystemRebootOperation::RebootModeRecovery, this));
 }
 
+SystemRebootOperation *ProtobufSession::rebootToUpdater()
+{
+    return enqueueOperation(new SystemRebootOperation(getAndIncrementCounter(), SystemRebootOperation::RebootModeUpdate, this));
+}
+
 SystemGetDateTimeOperation *ProtobufSession::getDateTime()
 {
     return enqueueOperation(new SystemGetDateTimeOperation(getAndIncrementCounter(), this));
@@ -109,6 +115,11 @@ SystemFactoryResetOperation *ProtobufSession::factoryReset()
 SystemDeviceInfoOperation *ProtobufSession::systemDeviceInfo()
 {
     return enqueueOperation(new SystemDeviceInfoOperation(getAndIncrementCounter(), this));
+}
+
+SystemUpdateOperation *ProtobufSession::systemUpdate(const QByteArray &manifestPath)
+{
+    return enqueueOperation(new SystemUpdateOperation(getAndIncrementCounter(), manifestPath, this));
 }
 
 StorageListOperation *ProtobufSession::storageList(const QByteArray &path)
@@ -306,7 +317,11 @@ void ProtobufSession::processQueue()
 void ProtobufSession::writeToPort()
 {
     if(!m_currentOperation || !m_plugin) {
-       return;
+        return;
+    } else if(!m_loader->isLoaded()) {
+        // For some weird reason the plugin can be unloaded by connecting
+        // multiple devices (although the docs say it shouldn't)
+        loadProtobufPlugin();
     }
 
     bool success;

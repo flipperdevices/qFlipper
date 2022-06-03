@@ -38,3 +38,11 @@ SystemSetDateTimeRequest::SystemSetDateTimeRequest(uint32_t id, const QDateTime 
 SystemFactoryResetRequest::SystemFactoryResetRequest(uint32_t id):
     MainRequest(id, PB_Main_system_factory_reset_request_tag)
 {}
+
+SystemUpdateRequest::SystemUpdateRequest(uint32_t id, const QByteArray &manifestPath):
+    MainRequest(id, PB_Main_system_update_request_tag),
+    m_manifestPath(manifestPath)
+{
+    auto &content = m_message.content.system_update_request;
+    content.update_manifest = m_manifestPath.data();
+}

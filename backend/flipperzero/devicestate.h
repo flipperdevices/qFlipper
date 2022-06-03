@@ -35,6 +35,9 @@ public:
     bool isOnline() const;
     void setOnline(bool set);
 
+    bool isAllowVirtualDisplay() const;
+    void setAllowVirtualDisplay(bool set);
+
     bool isError() const;
 
     bool isRecoveryMode() const;
@@ -74,6 +77,7 @@ private:
 
     bool m_isPersistent;
     bool m_isOnline;
+    bool m_isAllowVirtualDisplay;
 
     BackendError::ErrorType m_error;
     QString m_statusString;

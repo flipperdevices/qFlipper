@@ -91,6 +91,8 @@ struct DeviceInfo {
     Q_PROPERTY(Flipper::Zero::SoftwareInfo firmware MEMBER firmware)
     Q_PROPERTY(Flipper::Zero::StorageInfo storage MEMBER storage)
 
+    Q_PROPERTY(int stackType MEMBER stackType)
+
 public:
     QString name;
     QString model;
