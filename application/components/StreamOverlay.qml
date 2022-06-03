@@ -162,7 +162,7 @@ AbstractOverlay {
     Action {
         id: copyAction
         text: qsTr("Copy to clipboard")
-        shortcut: "Ctrl+C"
+        shortcut: StandardKey.Copy
         enabled: overlay.enabled
         onTriggered: canvas.copyToClipboard(4)
     }
