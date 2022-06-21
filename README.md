@@ -14,7 +14,7 @@ Download official qFlipper builds here: [update.flipperzero.one](https://update.
 
 ## Features
 * Update Flipper's firmware and supplemental data with a press of one button
-* Repair a broken fimware installation
+* Repair a broken firmware installation
 * Stream Flipper's display and control it remotely
 * Install firmware from a `.dfu` file
 * Backup and restore settings, progress and pairing data
