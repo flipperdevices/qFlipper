@@ -74,7 +74,7 @@ void FullUpdateOperation::nextStateLogic()
 
 void FullUpdateOperation::fetchUpdateFile()
 {
-    deviceState()->setStatusString(QStringLiteral("Fetchig fimware update..."));
+    deviceState()->setStatusString(QStringLiteral("Fetching firmware update..."));
 
     const auto target = deviceState()->deviceInfo().hardware.target;
     const auto fileInfo = m_versionInfo.fileInfo(QStringLiteral("update_tgz"), target);
@@ -110,7 +110,7 @@ void FullUpdateOperation::fetchUpdateFile()
 
 void FullUpdateOperation::extractUpdate()
 {
-    deviceState()->setStatusString(QStringLiteral("Extracting fimware update ..."));
+    deviceState()->setStatusString(QStringLiteral("Extracting firmware update ..."));
     deviceState()->setProgress(-1.0);
 
     auto *uncompressor = new TarZipUncompressor(m_updateFile, m_updateDirectory, this);
@@ -128,7 +128,7 @@ void FullUpdateOperation::extractUpdate()
 
 void FullUpdateOperation::prepareUpdateDir()
 {
-    deviceState()->setStatusString(QStringLiteral("Preparing fimware update ..."));
+    deviceState()->setStatusString(QStringLiteral("Preparing firmware update ..."));
     deviceState()->setProgress(-1.0);
 
     if(!findAndCdToUpdateDir()) {
@@ -154,7 +154,7 @@ void FullUpdateOperation::prepareUpdateDir()
 
 void FullUpdateOperation::uploadUpdateDir()
 {
-    deviceState()->setStatusString(QStringLiteral("Uploading fimware update ..."));
+    deviceState()->setStatusString(QStringLiteral("Uploading firmware update ..."));
 
     auto *operation = m_utility->uploadDirectory(m_updateDirectory.absolutePath(), QByteArrayLiteral(REMOTE_DIR));
 
@@ -174,7 +174,7 @@ void FullUpdateOperation::uploadUpdateDir()
 void FullUpdateOperation::startUpdate()
 {
     deviceState()->setAllowVirtualDisplay(false);
-    deviceState()->setStatusString(QStringLiteral("Uploading fimware update ..."));
+    deviceState()->setStatusString(QStringLiteral("Uploading firmware update ..."));
 
     const auto manifestPath = QStringLiteral("%1/%2/update.fuf").arg(QStringLiteral(REMOTE_DIR), m_updateDirectory.dirName());
     auto *operation = m_utility->startUpdater(manifestPath.toLocal8Bit());
