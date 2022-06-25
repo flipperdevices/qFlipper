@@ -2,6 +2,7 @@
 
 #include "protobufplugininterface.h"
 #include "storageresponseinterface.h"
+#include <QIODevice>
 
 using namespace Flipper;
 using namespace Zero;

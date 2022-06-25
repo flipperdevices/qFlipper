@@ -47,7 +47,11 @@ VersionInfo::VersionInfo(const QString &versionString):
                 return;
             }
 
+#if QT_VERSION < 0x060000
             const auto rc = suffix.midRef(2).toInt(&canConvert);
+#else
+            const auto rc = QStringView(suffix).sliced(2).toInt(&canConvert);
+#endif
             if(canConvert) {
                 m_rc = rc;
             } else {

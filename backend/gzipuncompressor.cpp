@@ -35,7 +35,7 @@ GZipUncompressor::GZipUncompressor(QIODevice *in, QIODevice *out, QObject *paren
         emit finished();
     });
 
-    watcher->setFuture(QtConcurrent::run(this, &GZipUncompressor::doUncompress));
+    watcher->setFuture(QtConcurrent::run([this] { doUncompress(); }));
 }
 
 GZipUncompressor::~GZipUncompressor()

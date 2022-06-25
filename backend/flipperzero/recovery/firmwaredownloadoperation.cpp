@@ -45,5 +45,5 @@ void FirmwareDownloadOperation::downloadFirmware()
         watcher->deleteLater();
     });
 
-    watcher->setFuture(QtConcurrent::run(recovery(), &Recovery::downloadFirmware, m_file));
+    watcher->setFuture(QtConcurrent::run([this] { return recovery()->downloadFirmware(m_file); }));
 }

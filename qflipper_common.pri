@@ -1,5 +1,7 @@
 NAME = qFlipper
 
+equals(QT_MAJOR_VERSION, 6): QT += core5compat
+
 unix:!macx {
     DEFINES += USB_BACKEND_LIBUSB
     CONFIG += link_pkgconfig
