@@ -1,6 +1,6 @@
 #include "optionbytes.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QIODevice>
 
 #include "debug.h"
@@ -30,14 +30,17 @@ OptionBytes::OptionBytes(QIODevice *file):
         const auto tokens = file->readLine().split(':');
         check_return_void(tokens.size() == 3, "Malformed Option Bytes file");
 
-        QRegExp alphanum("[^A-Za-z0-9_]");
-        QRegExp hex("[^0-9xXA-Fa-f]");
+        QRegularExpression alphanum("[^A-Za-z0-9_]");
+        QRegularExpression hex("[^0-9xXA-Fa-f]");
 
         const auto &fieldName = tokens[0];
         const auto &hexValue = tokens[1];
 
-        check_return_void(alphanum.indexIn(fieldName) < 0, QString("Illegal character(s) in the field name: ") + fieldName);
-        check_return_void(hex.indexIn(hexValue) < 0, QString("Illegal character(s) in the field value: ") + hexValue);
+        const QRegularExpressionMatch fieldMatch = alphanum.match(fieldName);
+        check_return_void(!fieldMatch.hasMatch(), QString("Illegal character(s) in the field name: ") + fieldName);
+
+        const QRegularExpressionMatch hexMatch = hex.match(hexValue);
+        check_return_void(!hexMatch.hasMatch(), QString("Illegal character(s) in the field value: ") + hexValue);
 
         check_return_void(fieldNames().contains(fieldName), QString("Illegal field name: ") + fieldName);
 

@@ -1,6 +1,6 @@
 #include "factoryinfo.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include "debug.h"
 
 #define FACTORYINFO_NAME_SIZE 8
@@ -95,7 +95,7 @@ FactoryInfo::FactoryInfo(const QByteArray &data):
         parseV0(data);
     }
 
-    QRegExp ascii("[^A-Za-z0-9.]");
+    QRegularExpression ascii("[^A-Za-z0-9.]");
     check_return_void(ascii.indexIn(m_name) < 0, "Illegal character in the device name");
 
     m_isValid = true;

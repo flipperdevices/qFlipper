@@ -4,7 +4,7 @@
 
 #include <QDebug>
 #include <QTimer>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSerialPort>
 #include <QLoggingCategory>
 
@@ -266,7 +266,7 @@ const QString &VCPDeviceInfoHelper::branchToChannelName(const QByteArray &branch
     static const auto RELEASE = QStringLiteral("release");
     static const auto CUSTOM = QStringLiteral("custom");
 
-    const QRegExp validVersion(QStringLiteral("^\\d+\\.\\d+\\.\\d+(-rc)?$"));
+    const QRegularExpression validVersion(QStringLiteral("^\\d+\\.\\d+\\.\\d+(-rc)?$"));
 
     if(validVersion.exactMatch(branchName)) {
         if(validVersion.cap(1).isEmpty()) {
