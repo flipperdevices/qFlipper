@@ -60,6 +60,11 @@ const QString SystemUpdateResponse::resultString() const
         return QStringLiteral("Manifest pointer error");
     case PB_System_UpdateResponse_UpdateResultCode_TargetMismatch:
         return QStringLiteral("Target mismatch");
+    case PB_System_UpdateResponse_UpdateResultCode_OutdatedManifestVersion:
+        return QStringLiteral("Outdated manifest version");
+    case PB_System_UpdateResponse_UpdateResultCode_IntFull:
+        return QStringLiteral("Internal storage is full");
+    case PB_System_UpdateResponse_UpdateResultCode_UnspecifiedError:
     default:
         return QStringLiteral("Unknown error");
     }

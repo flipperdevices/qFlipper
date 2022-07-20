@@ -12,7 +12,7 @@ PB_BIND(PB_Empty, PB_Empty, AUTO)
 PB_BIND(PB_StopSession, PB_StopSession, AUTO)
 
 
-PB_BIND(PB_Main, PB_Main, AUTO)
+PB_BIND(PB_Main, PB_Main, 2)
 
 
 

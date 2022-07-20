@@ -42,6 +42,7 @@ SOURCES += \
     mainresponse.cpp \
     messages/application.pb.c \
     messages/flipper.pb.c \
+    messages/gpio.pb.c \
     messages/gui.pb.c \
     messages/status.pb.c \
     messages/storage.pb.c \

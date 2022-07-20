@@ -8,6 +8,7 @@
 #include "system.pb.h"
 #include "application.pb.h"
 #include "gui.pb.h"
+#include "gpio.pb.h"
 
 #if PB_PROTO_HEADER_VERSION != 40
 #error Regenerate this file with the current version of nanopb generator.
@@ -37,9 +38,14 @@ typedef enum _PB_CommandStatus {
     /* *< Application Errors */
     PB_CommandStatus_ERROR_APP_CANT_START = 16, /* *< Can't start app - internal error */
     PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED = 17, /* *< Another app is running */
+    PB_CommandStatus_ERROR_APP_NOT_RUNNING = 21, /* *< App is not running or doesn't support RPC commands */
+    PB_CommandStatus_ERROR_APP_CMD_ERROR = 22, /* *< Command execution error */
     /* *< Virtual Display Errors */
     PB_CommandStatus_ERROR_VIRTUAL_DISPLAY_ALREADY_STARTED = 19, /* *< Virtual Display session can't be started twice */
-    PB_CommandStatus_ERROR_VIRTUAL_DISPLAY_NOT_STARTED = 20 /* *< Virtual Display session can't be stopped when it's not started */
+    PB_CommandStatus_ERROR_VIRTUAL_DISPLAY_NOT_STARTED = 20, /* *< Virtual Display session can't be stopped when it's not started */
+    /* *< GPIO Errors */
+    PB_CommandStatus_ERROR_GPIO_MODE_INCORRECT = 58, 
+    PB_CommandStatus_ERROR_GPIO_UNKNOWN_PIN_MODE = 59 
 } PB_CommandStatus;
 
 /* Struct definitions */
@@ -104,14 +110,25 @@ typedef struct _PB_Main {
         PB_System_PowerInfoRequest system_power_info_request;
         PB_System_PowerInfoResponse system_power_info_response;
         PB_System_UpdateResponse system_update_response;
+        PB_App_AppExitRequest app_exit_request;
+        PB_App_AppLoadFileRequest app_load_file_request;
+        PB_App_AppButtonPressRequest app_button_press_request;
+        PB_App_AppButtonReleaseRequest app_button_release_request;
+        PB_Gpio_SetPinMode gpio_set_pin_mode;
+        PB_Gpio_SetInputPull gpio_set_input_pull;
+        PB_Gpio_GetPinMode gpio_get_pin_mode;
+        PB_Gpio_GetPinModeResponse gpio_get_pin_mode_response;
+        PB_Gpio_ReadPin gpio_read_pin;
+        PB_Gpio_ReadPinResponse gpio_read_pin_response;
+        PB_Gpio_WritePin gpio_write_pin;
     } content; 
 } PB_Main;
 
 
 /* Helper constants for enums */
 #define _PB_CommandStatus_MIN PB_CommandStatus_OK
-#define _PB_CommandStatus_MAX PB_CommandStatus_ERROR_VIRTUAL_DISPLAY_NOT_STARTED
-#define _PB_CommandStatus_ARRAYSIZE ((PB_CommandStatus)(PB_CommandStatus_ERROR_VIRTUAL_DISPLAY_NOT_STARTED+1))
+#define _PB_CommandStatus_MAX PB_CommandStatus_ERROR_GPIO_UNKNOWN_PIN_MODE
+#define _PB_CommandStatus_ARRAYSIZE ((PB_CommandStatus)(PB_CommandStatus_ERROR_GPIO_UNKNOWN_PIN_MODE+1))
 
 
 #ifdef __cplusplus
@@ -173,6 +190,17 @@ extern "C" {
 #define PB_Main_system_power_info_request_tag    44
 #define PB_Main_system_power_info_response_tag   45
 #define PB_Main_system_update_response_tag       46
+#define PB_Main_app_exit_request_tag             47
+#define PB_Main_app_load_file_request_tag        48
+#define PB_Main_app_button_press_request_tag     49
+#define PB_Main_app_button_release_request_tag   50
+#define PB_Main_gpio_set_pin_mode_tag            51
+#define PB_Main_gpio_set_input_pull_tag          52
+#define PB_Main_gpio_get_pin_mode_tag            53
+#define PB_Main_gpio_get_pin_mode_response_tag   54
+#define PB_Main_gpio_read_pin_tag                55
+#define PB_Main_gpio_read_pin_response_tag       56
+#define PB_Main_gpio_write_pin_tag               57
 
 /* Struct field encoding specification for nanopb */
 #define PB_Empty_FIELDLIST(X, a) \
@@ -231,7 +259,18 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_backup_create_request,conten
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_backup_restore_request,content.storage_backup_restore_request),  43) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_power_info_request,content.system_power_info_request),  44) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_power_info_response,content.system_power_info_response),  45) \
-X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_update_response,content.system_update_response),  46)
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_update_response,content.system_update_response),  46) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_exit_request,content.app_exit_request),  47) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_load_file_request,content.app_load_file_request),  48) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_button_press_request,content.app_button_press_request),  49) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_button_release_request,content.app_button_release_request),  50) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_set_pin_mode,content.gpio_set_pin_mode),  51) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_set_input_pull,content.gpio_set_input_pull),  52) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_get_pin_mode,content.gpio_get_pin_mode),  53) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_get_pin_mode_response,content.gpio_get_pin_mode_response),  54) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_read_pin,content.gpio_read_pin),  55) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_read_pin_response,content.gpio_read_pin_response),  56) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_write_pin,content.gpio_write_pin),  57)
 #define PB_Main_CALLBACK NULL
 #define PB_Main_DEFAULT NULL
 #define PB_Main_content_empty_MSGTYPE PB_Empty
@@ -277,6 +316,17 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_update_response,content.syste
 #define PB_Main_content_system_power_info_request_MSGTYPE PB_System_PowerInfoRequest
 #define PB_Main_content_system_power_info_response_MSGTYPE PB_System_PowerInfoResponse
 #define PB_Main_content_system_update_response_MSGTYPE PB_System_UpdateResponse
+#define PB_Main_content_app_exit_request_MSGTYPE PB_App_AppExitRequest
+#define PB_Main_content_app_load_file_request_MSGTYPE PB_App_AppLoadFileRequest
+#define PB_Main_content_app_button_press_request_MSGTYPE PB_App_AppButtonPressRequest
+#define PB_Main_content_app_button_release_request_MSGTYPE PB_App_AppButtonReleaseRequest
+#define PB_Main_content_gpio_set_pin_mode_MSGTYPE PB_Gpio_SetPinMode
+#define PB_Main_content_gpio_set_input_pull_MSGTYPE PB_Gpio_SetInputPull
+#define PB_Main_content_gpio_get_pin_mode_MSGTYPE PB_Gpio_GetPinMode
+#define PB_Main_content_gpio_get_pin_mode_response_MSGTYPE PB_Gpio_GetPinModeResponse
+#define PB_Main_content_gpio_read_pin_MSGTYPE PB_Gpio_ReadPin
+#define PB_Main_content_gpio_read_pin_response_MSGTYPE PB_Gpio_ReadPinResponse
+#define PB_Main_content_gpio_write_pin_MSGTYPE PB_Gpio_WritePin
 
 extern const pb_msgdesc_t PB_Empty_msg;
 extern const pb_msgdesc_t PB_StopSession_msg;
@@ -289,7 +339,7 @@ extern const pb_msgdesc_t PB_Main_msg;
 
 /* Maximum encoded size of messages (where known) */
 #if defined(PB_System_PingRequest_size) && defined(PB_System_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size) && defined(PB_Gui_StartVirtualDisplayRequest_size) && defined(PB_Storage_InfoRequest_size) && defined(PB_Storage_RenameRequest_size) && defined(PB_System_DeviceInfoResponse_size) && defined(PB_System_UpdateRequest_size) && defined(PB_Storage_BackupCreateRequest_size) && defined(PB_Storage_BackupRestoreRequest_size) && defined(PB_System_PowerInfoResponse_size)
-union PB_Main_content_size_union {char f5[(6 + PB_System_PingRequest_size)]; char f6[(6 + PB_System_PingResponse_size)]; char f7[(6 + PB_Storage_ListRequest_size)]; char f8[(6 + PB_Storage_ListResponse_size)]; char f9[(6 + PB_Storage_ReadRequest_size)]; char f10[(6 + PB_Storage_ReadResponse_size)]; char f11[(6 + PB_Storage_WriteRequest_size)]; char f12[(6 + PB_Storage_DeleteRequest_size)]; char f13[(6 + PB_Storage_MkdirRequest_size)]; char f14[(6 + PB_Storage_Md5sumRequest_size)]; char f16[(7 + PB_App_StartRequest_size)]; char f22[(7 + PB_Gui_ScreenFrame_size)]; char f24[(7 + PB_Storage_StatRequest_size)]; char f25[(7 + PB_Storage_StatResponse_size)]; char f26[(7 + PB_Gui_StartVirtualDisplayRequest_size)]; char f28[(7 + PB_Storage_InfoRequest_size)]; char f30[(7 + PB_Storage_RenameRequest_size)]; char f33[(7 + PB_System_DeviceInfoResponse_size)]; char f41[(7 + PB_System_UpdateRequest_size)]; char f42[(7 + PB_Storage_BackupCreateRequest_size)]; char f43[(7 + PB_Storage_BackupRestoreRequest_size)]; char f45[(7 + PB_System_PowerInfoResponse_size)]; char f0[36];};
+union PB_Main_content_size_union {char f5[(6 + PB_System_PingRequest_size)]; char f6[(6 + PB_System_PingResponse_size)]; char f7[(6 + PB_Storage_ListRequest_size)]; char f8[(6 + PB_Storage_ListResponse_size)]; char f9[(6 + PB_Storage_ReadRequest_size)]; char f10[(6 + PB_Storage_ReadResponse_size)]; char f11[(6 + PB_Storage_WriteRequest_size)]; char f12[(6 + PB_Storage_DeleteRequest_size)]; char f13[(6 + PB_Storage_MkdirRequest_size)]; char f14[(6 + PB_Storage_Md5sumRequest_size)]; char f16[(7 + PB_App_StartRequest_size)]; char f22[(7 + PB_Gui_ScreenFrame_size)]; char f24[(7 + PB_Storage_StatRequest_size)]; char f25[(7 + PB_Storage_StatResponse_size)]; char f26[(7 + PB_Gui_StartVirtualDisplayRequest_size)]; char f28[(7 + PB_Storage_InfoRequest_size)]; char f30[(7 + PB_Storage_RenameRequest_size)]; char f33[(7 + PB_System_DeviceInfoResponse_size)]; char f41[(7 + PB_System_UpdateRequest_size)]; char f42[(7 + PB_Storage_BackupCreateRequest_size)]; char f43[(7 + PB_Storage_BackupRestoreRequest_size)]; char f45[(7 + PB_System_PowerInfoResponse_size)]; char f0[519];};
 #endif
 #define PB_Empty_size                            0
 #define PB_StopSession_size                      0

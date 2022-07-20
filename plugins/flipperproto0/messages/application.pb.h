@@ -10,6 +10,14 @@
 #endif
 
 /* Struct definitions */
+typedef struct _PB_App_AppButtonReleaseRequest { 
+    char dummy_field;
+} PB_App_AppButtonReleaseRequest;
+
+typedef struct _PB_App_AppExitRequest { 
+    char dummy_field;
+} PB_App_AppExitRequest;
+
 typedef struct _PB_App_LockStatusRequest { 
     char dummy_field;
 } PB_App_LockStatusRequest;
@@ -18,6 +26,14 @@ typedef struct _PB_App_StartRequest {
     char *name; 
     char *args; 
 } PB_App_StartRequest;
+
+typedef struct _PB_App_AppButtonPressRequest { 
+    char args[513]; 
+} PB_App_AppButtonPressRequest;
+
+typedef struct _PB_App_AppLoadFileRequest { 
+    char path[513]; 
+} PB_App_AppLoadFileRequest;
 
 typedef struct _PB_App_LockStatusResponse { 
     bool locked; 
@@ -32,13 +48,23 @@ extern "C" {
 #define PB_App_StartRequest_init_default         {NULL, NULL}
 #define PB_App_LockStatusRequest_init_default    {0}
 #define PB_App_LockStatusResponse_init_default   {0}
+#define PB_App_AppExitRequest_init_default       {0}
+#define PB_App_AppLoadFileRequest_init_default   {""}
+#define PB_App_AppButtonPressRequest_init_default {""}
+#define PB_App_AppButtonReleaseRequest_init_default {0}
 #define PB_App_StartRequest_init_zero            {NULL, NULL}
 #define PB_App_LockStatusRequest_init_zero       {0}
 #define PB_App_LockStatusResponse_init_zero      {0}
+#define PB_App_AppExitRequest_init_zero          {0}
+#define PB_App_AppLoadFileRequest_init_zero      {""}
+#define PB_App_AppButtonPressRequest_init_zero   {""}
+#define PB_App_AppButtonReleaseRequest_init_zero {0}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define PB_App_StartRequest_name_tag             1
 #define PB_App_StartRequest_args_tag             2
+#define PB_App_AppButtonPressRequest_args_tag    1
+#define PB_App_AppLoadFileRequest_path_tag       1
 #define PB_App_LockStatusResponse_locked_tag     1
 
 /* Struct field encoding specification for nanopb */
@@ -58,17 +84,49 @@ X(a, STATIC,   SINGULAR, BOOL,     locked,            1)
 #define PB_App_LockStatusResponse_CALLBACK NULL
 #define PB_App_LockStatusResponse_DEFAULT NULL
 
+#define PB_App_AppExitRequest_FIELDLIST(X, a) \
+
+#define PB_App_AppExitRequest_CALLBACK NULL
+#define PB_App_AppExitRequest_DEFAULT NULL
+
+#define PB_App_AppLoadFileRequest_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, STRING,   path,              1)
+#define PB_App_AppLoadFileRequest_CALLBACK NULL
+#define PB_App_AppLoadFileRequest_DEFAULT NULL
+
+#define PB_App_AppButtonPressRequest_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, STRING,   args,              1)
+#define PB_App_AppButtonPressRequest_CALLBACK NULL
+#define PB_App_AppButtonPressRequest_DEFAULT NULL
+
+#define PB_App_AppButtonReleaseRequest_FIELDLIST(X, a) \
+
+#define PB_App_AppButtonReleaseRequest_CALLBACK NULL
+#define PB_App_AppButtonReleaseRequest_DEFAULT NULL
+
 extern const pb_msgdesc_t PB_App_StartRequest_msg;
 extern const pb_msgdesc_t PB_App_LockStatusRequest_msg;
 extern const pb_msgdesc_t PB_App_LockStatusResponse_msg;
+extern const pb_msgdesc_t PB_App_AppExitRequest_msg;
+extern const pb_msgdesc_t PB_App_AppLoadFileRequest_msg;
+extern const pb_msgdesc_t PB_App_AppButtonPressRequest_msg;
+extern const pb_msgdesc_t PB_App_AppButtonReleaseRequest_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define PB_App_StartRequest_fields &PB_App_StartRequest_msg
 #define PB_App_LockStatusRequest_fields &PB_App_LockStatusRequest_msg
 #define PB_App_LockStatusResponse_fields &PB_App_LockStatusResponse_msg
+#define PB_App_AppExitRequest_fields &PB_App_AppExitRequest_msg
+#define PB_App_AppLoadFileRequest_fields &PB_App_AppLoadFileRequest_msg
+#define PB_App_AppButtonPressRequest_fields &PB_App_AppButtonPressRequest_msg
+#define PB_App_AppButtonReleaseRequest_fields &PB_App_AppButtonReleaseRequest_msg
 
 /* Maximum encoded size of messages (where known) */
 /* PB_App_StartRequest_size depends on runtime parameters */
+#define PB_App_AppButtonPressRequest_size        515
+#define PB_App_AppButtonReleaseRequest_size      0
+#define PB_App_AppExitRequest_size               0
+#define PB_App_AppLoadFileRequest_size           515
 #define PB_App_LockStatusRequest_size            0
 #define PB_App_LockStatusResponse_size           2
 

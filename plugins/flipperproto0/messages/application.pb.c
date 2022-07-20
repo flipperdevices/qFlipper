@@ -15,4 +15,16 @@ PB_BIND(PB_App_LockStatusRequest, PB_App_LockStatusRequest, AUTO)
 PB_BIND(PB_App_LockStatusResponse, PB_App_LockStatusResponse, AUTO)
 
 
+PB_BIND(PB_App_AppExitRequest, PB_App_AppExitRequest, AUTO)
+
+
+PB_BIND(PB_App_AppLoadFileRequest, PB_App_AppLoadFileRequest, 2)
+
+
+PB_BIND(PB_App_AppButtonPressRequest, PB_App_AppButtonPressRequest, 2)
+
+
+PB_BIND(PB_App_AppButtonReleaseRequest, PB_App_AppButtonReleaseRequest, AUTO)
+
+
 

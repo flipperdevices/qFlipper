@@ -24,7 +24,10 @@ typedef enum _PB_System_UpdateResponse_UpdateResultCode {
     PB_System_UpdateResponse_UpdateResultCode_StageMissing = 4, 
     PB_System_UpdateResponse_UpdateResultCode_StageIntegrityError = 5, 
     PB_System_UpdateResponse_UpdateResultCode_ManifestPointerError = 6, 
-    PB_System_UpdateResponse_UpdateResultCode_TargetMismatch = 7 
+    PB_System_UpdateResponse_UpdateResultCode_TargetMismatch = 7, 
+    PB_System_UpdateResponse_UpdateResultCode_OutdatedManifestVersion = 8, 
+    PB_System_UpdateResponse_UpdateResultCode_IntFull = 9, 
+    PB_System_UpdateResponse_UpdateResultCode_UnspecifiedError = 10 
 } PB_System_UpdateResponse_UpdateResultCode;
 
 /* Struct definitions */
@@ -116,8 +119,8 @@ typedef struct _PB_System_SetDateTimeRequest {
 #define _PB_System_RebootRequest_RebootMode_ARRAYSIZE ((PB_System_RebootRequest_RebootMode)(PB_System_RebootRequest_RebootMode_UPDATE+1))
 
 #define _PB_System_UpdateResponse_UpdateResultCode_MIN PB_System_UpdateResponse_UpdateResultCode_OK
-#define _PB_System_UpdateResponse_UpdateResultCode_MAX PB_System_UpdateResponse_UpdateResultCode_TargetMismatch
-#define _PB_System_UpdateResponse_UpdateResultCode_ARRAYSIZE ((PB_System_UpdateResponse_UpdateResultCode)(PB_System_UpdateResponse_UpdateResultCode_TargetMismatch+1))
+#define _PB_System_UpdateResponse_UpdateResultCode_MAX PB_System_UpdateResponse_UpdateResultCode_UnspecifiedError
+#define _PB_System_UpdateResponse_UpdateResultCode_ARRAYSIZE ((PB_System_UpdateResponse_UpdateResultCode)(PB_System_UpdateResponse_UpdateResultCode_UnspecifiedError+1))
 
 
 #ifdef __cplusplus
