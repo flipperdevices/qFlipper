@@ -126,7 +126,10 @@ AbstractOverlay {
         enabled: overlay.enabled
 
         onTriggered: {
+            Backend.screenStreamer.isPaused = true;
+
             const onFinished = function() {
+                Backend.screenStreamer.isPaused = false;
                 AdvancedFileDialog.accepted.disconnect(onAccepted);
                 AdvancedFileDialog.finished.disconnect(onFinished);
             };

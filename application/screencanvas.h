@@ -14,7 +14,7 @@ class ScreenCanvas : public QQuickPaintedItem
     Q_PROPERTY(qreal renderHeight READ renderHeight NOTIFY renderHeightChanged)
     Q_PROPERTY(QColor foregroundColor READ foregroundColor WRITE setForegroundColor NOTIFY foregroundColorChanged)
     Q_PROPERTY(QColor backgroundColor READ backgroundColor WRITE setBackgroundColor NOTIFY backgroundColorChanged)
-    Q_PROPERTY(QByteArray data READ data WRITE setData)
+    Q_PROPERTY(QByteArray data READ data WRITE setData NOTIFY dataChanged)
 
 public:
     ScreenCanvas(QQuickItem *parent = nullptr);
@@ -53,6 +53,7 @@ signals:
     void foregroundColorChanged();
     void backgroundColorChanged();
 
+    void dataChanged();
 private:
     void setRenderHeight(qreal h);
     void setRenderWidth(qreal w);

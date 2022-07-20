@@ -16,13 +16,15 @@ class ScreenStreamer : public QObject
     Q_PROPERTY(QByteArray screenData READ screenData NOTIFY screenDataChanged)
     Q_PROPERTY(QSize screenSize READ screenSize CONSTANT)
     Q_PROPERTY(bool isEnabled READ isEnabled WRITE setEnabled NOTIFY streamStateChanged)
+    Q_PROPERTY(bool isPaused READ isPaused WRITE setPaused NOTIFY streamStateChanged)
 
 public:
     enum StreamState {
         Starting,
         Running,
         Stopping,
-        Stopped
+        Stopped,
+        Paused
     };
 
     Q_ENUM(StreamState)
@@ -34,6 +36,9 @@ public:
 
     bool isEnabled() const;
     void setEnabled(bool set);
+
+    bool isPaused() const;
+    void setPaused(bool set);
 
     StreamState streamState() const;
 

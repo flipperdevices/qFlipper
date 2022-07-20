@@ -79,7 +79,7 @@ void ScreenStreamer::sendInputEvent(int key, int type)
 
 bool ScreenStreamer::isEnabled() const
 {
-    return m_streamState == Running;
+    return m_streamState == Running || m_streamState == Paused;
 }
 
 void ScreenStreamer::setEnabled(bool set)
@@ -88,6 +88,20 @@ void ScreenStreamer::setEnabled(bool set)
         start();
     } else {
         stop();
+    }
+}
+
+bool ScreenStreamer::isPaused() const
+{
+    return m_streamState == Paused;
+}
+
+void ScreenStreamer::setPaused(bool set)
+{
+    if(set && m_streamState == Running) {
+        setStreamState(Paused);
+    } else if(!set && m_streamState == Paused) {
+        setStreamState(Running);
     }
 }
 
@@ -127,7 +141,7 @@ void ScreenStreamer::start()
 
 void ScreenStreamer::stop()
 {
-    if(m_streamState != StreamState::Running) {
+    if(!isEnabled()) {
         qCDebug(CATEGORY_SCREEN) << "Screen streaming is already stopped";
         return;
     }
@@ -154,6 +168,10 @@ void ScreenStreamer::onProtobufSessionStateChanged()
 
 void ScreenStreamer::onBroadcastResponseReceived(QObject *response)
 {
+    if(m_streamState != Running) {
+        return;
+    }
+
     auto *screenFrameResponse = qobject_cast<GuiScreenFrameResponseInterface*>(response);
 
     if(screenFrameResponse) {
