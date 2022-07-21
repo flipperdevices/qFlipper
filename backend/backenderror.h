@@ -20,6 +20,7 @@ public:
         SerialAccessError, // Cannot access device in Serial mode
         RecoveryAccessError, // Cannot access device in DFU mode
         OperationError,  // Current operation was interrupted
+        UpdaterError, // Updater returned an error code
 
         // Low-level errors
         SerialError,    // Cannot open/read/write to/from serial port

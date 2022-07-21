@@ -65,7 +65,7 @@ void StartUpdaterOperation::startUpdate()
         if(operation->isError()) {
             finishWithError(operation->error(), operation->errorString());
         } else if(!operation->isResultOk()) {
-            finishWithError(BackendError::DataError, operation->resultString());
+            finishWithError(BackendError::UpdaterError, operation->resultString());
         } else {
             advanceOperationState();
         }

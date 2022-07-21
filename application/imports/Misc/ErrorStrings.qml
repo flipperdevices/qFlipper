@@ -1,6 +1,7 @@
 pragma Singleton
 
 import QtQuick 2.15
+import QFlipper 1.0
 
 QtObject {
     readonly property string errorStyle:
@@ -28,10 +29,10 @@ QtObject {
 <p>=========== HOW TO FIX ============</p>
 <p>1. Ensure that Flipper is not connected via Bluetooth or Terminal session.</p>
 <p>2. Grant user permissions to access Serial devices.</p>
-<p>Run \"qFlipper-x86_64-{version}.Appimage rules install\" to do so automatically.</p>
+<p>Run \"qFlipper-x86_64-%1.AppImage rules install\" to do so automatically.</p>
 <p>3. Reconnect your Flipper.</p>
 <p>-----------------------------------</p>
-<center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
+<center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>".arg(App.version)
 
     readonly property string errorRecovery:
 "<p>Cannot connect to Flipper in Update & Recovery mode. Device not found.</p>
@@ -58,10 +59,10 @@ QtObject {
 <p>1. Check that Flipper is in Update & Recovery mode.</p>
 <p>2. Reconnect your Flipper.</p>
 <p>3. Grant user permissions to access DFU devices.</p>
-<p>Run \"qFlipper-x86_64-{version}.Appimage rules install\" to do so automatically.</p>
+<p>Run \"qFlipper-x86_64-%1.AppImage rules install\" to do so automatically.</p>
 <p>4. Reboot Flipper to Flipper OS and try again.</p>
 <p>-----------------------------------</p>
-<center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
+<center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>".arg(App.version)
 
     readonly property string errorInternet:
 "<p>Cannot connect to update server.</p>
@@ -104,6 +105,16 @@ QtObject {
 <p>=========== HOW TO FIX ============</p>
 <p>1. Check USB connection.</p>
 <p>2. Connect your Flipper in Update & Recovery mode and start Repair.</p>
+<p>-----------------------------------</p>
+<center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
+
+readonly property string errorUpdater:
+"<p>Firmware update could not be started.</p>
+<p>=========== HOW TO FIX ============</p>
+<p>1. See details in the logs below.</p>
+<p>2. Resolve the problem if possible.</p>
+<p>3. Try again.</p>
+<p>4. If the error persists, file a bug report.</p>
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 

@@ -63,6 +63,8 @@ AbstractOverlay {
                         return qsTr("Corrupted Data")
                     case BackendError.OperationError:
                         return qsTr("Operation Error")
+                    case BackendError.UpdaterError:
+                        return qsTr("Updater Error")
                     default:
                         return qsTr("Unknown Error")
                     }
@@ -91,6 +93,7 @@ AbstractOverlay {
                     visible: Backend.errorType === BackendError.InvalidDevice  ||
                              Backend.errorType === BackendError.OperationError ||
                              Backend.errorType === BackendError.BackupError ||
+                             Backend.errorType === BackendError.UpdaterError ||
                              Backend.errorType === BackendError.UnknownError
 
                     anchors.centerIn: parent
@@ -137,6 +140,8 @@ AbstractOverlay {
                     return ErrorStrings.errorData
                 case BackendError.OperationError:
                     return ErrorStrings.errorOperation
+                case BackendError.UpdaterError:
+                    return ErrorStrings.errorUpdater
                 default:
                     return ErrorStrings.errorUnknown
                 }
