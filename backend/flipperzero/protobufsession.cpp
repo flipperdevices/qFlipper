@@ -252,6 +252,10 @@ void ProtobufSession::onSerialPortReadyRead()
     if(!isSessionUp()) {
         m_serialPort->clear();
         return;
+    } else if(!m_loader->isLoaded()) {
+        // For some weird reason the plugin can be unloaded by connecting
+        // multiple devices (although the docs say it shouldn't)
+        loadProtobufPlugin();
     }
 
     m_receivedData.append(m_serialPort->readAll());
