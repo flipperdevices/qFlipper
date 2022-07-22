@@ -29,6 +29,14 @@ Image {
         }
     }
 
+    AbstractButton {
+        id: clickArea
+        width: control.width
+        height: control.height
+        visible: screenCanvas.visible
+        onClicked: control.screenStreamRequested()
+    }
+
     Rectangle {
         id: blueLed
         visible: !!deviceState && deviceState.isRecoveryMode
@@ -79,6 +87,6 @@ Image {
         height: 73
 
         visible: screenCanvas.visible
-        onClicked: control.screenStreamRequested()
+        opacity: clickArea.hovered ? clickArea.down ? 0.9 : 1 : 0
     }
 }

@@ -4,10 +4,8 @@ import QtQuick.Controls.impl 2.15
 
 import Theme 1.0
 
-AbstractButton {
+Item {
     id: control
-
-    opacity: hovered ? down ? 0.9 : 1 : 0
 
     Rectangle {
         anchors.fill: parent
