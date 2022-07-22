@@ -225,8 +225,8 @@ void FlipperZero::onDeviceInfoChanged()
 void FlipperZero::onSessionStatusChanged()
 {
     if(m_rpc->isError()) {
-        // TODO: Take into account a failed RPC start
-        qCritical() << "RPC ERROR:" << m_rpc->errorString();
+        m_state->setError(m_rpc->error(), m_rpc->errorString());
+        emit operationFinished();
 
     } else if(m_rpc->isSessionUp()) {
         m_state->setOnline(true);

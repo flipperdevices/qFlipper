@@ -1,10 +1,12 @@
 #include "protobufsession.h"
 
+#include <QDir>
 #include <QDebug>
 #include <QTimer>
 #include <QSerialPort>
 #include <QPluginLoader>
 #include <QLoggingCategory>
+#include <QCoreApplication>
 
 #include "protobufplugininterface.h"
 #include "mainresponseinterface.h"
@@ -206,7 +208,7 @@ void ProtobufSession::startSession()
     setSessionState(Starting);
 
     if(!loadProtobufPlugin()) {
-        stopEarly(BackendError::UnknownError, QStringLiteral("Failed to load protobuf plugin: %1").arg(m_loader->errorString()));
+        stopEarly(BackendError::UnknownError, QStringLiteral("Suitable protocol plugin is not available"));
         return;
     }
 
@@ -402,9 +404,56 @@ void ProtobufSession::setSessionState(SessionState newState)
     emit sessionStateChanged();
 }
 
+const QString ProtobufSession::protobufPluginFileName(int versionMajor)
+{
+#if defined(Q_OS_WINDOWS)
+    return QStringLiteral("flipperproto%1.dll").arg(m_versionMajor);
+#elif defined(Q_OS_MAC)
+    return QStringLiteral("libflipperproto%1.dylib").arg(m_versionMajor);
+#elif defined(Q_OS_LINUX)
+    return QStringLiteral("libflipperproto%1.so").arg(versionMajor);
+#else
+#error "Unsupported OS"
+#endif
+}
+
+QVector<int> ProtobufSession::supportedProtobufVersions()
+{
+    QVector<int> ret;
+    const auto libraryPaths = QCoreApplication::libraryPaths();
+
+    for(auto i = 0;; ++i) {
+        for(const auto &path : libraryPaths) {
+            const QDir libraryDir(path);
+
+            if(libraryDir.exists(protobufPluginFileName(i))) {
+                ret.append(i);
+                break;
+            }
+        }
+
+        if(!ret.contains(i)) {
+            break;
+        }
+    }
+
+    return ret;
+}
+
 bool ProtobufSession::loadProtobufPlugin()
 {
-    m_loader->setFileName(protobufPluginPath());
+    const auto supportedVersions = supportedProtobufVersions();
+
+    if(supportedVersions.isEmpty()) {
+        qCCritical(LOG_SESSION) << "Cannot find protobuf support plugins";
+        return false;
+    } else if(!supportedVersions.contains(m_versionMajor)) {
+        qCCritical(LOG_SESSION).noquote() << "Protocol version" << m_versionMajor
+                                          << "is not supported yet. Please update the application.";
+        return false;
+    }
+
+    m_loader->setFileName(protobufPluginFileName(m_versionMajor));
 
     if(!(m_plugin = qobject_cast<ProtobufPluginInterface*>(m_loader->instance()))) {
         qCCritical(LOG_SESSION) << "Failed to load protobuf plugin:" << m_loader->errorString();
@@ -453,19 +502,6 @@ void ProtobufSession::clearOperationQueue()
     while(!m_queue.isEmpty()) {
         m_queue.dequeue()->deleteLater();
     }
-}
-
-const QString ProtobufSession::protobufPluginPath() const
-{
-#if defined(Q_OS_WINDOWS)
-    return QStringLiteral("flipperproto%1.dll").arg(m_versionMajor);
-#elif defined(Q_OS_MAC)
-    return QStringLiteral("libflipperproto%1.dylib").arg(m_versionMajor);
-#elif defined(Q_OS_LINUX)
-    return QStringLiteral("libflipperproto%1.so").arg(m_versionMajor);
-#else
-#error "Unsupported OS"
-#endif
 }
 
 const QString ProtobufSession::prettyOperationDescription() const

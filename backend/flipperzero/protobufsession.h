@@ -106,6 +106,9 @@ private slots:
     void onCurrentOperationFinished();
 
 private:
+    static const QString protobufPluginFileName(int versionMajor);
+    static QVector<int> supportedProtobufVersions();
+
     void setSessionState(SessionState newState);
 
     bool loadProtobufPlugin();
@@ -113,7 +116,6 @@ private:
 
     void stopEarly(BackendError::ErrorType error, const QString &errorString);
 
-    const QString protobufPluginPath() const;
     const QString prettyOperationDescription() const;
 
     uint32_t getAndIncrementCounter();

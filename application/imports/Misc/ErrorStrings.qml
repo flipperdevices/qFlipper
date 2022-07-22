@@ -108,7 +108,7 @@ QtObject {
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 
-readonly property string errorUpdater:
+    readonly property string errorUpdater:
 "<p>Firmware update could not be started.</p>
 <p>=========== HOW TO FIX ============</p>
 <p>1. See details in the logs below.</p>
@@ -119,12 +119,12 @@ readonly property string errorUpdater:
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 
     readonly property string errorUnknown:
-"<p>Something utterly strange has happened.</p>
+"<p>An unknown error has occured.</p>
 <p>=========== HOW TO FIX ============</p>
-<p>1. Turn it off and on again.</p>
-<p>2. Do a barrel roll!.</p>
-<p>3. ...</p>
-<p>4. PROFIT!</p>
+<p>1. See details in the logs below.</p>
+<p>2. Resolve the problem if possible.</p>
+<p>3. Try again.</p>
+<p>4. If the error persists, file a bug report.</p>
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 }
