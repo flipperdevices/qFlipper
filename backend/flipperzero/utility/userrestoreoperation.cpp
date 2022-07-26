@@ -20,7 +20,7 @@ UserRestoreOperation::UserRestoreOperation(ProtobufSession *rpc, DeviceState *de
     m_backupDir(backupPath),
     m_deviceDirName(QByteArrayLiteral("/int"))
 {
-    m_backupDir.setFilter(QDir::Dirs  | QDir::Files | QDir::NoDotAndDotDot);
+    m_backupDir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden);
     m_backupDir.setSorting(QDir::Name | QDir::DirsFirst);
 }
 

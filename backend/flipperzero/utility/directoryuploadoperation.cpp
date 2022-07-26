@@ -17,7 +17,7 @@ DirectoryUploadOperation::DirectoryUploadOperation(ProtobufSession *rpc, DeviceS
     m_remotePath(remotePath),
     m_totalSize(0)
 {
-    m_localDir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+    m_localDir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden);
 }
 
 const QString DirectoryUploadOperation::description() const
