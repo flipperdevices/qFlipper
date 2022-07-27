@@ -117,11 +117,19 @@ void FileManager::historyBack()
 
 void FileManager::rename(const QString &oldName, const QString &newName)
 {
+    if(!checkDevice()) {
+        return;
+    }
+
     registerOperation(m_device->rpc()->storageRename(remoteFilePath(oldName), remoteFilePath(newName)));
 }
 
 void FileManager::remove(const QString &fileName, bool recursive)
 {
+    if(!checkDevice()) {
+        return;
+    }
+
     registerOperation(m_device->rpc()->storageRemove(remoteFilePath(fileName), recursive));
 }
 
@@ -141,6 +149,10 @@ void FileManager::beginMkDir()
 
 void FileManager::commitMkDir(const QString &dirName)
 {
+    if(!checkDevice()) {
+        return;
+    }
+
     setNewDirectoryIndex(NEW_DIRECTORY_INDEX_INVALID);
     registerOperation(m_device->rpc()->storageMkdir(remoteFilePath(dirName)));
 }
