@@ -104,7 +104,8 @@ QtObject {
 "<p>Current operation was interrupted. Connection to device is lost.</p>
 <p>=========== HOW TO FIX ============</p>
 <p>1. Check USB connection.</p>
-<p>2. Connect your Flipper in Update & Recovery mode and start Repair.</p>
+<p>2. Ensure that Flipper is not locked with PIN code.</p>
+<p>3. Connect your Flipper in Update & Recovery mode and start Repair.</p>
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 

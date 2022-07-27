@@ -143,6 +143,7 @@ private:
     static void registerComparators();
 
     void initConnections();
+    bool checkBackendState();
 
     void setBackendState(BackendState newState);
     void setErrorType(BackendError::ErrorType newErrorType);
