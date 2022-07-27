@@ -37,7 +37,7 @@ using namespace Zero;
 
 FileManager::FileManager(QObject *parent):
     QAbstractListModel(parent),
-    m_device(nullptr),
+//    m_device(nullptr),
     m_busyTimer(new QTimer(this)),
     m_isBusy(false),
     m_hasSDCard(false),
@@ -263,6 +263,18 @@ void FileManager::onBusyTimerTimeout()
     emit isBusyChanged();
 }
 
+bool FileManager::checkDevice()
+{
+    bool ret = !m_device.isNull();
+
+    if(!ret) {
+        setError(BackendError::OperationError, QStringLiteral("Current device has been destroyed"));
+        emit errorOccured();
+    }
+
+    return ret;
+}
+
 void FileManager::setBusy(bool busy)
 {
     // Do not mark short operations as busy to avoid visual noise
@@ -293,7 +305,7 @@ void FileManager::setNewDirectoryIndex(int newIndex)
 
 void FileManager::listCurrentPath()
 {
-    if(!m_device) {
+    if(m_device.isNull()) {
         return;
 
     } else if(isRoot()) {
@@ -333,6 +345,10 @@ void FileManager::listCurrentPath()
 
 void FileManager::uploadFile(const QFileInfo &info)
 {
+    if(!checkDevice()) {
+        return;
+    }
+
     auto *file = new QFile(info.absoluteFilePath(), this);
     auto *operation = m_device->rpc()->storageWrite(remoteFilePath(info.fileName()), file);
 
@@ -342,11 +358,19 @@ void FileManager::uploadFile(const QFileInfo &info)
 
 void FileManager::uploadDirectory(const QFileInfo &info)
 {
+    if(!checkDevice()) {
+        return;
+    }
+
     registerOperation(m_device->utility()->uploadDirectory(info.absoluteFilePath(), currentPath().toLocal8Bit()));
 }
 
 void FileManager::downloadFile(const QByteArray &remoteFileName, const QString &localFileName)
 {
+    if(!checkDevice()) {
+        return;
+    }
+
     auto *file = new QFile(localFileName, this);
     auto *operation = m_device->rpc()->storageRead(remoteFilePath(remoteFileName), file);
 
@@ -356,6 +380,10 @@ void FileManager::downloadFile(const QByteArray &remoteFileName, const QString &
 
 void FileManager::downloadDirectory(const QByteArray &remoteDirName, const QString &localDirName)
 {
+    if(!checkDevice()) {
+        return;
+    }
+
     registerOperation(m_device->utility()->downloadDirectory(localDirName, remoteFilePath(remoteDirName)));
 }
 

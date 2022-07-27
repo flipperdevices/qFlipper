@@ -2,6 +2,7 @@
 
 #include <QUrl>
 #include <QList>
+#include <QPointer>
 #include <QStringList>
 #include <QAbstractListModel>
 
@@ -86,6 +87,8 @@ private slots:
     void onBusyTimerTimeout();
 
 private:
+    bool checkDevice();
+
     void setBusy(bool busy);
     void setNewDirectoryIndex(int newIndex);
 
@@ -107,7 +110,7 @@ private:
 
     static qint64 localFileSize(const QUrl &localUrl);
 
-    FlipperZero *m_device;
+    QPointer<FlipperZero> m_device;
     FileInfoList m_modelData;
     QStringList m_history;
     QStringList m_forwardHistory;
