@@ -93,6 +93,8 @@ public:
     Flipper::FlipperZero *device() const;
     Flipper::Zero::DeviceState *deviceState() const;
 
+    Flipper::DeviceRegistry *deviceRegistry() const;
+
     Flipper::Zero::ScreenStreamer *screenStreamer() const;
     Flipper::Zero::VirtualDisplay *virtualDisplay() const;
     Flipper::Zero::FileManager *fileManager() const;

@@ -119,14 +119,26 @@ void Application::initCommandOptions()
     QCommandLineParser parser;
 
     const auto developerModeOption = QCommandLineOption({QStringLiteral("x"), QStringLiteral("developer-mode")}, QStringLiteral("Enable developer mode."));
+    const auto usbLogLevelOption = QCommandLineOption({QStringLiteral("u"), QStringLiteral("usb-log-level")}, QStringLiteral("Set USB backend log level, 0 - none"), QStringLiteral("0"));
 
     parser.addOption(developerModeOption);
+    parser.addOption(usbLogLevelOption);
     parser.addVersionOption();
     parser.addHelpOption();
 
     parser.process(*this);
 
     m_isDeveloperMode |= parser.isSet(developerModeOption);
+
+    if(parser.isSet(usbLogLevelOption)) {
+        bool canConvert;
+        const auto value = parser.value(usbLogLevelOption).toInt(&canConvert);
+        if(!canConvert) {
+            qCDebug(LOG_APP) << "USB log level has to be a non-negative number";
+        } else {
+            m_backend.deviceRegistry()->setBackendLogLevel(value);
+        }
+    }
 }
 
 void Application::initLogger()

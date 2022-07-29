@@ -10,6 +10,7 @@
 Q_LOGGING_CATEGORY(LOG_DETECTOR, "USB")
 
 static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
+static void libusbLogCallback(libusb_context *ctx, libusb_log_level logLevel, const char *text);
 
 USBDeviceDetector::USBDeviceDetector(QObject *parent):
     QObject(parent),
@@ -17,11 +18,22 @@ USBDeviceDetector::USBDeviceDetector(QObject *parent):
 {
     connect(m_timer, &QTimer::timeout, this, &USBDeviceDetector::processEvents);
     libusb_init(nullptr);
+    libusb_set_log_cb(nullptr, libusbLogCallback, LIBUSB_LOG_CB_GLOBAL);
 }
 
 USBDeviceDetector::~USBDeviceDetector()
 {
     libusb_exit(nullptr);
+}
+
+void USBDeviceDetector::setLogLevel(int logLevel)
+{
+    if(logLevel> LIBUSB_LOG_LEVEL_DEBUG) {
+        qCDebug(LOG_DETECTOR) << "Invalid log level:" << logLevel;
+        return;
+    }
+
+    libusb_set_option(nullptr, LIBUSB_OPTION_LOG_LEVEL, logLevel);
 }
 
 bool USBDeviceDetector::setWantedDevices(const QList<USBDeviceInfo> &wantedList)
@@ -178,4 +190,23 @@ static int libusbHotplugCallback(libusb_context *ctx, libusb_device *dev, libusb
     }
 
     return 0;
+}
+
+static void libusbLogCallback(libusb_context *ctx, libusb_log_level logLevel, const char *text) {
+    Q_UNUSED(ctx)
+
+    static const QStringList logPrefix = {
+        QStringLiteral("NONE"),
+        QStringLiteral("ERR"),
+        QStringLiteral("WRN"),
+        QStringLiteral("INF"),
+        QStringLiteral("DBG"),
+    };
+
+    if(logLevel >= logPrefix.size()) {
+        qCDebug(LOG_DETECTOR) << "Invalid log level:" << logLevel;
+        return;
+    }
+
+    qCDebug(LOG_DETECTOR).noquote() << QStringLiteral("[%1]").arg(logPrefix[logLevel]) << QString::fromLatin1(text, strlen(text) - 1);
 }

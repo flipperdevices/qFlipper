@@ -34,6 +34,11 @@ USBDeviceDetector::~USBDeviceDetector()
     delete m_p;
 }
 
+void USBDeviceDetector::setLogLevel(int logLevel) {
+    Q_UNUSED(logLevel)
+    qCInfo(LOG_DETECTOR) << "Setting USB backend log level is not implemented on WinUSB";
+}
+
 bool USBDeviceDetector::setWantedDevices(const QList<USBDeviceInfo> &wantedList)
 {
     m_wanted = wantedList;

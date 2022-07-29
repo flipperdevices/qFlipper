@@ -21,6 +21,8 @@ class DeviceRegistry : public QObject
 public:
     DeviceRegistry(QObject *parent = nullptr);
 
+    void setBackendLogLevel(int logLevel);
+
     FlipperZero *currentDevice() const;
     int deviceCount() const;
 

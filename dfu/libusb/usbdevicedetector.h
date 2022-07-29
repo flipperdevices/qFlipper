@@ -15,6 +15,7 @@ public:
     USBDeviceDetector(QObject *parent = nullptr);
     ~USBDeviceDetector();
 
+    void setLogLevel(int logLevel);
     bool setWantedDevices(const QList <USBDeviceInfo> &wantedList);
 
     void registerDevice(const USBDeviceInfo &deviceInfo);

@@ -99,6 +99,11 @@ DeviceState *ApplicationBackend::deviceState() const
     }
 }
 
+DeviceRegistry *ApplicationBackend::deviceRegistry() const
+{
+    return m_deviceRegistry;
+}
+
 ScreenStreamer *ApplicationBackend::screenStreamer() const
 {
     return m_screenStreamer;
