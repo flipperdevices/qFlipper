@@ -104,6 +104,7 @@ void VCPDeviceInfoHelper::findSerialPort()
             finishWithError(BackendError::SerialAccessError, QStringLiteral("Failed to find a suitable serial port"));
 
         } else {
+            qCDebug(CATEGORY_DEBUG).noquote() << "Using  serial port" << portInfo.serialNumber() << "at" << portInfo.systemLocation();
             m_deviceInfo.portInfo = portInfo;
             m_deviceInfo.systemLocation = portInfo.systemLocation();
 

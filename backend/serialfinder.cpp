@@ -1,6 +1,10 @@
 #include "serialfinder.h"
 
 #include <QTimer>
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
 
 SerialFinder::SerialFinder(const QString &serialNumber, QObject *parent):
     QObject(parent),
@@ -34,6 +38,7 @@ void SerialFinder::findMatchingPort()
 
     const auto portInfos = QSerialPortInfo::availablePorts();
     const auto it = std::find_if(portInfos.cbegin(), portInfos.cend(), [&](const QSerialPortInfo &info) {
+        qCDebug(CATEGORY_DEBUG).noquote() << "Trying serial port" << info.serialNumber() << "at" << info.systemLocation();
         return info.serialNumber() == m_serialNumber;
     });
 
