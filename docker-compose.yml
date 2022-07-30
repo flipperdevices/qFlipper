@@ -2,6 +2,7 @@ version: '3'
 services:
   dev:
     build: docker
+    platform: linux/amd64
     network_mode: "host"
     privileged: true
     tty: true
