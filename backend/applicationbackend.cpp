@@ -38,7 +38,8 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     m_virtualDisplay(new VirtualDisplay(this)),
     m_fileManager(new FileManager(this)),
     m_backendState(BackendState::WaitingForDevices),
-    m_errorType(BackendError::UnknownError)
+    m_errorType(BackendError::UnknownError),
+    m_updatePolicy(FirmwareUpdatePolicy::None)
 {
     registerMetaTypes();
     registerComparators();
@@ -129,20 +130,14 @@ bool ApplicationBackend::isQueryInProgress() const
     return m_deviceRegistry->isQueryInProgress();
 }
 
-void ApplicationBackend::mainAction()
+void ApplicationBackend::mainAction(bool force)
 {
-    AbstractOperationHelper *helper;
-
-    if(device()->deviceState()->isRecoveryMode()) {
-        setBackendState(BackendState::RepairingDevice);
-        helper = new RepairTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
-
+    if(deviceState()->isRecoveryMode()) {
+        beginRepair();
     } else {
-        setBackendState(BackendState::UpdatingDevice);
-        helper = new UpdateTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
+        m_updatePolicy = force ? FirmwareUpdatePolicy::Force : FirmwareUpdatePolicy::Normal;
+        checkSDCard();
     }
-
-    connect(helper, &AbstractOperationHelper::finished, helper, &QObject::deleteLater);
 }
 
 void ApplicationBackend::createBackup(const QUrl &directoryUrl)
@@ -313,8 +308,16 @@ void ApplicationBackend::onDeviceOperationFinished()
         setBackendState(BackendState::ErrorOccured);
 
     } else if(m_backendState == BackendState::CheckingSDCard) {
-        qCDebug(LOG_BACKEND) << "SD Card & Assets checked";
-        setBackendState(BackendState::Ready);
+        const auto hasSDCard = deviceState()->deviceInfo().storage.isExternalPresent;
+        const auto canContinue = (m_updatePolicy == FirmwareUpdatePolicy::Normal && hasSDCard) ||
+                                  m_updatePolicy == FirmwareUpdatePolicy::Force ;
+        if(canContinue) {
+            beginUpdate();
+        } else {
+            setBackendState(BackendState::Ready);
+        }
+
+        m_updatePolicy = FirmwareUpdatePolicy::None;
 
     } else {
         // TODO: Replace with state check
@@ -393,6 +396,20 @@ bool ApplicationBackend::checkBackendState()
     }
 
     return ret;
+}
+
+void ApplicationBackend::beginUpdate()
+{
+    setBackendState(BackendState::UpdatingDevice);
+    auto *helper = new UpdateTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
+    connect(helper, &AbstractOperationHelper::finished, helper, &QObject::deleteLater);
+}
+
+void ApplicationBackend::beginRepair()
+{
+    setBackendState(BackendState::RepairingDevice);
+    auto *helper = new RepairTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
+    connect(helper, &AbstractOperationHelper::finished, helper, &QObject::deleteLater);
 }
 
 void ApplicationBackend::setBackendState(BackendState newState)

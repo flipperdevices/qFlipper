@@ -9,7 +9,7 @@ CustomDialog {
 
     title: qsTr("SD Card Not Found")
 
-    property bool isForcedInstall: false
+    property bool isAltPressed: false
 
     contentWidget: RowLayout {
         spacing: -8
@@ -33,12 +33,12 @@ CustomDialog {
 
             Button {
                 id: okButton
-                text: control.isForcedInstall ? qsTr("Force install") : "OK"
+                text: control.isAltPressed ? qsTr("Force install") : "OK"
 
-                Keys.onPressed: control.isForcedInstall = event.modifiers & Qt.AltModifier;
-                Keys.onReleased: control.isForcedInstall = false;
+                Keys.onPressed: control.isAltPressed = event.modifiers & Qt.AltModifier;
+                Keys.onReleased: control.isAltPressed = false;
 
-                onClicked: control.isForcedInstall ? control.accepted() : control.rejected()
+                onClicked: control.isAltPressed ? control.accepted() : control.rejected()
 
                 Layout.preferredWidth: 200
                 Layout.alignment: Qt.AlignHCenter
@@ -48,5 +48,9 @@ CustomDialog {
 
     onOpened: {
         okButton.forceActiveFocus();
+    }
+
+    onClosed: {
+        isAltPressed = false;
     }
 }

@@ -86,6 +86,14 @@ public:
 
     Q_ENUM(FirmwareUpdateState)
 
+    enum class FirmwareUpdatePolicy {
+        None,
+        Normal,
+        Force
+    };
+
+    Q_ENUM(FirmwareUpdatePolicy)
+
     ApplicationBackend(QObject *parent = nullptr);
 
     BackendState backendState() const;
@@ -110,7 +118,7 @@ public:
     /* Actions available from the GUI.
      * Applies to the currently active device. */
 
-    Q_INVOKABLE void mainAction();
+    Q_INVOKABLE void mainAction(bool force = false);
 
     Q_INVOKABLE void createBackup(const QUrl &directoryUrl);
     Q_INVOKABLE void restoreBackup(const QUrl &directoryUrl);
@@ -149,6 +157,8 @@ private:
 
     void initConnections();
     bool checkBackendState();
+    void beginUpdate();
+    void beginRepair();
 
     void setBackendState(BackendState newState);
     void setErrorType(BackendError::ErrorType newErrorType);
@@ -162,4 +172,5 @@ private:
 
     BackendState m_backendState;
     BackendError::ErrorType m_errorType;
+    FirmwareUpdatePolicy m_updatePolicy;
 };
