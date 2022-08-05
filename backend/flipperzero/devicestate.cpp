@@ -48,6 +48,12 @@ void DeviceState::setDeviceInfo(const DeviceInfo &newDeviceInfo)
     emit deviceInfoChanged();
 }
 
+void DeviceState::setStorageInfo(const StorageInfo &newStorageInfo)
+{
+    m_deviceInfo.storage = newStorageInfo;
+    emit deviceInfoChanged();
+}
+
 bool DeviceState::isPersistent() const
 {
     return m_isPersistent;

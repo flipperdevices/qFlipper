@@ -140,5 +140,7 @@
         <file>assets/gfx/symbolic/filemgr/action-upload.svg</file>
         <file>assets/gfx/symbolic/filemgr/action-download.svg</file>
         <file>assets/gfx/images/streaming-help-mac.svg</file>
+        <file>components/SDWarningDialog.qml</file>
+        <file>assets/gfx/images/warning-no-sdcard.svg</file>
     </qresource>
 </RCC>

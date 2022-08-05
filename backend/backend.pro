@@ -81,6 +81,7 @@ SOURCES += \
     flipperzero/utility/factoryresetutiloperation.cpp \
     flipperzero/utility/getfiletreeoperation.cpp \
     flipperzero/utility/restartoperation.cpp \
+    flipperzero/utility/sdcardcheckoperation.cpp \
     flipperzero/utility/startrecoveryoperation.cpp \
     flipperzero/utility/startupdateroperation.cpp \
     flipperzero/utility/updateprepareoperation.cpp \
@@ -181,6 +182,7 @@ HEADERS += \
     flipperzero/utility/factoryresetutiloperation.h \
     flipperzero/utility/getfiletreeoperation.h \
     flipperzero/utility/restartoperation.h \
+    flipperzero/utility/sdcardcheckoperation.h \
     flipperzero/utility/startrecoveryoperation.h \
     flipperzero/utility/startupdateroperation.h \
     flipperzero/utility/updateprepareoperation.h \

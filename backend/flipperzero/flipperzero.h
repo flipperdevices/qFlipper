@@ -45,6 +45,7 @@ public:
     void installWirelessStack(const QUrl &fileUrl);
     void installFUS(const QUrl &fileUrl, uint32_t address);
 
+    void checkSDCard();
     void finalizeOperation();
 
 signals:

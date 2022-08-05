@@ -29,6 +29,8 @@ public:
     const DeviceInfo &deviceInfo() const;
     void setDeviceInfo(const DeviceInfo &newDeviceInfo);
 
+    void setStorageInfo(const StorageInfo &newStorageInfo);
+
     bool isPersistent() const;
     void setPersistent(bool set);
 

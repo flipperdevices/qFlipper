@@ -58,6 +58,7 @@ public:
     enum class BackendState {
         WaitingForDevices,
         Ready,
+        CheckingSDCard,
         ScreenStreaming,
         UpdatingDevice,
         RepairingDevice,
@@ -103,6 +104,7 @@ public:
     QAbstractListModel *firmwareUpdateModel() const;
     const Flipper::Updates::VersionInfo latestFirmwareVersion() const;
 
+    // TODO: Replace it with a state
     bool isQueryInProgress() const;
 
     /* Actions available from the GUI.
@@ -121,6 +123,7 @@ public:
     Q_INVOKABLE void startFullScreenStreaming();
     Q_INVOKABLE void stopFullScreenStreaming();
 
+    Q_INVOKABLE void checkSDCard();
     Q_INVOKABLE void checkFirmwareUpdates();
     Q_INVOKABLE void finalizeOperation();
 

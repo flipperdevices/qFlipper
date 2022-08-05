@@ -211,6 +211,12 @@ void ApplicationBackend::stopFullScreenStreaming()
     setBackendState(BackendState::Ready);
 }
 
+void ApplicationBackend::checkSDCard()
+{
+    setBackendState(BackendState::CheckingSDCard);
+    device()->checkSDCard();
+}
+
 void ApplicationBackend::checkFirmwareUpdates()
 {
     m_firmwareUpdateRegistry->check();
@@ -306,7 +312,12 @@ void ApplicationBackend::onDeviceOperationFinished()
         setErrorType(device()->deviceState()->error());
         setBackendState(BackendState::ErrorOccured);
 
+    } else if(m_backendState == BackendState::CheckingSDCard) {
+        qCDebug(LOG_BACKEND) << "SD Card & Assets checked";
+        setBackendState(BackendState::Ready);
+
     } else {
+        // TODO: Replace with state check
         if(deviceState()->isAllowVirtualDisplay()) {
             m_virtualDisplay->sendFrame(QByteArray((char*)update_ok_bits, sizeof(update_ok_bits)));
         }
