@@ -12,6 +12,7 @@
 #include "flipperzero/utility/directorydownloadoperation.h"
 #include "flipperzero/utility/updateprepareoperation.h"
 #include "flipperzero/utility/startupdateroperation.h"
+#include "flipperzero/utility/sdcardcheckoperation.h"
 
 Q_LOGGING_CATEGORY(LOG_UTILITY, "UTL")
 
@@ -90,6 +91,13 @@ UpdatePrepareOperation *UtilityInterface::prepareUpdateDirectory(const QByteArra
 StartUpdaterOperation *UtilityInterface::startUpdater(const QByteArray &manifestPath)
 {
     auto *operation = new StartUpdaterOperation(m_rpc, m_deviceState, manifestPath, this);
+    enqueueOperation(operation);
+    return operation;
+}
+
+SDCardCheckOperation *UtilityInterface::checkStorage()
+{
+    auto *operation = new SDCardCheckOperation(m_rpc, m_deviceState, this);
     enqueueOperation(operation);
     return operation;
 }

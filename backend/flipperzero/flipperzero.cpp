@@ -191,7 +191,7 @@ void FlipperZero::installFUS(const QUrl &fileUrl, uint32_t address)
 
 void FlipperZero::checkSDCard()
 {
-    registerOperation(new SDCardCheckOperation(m_rpc, m_state, this), false);
+    m_utility->checkStorage();
 }
 
 void FlipperZero::finalizeOperation()
@@ -209,7 +209,7 @@ void FlipperZero::finalizeOperation()
 void FlipperZero::onDeviceInfoChanged()
 {
     if(m_state->isOnline()) {
-        // Should not happen during update procedure
+        // Most likely Storage info update
         return;
     } else if(m_state->isRecoveryMode()) {
         // Recovery mode, not using Protobuf
@@ -245,7 +245,7 @@ void FlipperZero::onSessionStatusChanged()
     }
 }
 
-void FlipperZero::registerOperation(AbstractOperation *operation, bool signal)
+void FlipperZero::registerOperation(AbstractOperation *operation)
 {
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -257,9 +257,7 @@ void FlipperZero::registerOperation(AbstractOperation *operation, bool signal)
         }
 
         operation->deleteLater();
-        if(signal) {
-            emit operationFinished();
-        }
+        emit operationFinished();
     });
 
     qCInfo(CAT_DEVICE).noquote() << operation->description() << "START";

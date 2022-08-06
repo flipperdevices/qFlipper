@@ -9,6 +9,7 @@
 #include "flipperzero/utility/updateprepareoperation.h"
 #include "flipperzero/utility/directoryuploadoperation.h"
 #include "flipperzero/utility/startupdateroperation.h"
+#include "flipperzero/utility/sdcardcheckoperation.h"
 
 #include "tarzipuncompressor.h"
 #include "tempdirectories.h"
@@ -48,6 +49,10 @@ const QString FullUpdateOperation::description() const
 void FullUpdateOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
+        setOperationState(FullUpdateOperation::CheckingStorage);
+        checkStorage();
+
+    } else if(operationState() == FullUpdateOperation::CheckingStorage) {
         setOperationState(FullUpdateOperation::FetchingUpdate);
         fetchUpdateFile();
 
@@ -70,6 +75,22 @@ void FullUpdateOperation::nextStateLogic()
     } else if(operationState() == FullUpdateOperation::WaitingForUpdate) {
         finish();
     }
+}
+
+void FullUpdateOperation::checkStorage()
+{
+    deviceState()->setStatusString(QStringLiteral("Checking storage..."));
+
+    auto *operation = m_utility->checkStorage();
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(BackendError::OperationError, QStringLiteral("Failed to check device storage"));
+        } else if(!deviceState()->deviceInfo().storage.isExternalPresent) {
+            finishWithError(BackendError::UnknownError, "SD Card is not installed or malfunctioning");
+        } else {
+            advanceOperationState();
+        }
+    });
 }
 
 void FullUpdateOperation::fetchUpdateFile()

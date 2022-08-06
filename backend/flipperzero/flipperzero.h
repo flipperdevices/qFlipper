@@ -57,7 +57,7 @@ private slots:
     void onSessionStatusChanged();
 
 private:
-    void registerOperation(AbstractOperation *operation, bool signal = true);
+    void registerOperation(AbstractOperation *operation);
 
     Zero::DeviceState *m_state;
     Zero::ProtobufSession *m_rpc;
