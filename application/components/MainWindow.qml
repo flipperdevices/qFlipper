@@ -186,8 +186,7 @@ Item {
             opacity: Backend.backendState !== ApplicationBackend.ScreenStreaming &&
                      Backend.backendState !== ApplicationBackend.ErrorOccured ? 1 : 0
 
-            x: Backend.backendState >= ApplicationBackend.Ready &&
-               Backend.backendState <= ApplicationBackend.CheckingSDCard ? Math.round(mainContent.width / 2) : 216
+            x: Backend.backendState === ApplicationBackend.Ready ? Math.round(mainContent.width / 2) : 216
             y: 82
 
             onScreenStreamRequested: Backend.startFullScreenStreaming()
@@ -203,8 +202,7 @@ Item {
             id: homeOverlay
             backgroundRect: bg
             anchors.fill: parent
-            opacity: Backend.backendState >= ApplicationBackend.Ready &&
-                     Backend.backendState <= ApplicationBackend.CheckingSDCard ? 1 : 0
+            opacity: Backend.backendState === ApplicationBackend.Ready ? 1 : 0
         }
 
         UpdateOverlay {

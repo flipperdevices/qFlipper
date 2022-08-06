@@ -316,7 +316,7 @@ void Cli::startPendingOperation()
     }
 
     if(m_pendingOperation == DefaultAction) {
-        m_backend.mainAction(true); // Force install regardless of SD card
+        m_backend.mainAction();
     } else if(m_pendingOperation == Backup) {
         m_backend.createBackup(m_fileParameter);
     } else if(m_pendingOperation == Restore) {

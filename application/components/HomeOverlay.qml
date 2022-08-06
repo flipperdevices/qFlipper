@@ -76,7 +76,11 @@ AbstractOverlay {
         id: sdWarningDialog
         parent: backgroundRect
         radius: backgroundRect.radius
-        onClosed: Backend.mainAction(result)
+        onRejected: Backend.checkSDCard()
+        onAccepted: {
+            updateButtonFunc();
+            result = false;
+        }
     }
 
     TabPane {
@@ -355,10 +359,14 @@ AbstractOverlay {
                          .arg(releaseButton.text),
             };
 
-        const updateFunc = (deviceState.isRecoveryMode || deviceInfo.storage.isExternalPresent) ?
-            Backend.mainAction : sdWarningDialog.open;
-
-        confirmationDialog.openWithMessage(updateFunc, messageObj);
+        const canUpdate = deviceInfo.storage.isExternalPresent ||
+                          deviceState.isRecoveryMode ||
+                          sdWarningDialog.result;
+        if(canUpdate) {
+            confirmationDialog.openWithMessage(Backend.mainAction, messageObj);
+        } else {
+            sdWarningDialog.open();
+        }
     }
 
     function installFromFile() {
@@ -442,10 +450,14 @@ AbstractOverlay {
             message: qsTr("Current firmware version will be reinstalled")
         };
 
-        const reinstallFunc = (deviceState.isRecoveryMode || deviceInfo.storage.isExternalPresent) ?
-            Backend.mainAction : sdWarningDialog.open;
-
-        confirmationDialog.openWithMessage(reinstallFunc, messageObj);
+        const canReinstall = deviceInfo.storage.isExternalPresent ||
+                             deviceState.isRecoveryMode ||
+                             sdWarningDialog.result;
+        if(canReinstall) {
+            confirmationDialog.openWithMessage(Backend.mainAction, messageObj);
+        } else {
+            sdWarningDialog.open();
+        }
     }
 
     function installWirelessStack() {

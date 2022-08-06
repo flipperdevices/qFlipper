@@ -38,8 +38,7 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     m_virtualDisplay(new VirtualDisplay(this)),
     m_fileManager(new FileManager(this)),
     m_backendState(BackendState::WaitingForDevices),
-    m_errorType(BackendError::UnknownError),
-    m_updatePolicy(FirmwareUpdatePolicy::None)
+    m_errorType(BackendError::UnknownError)
 {
     registerMetaTypes();
     registerComparators();
@@ -130,14 +129,20 @@ bool ApplicationBackend::isQueryInProgress() const
     return m_deviceRegistry->isQueryInProgress();
 }
 
-void ApplicationBackend::mainAction(bool force)
+void ApplicationBackend::mainAction()
 {
-    if(deviceState()->isRecoveryMode()) {
-        beginRepair();
-    } else {
-        m_updatePolicy = force ? FirmwareUpdatePolicy::Force : FirmwareUpdatePolicy::Normal;
-        checkSDCard();
-    }
+    AbstractOperationHelper *helper;
+
+       if(device()->deviceState()->isRecoveryMode()) {
+           setBackendState(BackendState::RepairingDevice);
+           helper = new RepairTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
+
+       } else {
+           setBackendState(BackendState::UpdatingDevice);
+           helper = new UpdateTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
+       }
+
+       connect(helper, &AbstractOperationHelper::finished, helper, &QObject::deleteLater);
 }
 
 void ApplicationBackend::createBackup(const QUrl &directoryUrl)
@@ -208,7 +213,6 @@ void ApplicationBackend::stopFullScreenStreaming()
 
 void ApplicationBackend::checkSDCard()
 {
-    setBackendState(BackendState::CheckingSDCard);
     device()->checkSDCard();
 }
 
@@ -306,18 +310,6 @@ void ApplicationBackend::onDeviceOperationFinished()
         qCDebug(LOG_BACKEND) << "Current operation finished with error:" << device()->deviceState()->errorString();
         setErrorType(device()->deviceState()->error());
         setBackendState(BackendState::ErrorOccured);
-
-    } else if(m_backendState == BackendState::CheckingSDCard) {
-        const auto hasSDCard = deviceState()->deviceInfo().storage.isExternalPresent;
-        const auto canContinue = (m_updatePolicy == FirmwareUpdatePolicy::Normal && hasSDCard) ||
-                                  m_updatePolicy == FirmwareUpdatePolicy::Force ;
-        if(canContinue) {
-            beginUpdate();
-        } else {
-            setBackendState(BackendState::Ready);
-        }
-
-        m_updatePolicy = FirmwareUpdatePolicy::None;
 
     } else {
         // TODO: Replace with state check

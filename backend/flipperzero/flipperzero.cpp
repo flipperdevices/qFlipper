@@ -191,7 +191,7 @@ void FlipperZero::installFUS(const QUrl &fileUrl, uint32_t address)
 
 void FlipperZero::checkSDCard()
 {
-    registerOperation(new SDCardCheckOperation(m_rpc, m_state, this));
+    registerOperation(new SDCardCheckOperation(m_rpc, m_state, this), false);
 }
 
 void FlipperZero::finalizeOperation()
@@ -245,7 +245,7 @@ void FlipperZero::onSessionStatusChanged()
     }
 }
 
-void FlipperZero::registerOperation(AbstractOperation *operation)
+void FlipperZero::registerOperation(AbstractOperation *operation, bool signal)
 {
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
@@ -257,7 +257,9 @@ void FlipperZero::registerOperation(AbstractOperation *operation)
         }
 
         operation->deleteLater();
-        emit operationFinished();
+        if(signal) {
+            emit operationFinished();
+        }
     });
 
     qCInfo(CAT_DEVICE).noquote() << operation->description() << "START";
