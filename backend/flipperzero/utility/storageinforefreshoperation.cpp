@@ -1,4 +1,4 @@
-#include "sdcardcheckoperation.h"
+#include "storageinforefreshoperation.h"
 
 #include <cmath>
 
@@ -11,17 +11,17 @@
 using namespace Flipper;
 using namespace Zero;
 
-SDCardCheckOperation::SDCardCheckOperation(ProtobufSession *rpc, DeviceState *deviceState, QObject *parent):
+StorageInfoRefreshOperation::StorageInfoRefreshOperation(ProtobufSession *rpc, DeviceState *deviceState, QObject *parent):
     AbstractUtilityOperation(rpc, deviceState, parent),
     m_storageInfo{}
 {}
 
-const QString SDCardCheckOperation::description() const
+const QString StorageInfoRefreshOperation::description() const
 {
-    return QStringLiteral("Check SD Card @%1").arg(deviceState()->name());
+    return QStringLiteral("Refresh Storage Info @%1").arg(deviceState()->name());
 }
 
-void SDCardCheckOperation::nextStateLogic()
+void StorageInfoRefreshOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
         setOperationState(CheckingSDCard);
@@ -35,7 +35,7 @@ void SDCardCheckOperation::nextStateLogic()
     }
 }
 
-void SDCardCheckOperation::checkSDCard()
+void StorageInfoRefreshOperation::checkSDCard()
 {
     auto *operation = rpc()->storageInfo(QByteArrayLiteral("/ext"));
 
@@ -60,7 +60,7 @@ void SDCardCheckOperation::checkSDCard()
     });
 }
 
-void SDCardCheckOperation::checkManifest()
+void StorageInfoRefreshOperation::checkManifest()
 {
     auto *operation = rpc()->storageStat(QByteArrayLiteral("/ext/Manifest"));
 
@@ -75,7 +75,7 @@ void SDCardCheckOperation::checkManifest()
     });
 }
 
-void SDCardCheckOperation::updateStorageInfo()
+void StorageInfoRefreshOperation::updateStorageInfo()
 {
     deviceState()->setStorageInfo(m_storageInfo);
 }

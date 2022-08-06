@@ -122,7 +122,7 @@ public:
     Q_INVOKABLE void startFullScreenStreaming();
     Q_INVOKABLE void stopFullScreenStreaming();
 
-    Q_INVOKABLE void checkSDCard();
+    Q_INVOKABLE void refreshStorageInfo();
     Q_INVOKABLE void checkFirmwareUpdates();
     Q_INVOKABLE void finalizeOperation();
 

@@ -22,7 +22,7 @@
 #include "toplevel/fullrepairoperation.h"
 #include "toplevel/legacyupdateoperation.h"
 
-#include "utility/sdcardcheckoperation.h"
+#include "utility/storageinforefreshoperation.h"
 
 Q_LOGGING_CATEGORY(CAT_DEVICE, "DEV")
 
@@ -189,9 +189,9 @@ void FlipperZero::installFUS(const QUrl &fileUrl, uint32_t address)
     registerOperation(new FUSUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), address, this));
 }
 
-void FlipperZero::checkSDCard()
+void FlipperZero::refreshStorageInfo()
 {
-    m_utility->checkStorage();
+    m_utility->refreshStorageInfo();
 }
 
 void FlipperZero::finalizeOperation()

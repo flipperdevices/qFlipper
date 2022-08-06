@@ -20,7 +20,7 @@ class UserRestoreOperation;
 class RestartOperation;
 class UpdatePrepareOperation;
 class StartUpdaterOperation;
-class SDCardCheckOperation;
+class StorageInfoRefreshOperation;
 
 class UtilityInterface : public AbstractOperationRunner
 {
@@ -39,7 +39,7 @@ public:
     DirectoryDownloadOperation *downloadDirectory(const QString &localDirectory, const QByteArray &remotePath);
     UpdatePrepareOperation *prepareUpdateDirectory(const QByteArray &updateDirName, const QByteArray &remotePath);
     StartUpdaterOperation *startUpdater(const QByteArray &manifestPath);
-    SDCardCheckOperation *checkStorage();
+    StorageInfoRefreshOperation *refreshStorageInfo();
 
 private:
     const QLoggingCategory &loggingCategory() const override;

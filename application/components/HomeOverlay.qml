@@ -76,7 +76,7 @@ AbstractOverlay {
         id: sdWarningDialog
         parent: backgroundRect
         radius: backgroundRect.radius
-        onRejected: Backend.checkSDCard()
+        onRejected: Backend.refreshStorageInfo()
         onAccepted: {
             updateButtonFunc();
             result = false;

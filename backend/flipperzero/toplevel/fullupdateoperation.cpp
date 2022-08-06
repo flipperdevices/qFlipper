@@ -9,7 +9,7 @@
 #include "flipperzero/utility/updateprepareoperation.h"
 #include "flipperzero/utility/directoryuploadoperation.h"
 #include "flipperzero/utility/startupdateroperation.h"
-#include "flipperzero/utility/sdcardcheckoperation.h"
+#include "flipperzero/utility/storageinforefreshoperation.h"
 
 #include "tarzipuncompressor.h"
 #include "tempdirectories.h"
@@ -81,7 +81,7 @@ void FullUpdateOperation::checkStorage()
 {
     deviceState()->setStatusString(QStringLiteral("Checking storage..."));
 
-    auto *operation = m_utility->checkStorage();
+    auto *operation = m_utility->refreshStorageInfo();
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(BackendError::OperationError, QStringLiteral("Failed to check device storage"));

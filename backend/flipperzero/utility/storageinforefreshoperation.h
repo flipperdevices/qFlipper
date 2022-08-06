@@ -6,7 +6,7 @@
 namespace Flipper {
 namespace Zero {
 
-class SDCardCheckOperation : public AbstractUtilityOperation
+class StorageInfoRefreshOperation : public AbstractUtilityOperation
 {
     Q_OBJECT
 
@@ -16,9 +16,7 @@ class SDCardCheckOperation : public AbstractUtilityOperation
     };
 
 public:
-    SDCardCheckOperation(ProtobufSession *rpc, DeviceState *deviceState, QObject *parent = nullptr);
-    ~SDCardCheckOperation() {}
-
+    StorageInfoRefreshOperation(ProtobufSession *rpc, DeviceState *deviceState, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:

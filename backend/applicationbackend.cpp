@@ -211,9 +211,9 @@ void ApplicationBackend::stopFullScreenStreaming()
     setBackendState(BackendState::Ready);
 }
 
-void ApplicationBackend::checkSDCard()
+void ApplicationBackend::refreshStorageInfo()
 {
-    device()->checkSDCard();
+    device()->refreshStorageInfo();
 }
 
 void ApplicationBackend::checkFirmwareUpdates()

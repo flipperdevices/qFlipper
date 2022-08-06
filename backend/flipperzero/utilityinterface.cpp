@@ -12,7 +12,7 @@
 #include "flipperzero/utility/directorydownloadoperation.h"
 #include "flipperzero/utility/updateprepareoperation.h"
 #include "flipperzero/utility/startupdateroperation.h"
-#include "flipperzero/utility/sdcardcheckoperation.h"
+#include "flipperzero/utility/storageinforefreshoperation.h"
 
 Q_LOGGING_CATEGORY(LOG_UTILITY, "UTL")
 
@@ -95,9 +95,9 @@ StartUpdaterOperation *UtilityInterface::startUpdater(const QByteArray &manifest
     return operation;
 }
 
-SDCardCheckOperation *UtilityInterface::checkStorage()
+StorageInfoRefreshOperation *UtilityInterface::refreshStorageInfo()
 {
-    auto *operation = new SDCardCheckOperation(m_rpc, m_deviceState, this);
+    auto *operation = new StorageInfoRefreshOperation(m_rpc, m_deviceState, this);
     enqueueOperation(operation);
     return operation;
 }
