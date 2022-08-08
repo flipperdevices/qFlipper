@@ -133,16 +133,16 @@ void ApplicationBackend::mainAction()
 {
     AbstractOperationHelper *helper;
 
-    if(device()->deviceState()->isRecoveryMode()) {
-        setBackendState(BackendState::RepairingDevice);
-        helper = new RepairTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
+       if(device()->deviceState()->isRecoveryMode()) {
+           setBackendState(BackendState::RepairingDevice);
+           helper = new RepairTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
 
-    } else {
-        setBackendState(BackendState::UpdatingDevice);
-        helper = new UpdateTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
-    }
+       } else {
+           setBackendState(BackendState::UpdatingDevice);
+           helper = new UpdateTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
+       }
 
-    connect(helper, &AbstractOperationHelper::finished, helper, &QObject::deleteLater);
+       connect(helper, &AbstractOperationHelper::finished, helper, &QObject::deleteLater);
 }
 
 void ApplicationBackend::createBackup(const QUrl &directoryUrl)
@@ -209,6 +209,11 @@ void ApplicationBackend::startFullScreenStreaming()
 void ApplicationBackend::stopFullScreenStreaming()
 {
     setBackendState(BackendState::Ready);
+}
+
+void ApplicationBackend::refreshStorageInfo()
+{
+    device()->refreshStorageInfo();
 }
 
 void ApplicationBackend::checkFirmwareUpdates()
@@ -307,6 +312,7 @@ void ApplicationBackend::onDeviceOperationFinished()
         setBackendState(BackendState::ErrorOccured);
 
     } else {
+        // TODO: Replace with state check
         if(deviceState()->isAllowVirtualDisplay()) {
             m_virtualDisplay->sendFrame(QByteArray((char*)update_ok_bits, sizeof(update_ok_bits)));
         }
@@ -382,6 +388,20 @@ bool ApplicationBackend::checkBackendState()
     }
 
     return ret;
+}
+
+void ApplicationBackend::beginUpdate()
+{
+    setBackendState(BackendState::UpdatingDevice);
+    auto *helper = new UpdateTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
+    connect(helper, &AbstractOperationHelper::finished, helper, &QObject::deleteLater);
+}
+
+void ApplicationBackend::beginRepair()
+{
+    setBackendState(BackendState::RepairingDevice);
+    auto *helper = new RepairTopLevelHelper(m_firmwareUpdateRegistry, device(), this);
+    connect(helper, &AbstractOperationHelper::finished, helper, &QObject::deleteLater);
 }
 
 void ApplicationBackend::setBackendState(BackendState newState)

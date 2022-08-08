@@ -45,6 +45,7 @@ public:
     void installWirelessStack(const QUrl &fileUrl);
     void installFUS(const QUrl &fileUrl, uint32_t address);
 
+    void refreshStorageInfo();
     void finalizeOperation();
 
 signals:

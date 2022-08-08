@@ -83,6 +83,7 @@ SOURCES += \
     flipperzero/utility/restartoperation.cpp \
     flipperzero/utility/startrecoveryoperation.cpp \
     flipperzero/utility/startupdateroperation.cpp \
+    flipperzero/utility/storageinforefreshoperation.cpp \
     flipperzero/utility/updateprepareoperation.cpp \
     flipperzero/utility/userbackupoperation.cpp \
     flipperzero/utility/userrestoreoperation.cpp \
@@ -183,6 +184,7 @@ HEADERS += \
     flipperzero/utility/restartoperation.h \
     flipperzero/utility/startrecoveryoperation.h \
     flipperzero/utility/startupdateroperation.h \
+    flipperzero/utility/storageinforefreshoperation.h \
     flipperzero/utility/updateprepareoperation.h \
     flipperzero/utility/userbackupoperation.h \
     flipperzero/utility/userrestoreoperation.h \

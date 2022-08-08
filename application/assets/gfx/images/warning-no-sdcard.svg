@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 118 147.99999"
+   xml:space="preserve"
+   width="118"
+   height="148"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs33" />
+<style
+   type="text/css"
+   id="style2">
+	.st0{stroke:#FE8A2C;stroke-width:2;}
+	.st1{fill:#FE8A2C;}
+	.st2{fill:none;stroke:#FE8A2C;stroke-width:2;stroke-linecap:round;}
+	.st3{fill:none;stroke:#FE8A2C;stroke-width:2;}
+</style>
+<path
+   class="st0"
+   d="M 111.7,147.1 H 6.4 c -3,0 -5.4,-3.2 -5.4,-7.2 V 100.6 C 1,99.7 2,98.8 2.8,98.3 L 17,89.8 V 74.2 H 3.8 C 2.2,74.2 1,73 1,71.5 V 63.3 L 17,39.8 V 8.2 C 17,4.2 19.4,1 22.4,1 h 89.3 c 3,0 5.4,3.2 5.4,7.2 v 131.7 c -0.1,4 -2.5,7.2 -5.4,7.2 z"
+   id="path4"
+   style="fill:none" />
+<g
+   id="g18">
+	<path
+   class="st1"
+   d="M 37,28.3 V 11 C 37,9.5 35.7,8.2 34.2,8.2 H 28.8 C 27.3,8.2 26,9.4 26,11 v 17.3 c 0,1.5 1.3,2.8 2.8,2.8 h 5.4 c 1.6,0 2.8,-1.3 2.8,-2.8 z"
+   id="path6" />
+	<path
+   class="st1"
+   d="M 51,10.9 C 51,9.4 49.7,8.1 48.2,8.1 H 42.8 C 41.3,8.1 40,9.4 40,10.9 v 17.3 c 0,1.5 1.3,2.8 2.8,2.8 h 5.4 c 1.5,0 2.8,-1.3 2.8,-2.8 z"
+   id="path8" />
+	<path
+   class="st1"
+   d="M 65,28.3 V 11 C 65,9.5 63.8,8.2 62.2,8.2 H 56.8 C 55.3,8.2 54,9.5 54,11 v 17.3 c 0,1.5 1.2,2.8 2.8,2.8 h 5.4 c 1.5,0 2.8,-1.3 2.8,-2.8 z"
+   id="path10" />
+	<path
+   class="st1"
+   d="M 79,11 C 79,9.5 77.8,8.2 76.2,8.2 H 70.8 C 69.3,8.2 68,9.5 68,11 v 17.3 c 0,1.5 1.2,2.8 2.8,2.8 h 5.4 c 1.5,0 2.8,-1.3 2.8,-2.8 z"
+   id="path12" />
+	<path
+   class="st1"
+   d="M 90.2,8.2 H 84.8 C 83.3,8.2 82,9.4 82,11 v 17.3 c 0,1.5 1.2,2.8 2.8,2.8 h 5.4 c 1.5,0 2.8,-1.3 2.8,-2.8 V 11 C 93,9.4 91.7,8.2 90.2,8.2 Z"
+   id="path14" />
+	<path
+   class="st1"
+   d="M 104.2,8.2 H 98.8 C 97.3,8.2 96,9.5 96,11 v 17.3 c 0,1.5 1.2,2.8 2.8,2.8 h 5.4 c 1.5,0 2.8,-1.3 2.8,-2.8 V 11 c 0,-1.6 -1.2,-2.8 -2.8,-2.8 z"
+   id="path16" />
+</g>
+<line
+   class="st2"
+   x1="31.299999"
+   y1="63.599998"
+   x2="54.400002"
+   y2="86.800003"
+   id="line20" />
+<line
+   class="st2"
+   x1="54.400002"
+   y1="63.599998"
+   x2="31.299999"
+   y2="86.800003"
+   id="line22" />
+<line
+   class="st2"
+   x1="75"
+   y1="63.599998"
+   x2="98.199997"
+   y2="86.800003"
+   id="line24" />
+<line
+   class="st2"
+   x1="98.199997"
+   y1="63.599998"
+   x2="75"
+   y2="86.800003"
+   id="line26" />
+<path
+   class="st3"
+   d="m 46.4,115.1 4.1,-2.8 c 8.7,-5.9 20.1,-5.9 28.8,0.1 l 4,2.7"
+   id="path28" />
+</svg>

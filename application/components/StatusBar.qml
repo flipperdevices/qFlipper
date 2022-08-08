@@ -29,7 +29,7 @@ Rectangle {
         TextLabel {
             id: message
 
-            text: Backend.backendState === Backend.ErrorOccured ?
+            text: Backend.backendState === ApplicationBackend.ErrorOccured ?
                   Backend.errorType === BackendError.InvalidDevice ? qsTr("Unsupported device found") :
                   Backend.errorType === BackendError.InternetError ? qsTr("Cannot connect to update server") :
                   Backend.errorType === BackendError.SerialAccessError ? qsTr("Cannot access serial port"):
@@ -39,11 +39,11 @@ Rectangle {
                   Backend.errorType === BackendError.OperationError ? qsTr("Operation interrupted"):
                   Backend.errorType === BackendError.DataError ? qsTr("Data corrupted"): qsTr("Something went wrong. Check logs for details.") :
 
-                  Backend.backendState === Backend.WaitingForDevices ? qsTr("Waiting for devices ...") :
-                  Backend.backendState > Backend.ScreenStreaming && Backend.backendState < Backend.Finished ? qsTr("Do not unplug the device ...") :
-                  Backend.backendState === Backend.Finished ? qsTr("Operation has finished successfully.") :
-                  Backend.firmwareUpdateState === Backend.ErrorOccured ? qsTr("Cannot connect to update server") :
-                  Backend.firmwareUpdateState === Backend.Checking ? qsTr("Checking for firmware updates...") : qsTr("Ready.")
+                  Backend.backendState === ApplicationBackend.WaitingForDevices ? qsTr("Waiting for devices ...") :
+                  Backend.backendState > ApplicationBackend.ScreenStreaming && Backend.backendState < ApplicationBackend.Finished ? qsTr("Do not unplug the device ...") :
+                  Backend.backendState === ApplicationBackend.Finished ? qsTr("Operation has finished successfully.") :
+                  Backend.firmwareUpdateState === ApplicationBackend.ErrorOccured ? qsTr("Cannot connect to update server") :
+                  Backend.firmwareUpdateState === ApplicationBackend.Checking ? qsTr("Checking for firmware updates...") : qsTr("Ready.")
 
             color: control.errorOccured ? Theme.color.lightred4 : Theme.color.lightorange2
 

@@ -21,6 +21,7 @@ Popup {
 
     property bool closable: false
     property bool invertTitle: true
+    property bool result: false
     property Item contentWidget: Item {}
 
     enter: Transition {
@@ -137,5 +138,13 @@ Popup {
         contentWidget.parent = contentBg;
         contentWidget.x = header.x;
         contentWidget.y = header.y + header.height;
+    }
+
+    onAccepted: {
+        result = true;
+    }
+
+    onRejected: {
+        result = false;
     }
 }

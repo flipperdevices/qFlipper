@@ -18,7 +18,8 @@ class FullUpdateOperation : public AbstractTopLevelOperation
     Q_OBJECT
 
     enum OperationState {
-        FetchingUpdate = AbstractOperation::User,
+        CheckingStorage = AbstractOperation::User,
+        FetchingUpdate,
         ExtractingUpdate,
         PreparingUpdateDir,
         UploadingUpdateDir,
@@ -34,6 +35,7 @@ private slots:
     void nextStateLogic() override;
 
 private:
+    void checkStorage();
     void fetchUpdateFile();
     void extractUpdate();
     void prepareUpdateDir();

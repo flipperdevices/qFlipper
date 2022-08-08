@@ -22,6 +22,8 @@
 #include "toplevel/fullrepairoperation.h"
 #include "toplevel/legacyupdateoperation.h"
 
+#include "utility/storageinforefreshoperation.h"
+
 Q_LOGGING_CATEGORY(CAT_DEVICE, "DEV")
 
 #define CHANNEL_DEVELOPMENT "development"
@@ -187,6 +189,11 @@ void FlipperZero::installFUS(const QUrl &fileUrl, uint32_t address)
     registerOperation(new FUSUpdateOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), address, this));
 }
 
+void FlipperZero::refreshStorageInfo()
+{
+    m_utility->refreshStorageInfo();
+}
+
 void FlipperZero::finalizeOperation()
 {
     // TODO: write a better implementation that would:
@@ -201,11 +208,16 @@ void FlipperZero::finalizeOperation()
 
 void FlipperZero::onDeviceInfoChanged()
 {
-    if(m_state->isRecoveryMode()) {
+    if(m_state->isOnline()) {
+        // Most likely Storage info update
+        return;
+    } else if(m_state->isRecoveryMode()) {
+        // Recovery mode, not using Protobuf
         m_state->setOnline(true);
         return;
     }
 
+    // Perform Protobuf session initialisation
     const auto &deviceInfo = m_state->deviceInfo();
 
     qCDebug(CAT_DEVICE).noquote() << "Version:" << deviceInfo.firmware.version << "commit:"

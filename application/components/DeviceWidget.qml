@@ -66,7 +66,9 @@ Image {
     ScreenCanvas {
         id: screenCanvas
         anchors.fill: defaultScreen
-        visible: Backend.backendState === ApplicationBackend.Ready && Backend.screenStreamer.isEnabled
+        visible: Backend.screenStreamer.isEnabled &&
+                 Backend.backendState > ApplicationBackend.WaitingForDevices &&
+                 Backend.backendState < ApplicationBackend.ScreenStreaming
 
         foregroundColor: Theme.color.darkorange1
         backgroundColor: Theme.color.lightorange2

@@ -77,8 +77,8 @@ AbstractOverlay {
         width: layout.implicitWidth
         height: layout.implicitHeight
 
-        opacity: Backend.backendState === Backend.UpdatingDevice ? !!deviceInfo && !deviceInfo.storage.isExternalPresent :
-                 Backend.backendState === Backend.RepairingDevice ? !!deviceInfo && !deviceState.isRecoveryMode && !deviceInfo.storage.isExternalPresent : 0
+        opacity: Backend.backendState === ApplicationBackend.UpdatingDevice ? !!deviceInfo && !deviceInfo.storage.isExternalPresent :
+                 Backend.backendState === ApplicationBackend.RepairingDevice ? !!deviceInfo && !deviceState.isRecoveryMode && !deviceInfo.storage.isExternalPresent : 0
 
         enabled: opacity > 0
 

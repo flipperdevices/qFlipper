@@ -15,7 +15,7 @@ AbstractOverlay {
         y: 19
 
         capitalized: false
-        visible: Backend.backendState === Backend.Finished
+        visible: Backend.backendState === ApplicationBackend.Finished
 
         font.family: "Born2bSportyV2"
         font.pixelSize: 48
@@ -26,7 +26,7 @@ AbstractOverlay {
     }
 
     RowLayout {
-        visible: Backend.backendState === Backend.ErrorOccured
+        visible: Backend.backendState === ApplicationBackend.ErrorOccured
 
         anchors.fill: parent
         anchors.margins: 36
@@ -161,14 +161,14 @@ AbstractOverlay {
         icon.height: 24
         icon.source: "qrc:/assets/gfx/symbolic/arrow-back.svg"
 
-        visible: Backend.backendState === Backend.ErrorOccured
+        visible: Backend.backendState === ApplicationBackend.ErrorOccured
     }
 
     MainButton {
         id: continueButton
         action: continueAction
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: Backend.backendState === Backend.Finished
+        visible: Backend.backendState === ApplicationBackend.Finished
         focus: visible
         y: 270
 

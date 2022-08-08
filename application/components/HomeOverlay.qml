@@ -72,6 +72,17 @@ AbstractOverlay {
         radius: backgroundRect.radius
     }
 
+    SDWarningDialog {
+        id: sdWarningDialog
+        parent: backgroundRect
+        radius: backgroundRect.radius
+        onRejected: Backend.refreshStorageInfo()
+        onAccepted: {
+            updateButtonFunc();
+            result = false;
+        }
+    }
+
     TabPane {
         z: fileButton.z + 1
         anchors.top: tabs.bottom
@@ -199,29 +210,29 @@ AbstractOverlay {
 
         accent: {
             switch(Backend.firmwareUpdateState) {
-            case Backend.CanRepair:
+            case ApplicationBackend.CanRepair:
                 return MainButton.Blue;
-            case Backend.CanUpdate:
+            case ApplicationBackend.CanUpdate:
                 return MainButton.Green;
             default:
                 return MainButton.Default;
             }
         }
 
-        icon.source: Backend.firmwareUpdateState === Backend.ErrorOccured ? "qrc:/assets/gfx/symbolic/update-symbolic.svg" : ""
+        icon.source: Backend.firmwareUpdateState === ApplicationBackend.ErrorOccured ? "qrc:/assets/gfx/symbolic/update-symbolic.svg" : ""
         icon.width: 32
         icon.height: 32
 
         ToolTip {
             text: {
                 switch(Backend.firmwareUpdateState) {
-                case Backend.CanRepair:
+                case ApplicationBackend.CanRepair:
                     return qsTr("Repair a broken firmware installation. May erase your progress and settings.");
-                case Backend.CanUpdate:
+                case ApplicationBackend.CanUpdate:
                     return qsTr("Update Flipper to the latest version");
-                case Backend.CanInstall:
+                case ApplicationBackend.CanInstall:
                     return qsTr("Install firmware from currently selected update channel");
-                case Backend.ErrorOccured:
+                case ApplicationBackend.ErrorOccured:
                     return qsTr("Press to check internet connection and try to update Flipper again");
                 default:
                     return "";
@@ -253,9 +264,9 @@ AbstractOverlay {
             }
         }
 
-        visible: Backend.firmwareUpdateState !== Backend.Unknown &&
-                 Backend.firmwareUpdateState !== Backend.Checking &&
-                 Backend.firmwareUpdateState !== Backend.ErrorOccured
+        visible: Backend.firmwareUpdateState !== ApplicationBackend.Unknown &&
+                 Backend.firmwareUpdateState !== ApplicationBackend.Checking &&
+                 Backend.firmwareUpdateState !== ApplicationBackend.ErrorOccured
     }
 
     LinkButton {
@@ -271,10 +282,10 @@ AbstractOverlay {
     Action {
         id: updateButtonAction
 
-        enabled: Backend.firmwareUpdateState === Backend.CanUpdate ||
-                 Backend.firmwareUpdateState === Backend.CanInstall ||
-                 Backend.firmwareUpdateState === Backend.CanRepair ||
-                 Backend.firmwareUpdateState === Backend.ErrorOccured
+        enabled: Backend.firmwareUpdateState === ApplicationBackend.CanUpdate ||
+                 Backend.firmwareUpdateState === ApplicationBackend.CanInstall ||
+                 Backend.firmwareUpdateState === ApplicationBackend.CanRepair ||
+                 Backend.firmwareUpdateState === ApplicationBackend.ErrorOccured
 
         text: {
             switch(Backend.firmwareUpdateState) {
@@ -295,14 +306,15 @@ AbstractOverlay {
             }
         }
 
-        onTriggered: Backend.firmwareUpdateState !== Backend.ErrorOccured ? updateButtonFunc() : Backend.checkFirmwareUpdates()
+        onTriggered: Backend.firmwareUpdateState !== ApplicationBackend.ErrorOccured ?
+                     updateButtonFunc() : Backend.checkFirmwareUpdates()
     }
 
     Action {
         id: changelogAction
-        enabled: Backend.firmwareUpdateState !== Backend.Unknown &&
-                 Backend.firmwareUpdateState !== Backend.Checking &&
-                 Backend.firmwareUpdateState !== Backend.ErrorOccured
+        enabled: Backend.firmwareUpdateState !== ApplicationBackend.Unknown &&
+                 Backend.firmwareUpdateState !== ApplicationBackend.Checking &&
+                 Backend.firmwareUpdateState !== ApplicationBackend.ErrorOccured
 
         text: {
             let str;
@@ -347,7 +359,14 @@ AbstractOverlay {
                          .arg(releaseButton.text),
             };
 
-        confirmationDialog.openWithMessage(Backend.mainAction, messageObj);
+        const canUpdate = deviceInfo.storage.isExternalPresent ||
+                          deviceState.isRecoveryMode ||
+                          sdWarningDialog.result;
+        if(canUpdate) {
+            confirmationDialog.openWithMessage(Backend.mainAction, messageObj);
+        } else {
+            sdWarningDialog.open();
+        }
     }
 
     function installFromFile() {
@@ -431,7 +450,14 @@ AbstractOverlay {
             message: qsTr("Current firmware version will be reinstalled")
         };
 
-        confirmationDialog.openWithMessage(Backend.mainAction, messageObj);
+        const canReinstall = deviceInfo.storage.isExternalPresent ||
+                             deviceState.isRecoveryMode ||
+                             sdWarningDialog.result;
+        if(canReinstall) {
+            confirmationDialog.openWithMessage(Backend.mainAction, messageObj);
+        } else {
+            sdWarningDialog.open();
+        }
     }
 
     function installWirelessStack() {
