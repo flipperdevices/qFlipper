@@ -53,6 +53,7 @@ signals:
 private slots:
     void onMessageReceived();
     void onLatestVersionChanged();
+    void onCurrentDeviceChanged();
 
 private:
     void initCommandOptions();

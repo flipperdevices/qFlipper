@@ -108,10 +108,18 @@ void Application::onLatestVersionChanged()
     }
 }
 
+void Application::onCurrentDeviceChanged()
+{
+    if(m_fileDialog.isVisible()) {
+        m_fileDialog.close();
+    }
+}
+
 void Application::initConnections()
 {
     connect(this, &QtSingleApplication::messageReceived, this, &Application::onMessageReceived);
     connect(&m_updateRegistry, &Flipper::UpdateRegistry::latestVersionChanged, this, &Application::onLatestVersionChanged);
+    connect(&m_backend, &ApplicationBackend::currentDeviceChanged, this, &Application::onCurrentDeviceChanged);
 }
 
 void Application::initCommandOptions()

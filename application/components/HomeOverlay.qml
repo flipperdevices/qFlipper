@@ -521,5 +521,19 @@ AbstractOverlay {
         if(App.isDeveloperMode) {
             tabs.addItem(developerTab);
         }
+
+        // Close dialog windows when Flipper was PIN locked/disconnected
+        Backend.currentDeviceChanged.connect(function() {
+            // TODO: Port fileDialog to AdvancedFileDialog
+            if(fileDialog.visible) {
+                fileDialog.close();
+            }
+            if(confirmationDialog.visible) {
+                confirmationDialog.close();
+            }
+            if(sdWarningDialog.visible) {
+                sdWarningDialog.close();
+            }
+        });
     }
 }
