@@ -147,7 +147,6 @@ private:
     static void registerComparators();
 
     void initConnections();
-    bool checkBackendState();
     void beginUpdate();
     void beginRepair();
 

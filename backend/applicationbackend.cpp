@@ -147,20 +147,12 @@ void ApplicationBackend::mainAction()
 
 void ApplicationBackend::createBackup(const QUrl &directoryUrl)
 {
-    if(!checkBackendState()) {
-        return;
-    }
-
     setBackendState(BackendState::CreatingBackup);
     device()->createBackup(directoryUrl);
 }
 
 void ApplicationBackend::restoreBackup(const QUrl &directoryUrl)
 {
-    if(!checkBackendState()) {
-        return;
-    }
-
     setBackendState(BackendState::RestoringBackup);
     device()->restoreBackup(directoryUrl);
 }
@@ -173,30 +165,18 @@ void ApplicationBackend::factoryReset()
 
 void ApplicationBackend::installFirmware(const QUrl &fileUrl)
 {
-    if(!checkBackendState()) {
-        return;
-    }
-
     setBackendState(BackendState::InstallingFirmware);
     device()->installFirmware(fileUrl);
 }
 
 void ApplicationBackend::installWirelessStack(const QUrl &fileUrl)
 {
-    if(!checkBackendState()) {
-        return;
-    }
-
     setBackendState(BackendState::InstallingWirelessStack);
     device()->installWirelessStack(fileUrl);
 }
 
 void ApplicationBackend::installFUS(const QUrl &fileUrl, uint32_t address)
 {
-    if(!checkBackendState()) {
-        return;
-    }
-
     setBackendState(BackendState::InstallingFUS);
     device()->installFUS(fileUrl, address);
 }
@@ -376,18 +356,6 @@ void ApplicationBackend::initConnections()
 
     connect(m_deviceRegistry, &DeviceRegistry::errorOccured, this, &ApplicationBackend::onDeviceRegistryErrorOccured);
     connect(m_fileManager, &FileManager::errorOccured, this, &ApplicationBackend::onFileManagerErrorOccured);
-}
-
-bool ApplicationBackend::checkBackendState()
-{
-    const bool ret = m_backendState == BackendState::Ready;
-
-    if(!ret) {
-        setBackendState(BackendState::ErrorOccured);
-        setErrorType(BackendError::OperationError);
-    }
-
-    return ret;
 }
 
 void ApplicationBackend::beginUpdate()
