@@ -52,19 +52,16 @@ StorageReadRequest::StorageReadRequest(uint32_t id, const QByteArray &path):
 StorageWriteRequest::StorageWriteRequest(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext):
     AbstractStorageRequest(id, PB_Main_storage_write_request_tag, path, hasNext)
 {
-    if(data.isEmpty()) {
-        return;
-    }
-
     auto &content = m_message.content.storage_write_request;
 
-    content.has_file = true;
+    content.has_file = !data.isEmpty();
     content.path = pathData();
 
-    content.file.data = (pb_bytes_array_t*)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.size()));
-    content.file.data->size = data.size();
-
-    memcpy(content.file.data->bytes, data.data(), data.size());
+    if(content.has_file) {
+        content.file.data = (pb_bytes_array_t*)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.size()));
+        content.file.data->size = data.size();
+        memcpy(content.file.data->bytes, data.data(), data.size());
+    }
 }
 
 StorageWriteRequest::~StorageWriteRequest()
