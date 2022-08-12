@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QSerialPortInfo>
 
+#include "regioninfo.h"
 #include "devicecolor.h"
 #include "usbdeviceinfo.h"
 
@@ -26,6 +27,7 @@ public:
     QString body;
     QString connect;
     Color color;
+    Region region;
 
     // Needed in order to work with QVariant
     bool operator !=(const HardwareInfo &other) const { Q_UNUSED(other) return true; }
