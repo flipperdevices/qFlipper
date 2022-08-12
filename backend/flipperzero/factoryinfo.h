@@ -16,9 +16,11 @@ public:
     };
 
     enum class Region {
-        Unknown = 0x00,
-        Europe,
-        USA
+        Dev = 0x00,
+        EuRu,
+        USCaAu,
+        JpPlus,
+        Worldwide
     };
 
     FactoryInfo(const QByteArray &data);
