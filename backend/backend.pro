@@ -117,6 +117,7 @@ HEADERS += \
     firmwareupdateregistry.h \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
+    flipperzero/devicecolor.h \
     flipperzero/filemanager.h \
     flipperzero/pixmaps/default.h \
     flipperzero/pixmaps/updateok.h \
@@ -193,6 +194,7 @@ HEADERS += \
     gzipuncompressor.h \
     logger.h \
     preferences.h \
+    regioninfo.h \
     remotefilefetcher.h \
     serialfinder.h \
     simpleserialoperation.h \

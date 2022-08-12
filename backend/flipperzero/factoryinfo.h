@@ -3,26 +3,15 @@
 #include <QVector>
 #include <QByteArray>
 
+#include "devicecolor.h"
+#include "regioninfo.h"
+
 namespace Flipper {
 namespace Zero {
 
 class FactoryInfo
 {
 public:
-    enum class Color {
-        Unknown = 0x00,
-        Black,
-        White
-    };
-
-    enum class Region {
-        Dev = 0x00,
-        EuRu,
-        USCaAu,
-        JpPlus,
-        Worldwide
-    };
-
     FactoryInfo(const QByteArray &data);
 
     static qint64 size();

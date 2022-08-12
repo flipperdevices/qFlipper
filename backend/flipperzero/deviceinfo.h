@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QSerialPortInfo>
 
+#include "devicecolor.h"
 #include "usbdeviceinfo.h"
 
 class QSerialPort;
@@ -19,13 +20,6 @@ struct HardwareInfo {
     Q_PROPERTY(QString connect MEMBER connect)
 
 public:
-    enum class Color {
-        Unknown = 0,
-        Black,
-        White
-    };
-
-    Q_ENUM(Color)
 
     QString version;
     QString target;

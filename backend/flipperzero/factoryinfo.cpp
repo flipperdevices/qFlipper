@@ -141,12 +141,12 @@ const QString &FactoryInfo::name() const
     return m_name;
 }
 
-FactoryInfo::Color FactoryInfo::color() const
+Color FactoryInfo::color() const
 {
     return m_color;
 }
 
-FactoryInfo::Region FactoryInfo::region() const
+Region FactoryInfo::region() const
 {
     return m_region;
 }
