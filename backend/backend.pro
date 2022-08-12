@@ -92,6 +92,7 @@ SOURCES += \
     gzipuncompressor.cpp \
     logger.cpp \
     preferences.cpp \
+    regioninfo.cpp \
     remotefilefetcher.cpp \
     serialfinder.cpp \
     simpleserialoperation.cpp \
@@ -195,6 +196,7 @@ HEADERS += \
     gzipuncompressor.h \
     logger.h \
     preferences.h \
+    regioninfo.h \
     remotefilefetcher.h \
     serialfinder.h \
     simpleserialoperation.h \
