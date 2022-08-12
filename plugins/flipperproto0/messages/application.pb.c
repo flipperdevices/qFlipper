@@ -27,4 +27,8 @@ PB_BIND(PB_App_AppButtonPressRequest, PB_App_AppButtonPressRequest, 2)
 PB_BIND(PB_App_AppButtonReleaseRequest, PB_App_AppButtonReleaseRequest, AUTO)
 
 
+PB_BIND(PB_App_AppStateResponse, PB_App_AppStateResponse, AUTO)
+
+
+
 
