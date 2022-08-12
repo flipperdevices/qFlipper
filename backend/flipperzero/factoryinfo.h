@@ -4,7 +4,7 @@
 #include <QByteArray>
 
 #include "devicecolor.h"
-#include "regioninfo.h"
+#include "deviceregion.h"
 
 namespace Flipper {
 namespace Zero {

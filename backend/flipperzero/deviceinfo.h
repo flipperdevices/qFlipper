@@ -4,7 +4,7 @@
 #include <QDateTime>
 #include <QSerialPortInfo>
 
-#include "regioninfo.h"
+#include "deviceregion.h"
 #include "devicecolor.h"
 #include "usbdeviceinfo.h"
 
