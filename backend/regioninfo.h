@@ -21,12 +21,13 @@ public:
     using BandKey = QByteArray;
     using BandKeyList = QList<BandKey>;
 
+    RegionInfo();
     RegionInfo(const QByteArray &text);
 
     bool isValid() const;
     bool isError() const;
 
-    const QString &erroString() const;
+    const QString &errorString() const;
     int errorCode() const;
 
     const CountryKey &detectedCountry() const;

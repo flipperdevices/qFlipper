@@ -6,18 +6,21 @@
 #include <QJsonArray>
 #include <QDebug>
 
-Q_LOGGING_CATEGORY(LOG_REGION_INFO, "RGI")
+Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
 
-RegionInfo::RegionInfo(const QByteArray &text):
+RegionInfo::RegionInfo():
     m_isValid(false)
+{}
+
+RegionInfo::RegionInfo(const QByteArray &text)
 {
     const auto doc = QJsonDocument::fromJson(text);
 
     if(doc.isNull()) {
-        qCCritical(LOG_REGION_INFO) << "Failed to parse the document";
+        qCCritical(CATEGORY_DEBUG) << "Failed to parse the document";
         return;
     } else if(!doc.isObject()) {
-        qCCritical(LOG_REGION_INFO) << "Json document is not an object";
+        qCCritical(CATEGORY_DEBUG) << "Json document is not an object";
         return;
     }
 
@@ -30,7 +33,7 @@ RegionInfo::RegionInfo(const QByteArray &text):
     } else if(obj.contains(successKey)) {
         parseSuccess(obj.value(successKey));
     } else {
-        qCCritical(LOG_REGION_INFO) << "Got valid JSON object, but neither success nor error info";
+        qCCritical(CATEGORY_DEBUG) << "Got valid JSON object, but neither success nor error info";
     }
 }
 
@@ -44,7 +47,7 @@ bool RegionInfo::isError() const
     return m_isError;
 }
 
-const QString &RegionInfo::erroString() const
+const QString &RegionInfo::errorString() const
 {
     return m_errorString;
 }
@@ -59,9 +62,14 @@ const RegionInfo::CountryKey &RegionInfo::detectedCountry() const
     return m_country;
 }
 
+const RegionInfo::BandKeyList &RegionInfo::defaultBandKeys() const
+{
+    return m_defaultBandKeys;
+}
+
 const RegionInfo::BandKeyList RegionInfo::countryBandKeys(const CountryKey &key) const
 {
-    return m_countries[key];
+    return m_countries.value(key);
 }
 
 const RegionInfo::BandList RegionInfo::bandsByKeys(const BandKeyList &keys) const
@@ -81,7 +89,7 @@ const RegionInfo::BandList RegionInfo::bandsByCountry(const CountryKey &key) con
 void RegionInfo::parseError(const QJsonValue &val)
 {
     if(!val.isObject()) {
-        qCCritical(LOG_REGION_INFO) << "Error info is not an object";
+        qCCritical(CATEGORY_DEBUG) << "Error info is not an object";
         return;
     }
 
@@ -92,7 +100,7 @@ void RegionInfo::parseError(const QJsonValue &val)
 
     const auto isComplete = obj.contains(codeKey) && obj.contains(textKey);
     if(!isComplete) {
-        qCCritical(LOG_REGION_INFO) << "Error object is missing one or more fields";
+        qCCritical(CATEGORY_DEBUG) << "Error object is missing one or more fields";
         return;
     }
 
@@ -106,7 +114,7 @@ void RegionInfo::parseError(const QJsonValue &val)
 void RegionInfo::parseSuccess(const QJsonValue &val)
 {
     if(!val.isObject()) {
-        qCCritical(LOG_REGION_INFO) << "Success info is not an object";
+        qCCritical(CATEGORY_DEBUG) << "Success info is not an object";
         return;
     }
 
@@ -120,7 +128,7 @@ void RegionInfo::parseSuccess(const QJsonValue &val)
     const auto isComplete = obj.contains(bandsKey) && obj.contains(countriesKey) &&
                             obj.contains(countryKey) && obj.contains(defaultKey);
     if(!isComplete) {
-        qCCritical(LOG_REGION_INFO) << "Success object is missing one or more fields";
+        qCCritical(CATEGORY_DEBUG) << "Success object is missing one or more fields";
         return;
     }
 
@@ -132,14 +140,14 @@ void RegionInfo::parseSuccess(const QJsonValue &val)
 bool RegionInfo::parseBands(const QJsonValue &val)
 {
     if(!val.isObject()) {
-        qCCritical(LOG_REGION_INFO) << "Bands info is not an object";
+        qCCritical(CATEGORY_DEBUG) << "Bands info is not an object";
         return false;
     }
 
     const auto obj = val.toObject();
 
     if(obj.isEmpty()) {
-        qCCritical(LOG_REGION_INFO) << "Bands info is an empty object";
+        qCCritical(CATEGORY_DEBUG) << "Bands info is an empty object";
         return false;
     }
 
@@ -156,14 +164,14 @@ bool RegionInfo::parseBands(const QJsonValue &val)
 bool RegionInfo::parseCountries(const QJsonValue &val)
 {
     if(!val.isObject()) {
-        qCCritical(LOG_REGION_INFO) << "Countries info is not an object";
+        qCCritical(CATEGORY_DEBUG) << "Countries info is not an object";
         return false;
     }
 
     const auto obj = val.toObject();
 
     if(obj.isEmpty()) {
-        qCCritical(LOG_REGION_INFO) << "Countries info is an empty object";
+        qCCritical(CATEGORY_DEBUG) << "Countries info is an empty object";
         return false;
     }
 
@@ -180,7 +188,7 @@ bool RegionInfo::parseCountries(const QJsonValue &val)
 bool RegionInfo::parseCountry(const QJsonValue &val)
 {
     if(!val.isString() && !val.isNull()) {
-        qCCritical(LOG_REGION_INFO) << "Country is not a string";
+        qCCritical(CATEGORY_DEBUG) << "Country is not a string";
         return false;
 
     } else {
@@ -192,14 +200,14 @@ bool RegionInfo::parseCountry(const QJsonValue &val)
 bool RegionInfo::parseDefault(const QJsonValue &val)
 {
     if(!val.isArray()) {
-        qCCritical(LOG_REGION_INFO) << "Default bands list is not an array";
+        qCCritical(CATEGORY_DEBUG) << "Default bands list is not an array";
         return false;
     }
 
     const QJsonArray arr = val.toArray();
 
     if(arr.isEmpty()) {
-        qCCritical(LOG_REGION_INFO) << "Default bands is an empty array";
+        qCCritical(CATEGORY_DEBUG) << "Default bands is an empty array";
         return false;
     }
 
@@ -213,7 +221,7 @@ bool RegionInfo::parseDefault(const QJsonValue &val)
 bool RegionInfo::insertBand(const BandKey &key, const QJsonValue &val)
 {
     if(!val.isObject()) {
-        qCCritical(LOG_REGION_INFO) << "Band info is not an object";
+        qCCritical(CATEGORY_DEBUG) << "Band info is not an object";
         return false;
     }
 
@@ -228,7 +236,7 @@ bool RegionInfo::insertBand(const BandKey &key, const QJsonValue &val)
                             obj.contains(dutyCycleKey) && obj.contains(maxPowerKey);
 
     if(!isComplete) {
-        qCCritical(LOG_REGION_INFO) << "Band object is missing one or more fields";
+        qCCritical(CATEGORY_DEBUG) << "Band object is missing one or more fields";
         return false;
     }
 
@@ -247,14 +255,14 @@ bool RegionInfo::insertBand(const BandKey &key, const QJsonValue &val)
 bool RegionInfo::insertCountry(const CountryKey &key, const QJsonValue &val)
 {
     if(!val.isArray()) {
-        qCCritical(LOG_REGION_INFO) << "Country bands list is not an array";
+        qCCritical(CATEGORY_DEBUG) << "Country bands list is not an array";
         return false;
     }
 
     const QJsonArray arr = val.toArray();
 
     if(arr.isEmpty()) {
-        qCCritical(LOG_REGION_INFO) << "Country bands is an empty array";
+        qCCritical(CATEGORY_DEBUG) << "Country bands is an empty array";
         return false;
     }
 

@@ -21,6 +21,7 @@ class RestartOperation;
 class UpdatePrepareOperation;
 class StartUpdaterOperation;
 class StorageInfoRefreshOperation;
+class RegionProvisioningOperation;
 
 class UtilityInterface : public AbstractOperationRunner
 {
@@ -40,6 +41,7 @@ public:
     UpdatePrepareOperation *prepareUpdateDirectory(const QByteArray &updateDirName, const QByteArray &remotePath);
     StartUpdaterOperation *startUpdater(const QByteArray &manifestPath);
     StorageInfoRefreshOperation *refreshStorageInfo();
+    RegionProvisioningOperation *provisionRegionData();
 
 private:
     const QLoggingCategory &loggingCategory() const override;
