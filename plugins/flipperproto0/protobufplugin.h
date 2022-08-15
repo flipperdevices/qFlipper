@@ -42,6 +42,7 @@ public:
     const QByteArray storageWrite(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext) const override;
 
     QObject *decode(const QByteArray &buffer, QObject *parent = nullptr) const override;
+    bool encodeRegionData(const BandInfoList &bands, QIODevice *file) const override;
 
 private:
     int m_versionMinor;

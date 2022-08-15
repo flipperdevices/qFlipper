@@ -60,6 +60,11 @@ ProtobufSession::~ProtobufSession()
     stopSession();
 }
 
+ProtobufPluginInterface *ProtobufSession::pluginInstance() const
+{
+    return m_plugin;
+}
+
 bool ProtobufSession::isSessionUp() const
 {
     return m_sessionState == Idle || m_sessionState == Running;

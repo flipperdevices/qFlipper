@@ -1,18 +1,17 @@
 #include "regionprovisioningoperation.h"
 
 #include <QDebug>
-#include <QTimer>
 #include <QLoggingCategory>
 
 #include "regioninfo.h"
 #include "tempdirectories.h"
 #include "remotefilefetcher.h"
+#include "protobufplugininterface.h"
 
 #include "flipperzero/devicestate.h"
 
 #include "flipperzero/protobufsession.h"
 #include "flipperzero/rpc/storagewriteoperation.h"
-
 
 Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
 
@@ -93,15 +92,11 @@ void RegionProvisioningOperation::generateRegionData()
     qCDebug(CATEGORY_DEBUG) << "Detected region:" << countryCode;
     qCDebug(CATEGORY_DEBUG) << "Allowed bands:" << bandKeys;
 
-    if(!m_regionDataFile->open(QIODevice::WriteOnly)) {
-        finishWithError(BackendError::DiskError, m_regionInfoFile->errorString());
-        return;
+    if(!rpc()->pluginInstance()->encodeRegionData(BandInfoList(), m_regionDataFile)) {
+        finishWithError(BackendError::UnknownError, QStringLiteral("Failed to encode region data"));
+    } else {
+        advanceOperationState();
     }
-
-    m_regionDataFile->write("Hello there!");
-    m_regionDataFile->close();
-
-    advanceOperationState();
 }
 
 void RegionProvisioningOperation::uploadRegionData()

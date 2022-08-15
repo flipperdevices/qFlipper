@@ -1,5 +1,7 @@
 #include "protobufplugin.h"
 
+#include <QIODevice>
+
 #include "mainresponse.h"
 
 #include "guirequest.h"
@@ -138,4 +140,18 @@ QObject *ProtobufPlugin::decode(const QByteArray &buffer, QObject *parent) const
 {
     MessageWrapper wrp(buffer);
     return MainResponse::create(wrp, parent);
+}
+
+bool ProtobufPlugin::encodeRegionData(const BandInfoList &bands, QIODevice *file) const
+{
+    Q_UNUSED(bands);
+
+    if(!file->open(QIODevice::WriteOnly)) {
+        return false;
+    }
+
+    file->write("General Kenobi!");
+    file->close();
+
+    return true;
 }

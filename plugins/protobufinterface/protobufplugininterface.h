@@ -3,6 +3,8 @@
 #include <QtPlugin>
 #include <QByteArray>
 
+#include "bandinfo.h"
+
 class ProtobufPluginInterface
 {
 public:
@@ -41,6 +43,7 @@ public:
     virtual const QByteArray storageWrite(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext) const = 0;
 
     virtual QObject *decode(const QByteArray &buffer, QObject *parent = nullptr) const = 0;
+    virtual bool encodeRegionData(const BandInfoList &bands, QIODevice *file) const = 0;
 };
 
 QT_BEGIN_NAMESPACE
