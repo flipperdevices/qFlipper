@@ -92,7 +92,20 @@ void RegionProvisioningOperation::generateRegionData()
     qCDebug(CATEGORY_DEBUG) << "Detected region:" << countryCode;
     qCDebug(CATEGORY_DEBUG) << "Allowed bands:" << bandKeys;
 
-    if(!rpc()->pluginInstance()->encodeRegionData(BandInfoList(), m_regionDataFile)) {
+    BandInfoList bands;
+
+    // Convert RegionInfo::BandList to BandInfoList. Probably pointless, used only for decoupling reasons.
+    const auto allowedBands = regionInfo.bandsByKeys(bandKeys);
+    for(const auto &band : allowedBands) {
+        bands.append({
+            band.start,
+            band.end,
+            band.powerLimit,
+            band.dutyCycle
+        });
+    }
+
+    if(!rpc()->pluginInstance()->encodeRegionData(bands, m_regionDataFile)) {
         finishWithError(BackendError::UnknownError, QStringLiteral("Failed to encode region data"));
     } else {
         advanceOperationState();
