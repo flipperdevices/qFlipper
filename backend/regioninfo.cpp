@@ -6,7 +6,7 @@
 #include <QJsonArray>
 #include <QDebug>
 
-Q_LOGGING_CATEGORY(LOG_REGION_INFO, "RGN")
+Q_LOGGING_CATEGORY(LOG_REGION_INFO, "RGI")
 
 RegionInfo::RegionInfo(const QByteArray &text):
     m_isValid(false)
@@ -66,18 +66,16 @@ const RegionInfo::BandKeyList RegionInfo::countryBandKeys(const CountryKey &key)
 
 const RegionInfo::BandList RegionInfo::bandsByKeys(const BandKeyList &keys) const
 {
-    Q_UNUSED(keys)
     BandList ret;
-    // TODO Not implemented yet
+    for(const auto &key : keys) {
+        ret.append(m_bands.value(key));
+    }
     return ret;
 }
 
 const RegionInfo::BandList RegionInfo::bandsByCountry(const CountryKey &key) const
 {
-    Q_UNUSED(key)
-    BandList ret;
-    // TODO Not implemented yet
-    return ret;
+    return bandsByKeys(countryBandKeys(key));
 }
 
 void RegionInfo::parseError(const QJsonValue &val)
@@ -181,7 +179,7 @@ bool RegionInfo::parseCountries(const QJsonValue &val)
 
 bool RegionInfo::parseCountry(const QJsonValue &val)
 {
-    if(!val.isString()) {
+    if(!val.isString() && !val.isNull()) {
         qCCritical(LOG_REGION_INFO) << "Country is not a string";
         return false;
 

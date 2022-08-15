@@ -16,10 +16,10 @@ public:
         uint32_t dutyCycle;
     };
 
-    using BandList = QVector<Band>;
+    using BandList = QList<Band>;
     using CountryKey = QByteArray;
     using BandKey = QByteArray;
-    using BandKeyList = QVector<BandKey>;
+    using BandKeyList = QList<BandKey>;
 
     RegionInfo(const QByteArray &text);
 
@@ -48,14 +48,14 @@ private:
     bool insertBand(const BandKey &key, const QJsonValue &val);
     bool insertCountry(const CountryKey &key, const QJsonValue &val);
 
-    bool m_isValid;
-    bool m_isError;
-    QString m_errorString;
-    int m_errorCode;
-
     CountryKey m_country;
     BandKeyList m_defaultBandKeys;
     QHash<CountryKey, BandKeyList> m_countries;
     QHash<BandKey, Band> m_bands;
+
+    bool m_isValid;
+    bool m_isError;
+    QString m_errorString;
+    int m_errorCode;
 };
 
