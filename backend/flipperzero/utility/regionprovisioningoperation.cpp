@@ -75,6 +75,7 @@ void RegionProvisioningOperation::generateRegionData()
     }
 
     const RegionInfo regionInfo(m_regionInfoFile->readAll());
+    m_regionInfoFile->close();
 
     if(!regionInfo.isValid()) {
         finishWithError(BackendError::DataError, QStringLiteral("Server returned invalid data"));
@@ -105,8 +106,23 @@ void RegionProvisioningOperation::generateRegionData()
         });
     }
 
-    if(!rpc()->pluginInstance()->encodeRegionData(bands, m_regionDataFile)) {
+    if(!m_regionDataFile->open(QIODevice::WriteOnly)) {
+        finishWithError(BackendError::DiskError, m_regionDataFile->errorString());
+        return;
+    }
+
+    const auto regionData = rpc()->pluginInstance()->regionBands(bands);
+
+    if(regionData.isEmpty()) {
         finishWithError(BackendError::UnknownError, QStringLiteral("Failed to encode region data"));
+        return;
+    }
+
+    const auto bytesWritten = m_regionDataFile->write(regionData);
+    m_regionDataFile->close();
+
+    if((bytesWritten <= 0) || (bytesWritten != regionData.size())) {
+        finishWithError(BackendError::DiskError, QStringLiteral("Failed to save region data to temporary file"));
     } else {
         advanceOperationState();
     }

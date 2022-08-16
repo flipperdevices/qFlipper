@@ -136,22 +136,14 @@ const QByteArray ProtobufPlugin::storageWrite(uint32_t id, const QByteArray &pat
     return StorageWriteRequest(id, path, data, hasNext).encode();
 }
 
+const QByteArray ProtobufPlugin::regionBands(const BandInfoList &bands) const
+{
+    Q_UNUSED(bands);
+    return QByteArrayLiteral("You are a bold one!");
+}
+
 QObject *ProtobufPlugin::decode(const QByteArray &buffer, QObject *parent) const
 {
     MessageWrapper wrp(buffer);
     return MainResponse::create(wrp, parent);
-}
-
-bool ProtobufPlugin::encodeRegionData(const BandInfoList &bands, QIODevice *file) const
-{
-    Q_UNUSED(bands);
-
-    if(!file->open(QIODevice::WriteOnly)) {
-        return false;
-    }
-
-    file->write("General Kenobi!");
-    file->close();
-
-    return true;
 }
