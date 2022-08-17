@@ -10,6 +10,7 @@
 #include "flipperzero/utility/directoryuploadoperation.h"
 #include "flipperzero/utility/startupdateroperation.h"
 #include "flipperzero/utility/storageinforefreshoperation.h"
+#include "flipperzero/utility/regionprovisioningoperation.h"
 
 #include "tarzipuncompressor.h"
 #include "tempdirectories.h"
@@ -49,6 +50,10 @@ const QString FullUpdateOperation::description() const
 void FullUpdateOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
+        setOperationState(FullUpdateOperation::ProvisioninigRegion);
+        provisionRegionData();
+
+    } else if(operationState() == FullUpdateOperation::ProvisioninigRegion) {
         setOperationState(FullUpdateOperation::CheckingStorage);
         checkStorage();
 
@@ -75,6 +80,11 @@ void FullUpdateOperation::nextStateLogic()
     } else if(operationState() == FullUpdateOperation::WaitingForUpdate) {
         finish();
     }
+}
+
+void FullUpdateOperation::provisionRegionData()
+{
+    registerSubOperation(m_utility->provisionRegionData());
 }
 
 void FullUpdateOperation::checkStorage()
@@ -195,7 +205,6 @@ void FullUpdateOperation::uploadUpdateDir()
 void FullUpdateOperation::startUpdate()
 {
     deviceState()->setAllowVirtualDisplay(false);
-    deviceState()->setStatusString(QStringLiteral("Uploading firmware update ..."));
 
     const auto manifestPath = QStringLiteral("%1/%2/update.fuf").arg(QStringLiteral(REMOTE_DIR), m_updateDirectory.dirName());
     auto *operation = m_utility->startUpdater(manifestPath.toLocal8Bit());

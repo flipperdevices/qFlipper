@@ -73,7 +73,7 @@ FactoryInfo::FactoryInfo(const QByteArray &data):
     m_isValid(false),
     m_format(0),
     m_color(Color::Unknown),
-    m_region(Region::Unknown)
+    m_region(Region::Dev)
 {
     check_return_void(data.size() == FACTORYINFO_SIZE, "Bad data size");
     check_return_void(data != QByteArray(FACTORYINFO_SIZE, '\xff'), "Data seems to be unprogrammed");
@@ -141,12 +141,12 @@ const QString &FactoryInfo::name() const
     return m_name;
 }
 
-FactoryInfo::Color FactoryInfo::color() const
+Color FactoryInfo::color() const
 {
     return m_color;
 }
 
-FactoryInfo::Region FactoryInfo::region() const
+Region FactoryInfo::region() const
 {
     return m_region;
 }

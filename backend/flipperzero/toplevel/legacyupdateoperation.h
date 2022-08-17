@@ -28,6 +28,7 @@ class LegacyUpdateOperation : public AbstractTopLevelOperation
         CorrectingOptionBytes,
         ExitingRecovery,
         DownloadingAssets,
+        ProvisioningRegion,
         RestoringBackup,
         RestartingDevice
     };
@@ -49,6 +50,7 @@ private:
     void correctOptionBytes();
     void exitRecovery();
     void downloadAssets();
+    void provisionRegion();
     void restoreBackup();
     void restartDevice();
 

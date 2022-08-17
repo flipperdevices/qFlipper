@@ -15,5 +15,11 @@ PB_BIND(PB_StopSession, PB_StopSession, AUTO)
 PB_BIND(PB_Main, PB_Main, 2)
 
 
+PB_BIND(PB_Region, PB_Region, AUTO)
+
+
+PB_BIND(PB_Region_Band, PB_Region_Band, AUTO)
+
+
 
 

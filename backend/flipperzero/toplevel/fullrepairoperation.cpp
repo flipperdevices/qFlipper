@@ -13,6 +13,7 @@
 #include "flipperzero/utilityinterface.h"
 #include "flipperzero/utility/restartoperation.h"
 #include "flipperzero/utility/assetsdownloadoperation.h"
+#include "flipperzero/utility/regionprovisioningoperation.h"
 
 #include "flipperzero/helper/firmwarehelper.h"
 
@@ -58,6 +59,10 @@ void FullRepairOperation::nextStateLogic()
         downloadAssets();
 
     } else if(operationState() == FullRepairOperation::DownloadingAssets) {
+        setOperationState(FullRepairOperation::ProvisioningRegion);
+        provisionRegion();
+
+    } else if(operationState() == FullRepairOperation::ProvisioningRegion) {
         setOperationState(FullRepairOperation::RestartingDevice);
         restartDevice();
 
@@ -111,6 +116,11 @@ void FullRepairOperation::downloadAssets()
 
     auto *file = m_helper->file(FirmwareHelper::FileIndex::AssetsTgz);
     registerSubOperation(m_utility->downloadAssets(file));
+}
+
+void FullRepairOperation::provisionRegion()
+{
+    registerSubOperation(m_utility->provisionRegionData());
 }
 
 void FullRepairOperation::restartDevice()

@@ -13,6 +13,7 @@
 #include "flipperzero/utility/updateprepareoperation.h"
 #include "flipperzero/utility/startupdateroperation.h"
 #include "flipperzero/utility/storageinforefreshoperation.h"
+#include "flipperzero/utility/regionprovisioningoperation.h"
 
 Q_LOGGING_CATEGORY(LOG_UTILITY, "UTL")
 
@@ -98,6 +99,13 @@ StartUpdaterOperation *UtilityInterface::startUpdater(const QByteArray &manifest
 StorageInfoRefreshOperation *UtilityInterface::refreshStorageInfo()
 {
     auto *operation = new StorageInfoRefreshOperation(m_rpc, m_deviceState, this);
+    enqueueOperation(operation);
+    return operation;
+}
+
+RegionProvisioningOperation *UtilityInterface::provisionRegionData()
+{
+    auto *operation = new RegionProvisioningOperation(m_rpc, m_deviceState, this);
     enqueueOperation(operation);
     return operation;
 }

@@ -53,6 +53,8 @@ public:
     ProtobufSession(const QSerialPortInfo &portInfo, QObject *parent = nullptr);
     ~ProtobufSession();
 
+    ProtobufPluginInterface *pluginInstance() const;
+
     bool isSessionUp() const;
 
     void setSerialPort(const QSerialPortInfo &portInfo);

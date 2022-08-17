@@ -56,6 +56,11 @@ typedef struct _PB_Empty {
     char dummy_field;
 } PB_Empty;
 
+typedef struct _PB_Region { 
+    pb_bytes_array_t *country_code; 
+    pb_callback_t bands; 
+} PB_Region;
+
 typedef struct _PB_StopSession { 
     char dummy_field;
 } PB_StopSession;
@@ -121,8 +126,16 @@ typedef struct _PB_Main {
         PB_Gpio_ReadPin gpio_read_pin;
         PB_Gpio_ReadPinResponse gpio_read_pin_response;
         PB_Gpio_WritePin gpio_write_pin;
+        PB_App_AppStateResponse app_state_response;
     } content; 
 } PB_Main;
+
+typedef struct _PB_Region_Band { 
+    uint32_t start; 
+    uint32_t end; 
+    int8_t power_limit; 
+    uint8_t duty_cycle; 
+} PB_Region_Band;
 
 
 /* Helper constants for enums */
@@ -139,11 +152,17 @@ extern "C" {
 #define PB_Empty_init_default                    {0}
 #define PB_StopSession_init_default              {0}
 #define PB_Main_init_default                     {0, _PB_CommandStatus_MIN, 0, {{NULL}, NULL}, 0, {PB_Empty_init_default}}
+#define PB_Region_init_default                   {NULL, {{NULL}, NULL}}
+#define PB_Region_Band_init_default              {0, 0, 0, 0}
 #define PB_Empty_init_zero                       {0}
 #define PB_StopSession_init_zero                 {0}
 #define PB_Main_init_zero                        {0, _PB_CommandStatus_MIN, 0, {{NULL}, NULL}, 0, {PB_Empty_init_zero}}
+#define PB_Region_init_zero                      {NULL, {{NULL}, NULL}}
+#define PB_Region_Band_init_zero                 {0, 0, 0, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
+#define PB_Region_country_code_tag               1
+#define PB_Region_bands_tag                      2
 #define PB_Main_command_id_tag                   1
 #define PB_Main_command_status_tag               2
 #define PB_Main_has_next_tag                     3
@@ -201,6 +220,11 @@ extern "C" {
 #define PB_Main_gpio_read_pin_tag                55
 #define PB_Main_gpio_read_pin_response_tag       56
 #define PB_Main_gpio_write_pin_tag               57
+#define PB_Main_app_state_response_tag           58
+#define PB_Region_Band_start_tag                 1
+#define PB_Region_Band_end_tag                   2
+#define PB_Region_Band_power_limit_tag           3
+#define PB_Region_Band_duty_cycle_tag            4
 
 /* Struct field encoding specification for nanopb */
 #define PB_Empty_FIELDLIST(X, a) \
@@ -270,7 +294,8 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_get_pin_mode,content.gpio_get_p
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_get_pin_mode_response,content.gpio_get_pin_mode_response),  54) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_read_pin,content.gpio_read_pin),  55) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_read_pin_response,content.gpio_read_pin_response),  56) \
-X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_write_pin,content.gpio_write_pin),  57)
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_write_pin,content.gpio_write_pin),  57) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_state_response,content.app_state_response),  58)
 #define PB_Main_CALLBACK NULL
 #define PB_Main_DEFAULT NULL
 #define PB_Main_content_empty_MSGTYPE PB_Empty
@@ -327,21 +352,43 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_write_pin,content.gpio_write_pi
 #define PB_Main_content_gpio_read_pin_MSGTYPE PB_Gpio_ReadPin
 #define PB_Main_content_gpio_read_pin_response_MSGTYPE PB_Gpio_ReadPinResponse
 #define PB_Main_content_gpio_write_pin_MSGTYPE PB_Gpio_WritePin
+#define PB_Main_content_app_state_response_MSGTYPE PB_App_AppStateResponse
+
+#define PB_Region_FIELDLIST(X, a) \
+X(a, POINTER,  SINGULAR, BYTES,    country_code,      1) \
+X(a, CALLBACK, REPEATED, MESSAGE,  bands,             2)
+#define PB_Region_CALLBACK pb_default_field_callback
+#define PB_Region_DEFAULT NULL
+#define PB_Region_bands_MSGTYPE PB_Region_Band
+
+#define PB_Region_Band_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   start,             1) \
+X(a, STATIC,   SINGULAR, UINT32,   end,               2) \
+X(a, STATIC,   SINGULAR, INT32,    power_limit,       3) \
+X(a, STATIC,   SINGULAR, UINT32,   duty_cycle,        4)
+#define PB_Region_Band_CALLBACK NULL
+#define PB_Region_Band_DEFAULT NULL
 
 extern const pb_msgdesc_t PB_Empty_msg;
 extern const pb_msgdesc_t PB_StopSession_msg;
 extern const pb_msgdesc_t PB_Main_msg;
+extern const pb_msgdesc_t PB_Region_msg;
+extern const pb_msgdesc_t PB_Region_Band_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define PB_Empty_fields &PB_Empty_msg
 #define PB_StopSession_fields &PB_StopSession_msg
 #define PB_Main_fields &PB_Main_msg
+#define PB_Region_fields &PB_Region_msg
+#define PB_Region_Band_fields &PB_Region_Band_msg
 
 /* Maximum encoded size of messages (where known) */
 #if defined(PB_System_PingRequest_size) && defined(PB_System_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size) && defined(PB_Gui_StartVirtualDisplayRequest_size) && defined(PB_Storage_InfoRequest_size) && defined(PB_Storage_RenameRequest_size) && defined(PB_System_DeviceInfoResponse_size) && defined(PB_System_UpdateRequest_size) && defined(PB_Storage_BackupCreateRequest_size) && defined(PB_Storage_BackupRestoreRequest_size) && defined(PB_System_PowerInfoResponse_size)
 union PB_Main_content_size_union {char f5[(6 + PB_System_PingRequest_size)]; char f6[(6 + PB_System_PingResponse_size)]; char f7[(6 + PB_Storage_ListRequest_size)]; char f8[(6 + PB_Storage_ListResponse_size)]; char f9[(6 + PB_Storage_ReadRequest_size)]; char f10[(6 + PB_Storage_ReadResponse_size)]; char f11[(6 + PB_Storage_WriteRequest_size)]; char f12[(6 + PB_Storage_DeleteRequest_size)]; char f13[(6 + PB_Storage_MkdirRequest_size)]; char f14[(6 + PB_Storage_Md5sumRequest_size)]; char f16[(7 + PB_App_StartRequest_size)]; char f22[(7 + PB_Gui_ScreenFrame_size)]; char f24[(7 + PB_Storage_StatRequest_size)]; char f25[(7 + PB_Storage_StatResponse_size)]; char f26[(7 + PB_Gui_StartVirtualDisplayRequest_size)]; char f28[(7 + PB_Storage_InfoRequest_size)]; char f30[(7 + PB_Storage_RenameRequest_size)]; char f33[(7 + PB_System_DeviceInfoResponse_size)]; char f41[(7 + PB_System_UpdateRequest_size)]; char f42[(7 + PB_Storage_BackupCreateRequest_size)]; char f43[(7 + PB_Storage_BackupRestoreRequest_size)]; char f45[(7 + PB_System_PowerInfoResponse_size)]; char f0[519];};
 #endif
+/* PB_Region_size depends on runtime parameters */
 #define PB_Empty_size                            0
+#define PB_Region_Band_size                      26
 #define PB_StopSession_size                      0
 #if defined(PB_System_PingRequest_size) && defined(PB_System_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size) && defined(PB_Gui_StartVirtualDisplayRequest_size) && defined(PB_Storage_InfoRequest_size) && defined(PB_Storage_RenameRequest_size) && defined(PB_System_DeviceInfoResponse_size) && defined(PB_System_UpdateRequest_size) && defined(PB_Storage_BackupCreateRequest_size) && defined(PB_Storage_BackupRestoreRequest_size) && defined(PB_System_PowerInfoResponse_size)
 #define PB_Main_size                             (10 + sizeof(union PB_Main_content_size_union))

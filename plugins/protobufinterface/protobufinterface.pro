@@ -6,6 +6,7 @@ CONFIG += staticlib c++11
 requires(false)
 
 HEADERS += \
+    bandinfo.h \
     guiresponseinterface.h \
     mainresponseinterface.h \
     protobufplugininterface.h \

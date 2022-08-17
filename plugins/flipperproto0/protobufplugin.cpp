@@ -1,11 +1,15 @@
 #include "protobufplugin.h"
 
+#include <QIODevice>
+
 #include "mainresponse.h"
 
 #include "guirequest.h"
 #include "statusrequest.h"
 #include "systemrequest.h"
 #include "storagerequest.h"
+
+#include "regiondata.h"
 
 ProtobufPlugin::ProtobufPlugin(QObject *parent):
     QObject(parent),
@@ -132,6 +136,11 @@ const QByteArray ProtobufPlugin::storageRead(uint32_t id, const QByteArray &path
 const QByteArray ProtobufPlugin::storageWrite(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext) const
 {
     return StorageWriteRequest(id, path, data, hasNext).encode();
+}
+
+const QByteArray ProtobufPlugin::regionBands(const QByteArray &countryCode, const BandInfoList &bands) const
+{
+    return RegionData(countryCode, bands).encode();
 }
 
 QObject *ProtobufPlugin::decode(const QByteArray &buffer, QObject *parent) const

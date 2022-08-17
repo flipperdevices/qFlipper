@@ -145,7 +145,8 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
             QByteArrayLiteral("f") + operation->value(QByteArrayLiteral("hardware_target")),
             QByteArrayLiteral("b") + operation->value(QByteArrayLiteral("hardware_body")),
             QByteArrayLiteral("c") + operation->value(QByteArrayLiteral("hardware_connect")),
-            (HardwareInfo::Color)operation->value(QByteArrayLiteral("hardware_color")).toInt(),
+            (Color)operation->value(QByteArrayLiteral("hardware_color")).toInt(),
+            (Region)operation->value(QByteArrayLiteral("hardware_region")).toInt(),
         };
 
         m_deviceInfo.protobuf = {
@@ -320,7 +321,8 @@ void DFUDeviceInfoHelper::nextStateLogic()
     m_deviceInfo.hardware.target = QStringLiteral("f%1").arg(factoryInfo.target());
     m_deviceInfo.hardware.body = QStringLiteral("b%1").arg(factoryInfo.body());
     m_deviceInfo.hardware.connect = QStringLiteral("c%1").arg(factoryInfo.connect());
-    m_deviceInfo.hardware.color = (HardwareInfo::Color)factoryInfo.color();
+    m_deviceInfo.hardware.color = factoryInfo.color();
+    m_deviceInfo.hardware.region = factoryInfo.region();
 
     finish();
 }

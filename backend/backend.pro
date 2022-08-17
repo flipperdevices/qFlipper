@@ -80,6 +80,7 @@ SOURCES += \
     flipperzero/utility/directoryuploadoperation.cpp \
     flipperzero/utility/factoryresetutiloperation.cpp \
     flipperzero/utility/getfiletreeoperation.cpp \
+    flipperzero/utility/regionprovisioningoperation.cpp \
     flipperzero/utility/restartoperation.cpp \
     flipperzero/utility/startrecoveryoperation.cpp \
     flipperzero/utility/startupdateroperation.cpp \
@@ -92,6 +93,7 @@ SOURCES += \
     gzipuncompressor.cpp \
     logger.cpp \
     preferences.cpp \
+    regioninfo.cpp \
     remotefilefetcher.cpp \
     serialfinder.cpp \
     simpleserialoperation.cpp \
@@ -117,6 +119,8 @@ HEADERS += \
     firmwareupdateregistry.h \
     flipperupdates.h \
     flipperzero/assetmanifest.h \
+    flipperzero/devicecolor.h \
+    flipperzero/deviceregion.h \
     flipperzero/filemanager.h \
     flipperzero/pixmaps/default.h \
     flipperzero/pixmaps/updateok.h \
@@ -181,6 +185,7 @@ HEADERS += \
     flipperzero/utility/directoryuploadoperation.h \
     flipperzero/utility/factoryresetutiloperation.h \
     flipperzero/utility/getfiletreeoperation.h \
+    flipperzero/utility/regionprovisioningoperation.h \
     flipperzero/utility/restartoperation.h \
     flipperzero/utility/startrecoveryoperation.h \
     flipperzero/utility/startupdateroperation.h \
@@ -193,6 +198,7 @@ HEADERS += \
     gzipuncompressor.h \
     logger.h \
     preferences.h \
+    regioninfo.h \
     remotefilefetcher.h \
     serialfinder.h \
     simpleserialoperation.h \

@@ -4,6 +4,8 @@
 #include <QDateTime>
 #include <QSerialPortInfo>
 
+#include "deviceregion.h"
+#include "devicecolor.h"
 #include "usbdeviceinfo.h"
 
 class QSerialPort;
@@ -19,19 +21,13 @@ struct HardwareInfo {
     Q_PROPERTY(QString connect MEMBER connect)
 
 public:
-    enum class Color {
-        Unknown = 0,
-        Black,
-        White
-    };
-
-    Q_ENUM(Color)
 
     QString version;
     QString target;
     QString body;
     QString connect;
     Color color;
+    Region region;
 
     // Needed in order to work with QVariant
     bool operator !=(const HardwareInfo &other) const { Q_UNUSED(other) return true; }
