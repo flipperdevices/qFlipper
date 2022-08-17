@@ -84,15 +84,7 @@ void FullUpdateOperation::nextStateLogic()
 
 void FullUpdateOperation::provisionRegionData()
 {
-    auto *operation = m_utility->provisionRegionData();
-
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            finishWithError(operation->error(), operation->errorString());
-        } else {
-            advanceOperationState();
-        }
-    });
+    registerSubOperation(m_utility->provisionRegionData());
 }
 
 void FullUpdateOperation::checkStorage()
