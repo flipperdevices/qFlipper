@@ -89,7 +89,7 @@ void StartUpdaterOperation::rebootToUpdater()
 
 void StartUpdaterOperation::waitForUpdate()
 {
-    deviceState()->setStatusString(QStringLiteral("Updating, see progress on Flipper ..."));
+    deviceState()->setStatusString(QStringLiteral("Updating, follow the progress on your Flipper Zero"));
 
     connect(deviceState(), &DeviceState::isOnlineChanged, this, &StartUpdaterOperation::onDeviceOnlineChanged);
     startTimeout();
