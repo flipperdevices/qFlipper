@@ -11,6 +11,7 @@
 #include "flipperzero/utility/userrestoreoperation.h"
 #include "flipperzero/utility/startrecoveryoperation.h"
 #include "flipperzero/utility/assetsdownloadoperation.h"
+#include "flipperzero/utility/regionprovisioningoperation.h"
 
 #include "flipperzero/recoveryinterface.h"
 #include "flipperzero/recovery/setbootmodeoperation.h"
@@ -91,6 +92,10 @@ void LegacyUpdateOperation::nextStateLogic()
         downloadAssets();
 
     } else if(operationState() == LegacyUpdateOperation::DownloadingAssets) {
+        setOperationState(LegacyUpdateOperation::ProvisioningRegion);
+        provisionRegion();
+
+    } else if(operationState() == LegacyUpdateOperation::ProvisioningRegion) {
         setOperationState(LegacyUpdateOperation::RestoringBackup);
         restoreBackup();
 
@@ -162,6 +167,11 @@ void LegacyUpdateOperation::downloadAssets()
 {
     auto *file = m_helper->file(FirmwareHelper::FileIndex::AssetsTgz);
     registerSubOperation(m_utility->downloadAssets(file));
+}
+
+void LegacyUpdateOperation::provisionRegion()
+{
+    registerSubOperation(m_utility->provisionRegionData());
 }
 
 void LegacyUpdateOperation::restoreBackup()

@@ -21,6 +21,7 @@ class FullRepairOperation : public AbstractTopLevelOperation
         DownloadingFirmware,
         CorrectingOptionBytes,
         DownloadingAssets,
+        ProvisioningRegion,
         RestartingDevice
     };
 
@@ -38,6 +39,7 @@ private:
     void downloadFirmware();
     void correctOptionBytes();
     void downloadAssets();
+    void provisionRegion();
     void restartDevice();
 
     RecoveryInterface *m_recovery;
