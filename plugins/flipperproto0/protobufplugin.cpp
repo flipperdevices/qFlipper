@@ -9,6 +9,8 @@
 #include "systemrequest.h"
 #include "storagerequest.h"
 
+#include "regiondata.h"
+
 ProtobufPlugin::ProtobufPlugin(QObject *parent):
     QObject(parent),
     m_versionMinor(0)
@@ -136,10 +138,9 @@ const QByteArray ProtobufPlugin::storageWrite(uint32_t id, const QByteArray &pat
     return StorageWriteRequest(id, path, data, hasNext).encode();
 }
 
-const QByteArray ProtobufPlugin::regionBands(const BandInfoList &bands) const
+const QByteArray ProtobufPlugin::regionBands(const QByteArray &countryCode, const BandInfoList &bands) const
 {
-    Q_UNUSED(bands);
-    return QByteArrayLiteral("You are a bold one!");
+    return RegionData(countryCode, bands).encode();
 }
 
 QObject *ProtobufPlugin::decode(const QByteArray &buffer, QObject *parent) const

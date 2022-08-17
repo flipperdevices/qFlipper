@@ -111,7 +111,7 @@ void RegionProvisioningOperation::generateRegionData()
         return;
     }
 
-    const auto regionData = rpc()->pluginInstance()->regionBands(bands);
+    const auto regionData = rpc()->pluginInstance()->regionBands(countryCode, bands);
 
     if(regionData.isEmpty()) {
         finishWithError(BackendError::UnknownError, QStringLiteral("Failed to encode region data"));
