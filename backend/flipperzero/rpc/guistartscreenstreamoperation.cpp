@@ -11,7 +11,7 @@ GuiStartScreenStreamOperation::GuiStartScreenStreamOperation(uint32_t id, QObjec
 
 const QString GuiStartScreenStreamOperation::description() const
 {
-    return QStringLiteral("Gui Start SreenStream");
+    return QStringLiteral("Gui Start ScreenStream");
 }
 
 const QByteArray GuiStartScreenStreamOperation::encodeRequest(ProtobufPluginInterface *encoder)
