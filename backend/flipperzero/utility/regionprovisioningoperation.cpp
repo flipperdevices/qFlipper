@@ -1,6 +1,7 @@
 #include "regionprovisioningoperation.h"
 
 #include <QDebug>
+#include <QLocale>
 #include <QLoggingCategory>
 
 #include "regioninfo.h"
@@ -18,15 +19,25 @@ Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
 using namespace Flipper;
 using namespace Zero;
 
-RegionProvisioningOperation::RegionProvisioningOperation(ProtobufSession *rpc, DeviceState *deviceState, QObject *parent):
-    AbstractUtilityOperation(rpc, deviceState, parent),
+RegionProvisioningOperation::RegionProvisioningOperation(ProtobufSession *rpc, DeviceState *_deviceState, QObject *parent):
+    AbstractUtilityOperation(rpc, _deviceState, parent),
     m_regionInfoFile(globalTempDirs->createTempFile(this)),
     m_regionDataFile(globalTempDirs->createTempFile(this))
-{}
+{
+    connect(this, &AbstractOperation::started, this, [=]() {
+        deviceState()->setStatusString(QStringLiteral("Setting up region data..."));
+    });
+}
 
 const QString RegionProvisioningOperation::description() const
 {
     return QStringLiteral("Region Provisioning @%1").arg(deviceState()->deviceInfo().name);
+}
+
+const QByteArray RegionProvisioningOperation::localeCountry()
+{
+    const auto localeName = QLocale::system().name();
+    return localeName.split('_').value(1).toLocal8Bit();
 }
 
 void RegionProvisioningOperation::nextStateLogic()
@@ -102,10 +113,10 @@ void RegionProvisioningOperation::generateRegionData()
         return;
     }
 
-    const auto countryCode = regionInfo.detectedCountry();
-    const auto bandKeys = countryCode.isEmpty() ? regionInfo.defaultBandKeys() : regionInfo.countryBandKeys(countryCode);
+    const auto countryCode = regionInfo.hasCountryCode() ? regionInfo.detectedCountry() : localeCountry();
+    const auto bandKeys = regionInfo.countryBandKeys(countryCode);
 
-    qCDebug(CATEGORY_DEBUG) << "Detected region:" << countryCode;
+    qCDebug(CATEGORY_DEBUG) << "Detected region:" << (countryCode.isEmpty() ? QByteArrayLiteral("Unknown") : countryCode);
     qCDebug(CATEGORY_DEBUG) << "Allowed bands:" << bandKeys;
 
     BandInfoList bands;

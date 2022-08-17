@@ -47,6 +47,11 @@ bool RegionInfo::isError() const
     return m_isError;
 }
 
+bool RegionInfo::hasCountryCode() const
+{
+    return !m_country.isEmpty();
+}
+
 const QString &RegionInfo::errorString() const
 {
     return m_errorString;
@@ -69,7 +74,7 @@ const RegionInfo::BandKeyList &RegionInfo::defaultBandKeys() const
 
 const RegionInfo::BandKeyList RegionInfo::countryBandKeys(const CountryKey &key) const
 {
-    return m_countries.value(key);
+    return m_countries.contains(key) ? m_countries[key] : m_defaultBandKeys;
 }
 
 const RegionInfo::BandList RegionInfo::bandsByKeys(const BandKeyList &keys) const

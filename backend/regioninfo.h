@@ -27,6 +27,8 @@ public:
     bool isValid() const;
     bool isError() const;
 
+    bool hasCountryCode() const;
+
     const QString &errorString() const;
     int errorCode() const;
 

@@ -23,6 +23,8 @@ public:
     const QString description() const override;
 
 private:
+    static const QByteArray localeCountry();
+
     void nextStateLogic() override;
 
     void checkHardwareRegion();

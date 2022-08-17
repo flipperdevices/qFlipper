@@ -19,6 +19,7 @@ void AbstractUtilityOperation::start()
     if(operationState() != AbstractOperation::Ready) {
         finishWithError(BackendError::UnknownError, QStringLiteral("Trying to start an operation that is either already running or has finished."));
     } else {
+        emit started();
         advanceOperationState();
     }
 }

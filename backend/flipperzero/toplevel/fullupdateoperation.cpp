@@ -84,8 +84,6 @@ void FullUpdateOperation::nextStateLogic()
 
 void FullUpdateOperation::provisionRegionData()
 {
-    deviceState()->setStatusString(QStringLiteral("Setting up region data..."));
-
     auto *operation = m_utility->provisionRegionData();
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
