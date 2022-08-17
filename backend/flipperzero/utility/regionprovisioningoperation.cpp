@@ -32,6 +32,10 @@ const QString RegionProvisioningOperation::description() const
 void RegionProvisioningOperation::nextStateLogic()
 {
     if(operationState() == Ready) {
+        setOperationState(CheckingHardwareRegion);
+        checkHardwareRegion();
+
+    } else if(operationState() == CheckingHardwareRegion) {
         setOperationState(FetchingRegionInfo);
         fetchRegionInfo();
 
@@ -46,6 +50,18 @@ void RegionProvisioningOperation::nextStateLogic()
     } else if(operationState() == UploadingRegionData) {
         finish();
     }
+}
+
+void RegionProvisioningOperation::checkHardwareRegion()
+{
+    const auto &hardwareInfo = deviceState()->deviceInfo().hardware;
+
+    if(hardwareInfo.region == Region::Dev) {
+        qCDebug(CATEGORY_DEBUG) << "Development hardware region detected, skipping region provisioning...";
+        setOperationState(UploadingRegionData);
+    }
+
+    advanceOperationState();
 }
 
 void RegionProvisioningOperation::fetchRegionInfo()
@@ -82,7 +98,6 @@ void RegionProvisioningOperation::generateRegionData()
         return;
 
     } else if(regionInfo.isError()) {
-        // TODO: decide on proper behaviour in this case
         finishWithError(BackendError::DataError, regionInfo.errorString());
         return;
     }

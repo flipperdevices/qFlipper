@@ -12,7 +12,8 @@ class RegionProvisioningOperation : public AbstractUtilityOperation
     Q_OBJECT
 
     enum OperationState {
-        FetchingRegionInfo = BasicOperationState::User,
+        CheckingHardwareRegion = BasicOperationState::User,
+        FetchingRegionInfo,
         GeneratingRegionData,
         UploadingRegionData,
     };
@@ -24,6 +25,7 @@ public:
 private:
     void nextStateLogic() override;
 
+    void checkHardwareRegion();
     void fetchRegionInfo();
     void generateRegionData();
     void uploadRegionData();
