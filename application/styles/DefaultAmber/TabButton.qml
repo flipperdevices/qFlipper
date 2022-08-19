@@ -82,7 +82,6 @@ T.TabButton {
                  control.hovered ? foregroundColor.hover : foregroundColor.normal
 
     contentItem: IconLabel {
-        id: content
         spacing: control.spacing
         mirrored: control.mirrored
         display: control.display

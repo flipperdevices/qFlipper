@@ -1,7 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
-import QtQuick.Dialogs 1.2
+//import QtQuick.Dialogs 1.2
 import QtQml.Models 2.15
 
 import Theme 1.0
@@ -31,15 +31,15 @@ AbstractOverlay {
         }
     }
 
-    FileDialog {
-        id: fileDialog
-        folder: shortcuts.home
-        selectExisting: true
-        selectMultiple: false
+//    FileDialog {
+//        id: fileDialog
+//        folder: shortcuts.home
+//        selectExisting: true
+//        selectMultiple: false
 
-        property var onAcceptedFunc
-        onAccepted: onAcceptedFunc()
-    }
+//        property var onAcceptedFunc
+//        onAccepted: onAcceptedFunc()
+//    }
 
     ConfirmationDialog {
         id: confirmationDialog
@@ -240,7 +240,7 @@ AbstractOverlay {
             }
 
             implicitWidth: 300
-            visible: parent.hovered && text.length != 0
+            visible: parent.hovered && text.length !== 0
         }
     }
 
@@ -525,9 +525,9 @@ AbstractOverlay {
         // Close dialog windows when Flipper was PIN locked/disconnected
         Backend.currentDeviceChanged.connect(function() {
             // TODO: Port fileDialog to AdvancedFileDialog
-            if(fileDialog.visible) {
-                fileDialog.close();
-            }
+//            if(fileDialog.visible) {
+//                fileDialog.close();
+//            }
             if(confirmationDialog.visible) {
                 confirmationDialog.close();
             }

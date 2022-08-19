@@ -161,8 +161,14 @@ void Application::initStyles()
 #endif
 
     QQuickWindow::setDefaultAlphaBuffer(true);
+
+#if QT_VERSION < 0x060000
+    // TODO: Need native font rendering for pixel art fonts
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
-    QQuickStyle::setStyle(":/style");
+    QQuickStyle::setStyle(":/styles/DefaultAmber");
+#else
+    QQuickStyle::setStyle("DefaultAmber");
+#endif
 }
 
 void Application::initTranslations()
@@ -182,7 +188,7 @@ void Application::initQmlTypes()
 {
     qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
 
-    qmlRegisterUncreatableType<BackendError>("QFlipper", 1, 0, "BackendError", QStringLiteral("This class is only a enum container"));
+//    qmlRegisterUncreatableType<BackendError>("QFlipper", 1, 0, "BackendError", QStringLiteral("This class is only a enum container"));
     qmlRegisterUncreatableType<ApplicationBackend>("QFlipper", 1, 0, "ApplicationBackend", QStringLiteral("This class is meant to be created from c++"));
     qmlRegisterUncreatableType<ApplicationUpdater>("QFlipper", 1, 0, "ApplicationUpdater", QStringLiteral("This class is meant to be created from c++"));
 
@@ -196,6 +202,7 @@ void Application::initQmlTypes()
 void Application::initImports()
 {
     m_engine.addImportPath(":/imports");
+    m_engine.addImportPath(":/styles");
 }
 
 void Application::initFonts()

@@ -1,12 +1,10 @@
 #pragma once
 
 #include <QObject>
+#include <QAbstractListModel>
 
 #include "backenderror.h"
 #include "flipperupdates.h"
-
-class QAbstractListModel;
-Q_DECLARE_OPAQUE_POINTER(QAbstractListModel*)
 
 namespace Flipper {
 class FlipperZero;
@@ -20,10 +18,12 @@ class ScreenStreamer;
 class VirtualDisplay;
 }}
 
-Q_DECLARE_OPAQUE_POINTER(Flipper::Zero::DeviceState*)
-Q_DECLARE_OPAQUE_POINTER(Flipper::Zero::ScreenStreamer*)
-Q_DECLARE_OPAQUE_POINTER(Flipper::Zero::VirtualDisplay*)
-Q_DECLARE_OPAQUE_POINTER(Flipper::Zero::FileManager*)
+#if QT_VERSION >= 0x060000
+Q_MOC_INCLUDE("flipperzero/devicestate.h")
+Q_MOC_INCLUDE("flipperzero/screenstreamer.h")
+Q_MOC_INCLUDE("flipperzero/virtualdisplay.h")
+Q_MOC_INCLUDE("flipperzero/filemanager.h")
+#endif
 
 class ApplicationBackend : public QObject
 {

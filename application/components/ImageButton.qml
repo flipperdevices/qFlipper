@@ -21,21 +21,17 @@ AbstractButton {
     background: Item {}
 
     contentItem: Item {
-        width: iconNormal.width
-        height: iconNormal.height
+        width: control.icon.width
+        height: control.icon.height
 
         IconImage {
-            id: iconNormal
-
             source: "%1/%2.svg".arg(iconPath).arg(iconName)
-            sourceSize: Qt.size(icon.width, icon.height)
+            sourceSize: Qt.size(control.icon.width, control.icon.height)
         }
 
         IconImage {
-            id: iconHover
-
             source: "%1/%2_hover.svg".arg(iconPath).arg(iconName)
-            sourceSize: Qt.size(icon.width, icon.height)
+            sourceSize: Qt.size(control.icon.width, control.icon.height)
 
             opacity: control.hovered ? 1 : 0
 
@@ -48,10 +44,8 @@ AbstractButton {
         }
 
         IconImage {
-            id: iconDown
-
             source: "%1/%2_down.svg".arg(iconPath).arg(iconName)
-            sourceSize: Qt.size(icon.width, icon.height)
+            sourceSize: Qt.size(control.icon.width, control.icon.height)
 
             opacity: control.down ? 1 : 0
         }

@@ -2,7 +2,8 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
-import QtGraphicalEffects 1.15
+//import QtGraphicalEffects 1.15
+//import Qt5Compat.GraphicalEffects
 
 import Qt.labs.platform 1.1 as Pf
 
@@ -33,13 +34,13 @@ Item {
     readonly property var deviceState: Backend.deviceState
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
-    Component.onCompleted: {
-        if(App.updateStatus === App.CanUpdate) {
-            askForSelfUpdate();
-        } else {
-            App.updateStatusChanged.connect(askForSelfUpdate);
-        }
-    }
+//    Component.onCompleted: {
+//        if(App.updateStatus === App.CanUpdate) {
+//            askForSelfUpdate();
+//        } else {
+//            App.updateStatusChanged.connect(askForSelfUpdate);
+//        }
+//    }
 
     width: baseWidth
     height: baseHeight
@@ -90,17 +91,17 @@ Item {
         onFinished: mainWindow.collapseFinished()
     }
 
-    ConfirmationDialog {
-        id: confirmationDialog
-        radius: bg.radius
-        parent: bg
-    }
+//    ConfirmationDialog {
+//        id: confirmationDialog
+//        radius: bg.radius
+//        parent: bg
+//    }
 
-    SelfUpdateDialog {
-        id: selfUpdateDialog
-        radius: bg.radius
-        parent: bg
-    }
+//    SelfUpdateDialog {
+//        id: selfUpdateDialog
+//        radius: bg.radius
+//        parent: bg
+//    }
 
     Rectangle {
         id: blackBorder
@@ -120,14 +121,15 @@ Item {
         border.color: Theme.color.mediumorange3
         border.width: 2
 
-        layer.enabled: true
-        layer.effect: DropShadow {
-            radius: shadowSize
-            samples: shadowSize * 2 + 1
-            horizontalOffset: 0
-            verticalOffset: shadowOffset
-            color: Qt.rgba(0, 0, 0, 0.7)
-        }
+//        layer.enabled: true
+//        layer.effect: DropShadow {
+//            radius: shadowSize
+//            samples: shadowSize * 2 + 1
+//            spread: 0
+//            horizontalOffset: 0
+//            verticalOffset: shadowOffset
+//            color: Qt.rgba(0, 0, 0, 0.7)
+//        }
     }
 
     WindowControls {
@@ -205,21 +207,21 @@ Item {
             opacity: Backend.backendState === ApplicationBackend.Ready ? 1 : 0
         }
 
-        UpdateOverlay {
-            id: updateOverlay
-            backgroundRect: bg
-            anchors.fill: parent
-            opacity: Backend.backendState > ApplicationBackend.ScreenStreaming &&
-                     Backend.backendState < ApplicationBackend.Finished ? 1 : 0
-        }
+//        UpdateOverlay {
+//            id: updateOverlay
+//            backgroundRect: bg
+//            anchors.fill: parent
+//            opacity: Backend.backendState > ApplicationBackend.ScreenStreaming &&
+//                     Backend.backendState < ApplicationBackend.Finished ? 1 : 0
+//        }
 
-        FinishOverlay {
-            id: finishOverlay
-            backgroundRect: bg
-            anchors.fill: parent
-            opacity: Backend.backendState === ApplicationBackend.Finished ||
-                     Backend.backendState === ApplicationBackend.ErrorOccured ? 1 : 0
-        }
+//        FinishOverlay {
+//            id: finishOverlay
+//            backgroundRect: bg
+//            anchors.fill: parent
+//            opacity: Backend.backendState === ApplicationBackend.Finished ||
+//                     Backend.backendState === ApplicationBackend.ErrorOccured ? 1 : 0
+//        }
 
         StreamOverlay {
             id: streamOverlay
@@ -388,9 +390,9 @@ Item {
         }
     }
 
-    function askForSelfUpdate() {
-        if(App.updateStatus === App.CanUpdate) {
-            selfUpdateDialog.open();
-        }
-    }
+//    function askForSelfUpdate() {
+//        if(App.updateStatus === App.CanUpdate) {
+//            selfUpdateDialog.open();
+//        }
+//    }
 }

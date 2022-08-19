@@ -3,7 +3,7 @@ import QtQuick.Controls 2.15
 
 import Theme 1.0
 
-import "../style"
+import "../styles/DefaultAmber"
 
 SmallButton {
     id: control

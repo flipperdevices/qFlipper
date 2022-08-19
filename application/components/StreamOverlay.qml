@@ -2,7 +2,6 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.impl 2.15
 import QtQuick.Layouts 1.15
-import QtQuick.Dialogs 1.2
 
 import QFlipper 1.0
 import Theme 1.0
@@ -78,7 +77,7 @@ AbstractOverlay {
         x: 590
         y: 52
 
-        onInputEvent: {
+        onInputEvent: function(key, type) {
             Backend.screenStreamer.sendInputEvent(key, type);
         }
 
