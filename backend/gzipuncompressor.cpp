@@ -34,8 +34,11 @@ GZipUncompressor::GZipUncompressor(QIODevice *in, QIODevice *out, QObject *paren
         watcher->deleteLater();
         emit finished();
     });
-
-    watcher->setFuture(QtConcurrent::run([this] { doUncompress(); }));
+#if QT_VERSION < 0x060000
+    watcher->setFuture(QtConcurrent::run(this, &GZipUncompressor::doUncompress));
+#else
+    watcher->setFuture(QtConcurrent::run(&GZipUncompressor::doUncompress, this));
+#endif
 }
 
 GZipUncompressor::~GZipUncompressor()
