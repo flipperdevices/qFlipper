@@ -175,7 +175,7 @@ bool ApplicationUpdater::performUpdate(const QString &path)
     };
 
 #if defined(Q_OS_WINDOWS)
-    const auto success = QDesktopServices::openUrl(path);
+    const auto success = QDesktopServices::openUrl(QUrl::fromLocalFile(path));
     if(success) exitApplication();
     return success;
 
