@@ -2,8 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 import Theme 1.0
-
-import "../styles/DefaultAmber"
+import Primitives 1.0
 
 Popup {
     id: control
@@ -113,7 +112,7 @@ Popup {
                             width: 24
                             height: 24
 
-                            backgroundColor: ColorGroup {
+                            backgroundColor: ColorSet {
                                 normal: Theme.color.darkorange1
                                 hover: Theme.color.mediumorange2
                                 down: Theme.color.lightred2

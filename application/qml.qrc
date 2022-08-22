@@ -127,7 +127,6 @@
         <file>components/SDWarningDialog.qml</file>
         <file>assets/gfx/images/warning-no-sdcard.svg</file>
         <file>styles/DefaultAmber/Button.qml</file>
-        <file>styles/DefaultAmber/ColorGroup.qml</file>
         <file>styles/DefaultAmber/ComboBox.qml</file>
         <file>styles/DefaultAmber/Dialog.qml</file>
         <file>styles/DefaultAmber/DialogButtonBox.qml</file>
@@ -143,5 +142,6 @@
         <file>styles/DefaultAmber/TabBar.qml</file>
         <file>styles/DefaultAmber/TabButton.qml</file>
         <file>styles/DefaultAmber/ToolTip.qml</file>
+        <file>imports/Primitives/ColorSet.qml</file>
     </qresource>
 </RCC>

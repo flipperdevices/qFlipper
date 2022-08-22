@@ -46,21 +46,21 @@ import Primitives 1.0
 T.ComboBox {
     id: control
 
-    property var foregroundColor: ColorGroup {
+    property var foregroundColor: ColorSet {
         normal: Theme.color.lightorange2
         hover: Theme.color.lightorange1
         down: Theme.color.darkorange1
         disabled: Theme.color.mediumorange1
     }
 
-    property var backgroundColor: ColorGroup {
+    property var backgroundColor: ColorSet {
         normal: Theme.color.darkorange1
         hover: Theme.color.mediumorange2
         down: Theme.color.lightorange2
         disabled: Theme.color.darkorange2
     }
 
-    property var strokeColor: ColorGroup {
+    property var strokeColor: ColorSet {
         normal: Theme.color.lightorange2
         hover: Theme.color.lightorange1
         down: Theme.color.lightorange2

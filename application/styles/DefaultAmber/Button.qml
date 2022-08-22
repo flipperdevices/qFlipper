@@ -40,25 +40,26 @@ import QtQuick.Controls.impl 2.15
 import QtQuick.Templates 2.15 as T
 
 import Theme 1.0
+import Primitives 1.0
 
 T.Button {
     id: control
 
-    property var foregroundColor: ColorGroup {
+    property var foregroundColor: ColorSet {
         normal: Theme.color.lightorange2
         hover: Theme.color.lightorange1
         down: Theme.color.darkorange1
         disabled: Theme.color.mediumorange1
     }
 
-    property var backgroundColor: ColorGroup {
+    property var backgroundColor: ColorSet {
         normal: Theme.color.darkorange1
         hover: Theme.color.mediumorange2
         down: Theme.color.lightorange2
         disabled: Theme.color.darkorange2
     }
 
-    property var strokeColor: ColorGroup {
+    property var strokeColor: ColorSet {
         normal: Theme.color.lightorange2
         hover: Theme.color.lightorange1
         down: Theme.color.lightorange2

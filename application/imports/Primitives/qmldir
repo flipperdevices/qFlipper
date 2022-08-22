@@ -1,2 +1,3 @@
 module Primitives
 AdvancedRectangle 1.0 AdvancedRectangle.qml
+ColorSet 1.0 ColorSet.qml
