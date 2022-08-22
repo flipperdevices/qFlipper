@@ -21,20 +21,6 @@ Window {
 
     color: "transparent"
 
-//    DragHandler {
-//        onActiveChanged: if(active) { root.startSystemMove(); }
-//        grabPermissions: DragHandler.TakeOverForbidden
-//        target: null
-//    }
-
-    // TODO: Move DragHandler to the titlebar area of MainWindow?
-    MouseArea {
-        anchors.fill: parent
-        onDoubleClicked: console.log("LALALAALA")
-        drag.target: Item {}
-        drag.onActiveChanged: if(drag.active) root.startSystemMove();
-    }
-
     MainWindow {
         id: mainWindow
 

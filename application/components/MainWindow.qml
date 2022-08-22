@@ -2,8 +2,6 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
-//import QtGraphicalEffects 1.15
-//import Qt5Compat.GraphicalEffects
 
 import Qt.labs.platform 1.1 as Pf
 
@@ -120,16 +118,6 @@ Item {
         color: "black"
         border.color: Theme.color.mediumorange3
         border.width: 2
-
-//        layer.enabled: true
-//        layer.effect: DropShadow {
-//            radius: shadowSize
-//            samples: shadowSize * 2 + 1
-//            spread: 0
-//            horizontalOffset: 0
-//            verticalOffset: shadowOffset
-//            color: Qt.rgba(0, 0, 0, 0.7)
-//        }
     }
 
     WindowControls {
