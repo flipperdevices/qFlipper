@@ -3,66 +3,42 @@
 #include <QStandardPaths>
 
 AdvancedFileDialog::AdvancedFileDialog():
-    QFileDialog(),
-    m_isSelectFolder(false),
-    m_isSelectMultiple(false),
-    m_isSelectExisting(false)
+    QFileDialog()
 {}
 
-QString AdvancedFileDialog::defaultFileName() const
+void AdvancedFileDialog::beginOpenFiles(StandardLocation openLocation, const QStringList &nameFilters)
 {
-    return QString();
+    setAcceptMode(AcceptOpen);
+    setFileMode(ExistingFiles);
+    beginOpen(openLocation, nameFilters);
 }
 
-void AdvancedFileDialog::setDefaultFileName(const QString &fileName)
+void AdvancedFileDialog::beginOpenFile(StandardLocation openLocation, const QStringList &nameFilters)
 {
-    selectFile(fileName);
+    setAcceptMode(AcceptOpen);
+    setFileMode(ExistingFile);
+    beginOpen(openLocation, nameFilters);
 }
 
-void AdvancedFileDialog::setSelectFolder(bool set)
+void AdvancedFileDialog::beginOpenDir(StandardLocation openLocation, const QStringList &nameFilters)
 {
-    if(set) {
-        setFileMode(Directory);
-    } else {
-        setFileMode(m_isSelectExisting ? (m_isSelectMultiple ? ExistingFiles : ExistingFile) : AnyFile);
-    }
-
-    setOption(ShowDirsOnly, set);
-    m_isSelectFolder = set;
-
-    emit isSelectFolderChanged();
+    setAcceptMode(AcceptOpen);
+    setFileMode(Directory);
+    beginOpen(openLocation, nameFilters, QString(), true);
 }
 
-bool AdvancedFileDialog::isSelectFolder() const
+void AdvancedFileDialog::beginSaveFile(StandardLocation openLocation, const QStringList &nameFilters, const QString &defaultFileName)
 {
-    return m_isSelectFolder;
+    setAcceptMode(AcceptSave);
+    setFileMode(AnyFile);
+    beginOpen(openLocation, nameFilters, defaultFileName);
 }
 
-void AdvancedFileDialog::setSelectMultiple(bool set)
+void AdvancedFileDialog::beginSaveDir(StandardLocation openLocation, const QStringList &nameFilters)
 {
-    setFileMode(m_isSelectExisting ? (set ? ExistingFiles : ExistingFile) : AnyFile);
-
-    m_isSelectMultiple = set;
-    emit  isSelectMultipleChanged();
-}
-
-bool AdvancedFileDialog::isSelectMultiple() const
-{
-    return m_isSelectMultiple;
-}
-
-void AdvancedFileDialog::setSelectExisting(bool set)
-{
-    setFileMode(set ? (m_isSelectMultiple ? ExistingFiles : ExistingFile) : AnyFile);
-    setAcceptMode(set ? AcceptOpen : AcceptSave);
-
-    m_isSelectExisting = set;
-    emit isSelectExistingChanged();
-}
-
-bool AdvancedFileDialog::isSelectExisting() const
-{
-    return m_isSelectExisting;
+    setAcceptMode(AcceptSave);
+    setFileMode(Directory);
+    beginOpen(openLocation, nameFilters, QString(), true);
 }
 
 void AdvancedFileDialog::setOpenLocation(StandardLocation location)
@@ -82,12 +58,6 @@ void AdvancedFileDialog::setOpenLocation(StandardLocation location)
     setDirectory(path);
 }
 
-AdvancedFileDialog::StandardLocation AdvancedFileDialog::openLocation() const
-{
-    // Does nothing. Is here just to keep the compiler happy.
-    return DefaultLocation;
-}
-
 QUrl AdvancedFileDialog::fileUrl() const
 {
     if(selectedUrls().isEmpty()) {
@@ -95,4 +65,13 @@ QUrl AdvancedFileDialog::fileUrl() const
     } else {
         return selectedUrls().at(0);
     }
+}
+
+void AdvancedFileDialog::beginOpen(StandardLocation openLocation, const QStringList &nameFilters, const QString &defaultFileName, bool onlyDirs)
+{
+    setOption(ShowDirsOnly, onlyDirs);
+    setNameFilters(nameFilters);
+    selectFile(defaultFileName);
+    setOpenLocation(openLocation);
+    exec();
 }

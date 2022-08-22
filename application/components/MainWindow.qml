@@ -160,15 +160,7 @@ Item {
 
             text: App.version
 
-            MouseArea {
-                id: clicker
-                property bool checked: false
-                anchors.fill: parent
-
-                onClicked: {
-                    checked = !checked
-                }
-            }
+            // TODO: Implement copy version to clipboard
         }
 
         DeviceWidget {

@@ -147,17 +147,8 @@ AbstractOverlay {
             AdvancedFileDialog.accepted.connect(onAccepted);
             AdvancedFileDialog.finished.connect(onFinished);
 
-            const date = new Date();
-
-            AdvancedFileDialog.defaultFileName = "Screenshot-%1.png".arg(Qt.formatDateTime(date, "yyyyMMdd-hhmmss"));
-            AdvancedFileDialog.title = qsTr("Please choose a file");
-            AdvancedFileDialog.nameFilters = ["PNG images (*.png)", "JPEG images (*.jpg)"];
-            AdvancedFileDialog.openLocation = AdvancedFileDialog.PicturesLocation;
-            AdvancedFileDialog.selectMultiple = false;
-            AdvancedFileDialog.selectExisting = false;
-            AdvancedFileDialog.selectFolder = false;
-
-            AdvancedFileDialog.exec();
+            const defaultName = "Screenshot-%1.png".arg(Qt.formatDateTime(new Date(), "yyyyMMdd-hhmmss"));
+            AdvancedFileDialog.beginSaveFile(AdvancedFileDialog.PicturesLocation, ["PNG images (*.png)", "JPEG images (*.jpg)"], defaultName);
         }
     }
 

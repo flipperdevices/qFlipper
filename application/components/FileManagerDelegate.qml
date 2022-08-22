@@ -252,15 +252,7 @@ Item {
             AdvancedFileDialog.accepted.connect(onAccepted);
             AdvancedFileDialog.finished.connect(onFinished);
 
-            AdvancedFileDialog.defaultFileName = "";
-            AdvancedFileDialog.title = qsTr("Select files to upload");
-            AdvancedFileDialog.nameFilters = [ "All files (*)" ];
-            AdvancedFileDialog.openLocation = AdvancedFileDialog.HomeLocation;
-            AdvancedFileDialog.selectExisting = true;
-            AdvancedFileDialog.selectMultiple = true;
-            AdvancedFileDialog.selectFolder = false;
-
-            AdvancedFileDialog.exec();
+            AdvancedFileDialog.beginOpenFiles(AdvancedFileDialog.HomeLocation, [ "All files (*)" ]);
         }
     }
 
@@ -282,15 +274,11 @@ Item {
             AdvancedFileDialog.accepted.connect(onAccepted);
             AdvancedFileDialog.finished.connect(onFinished);
 
-            AdvancedFileDialog.defaultFileName = delegate.isDirectory ? "" : delegate.fileName;
-            AdvancedFileDialog.title = qsTr("Select download location");
-            AdvancedFileDialog.nameFilters = [ "All files (*)" ];
-            AdvancedFileDialog.openLocation = AdvancedFileDialog.DownloadsLocation;
-            AdvancedFileDialog.selectMultiple = false;
-            AdvancedFileDialog.selectExisting = delegate.isDirectory;
-            AdvancedFileDialog.selectFolder = delegate.isDirectory;
-
-            AdvancedFileDialog.exec();
+            if(delegate.isDirectory) {
+                AdvancedFileDialog.beginSaveDir(AdvancedFileDialog.DownloadsLocation, [ "All files (*)" ]);
+            } else {
+                AdvancedFileDialog.beginSaveFile(AdvancedFileDialog.DownloadsLocation, [ "All files (*)" ], delegate.fileName);
+            }
         }
     }
 

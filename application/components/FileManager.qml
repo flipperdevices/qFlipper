@@ -246,15 +246,7 @@ Item {
             AdvancedFileDialog.accepted.connect(onAccepted);
             AdvancedFileDialog.finished.connect(onFinished);
 
-            AdvancedFileDialog.defaultFileName = "";
-            AdvancedFileDialog.title = qsTr("Select files to upload");
-            AdvancedFileDialog.nameFilters = [ "All files (*)" ];
-            AdvancedFileDialog.openLocation = AdvancedFileDialog.HomeLocation;
-            AdvancedFileDialog.selectExisting = true;
-            AdvancedFileDialog.selectMultiple = true;
-            AdvancedFileDialog.selectFolder = false;
-
-            AdvancedFileDialog.exec();
+            AdvancedFileDialog.beginOpenFiles(AdvancedFileDialog.HomeLocation, [ "All files (*)" ]);
         }
     }
 
