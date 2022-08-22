@@ -62,8 +62,8 @@ Item {
 
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-                onClicked: delegate.rightClick(mouse);
-                onDoubleClicked: delegate.doubleClick(mouse)
+                onClicked: function(mouse) {delegate.rightClick(mouse);}
+                onDoubleClicked: function(mouse) {delegate.doubleClick(mouse);}
             }
 
             IconImage {
@@ -115,8 +115,8 @@ Item {
 
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-                onClicked: delegate.rightClick(mouse);
-                onDoubleClicked: delegate.doubleClick(mouse)
+                onClicked: function(mouse) {delegate.rightClick(mouse);}
+                onDoubleClicked: function(mouse) {delegate.doubleClick(mouse);}
             }
 
             Text {

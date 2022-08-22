@@ -158,7 +158,7 @@ Item {
                     anchors.fill: parent
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-                    onClicked: {
+                    onClicked: function(mouse) {
                         fileView.currentIndex = -1;
                         forceActiveFocus(Qt.MouseFocusReason);
 
@@ -179,7 +179,7 @@ Item {
     DropArea {
         enabled: !Backend.fileManager.isRoot
         anchors.fill: parent
-        onDropped: {
+        onDropped: function(drop) {
             if(drop.source || drop.proposedAction !== Qt.CopyAction) {
                 return;
             }
