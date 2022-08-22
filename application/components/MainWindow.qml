@@ -34,13 +34,13 @@ Item {
     readonly property var deviceState: Backend.deviceState
     readonly property var deviceInfo: deviceState ? deviceState.info : undefined
 
-//    Component.onCompleted: {
-//        if(App.updateStatus === App.CanUpdate) {
-//            askForSelfUpdate();
-//        } else {
-//            App.updateStatusChanged.connect(askForSelfUpdate);
-//        }
-//    }
+    Component.onCompleted: {
+        if(App.updateStatus === App.CanUpdate) {
+            askForSelfUpdate();
+        } else {
+            App.updateStatusChanged.connect(askForSelfUpdate);
+        }
+    }
 
     width: baseWidth
     height: baseHeight
@@ -91,17 +91,17 @@ Item {
         onFinished: mainWindow.collapseFinished()
     }
 
-//    ConfirmationDialog {
-//        id: confirmationDialog
-//        radius: bg.radius
-//        parent: bg
-//    }
+    ConfirmationDialog {
+        id: confirmationDialog
+        radius: bg.radius
+        parent: bg
+    }
 
-//    SelfUpdateDialog {
-//        id: selfUpdateDialog
-//        radius: bg.radius
-//        parent: bg
-//    }
+    SelfUpdateDialog {
+        id: selfUpdateDialog
+        radius: bg.radius
+        parent: bg
+    }
 
     Rectangle {
         id: blackBorder
@@ -207,21 +207,21 @@ Item {
             opacity: Backend.backendState === ApplicationBackend.Ready ? 1 : 0
         }
 
-//        UpdateOverlay {
-//            id: updateOverlay
-//            backgroundRect: bg
-//            anchors.fill: parent
-//            opacity: Backend.backendState > ApplicationBackend.ScreenStreaming &&
-//                     Backend.backendState < ApplicationBackend.Finished ? 1 : 0
-//        }
+        UpdateOverlay {
+            id: updateOverlay
+            backgroundRect: bg
+            anchors.fill: parent
+            opacity: Backend.backendState > ApplicationBackend.ScreenStreaming &&
+                     Backend.backendState < ApplicationBackend.Finished ? 1 : 0
+        }
 
-//        FinishOverlay {
-//            id: finishOverlay
-//            backgroundRect: bg
-//            anchors.fill: parent
-//            opacity: Backend.backendState === ApplicationBackend.Finished ||
-//                     Backend.backendState === ApplicationBackend.ErrorOccured ? 1 : 0
-//        }
+        FinishOverlay {
+            id: finishOverlay
+            backgroundRect: bg
+            anchors.fill: parent
+            opacity: Backend.backendState === ApplicationBackend.Finished ||
+                     Backend.backendState === ApplicationBackend.ErrorOccured ? 1 : 0
+        }
 
         StreamOverlay {
             id: streamOverlay
@@ -390,9 +390,9 @@ Item {
         }
     }
 
-//    function askForSelfUpdate() {
-//        if(App.updateStatus === App.CanUpdate) {
-//            selfUpdateDialog.open();
-//        }
-//    }
+    function askForSelfUpdate() {
+        if(App.updateStatus === App.CanUpdate) {
+            selfUpdateDialog.open();
+        }
+    }
 }

@@ -2,8 +2,8 @@
 
 #include <QObject>
 
-class BackendError {
-    Q_GADGET
+class BackendError : public QObject {
+    Q_OBJECT
 
 public:
     enum ErrorType {

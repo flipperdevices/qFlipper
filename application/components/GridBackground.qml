@@ -17,7 +17,6 @@ Rectangle {
     }
 
     Item {
-        id: bounds
         anchors.fill: parent
         anchors.margins: container.border.width
         clip: true
@@ -41,7 +40,7 @@ Rectangle {
             duration: 4000
 
             from: -scanline.height
-            to: bounds.height
+            to: container.height
 
             loops: Animation.Infinite
             easing.type: Easing.Linear
