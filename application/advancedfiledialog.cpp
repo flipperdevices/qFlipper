@@ -24,7 +24,7 @@ void AdvancedFileDialog::beginOpenDir(StandardLocation openLocation, const QStri
 {
     setAcceptMode(AcceptOpen);
     setFileMode(Directory);
-    beginOpen(openLocation, nameFilters, QString(), true);
+    beginOpen(openLocation, nameFilters, QStringLiteral(" "), true);
 }
 
 void AdvancedFileDialog::beginSaveFile(StandardLocation openLocation, const QStringList &nameFilters, const QString &defaultFileName)
@@ -38,7 +38,7 @@ void AdvancedFileDialog::beginSaveDir(StandardLocation openLocation, const QStri
 {
     setAcceptMode(AcceptSave);
     setFileMode(Directory);
-    beginOpen(openLocation, nameFilters, QString(), true);
+    beginOpen(openLocation, nameFilters, QStringLiteral(" "), true);
 }
 
 void AdvancedFileDialog::setOpenLocation(StandardLocation location)
@@ -69,9 +69,10 @@ QUrl AdvancedFileDialog::fileUrl() const
 
 void AdvancedFileDialog::beginOpen(StandardLocation openLocation, const QStringList &nameFilters, const QString &defaultFileName, bool onlyDirs)
 {
-    setOption(ShowDirsOnly, onlyDirs);
-    setNameFilters(nameFilters);
     selectFile(defaultFileName);
+    setNameFilters(nameFilters);
     setOpenLocation(openLocation);
+    setOption(ShowDirsOnly, onlyDirs);
     exec();
+//    disconnect();
 }
