@@ -234,17 +234,9 @@ Item {
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-upload.svg"
 
         onTriggered: {
-            const onFinished = function() {
-                AdvancedFileDialog.accepted.disconnect(onAccepted);
-                AdvancedFileDialog.finished.disconnect(onFinished);
-            };
-
-            const onAccepted = function() {
+            AdvancedFileDialog.accepted.connect(function() {
                 control.uploadUrls(AdvancedFileDialog.fileUrls);
-            };
-
-            AdvancedFileDialog.accepted.connect(onAccepted);
-            AdvancedFileDialog.finished.connect(onFinished);
+            });
 
             AdvancedFileDialog.beginOpenFiles(AdvancedFileDialog.HomeLocation, [ "All files (*)" ]);
         }

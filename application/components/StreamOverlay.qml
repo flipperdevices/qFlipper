@@ -127,13 +127,11 @@ AbstractOverlay {
         onTriggered: {
             Backend.screenStreamer.isPaused = true;
 
-            const onFinished = function() {
+            AdvancedFileDialog.finished.connect(function() {
                 Backend.screenStreamer.isPaused = false;
-                AdvancedFileDialog.accepted.disconnect(onAccepted);
-                AdvancedFileDialog.finished.disconnect(onFinished);
-            };
+            });
 
-            const onAccepted = function() {
+            AdvancedFileDialog.accepted.connect(function() {
                 const ext = AdvancedFileDialog.selectedNameFilter.match("\\.\\w+")[0];
                 let strurl = AdvancedFileDialog.fileUrl.toString();
 
@@ -142,10 +140,7 @@ AbstractOverlay {
                 }
 
                 canvas.saveImage(Qt.resolvedUrl(strurl), 4);
-            };
-
-            AdvancedFileDialog.accepted.connect(onAccepted);
-            AdvancedFileDialog.finished.connect(onFinished);
+            });
 
             const defaultName = "Screenshot-%1.png".arg(Qt.formatDateTime(new Date(), "yyyyMMdd-hhmmss"));
             AdvancedFileDialog.beginSaveFile(AdvancedFileDialog.PicturesLocation, ["PNG images (*.png)", "JPEG images (*.jpg)"], defaultName);

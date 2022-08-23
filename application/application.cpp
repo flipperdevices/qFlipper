@@ -110,7 +110,7 @@ void Application::onLatestVersionChanged()
 
 void Application::onCurrentDeviceChanged()
 {
-    if(m_fileDialog.isVisible()) {
+    if(m_fileDialog.isOpen()) {
         m_fileDialog.close();
     }
 }

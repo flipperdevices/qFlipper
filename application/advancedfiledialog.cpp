@@ -1,78 +1,120 @@
 #include "advancedfiledialog.h"
 
+#include <QFileDialog>
 #include <QStandardPaths>
 
 AdvancedFileDialog::AdvancedFileDialog():
-    QFileDialog()
+    QObject(),
+    m_dialog(nullptr)
 {}
+
+AdvancedFileDialog::~AdvancedFileDialog()
+{
+    if(m_dialog) {
+        m_dialog->deleteLater();
+    }
+}
 
 void AdvancedFileDialog::beginOpenFiles(StandardLocation openLocation, const QStringList &nameFilters)
 {
-    setAcceptMode(AcceptOpen);
-    setFileMode(ExistingFiles);
-    beginOpen(openLocation, nameFilters);
+    beginOpen(openLocation, QFileDialog::AcceptOpen, QFileDialog::ExistingFiles, nameFilters);
 }
 
 void AdvancedFileDialog::beginOpenFile(StandardLocation openLocation, const QStringList &nameFilters)
 {
-    setAcceptMode(AcceptOpen);
-    setFileMode(ExistingFile);
-    beginOpen(openLocation, nameFilters);
+    beginOpen(openLocation, QFileDialog::AcceptOpen, QFileDialog::ExistingFile, nameFilters);
 }
 
-void AdvancedFileDialog::beginOpenDir(StandardLocation openLocation, const QStringList &nameFilters)
+void AdvancedFileDialog::beginOpenDir(StandardLocation openLocation)
 {
-    setAcceptMode(AcceptOpen);
-    setFileMode(Directory);
-    beginOpen(openLocation, nameFilters, QStringLiteral(" "), true);
+    beginOpen(openLocation, QFileDialog::AcceptOpen, QFileDialog::Directory);
 }
 
 void AdvancedFileDialog::beginSaveFile(StandardLocation openLocation, const QStringList &nameFilters, const QString &defaultFileName)
 {
-    setAcceptMode(AcceptSave);
-    setFileMode(AnyFile);
-    beginOpen(openLocation, nameFilters, defaultFileName);
+    beginOpen(openLocation, QFileDialog::AcceptSave, QFileDialog::AnyFile, nameFilters, defaultFileName);
 }
 
-void AdvancedFileDialog::beginSaveDir(StandardLocation openLocation, const QStringList &nameFilters)
+void AdvancedFileDialog::beginSaveDir(StandardLocation openLocation)
 {
-    setAcceptMode(AcceptSave);
-    setFileMode(Directory);
-    beginOpen(openLocation, nameFilters, QStringLiteral(" "), true);
+    beginOpen(openLocation, QFileDialog::AcceptSave, QFileDialog::Directory);
 }
 
-void AdvancedFileDialog::setOpenLocation(StandardLocation location)
+void AdvancedFileDialog::close()
 {
-    QString path;
-
-    if(location == HomeLocation) {
-        path = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-    } else if(location == DownloadsLocation) {
-        path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
-    } else if(location == PicturesLocation) {
-        path = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
-    } else if(location == DocumentsLocation) {
-        path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    if(m_dialog && m_dialog->isVisible()) {
+        m_dialog->reject();
     }
+}
 
-    setDirectory(path);
+bool AdvancedFileDialog::isOpen() const
+{
+    return m_dialog;
 }
 
 QUrl AdvancedFileDialog::fileUrl() const
 {
-    if(selectedUrls().isEmpty()) {
-        return QUrl();
+    return fileUrls().isEmpty() ? QUrl() : fileUrls().at(0);
+}
+
+QList<QUrl> AdvancedFileDialog::fileUrls() const
+{
+    return m_dialog ? m_dialog->selectedUrls() : QList<QUrl>();
+}
+
+QString AdvancedFileDialog::selectedNameFilter() const
+{
+    return m_dialog ? m_dialog->selectedNameFilter() : QString();
+}
+
+void AdvancedFileDialog::onFileDialogAccepted()
+{
+    emit accepted();
+}
+
+void AdvancedFileDialog::onFileDialogFinished()
+{
+    emit finished();
+    disconnect();
+}
+
+QString AdvancedFileDialog::standardLocationPath(StandardLocation location)
+{
+    if(location == HomeLocation) {
+        return QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+    } else if(location == DownloadsLocation) {
+        return QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+    } else if(location == PicturesLocation) {
+        return QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+    } else if(location == DocumentsLocation) {
+        return QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     } else {
-        return selectedUrls().at(0);
+        return QString();
     }
 }
 
-void AdvancedFileDialog::beginOpen(StandardLocation openLocation, const QStringList &nameFilters, const QString &defaultFileName, bool onlyDirs)
+void AdvancedFileDialog::beginOpen(StandardLocation openLocation, int acceptMode, int fileMode, const QStringList &nameFilters, const QString &defaultFileName)
 {
-    selectFile(defaultFileName);
-    setNameFilters(nameFilters);
-    setOpenLocation(openLocation);
-    setOption(ShowDirsOnly, onlyDirs);
-    exec();
-//    disconnect();
+    if(m_dialog) {
+        m_dialog->deleteLater();
+    }
+
+    m_dialog = new QFileDialog();
+    connect(m_dialog, &QFileDialog::accepted, this, &AdvancedFileDialog::onFileDialogAccepted);
+    connect(m_dialog, &QFileDialog::finished, this, &AdvancedFileDialog::onFileDialogFinished);
+
+    m_dialog->setFileMode(static_cast<QFileDialog::FileMode>(fileMode));
+    m_dialog->setAcceptMode(static_cast<QFileDialog::AcceptMode>(acceptMode));
+    m_dialog->setDirectory(standardLocationPath(openLocation));
+    m_dialog->setOption(QFileDialog::ShowDirsOnly, fileMode == QFileDialog::Directory);
+
+    if(!defaultFileName.isEmpty()) {
+        m_dialog->selectFile(defaultFileName);
+    }
+
+    if(!nameFilters.isEmpty()) {
+        m_dialog->setNameFilters(nameFilters);
+    }
+
+    m_dialog->exec();
 }

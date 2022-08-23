@@ -223,12 +223,7 @@ Item {
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-upload.svg"
 
         onTriggered: {
-            const onFinished = function() {
-                AdvancedFileDialog.accepted.disconnect(onAccepted);
-                AdvancedFileDialog.finished.disconnect(onFinished);
-            };
-
-            const onAccepted = function() {
+            AdvancedFileDialog.accepted.connect(function() {
                 const doUpload = function() {
                     Backend.fileManager.uploadTo(delegate.fileName, AdvancedFileDialog.fileUrls);
                 };
@@ -247,10 +242,7 @@ Item {
                 } else {
                     doUpload();
                 }
-            };
-
-            AdvancedFileDialog.accepted.connect(onAccepted);
-            AdvancedFileDialog.finished.connect(onFinished);
+            });
 
             AdvancedFileDialog.beginOpenFiles(AdvancedFileDialog.HomeLocation, [ "All files (*)" ]);
         }
@@ -262,20 +254,12 @@ Item {
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-download.svg"
 
         onTriggered: {
-            const onFinished = function() {
-                AdvancedFileDialog.accepted.disconnect(onAccepted);
-                AdvancedFileDialog.finished.disconnect(onFinished);
-            };
-
-            const onAccepted = function() {
+            AdvancedFileDialog.accepted.connect(function() {
                 Backend.fileManager.download(delegate.fileName, AdvancedFileDialog.fileUrls[0], delegate.isDirectory);
-            };
-
-            AdvancedFileDialog.accepted.connect(onAccepted);
-            AdvancedFileDialog.finished.connect(onFinished);
+            });
 
             if(delegate.isDirectory) {
-                AdvancedFileDialog.beginSaveDir(AdvancedFileDialog.DownloadsLocation, [ "All files (*)" ]);
+                AdvancedFileDialog.beginSaveDir(AdvancedFileDialog.DownloadsLocation);
             } else {
                 AdvancedFileDialog.beginSaveFile(AdvancedFileDialog.DownloadsLocation, [ "All files (*)" ], delegate.fileName);
             }

@@ -359,12 +359,7 @@ AbstractOverlay {
     }
 
     function installFromFile() {
-        const onFinished = function() {
-            AdvancedFileDialog.accepted.disconnect(onAccepted);
-            AdvancedFileDialog.finished.disconnect(onFinished);
-        };
-
-        const onAccepted = function() {
+        AdvancedFileDialog.accepted.connect(function() {
             const messageObj = {
                 title : qsTr("Install from file?"),
                 customText: qsTr("Install"),
@@ -376,21 +371,13 @@ AbstractOverlay {
             }
 
             confirmationDialog.openWithMessage(actionFunc, messageObj);
-        };
-
-        AdvancedFileDialog.accepted.connect(onAccepted);
-        AdvancedFileDialog.finished.connect(onFinished);
+        });
 
         AdvancedFileDialog.beginOpenFile(AdvancedFileDialog.DownloadsLocation, ["Firmware files (*.dfu)", "All files (*.*)"]);
     }
 
     function backupDevice() {
-        const onFinished = function() {
-            AdvancedFileDialog.accepted.disconnect(onAccepted);
-            AdvancedFileDialog.finished.disconnect(onFinished);
-        };
-
-        const onAccepted = function() {
+        AdvancedFileDialog.accepted.connect(function() {
             const messageObj = {
                 title : qsTr("Backup device?"),
                 customText: qsTr("Backup"),
@@ -402,21 +389,13 @@ AbstractOverlay {
             }
 
             confirmationDialog.openWithMessage(actionFunc, messageObj);
-        };
+        });
 
-        AdvancedFileDialog.accepted.connect(onAccepted);
-        AdvancedFileDialog.finished.connect(onFinished);
-
-        AdvancedFileDialog.beginSaveDir(AdvancedFileDialog.DownloadsLocation, ["All files (*.*)"]);
+        AdvancedFileDialog.beginSaveDir(AdvancedFileDialog.DownloadsLocation);
     }
 
     function restoreDevice() {
-        const onFinished = function() {
-            AdvancedFileDialog.accepted.disconnect(onAccepted);
-            AdvancedFileDialog.finished.disconnect(onFinished);
-        };
-
-        const onAccepted = function() {
+        AdvancedFileDialog.accepted.connect(function() {
             const messageObj = {
                 title : qsTr("Restore backup?"),
                 customText: qsTr("Restore"),
@@ -428,12 +407,9 @@ AbstractOverlay {
             }
 
             confirmationDialog.openWithMessage(actionFunc, messageObj);
-        };
+        });
 
-        AdvancedFileDialog.accepted.connect(onAccepted);
-        AdvancedFileDialog.finished.connect(onFinished);
-
-        AdvancedFileDialog.beginOpenDir(AdvancedFileDialog.DownloadsLocation, ["All files (*.*)"]);
+        AdvancedFileDialog.beginOpenDir(AdvancedFileDialog.DownloadsLocation);
     }
 
     function eraseDevice() {
@@ -465,12 +441,7 @@ AbstractOverlay {
     }
 
     function installWirelessStack() {
-        const onFinished = function() {
-            AdvancedFileDialog.accepted.disconnect(onAccepted);
-            AdvancedFileDialog.finished.disconnect(onFinished);
-        };
-
-        const onAccepted = function() {
+        AdvancedFileDialog.accepted.connect(function() {
             const messageObj = {
                 title : qsTr("Install wireless stack?"),
                 customText: qsTr("Install"),
@@ -483,21 +454,13 @@ AbstractOverlay {
             }
 
             confirmationDialog.openWithMessage(actionFunc, messageObj);
-        };
-
-        AdvancedFileDialog.accepted.connect(onAccepted);
-        AdvancedFileDialog.finished.connect(onFinished);
+        });
 
         AdvancedFileDialog.beginOpenFile(AdvancedFileDialog.DownloadsLocation, ["Firmware files (*.bin)", "All files (*.*)"]);
     }
 
     function installFUSDangerDanger() {
-        const onFinished = function() {
-            AdvancedFileDialog.accepted.disconnect(onAccepted);
-            AdvancedFileDialog.finished.disconnect(onFinished);
-        };
-
-        const onAccepted = function() {
+        AdvancedFileDialog.accepted.connect(function() {
             const messageObj = {
                 title : qsTr("Install FUS?"),
                 customText: qsTr("Install"),
@@ -510,10 +473,7 @@ AbstractOverlay {
             }
 
             confirmationDialog.openWithMessage(actionFunc, messageObj);
-        };
-
-        AdvancedFileDialog.accepted.connect(onAccepted);
-        AdvancedFileDialog.finished.connect(onFinished);
+        });
 
         AdvancedFileDialog.beginOpenFile(AdvancedFileDialog.DownloadsLocation, ["Firmware files (*.bin)", "All files (*.*)"]);
     }
