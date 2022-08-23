@@ -161,10 +161,9 @@ void Application::initStyles()
 #endif
 
     QQuickWindow::setDefaultAlphaBuffer(true);
+    QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
 
 #if QT_VERSION < 0x060000
-    // TODO: Need native font rendering for pixel art fonts
-    QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
     QQuickStyle::setStyle(":/styles/DefaultAmber");
 #else
     QQuickStyle::setStyle("DefaultAmber");
