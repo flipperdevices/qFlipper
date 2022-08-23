@@ -1,84 +1,84 @@
-#include "advancedfiledialog.h"
+#include "systemfiledialog.h"
 
 #include <QFileDialog>
 #include <QStandardPaths>
 
-AdvancedFileDialog::AdvancedFileDialog():
+SystemFileDialog::SystemFileDialog():
     QObject(),
     m_dialog(nullptr)
 {}
 
-AdvancedFileDialog::~AdvancedFileDialog()
+SystemFileDialog::~SystemFileDialog()
 {
     if(m_dialog) {
         m_dialog->deleteLater();
     }
 }
 
-void AdvancedFileDialog::beginOpenFiles(StandardLocation openLocation, const QStringList &nameFilters)
+void SystemFileDialog::beginOpenFiles(StandardLocation openLocation, const QStringList &nameFilters)
 {
     beginOpen(openLocation, QFileDialog::AcceptOpen, QFileDialog::ExistingFiles, nameFilters);
 }
 
-void AdvancedFileDialog::beginOpenFile(StandardLocation openLocation, const QStringList &nameFilters)
+void SystemFileDialog::beginOpenFile(StandardLocation openLocation, const QStringList &nameFilters)
 {
     beginOpen(openLocation, QFileDialog::AcceptOpen, QFileDialog::ExistingFile, nameFilters);
 }
 
-void AdvancedFileDialog::beginOpenDir(StandardLocation openLocation)
+void SystemFileDialog::beginOpenDir(StandardLocation openLocation)
 {
     beginOpen(openLocation, QFileDialog::AcceptOpen, QFileDialog::Directory);
 }
 
-void AdvancedFileDialog::beginSaveFile(StandardLocation openLocation, const QStringList &nameFilters, const QString &defaultFileName)
+void SystemFileDialog::beginSaveFile(StandardLocation openLocation, const QStringList &nameFilters, const QString &defaultFileName)
 {
     beginOpen(openLocation, QFileDialog::AcceptSave, QFileDialog::AnyFile, nameFilters, defaultFileName);
 }
 
-void AdvancedFileDialog::beginSaveDir(StandardLocation openLocation)
+void SystemFileDialog::beginSaveDir(StandardLocation openLocation)
 {
     beginOpen(openLocation, QFileDialog::AcceptSave, QFileDialog::Directory);
 }
 
-void AdvancedFileDialog::close()
+void SystemFileDialog::close()
 {
     if(m_dialog && m_dialog->isVisible()) {
         m_dialog->reject();
     }
 }
 
-bool AdvancedFileDialog::isOpen() const
+bool SystemFileDialog::isOpen() const
 {
     return m_dialog;
 }
 
-QUrl AdvancedFileDialog::fileUrl() const
+QUrl SystemFileDialog::fileUrl() const
 {
     return fileUrls().isEmpty() ? QUrl() : fileUrls().at(0);
 }
 
-QList<QUrl> AdvancedFileDialog::fileUrls() const
+QList<QUrl> SystemFileDialog::fileUrls() const
 {
     return m_dialog ? m_dialog->selectedUrls() : QList<QUrl>();
 }
 
-QString AdvancedFileDialog::selectedNameFilter() const
+QString SystemFileDialog::selectedNameFilter() const
 {
     return m_dialog ? m_dialog->selectedNameFilter() : QString();
 }
 
-void AdvancedFileDialog::onFileDialogAccepted()
+void SystemFileDialog::onFileDialogAccepted()
 {
     emit accepted();
 }
 
-void AdvancedFileDialog::onFileDialogFinished()
+void SystemFileDialog::onFileDialogFinished()
 {
     emit finished();
     disconnect();
 }
 
-QString AdvancedFileDialog::standardLocationPath(StandardLocation location)
+QString SystemFileDialog::standardLocationPath(StandardLocation location)
 {
     if(location == HomeLocation) {
         return QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
@@ -93,15 +93,15 @@ QString AdvancedFileDialog::standardLocationPath(StandardLocation location)
     }
 }
 
-void AdvancedFileDialog::beginOpen(StandardLocation openLocation, int acceptMode, int fileMode, const QStringList &nameFilters, const QString &defaultFileName)
+void SystemFileDialog::beginOpen(StandardLocation openLocation, int acceptMode, int fileMode, const QStringList &nameFilters, const QString &defaultFileName)
 {
     if(m_dialog) {
         m_dialog->deleteLater();
     }
 
     m_dialog = new QFileDialog();
-    connect(m_dialog, &QFileDialog::accepted, this, &AdvancedFileDialog::onFileDialogAccepted);
-    connect(m_dialog, &QFileDialog::finished, this, &AdvancedFileDialog::onFileDialogFinished);
+    connect(m_dialog, &QFileDialog::accepted, this, &SystemFileDialog::onFileDialogAccepted);
+    connect(m_dialog, &QFileDialog::finished, this, &SystemFileDialog::onFileDialogFinished);
 
     m_dialog->setFileMode(static_cast<QFileDialog::FileMode>(fileMode));
     m_dialog->setAcceptMode(static_cast<QFileDialog::AcceptMode>(acceptMode));

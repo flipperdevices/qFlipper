@@ -223,13 +223,13 @@ Item {
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-upload.svg"
 
         onTriggered: {
-            AdvancedFileDialog.accepted.connect(function() {
+            SystemFileDialog.accepted.connect(function() {
                 const doUpload = function() {
-                    Backend.fileManager.uploadTo(delegate.fileName, AdvancedFileDialog.fileUrls);
+                    Backend.fileManager.uploadTo(delegate.fileName, SystemFileDialog.fileUrls);
                 };
 
-                if(Backend.fileManager.isTooLarge(AdvancedFileDialog.fileUrls)) {
-                    const isMultiple = AdvancedFileDialog.fileUrls.length > 1;
+                if(Backend.fileManager.isTooLarge(SystemFileDialog.fileUrls)) {
+                    const isMultiple = SystemFileDialog.fileUrls.length > 1;
                     const msgObj = {
                         title: qsTr("Warning"),
                         message: qsTr("Selected %1 too large.\nUpload anyway?").arg(isMultiple ? qsTr("files are") : qsTr("file is")),
@@ -244,7 +244,7 @@ Item {
                 }
             });
 
-            AdvancedFileDialog.beginOpenFiles(AdvancedFileDialog.HomeLocation, [ "All files (*)" ]);
+            SystemFileDialog.beginOpenFiles(SystemFileDialog.HomeLocation, [ "All files (*)" ]);
         }
     }
 
@@ -254,14 +254,14 @@ Item {
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-download.svg"
 
         onTriggered: {
-            AdvancedFileDialog.accepted.connect(function() {
-                Backend.fileManager.download(delegate.fileName, AdvancedFileDialog.fileUrls[0], delegate.isDirectory);
+            SystemFileDialog.accepted.connect(function() {
+                Backend.fileManager.download(delegate.fileName, SystemFileDialog.fileUrls[0], delegate.isDirectory);
             });
 
             if(delegate.isDirectory) {
-                AdvancedFileDialog.beginSaveDir(AdvancedFileDialog.DownloadsLocation);
+                SystemFileDialog.beginSaveDir(SystemFileDialog.DownloadsLocation);
             } else {
-                AdvancedFileDialog.beginSaveFile(AdvancedFileDialog.DownloadsLocation, [ "All files (*)" ], delegate.fileName);
+                SystemFileDialog.beginSaveFile(SystemFileDialog.DownloadsLocation, [ "All files (*)" ], delegate.fileName);
             }
         }
     }

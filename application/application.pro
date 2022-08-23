@@ -8,7 +8,6 @@ DESTDIR = $$OUT_PWD/..
 CONFIG += c++11
 
 SOURCES += \
-        advancedfiledialog.cpp \
         application.cpp \
         applicationupdater.cpp \
         applicationupdateregistry.cpp \
@@ -19,7 +18,8 @@ SOURCES += \
         qtsingleapplication/qtlockedfile_win.cpp \
         qtsingleapplication/qtsingleapplication.cpp \
         qtsingleapplication/qtsinglecoreapplication.cpp \
-        screencanvas.cpp
+        screencanvas.cpp \
+        systemfiledialog.cpp
 
 RESOURCES += qml.qrc
 
@@ -79,7 +79,6 @@ DEPENDPATH += \
     $$PWD/../backend
 
 HEADERS += \
-    advancedfiledialog.h \
     application.h \
     applicationupdater.h \
     applicationupdateregistry.h \
@@ -87,7 +86,8 @@ HEADERS += \
     qtsingleapplication/qtlockedfile.h \
     qtsingleapplication/qtsingleapplication.h \
     qtsingleapplication/qtsinglecoreapplication.h \
-    screencanvas.h
+    screencanvas.h \
+    systemfiledialog.h
 
 DISTFILES +=
 

@@ -196,7 +196,7 @@ void Application::initQmlTypes()
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Preferences", globalPrefs);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Backend", &m_backend);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "App", this);
-    qmlRegisterSingletonInstance("QFlipper", 1, 0, "AdvancedFileDialog", &m_fileDialog);
+    qmlRegisterSingletonInstance("QFlipper", 1, 0, "SystemFileDialog", &m_fileDialog);
 }
 
 void Application::initImports()

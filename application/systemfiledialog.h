@@ -5,7 +5,7 @@
 
 class QFileDialog;
 
-class AdvancedFileDialog: public QObject
+class SystemFileDialog: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString selectedNameFilter READ selectedNameFilter CONSTANT)
@@ -23,15 +23,15 @@ public:
 
     Q_ENUM(StandardLocation)
 
-    AdvancedFileDialog();
-    ~AdvancedFileDialog();
+    SystemFileDialog();
+    ~SystemFileDialog();
 
-    Q_INVOKABLE void beginOpenFiles(AdvancedFileDialog::StandardLocation openLocation, const QStringList &nameFilters);
-    Q_INVOKABLE void beginOpenFile(AdvancedFileDialog::StandardLocation openLocation, const QStringList &nameFilters);
-    Q_INVOKABLE void beginOpenDir(AdvancedFileDialog::StandardLocation openLocation);
+    Q_INVOKABLE void beginOpenFiles(SystemFileDialog::StandardLocation openLocation, const QStringList &nameFilters);
+    Q_INVOKABLE void beginOpenFile(SystemFileDialog::StandardLocation openLocation, const QStringList &nameFilters);
+    Q_INVOKABLE void beginOpenDir(SystemFileDialog::StandardLocation openLocation);
 
-    Q_INVOKABLE void beginSaveFile(AdvancedFileDialog::StandardLocation openLocation, const QStringList &nameFilters, const QString &defaultFileName);
-    Q_INVOKABLE void beginSaveDir(AdvancedFileDialog::StandardLocation openLocation);
+    Q_INVOKABLE void beginSaveFile(SystemFileDialog::StandardLocation openLocation, const QStringList &nameFilters, const QString &defaultFileName);
+    Q_INVOKABLE void beginSaveDir(SystemFileDialog::StandardLocation openLocation);
 
     Q_INVOKABLE void close();
 

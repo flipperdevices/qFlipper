@@ -234,11 +234,11 @@ Item {
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-upload.svg"
 
         onTriggered: {
-            AdvancedFileDialog.accepted.connect(function() {
-                control.uploadUrls(AdvancedFileDialog.fileUrls);
+            SystemFileDialog.accepted.connect(function() {
+                control.uploadUrls(SystemFileDialog.fileUrls);
             });
 
-            AdvancedFileDialog.beginOpenFiles(AdvancedFileDialog.HomeLocation, [ "All files (*)" ]);
+            SystemFileDialog.beginOpenFiles(SystemFileDialog.HomeLocation, [ "All files (*)" ]);
         }
     }
 
