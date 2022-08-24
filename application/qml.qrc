@@ -143,5 +143,7 @@
         <file>styles/DefaultAmber/TabButton.qml</file>
         <file>styles/DefaultAmber/ToolTip.qml</file>
         <file>imports/Primitives/ColorSet.qml</file>
+        <file>components/WindowShadow.qml</file>
+        <file>assets/gfx/effects/window-shadow.png</file>
     </qresource>
 </RCC>

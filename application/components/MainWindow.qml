@@ -101,6 +101,15 @@ Item {
         parent: bg
     }
 
+    WindowShadow {
+        id: shadow
+        anchors.fill: mainWindow
+        anchors.margins: -mainWindow.shadowSize
+        anchors.topMargin: -(mainWindow.shadowSize - mainWindow.shadowOffset)
+        anchors.bottomMargin: -(mainWindow.shadowSize + mainWindow.shadowOffset)
+        opacity: 0.75
+    }
+
     Rectangle {
         id: blackBorder
         anchors.fill: parent
