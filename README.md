@@ -31,7 +31,7 @@ git clone https://github.com/flipperdevices/qFlipper.git --recursive
 
 Build requirements:
 - MS Visual Studio 2019 or newer
-- Qt (MSVC build) >= 5.15.0
+- Qt5 (MSVC build) >= 5.15.0 or Qt6 >= 6.3.0
 - NSIS (to generate the installer)
 
 Edit `build_windows.bat` to adjust to your build environment and then run:
@@ -50,7 +50,7 @@ docker-compose exec dev ./build_linux.sh
 
 #### Standalone build
 Build requirements:
-- Qt >= 5.15.0
+- Qt5 >= 5.15.0 or Qt6 >= 6.3.0
 - libusb >= 1.0.16
 ```sh
 mkdir build && cd build
@@ -65,7 +65,7 @@ In this case, it is possible to disable the built-in application update feature 
 Build requirements:
 
 - Xcode or command line tools
-- Qt >= 5.15.0
+- Qt5 >= 5.15.0 or Qt6 >= 6.3.0
 - libusb
 
 If you want to sign binaries, set `SIGNING_KEY` environment variable:
