@@ -47,7 +47,7 @@ Application::Application(int &argc, char **argv):
     qCInfo(LOG_APP).noquote() << APP_NAME << "version" << APP_VERSION << "commit"
                               << APP_COMMIT << QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).toString(Qt::ISODate);
 
-    qCInfo(LOG_APP).noquote() << "OS info:" << QSysInfo::prettyProductName() << QSysInfo::productVersion() << QSysInfo::kernelVersion();
+    qCInfo(LOG_APP).noquote() << "OS info:" << QSysInfo::prettyProductName() << QSysInfo::productVersion() << QSysInfo::kernelVersion() << "Qt" << qVersion();
 
     if(m_isDeveloperMode) {
         qCCritical(LOG_APP) << "Developer mode is enabled! Please be careful.";
