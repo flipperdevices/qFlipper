@@ -106,15 +106,22 @@ void SystemFileDialog::beginOpen(StandardLocation openLocation, int acceptMode, 
     m_dialog->setFileMode(static_cast<QFileDialog::FileMode>(fileMode));
     m_dialog->setAcceptMode(static_cast<QFileDialog::AcceptMode>(acceptMode));
     m_dialog->setDirectory(standardLocationPath(openLocation));
+
+#ifndef Q_OS_WINDOWS
+    // This code crashes on Windows for some reason
     m_dialog->setOption(QFileDialog::ShowDirsOnly, fileMode == QFileDialog::Directory);
+#endif
 
     if(!defaultFileName.isEmpty()) {
         m_dialog->selectFile(defaultFileName);
     }
 
+#ifndef Q_OS_MAC
+    // This code crashes on Mac for some reason
     if(!nameFilters.isEmpty()) {
         m_dialog->setNameFilters(nameFilters);
     }
+#endif
 
     m_dialog->exec();
 }
