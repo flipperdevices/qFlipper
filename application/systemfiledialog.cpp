@@ -37,7 +37,7 @@ void SystemFileDialog::beginSaveFile(StandardLocation openLocation, const QStrin
 
 void SystemFileDialog::beginSaveDir(StandardLocation openLocation)
 {
-    beginOpen(openLocation, QFileDialog::AcceptSave, QFileDialog::Directory);
+    beginOpen(openLocation, QFileDialog::AcceptOpen, QFileDialog::Directory);
 }
 
 void SystemFileDialog::close()
