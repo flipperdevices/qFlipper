@@ -62,8 +62,8 @@ Item {
 
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-                onClicked: delegate.rightClick(mouse);
-                onDoubleClicked: delegate.doubleClick(mouse)
+                onClicked: function(mouse) {delegate.rightClick(mouse);}
+                onDoubleClicked: function(mouse) {delegate.doubleClick(mouse);}
             }
 
             IconImage {
@@ -115,8 +115,8 @@ Item {
 
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-                onClicked: delegate.rightClick(mouse);
-                onDoubleClicked: delegate.doubleClick(mouse)
+                onClicked: function(mouse) {delegate.rightClick(mouse);}
+                onDoubleClicked: function(mouse) {delegate.doubleClick(mouse);}
             }
 
             Text {
@@ -223,18 +223,13 @@ Item {
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-upload.svg"
 
         onTriggered: {
-            const onFinished = function() {
-                AdvancedFileDialog.accepted.disconnect(onAccepted);
-                AdvancedFileDialog.finished.disconnect(onFinished);
-            };
-
-            const onAccepted = function() {
+            SystemFileDialog.accepted.connect(function() {
                 const doUpload = function() {
-                    Backend.fileManager.uploadTo(delegate.fileName, AdvancedFileDialog.fileUrls);
+                    Backend.fileManager.uploadTo(delegate.fileName, SystemFileDialog.fileUrls);
                 };
 
-                if(Backend.fileManager.isTooLarge(AdvancedFileDialog.fileUrls)) {
-                    const isMultiple = AdvancedFileDialog.fileUrls.length > 1;
+                if(Backend.fileManager.isTooLarge(SystemFileDialog.fileUrls)) {
+                    const isMultiple = SystemFileDialog.fileUrls.length > 1;
                     const msgObj = {
                         title: qsTr("Warning"),
                         message: qsTr("Selected %1 too large.\nUpload anyway?").arg(isMultiple ? qsTr("files are") : qsTr("file is")),
@@ -247,20 +242,9 @@ Item {
                 } else {
                     doUpload();
                 }
-            };
+            });
 
-            AdvancedFileDialog.accepted.connect(onAccepted);
-            AdvancedFileDialog.finished.connect(onFinished);
-
-            AdvancedFileDialog.defaultFileName = "";
-            AdvancedFileDialog.title = qsTr("Select files to upload");
-            AdvancedFileDialog.nameFilters = [ "All files (*)" ];
-            AdvancedFileDialog.openLocation = AdvancedFileDialog.HomeLocation;
-            AdvancedFileDialog.selectExisting = true;
-            AdvancedFileDialog.selectMultiple = true;
-            AdvancedFileDialog.selectFolder = false;
-
-            AdvancedFileDialog.exec();
+            SystemFileDialog.beginOpenFiles(SystemFileDialog.HomeLocation, [ "All files (*)" ]);
         }
     }
 
@@ -270,27 +254,15 @@ Item {
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-download.svg"
 
         onTriggered: {
-            const onFinished = function() {
-                AdvancedFileDialog.accepted.disconnect(onAccepted);
-                AdvancedFileDialog.finished.disconnect(onFinished);
-            };
+            SystemFileDialog.accepted.connect(function() {
+                Backend.fileManager.download(delegate.fileName, SystemFileDialog.fileUrls[0], delegate.isDirectory);
+            });
 
-            const onAccepted = function() {
-                Backend.fileManager.download(delegate.fileName, AdvancedFileDialog.fileUrls[0], delegate.isDirectory);
-            };
-
-            AdvancedFileDialog.accepted.connect(onAccepted);
-            AdvancedFileDialog.finished.connect(onFinished);
-
-            AdvancedFileDialog.defaultFileName = delegate.isDirectory ? "" : delegate.fileName;
-            AdvancedFileDialog.title = qsTr("Select download location");
-            AdvancedFileDialog.nameFilters = [ "All files (*)" ];
-            AdvancedFileDialog.openLocation = AdvancedFileDialog.DownloadsLocation;
-            AdvancedFileDialog.selectMultiple = false;
-            AdvancedFileDialog.selectExisting = delegate.isDirectory;
-            AdvancedFileDialog.selectFolder = delegate.isDirectory;
-
-            AdvancedFileDialog.exec();
+            if(delegate.isDirectory) {
+                SystemFileDialog.beginSaveDir(SystemFileDialog.DownloadsLocation);
+            } else {
+                SystemFileDialog.beginSaveFile(SystemFileDialog.DownloadsLocation, [ "All files (*)" ], delegate.fileName);
+            }
         }
     }
 

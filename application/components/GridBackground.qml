@@ -1,5 +1,4 @@
 import QtQuick 2.15
-import QtGraphicalEffects 1.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.impl 2.15
 
@@ -18,7 +17,6 @@ Rectangle {
     }
 
     Item {
-        id: bounds
         anchors.fill: parent
         anchors.margins: container.border.width
         clip: true
@@ -42,7 +40,7 @@ Rectangle {
             duration: 4000
 
             from: -scanline.height
-            to: bounds.height
+            to: container.height
 
             loops: Animation.Infinite
             easing.type: Easing.Linear

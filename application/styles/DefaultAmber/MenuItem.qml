@@ -41,20 +41,21 @@ import QtQuick.Templates 2.15 as T
 import QtQml.Models 2.15
 
 import Theme 1.0
+import Primitives 1.0
 
 T.MenuItem {
     id: control
 
     readonly property bool destructive : text.startsWith("!")
 
-    property var foregroundColor: ColorGroup {
+    property var foregroundColor: ColorSet {
         normal: destructive ? Theme.color.lightred4 : Theme.color.lightorange2
         hover: destructive ? Theme.color.lightred4 : Theme.color.lightorange1
         down: destructive ? Theme.color.darkred1 : Theme.color.darkorange1
         disabled: destructive ? Theme.color.mediumred1 : Theme.color.mediumorange1
     }
 
-    property var backgroundColor: ColorGroup {
+    property var backgroundColor: ColorSet {
         normal: Theme.color.darkorange1
         hover: destructive ? Theme.color.mediumred2 : Theme.color.mediumorange2
         down: destructive ? Theme.color.lightred4 : Theme.color.lightorange2

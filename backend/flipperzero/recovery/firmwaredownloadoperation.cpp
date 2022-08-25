@@ -45,5 +45,9 @@ void FirmwareDownloadOperation::downloadFirmware()
         watcher->deleteLater();
     });
 
+#if QT_VERSION < 0x060000
     watcher->setFuture(QtConcurrent::run(recovery(), &Recovery::downloadFirmware, m_file));
+#else
+    watcher->setFuture(QtConcurrent::run(&Recovery::downloadFirmware, recovery(), m_file));
+#endif
 }

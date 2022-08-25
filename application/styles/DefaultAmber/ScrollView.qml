@@ -34,10 +34,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.12
-import QtQuick.Controls 2.12
-import QtQuick.Controls.impl 2.12
-import QtQuick.Templates 2.12 as T
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Controls.impl 2.15
+import QtQuick.Templates 2.15 as T
 
 import Theme 1.0
 
@@ -51,6 +51,7 @@ T.ScrollView {
     padding: 10
 
     background: Rectangle {
+        id: bg
         radius: 7
         color: Theme.color.transparent
         border.color: Theme.color.mediumorange3
@@ -61,7 +62,7 @@ T.ScrollView {
     ScrollBar.vertical: ScrollBar {
         parent: control
         x: control.mirrored ? control.padding + control.background.border.width :
-                              control.width - width - control.padding - control.background.border.width
+                              control.width - width - control.padding - bg.border.width
         y: control.topPadding
         height: control.availableHeight
         active: control.ScrollBar.horizontal.active
@@ -70,7 +71,7 @@ T.ScrollView {
     ScrollBar.horizontal: ScrollBar {
         parent: control
         x: control.leftPadding
-        y: control.height - height - control.padding - control.background.border.width
+        y: control.height - height - control.padding - bg.border.width
         width: control.availableWidth
         active: control.ScrollBar.vertical.active
     }

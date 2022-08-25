@@ -139,7 +139,7 @@ Item {
         onRepeat: inputEvent(DirectionalKeypad.InputKey.Back, DirectionalKeypad.InputType.Repeat)
     }
 
-    Keys.onPressed: {
+    Keys.onPressed: function(event) {
         if(event.isAutoRepeat)
             return;
 
@@ -152,7 +152,7 @@ Item {
         event.accepted = true;
     }
 
-    Keys.onReleased: {
+    Keys.onReleased: function(event) {
         if(event.isAutoRepeat)
             return;
 

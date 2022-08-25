@@ -21,11 +21,6 @@ Window {
 
     color: "transparent"
 
-    DragHandler {
-        onActiveChanged: if(active) { root.startSystemMove(); }
-        target: null
-    }
-
     MainWindow {
         id: mainWindow
 

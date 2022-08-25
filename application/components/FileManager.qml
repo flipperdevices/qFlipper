@@ -158,7 +158,7 @@ Item {
                     anchors.fill: parent
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-                    onClicked: {
+                    onClicked: function(mouse) {
                         fileView.currentIndex = -1;
                         forceActiveFocus(Qt.MouseFocusReason);
 
@@ -179,7 +179,7 @@ Item {
     DropArea {
         enabled: !Backend.fileManager.isRoot
         anchors.fill: parent
-        onDropped: {
+        onDropped: function(drop) {
             if(drop.source || drop.proposedAction !== Qt.CopyAction) {
                 return;
             }
@@ -234,27 +234,11 @@ Item {
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-upload.svg"
 
         onTriggered: {
-            const onFinished = function() {
-                AdvancedFileDialog.accepted.disconnect(onAccepted);
-                AdvancedFileDialog.finished.disconnect(onFinished);
-            };
+            SystemFileDialog.accepted.connect(function() {
+                control.uploadUrls(SystemFileDialog.fileUrls);
+            });
 
-            const onAccepted = function() {
-                control.uploadUrls(AdvancedFileDialog.fileUrls);
-            };
-
-            AdvancedFileDialog.accepted.connect(onAccepted);
-            AdvancedFileDialog.finished.connect(onFinished);
-
-            AdvancedFileDialog.defaultFileName = "";
-            AdvancedFileDialog.title = qsTr("Select files to upload");
-            AdvancedFileDialog.nameFilters = [ "All files (*)" ];
-            AdvancedFileDialog.openLocation = AdvancedFileDialog.HomeLocation;
-            AdvancedFileDialog.selectExisting = true;
-            AdvancedFileDialog.selectMultiple = true;
-            AdvancedFileDialog.selectFolder = false;
-
-            AdvancedFileDialog.exec();
+            SystemFileDialog.beginOpenFiles(SystemFileDialog.HomeLocation, [ "All files (*)" ]);
         }
     }
 

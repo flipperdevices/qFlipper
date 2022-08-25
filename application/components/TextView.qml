@@ -48,7 +48,9 @@ Item {
         anchors.fill: parent
         cursorShape: Qt.IBeamCursor
         acceptedButtons: Qt.RightButton
-        onClicked: if(control.menu && mouse.button === Qt.RightButton) control.menu.popup()
+        onClicked: function(mouse) {
+            if(control.menu && mouse.button === Qt.RightButton) control.menu.popup();
+        }
     }
 
     onVisibleChanged: if(visible) scrollToBottom()

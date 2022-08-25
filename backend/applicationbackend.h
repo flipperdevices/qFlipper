@@ -1,11 +1,10 @@
 #pragma once
 
 #include <QObject>
+#include <QAbstractListModel>
 
 #include "backenderror.h"
 #include "flipperupdates.h"
-
-class QAbstractListModel;
 
 namespace Flipper {
 class FlipperZero;
@@ -18,6 +17,13 @@ class FileManager;
 class ScreenStreamer;
 class VirtualDisplay;
 }}
+
+#if QT_VERSION >= 0x060000
+Q_MOC_INCLUDE("flipperzero/devicestate.h")
+Q_MOC_INCLUDE("flipperzero/screenstreamer.h")
+Q_MOC_INCLUDE("flipperzero/virtualdisplay.h")
+Q_MOC_INCLUDE("flipperzero/filemanager.h")
+#endif
 
 class ApplicationBackend : public QObject
 {
@@ -144,7 +150,9 @@ private slots:
 private:
     static void initLibraryPaths();
     static void registerMetaTypes();
+#if QT_VERSION < 0x060000
     static void registerComparators();
+#endif
 
     void initConnections();
     void beginUpdate();

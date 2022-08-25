@@ -4,10 +4,8 @@
         <file>assets/fonts/Born2bSportyV2.ttf</file>
         <file>assets/fonts/haxrcorp-4089.ttf</file>
         <file>imports/Theme/Theme.qml</file>
-        <file>style/Button.qml</file>
         <file>imports/Theme/qmldir</file>
         <file>assets/gfx/images/flipper.svg</file>
-        <file>style/ColorGroup.qml</file>
         <file>components/MainButton.qml</file>
         <file>components/GridBackground.qml</file>
         <file>assets/gfx/images/typec.svg</file>
@@ -18,22 +16,17 @@
         <file>components/LinkButton.qml</file>
         <file>components/TransparentLabel.qml</file>
         <file>assets/gfx/symbolic/usb-connected.svg</file>
-        <file>style/TabButton.qml</file>
-        <file>style/TabBar.qml</file>
         <file>assets/gfx/symbolic/info.svg</file>
         <file>assets/gfx/symbolic/wrench.svg</file>
         <file>components/TabPane.qml</file>
         <file>components/TextLabel.qml</file>
         <file>components/DeviceInfo.qml</file>
         <file>components/DeviceActions.qml</file>
-        <file>style/ComboBox.qml</file>
-        <file>style/ToolTip.qml</file>
         <file>components/SmallButton.qml</file>
         <file>assets/gfx/symbolic/trashcan.svg</file>
         <file>assets/gfx/symbolic/update-symbolic.svg</file>
         <file>assets/gfx/symbolic/backup-symbolic.svg</file>
         <file>assets/gfx/symbolic/restore-symbolic.svg</file>
-        <file>style/IconLabelEx.qml</file>
         <file>components/SmallButtonRed.qml</file>
         <file>components/WindowControls.qml</file>
         <file>assets/gfx/controls/mac/close.svg</file>
@@ -48,14 +41,9 @@
         <file>assets/gfx/controls/windows/minimize_down.svg</file>
         <file>assets/gfx/controls/windows/minimize_hover.svg</file>
         <file>assets/gfx/controls/windows/minimize.svg</file>
-        <file>style/ScrollBar.qml</file>
-        <file>style/ScrollView.qml</file>
         <file>components/MainWindow.qml</file>
-        <file>style/Dialog.qml</file>
-        <file>style/DialogButtonBox.qml</file>
         <file>components/ChannelDelegate.qml</file>
         <file>components/UpdateOverlay.qml</file>
-        <file>style/ProgressBar.qml</file>
         <file>components/CustomDialog.qml</file>
         <file>components/ConfirmationDialog.qml</file>
         <file>assets/gfx/symbolic/info-small.svg</file>
@@ -84,9 +72,6 @@
         <file>assets/fonts/ShareTechMono-Regular.ttf</file>
         <file>components/TextView.qml</file>
         <file>components/AbstractOverlay.qml</file>
-        <file>style/Menu.qml</file>
-        <file>style/MenuItem.qml</file>
-        <file>style/MenuSeparator.qml</file>
         <file>imports/Primitives/qmldir</file>
         <file>imports/Primitives/AdvancedRectangle.qml</file>
         <file>assets/gfx/symbolic/save-symbolic.svg</file>
@@ -132,7 +117,6 @@
         <file>assets/gfx/symbolic/filemgr/location-internal.svg</file>
         <file>assets/gfx/symbolic/filemgr/location-sdcard.svg</file>
         <file>components/ProgressDialog.qml</file>
-        <file>style/Switch.qml</file>
         <file>imports/Misc/qmldir</file>
         <file>imports/Misc/FileTypes.qml</file>
         <file>imports/Misc/ErrorStrings.qml</file>
@@ -142,5 +126,24 @@
         <file>assets/gfx/images/streaming-help-mac.svg</file>
         <file>components/SDWarningDialog.qml</file>
         <file>assets/gfx/images/warning-no-sdcard.svg</file>
+        <file>styles/DefaultAmber/Button.qml</file>
+        <file>styles/DefaultAmber/ComboBox.qml</file>
+        <file>styles/DefaultAmber/Dialog.qml</file>
+        <file>styles/DefaultAmber/DialogButtonBox.qml</file>
+        <file>styles/DefaultAmber/IconLabelEx.qml</file>
+        <file>styles/DefaultAmber/Menu.qml</file>
+        <file>styles/DefaultAmber/MenuItem.qml</file>
+        <file>styles/DefaultAmber/MenuSeparator.qml</file>
+        <file>styles/DefaultAmber/ProgressBar.qml</file>
+        <file>styles/DefaultAmber/qmldir</file>
+        <file>styles/DefaultAmber/ScrollBar.qml</file>
+        <file>styles/DefaultAmber/ScrollView.qml</file>
+        <file>styles/DefaultAmber/Switch.qml</file>
+        <file>styles/DefaultAmber/TabBar.qml</file>
+        <file>styles/DefaultAmber/TabButton.qml</file>
+        <file>styles/DefaultAmber/ToolTip.qml</file>
+        <file>imports/Primitives/ColorSet.qml</file>
+        <file>components/WindowShadow.qml</file>
+        <file>assets/gfx/effects/window-shadow.png</file>
     </qresource>
 </RCC>

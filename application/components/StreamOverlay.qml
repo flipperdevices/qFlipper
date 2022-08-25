@@ -2,7 +2,6 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.impl 2.15
 import QtQuick.Layouts 1.15
-import QtQuick.Dialogs 1.2
 
 import QFlipper 1.0
 import Theme 1.0
@@ -78,7 +77,7 @@ AbstractOverlay {
         x: 590
         y: 52
 
-        onInputEvent: {
+        onInputEvent: function(key, type) {
             Backend.screenStreamer.sendInputEvent(key, type);
         }
 
@@ -128,37 +127,23 @@ AbstractOverlay {
         onTriggered: {
             Backend.screenStreamer.isPaused = true;
 
-            const onFinished = function() {
+            SystemFileDialog.finished.connect(function() {
                 Backend.screenStreamer.isPaused = false;
-                AdvancedFileDialog.accepted.disconnect(onAccepted);
-                AdvancedFileDialog.finished.disconnect(onFinished);
-            };
+            });
 
-            const onAccepted = function() {
-                const ext = AdvancedFileDialog.selectedNameFilter.match("\\.\\w+")[0];
-                let strurl = AdvancedFileDialog.fileUrl.toString();
+            SystemFileDialog.accepted.connect(function() {
+                const ext = SystemFileDialog.selectedNameFilter.match("\\.\\w+")[0];
+                let strurl = SystemFileDialog.fileUrl.toString();
 
                 if(!strurl.endsWith(ext)) {
                     strurl += ext;
                 }
 
                 canvas.saveImage(Qt.resolvedUrl(strurl), 4);
-            };
+            });
 
-            AdvancedFileDialog.accepted.connect(onAccepted);
-            AdvancedFileDialog.finished.connect(onFinished);
-
-            const date = new Date();
-
-            AdvancedFileDialog.defaultFileName = "Screenshot-%1.png".arg(Qt.formatDateTime(date, "yyyyMMdd-hhmmss"));
-            AdvancedFileDialog.title = qsTr("Please choose a file");
-            AdvancedFileDialog.nameFilters = ["PNG images (*.png)", "JPEG images (*.jpg)"];
-            AdvancedFileDialog.openLocation = AdvancedFileDialog.PicturesLocation;
-            AdvancedFileDialog.selectMultiple = false;
-            AdvancedFileDialog.selectExisting = false;
-            AdvancedFileDialog.selectFolder = false;
-
-            AdvancedFileDialog.exec();
+            const defaultName = "Screenshot-%1.png".arg(Qt.formatDateTime(new Date(), "yyyyMMdd-hhmmss"));
+            SystemFileDialog.beginSaveFile(SystemFileDialog.PicturesLocation, ["PNG images (*.png)", "JPEG images (*.jpg)"], defaultName);
         }
     }
 

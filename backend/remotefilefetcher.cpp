@@ -41,9 +41,16 @@ bool RemoteFileFetcher::fetch(const QString &remoteUrl, QIODevice *outputFile)
         return false;
     }
 
+    const auto onReplyReadyRead = [=]() {
+        outputFile->write(reply->readAll());
+    };
+
     connect(reply, &QNetworkReply::finished, this, [=]() {
-        reply->deleteLater();
+        // In case there was any leftover data
+        onReplyReadyRead();
+
         outputFile->close();
+        reply->deleteLater();
 
         if(reply->error() != QNetworkReply::NoError) {
             setError(BackendError::InternetError, QStringLiteral("Network error: %1").arg(reply->errorString()));
@@ -67,10 +74,7 @@ bool RemoteFileFetcher::fetch(const QString &remoteUrl, QIODevice *outputFile)
         emit finished();
     });
 
-    connect(reply, &QNetworkReply::readyRead, this, [=]() {
-        outputFile->write(reply->readAll());
-    });
-
+    connect(reply, &QNetworkReply::readyRead, this, onReplyReadyRead);
     connect(reply, &QNetworkReply::downloadProgress, this, &RemoteFileFetcher::onDownloadProgress);
 
     return true;

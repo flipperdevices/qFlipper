@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
-import QtQuick.Dialogs 1.2
 import QtQml.Models 2.15
 
 import Theme 1.0
@@ -29,16 +28,6 @@ AbstractOverlay {
             text: qsTr("Developer mode. Use with caution!")
             visible: parent.hovered
         }
-    }
-
-    FileDialog {
-        id: fileDialog
-        folder: shortcuts.home
-        selectExisting: true
-        selectMultiple: false
-
-        property var onAcceptedFunc
-        onAccepted: onAcceptedFunc()
     }
 
     ConfirmationDialog {
@@ -240,7 +229,7 @@ AbstractOverlay {
             }
 
             implicitWidth: 300
-            visible: parent.hovered && text.length != 0
+            visible: parent.hovered && text.length !== 0
         }
     }
 
@@ -370,31 +359,25 @@ AbstractOverlay {
     }
 
     function installFromFile() {
-        fileDialog.selectFolder = false;
-        fileDialog.title = qsTr("Please choose a firmware file");
-        fileDialog.nameFilters = ["Firmware files (*.dfu)", "All files (*.*)"];
-        fileDialog.onAcceptedFunc = function() {
+        SystemFileDialog.accepted.connect(function() {
             const messageObj = {
                 title : qsTr("Install from file?"),
                 customText: qsTr("Install"),
-                message: qsTr("Firmware from file %1<br/>will be installed").arg(baseName(fileDialog.fileUrl))
+                message: qsTr("Firmware from file %1<br/>will be installed").arg(baseName(SystemFileDialog.fileUrl))
             };
 
             const actionFunc = function() {
-                Backend.installFirmware(fileDialog.fileUrl);
+                Backend.installFirmware(SystemFileDialog.fileUrl);
             }
 
             confirmationDialog.openWithMessage(actionFunc, messageObj);
-        };
+        });
 
-        fileDialog.open();
+        SystemFileDialog.beginOpenFile(SystemFileDialog.DownloadsLocation, ["Firmware files (*.dfu)", "All files (*.*)"]);
     }
 
     function backupDevice() {
-        fileDialog.selectFolder = true;
-        fileDialog.title = qsTr("Please choose backup directory");
-
-        fileDialog.onAcceptedFunc = function() {
+        SystemFileDialog.accepted.connect(function() {
             const messageObj = {
                 title : qsTr("Backup device?"),
                 customText: qsTr("Backup"),
@@ -402,20 +385,17 @@ AbstractOverlay {
             };
 
             const actionFunc = function() {
-                Backend.createBackup(fileDialog.fileUrl);
+                Backend.createBackup(SystemFileDialog.fileUrl);
             }
 
             confirmationDialog.openWithMessage(actionFunc, messageObj);
-        }
+        });
 
-        fileDialog.open();
+        SystemFileDialog.beginSaveDir(SystemFileDialog.DownloadsLocation);
     }
 
     function restoreDevice() {
-        fileDialog.selectFolder = true;
-        fileDialog.title = qsTr("Please choose backup directory");
-
-        fileDialog.onAcceptedFunc = function() {
+        SystemFileDialog.accepted.connect(function() {
             const messageObj = {
                 title : qsTr("Restore backup?"),
                 customText: qsTr("Restore"),
@@ -423,13 +403,13 @@ AbstractOverlay {
             };
 
             const actionFunc = function() {
-                Backend.restoreBackup(fileDialog.fileUrl);
+                Backend.restoreBackup(SystemFileDialog.fileUrl);
             }
 
             confirmationDialog.openWithMessage(actionFunc, messageObj);
-        }
+        });
 
-        fileDialog.open();
+        SystemFileDialog.beginOpenDir(SystemFileDialog.DownloadsLocation);
     }
 
     function eraseDevice() {
@@ -461,10 +441,7 @@ AbstractOverlay {
     }
 
     function installWirelessStack() {
-        fileDialog.selectFolder = false;
-        fileDialog.title = qsTr("Please choose a firmware file");
-        fileDialog.nameFilters = ["Firmware files (*.bin)", "All files (*.*)"];
-        fileDialog.onAcceptedFunc = function() {
+        SystemFileDialog.accepted.connect(function() {
             const messageObj = {
                 title : qsTr("Install wireless stack?"),
                 customText: qsTr("Install"),
@@ -473,20 +450,17 @@ AbstractOverlay {
             };
 
             const actionFunc = function() {
-                Backend.installWirelessStack(fileDialog.fileUrl);
+                Backend.installWirelessStack(SystemFileDialog.fileUrl);
             }
 
             confirmationDialog.openWithMessage(actionFunc, messageObj);
-        };
+        });
 
-        fileDialog.open();
+        SystemFileDialog.beginOpenFile(SystemFileDialog.DownloadsLocation, ["Firmware files (*.bin)", "All files (*.*)"]);
     }
 
     function installFUSDangerDanger() {
-        fileDialog.selectFolder = false;
-        fileDialog.title = qsTr("Please choose a firmware file");
-        fileDialog.nameFilters = ["Firmware files (*.bin)", "All files (*.*)"];
-        fileDialog.onAcceptedFunc = function() {
+        SystemFileDialog.accepted.connect(function() {
             const messageObj = {
                 title : qsTr("Install FUS?"),
                 customText: qsTr("Install"),
@@ -495,13 +469,13 @@ AbstractOverlay {
             };
 
             const actionFunc = function() {
-                Backend.installFUS(fileDialog.fileUrl, 0x080ec00);
+                Backend.installFUS(SystemFileDialog.fileUrl, 0x080ec00);
             }
 
             confirmationDialog.openWithMessage(actionFunc, messageObj);
-        };
+        });
 
-        fileDialog.open();
+        SystemFileDialog.beginOpenFile(SystemFileDialog.DownloadsLocation, ["Firmware files (*.bin)", "All files (*.*)"]);
     }
 
     function baseName(fileUrl) {
@@ -524,10 +498,6 @@ AbstractOverlay {
 
         // Close dialog windows when Flipper was PIN locked/disconnected
         Backend.currentDeviceChanged.connect(function() {
-            // TODO: Port fileDialog to AdvancedFileDialog
-            if(fileDialog.visible) {
-                fileDialog.close();
-            }
             if(confirmationDialog.visible) {
                 confirmationDialog.close();
             }

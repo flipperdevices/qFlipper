@@ -2,7 +2,6 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
-import QtGraphicalEffects 1.15
 
 import Qt.labs.platform 1.1 as Pf
 
@@ -102,6 +101,15 @@ Item {
         parent: bg
     }
 
+    WindowShadow {
+        id: shadow
+        anchors.fill: mainWindow
+        anchors.margins: -mainWindow.shadowSize
+        anchors.topMargin: -(mainWindow.shadowSize - mainWindow.shadowOffset)
+        anchors.bottomMargin: -(mainWindow.shadowSize + mainWindow.shadowOffset)
+        opacity: 0.75
+    }
+
     Rectangle {
         id: blackBorder
         anchors.fill: parent
@@ -119,15 +127,6 @@ Item {
         color: "black"
         border.color: Theme.color.mediumorange3
         border.width: 2
-
-        layer.enabled: true
-        layer.effect: DropShadow {
-            radius: shadowSize
-            samples: shadowSize * 2 + 1
-            horizontalOffset: 0
-            verticalOffset: shadowOffset
-            color: Qt.rgba(0, 0, 0, 0.7)
-        }
     }
 
     WindowControls {
@@ -170,15 +169,7 @@ Item {
 
             text: App.version
 
-            MouseArea {
-                id: clicker
-                property bool checked: false
-                anchors.fill: parent
-
-                onClicked: {
-                    checked = !checked
-                }
-            }
+            // TODO: Implement copy version to clipboard
         }
 
         DeviceWidget {

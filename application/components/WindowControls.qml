@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
+import QtQuick.Window 2.15
 
 RowLayout {
     id: control
@@ -55,6 +56,11 @@ RowLayout {
         case WindowControls.Style.Windows: default:
            return 12;
         }
+    }
+
+    DragHandler {
+        target: null
+        onActiveChanged: if(active) control.Window.window.startSystemMove();
     }
 
     Item {

@@ -3,8 +3,7 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
 import Theme 1.0
-
-import "../style"
+import Primitives 1.0
 
 Button {
     id: control
@@ -14,14 +13,14 @@ Button {
 
     property color linkColor: Theme.color.lightorange2
 
-    foregroundColor: ColorGroup {
+    foregroundColor: ColorSet {
         normal: linkColor
         hover: Qt.lighter(linkColor, 1.2)
         down: linkColor
         disabled: Theme.color.mediumorange1
     }
 
-    backgroundColor: ColorGroup {
+    backgroundColor: ColorSet {
         normal: Theme.color.transparent
         hover: Theme.color.transparent
         down: Theme.color.transparent

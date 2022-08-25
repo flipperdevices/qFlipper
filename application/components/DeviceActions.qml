@@ -48,7 +48,7 @@ Item {
             Layout.fillWidth: true
 
             currentIndex: Backend.firmwareUpdateState !== Backend.Unknown ? find(Preferences.updateChannel) : -1
-            onActivated: Preferences.updateChannel = textAt(index);
+            onActivated: function(index) {Preferences.updateChannel = textAt(index);}
 
             ToolTip {
                 visible: parent.hovered

@@ -7,7 +7,7 @@
 
 #include "applicationupdater.h"
 #include "applicationbackend.h"
-#include "advancedfiledialog.h"
+#include "systemfiledialog.h"
 #include "applicationupdateregistry.h"
 
 class Application : public QtSingleApplication
@@ -70,7 +70,7 @@ private:
 
     ApplicationUpdater m_updater;
     ApplicationUpdateRegistry m_updateRegistry;
-    AdvancedFileDialog m_fileDialog;
+    SystemFileDialog m_fileDialog;
     ApplicationBackend m_backend;
     QQmlApplicationEngine m_engine;
 

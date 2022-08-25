@@ -138,8 +138,11 @@ void WirelessStackDownloadOperation::downloadWirelessStack()
 
         watcher->deleteLater();
     });
-
+#if QT_VERSION < 0x060000
     watcher->setFuture(QtConcurrent::run(recovery(), &Recovery::downloadWirelessStack, m_file, m_targetAddress));
+#else
+    watcher->setFuture(QtConcurrent::run(&Recovery::downloadWirelessStack, recovery(), m_file, m_targetAddress));
+#endif
 }
 
 void WirelessStackDownloadOperation::upgradeWirelessStack()

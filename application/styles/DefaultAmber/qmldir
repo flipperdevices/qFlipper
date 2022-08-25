@@ -1,0 +1,18 @@
+module DefaultAmber
+
+Button 2.15 Button.qml
+ColorGroup 2.15 ColorGroup.qml
+ComboBox 2.15 ComboBox.qml
+Dialog 2.15 Dialog.qml
+DialogButtonBox 2.15 DialogButtonBox.qml
+IconLabelEx 2.15 IconLabelEx.qml
+Menu 2.15 Menu.qml
+MenuItem 2.15 MenuItem.qml
+MenuSeparator 2.15 MenuSeparator.qml
+ProgressBar 2.15 ProgressBar.qml
+ScrollBar 2.15 ScrollBar.qml
+ScrollView 2.15 ScrollView.qml
+Switch 2.15 Switch.qml
+TabBar 2.15 TabBar.qml
+TabButton 2.15 TabButton.qml
+ToolTip 2.15 ToolTip.qml

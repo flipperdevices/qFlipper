@@ -21,7 +21,11 @@ void TarZipUncompressor::onArchiveReady()
     auto *watcher = new QFutureWatcher<void>(this);
 
     connect(watcher, &QFutureWatcherBase::finished, this, &TarZipUncompressor::finished);
+#if QT_VERSION < 0x060000
     watcher->setFuture(QtConcurrent::run(this, &TarZipUncompressor::extractFiles));
+#else
+    watcher->setFuture(QtConcurrent::run(&TarZipUncompressor::extractFiles, this));
+#endif
 }
 
 void TarZipUncompressor::extractFiles()

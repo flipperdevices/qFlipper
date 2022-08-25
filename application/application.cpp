@@ -47,7 +47,7 @@ Application::Application(int &argc, char **argv):
     qCInfo(LOG_APP).noquote() << APP_NAME << "version" << APP_VERSION << "commit"
                               << APP_COMMIT << QDateTime::fromSecsSinceEpoch(APP_TIMESTAMP).toString(Qt::ISODate);
 
-    qCInfo(LOG_APP).noquote() << "OS info:" << QSysInfo::prettyProductName() << QSysInfo::productVersion() << QSysInfo::kernelVersion();
+    qCInfo(LOG_APP).noquote() << "OS info:" << QSysInfo::prettyProductName() << QSysInfo::productVersion() << QSysInfo::kernelVersion() << "Qt" << qVersion();
 
     if(m_isDeveloperMode) {
         qCCritical(LOG_APP) << "Developer mode is enabled! Please be careful.";
@@ -110,7 +110,7 @@ void Application::onLatestVersionChanged()
 
 void Application::onCurrentDeviceChanged()
 {
-    if(m_fileDialog.isVisible()) {
+    if(m_fileDialog.isOpen()) {
         m_fileDialog.close();
     }
 }
@@ -162,7 +162,12 @@ void Application::initStyles()
 
     QQuickWindow::setDefaultAlphaBuffer(true);
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
-    QQuickStyle::setStyle(":/style");
+
+#if QT_VERSION < 0x060000
+    QQuickStyle::setStyle(":/styles/DefaultAmber");
+#else
+    QQuickStyle::setStyle("DefaultAmber");
+#endif
 }
 
 void Application::initTranslations()
@@ -190,12 +195,13 @@ void Application::initQmlTypes()
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Preferences", globalPrefs);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "Backend", &m_backend);
     qmlRegisterSingletonInstance("QFlipper", 1, 0, "App", this);
-    qmlRegisterSingletonInstance("QFlipper", 1, 0, "AdvancedFileDialog", &m_fileDialog);
+    qmlRegisterSingletonInstance("QFlipper", 1, 0, "SystemFileDialog", &m_fileDialog);
 }
 
 void Application::initImports()
 {
     m_engine.addImportPath(":/imports");
+    m_engine.addImportPath(":/styles");
 }
 
 void Application::initFonts()
