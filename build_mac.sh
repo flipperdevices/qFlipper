@@ -6,12 +6,16 @@ PROJECT_DIR="$(pwd)"
 PROJECT="qFlipper"
 BUILD_DIRECTORY="build_mac"
 
+if [ -d ".git" ]; then
+    git submodule update --init
+fi
+
 rm -rf "$BUILD_DIRECTORY"
 mkdir "$BUILD_DIRECTORY"
 
 cd "$BUILD_DIRECTORY"
 
-qmake -spec macx-clang CONFIG+=release CONFIG+=x86_64 -o Makefile ../$PROJECT.pro
+qmake -spec macx-clang CONFIG+=release CONFIG+=arm64 -o Makefile ../$PROJECT.pro
 make qmake_all && make -j9 > /dev/null && make install
 
 macdeployqt "$PROJECT.app" \
@@ -51,15 +55,12 @@ fi
 # build DMG
 mkdir disk_image
 mv "$PROJECT.app" "disk_image/"
+cp "installer-assets/macos/DS_Store" "disk_image/.DS_Store"
+cp "installer-assets/macos/VolumeIcon.icns" "disk_image/.VolumeIcon.icns"
+cp -r "installer-assets/macos/background" "disk_image/.background"
 create-dmg \
     --volname "$PROJECT-$(git describe --tags --abbrev=0)" \
-    --volicon "../installer-assets/icons/${PROJECT}-installer.icns" \
-    --background "../installer-assets/backgrounds/qFlipper_disk_background.png" \
-    --window-pos 200 120 \
-    --window-size 600 400 \
-    --icon-size 100 \
-    --icon "$PROJECT.app" 125 150 \
-    --hide-extension "$PROJECT.app" \
+    --skip-jenkins \
     --app-drop-link 485 150 \
     "$PROJECT.dmg" \
     "disk_image/"
