@@ -15,7 +15,7 @@ mkdir "$BUILD_DIRECTORY"
 
 cd "$BUILD_DIRECTORY"
 
-qmake -spec macx-clang CONFIG+=release CONFIG+=arm64 -o Makefile ../$PROJECT.pro
+qmake -spec macx-clang CONFIG+=release CONFIG+=x86_64 -o Makefile ../$PROJECT.pro
 make qmake_all && make -j9 > /dev/null && make install
 
 macdeployqt "$PROJECT.app" \
