@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -exuo pipefail
 
 PROJECT_DIR="$(pwd)"
 PROJECT="qFlipper"
@@ -10,18 +10,29 @@ if [ -d ".git" ]; then
     git submodule update --init
 fi
 
+if [[ "$(uname -s)" != "Darwin" ]]; then
+    echo "This script needs to be runned under MacOS";
+    exit 1;
+fi
+
+if [[ "$(uname -m)" == "arm64" ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)";
+else
+    eval "$(/usr/local/Homebrew/bin/brew shellenv)";
+fi
+
 rm -rf "$BUILD_DIRECTORY"
 mkdir "$BUILD_DIRECTORY"
 
 cd "$BUILD_DIRECTORY"
 
-qmake -spec macx-clang CONFIG+=release CONFIG+=x86_64 -o Makefile ../$PROJECT.pro
+qmake -spec macx-clang CONFIG+=release CONFIG+="$(uname -m)" -o Makefile ../$PROJECT.pro
 make qmake_all && make -j9 > /dev/null && make install
 
 macdeployqt "$PROJECT.app" \
     -executable="$PROJECT.app/Contents/MacOS/${PROJECT}-cli" \
-    -qmldir="$PROJECT_DIR/Application" \
-    -verbose=1
+    -qmldir="$PROJECT_DIR/application" \
+    -verbose=3
 
 FAILED_LIBS_COUNT=$(otool -L "$PROJECT.app/Contents/Frameworks/*.dylib" | grep "/usr/local" -c || true)
 FAILED_APPS_COUNT=$(otool -L "$PROJECT.app/Contents/MacOS/*" | grep "/usr/local" -c || true)
@@ -38,7 +49,7 @@ then
 fi
 
 # Sign
-if [ -n "$MAC_OS_SIGNING_KEY_ID" ]
+if [ -n "${MAC_OS_SIGNING_KEY_ID:-""}" ]
 then
     xattr -cr "$PROJECT.app"
     codesign --force --options=runtime -s "$MAC_OS_SIGNING_KEY_ID" --deep -v "$PROJECT.app"

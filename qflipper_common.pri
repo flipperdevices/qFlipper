@@ -19,7 +19,7 @@ unix:!macx {
 
 } else:macx {
     DEFINES += USB_BACKEND_LIBUSB
-    PKG_CONFIG = /usr/local/bin/pkg-config
+#    PKG_CONFIG = /usr/local/bin/pkg-config
     CONFIG += link_pkgconfig
     PKGCONFIG += libusb-1.0 zlib
 
