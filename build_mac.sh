@@ -17,6 +17,7 @@ fi
 
 if [[ "$(uname -m)" == "arm64" ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)";
+    PATH="/opt/homebrew/qt-6.3.1-static/bin:$PATH"
 else
     eval "$(/usr/local/Homebrew/bin/brew shellenv)";
 fi
@@ -26,27 +27,32 @@ mkdir "$BUILD_DIRECTORY"
 
 cd "$BUILD_DIRECTORY"
 
-qmake -spec macx-clang CONFIG+=release CONFIG+="$(uname -m)" -o Makefile ../$PROJECT.pro
-make qmake_all && make -j9 > /dev/null && make install
+qmake \
+    -spec macx-clang \
+    CONFIG+=release \
+    CONFIG+="$(uname -m)" \
+    -o Makefile \
+    ../$PROJECT.pro
 
-macdeployqt "$PROJECT.app" \
-    -executable="$PROJECT.app/Contents/MacOS/${PROJECT}-cli" \
-    -qmldir="$PROJECT_DIR/application" \
-    -verbose=3
+make qmake_all
+make "-j$(sysctl -n hw.ncpu)" > /dev/null
+make install
 
-FAILED_LIBS_COUNT=$(otool -L "$PROJECT.app/Contents/Frameworks/*.dylib" | grep "/usr/local" -c || true)
-FAILED_APPS_COUNT=$(otool -L "$PROJECT.app/Contents/MacOS/*" | grep "/usr/local" -c || true)
-
-if (( FAILED_LIBS_COUNT > 0 ))
-then
-    echo "Not all libraries use proper paths"
-    exit 255
-
-elif (( FAILED_APPS_COUNT > 0 ))
-then
-   echo "Not all executables use proper paths"
-   exit 255
-fi
+# bundle libusb
+mkdir -p "$PROJECT.app/Contents/Frameworks";
+cp "$(brew --prefix libusb)/lib/libusb-1.0.0.dylib" "$PROJECT.app/Contents/Frameworks";
+install_name_tool \
+    -change "$(brew --prefix libusb)/lib/libusb-1.0.0.dylib" \
+    "@loader_path/libusb-1.0.0.dylib" \
+    "$PROJECT.app/Contents/Frameworks/libusb-1.0.0.dylib";
+install_name_tool \
+    -change "$(brew --prefix libusb)/lib/libusb-1.0.0.dylib" \
+    "@loader_path/../Frameworks/libusb-1.0.0.dylib" \
+    "$PROJECT.app/Contents/MacOS/qFlipper"
+install_name_tool \
+    -change "$(brew --prefix libusb)/lib/libusb-1.0.0.dylib" \
+    "@loader_path/../Frameworks/libusb-1.0.0.dylib" \
+    "$PROJECT.app/Contents/MacOS/qFlipper-cli"
 
 # Sign
 if [ -n "${MAC_OS_SIGNING_KEY_ID:-""}" ]
@@ -75,4 +81,3 @@ create-dmg \
     --app-drop-link 485 150 \
     "$PROJECT.dmg" \
     "disk_image/"
-
