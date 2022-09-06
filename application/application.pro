@@ -29,27 +29,12 @@ TRANSLATIONS += \
 CONFIG += lrelease
 CONFIG += embed_translations
 
-# Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH =
-
-# Additional import path used to resolve QML modules just for Qt Quick Designer
-QML_IMPORT_PATH = $$PWD/imports
+QML_IMPORT_PATH += $$PWD/imports
 
 unix|win32 {
     LIBS += \
         -L$$OUT_PWD/../backend/ -lbackend \
         -L$$OUT_PWD/../dfu/ -ldfu
-}
-
-win32:!win32-g++ {
-    PRE_TARGETDEPS += \
-        $$OUT_PWD/../backend/backend.lib \
-        $$OUT_PWD/../dfu/dfu.lib
-
-} else:unix|win32-g++ {
-    PRE_TARGETDEPS += \
-        $$OUT_PWD/../backend/libbackend.a \
-        $$OUT_PWD/../dfu/libdfu.a
 }
 
 win32 {
@@ -71,10 +56,6 @@ macx: ICON = assets/icons/$${NAME}.icns
 else:win32: RC_ICONS = assets/icons/$${NAME}.ico
 
 INCLUDEPATH += \
-    $$PWD/../dfu \
-    $$PWD/../backend
-
-DEPENDPATH += \
     $$PWD/../dfu \
     $$PWD/../backend
 

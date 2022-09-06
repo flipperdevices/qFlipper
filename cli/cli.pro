@@ -16,19 +16,6 @@ unix|win32 {
         -L$$OUT_PWD/../dfu/ -ldfu
 }
 
-win32:!win32-g++ {
-    PRE_TARGETDEPS += \
-        $$OUT_PWD/../backend/backend.lib \
-        $$OUT_PWD/../3rdparty/3rdparty.lib \
-        $$OUT_PWD/../dfu/dfu.lib
-
-} else:unix|win32-g++ {
-    PRE_TARGETDEPS += \
-        $$OUT_PWD/../backend/libbackend.a \
-        $$OUT_PWD/../3rdparty/lib3rdparty.a \
-        $$OUT_PWD/../dfu/libdfu.a
-}
-
 win32 {
     equals(HAS_VERSION, 0) {
         RC_SUFFIX = -rc
@@ -50,11 +37,6 @@ else:win32: RC_ICONS = $$PWD/../application/assets/icons/$${NAME}-cli.ico
 INCLUDEPATH += \
     $$PWD/../dfu \
     $$PWD/../backend
-
-DEPENDPATH += \
-    $$PWD/../dfu \
-    $$PWD/../backend \
-    $$PWD/../3rdparty \
 
 SOURCES += \
         main.cpp \

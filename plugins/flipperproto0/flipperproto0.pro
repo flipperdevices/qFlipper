@@ -62,13 +62,6 @@ unix|win32 {
     LIBS += -L$$OUT_PWD/../../3rdparty/ -l3rdparty
 }
 
-win32:!win32-g++ {
-    PRE_TARGETDEPS += $$OUT_PWD/../../3rdparty/3rdparty.lib
-
-} else:unix|win32-g++ {
-    PRE_TARGETDEPS += $$OUT_PWD/../../3rdparty/lib3rdparty.a
-}
-
 DEFINES += PB_ENABLE_MALLOC
 
 unix:!macx {
