@@ -62,7 +62,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  build_arm:
+  build_mac_arm:
     runs-on: [self-hosted, ARM64, macOS]
     env:
       MAC_OS_SIGNING_KEY_ID: ${{ secrets.MAC_OS_SIGNING_KEY_ID }}
