@@ -42,7 +42,7 @@ unix|win32 {
 
         contains(CONFIG, static): LIBS += \
             -L$$OUT_PWD/../3rdparty/ -l3rdparty \
-            -L$$OUT_PWD/../plugins/ -lflipperproto
+            -L$$OUT_PWD/../plugins/ -lflipperproto0
 }
 
 win32:!win32-g++ {
