@@ -35,6 +35,10 @@ unix|win32 {
     LIBS += \
         -L$$OUT_PWD/../backend/ -lbackend \
         -L$$OUT_PWD/../dfu/ -ldfu
+
+    contains(CONFIG, static): LIBS += \
+        -L$$OUT_PWD/../3rdparty/ -l3rdparty \
+        -L$$OUT_PWD/../plugins/ -lflipperproto0
 }
 
 win32 {

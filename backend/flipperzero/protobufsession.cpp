@@ -36,6 +36,10 @@
 #include "rpc/guistartvirtualdisplayoperation.h"
 #include "rpc/guistopvirtualdisplayoperation.h"
 
+#if defined(QT_STATIC)
+Q_IMPORT_PLUGIN(ProtobufPlugin)
+#endif
+
 Q_LOGGING_CATEGORY(LOG_SESSION, "RPC")
 
 using namespace Flipper;
