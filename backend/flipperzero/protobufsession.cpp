@@ -451,16 +451,15 @@ QVector<int> ProtobufSession::supportedProtobufVersions()
 #else
     const auto libraryPaths = QCoreApplication::libraryPaths();
 
-    for(auto i = 0;; ++i) {
-        for(const auto &path : libraryPaths) {
-            const QDir libraryDir(path);
+//    for(auto i = 0;; ++i) {
+//        for(const auto &path : libraryPaths) {
+//            const QDir libraryDir(path);
 
-            if(libraryDir.exists(protobufPluginFileName(i))) {
-                ret.append(i);
-                break;
-            }
-        }
-
+//            if(libraryDir.exists(protobufPluginFileName(i))) {
+//                ret.append(i);
+//                break;
+//            }
+//        }
         if(!ret.contains(i)) {
             break;
         }
