@@ -32,6 +32,7 @@ qmake \
     CONFIG+=release \
     -o Makefile \
     ../$PROJECT.pro \
+    QMAKE_APPLE_DEVICE_ARCHS="x86_64 arm64"
 
 make qmake_all
 make "-j$(sysctl -n hw.ncpu)" > /dev/null
