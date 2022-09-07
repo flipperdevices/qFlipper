@@ -36,6 +36,7 @@
 #include "rpc/guistartvirtualdisplayoperation.h"
 #include "rpc/guistopvirtualdisplayoperation.h"
 
+Q_IMPORT_PLUGIN(ProtobufPlugin)
 Q_LOGGING_CATEGORY(LOG_SESSION, "RPC")
 
 using namespace Flipper;
@@ -424,46 +425,54 @@ const QString ProtobufSession::protobufPluginFileName(int versionMajor)
 
 QVector<int> ProtobufSession::supportedProtobufVersions()
 {
-    QVector<int> ret;
-    const auto libraryPaths = QCoreApplication::libraryPaths();
+//    QVector<int> ret;
+//    const auto libraryPaths = QCoreApplication::libraryPaths();
 
-    for(auto i = 0;; ++i) {
-        for(const auto &path : libraryPaths) {
-            const QDir libraryDir(path);
+//    for(auto i = 0;; ++i) {
+//        for(const auto &path : libraryPaths) {
+//            const QDir libraryDir(path);
 
-            if(libraryDir.exists(protobufPluginFileName(i))) {
-                ret.append(i);
-                break;
-            }
-        }
+//            if(libraryDir.exists(protobufPluginFileName(i))) {
+//                ret.append(i);
+//                break;
+//            }
+//        }
 
-        if(!ret.contains(i)) {
-            break;
-        }
-    }
+//        if(!ret.contains(i)) {
+//            break;
+//        }
+//    }
 
-    return ret;
+//    return ret;
+    return {0};
 }
 
 bool ProtobufSession::loadProtobufPlugin()
 {
-    const auto supportedVersions = supportedProtobufVersions();
+//    const auto supportedVersions = supportedProtobufVersions();
 
-    if(supportedVersions.isEmpty()) {
-        qCCritical(LOG_SESSION) << "Cannot find protobuf support plugins";
-        return false;
-    } else if(!supportedVersions.contains(m_versionMajor)) {
-        qCCritical(LOG_SESSION).noquote() << "Protocol version" << m_versionMajor
-                                          << "is not supported yet. Please update the application.";
-        return false;
-    }
+//    if(supportedVersions.isEmpty()) {
+//        qCCritical(LOG_SESSION) << "Cannot find protobuf support plugins";
+//        return false;
+//    } else if(!supportedVersions.contains(m_versionMajor)) {
+//        qCCritical(LOG_SESSION).noquote() << "Protocol version" << m_versionMajor
+//                                          << "is not supported yet. Please update the application.";
+//        return false;
+//    }
 
-    m_loader->setFileName(protobufPluginFileName(m_versionMajor));
+//    m_loader->setFileName(protobufPluginFileName(m_versionMajor));
 
-    if(!(m_plugin = qobject_cast<ProtobufPluginInterface*>(m_loader->instance()))) {
-        qCCritical(LOG_SESSION) << "Failed to load protobuf plugin:" << m_loader->errorString();
-    } else {
-        m_plugin->setMinorVersion(m_versionMinor);
+//    if(!(m_plugin = qobject_cast<ProtobufPluginInterface*>(m_loader->instance()))) {
+//        qCCritical(LOG_SESSION) << "Failed to load protobuf plugin:" << m_loader->errorString();
+//    } else {
+//        m_plugin->setMinorVersion(m_versionMinor);
+//    }
+    const auto staticPlugins = QPluginLoader::staticInstances();
+    for(auto *pluginInstance : staticPlugins) {
+        m_plugin = qobject_cast<ProtobufPluginInterface*>(pluginInstance);
+        if(m_plugin) {
+            m_plugin->setMinorVersion(m_versionMinor);
+        }
     }
 
     return m_plugin;

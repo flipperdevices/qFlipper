@@ -37,8 +37,10 @@ QML_IMPORT_PATH = $$PWD/imports
 
 unix|win32 {
     LIBS += \
+        -L$$OUT_PWD/../3rdparty/ -l3rdparty \
+        -L$$OUT_PWD/../plugins/ -lflipperproto0 \
         -L$$OUT_PWD/../backend/ -lbackend \
-        -L$$OUT_PWD/../dfu/ -ldfu
+        -L$$OUT_PWD/../dfu/ -ldfu \
 }
 
 win32:!win32-g++ {

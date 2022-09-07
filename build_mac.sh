@@ -30,9 +30,8 @@ cd "$BUILD_DIRECTORY"
 qmake \
     -spec macx-clang \
     CONFIG+=release \
-    CONFIG+="$(uname -m)" \
     -o Makefile \
-    ../$PROJECT.pro
+    ../$PROJECT.pro \
 
 make qmake_all
 make "-j$(sysctl -n hw.ncpu)" > /dev/null
@@ -55,8 +54,7 @@ install_name_tool \
     "$PROJECT.app/Contents/MacOS/qFlipper-cli"
 
 # Sign
-if [ -n "${MAC_OS_SIGNING_KEY_ID:-""}" ]
-then
+if [ -n "${MAC_OS_SIGNING_KEY_ID:-""}" ]; then
     xattr -cr "$PROJECT.app"
     codesign --force --options=runtime -s "$MAC_OS_SIGNING_KEY_ID" --deep -v "$PROJECT.app"
     /usr/bin/ditto -c -k --keepParent "$PROJECT.app" "$PROJECT.zip"
@@ -75,7 +73,7 @@ mv "$PROJECT.app" "disk_image/"
 cp "../installer-assets/macos/DS_Store" "disk_image/.DS_Store"
 cp "../installer-assets/macos/VolumeIcon.icns" "disk_image/.VolumeIcon.icns"
 cp -r "../installer-assets/macos/background" "disk_image/.background"
-create-dmg \
+../scripts/create-dmg/create-dmg \
     --volname "$PROJECT-$(git describe --tags --abbrev=0)" \
     --skip-jenkins \
     --app-drop-link 485 150 \
