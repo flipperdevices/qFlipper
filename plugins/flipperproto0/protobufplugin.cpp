@@ -16,6 +16,11 @@ ProtobufPlugin::ProtobufPlugin(QObject *parent):
     m_versionMinor(0)
 {}
 
+int ProtobufPlugin::versionMajor() const
+{
+    return 0;
+}
+
 void ProtobufPlugin::setMinorVersion(int version)
 {
     m_versionMinor = version;
