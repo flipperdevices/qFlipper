@@ -36,7 +36,10 @@
 #include "rpc/guistartvirtualdisplayoperation.h"
 #include "rpc/guistopvirtualdisplayoperation.h"
 
+#if defined(QT_STATIC)
 Q_IMPORT_PLUGIN(ProtobufPlugin)
+#endif
+
 Q_LOGGING_CATEGORY(LOG_SESSION, "RPC")
 
 using namespace Flipper;
@@ -47,7 +50,9 @@ ProtobufSession::ProtobufSession(const QSerialPortInfo &portInfo, QObject *paren
     m_sessionState(Stopped),
     m_portInfo(portInfo),
     m_serialPort(nullptr),
+#if !defined(QT_STATIC)
     m_loader(new QPluginLoader(this)),
+#endif
     m_plugin(nullptr),
     m_currentOperation(nullptr),
     m_bytesToWrite(0),
@@ -260,10 +265,12 @@ void ProtobufSession::onSerialPortReadyRead()
     if(!isSessionUp()) {
         m_serialPort->clear();
         return;
+#if !defined(QT_STATIC)
     } else if(!m_loader->isLoaded()) {
         // For some weird reason the plugin can be unloaded by connecting
         // multiple devices (although the docs say it shouldn't)
         loadProtobufPlugin();
+#endif
     }
 
     m_receivedData.append(m_serialPort->readAll());
@@ -330,10 +337,12 @@ void ProtobufSession::writeToPort()
 {
     if(!m_currentOperation || !m_plugin) {
         return;
+#if !defined(QT_STATIC)
     } else if(!m_loader->isLoaded()) {
         // For some weird reason the plugin can be unloaded by connecting
         // multiple devices (although the docs say it shouldn't)
         loadProtobufPlugin();
+#endif
     }
 
     bool success;
@@ -410,6 +419,7 @@ void ProtobufSession::setSessionState(SessionState newState)
     emit sessionStateChanged();
 }
 
+#if !defined(QT_STATIC)
 const QString ProtobufSession::protobufPluginFileName(int versionMajor)
 {
 #if defined(Q_OS_WINDOWS)
@@ -422,66 +432,86 @@ const QString ProtobufSession::protobufPluginFileName(int versionMajor)
 #error "Unsupported OS"
 #endif
 }
+#endif
 
 QVector<int> ProtobufSession::supportedProtobufVersions()
 {
-//    QVector<int> ret;
-//    const auto libraryPaths = QCoreApplication::libraryPaths();
+    QVector<int> ret;
 
-//    for(auto i = 0;; ++i) {
-//        for(const auto &path : libraryPaths) {
-//            const QDir libraryDir(path);
+#if defined(QT_STATIC)
+    const auto staticInstances = QPluginLoader::staticInstances();
 
-//            if(libraryDir.exists(protobufPluginFileName(i))) {
-//                ret.append(i);
-//                break;
-//            }
-//        }
+    for(const auto *instance: staticInstances) {
+        if(const auto *protobufPlugin = qobject_cast<const ProtobufPluginInterface*>(instance)) {
+            ret.append(protobufPlugin->versionMajor());
+        }
+    }
 
-//        if(!ret.contains(i)) {
-//            break;
-//        }
-//    }
+    std::sort(ret.begin(), ret.end());
+#else
+    const auto libraryPaths = QCoreApplication::libraryPaths();
 
-//    return ret;
-    return {0};
+    for(auto i = 0;; ++i) {
+        for(const auto &path : libraryPaths) {
+            const QDir libraryDir(path);
+
+            if(libraryDir.exists(protobufPluginFileName(i))) {
+                ret.append(i);
+                break;
+            }
+        }
+
+        if(!ret.contains(i)) {
+            break;
+        }
+    }
+#endif
+    return ret;
 }
 
 bool ProtobufSession::loadProtobufPlugin()
 {
-//    const auto supportedVersions = supportedProtobufVersions();
+    const auto supportedVersions = supportedProtobufVersions();
 
-//    if(supportedVersions.isEmpty()) {
-//        qCCritical(LOG_SESSION) << "Cannot find protobuf support plugins";
-//        return false;
-//    } else if(!supportedVersions.contains(m_versionMajor)) {
-//        qCCritical(LOG_SESSION).noquote() << "Protocol version" << m_versionMajor
-//                                          << "is not supported yet. Please update the application.";
-//        return false;
-//    }
-
-//    m_loader->setFileName(protobufPluginFileName(m_versionMajor));
-
-//    if(!(m_plugin = qobject_cast<ProtobufPluginInterface*>(m_loader->instance()))) {
-//        qCCritical(LOG_SESSION) << "Failed to load protobuf plugin:" << m_loader->errorString();
-//    } else {
-//        m_plugin->setMinorVersion(m_versionMinor);
-//    }
-    const auto staticPlugins = QPluginLoader::staticInstances();
-    for(auto *pluginInstance : staticPlugins) {
-        m_plugin = qobject_cast<ProtobufPluginInterface*>(pluginInstance);
-        if(m_plugin) {
-            m_plugin->setMinorVersion(m_versionMinor);
-        }
+    if(supportedVersions.isEmpty()) {
+        qCCritical(LOG_SESSION) << "Cannot find protobuf support plugins";
+        return false;
+    } else if(!supportedVersions.contains(m_versionMajor)) {
+        qCCritical(LOG_SESSION).noquote() << "Protocol version" << m_versionMajor
+                                          << "is not supported yet. Please update the application.";
+        return false;
     }
 
-    return m_plugin;
+#if defined(QT_STATIC)
+    const auto staticInstances = QPluginLoader::staticInstances();
+
+    for(auto *instance : staticInstances) {
+        if(auto *protobufPlugin = qobject_cast<ProtobufPluginInterface*>(instance)) {
+            if(protobufPlugin->versionMajor() == m_versionMajor) {
+                m_plugin = protobufPlugin;
+                break;
+            }
+        }
+    }
+#else
+    m_loader->setFileName(protobufPluginFileName(m_versionMajor));
+    m_plugin = qobject_cast<ProtobufPluginInterface*>(m_loader->instance());
+
+    if(!m_plugin) {
+        qCCritical(LOG_SESSION) << "Failed to load protobuf plugin:" << m_loader->errorString();
+        return false;
+    }
+#endif
+
+    m_plugin->setMinorVersion(m_versionMinor);
+    return true;
 }
 
 void ProtobufSession::unloadProtobufPlugin()
 {
     m_plugin = nullptr;
 
+#if defined(QT_SHARED)
     if(!m_loader->isLoaded()) {
         return;
     }
@@ -493,6 +523,7 @@ void ProtobufSession::unloadProtobufPlugin()
     } else {
         qCDebug(LOG_SESSION) << "Unloaded protobuf plugin.";
     }
+#endif
 }
 
 void ProtobufSession::stopEarly(BackendError::ErrorType error, const QString &errorString)
