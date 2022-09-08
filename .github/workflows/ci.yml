@@ -135,7 +135,9 @@ jobs:
             mv qflipper.dmg ./artifacts/qFlipper-${SUFFIX}.dmg
 
       - name: Upload apps
-        uses: burnett01/rsync-deployments@4.1
+
+      - name: Upload apps
+        uses: burnett01/rsync-deployments@5.1
         with:
           switches: -cvzr --delete --mkpath
           path: artifacts/
