@@ -36,33 +36,6 @@ jobs:
           retention-days: 1
 
   build_mac:
-    runs-on: [self-hosted, X64, macOS]
-    env:
-      MAC_OS_SIGNING_KEY_ID: ${{ secrets.MAC_OS_SIGNING_KEY_ID }}
-      MAC_OS_SIGNING_BUNDLE_ID: ${{ secrets.MAC_OS_SIGNING_BUNDLE_ID }}
-      MAC_OS_SIGNING_ASC_PROVIDER: ${{ secrets.MAC_OS_SIGNING_ASC_PROVIDER }}
-      MAC_OS_SIGNING_USERNAME: ${{ secrets.MAC_OS_SIGNING_USERNAME }}
-      MAC_OS_SIGNING_PASSWORD: ${{ secrets.MAC_OS_SIGNING_PASSWORD }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          submodules: true
-
-      - name: Build application
-        run: ./build_mac.sh
-
-      - name: Publish application
-        uses: actions/upload-artifact@v2
-        with:
-          name: qflipper.dmg
-          path: |
-            ./build_mac/qflipper.dmg
-          if-no-files-found: error
-          retention-days: 1
-
-  build_mac_arm:
     runs-on: [self-hosted, ARM64, macOS]
     env:
       MAC_OS_SIGNING_KEY_ID: ${{ secrets.MAC_OS_SIGNING_KEY_ID }}
@@ -83,7 +56,7 @@ jobs:
       - name: Publish application
         uses: actions/upload-artifact@v2
         with:
-          name: qflipper-arm.dmg
+          name: qflipper.dmg
           path: |
             ./build_mac/qflipper.dmg
           if-no-files-found: error
@@ -115,7 +88,7 @@ jobs:
 
   upload:
     name: Upload apps to storage
-    needs: [build_windows, build_mac, build_mac_arm, build_linux]
+    needs: [build_windows, build_mac, build_linux]
     runs-on: ubuntu-latest
     steps:
 
@@ -146,18 +119,14 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: qflipper.dmg
-      - uses: actions/download-artifact@v2
-        with:
-          name: qflipper-arm.dmg
 
       - name: Rename app
-        run: 
-            | 
+        run:
+            |
             mv qFlipper-x86_64.AppImage ./artifacts/qFlipper-x86_64-${SUFFIX}.AppImage
             mv qFlipperSetup-64bit.exe ./artifacts/qFlipperSetup-64bit-${SUFFIX}.exe
             mv qFlipper-64bit.zip ./artifacts/qFlipper-64bit-${SUFFIX}.zip
             mv qflipper.dmg ./artifacts/qFlipper-${SUFFIX}.dmg
-            mv qflipper-arm.dmg ./artifacts/qFlipper-ARM-${SUFFIX}.dmg
 
       - name: Upload apps
         uses: burnett01/rsync-deployments@4.1
