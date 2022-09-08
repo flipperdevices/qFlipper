@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC2207
+
 set -exuo pipefail;
 
 PROJECT="qFlipper";
@@ -40,18 +42,33 @@ make install;
 # bundle libusb
 mkdir -p "$PROJECT.app/Contents/Frameworks";
 cp "$(brew --prefix libusb)/lib/libusb-1.0.0.dylib" "$PROJECT.app/Contents/Frameworks";
-install_name_tool \
-    -change "$(brew --prefix libusb)/lib/libusb-1.0.0.dylib" \
-    "@loader_path/libusb-1.0.0.dylib" \
-    "$PROJECT.app/Contents/Frameworks/libusb-1.0.0.dylib";
-install_name_tool \
-    -change "$(brew --prefix libusb)/lib/libusb-1.0.0.dylib" \
-    "@loader_path/../Frameworks/libusb-1.0.0.dylib" \
-    "$PROJECT.app/Contents/MacOS/qFlipper";
-install_name_tool \
-    -change "$(brew --prefix libusb)/lib/libusb-1.0.0.dylib" \
-    "@loader_path/../Frameworks/libusb-1.0.0.dylib" \
-    "$PROJECT.app/Contents/MacOS/qFlipper-cli";
+
+relink_framework()
+{
+    local FILE;
+    local LIB;
+    local REL_PATH;
+    FILE="$1";
+    LIB="$2";
+    REL_PATH="$3";
+    PATHS=( $(otool -L "$FILE" | grep "$LIB" | awk '{print $1}' ) );
+    for CUR in "${PATHS[@]}"; do
+        install_name_tool -change "$CUR" "$REL_PATH" "$FILE";
+    done
+}
+
+relink_framework \
+    "$PROJECT.app/Contents/Frameworks/libusb-1.0.0.dylib" \
+    "libusb-1.0.0.dylib" \
+    "@loader_path/libusb-1.0.0.dylib";
+relink_framework \
+    "$PROJECT.app/Contents/MacOS/qFlipper" \
+    "libusb-1.0.0.dylib" \
+    "@loader_path/../Frameworks/libusb-1.0.0.dylib";
+relink_framework \
+    "$PROJECT.app/Contents/MacOS/qFlipper-cli" \
+    "libusb-1.0.0.dylib" \
+    "@loader_path/../Frameworks/libusb-1.0.0.dylib";
 
 # Sign
 if [ -n "${MAC_OS_SIGNING_KEY_ID:-""}" ]; then
