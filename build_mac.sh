@@ -30,7 +30,7 @@ cd "$BUILD_DIRECTORY";
 
 qmake \
     -spec macx-clang \
-    CONFIG+=release \
+    CONFIG+="release qtquickcompiler" \
     -o Makefile \
     ../$PROJECT.pro \
     QMAKE_APPLE_DEVICE_ARCHS="x86_64 arm64";

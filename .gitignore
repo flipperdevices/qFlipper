@@ -5,3 +5,4 @@ build
 x64
 Win32
 .vs
+.DS_Store
