@@ -137,7 +137,7 @@ jobs:
       - name: Upload apps
         uses: burnett01/rsync-deployments@4.1
         with:
-          switches: -cvzr --delete
+          switches: -cvzr --delete --mkpath
           path: artifacts/
           remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/${REF}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
