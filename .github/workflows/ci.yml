@@ -38,6 +38,8 @@ jobs:
   build_mac:
     runs-on: [self-hosted, ARM64, macOS]
     env:
+      MAC_OS_KEYCHAIN_NAME: ${{ secrets.MAC_OS_KEYCHAIN_NAME }}
+      MAC_OS_KEYCHAIN_PASSWORD: ${{ secrets.MAC_OS_KEYCHAIN_PASSWORD }}
       MAC_OS_SIGNING_KEY_ID: ${{ secrets.MAC_OS_SIGNING_KEY_ID }}
       MAC_OS_SIGNING_BUNDLE_ID: ${{ secrets.MAC_OS_SIGNING_BUNDLE_ID }}
       MAC_OS_SIGNING_ASC_PROVIDER: ${{ secrets.MAC_OS_SIGNING_ASC_PROVIDER }}
