@@ -106,11 +106,15 @@ jobs:
 
       - name: 'Generate tag suffix'
         if: startsWith(github.ref, 'refs/tags/') == true
-        run: echo "SUFFIX=$(git describe --tags --abbrev=0)"  >> $GITHUB_ENV
+        run: |
+          echo "REF=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+          echo "SUFFIX=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
       - name: 'Generate branch suffix'
         if: startsWith(github.ref, 'refs/tags/') != true
-        run: echo "SUFFIX=$(git rev-parse --abbrev-ref HEAD | sed 's/\//_/g')-$(date +'%d%m%Y')-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+        run: |
+          echo "REF=$(git rev-parse --abbrev-ref HEAD)-$(date +'%d%m%Y')-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "SUFFIX=$(git rev-parse --abbrev-ref HEAD | sed 's/\//_/g')-$(date +'%d%m%Y')-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - uses: actions/download-artifact@v2
         with:
@@ -135,7 +139,7 @@ jobs:
         with:
           switches: -cvzr --delete
           path: artifacts/
-          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/${SUFFIX}/"
+          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/${REF}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
           remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
