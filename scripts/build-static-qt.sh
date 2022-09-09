@@ -11,17 +11,6 @@ cd "qt-everywhere-src-$QT_VERSION";
 mkdir "build";
 cd "build";
 
-#../configure \
-#    -static \
-#    -release \
-#    -prefix "$QT_INSTALL_DIR" \
-#    -skip "qtwebengine" \
-#    -nomake "tests" \
-#    -nomake "examples" \
-#    -no-sql-mysql \
-#    -no-sql-odbc \
-#    -no-sql-psql \
-#    -system-sqlite \
 /opt/homebrew/Cellar/cmake/3.24.1/bin/cmake \
     '-DBUILD_qtwebengine=OFF' \
     '-DBUILD_SHARED_LIBS=OFF' \
@@ -38,5 +27,5 @@ cd "build";
     '-G' 'Ninja' \
     '/Users/build/qt-everywhere-src-6.3.1'
 
-cmake --build . --parallel
-cmake --install .
+/opt/homebrew/Cellar/cmake/3.24.1/bin/cmake --build . --parallel
+/opt/homebrew/Cellar/cmake/3.24.1/bin/cmake --install .

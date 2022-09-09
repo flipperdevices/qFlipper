@@ -6,6 +6,7 @@ set -exuo pipefail;
 
 PROJECT="qFlipper";
 BUILD_DIRECTORY="build_mac";
+LIBUSB_PATH="/opt/libs/libusb/1.0.24-universal";
 
 if [ -d ".git" ]; then
     git submodule update --init;
@@ -19,6 +20,7 @@ fi
 if [[ "$(uname -m)" == "arm64" ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)";
     PATH="/opt/homebrew/qt-6.3.1-static/bin:$PATH";
+    export PKG_CONFIG_PATH="$LIBUSB_PATH/lib/pkgconfig";
 else
     eval "$(/usr/local/Homebrew/bin/brew shellenv)";
 fi
@@ -41,7 +43,7 @@ make install;
 
 # bundle libusb
 mkdir -p "$PROJECT.app/Contents/Frameworks";
-cp "$(brew --prefix libusb)/lib/libusb-1.0.0.dylib" "$PROJECT.app/Contents/Frameworks";
+cp "$LIBUSB_PATH/lib/libusb-1.0.0.dylib" "$PROJECT.app/Contents/Frameworks";
 
 relink_framework()
 {
