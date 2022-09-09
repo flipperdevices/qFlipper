@@ -209,18 +209,5 @@ HEADERS += \
     updateregistry.h \
     versioninfo.h
 
-unix|win32 {
-    LIBS += -L$$OUT_PWD/../dfu/ -ldfu
-}
-
-win32:!win32-g++ {
-    PRE_TARGETDEPS += $$OUT_PWD/../dfu/dfu.lib
-
-} else:unix|win32-g++ {
-    PRE_TARGETDEPS += $$OUT_PWD/../dfu/libdfu.a
-}
-
 INCLUDEPATH += $$PWD/../dfu \
                $$PWD/../plugins/protobufinterface
-
-DEPENDPATH += $$PWD/../dfu

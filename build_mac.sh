@@ -1,67 +1,102 @@
 #!/bin/bash
 
-set -e
-set -x
+# shellcheck disable=SC2207
 
-PROJECT_DIR=`pwd`
-PROJECT="qFlipper"
-BUILD_DIRECTORY="build_mac"
+set -exuo pipefail;
 
-if [[ -d "$BUILD_DIRECTORY" ]]
-then
-    rm -rf "$BUILD_DIRECTORY"
+PROJECT="qFlipper";
+BUILD_DIRECTORY="build_mac";
+LIBUSB_PATH="/opt/libs/libusb/1.0.24-universal";
+
+if [ -d ".git" ]; then
+    git submodule update --init;
 fi
 
-mkdir "$BUILD_DIRECTORY"
-cd "$BUILD_DIRECTORY"
-
-qmake -spec macx-clang CONFIG+=release CONFIG+=x86_64 -o Makefile ../$PROJECT.pro
-make qmake_all && make -j9 > /dev/null && make install
-
-macdeployqt $PROJECT.app -executable=$PROJECT.app/Contents/MacOS/${PROJECT}-cli -qmldir=$PROJECT_DIR/Application -verbose=1
-
-FAILED_LIBS_COUNT=`otool -L $PROJECT.app/Contents/Frameworks/*.dylib | grep /usr/local -c || true`
-FAILED_APPS_COUNT=`otool -L $PROJECT.app/Contents/MacOS/* | grep /usr/local -c || true`
-
-if [[ $FAILED_LIBS_COUNT -gt 0 ]]
-then
-    echo "Not all libraries use proper paths"
-    exit 255
-
-elif [[ $FAILED_APPS_COUNT -gt 0 ]]
-then
-   echo "Not all executables use proper paths"
-   exit 255
+if [[ "$(uname -s)" != "Darwin" ]]; then
+    echo "This script needs to be runned under MacOS";
+    exit 1;
 fi
+
+if [[ "$(uname -m)" == "arm64" ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)";
+    PATH="/opt/homebrew/qt-6.3.1-static/bin:$PATH";
+    export PKG_CONFIG_PATH="$LIBUSB_PATH/lib/pkgconfig";
+else
+    eval "$(/usr/local/Homebrew/bin/brew shellenv)";
+fi
+
+rm -rf "$BUILD_DIRECTORY";
+mkdir "$BUILD_DIRECTORY";
+
+cd "$BUILD_DIRECTORY";
+
+qmake \
+    -spec macx-clang \
+    CONFIG+="release qtquickcompiler" \
+    -o Makefile \
+    ../$PROJECT.pro \
+    QMAKE_APPLE_DEVICE_ARCHS="x86_64 arm64";
+
+make qmake_all;
+make "-j$(sysctl -n hw.ncpu)" > /dev/null 2>&1;
+make install;
+
+# bundle libusb
+mkdir -p "$PROJECT.app/Contents/Frameworks";
+cp "$LIBUSB_PATH/lib/libusb-1.0.0.dylib" "$PROJECT.app/Contents/Frameworks";
+
+relink_framework()
+{
+    local FILE;
+    local LIB;
+    local REL_PATH;
+    FILE="$1";
+    LIB="$2";
+    REL_PATH="$3";
+    PATHS=( $(otool -L "$FILE" | grep "$LIB" | awk '{print $1}' ) );
+    for CUR in "${PATHS[@]}"; do
+        install_name_tool -change "$CUR" "$REL_PATH" "$FILE";
+    done
+}
+
+relink_framework \
+    "$PROJECT.app/Contents/Frameworks/libusb-1.0.0.dylib" \
+    "libusb-1.0.0.dylib" \
+    "@loader_path/libusb-1.0.0.dylib";
+relink_framework \
+    "$PROJECT.app/Contents/MacOS/qFlipper" \
+    "libusb-1.0.0.dylib" \
+    "@loader_path/../Frameworks/libusb-1.0.0.dylib";
+relink_framework \
+    "$PROJECT.app/Contents/MacOS/qFlipper-cli" \
+    "libusb-1.0.0.dylib" \
+    "@loader_path/../Frameworks/libusb-1.0.0.dylib";
 
 # Sign
-if [ -n "$MAC_OS_SIGNING_KEY_ID" ]
-then
-    xattr -cr "$PROJECT.app"
-    codesign --force --options=runtime -s "$MAC_OS_SIGNING_KEY_ID" --deep -v "$PROJECT.app"
-    /usr/bin/ditto -c -k --keepParent "$PROJECT.app" "$PROJECT.zip"
+if [ -n "${MAC_OS_SIGNING_KEY_ID:-""}" ]; then
+    security default-keychain -s "$MAC_OS_KEYCHAIN_NAME";
+    security unlock-keychain -p "$MAC_OS_KEYCHAIN_PASSWORD" "$MAC_OS_KEYCHAIN_NAME";
+    xattr -cr "$PROJECT.app";
+    codesign --force --options=runtime -s "$MAC_OS_SIGNING_KEY_ID" --deep -v "$PROJECT.app";
+    /usr/bin/ditto -c -k --keepParent "$PROJECT.app" "$PROJECT.zip";
     xcrun altool \
         --notarize-app \
         --primary-bundle-id "$MAC_OS_SIGNING_BUNDLE_ID" \
         --username "$MAC_OS_SIGNING_USERNAME" \
         --password "$MAC_OS_SIGNING_PASSWORD" \
-        --asc-provider $MAC_OS_SIGNING_ASC_PROVIDER \
-        --file "$PROJECT.zip"
+        --asc-provider "$MAC_OS_SIGNING_ASC_PROVIDER" \
+        --file "$PROJECT.zip";
 fi
 
 # build DMG
-mkdir disk_image
-mv $PROJECT.app disk_image
-create-dmg \
+mkdir disk_image;
+mv "$PROJECT.app" "disk_image/";
+cp "../installer-assets/macos/DS_Store" "disk_image/.DS_Store";
+cp "../installer-assets/macos/VolumeIcon.icns" "disk_image/.VolumeIcon.icns";
+cp -r "../installer-assets/macos/background" "disk_image/.background";
+../scripts/create-dmg/create-dmg \
     --volname "$PROJECT-$(git describe --tags --abbrev=0)" \
-    --volicon "../installer-assets/icons/${PROJECT}-installer.icns" \
-    --background "../installer-assets/backgrounds/qFlipper_disk_background.png" \
-    --window-pos 200 120 \
-    --window-size 600 400 \
-    --icon-size 100 \
-    --icon "$PROJECT.app" 125 150 \
-    --hide-extension "$PROJECT.app" \
+    --skip-jenkins \
     --app-drop-link 485 150 \
     "$PROJECT.dmg" \
-    "disk_image/"
-
+    "disk_image/";

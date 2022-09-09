@@ -108,7 +108,9 @@ private slots:
     void onCurrentOperationFinished();
 
 private:
+#if !defined(QT_STATIC)
     static const QString protobufPluginFileName(int versionMajor);
+#endif
     static QVector<int> supportedProtobufVersions();
 
     void setSessionState(SessionState newState);
@@ -136,7 +138,9 @@ private:
     QSerialPort *m_serialPort;
     QByteArray m_receivedData;
 
+#if !defined(QT_STATIC)
     QPluginLoader *m_loader;
+#endif
     ProtobufPluginInterface *m_plugin;
     QQueue<AbstractProtobufOperation*> m_queue;
     AbstractProtobufOperation *m_currentOperation;
