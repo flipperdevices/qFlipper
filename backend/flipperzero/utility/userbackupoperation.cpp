@@ -9,15 +9,21 @@
 #include "flipperzero/rpc/storagereadoperation.h"
 
 #include "getfiletreeoperation.h"
+#include "tarzipcompressor.h"
+#include "tempdirectories.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-UserBackupOperation::UserBackupOperation(ProtobufSession *rpc, DeviceState *deviceState, const QString &backupPath, QObject *parent):
+UserBackupOperation::UserBackupOperation(ProtobufSession *rpc, DeviceState *deviceState, const QUrl &backupUrl, QObject *parent):
     AbstractUtilityOperation(rpc, deviceState, parent),
-    m_backupDir(backupPath),
+    m_backupUrl(backupUrl),
+    m_tempDir(QStringLiteral("%1/%2-backup-XXXXXX").arg(globalTempDirs->root().absolutePath(), deviceState->deviceInfo().name)),
+    m_workDir(m_tempDir.path()),
     m_deviceDirName(QByteArrayLiteral("/int"))
-{}
+{
+    m_workDir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden);
+}
 
 const QString UserBackupOperation::description() const
 {
@@ -26,56 +32,35 @@ const QString UserBackupOperation::description() const
 
 void UserBackupOperation::nextStateLogic()
 {
-    if(operationState() == BasicOperationState::Ready) {
+    if(operationState() == Ready) {
         deviceState()->setStatusString(QStringLiteral("Backing up internal storage..."));
+        setOperationState(CreatingDirectory);
+        createDirectory();
 
-        setOperationState(State::CreatingDirectory);
-        createBackupDirectory();
-
-    } else if(operationState() == State::CreatingDirectory) {
-        setOperationState(State::GettingFileTree);
+    } else if(operationState() == CreatingDirectory) {
+        setOperationState(GettingFileTree);
         getFileTree();
 
-    } else if(operationState() == State::GettingFileTree) {
-        setOperationState(State::ReadingFiles);
+    } else if(operationState() == GettingFileTree) {
+        setOperationState(ReadingFiles);
         readFiles();
+
+    } else if(operationState() == ReadingFiles) {
+        setOperationState(CreatingArchive);
+        createArchive();
+
+    } else if(operationState() == CreatingArchive) {
+        finish();
     }
 }
 
-void UserBackupOperation::createBackupDirectory()
+void UserBackupOperation::createDirectory()
 {
     if(!m_deviceDirName.startsWith('/')) {
         finishWithError(BackendError::UnknownError, QStringLiteral("Expecting absolute path for device directory"));
-        return;
-    }
-
-    const auto &subdir = deviceState()->deviceInfo().name;
-    QFileInfo targetDirInfo(m_backupDir, subdir);
-
-    if(targetDirInfo.isDir()) {
-        QDir d(targetDirInfo.absoluteFilePath());
-        if(!d.removeRecursively()) {
-            finishWithError(BackendError::DiskError, QStringLiteral("Failed to remove old directory (1)"));
-            return;
-        }
-
-    } else if(targetDirInfo.isFile()) {
-        qWarning() << "Deleting a conflicting regular file";
-
-        QFile f(targetDirInfo.absoluteFilePath());
-        if(!f.remove()) {
-            finishWithError(BackendError::DiskError, QStringLiteral("Failed to remove old directory (2)"));
-            return;
-        }
-    }
-
-    targetDirInfo.refresh();
-
-    if(targetDirInfo.exists()) {
-        finishWithError(BackendError::DiskError, QStringLiteral("Failed to remove old directory (3)"));
-    } else if(!m_backupDir.mkpath(subdir + m_deviceDirName) || !m_backupDir.cd(subdir)) {
+    } else if(!m_workDir.mkpath(m_deviceDirName.mid(1))) {
         finishWithError(BackendError::DiskError, QStringLiteral("Failed to create backup directory"));
-    } else{
+    } else {
         advanceOperationState();
     }
 }
@@ -100,11 +85,6 @@ void UserBackupOperation::getFileTree()
 
 void UserBackupOperation::readFiles()
 {
-    // Temporary fix: do not read files of size 0
-    m_fileList.erase(std::remove_if(m_fileList.begin(), m_fileList.end(), [](const FileInfo &arg) {
-        return (arg.type == FileType::RegularFile) && (arg.size == 0);
-    }), m_fileList.end());
-
     auto numFiles = std::count_if(m_fileList.cbegin(), m_fileList.cend(), [](const FileInfo &arg) {
         return arg.type == FileType::RegularFile;
     });
@@ -113,7 +93,7 @@ void UserBackupOperation::readFiles()
         const auto filePath = fileInfo.absolutePath.mid(1);
 
         if(fileInfo.type == FileType::Directory) {
-            if(!m_backupDir.mkdir(filePath)) {
+            if(!m_workDir.mkdir(filePath)) {
                 finishWithError(BackendError::DiskError, QStringLiteral("Failed to create directory: %1").arg(QString(filePath)));
                 return;
             }
@@ -121,17 +101,29 @@ void UserBackupOperation::readFiles()
         } else if(fileInfo.type == FileType::RegularFile) {
             const auto isLastFile = (--numFiles == 0);
 
-            auto *file = new QFile(m_backupDir.absoluteFilePath(filePath), this);
+            auto *file = new QFile(m_workDir.absoluteFilePath(filePath), this);
             auto *op = rpc()->storageRead(fileInfo.absolutePath, file);
 
             connect(op, &AbstractOperation::finished, this, [=]() {
                 if(op->isError()) {
                     finishWithError(BackendError::BackupError, op->errorString());
                 } else if(isLastFile) {
-                    finish();
+                    advanceOperationState();
                 }
-
             });
         }
     }
+}
+
+void UserBackupOperation::createArchive()
+{
+    auto *compressor = new TarZipCompressor(m_workDir, m_backupUrl, this);
+
+    connect(compressor, &TarZipCompressor::finished, this, [=]() {
+        if(compressor->isError()) {
+            finishWithError(compressor->error(), compressor->errorString());
+        } else {
+            advanceOperationState();
+        }
+    });
 }

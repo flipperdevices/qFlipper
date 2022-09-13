@@ -37,8 +37,8 @@ public:
     void fullUpdate(const Flipper::Updates::VersionInfo &versionInfo);
     void fullRepair(const Flipper::Updates::VersionInfo &versionInfo);
 
-    void createBackup(const QUrl &directoryUrl);
-    void restoreBackup(const QUrl &directoryUrl);
+    void createBackup(const QUrl &backupUrl);
+    void restoreBackup(const QUrl &backupUrl);
     void factoryReset();
 
     void installFirmware(const QUrl &fileUrl);

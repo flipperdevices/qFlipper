@@ -2,6 +2,7 @@
 
 #include "abstracttopleveloperation.h"
 
+#include <QUrl>
 #include <QElapsedTimer>
 
 namespace Flipper {
@@ -19,7 +20,7 @@ class SettingsBackupOperation : public AbstractTopLevelOperation
     };
 
 public:
-    SettingsBackupOperation(UtilityInterface *utility, DeviceState *state, const QUrl &backupDir, QObject *parent = nullptr);
+    SettingsBackupOperation(UtilityInterface *utility, DeviceState *state, const QUrl &backupUrl, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:
@@ -32,7 +33,7 @@ private:
     void onSubOperationError(AbstractOperation *operation) override;
 
     UtilityInterface *m_utility;
-    QString m_backupDir;
+    QUrl m_backupUrl;
     QElapsedTimer m_elapsed;
 };
 

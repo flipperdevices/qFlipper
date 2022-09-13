@@ -1,5 +1,6 @@
 #include "userrestoreoperation.h"
 
+#include <QUrl>
 #include <QFile>
 #include <QTimer>
 #include <QDirIterator>
@@ -15,9 +16,9 @@
 using namespace Flipper;
 using namespace Zero;
 
-UserRestoreOperation::UserRestoreOperation(ProtobufSession *rpc, DeviceState *deviceState, const QString &backupPath, QObject *parent):
+UserRestoreOperation::UserRestoreOperation(ProtobufSession *rpc, DeviceState *deviceState, const QUrl &backupUrl, QObject *parent):
     AbstractUtilityOperation(rpc, deviceState, parent),
-    m_backupDir(backupPath),
+    m_backupDir(backupUrl.toLocalFile()),
     m_deviceDirName(QByteArrayLiteral("/int"))
 {
     m_backupDir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden);

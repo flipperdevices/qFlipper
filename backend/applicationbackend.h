@@ -117,8 +117,8 @@ public:
 
     Q_INVOKABLE void mainAction();
 
-    Q_INVOKABLE void createBackup(const QUrl &directoryUrl);
-    Q_INVOKABLE void restoreBackup(const QUrl &directoryUrl);
+    Q_INVOKABLE void createBackup(const QUrl &backupUrl);
+    Q_INVOKABLE void restoreBackup(const QUrl &backupUrl);
     Q_INVOKABLE void factoryReset();
 
     Q_INVOKABLE void installFirmware(const QUrl &fileUrl);

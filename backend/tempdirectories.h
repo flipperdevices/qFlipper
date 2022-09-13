@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QUrl>
 #include <QDir>
 #include <QTemporaryDir>
 

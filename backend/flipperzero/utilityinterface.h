@@ -32,8 +32,8 @@ public:
 
     StartRecoveryOperation *startRecoveryMode();
     AssetsDownloadOperation *downloadAssets(QIODevice *compressedFile);
-    UserBackupOperation *backupInternalStorage(const QString &backupPath);
-    UserRestoreOperation *restoreInternalStorage(const QString &backupPath);
+    UserBackupOperation *backupInternalStorage(const QUrl &backupUrl);
+    UserRestoreOperation *restoreInternalStorage(const QUrl &backupUrl);
     RestartOperation *restartDevice();
     FactoryResetUtilOperation *factoryReset();
     DirectoryUploadOperation *uploadDirectory(const QString &localDirectory, const QByteArray &remotePath);

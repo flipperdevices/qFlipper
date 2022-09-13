@@ -19,7 +19,7 @@ class UserRestoreOperation : public AbstractUtilityOperation
     };
 
 public:
-    UserRestoreOperation(ProtobufSession *rpc, DeviceState *deviceState, const QString &backupPath, QObject *parent = nullptr);
+    UserRestoreOperation(ProtobufSession *rpc, DeviceState *deviceState, const QUrl &backupUrl, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:
