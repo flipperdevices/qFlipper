@@ -33,8 +33,8 @@ signals:
     void ready();
 
 private:
-    void readFile();
-    void writeFile(const QDir &inputDir);
+    void readTarFile();
+    void assembleTarFile(const QDir &inputDir);
 
     QIODevice *m_tarFile;
     QSharedPointer<FileNode> m_root;

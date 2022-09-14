@@ -3,10 +3,15 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QDirIterator>
+
 #include <QIODevice>
-#include <QDebug>
+#include <QDateTime>
+
+#include <QFutureWatcher>
+#include <QtConcurrent/QtConcurrentRun>
 
 #define BLOCK_SIZE 512
+#define CHUNK_SIZE (4 * 1024 * 1024)
 
 struct TarHeader
 {
@@ -19,8 +24,7 @@ struct TarHeader
     char checksum[8];
     char typeflag;
     char linkname[100];
-    char magic[6];
-    char unused4[249];
+    char unused[255];
 };
 
 static_assert(sizeof(TarHeader) == BLOCK_SIZE, "Check TarHeader alignment");
@@ -60,7 +64,7 @@ TarArchive::TarArchive(QIODevice *inputFile, QObject *parent):
     if(!m_tarFile->open(QIODevice::ReadOnly)) {
         setError(BackendError::DiskError, m_tarFile->errorString());
     } else {
-        readFile();
+        readTarFile();
     }
 }
 
@@ -71,9 +75,21 @@ TarArchive::TarArchive(const QDir &inputDir, QIODevice *outputFile, QObject *par
 {
     if(!m_tarFile->open(QIODevice::WriteOnly)) {
         setError(BackendError::DiskError, m_tarFile->errorString());
-    } else {
-        writeFile(inputDir);
+        return;
     }
+
+    auto *watcher = new QFutureWatcher<void>(this);
+
+    connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
+        watcher->deleteLater();
+        emit ready();
+    });
+
+#if QT_VERSION < 0x060000
+    watcher->setFuture(QtConcurrent::run(this, &TarArchive::assembleTarFile, inputDir));
+#else
+    watcher->setFuture(QtConcurrent::run(&TarArchive::assembleTarFile, this, inputDir));
+#endif
 }
 
 FileNode *TarArchive::root() const
@@ -120,7 +136,7 @@ QByteArray TarArchive::fileData(const QString &fullName)
     }
 }
 
-void TarArchive::readFile()
+void TarArchive::readTarFile()
 {
     TarHeader header;
     int emptyCounter = 0;
@@ -138,10 +154,6 @@ void TarArchive::readFile()
             } else {
                 continue;
             }
-
-        } else if(strncmp(header.magic, "ustar", 5)) {
-            setError(BackendError::DataError, QStringLiteral("Tar magic constant not found."));
-            return;
         }
 
         const auto fileSize = strtol(header.size, nullptr, 8);
@@ -170,11 +182,9 @@ void TarArchive::readFile()
     } while(m_tarFile->bytesAvailable());
 }
 
-void TarArchive::writeFile(const QDir &inputDir)
+void TarArchive::assembleTarFile(const QDir &inputDir)
 {
     TarHeader header = {};
-    snprintf(header.magic, sizeof(header.magic), "%s", "ustar");
-
     QDirIterator it(inputDir, QDirIterator::Subdirectories);
 
     while(it.hasNext()) {
@@ -183,17 +193,21 @@ void TarArchive::writeFile(const QDir &inputDir)
 
         if(fileInfo.isFile()) {
             snprintf(header.name, sizeof(header.name), "%s", relativeFilePath.data());
-            snprintf(header.mode, sizeof(header.mode), "%o", 0664);
-            snprintf(header.size, sizeof(header.size), "%o", (unsigned int)fileInfo.size());
+            snprintf(header.mode, sizeof(header.mode), "%07o", 0664);
+            snprintf(header.size, sizeof(header.size), "%011o", (unsigned int)fileInfo.size());
             header.typeflag = '0';
 
         } else if(fileInfo.isDir()) {
             snprintf(header.name, sizeof(header.name), "%s/", relativeFilePath.data());
-            snprintf(header.mode, sizeof(header.mode), "%o", 0775);
-            snprintf(header.size, sizeof(header.size), "0");
+            snprintf(header.mode, sizeof(header.mode), "%07o", 0755);
+            snprintf(header.size, sizeof(header.size), "%011o", 0);
             header.typeflag = '5';
         }
 
+        snprintf(header.owner, sizeof(header.owner), "%07o", 1000);
+        snprintf(header.group, sizeof(header.group), "%07o", 1000);
+
+        snprintf(header.mtime, sizeof(header.mtime), "%011o", (unsigned int)fileInfo.metadataChangeTime().toSecsSinceEpoch());
         snprintf(header.checksum, sizeof(header.checksum), "%06o", calculateChecksum(&header));
 
         if(m_tarFile->write((const char*)&header, sizeof(TarHeader)) != sizeof(TarHeader)) {
@@ -209,20 +223,31 @@ void TarArchive::writeFile(const QDir &inputDir)
                 break;
             }
 
-            const auto fileData = file.readAll();
-            if(fileData.size() != fileInfo.size()) {
-                setError(BackendError::DiskError, file.errorString());
+            qint64 bytesProcessed = 0;
+
+            while(file.bytesAvailable() > 0) {
+                const auto chunk = file.read(CHUNK_SIZE);
+                if(chunk.isEmpty()) {
+                    setError(BackendError::DiskError, QStringLiteral("Failed to read from file: %1").arg(file.errorString()));
+                    break;
+                }
+
+                if(m_tarFile->write(chunk) != chunk.size()) {
+                    setError(BackendError::DiskError, QStringLiteral("Failed to write to file: %1").arg(m_tarFile->errorString()));
+                    break;
+                }
+
+                bytesProcessed += chunk.size();
+            }
+
+            if(bytesProcessed != fileInfo.size()) {
                 break;
             }
 
-            if(m_tarFile->write(fileData) != fileData.size()) {
-                setError(BackendError::DiskError, m_tarFile->errorString());
-                break;
-            }
-
-            const auto paddingSize = BLOCK_SIZE - (fileInfo.size() % BLOCK_SIZE);
-            if(paddingSize) {
-                m_tarFile->write(QByteArray(paddingSize, 0));
+            // Blocks are always padded to BLOCK_SIZE
+            const auto padding = BLOCK_SIZE - (fileInfo.size() % BLOCK_SIZE);
+            if(padding) {
+                m_tarFile->write(QByteArray(padding, 0));
             }
         }
     }

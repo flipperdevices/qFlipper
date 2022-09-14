@@ -43,7 +43,7 @@ TarZipArchive::TarZipArchive(QFile *inputFile, QObject *parent):
 
 TarZipArchive::TarZipArchive(const QDir &inputDir, QFile *outputFile, QObject *parent):
     QObject(parent),
-    m_tarFile(globalTempDirs->createFile("backup.tar", this)),
+    m_tarFile(globalTempDirs->createTempFile(this)),
     m_tarArchive(new TarArchive(inputDir, m_tarFile, this))
 {
     if(m_tarArchive->isError()) {

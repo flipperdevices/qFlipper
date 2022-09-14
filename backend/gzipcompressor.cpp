@@ -30,7 +30,7 @@ GZipCompressor::GZipCompressor(QIODevice *in, QIODevice *out, QObject *parent):
     auto *watcher = new QFutureWatcher<void>(this);
 
     connect(watcher, &QFutureWatcherBase::finished, this, [=]() {
-        qCDebug(LOG_UNZIP).noquote() << "Compression finished :" << errorString();
+        qCDebug(LOG_UNZIP).noquote() << "Compression finished:" << errorString();
         watcher->deleteLater();
         emit finished();
     });
@@ -71,8 +71,6 @@ void GZipCompressor::doCompress()
     stream.zalloc = Z_NULL;
     stream.zfree = Z_NULL;
     stream.opaque = Z_NULL;
-    stream.avail_in = 0;
-    stream.next_in = Z_NULL;
 
     const auto err = deflateInit2(&stream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15 | 16, 8, Z_DEFAULT_STRATEGY);
     if(err != Z_OK) {
@@ -82,20 +80,21 @@ void GZipCompressor::doCompress()
 
     char inbuf[CHUNK_SIZE];
     char outbuf[CHUNK_SIZE];
+    int flushMode;
 
     do {
         const auto n = m_in->read(inbuf, CHUNK_SIZE);
         stream.avail_in = n;
         stream.next_in = (Bytef*)inbuf;
+        flushMode = m_in->bytesAvailable() ? Z_NO_FLUSH : Z_FINISH;
 
         do {
             stream.avail_out = CHUNK_SIZE;
             stream.next_out = (Bytef*)outbuf;
 
-            const auto err = deflate(&stream, Z_NO_FLUSH);
-            const auto errorOccured = (err == Z_MEM_ERROR) || (err == Z_DATA_ERROR);
+            const auto err = deflate(&stream, flushMode);
 
-            if(errorOccured) {
+            if(err == Z_STREAM_ERROR) {
                 deflateEnd(&stream);
                 setError(BackendError::DataError, QStringLiteral("Error during compression"));
                 return;
@@ -105,7 +104,7 @@ void GZipCompressor::doCompress()
 
         } while(!stream.avail_out);
 
-    } while(m_in->bytesAvailable());
+    } while(flushMode != Z_FINISH);
 
     deflateEnd(&stream);
     closeFiles();
