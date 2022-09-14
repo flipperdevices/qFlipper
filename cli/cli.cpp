@@ -221,7 +221,7 @@ void Cli::beginBackup()
     verifyArgumentCount(2);
     m_fileParameter = QUrl::fromLocalFile(m_parser.positionalArguments().at(1));
 
-    qCInfo(LOG_CLI).noquote().nospace() << "Performing internal storage backup to " << m_fileParameter << "...";
+    qCInfo(LOG_CLI).noquote().nospace() << "Performing internal storage backup to " << m_fileParameter.toLocalFile() << "...";
     m_pendingOperation = Backup;
 }
 
@@ -230,7 +230,7 @@ void Cli::beginRestore()
     verifyArgumentCount(2);
     m_fileParameter = QUrl::fromLocalFile(m_parser.positionalArguments().at(1));
 
-    qCInfo(LOG_CLI).noquote().nospace() << "Performing internal restore from " << m_fileParameter << "...";
+    qCInfo(LOG_CLI).noquote().nospace() << "Performing internal restore from " << m_fileParameter.toLocalFile() << "...";
     m_pendingOperation = Restore;
 }
 
@@ -259,7 +259,7 @@ void Cli::beginFirmware()
 
     m_fileParameter = QUrl::fromLocalFile(arg);
 
-    qCInfo(LOG_CLI).noquote().nospace() << "Performing Firmware installation from " << m_fileParameter << "...";
+    qCInfo(LOG_CLI).noquote().nospace() << "Performing Firmware installation from " << m_fileParameter.toLocalFile() << "...";
     m_pendingOperation = Firmware;
 }
 
@@ -275,7 +275,7 @@ void Cli::beginCore2Radio()
 
     m_fileParameter = QUrl::fromLocalFile(arg);
 
-    qCInfo(LOG_CLI).noquote().nospace() << "Performing Radio Firmware installation from " << m_fileParameter << "...";
+    qCInfo(LOG_CLI).noquote().nospace() << "Performing Radio Firmware installation from " << m_fileParameter.toLocalFile() << "...";
     m_pendingOperation = Core2Radio;
 }
 
