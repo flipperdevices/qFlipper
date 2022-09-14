@@ -2,6 +2,8 @@
 
 #include "abstracttopleveloperation.h"
 
+#include <QUrl>
+
 class QFile;
 
 namespace Flipper {
@@ -43,8 +45,8 @@ private:
     RecoveryInterface *m_recovery;
     UtilityInterface *m_utility;
     QFile *m_file;
-
     bool m_skipBackup;
+    QUrl m_backupUrl;
 };
 
 }
