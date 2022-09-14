@@ -125,10 +125,10 @@ void AssetsDownloadOperation::extractArchive()
         if(uncompressor->isError()) {
             finishWithError(uncompressor->error(), uncompressor->errorString());
         } else {
-            m_archive = std::move(TarArchive(m_uncompressedFile));
+            m_archive = new TarArchive(m_uncompressedFile, this);
 
-            if(m_archive.isError()) {
-                finishWithError(m_archive.error(), m_archive.errorString());
+            if(m_archive->isError()) {
+                finishWithError(m_archive->error(), m_archive->errorString());
             } else {
                 advanceOperationState();
             }
@@ -140,10 +140,10 @@ void AssetsDownloadOperation::extractArchive()
 
 void AssetsDownloadOperation::readLocalManifest()
 {
-    const auto text = m_archive.fileData(QStringLiteral("resources/Manifest"));
+    const auto text = m_archive->fileData(QStringLiteral("resources/Manifest"));
 
     if(text.isEmpty()) {
-        return finishWithError(m_archive.error(), m_archive.errorString());
+        return finishWithError(m_archive->error(), m_archive->errorString());
     }
 
     m_localManifest = AssetManifest(text);
@@ -308,7 +308,7 @@ void AssetsDownloadOperation::writeFiles()
             }
 
             const auto resourcePath = QStringLiteral("resources/") + fileInfo.absolutePath;
-            if((buf->write(m_archive.fileData(resourcePath)) < 0)) {
+            if((buf->write(m_archive->fileData(resourcePath)) < 0)) {
                 buf->deleteLater();
                 return finishWithError(BackendError::UnknownError, buf->errorString());
             } else {

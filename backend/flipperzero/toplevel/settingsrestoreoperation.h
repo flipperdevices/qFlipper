@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QUrl>
 #include <QElapsedTimer>
 
 #include "abstracttopleveloperation.h"
@@ -20,7 +21,7 @@ class SettingsRestoreOperation : public AbstractTopLevelOperation
     };
 
 public:
-    SettingsRestoreOperation(UtilityInterface *utility, DeviceState *state, const QUrl &backupDir, QObject *parent = nullptr);
+    SettingsRestoreOperation(UtilityInterface *utility, DeviceState *state, const QUrl &backupUrl, QObject *parent = nullptr);
     const QString description() const override;
 
 private slots:
@@ -34,7 +35,7 @@ private:
     void onSubOperationError(AbstractOperation *operation) override;
 
     UtilityInterface *m_utility;
-    QString m_backupDir;
+    QUrl m_backupUrl;
     QElapsedTimer m_elapsed;
 };
 

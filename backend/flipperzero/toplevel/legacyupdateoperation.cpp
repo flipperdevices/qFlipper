@@ -1,6 +1,7 @@
 #include "legacyupdateoperation.h"
 
 #include <QFile>
+#include <QDateTime>
 #include <QTemporaryFile>
 
 #include "flipperzero/devicestate.h"
@@ -34,7 +35,8 @@ LegacyUpdateOperation::LegacyUpdateOperation(RecoveryInterface *recovery, Utilit
     m_recovery(recovery),
     m_utility(utility),
     m_versionInfo(versionInfo),
-    m_skipBackup(deviceState()->deviceInfo().firmware.version == SHIPPED_VERSION)
+    m_skipBackup(deviceState()->deviceInfo().firmware.version == SHIPPED_VERSION),
+    m_backupUrl(globalTempDirs->fileUrl(QStringLiteral("%1-%2.tgz").arg(state->deviceInfo().name, QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss"))))
 {}
 
 const QString LegacyUpdateOperation::description() const
@@ -126,7 +128,7 @@ void LegacyUpdateOperation::saveBackup()
     if(m_skipBackup) {
         advanceOperationState();
     } else {
-        registerSubOperation(m_utility->backupInternalStorage(globalTempDirs->root().absolutePath()));
+        registerSubOperation(m_utility->backupInternalStorage(m_backupUrl));
     }
 }
 
@@ -179,7 +181,7 @@ void LegacyUpdateOperation::restoreBackup()
     if(m_skipBackup) {
         advanceOperationState();
     } else {
-        registerSubOperation(m_utility->restoreInternalStorage(globalTempDirs->root().absolutePath()));
+        registerSubOperation(m_utility->restoreInternalStorage(m_backupUrl));
     }
 }
 

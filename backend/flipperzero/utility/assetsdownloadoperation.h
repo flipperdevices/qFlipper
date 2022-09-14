@@ -48,7 +48,7 @@ private:
     QIODevice *m_compressedFile;
     QFile *m_uncompressedFile;
 
-    TarArchive m_archive;
+    TarArchive *m_archive;
 
     AssetManifest m_localManifest;
     AssetManifest m_deviceManifest;

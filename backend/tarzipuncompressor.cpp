@@ -10,10 +10,10 @@
 
 TarZipUncompressor::TarZipUncompressor(QFile *tarZipFile, const QDir &targetDir, QObject *parent):
     QObject(parent),
-    m_archive(new TarZipArchive(tarZipFile, this)),
+    m_tarZipArchive(new TarZipArchive(tarZipFile, this)),
     m_targetDir(targetDir)
 {
-    connect(m_archive, &TarZipArchive::ready, this, &TarZipUncompressor::onArchiveReady);
+    connect(m_tarZipArchive, &TarZipArchive::ready, this, &TarZipUncompressor::onArchiveReady);
 }
 
 void TarZipUncompressor::onArchiveReady()
@@ -30,7 +30,7 @@ void TarZipUncompressor::onArchiveReady()
 
 void TarZipUncompressor::extractFiles()
 {
-    const auto fileInfos = m_archive->archiveIndex()->root()->toPreOrderList();
+    const auto fileInfos = m_tarZipArchive->archiveIndex()->root()->toPreOrderList();
 
     for(const auto &fileInfo : fileInfos) {
         const auto &absolutePath = fileInfo.absolutePath;
@@ -58,7 +58,7 @@ bool TarZipUncompressor::extractFile(const QString &src, const QString &dst)
         return false;
     }
 
-    const auto fileData = m_archive->archiveIndex()->fileData(src);
+    const auto fileData = m_tarZipArchive->archiveIndex()->fileData(src);
     if(file.write(fileData) != fileData.size()) {
         setError(BackendError::DiskError, file.errorString());
         return false;

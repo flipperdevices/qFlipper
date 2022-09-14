@@ -25,7 +25,7 @@ private:
     void extractFiles();
     bool extractFile(const QString &src, const QString &dst);
 
-    TarZipArchive *m_archive;
+    TarZipArchive *m_tarZipArchive;
     QDir m_targetDir;
 };
 

@@ -1,7 +1,6 @@
 #include "userrestoreoperation.h"
 
 #include <QFile>
-#include <QTimer>
 #include <QDirIterator>
 
 #include "flipperzero/devicestate.h"
@@ -10,103 +9,118 @@
 #include "flipperzero/rpc/storagewriteoperation.h"
 #include "flipperzero/rpc/storageremoveoperation.h"
 
-#include "debug.h"
+#include "tarzipuncompressor.h"
+#include "tempdirectories.h"
 
 using namespace Flipper;
 using namespace Zero;
 
-UserRestoreOperation::UserRestoreOperation(ProtobufSession *rpc, DeviceState *deviceState, const QString &backupPath, QObject *parent):
+UserRestoreOperation::UserRestoreOperation(ProtobufSession *rpc, DeviceState *deviceState, const QUrl &backupUrl, QObject *parent):
     AbstractUtilityOperation(rpc, deviceState, parent),
-    m_backupDir(backupPath),
-    m_deviceDirName(QByteArrayLiteral("/int"))
+    m_backupUrl(backupUrl),
+    m_tempDir(QStringLiteral("%1/%2-backup-XXXXXX").arg(globalTempDirs->root().absolutePath(), deviceState->deviceInfo().name)),
+    m_workDir(m_tempDir.path()),
+    m_remoteDirName(QByteArrayLiteral("/int"))
 {
-    m_backupDir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden);
-    m_backupDir.setSorting(QDir::Name | QDir::DirsFirst);
+    m_workDir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden);
+    m_workDir.setSorting(QDir::Name | QDir::DirsFirst);
 }
 
 const QString UserRestoreOperation::description() const
 {
-    return QStringLiteral("Restore %1 @%2").arg(m_deviceDirName, deviceState()->name());
+    return QStringLiteral("Restore %1 @%2").arg(m_remoteDirName, deviceState()->name());
 }
 
 void UserRestoreOperation::nextStateLogic()
 {
-    if(operationState() == BasicOperationState::Ready) {
+    if(operationState() == Ready) {
+        setOperationState(UncompressingArchive);
+        uncompressArchive();
+
+    } else if(operationState() == UncompressingArchive) {
         setOperationState(State::ReadingBackupDir);
-        if(!readBackupDir()) {
-            finishWithError(BackendError::DiskError, QStringLiteral("Failed to process backup directory"));
-        } else {
-            QTimer::singleShot(0, this, &UserRestoreOperation::nextStateLogic);
-        }
+        readBackupDir();
 
     } else if(operationState() == State::ReadingBackupDir) {
         setOperationState(State::DeletingFiles);
-        if(!deleteFiles()) {
-            finishWithError(BackendError::DiskError, QStringLiteral("Failed to delete old files"));
-        }
+        deleteFiles();
 
     } else if(operationState() == State::DeletingFiles) {
         setOperationState(State::WritingFiles);
-        if(!writeFiles()) {
-            finishWithError(BackendError::DiskError, QStringLiteral("Failed to write new files"));
-        }
+        writeFiles();
 
     } else if(operationState() == State::WritingFiles) {
         finish();
-    } else {}
+    }
 }
 
-bool UserRestoreOperation::readBackupDir()
+void UserRestoreOperation::uncompressArchive()
 {
-    const auto &name = deviceState()->deviceInfo().name;
-    const auto subdir = name + m_deviceDirName;
+    auto *tarZipFile = new QFile(m_backupUrl.toLocalFile(), this);
+    auto *uncompressor = new TarZipUncompressor(tarZipFile, m_workDir, this);
 
-    check_return_bool(m_backupDir.exists(subdir), "Requested directory not found");
-    check_return_bool(m_backupDir.cd(subdir), "Access denied");
-
-    QDirIterator it(m_backupDir, QDirIterator::Subdirectories);
-
-    while(it.hasNext()) {
-        it.next();
-        m_files.append(it.fileInfo());
+    if(uncompressor->isError()) {
+        finishWithError(uncompressor->error(), uncompressor->errorString());
+        return;
     }
 
-    check_return_bool(!m_files.isEmpty(), "Backup directory is empty.");
-    return true;
+    connect(uncompressor, &TarZipUncompressor::finished, this, [=]() {
+        if(uncompressor->isError()) {
+            finishWithError(uncompressor->error(), uncompressor->errorString());
+        } else {
+            advanceOperationState();
+        }
+    });
 }
 
-bool UserRestoreOperation::deleteFiles()
+void UserRestoreOperation::readBackupDir()
+{
+    if(!m_workDir.exists(m_remoteDirName.mid(1))) {
+        finishWithError(BackendError::DiskError, QStringLiteral("No matching backup directory"));
+        return;
+    }
+
+    QDirIterator it(m_workDir, QDirIterator::Subdirectories);
+
+    while(it.hasNext()) {
+        m_files.append(QFileInfo(it.next()));
+    }
+
+    if(m_files.isEmpty()) {
+        finishWithError(BackendError::DiskError, QStringLiteral("Backup directory is empty"));
+    } else {
+        advanceOperationState();
+    }
+}
+
+void UserRestoreOperation::deleteFiles()
 {
     deviceState()->setStatusString(tr("Cleaning up..."));
 
     auto numFiles = m_files.size();
-    for(auto it = m_files.crbegin(); it != m_files.crend(); ++it) {
-        check_return_bool(it->isFile() || it->isDir(), "Expected a file or directory");
-
-        const auto filePath = m_deviceDirName + QByteArrayLiteral("/") + m_backupDir.relativeFilePath(it->absoluteFilePath()).toLocal8Bit();
+    for(const auto &fileInfo : qAsConst(m_files)) {
+        const auto filePath = QByteArrayLiteral("/") + m_workDir.relativeFilePath(fileInfo.absoluteFilePath()).toLocal8Bit();
         const auto isLastFile = (--numFiles == 0);
 
         auto *op = rpc()->storageRemove(filePath);
-        connect(op, &AbstractOperation::finished, this, [=](){
+        connect(op, &AbstractOperation::finished, this, [=]() {
             if(op->isError()) {
                 finishWithError(BackendError::OperationError, op->errorString());
             } else if(isLastFile) {
-                QTimer::singleShot(0, this, &UserRestoreOperation::nextStateLogic);
+                advanceOperationState();
             }
         });
     }
-
-    return true;
 }
 
-bool UserRestoreOperation::writeFiles()
+void UserRestoreOperation::writeFiles()
 {
     deviceState()->setStatusString(tr("Restoring backup..."));
 
     auto numFiles = m_files.size();
 
     for(const auto &fileInfo: qAsConst(m_files)) {
-        const auto filePath = m_deviceDirName + QByteArrayLiteral("/") + m_backupDir.relativeFilePath(fileInfo.absoluteFilePath()).toLocal8Bit();
+        const auto filePath = QByteArrayLiteral("/") + m_workDir.relativeFilePath(fileInfo.absoluteFilePath()).toLocal8Bit();
         const auto isLastFile = (--numFiles == 0);
 
         AbstractOperation *op;
@@ -122,19 +136,18 @@ bool UserRestoreOperation::writeFiles()
         } else if(fileInfo.isDir()) {
             op = rpc()->storageMkdir(filePath);
         } else {
-            return false;
+            finishWithError(BackendError::UnknownError, QStringLiteral("Expected a file or a directory"));
+            return;
         }
 
         connect(op, &AbstractOperation::finished, this, [=]() {
             if(op->isError()) {
                 finishWithError(BackendError::OperationError, op->errorString());
             } else if(isLastFile) {
-                QTimer::singleShot(0, this, &UserRestoreOperation::nextStateLogic);
+                advanceOperationState();
             }
 
             op->deleteLater();
         });
     }
-
-    return true;
 }

@@ -40,16 +40,16 @@ AssetsDownloadOperation *UtilityInterface::downloadAssets(QIODevice *compressedF
     return operation;
 }
 
-UserBackupOperation *UtilityInterface::backupInternalStorage(const QString &backupPath)
+UserBackupOperation *UtilityInterface::backupInternalStorage(const QUrl &backupUrl)
 {
-    auto *operation = new UserBackupOperation(m_rpc, m_deviceState, backupPath, this);
+    auto *operation = new UserBackupOperation(m_rpc, m_deviceState, backupUrl, this);
     enqueueOperation(operation);
     return operation;
 }
 
-UserRestoreOperation *UtilityInterface::restoreInternalStorage(const QString &backupPath)
+UserRestoreOperation *UtilityInterface::restoreInternalStorage(const QUrl &backupUrl)
 {
-    auto *operation = new UserRestoreOperation(m_rpc, m_deviceState, backupPath, this);
+    auto *operation = new UserRestoreOperation(m_rpc, m_deviceState, backupUrl, this);
     enqueueOperation(operation);
     return operation;
 }

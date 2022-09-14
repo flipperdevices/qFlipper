@@ -1,6 +1,5 @@
 #include "settingsrestoreoperation.h"
 
-#include <QUrl>
 #include <QTimer>
 
 #include "flipperzero/devicestate.h"
@@ -14,10 +13,10 @@ using namespace Zero;
 
 static constexpr qint64 MINIMUM_OPERATION_TIME_MS = 2000;
 
-SettingsRestoreOperation::SettingsRestoreOperation(UtilityInterface *utility, DeviceState *state, const QUrl &backupDir, QObject *parent):
+SettingsRestoreOperation::SettingsRestoreOperation(UtilityInterface *utility, DeviceState *state, const QUrl &backupUrl, QObject *parent):
     AbstractTopLevelOperation(state, parent),
     m_utility(utility),
-    m_backupDir(backupDir.toLocalFile())
+    m_backupUrl(backupUrl)
 {}
 
 const QString SettingsRestoreOperation::description() const
@@ -47,7 +46,7 @@ void SettingsRestoreOperation::nextStateLogic()
 void SettingsRestoreOperation::restoreBackup()
 {
     m_elapsed.start();
-    registerSubOperation(m_utility->restoreInternalStorage(m_backupDir));
+    registerSubOperation(m_utility->restoreInternalStorage(m_backupUrl));
 }
 
 void SettingsRestoreOperation::wait()

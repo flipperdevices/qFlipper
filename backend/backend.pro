@@ -90,6 +90,7 @@ SOURCES += \
     flipperzero/utility/userrestoreoperation.cpp \
     flipperzero/utilityinterface.cpp \
     flipperzero/virtualdisplay.cpp \
+    gzipcompressor.cpp \
     gzipuncompressor.cpp \
     logger.cpp \
     preferences.cpp \
@@ -99,6 +100,7 @@ SOURCES += \
     simpleserialoperation.cpp \
     tararchive.cpp \
     tarziparchive.cpp \
+    tarzipcompressor.cpp \
     tarzipuncompressor.cpp \
     tempdirectories.cpp \
     updateregistry.cpp \
@@ -195,6 +197,7 @@ HEADERS += \
     flipperzero/utility/userrestoreoperation.h \
     flipperzero/utilityinterface.h \
     flipperzero/virtualdisplay.h \
+    gzipcompressor.h \
     gzipuncompressor.h \
     logger.h \
     preferences.h \
@@ -204,6 +207,7 @@ HEADERS += \
     simpleserialoperation.h \
     tararchive.h \
     tarziparchive.h \
+    tarzipcompressor.h \
     tarzipuncompressor.h \
     tempdirectories.h \
     updateregistry.h \
