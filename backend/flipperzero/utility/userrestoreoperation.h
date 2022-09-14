@@ -2,8 +2,10 @@
 
 #include "abstractutilityoperation.h"
 
+#include <QUrl>
 #include <QDir>
 #include <QFileInfoList>
+#include <QTemporaryDir>
 
 namespace Flipper {
 namespace Zero {
@@ -13,7 +15,8 @@ class UserRestoreOperation : public AbstractUtilityOperation
     Q_OBJECT
 
     enum State {
-        ReadingBackupDir = AbstractOperation::User,
+        UncompressingArchive = AbstractOperation::User,
+        ReadingBackupDir,
         DeletingFiles,
         WritingFiles
     };
@@ -26,13 +29,16 @@ private slots:
     void nextStateLogic() override;
 
 private:
-    QDir m_backupDir;
-    QByteArray m_deviceDirName;
+    QUrl m_backupUrl;
+    QTemporaryDir m_tempDir;
+    QDir m_workDir;
+    QByteArray m_remoteDirName;
     QFileInfoList m_files;
 
-    bool readBackupDir();
-    bool deleteFiles();
-    bool writeFiles();
+    void uncompressArchive();
+    void readBackupDir();
+    void deleteFiles();
+    void writeFiles();
 };
 
 }

@@ -410,7 +410,7 @@ AbstractOverlay {
             confirmationDialog.openWithMessage(actionFunc, messageObj);
         });
 
-        SystemFileDialog.beginOpenFile(SystemFileDialog.DownloadsLocation);
+        SystemFileDialog.beginOpenFile(SystemFileDialog.DownloadsLocation, ["Backup files (*.tgz)", "All files (*.*)"]);
     }
 
     function eraseDevice() {

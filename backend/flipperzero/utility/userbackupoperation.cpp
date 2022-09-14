@@ -23,6 +23,7 @@ UserBackupOperation::UserBackupOperation(ProtobufSession *rpc, DeviceState *devi
     m_deviceDirName(QByteArrayLiteral("/int"))
 {
     m_workDir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden);
+    m_workDir.setSorting(QDir::Name | QDir::DirsFirst);
 }
 
 const QString UserBackupOperation::description() const
