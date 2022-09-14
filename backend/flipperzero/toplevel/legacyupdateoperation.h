@@ -4,6 +4,7 @@
 
 #include <QMap>
 #include <QFile>
+#include <QUrl>
 
 #include "flipperupdates.h"
 
@@ -62,6 +63,7 @@ private:
 
     Updates::VersionInfo m_versionInfo;
     bool m_skipBackup;
+    QUrl m_backupUrl;
 };
 
 }
