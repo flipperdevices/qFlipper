@@ -93,8 +93,8 @@ void Cli::initLogger()
 
 void Cli::initParser()
 {
-    m_parser.addPositionalArgument(QStringLiteral("backup"), QStringLiteral("Backup Internal Memory contents"), QStringLiteral("{backup <target_directory>,"));
-    m_parser.addPositionalArgument(QStringLiteral("restore"), QStringLiteral("Restore Internal Memory contents"), QStringLiteral("restore <source_directory>,"));
+    m_parser.addPositionalArgument(QStringLiteral("backup"), QStringLiteral("Backup Internal Memory contents"), QStringLiteral("{backup <backup_file>,"));
+    m_parser.addPositionalArgument(QStringLiteral("restore"), QStringLiteral("Restore Internal Memory contents"), QStringLiteral("restore <backup_file>,"));
     m_parser.addPositionalArgument(QStringLiteral("erase"), QStringLiteral("Erase Internal Memory contents"), QStringLiteral("erase,"));
     m_parser.addPositionalArgument(QStringLiteral("wipe"), QStringLiteral("Wipe entire MCU Flash Memory"), QStringLiteral("wipe,"));
     m_parser.addPositionalArgument(QStringLiteral("firmware"), QStringLiteral("Flash Core1 Firmware"), QStringLiteral("firmware <firmware_file.dfu>,"));
