@@ -3,6 +3,8 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 
+#include "preferences.h"
+
 SystemFileDialog::SystemFileDialog():
     QObject(),
     m_dialog(nullptr)
@@ -74,22 +76,25 @@ void SystemFileDialog::onFileDialogAccepted()
 
 void SystemFileDialog::onFileDialogFinished()
 {
+    globalPrefs->setLastFolderUrl(m_dialog->directoryUrl());
     emit finished();
     disconnect();
 }
 
-QString SystemFileDialog::standardLocationPath(StandardLocation location)
+QUrl SystemFileDialog::standardLocationPath(StandardLocation location)
 {
-    if(location == HomeLocation) {
-        return QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+    if(location == LastLocation) {
+        return globalPrefs->lastFolderUrl();
+    } else if(location == HomeLocation) {
+        return QUrl::fromLocalFile(QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
     } else if(location == DownloadsLocation) {
-        return QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+        return QUrl::fromLocalFile(QStandardPaths::writableLocation(QStandardPaths::DownloadLocation));
     } else if(location == PicturesLocation) {
-        return QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+        return QUrl::fromLocalFile(QStandardPaths::writableLocation(QStandardPaths::PicturesLocation));
     } else if(location == DocumentsLocation) {
-        return QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+        return QUrl::fromLocalFile(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
     } else {
-        return QString();
+        return QUrl();
     }
 }
 
@@ -105,7 +110,7 @@ void SystemFileDialog::beginOpen(StandardLocation openLocation, int acceptMode, 
 
     m_dialog->setFileMode(static_cast<QFileDialog::FileMode>(fileMode));
     m_dialog->setAcceptMode(static_cast<QFileDialog::AcceptMode>(acceptMode));
-    m_dialog->setDirectory(standardLocationPath(openLocation));
+    m_dialog->setDirectoryUrl(standardLocationPath(openLocation));
 
 #ifndef Q_OS_WINDOWS
     // This code crashes on Windows for some reason
