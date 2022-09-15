@@ -1,9 +1,12 @@
 #include "preferences.h"
 
+#include <QStandardPaths>
+
 #define FIRMWARE_UPDATE_CHANNEL_KEY (QStringLiteral("FirmwareUpdateChannel"))
 #define APPLICATION_UPDATE_CHANNEL_KEY (QStringLiteral("ApplicationUpdateChannel"))
 #define CHECK_APPLICATION_UPDATES_KEY (QStringLiteral("CheckApplicatonUpdates"))
 #define SHOW_HIDDEN_FILES_KEY (QStringLiteral("ShowHiddenFiles"))
+#define LAST_FOLDER_URL_KEY (QStringLiteral("LastFolderUrl"))
 
 #define SET_DEFAULT_VALUE(key, value)\
     if(!m_settings.contains(key)) {\
@@ -17,6 +20,7 @@ Preferences::Preferences(QObject *parent):
     SET_DEFAULT_VALUE(APPLICATION_UPDATE_CHANNEL_KEY, QStringLiteral("release"));
     SET_DEFAULT_VALUE(CHECK_APPLICATION_UPDATES_KEY, true);
     SET_DEFAULT_VALUE(SHOW_HIDDEN_FILES_KEY, false);
+    SET_DEFAULT_VALUE(LAST_FOLDER_URL_KEY, QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
 }
 
 Preferences *Preferences::instance()
@@ -87,4 +91,19 @@ void Preferences::setShowHiddenFiles(bool set)
 
     m_settings.setValue(SHOW_HIDDEN_FILES_KEY, set);
     emit showHiddenFilesChanged();
+}
+
+QUrl Preferences::lastFolderUrl() const
+{
+    return QUrl::fromLocalFile(m_settings.value(LAST_FOLDER_URL_KEY).toString());
+}
+
+void Preferences::setLastFolderUrl(const QUrl &url)
+{
+    if(url == lastFolderUrl()) {
+        return;
+    }
+
+    m_settings.setValue(LAST_FOLDER_URL_KEY, url.toLocalFile());
+    emit lastFolderUrlChanged();
 }

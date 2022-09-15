@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QUrl>
 #include <QObject>
 #include <QSettings>
 
@@ -28,11 +29,15 @@ public:
     bool showHiddenFiles() const;
     void setShowHiddenFiles(bool set);
 
+    QUrl lastFolderUrl() const;
+    void setLastFolderUrl(const QUrl &url);
+
 signals:
     void firmwareUpdateChannelChanged();
     void applicationUpdateChannelChanged();
     void checkApplicationUpdatesChanged();
     void showHiddenFilesChanged();
+    void lastFolderUrlChanged();
 
 private:
     QSettings m_settings;
