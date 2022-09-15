@@ -238,7 +238,7 @@ Item {
                 control.uploadUrls(SystemFileDialog.fileUrls);
             });
 
-            SystemFileDialog.beginOpenFiles(SystemFileDialog.HomeLocation, [ "All files (*)" ]);
+            SystemFileDialog.beginOpenFiles(SystemFileDialog.LastLocation, [ "All files (*)" ]);
         }
     }
 
