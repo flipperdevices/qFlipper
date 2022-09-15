@@ -8,6 +8,7 @@
 #include "flipperzero/utility/startrecoveryoperation.h"
 #include "flipperzero/utility/assetsdownloadoperation.h"
 #include "flipperzero/utility/factoryresetutiloperation.h"
+#include "flipperzero/utility/filesuploadoperation.h"
 #include "flipperzero/utility/directoryuploadoperation.h"
 #include "flipperzero/utility/directorydownloadoperation.h"
 #include "flipperzero/utility/updateprepareoperation.h"
@@ -64,6 +65,13 @@ RestartOperation *UtilityInterface::restartDevice()
 FactoryResetUtilOperation *UtilityInterface::factoryReset()
 {
     auto *operation = new FactoryResetUtilOperation(m_rpc, m_deviceState, this);
+    enqueueOperation(operation);
+    return operation;
+}
+
+FilesUploadOperation *UtilityInterface::uploadFiles(const QList<QUrl> &fileUrls, const QByteArray &remotePath)
+{
+    auto *operation = new FilesUploadOperation(m_rpc, m_deviceState, fileUrls, remotePath, this);
     enqueueOperation(operation);
     return operation;
 }
