@@ -92,10 +92,10 @@ fi
 mkdir disk_image;
 mv "$PROJECT.app" "disk_image/";
 cp "../installer-assets/macos/DS_Store" "disk_image/.DS_Store";
-cp "../installer-assets/macos/VolumeIcon.icns" "disk_image/.VolumeIcon.icns";
 cp -r "../installer-assets/macos/background" "disk_image/.background";
 ../scripts/create-dmg/create-dmg \
     --volname "$PROJECT-$(git describe --tags --abbrev=0)" \
+    --volicon "../installer-assets/icons/${PROJECT}-installer.icns" \
     --skip-jenkins \
     --app-drop-link 485 150 \
     "$PROJECT.dmg" \
