@@ -43,7 +43,7 @@ void FilesUploadOperation::nextStateLogic()
 void FilesUploadOperation::readFileList()
 {
     for(const auto &url: qAsConst(m_urlList)) {
-        const QFileInfo fileInfo(url.toLocalFile());
+        const QFileInfo fileInfo(url.adjusted(QUrl::StripTrailingSlash).toLocalFile());
         const QDir topmostDir = fileInfo.dir();
 
         m_fileList.append({fileInfo, topmostDir});
