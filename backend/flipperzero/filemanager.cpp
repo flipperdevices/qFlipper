@@ -17,12 +17,11 @@
 #include "rpc/storageinfooperation.h"
 #include "rpc/storagelistoperation.h"
 #include "rpc/storagereadoperation.h"
-#include "rpc/storagewriteoperation.h"
 #include "rpc/storagemkdiroperation.h"
 #include "rpc/storageremoveoperation.h"
 #include "rpc/storagerenameoperation.h"
 
-#include "utility/directoryuploadoperation.h"
+#include "utility/filesuploadoperation.h"
 #include "utility/directorydownloadoperation.h"
 
 #include "preferences.h"
@@ -159,15 +158,11 @@ void FileManager::commitMkDir(const QString &dirName)
 
 void FileManager::upload(const QList<QUrl> &urlList)
 {
-    for(const auto &url : urlList) {
-        const QFileInfo info(url.toLocalFile());
-
-        if(info.isDir()) {
-            uploadDirectory(info);
-        } else {
-            uploadFile(info);
-        }
+    if(!checkDevice()) {
+        return;
     }
+
+    registerOperation(m_device->utility()->uploadFiles(urlList, currentPath().toLocal8Bit()));
 }
 
 void FileManager::uploadTo(const QString &remoteDirName, const QList<QUrl> &urlList)
@@ -353,28 +348,6 @@ void FileManager::listCurrentPath()
             }
         });
     }
-}
-
-void FileManager::uploadFile(const QFileInfo &info)
-{
-    if(!checkDevice()) {
-        return;
-    }
-
-    auto *file = new QFile(info.absoluteFilePath(), this);
-    auto *operation = m_device->rpc()->storageWrite(remoteFilePath(info.fileName()), file);
-
-    connect(operation, &AbstractOperation::finished, file, &QObject::deleteLater);
-    registerOperation(operation);
-}
-
-void FileManager::uploadDirectory(const QFileInfo &info)
-{
-    if(!checkDevice()) {
-        return;
-    }
-
-    registerOperation(m_device->utility()->uploadDirectory(info.absoluteFilePath(), currentPath().toLocal8Bit()));
 }
 
 void FileManager::downloadFile(const QByteArray &remoteFileName, const QString &localFileName)

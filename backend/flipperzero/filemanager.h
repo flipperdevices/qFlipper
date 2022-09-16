@@ -96,8 +96,6 @@ private:
     void popd();
 
     void listCurrentPath();
-    void uploadFile(const QFileInfo &info);
-    void uploadDirectory(const QFileInfo &info);
 
     void downloadFile(const QByteArray &remoteFileName, const QString &localFileName);
     void downloadDirectory(const QByteArray &remoteDirName, const QString &localDirName);
