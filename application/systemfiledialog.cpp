@@ -121,12 +121,9 @@ void SystemFileDialog::beginOpen(StandardLocation openLocation, int acceptMode, 
         m_dialog->selectFile(defaultFileName);
     }
 
-#ifndef Q_OS_MAC
-    // This code crashes on Mac for some reason
     if(!nameFilters.isEmpty()) {
         m_dialog->setNameFilters(nameFilters);
     }
-#endif
 
     m_dialog->exec();
 }
