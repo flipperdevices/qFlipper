@@ -33,7 +33,7 @@ void Cli::onBackendStateChanged()
 {
     const auto state = m_backend.backendState();
     if(state == ApplicationBackend::BackendState::ErrorOccured) {
-        qCCritical(LOG_CLI).nospace() << "An error has occured: " << m_backend.errorType() << ". Exiting.";
+        qCCritical(LOG_CLI).nospace() << "An error has occurred: " << m_backend.errorType() << ". Exiting.";
         return exit(-1);
 
     } else if(state == ApplicationBackend::BackendState::WaitingForDevices) {

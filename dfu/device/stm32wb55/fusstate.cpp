@@ -32,7 +32,7 @@ const QString FUSState::statusString() const
         case Idle: return "Idle";
         case FWUpgradeOngoing: return "Firmware upgrade ongoing";
         case ServiceOngoing: return "Service Ongoing";
-        case ErrorOccured: return "Error occured";
+        case ErrorOccured: return "Error occurred";
         case Invalid: default: return "Invalid state";
     }
 }

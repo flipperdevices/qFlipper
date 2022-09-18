@@ -129,7 +129,7 @@ bool DfuseDevice::download(QIODevice *file, uint32_t addr, uint8_t alt)
         do {
             status = getStatus();
 
-            check_return_bool(status.bStatus == StatusType::OK, "An error has occured during download phase");
+            check_return_bool(status.bStatus == StatusType::OK, "An error has occurred during download phase");
             QThread::msleep(status.bwPollTimeout);
 
         } while(status.bState != StatusType::DFU_DNLOAD_IDLE);
@@ -237,7 +237,7 @@ bool DfuseDevice::erasePage(uint32_t addr)
 
     do {
         status = getStatus();
-        check_return_bool(status.bStatus == StatusType::OK, "An error has occured during erase phase");
+        check_return_bool(status.bStatus == StatusType::OK, "An error has occurred during erase phase");
         QThread::msleep(status.bwPollTimeout);
 
     } while(status.bState == StatusType::DFU_DNBUSY);
