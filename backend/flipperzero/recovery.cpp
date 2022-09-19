@@ -233,7 +233,7 @@ bool Recovery::downloadFirmware(QIODevice *file)
     const auto success = dev.beginTransaction() && dev.download(&fw) && dev.endTransaction();
 
     if(!success) {
-        setErrorString("Can't flash firmware: An error has occured during the operation.");
+        setErrorString("Can't flash firmware: An error has occurred during the operation.");
     }
 
     return success;
