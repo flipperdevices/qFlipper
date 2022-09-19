@@ -3,6 +3,7 @@
 #include "abstracttopleveloperation.h"
 
 #include <QDir>
+#include <QUrl>
 
 #include "flipperupdates.h"
 
@@ -20,6 +21,7 @@ class FullUpdateOperation : public AbstractTopLevelOperation
     enum OperationState {
         ProvisioninigRegion = AbstractOperation::User,
         CheckingStorage,
+        PreparingLocalUpdate,
         FetchingUpdate,
         ExtractingUpdate,
         PreparingUpdateDir,
@@ -29,6 +31,7 @@ class FullUpdateOperation : public AbstractTopLevelOperation
 
 public:
     FullUpdateOperation(UtilityInterface *utility, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent = nullptr);
+    FullUpdateOperation(UtilityInterface *utility, DeviceState *deviceState, const QUrl &bundleUrl, QObject *parent = nullptr);
     ~FullUpdateOperation();
     const QString description() const override;
 
@@ -39,6 +42,7 @@ private:
     void provisionRegionData();
     void checkStorage();
     void fetchUpdateFile();
+    void prepareLocalUpdate();
     void extractUpdate();
     void prepareUpdateDir();
     void uploadUpdateDir();

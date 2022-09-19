@@ -373,7 +373,7 @@ AbstractOverlay {
             confirmationDialog.openWithMessage(actionFunc, messageObj);
         });
 
-        SystemFileDialog.beginOpenFile(SystemFileDialog.LastLocation, ["Firmware files (*.dfu)", "All files (*.*)"]);
+        SystemFileDialog.beginOpenFile(SystemFileDialog.LastLocation, ["Firmware bundle files (*.tgz)", "Firmware files (*.dfu)", "All files (*.*)"]);
     }
 
     function backupDevice() {

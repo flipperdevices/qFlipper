@@ -1,5 +1,6 @@
 #include "flipperzero.h"
 
+#include <QUrl>
 #include <QDebug>
 #include <QTimer>
 #include <QLoggingCategory>
@@ -176,7 +177,11 @@ void FlipperZero::factoryReset()
 
 void FlipperZero::installFirmware(const QUrl &fileUrl)
 {
-    registerOperation(new FirmwareInstallOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
+    if(fileUrl.fileName().endsWith(QStringLiteral(".tgz"))) {
+        registerOperation(new FullUpdateOperation(m_utility, m_state, fileUrl, this));
+    } else {
+        registerOperation(new FirmwareInstallOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
+    }
 }
 
 void FlipperZero::installWirelessStack(const QUrl &fileUrl)
