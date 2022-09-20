@@ -27,9 +27,14 @@ if ! brew --prefix libusb_universal; then
     exit 1;
 fi
 
+if ! brew --prefix qt_universal; then
+    echo "Please install qt_universal first!";
+    printf "\tbrew install flipperdevices/homebrew-flipper/qt_universal\n";
+    exit 1;
+fi
+
 if [[ "$(uname -m)" == "arm64" ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)";
-    PATH="/opt/homebrew/qt-6.3.1-static/bin:$PATH";
 else
     eval "$(/usr/local/Homebrew/bin/brew shellenv)";
 fi
