@@ -2,7 +2,6 @@
 
 #include <QTimer>
 
-#include "flipperzero/recovery.h"
 #include "flipperzero/devicestate.h"
 
 using namespace Flipper;

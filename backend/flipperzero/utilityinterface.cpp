@@ -8,6 +8,7 @@
 #include "flipperzero/utility/startrecoveryoperation.h"
 #include "flipperzero/utility/assetsdownloadoperation.h"
 #include "flipperzero/utility/factoryresetutiloperation.h"
+#include "flipperzero/utility/filesuploadoperation.h"
 #include "flipperzero/utility/directoryuploadoperation.h"
 #include "flipperzero/utility/directorydownloadoperation.h"
 #include "flipperzero/utility/updateprepareoperation.h"
@@ -40,16 +41,16 @@ AssetsDownloadOperation *UtilityInterface::downloadAssets(QIODevice *compressedF
     return operation;
 }
 
-UserBackupOperation *UtilityInterface::backupInternalStorage(const QString &backupPath)
+UserBackupOperation *UtilityInterface::backupInternalStorage(const QUrl &backupUrl)
 {
-    auto *operation = new UserBackupOperation(m_rpc, m_deviceState, backupPath, this);
+    auto *operation = new UserBackupOperation(m_rpc, m_deviceState, backupUrl, this);
     enqueueOperation(operation);
     return operation;
 }
 
-UserRestoreOperation *UtilityInterface::restoreInternalStorage(const QString &backupPath)
+UserRestoreOperation *UtilityInterface::restoreInternalStorage(const QUrl &backupUrl)
 {
-    auto *operation = new UserRestoreOperation(m_rpc, m_deviceState, backupPath, this);
+    auto *operation = new UserRestoreOperation(m_rpc, m_deviceState, backupUrl, this);
     enqueueOperation(operation);
     return operation;
 }
@@ -64,6 +65,13 @@ RestartOperation *UtilityInterface::restartDevice()
 FactoryResetUtilOperation *UtilityInterface::factoryReset()
 {
     auto *operation = new FactoryResetUtilOperation(m_rpc, m_deviceState, this);
+    enqueueOperation(operation);
+    return operation;
+}
+
+FilesUploadOperation *UtilityInterface::uploadFiles(const QList<QUrl> &fileUrls, const QByteArray &remotePath)
+{
+    auto *operation = new FilesUploadOperation(m_rpc, m_deviceState, fileUrls, remotePath, this);
     enqueueOperation(operation);
     return operation;
 }

@@ -31,6 +31,17 @@ CONFIG += embed_translations
 
 QML_IMPORT_PATH += $$PWD/imports
 
+win32:!win32-g++ {
+    PRE_TARGETDEPS += \
+        $$OUT_PWD/../backend/backend.lib \
+        $$OUT_PWD/../dfu/dfu.lib
+
+} else:unix|win32-g++ {
+    PRE_TARGETDEPS += \
+        $$OUT_PWD/../backend/libbackend.a \
+        $$OUT_PWD/../dfu/libdfu.a
+}
+
 unix|win32 {
     LIBS += \
         -L$$OUT_PWD/../backend/ -lbackend \
@@ -60,6 +71,10 @@ macx: ICON = assets/icons/$${NAME}.icns
 else:win32: RC_ICONS = assets/icons/$${NAME}.ico
 
 INCLUDEPATH += \
+    $$PWD/../dfu \
+    $$PWD/../backend
+
+DEPENDPATH += \
     $$PWD/../dfu \
     $$PWD/../backend
 

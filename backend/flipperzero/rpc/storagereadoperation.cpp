@@ -1,8 +1,9 @@
 #include "storagereadoperation.h"
 
+#include <QIODevice>
+
 #include "protobufplugininterface.h"
 #include "storageresponseinterface.h"
-#include <QIODevice>
 
 using namespace Flipper;
 using namespace Zero;
@@ -32,7 +33,7 @@ bool StorageReadOperation::begin()
     const auto success = m_file->open(QIODevice::WriteOnly);
 
     if(!success) {
-        setError(BackendError::DiskError, QStringLiteral("Failed to open file for reading: %1").arg(m_file->errorString()));
+        setError(BackendError::DiskError, QStringLiteral("Failed to open file for writing: %1").arg(m_file->errorString()));
     }
 
     return success;
@@ -45,7 +46,7 @@ bool StorageReadOperation::processResponse(QObject *response)
     if(!storageReadResponse) {
         return false;
     } else if(storageReadResponse->hasFile()) {
-        return m_file->write(storageReadResponse->file().data);
+        return m_file->write(storageReadResponse->file().data) >= 0;
     }
 
     return true;

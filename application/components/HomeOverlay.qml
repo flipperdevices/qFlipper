@@ -373,7 +373,8 @@ AbstractOverlay {
             confirmationDialog.openWithMessage(actionFunc, messageObj);
         });
 
-        SystemFileDialog.beginOpenFile(SystemFileDialog.DownloadsLocation, ["Firmware files (*.dfu)", "All files (*.*)"]);
+        const nameFilters = (deviceState.isRecoveryMode ? [] : ["Firmware bundle files (*.tgz)"]).concat(["Firmware files (*.dfu)", "All files (*.*)"]);
+        SystemFileDialog.beginOpenFile(SystemFileDialog.LastLocation, nameFilters);
     }
 
     function backupDevice() {
@@ -391,7 +392,8 @@ AbstractOverlay {
             confirmationDialog.openWithMessage(actionFunc, messageObj);
         });
 
-        SystemFileDialog.beginSaveDir(SystemFileDialog.DownloadsLocation);
+        const defaultName = "%1-backup-%2.tgz".arg(deviceInfo.name).arg(Qt.formatDateTime(new Date(), "yyyyMMdd-hhmmss"));
+        SystemFileDialog.beginSaveFile(SystemFileDialog.LastLocation, ["Backup files (*.tgz)", "All files (*.*)"], defaultName);
     }
 
     function restoreDevice() {
@@ -409,7 +411,7 @@ AbstractOverlay {
             confirmationDialog.openWithMessage(actionFunc, messageObj);
         });
 
-        SystemFileDialog.beginOpenDir(SystemFileDialog.DownloadsLocation);
+        SystemFileDialog.beginOpenFile(SystemFileDialog.LastLocation, ["Backup files (*.tgz)", "All files (*.*)"]);
     }
 
     function eraseDevice() {
@@ -456,7 +458,7 @@ AbstractOverlay {
             confirmationDialog.openWithMessage(actionFunc, messageObj);
         });
 
-        SystemFileDialog.beginOpenFile(SystemFileDialog.DownloadsLocation, ["Firmware files (*.bin)", "All files (*.*)"]);
+        SystemFileDialog.beginOpenFile(SystemFileDialog.LastLocation, ["Firmware files (*.bin)", "All files (*.*)"]);
     }
 
     function installFUSDangerDanger() {
@@ -475,7 +477,7 @@ AbstractOverlay {
             confirmationDialog.openWithMessage(actionFunc, messageObj);
         });
 
-        SystemFileDialog.beginOpenFile(SystemFileDialog.DownloadsLocation, ["Firmware files (*.bin)", "All files (*.*)"]);
+        SystemFileDialog.beginOpenFile(SystemFileDialog.LastLocation, ["Firmware files (*.bin)", "All files (*.*)"]);
     }
 
     function baseName(fileUrl) {

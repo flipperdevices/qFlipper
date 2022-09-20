@@ -1,10 +1,11 @@
 #include "tempdirectories.h"
 
 #include <QFile>
+#include <QDateTime>
 #include <QTemporaryFile>
 
 TempDirectories::TempDirectories():
-    m_root(QDir::temp().absoluteFilePath(QStringLiteral("qFlipper-XXXXXXXX")))
+    m_root(QDir::temp().absoluteFilePath(QStringLiteral("%1-XXXXXXXX").arg(APP_NAME)))
 {}
 
 TempDirectories *TempDirectories::instance()
@@ -30,6 +31,11 @@ QDir TempDirectories::subdir(const QString &subdirName) const
     }
 
     return success ? subdir : QDir();
+}
+
+QUrl TempDirectories::fileUrl(const QString &fileName) const
+{
+    return QUrl::fromLocalFile(root().absoluteFilePath(fileName));
 }
 
 QFile *TempDirectories::createFile(const QString &fileName, QObject *parent) const

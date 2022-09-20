@@ -244,7 +244,7 @@ Item {
                 }
             });
 
-            SystemFileDialog.beginOpenFiles(SystemFileDialog.HomeLocation, [ "All files (*)" ]);
+            SystemFileDialog.beginOpenFiles(SystemFileDialog.LastLocation, [ "All files (*)" ]);
         }
     }
 
@@ -259,9 +259,9 @@ Item {
             });
 
             if(delegate.isDirectory) {
-                SystemFileDialog.beginSaveDir(SystemFileDialog.DownloadsLocation);
+                SystemFileDialog.beginSaveDir(SystemFileDialog.LastLocation);
             } else {
-                SystemFileDialog.beginSaveFile(SystemFileDialog.DownloadsLocation, [ "All files (*)" ], delegate.fileName);
+                SystemFileDialog.beginSaveFile(SystemFileDialog.LastLocation, [ "All files (*)" ], delegate.fileName);
             }
         }
     }

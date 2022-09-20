@@ -20,7 +20,7 @@
 
 Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEBUG)
 
-static inline const QString getFileName(const QString &url)
+static inline const QString getBaseName(const QString &url)
 {
     const auto start = url.lastIndexOf('/') + 1;
     const auto end = url.lastIndexOf('.');
@@ -31,10 +31,16 @@ using namespace Flipper;
 using namespace Zero;
 
 FullUpdateOperation::FullUpdateOperation(UtilityInterface *utility, DeviceState *state, const Updates::VersionInfo &versionInfo, QObject *parent):
-    Flipper::Zero::AbstractTopLevelOperation(state, parent),
+    AbstractTopLevelOperation(state, parent),
     m_updateFile(nullptr),
     m_utility(utility),
     m_versionInfo(versionInfo)
+{}
+
+FullUpdateOperation::FullUpdateOperation(UtilityInterface *utility, DeviceState *deviceState, const QUrl &bundleUrl, QObject *parent):
+    AbstractTopLevelOperation(deviceState, parent),
+    m_updateFile(new QFile(bundleUrl.toLocalFile(), this)),
+    m_utility(utility)
 {}
 
 FullUpdateOperation::~FullUpdateOperation()
@@ -49,42 +55,55 @@ const QString FullUpdateOperation::description() const
 
 void FullUpdateOperation::nextStateLogic()
 {
-    if(operationState() == AbstractOperation::Ready) {
-        setOperationState(FullUpdateOperation::ProvisioninigRegion);
+    if(operationState() == Ready) {
+        setOperationState(ProvisioninigRegion);
         provisionRegionData();
 
-    } else if(operationState() == FullUpdateOperation::ProvisioninigRegion) {
-        setOperationState(FullUpdateOperation::CheckingStorage);
+    } else if(operationState() == ProvisioninigRegion) {
+        setOperationState(CheckingStorage);
         checkStorage();
 
-    } else if(operationState() == FullUpdateOperation::CheckingStorage) {
-        setOperationState(FullUpdateOperation::FetchingUpdate);
-        fetchUpdateFile();
+    } else if(operationState() == CheckingStorage) {
+        if(!m_updateFile) {
+            setOperationState(FetchingUpdate);
+            fetchUpdateFile();
+        } else {
+            setOperationState(PreparingLocalUpdate);
+            prepareLocalUpdate();
+        }
 
-    } else if(operationState() == FullUpdateOperation::FetchingUpdate) {
-        setOperationState(FullUpdateOperation::ExtractingUpdate);
+    } else if(operationState() == FetchingUpdate ||
+              operationState() == PreparingLocalUpdate) {
+        setOperationState(ExtractingUpdate);
         extractUpdate();
 
-    } else if(operationState() == FullUpdateOperation::ExtractingUpdate) {
-        setOperationState(FullUpdateOperation::PreparingUpdateDir);
+    } else if(operationState() == ExtractingUpdate) {
+        setOperationState(PreparingUpdateDir);
         prepareUpdateDir();
 
-    } else if(operationState() == FullUpdateOperation::PreparingUpdateDir) {
-        setOperationState(FullUpdateOperation::UploadingUpdateDir);
+    } else if(operationState() == PreparingUpdateDir) {
+        setOperationState(UploadingUpdateDir);
         uploadUpdateDir();
 
-    } else if(operationState() == FullUpdateOperation::UploadingUpdateDir) {
-        setOperationState(FullUpdateOperation::WaitingForUpdate);
+    } else if(operationState() == UploadingUpdateDir) {
+        setOperationState(WaitingForUpdate);
         startUpdate();
 
-    } else if(operationState() == FullUpdateOperation::WaitingForUpdate) {
+    } else if(operationState() == WaitingForUpdate) {
         finish();
     }
 }
 
 void FullUpdateOperation::provisionRegionData()
 {
-    registerSubOperation(m_utility->provisionRegionData());
+    auto *operation = m_utility->provisionRegionData();
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            qCInfo(CATEGORY_DEBUG) << "Warning: failed to perform region data provisioning:" << operation->errorString();
+        }
+
+        advanceOperationState();
+    });
 }
 
 void FullUpdateOperation::checkStorage()
@@ -116,7 +135,7 @@ void FullUpdateOperation::fetchUpdateFile()
     }
 
     m_updateFile = globalTempDirs->createTempFile(this);
-    m_updateDirectory = globalTempDirs->subdir(getFileName(fileInfo.url()));
+    m_updateDirectory = globalTempDirs->subdir(getBaseName(fileInfo.url()));
 
     auto *fetcher = new RemoteFileFetcher(this);
     if(!fetcher->fetch(fileInfo, m_updateFile)) {
@@ -137,6 +156,13 @@ void FullUpdateOperation::fetchUpdateFile()
 
         fetcher->deleteLater();
     });
+}
+
+void FullUpdateOperation::prepareLocalUpdate()
+{
+    deviceState()->setStatusString(QStringLiteral("Preparing local firmware update..."));
+    m_updateDirectory = globalTempDirs->subdir(getBaseName(m_updateFile->fileName()));
+    advanceOperationState();
 }
 
 void FullUpdateOperation::extractUpdate()

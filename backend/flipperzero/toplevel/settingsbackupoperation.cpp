@@ -13,10 +13,10 @@ using namespace Zero;
 
 static constexpr qint64 MINIMUM_OPERATION_TIME_MS = 2000;
 
-SettingsBackupOperation::SettingsBackupOperation(UtilityInterface *utility, DeviceState *state, const QUrl &backupDir, QObject *parent):
+SettingsBackupOperation::SettingsBackupOperation(UtilityInterface *utility, DeviceState *state, const QUrl &backupUrl, QObject *parent):
     AbstractTopLevelOperation(state, parent),
     m_utility(utility),
-    m_backupDir(backupDir.toLocalFile())
+    m_backupUrl(backupUrl)
 {}
 
 const QString SettingsBackupOperation::description() const
@@ -42,7 +42,7 @@ void SettingsBackupOperation::nextStateLogic()
 void SettingsBackupOperation::saveBackup()
 {
     m_elapsed.start();
-    registerSubOperation(m_utility->backupInternalStorage(m_backupDir));
+    registerSubOperation(m_utility->backupInternalStorage(m_backupUrl));
 }
 
 void SettingsBackupOperation::wait()

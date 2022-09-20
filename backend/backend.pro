@@ -79,6 +79,7 @@ SOURCES += \
     flipperzero/utility/directorydownloadoperation.cpp \
     flipperzero/utility/directoryuploadoperation.cpp \
     flipperzero/utility/factoryresetutiloperation.cpp \
+    flipperzero/utility/filesuploadoperation.cpp \
     flipperzero/utility/getfiletreeoperation.cpp \
     flipperzero/utility/regionprovisioningoperation.cpp \
     flipperzero/utility/restartoperation.cpp \
@@ -90,6 +91,7 @@ SOURCES += \
     flipperzero/utility/userrestoreoperation.cpp \
     flipperzero/utilityinterface.cpp \
     flipperzero/virtualdisplay.cpp \
+    gzipcompressor.cpp \
     gzipuncompressor.cpp \
     logger.cpp \
     preferences.cpp \
@@ -99,6 +101,7 @@ SOURCES += \
     simpleserialoperation.cpp \
     tararchive.cpp \
     tarziparchive.cpp \
+    tarzipcompressor.cpp \
     tarzipuncompressor.cpp \
     tempdirectories.cpp \
     updateregistry.cpp \
@@ -184,6 +187,7 @@ HEADERS += \
     flipperzero/utility/directorydownloadoperation.h \
     flipperzero/utility/directoryuploadoperation.h \
     flipperzero/utility/factoryresetutiloperation.h \
+    flipperzero/utility/filesuploadoperation.h \
     flipperzero/utility/getfiletreeoperation.h \
     flipperzero/utility/regionprovisioningoperation.h \
     flipperzero/utility/restartoperation.h \
@@ -195,6 +199,7 @@ HEADERS += \
     flipperzero/utility/userrestoreoperation.h \
     flipperzero/utilityinterface.h \
     flipperzero/virtualdisplay.h \
+    gzipcompressor.h \
     gzipuncompressor.h \
     logger.h \
     preferences.h \
@@ -204,6 +209,7 @@ HEADERS += \
     simpleserialoperation.h \
     tararchive.h \
     tarziparchive.h \
+    tarzipcompressor.h \
     tarzipuncompressor.h \
     tempdirectories.h \
     updateregistry.h \

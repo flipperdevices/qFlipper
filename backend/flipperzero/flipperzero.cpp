@@ -1,5 +1,6 @@
 #include "flipperzero.h"
 
+#include <QUrl>
 #include <QDebug>
 #include <QTimer>
 #include <QLoggingCategory>
@@ -159,14 +160,14 @@ void FlipperZero::fullRepair(const Updates::VersionInfo &versionInfo)
     registerOperation(new FullRepairOperation(m_recovery, m_utility, m_state, versionInfo, this));
 }
 
-void FlipperZero::createBackup(const QUrl &directoryUrl)
+void FlipperZero::createBackup(const QUrl &backupUrl)
 {
-    registerOperation(new SettingsBackupOperation(m_utility, m_state, directoryUrl, this));
+    registerOperation(new SettingsBackupOperation(m_utility, m_state, backupUrl, this));
 }
 
-void FlipperZero::restoreBackup(const QUrl &directoryUrl)
+void FlipperZero::restoreBackup(const QUrl &backupUrl)
 {
-    registerOperation(new SettingsRestoreOperation(m_utility, m_state, directoryUrl, this));
+    registerOperation(new SettingsRestoreOperation(m_utility, m_state, backupUrl, this));
 }
 
 void FlipperZero::factoryReset()
@@ -176,7 +177,11 @@ void FlipperZero::factoryReset()
 
 void FlipperZero::installFirmware(const QUrl &fileUrl)
 {
-    registerOperation(new FirmwareInstallOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
+    if(fileUrl.fileName().endsWith(QStringLiteral(".tgz"))) {
+        registerOperation(new FullUpdateOperation(m_utility, m_state, fileUrl, this));
+    } else {
+        registerOperation(new FirmwareInstallOperation(m_recovery, m_utility, m_state, fileUrl.toLocalFile(), this));
+    }
 }
 
 void FlipperZero::installWirelessStack(const QUrl &fileUrl)

@@ -1,4 +1,4 @@
-#include "applicationbackend.h"
+﻿#include "applicationbackend.h"
 
 #include <QDebug>
 #include <QLoggingCategory>
@@ -148,16 +148,16 @@ void ApplicationBackend::mainAction()
        connect(helper, &AbstractOperationHelper::finished, helper, &QObject::deleteLater);
 }
 
-void ApplicationBackend::createBackup(const QUrl &directoryUrl)
+void ApplicationBackend::createBackup(const QUrl &backupUrl)
 {
     setBackendState(BackendState::CreatingBackup);
-    device()->createBackup(directoryUrl);
+    device()->createBackup(backupUrl);
 }
 
-void ApplicationBackend::restoreBackup(const QUrl &directoryUrl)
+void ApplicationBackend::restoreBackup(const QUrl &backupUrl)
 {
     setBackendState(BackendState::RestoringBackup);
-    device()->restoreBackup(directoryUrl);
+    device()->restoreBackup(backupUrl);
 }
 
 void ApplicationBackend::factoryReset()

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QUrl>
 #include <QDir>
 #include <QTemporaryDir>
 
@@ -15,6 +16,8 @@ public:
 
     QDir root() const;
     QDir subdir(const QString &subdirName) const;
+
+    QUrl fileUrl(const QString &fileName) const;
 
     QFile *createFile(const QString &fileName, QObject *parent = nullptr) const;
     QFile *createTempFile(QObject *parent = nullptr) const;

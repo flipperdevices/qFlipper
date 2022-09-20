@@ -109,7 +109,7 @@ See [contrib](./contrib) for available options.
 ## Reporting bugs
 qFlipper is a project under active development. Please report any encountered bugs to make it better!
 
-The (mostly) complete guide is located [here](./BUGS.md).
+The (mostly) complete guide is located [here](./.github/ISSUE_TEMPLATE/bug_report.md).
 
 ## Known bugs
 

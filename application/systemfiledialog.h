@@ -14,6 +14,7 @@ class SystemFileDialog: public QObject
 
 public:
     enum StandardLocation {
+        LastLocation,
         HomeLocation,
         DownloadsLocation,
         PicturesLocation,
@@ -50,7 +51,7 @@ private slots:
     void onFileDialogFinished();
 
 private:
-    static QString standardLocationPath(StandardLocation location);
+    static QUrl standardLocationPath(StandardLocation location);
 
     void beginOpen(StandardLocation openLocation, int acceptMode, int fileMode, const QStringList &nameFilters = QStringList(), const QString &defaultFileName = QString());
 

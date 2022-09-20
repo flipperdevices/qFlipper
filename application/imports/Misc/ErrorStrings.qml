@@ -120,7 +120,7 @@ QtObject {
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 
     readonly property string errorUnknown:
-"<p>An unknown error has occured.</p>
+"<p>An unknown error has occurred.</p>
 <p>=========== HOW TO FIX ============</p>
 <p>1. See details in the logs below.</p>
 <p>2. Resolve the problem if possible.</p>

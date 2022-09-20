@@ -24,7 +24,8 @@ FirmwareInstallOperation::FirmwareInstallOperation(RecoveryInterface *recovery, 
     m_recovery(recovery),
     m_utility(utility),
     m_file(new QFile(filePath, this)),
-    m_skipBackup(deviceState()->isRecoveryMode())
+    m_skipBackup(deviceState()->isRecoveryMode()),
+    m_backupUrl(globalTempDirs->fileUrl(QStringLiteral("%1-%2.tgz").arg(state->deviceInfo().name, QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss"))))
 {}
 
 const QString FirmwareInstallOperation::description() const
@@ -70,7 +71,7 @@ void FirmwareInstallOperation::saveBackup()
         advanceOperationState();
 
     } else {
-        registerSubOperation(m_utility->backupInternalStorage(globalTempDirs->root().absolutePath()));
+        registerSubOperation(m_utility->backupInternalStorage(m_backupUrl));
     }
 }
 
@@ -94,7 +95,7 @@ void FirmwareInstallOperation::restoreBackup()
     if(m_skipBackup) {
         finish();
     } else {
-        registerSubOperation(m_utility->restoreInternalStorage(globalTempDirs->root().absolutePath()));
+        registerSubOperation(m_utility->restoreInternalStorage(m_backupUrl));
     }
 }
 
