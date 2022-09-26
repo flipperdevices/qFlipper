@@ -16,6 +16,12 @@ if [[ "$(uname -s)" != "Darwin" ]]; then
     exit 1;
 fi
 
+if [[ "$(uname -m)" == "arm64" ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)";
+else
+    eval "$(/usr/local/Homebrew/bin/brew shellenv)";
+fi
+
 if ! brew --version; then
     echo "Brew isn't installed!";
     exit 1;
@@ -31,12 +37,6 @@ if ! brew --prefix qt_universal; then
     echo "Please install qt_universal first!";
     printf "\tbrew install flipperdevices/homebrew-flipper/qt_universal\n";
     exit 1;
-fi
-
-if [[ "$(uname -m)" == "arm64" ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)";
-else
-    eval "$(/usr/local/Homebrew/bin/brew shellenv)";
 fi
 
 rm -rf "$BUILD_DIRECTORY";
