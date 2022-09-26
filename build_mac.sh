@@ -91,6 +91,7 @@ if [ -n "${MAC_OS_SIGNING_KEY_ID:-""}" ]; then
     security default-keychain -s "$MAC_OS_KEYCHAIN_NAME";
     security unlock-keychain -p "$MAC_OS_KEYCHAIN_PASSWORD" "$MAC_OS_KEYCHAIN_NAME";
     xattr -cr "$PROJECT.app";
+    security find-identity -p codesigning -v;  # debug
     codesign --force --options=runtime -s "$MAC_OS_SIGNING_KEY_ID" --deep -v "$PROJECT.app";
     /usr/bin/ditto -c -k --keepParent "$PROJECT.app" "$PROJECT.zip";
     xcrun altool \
