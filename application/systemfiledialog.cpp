@@ -1,5 +1,6 @@
 #include "systemfiledialog.h"
 
+#include <QFileInfo>
 #include <QFileDialog>
 #include <QStandardPaths>
 
@@ -84,7 +85,12 @@ void SystemFileDialog::onFileDialogFinished()
 QUrl SystemFileDialog::standardLocationPath(StandardLocation location)
 {
     if(location == LastLocation) {
-        return globalPrefs->lastFolderUrl();
+        const auto lastFolderUrl = globalPrefs->lastFolderUrl();
+        if(!QFileInfo::exists(lastFolderUrl.toLocalFile())) {
+            return QUrl::fromLocalFile(QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+        } else {
+            return lastFolderUrl;
+        }
     } else if(location == HomeLocation) {
         return QUrl::fromLocalFile(QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
     } else if(location == DownloadsLocation) {
