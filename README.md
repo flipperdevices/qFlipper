@@ -65,8 +65,9 @@ In this case, it is possible to disable the built-in application update feature 
 Build requirements:
 
 - Xcode or command line tools
-- Qt5 >= 5.15.0 or Qt6 >= 6.3.0
-- libusb
+- Qt6 6.3.1 static universal from [Flipper brew tap](https://github.com/flipperdevices/homebrew-flipper)
+- libusb 1.0.24 universal from [Flipper brew tap](https://github.com/flipperdevices/homebrew-flipper)
+- [dmgbuild](https://pypi.org/project/dmgbuild/) >= 1.5.2
 
 If you want to sign binaries, set `SIGNING_KEY` environment variable:
 
