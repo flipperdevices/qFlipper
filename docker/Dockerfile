@@ -31,8 +31,11 @@ RUN add-apt-repository ppa:beineri/opt-qt-5.15.2-bionic && \
     qt515wayland \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O /usr/bin/linuxdeploy \
-    && chmod +x /usr/bin/linuxdeploy
+#RUN wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O /usr/bin/linuxdeploy \
+#    && chmod +x /usr/bin/linuxdeploy
+
+COPY linuxdeploy-x86_64.AppImage /usr/bin/linuxdeploy
+RUN chmod +x /usr/bin/linuxdeploy
 
 RUN wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -O /usr/bin/linuxdeploy-plugin-qt \
     && chmod +x /usr/bin/linuxdeploy-plugin-qt
