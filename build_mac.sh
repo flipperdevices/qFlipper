@@ -103,14 +103,8 @@ if [ -n "${MAC_OS_SIGNING_KEY_ID:-""}" ]; then
 fi
 
 # build DMG
-mkdir disk_image;
-mv "$PROJECT.app" "disk_image/";
-cp "../installer-assets/macos/DS_Store" "disk_image/.DS_Store";
-cp -r "../installer-assets/macos/background" "disk_image/.background";
-../scripts/create-dmg/create-dmg \
-    --volname "$PROJECT-$(git describe --tags --abbrev=0)" \
-    --volicon "../installer-assets/icons/${PROJECT}-installer.icns" \
-    --skip-jenkins \
-    --app-drop-link 485 150 \
-    "$PROJECT.dmg" \
-    "disk_image/";
+dmgbuild \
+    -s "../installer-assets/macos/dmgbuild-config.py" \
+    -D "app=$PROJECT.app" \
+    "$PROJECT-$(git describe --tags --abbrev=0)" \
+    "$PROJECT.dmg";
