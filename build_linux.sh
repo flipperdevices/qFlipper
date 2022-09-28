@@ -34,11 +34,6 @@ ls -l /lib/x86_64-linux-gnu/libdbus-1.so.3;
 readlink -f /lib/x86_64-linux-gnu/libdbus-1.so.3;
 file $(readlink -f /lib/x86_64-linux-gnu/libdbus-1.so.3);
 
-file /lib/x86_64-linux-gnu/libgcrypt.so.20;
-ls -l /lib/x86_64-linux-gnu/libgcrypt.so.20;
-readlink -f /lib/x86_64-linux-gnu/libgcrypt.so.20;
-file $(/lib/x86_64-linux-gnu/libgcrypt.so.20);
-
 echo "Example normal file:"
 file /lib/x86_64-linux-gnu/libbsd.so.0;
 ls -l /lib/x86_64-linux-gnu/libbsd.so.0;
