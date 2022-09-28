@@ -30,7 +30,7 @@ RUN add-apt-repository ppa:beineri/opt-qt-5.15.2-bionic && \
     qt515graphicaleffects \
     qt515wayland \
     libboost-filesystem-dev \
-    libboost-regex-dev
+    libboost-regex-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 #RUN wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O /usr/bin/linuxdeploy \
