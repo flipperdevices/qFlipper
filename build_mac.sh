@@ -6,7 +6,6 @@ set -exuo pipefail;
 
 PROJECT="qFlipper";
 BUILD_DIRECTORY="build_mac";
-LIBUSB_PATH="/opt/libs/libusb/1.0.24-universal";
 
 if [ -d ".git" ]; then
     git submodule update --init;
@@ -19,10 +18,25 @@ fi
 
 if [[ "$(uname -m)" == "arm64" ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)";
-    PATH="/opt/homebrew/qt-6.3.1-static/bin:$PATH";
-    export PKG_CONFIG_PATH="$LIBUSB_PATH/lib/pkgconfig";
 else
     eval "$(/usr/local/Homebrew/bin/brew shellenv)";
+fi
+
+if ! brew --version; then
+    echo "Brew isn't installed!";
+    exit 1;
+fi
+
+if ! brew --prefix libusb_universal; then
+    echo "Please install libusb_universal first!";
+    printf "\tbrew install flipperdevices/homebrew-flipper/libusb_universal\n";
+    exit 1;
+fi
+
+if ! brew --prefix qt_universal; then
+    echo "Please install qt_universal first!";
+    printf "\tbrew install flipperdevices/homebrew-flipper/qt_universal\n";
+    exit 1;
 fi
 
 rm -rf "$BUILD_DIRECTORY";
@@ -43,7 +57,7 @@ make install;
 
 # bundle libusb
 mkdir -p "$PROJECT.app/Contents/Frameworks";
-cp "$LIBUSB_PATH/lib/libusb-1.0.0.dylib" "$PROJECT.app/Contents/Frameworks";
+cp "$(brew --prefix libusb_universal)/lib/libusb-1.0.0.dylib" "$PROJECT.app/Contents/Frameworks";
 
 relink_framework()
 {
@@ -89,14 +103,8 @@ if [ -n "${MAC_OS_SIGNING_KEY_ID:-""}" ]; then
 fi
 
 # build DMG
-mkdir disk_image;
-mv "$PROJECT.app" "disk_image/";
-cp "../installer-assets/macos/DS_Store" "disk_image/.DS_Store";
-cp -r "../installer-assets/macos/background" "disk_image/.background";
-../scripts/create-dmg/create-dmg \
-    --volname "$PROJECT-$(git describe --tags --abbrev=0)" \
-    --volicon "../installer-assets/icons/${PROJECT}-installer.icns" \
-    --skip-jenkins \
-    --app-drop-link 485 150 \
-    "$PROJECT.dmg" \
-    "disk_image/";
+dmgbuild \
+    -s "../installer-assets/macos/dmgbuild-config.py" \
+    -D "app=$PROJECT.app" \
+    "$PROJECT-$(git describe --tags --abbrev=0)" \
+    "$PROJECT.dmg";

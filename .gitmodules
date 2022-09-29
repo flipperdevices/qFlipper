@@ -4,6 +4,3 @@
 [submodule "3rdparty/nanopb"]
 	path = 3rdparty/nanopb
 	url = https://github.com/nanopb/nanopb.git
-[submodule "scripts/create-dmg"]
-	path = scripts/create-dmg
-	url = https://github.com/flipperdevices/create-dmg
