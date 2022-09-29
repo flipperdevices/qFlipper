@@ -15,11 +15,6 @@ jobs:
           fetch-depth: 0
           submodules: true
 
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-        continue-on-error: true
-        with:
-          key: docker-cache-${{ hashFiles('docker/**') }}-{hash}
-          restore-keys: docker-cache-${{ hashFiles('docker/**') }}-
       - name: Build docker image
         uses: ./.github/actions/docker
 
