@@ -181,8 +181,8 @@ bool ApplicationUpdater::performUpdate(const QString &path)
 
 #elif defined(Q_OS_MAC)
     auto *mountDmg = new QProcess(this);
-    mountDmg->setProgram(QStringLiteral("hdiutil"));
-    mountDmg->setArguments({QStringLiteral("attach"), path});
+    mountDmg->setProgram(QStringLiteral("open"));
+    mountDmg->setArguments({path});
 
     connect(mountDmg, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
             [=](int exitCode, QProcess::ExitStatus exitStatus) {
@@ -192,7 +192,7 @@ bool ApplicationUpdater::performUpdate(const QString &path)
         if(!exitCode && exitStatus == QProcess::NormalExit) {
             exitApplication();
         } else {
-            qCWarning(CATEGORY_SELFUPDATES) << "Failed to mount the disk image.";
+            qCWarning(CATEGORY_SELFUPDATES) << "Failed to open the disk image.";
         }
     });
 
