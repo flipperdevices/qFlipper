@@ -31,10 +31,10 @@ RUN add-apt-repository ppa:beineri/opt-qt-5.15.2-bionic && \
     qt515wayland \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN wget https://update.flipperzero.one/builds/various-stuff/linuxdeploy-x86_64-29092022.AppImage -O /usr/bin/linuxdeploy \
+RUN wget https://update.flipperzero.one/builds/misc/linuxdeploy-x86_64-29092022.AppImage -O /usr/bin/linuxdeploy \
     && chmod +x /usr/bin/linuxdeploy
 
-RUN wget https://update.flipperzero.one/builds/various-stuff/linuxdeploy-plugin-qt-x86_64-29092022.AppImage -O /usr/bin/linuxdeploy-plugin-qt \
+RUN wget https://update.flipperzero.one/builds/misc/linuxdeploy-plugin-qt-x86_64-29092022.AppImage -O /usr/bin/linuxdeploy-plugin-qt \
     && chmod +x /usr/bin/linuxdeploy-plugin-qt
 
 RUN git config --global --replace-all safe.directory '*'
