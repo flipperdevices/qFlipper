@@ -12,7 +12,7 @@ export QML_SOURCES_PATHS=".."
 
 mkdir -p "$BUILDDIR"
 cd "$BUILDDIR"
-qmake i"../$TARGET.pro" -spec linux-g++ CONFIG+=qtquickcompiler PREFIX="$APPDIR_PREFIX"
+qmake "../$TARGET.pro" -spec linux-g++ CONFIG+=qtquickcompiler PREFIX="$APPDIR_PREFIX"
 make qmake_all
 make -j"$(nproc)"
 make install
