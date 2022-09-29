@@ -52,6 +52,7 @@ ItemDelegate {
     }
 
     ToolTip {
+        delay: 300
         visible: parent.hovered
         text: description
         implicitWidth: 250
