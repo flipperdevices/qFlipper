@@ -84,7 +84,7 @@ T.MenuItem {
     font.family: "Share Tech"
 
     contentItem: IconLabel {
-        antialiasing: false
+//        antialiasing: false
         readonly property real arrowPadding: control.subMenu && control.arrow ? control.arrow.width + control.spacing : 0
         readonly property real indicatorPadding: control.checkable && control.indicator ? control.indicator.width + control.spacing : 0
         leftPadding: !control.mirrored ? indicatorPadding : arrowPadding

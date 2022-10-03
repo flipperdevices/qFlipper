@@ -4,7 +4,7 @@ import Theme 1.0
 Text {
     property bool capitalized: true
 
-    antialiasing: false
+//    antialiasing: false
 
     color: Theme.color.lightorange2
 

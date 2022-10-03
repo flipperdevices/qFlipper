@@ -13,6 +13,8 @@ RowLayout {
     property alias font: label.font
     property alias color: label.color
 
+    spacing: 6
+
     IconImage {
         id: image
         Layout.leftMargin: control.padding
@@ -28,6 +30,6 @@ RowLayout {
         Layout.fillHeight: true
         Layout.rightMargin: control.padding
 
-        antialiasing: false
+//        antialiasing: false
     }
 }

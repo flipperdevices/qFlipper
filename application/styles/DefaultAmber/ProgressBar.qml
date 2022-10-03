@@ -19,7 +19,7 @@ T.ProgressBar {
 
         Text {
             id: brightText
-            antialiasing: false
+//            antialiasing: false
             visible: !control.indeterminate
             color: Theme.color.lightorange2
             text:  Math.round(control.value) + "%"
@@ -72,7 +72,7 @@ T.ProgressBar {
                 color: Theme.color.darkorange1
                 text: brightText.text
                 font: brightText.font
-                antialiasing: false
+//                antialiasing: false
             }
         }
     }
