@@ -2,3 +2,4 @@ module Misc
 
 singleton FileTypes 1.0 FileTypes.qml
 singleton ErrorStrings 1.0 ErrorStrings.qml
+singleton Mitigations 1.0 Mitigations.qml

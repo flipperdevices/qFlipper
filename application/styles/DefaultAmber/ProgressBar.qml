@@ -3,6 +3,7 @@ import QtQuick.Templates 2.15 as T
 import QtQuick.Controls 2.15
 
 import Theme 1.0
+import Misc 1.0
 
 T.ProgressBar {
     id: control
@@ -19,7 +20,7 @@ T.ProgressBar {
 
         Text {
             id: brightText
-//            antialiasing: false
+            antialiasing: Mitigations.fontRenderingFix
             visible: !control.indeterminate
             color: Theme.color.lightorange2
             text:  Math.round(control.value) + "%"
@@ -72,7 +73,7 @@ T.ProgressBar {
                 color: Theme.color.darkorange1
                 text: brightText.text
                 font: brightText.font
-//                antialiasing: false
+                antialiasing: Mitigations.fontRenderingFix
             }
         }
     }
