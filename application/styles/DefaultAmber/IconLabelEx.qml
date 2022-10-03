@@ -3,6 +3,8 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.impl 2.15
 
+import Misc 1.0
+
 RowLayout {
     id: control
 
@@ -12,6 +14,8 @@ RowLayout {
     property alias text: label.text
     property alias font: label.font
     property alias color: label.color
+
+    spacing: 6
 
     IconImage {
         id: image
@@ -28,6 +32,6 @@ RowLayout {
         Layout.fillHeight: true
         Layout.rightMargin: control.padding
 
-        antialiasing: false
+        antialiasing: Mitigations.fontRenderingFix
     }
 }

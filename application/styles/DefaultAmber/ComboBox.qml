@@ -42,6 +42,7 @@ import QtQuick.Templates 2.15 as T
 
 import Theme 1.0
 import Primitives 1.0
+import Misc 1.0
 
 T.ComboBox {
     id: control
@@ -116,7 +117,7 @@ T.ComboBox {
 
     contentItem: Text {
         id: content
-        antialiasing: false
+        antialiasing: Mitigations.fontRenderingFix
         leftPadding: !control.mirrored ? 12 : control.editable && activeFocus ? 3 : 1
         rightPadding: control.mirrored ? 12 : control.editable && activeFocus ? 3 : 1
         topPadding: 6 - control.padding

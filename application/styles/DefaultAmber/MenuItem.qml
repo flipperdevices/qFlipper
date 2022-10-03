@@ -42,6 +42,7 @@ import QtQml.Models 2.15
 
 import Theme 1.0
 import Primitives 1.0
+import Misc 1.0
 
 T.MenuItem {
     id: control
@@ -84,7 +85,7 @@ T.MenuItem {
     font.family: "Share Tech"
 
     contentItem: IconLabel {
-        antialiasing: false
+        antialiasing: Mitigations.fontRenderingFix
         readonly property real arrowPadding: control.subMenu && control.arrow ? control.arrow.width + control.spacing : 0
         readonly property real indicatorPadding: control.checkable && control.indicator ? control.indicator.width + control.spacing : 0
         leftPadding: !control.mirrored ? indicatorPadding : arrowPadding

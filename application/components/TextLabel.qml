@@ -1,10 +1,11 @@
 import QtQuick 2.15
 import Theme 1.0
+import Misc 1.0
 
 Text {
     property bool capitalized: true
 
-    antialiasing: false
+    antialiasing: Mitigations.fontRenderingFix
 
     color: Theme.color.lightorange2
 

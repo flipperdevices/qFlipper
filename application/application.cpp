@@ -224,6 +224,7 @@ void Application::initGUI()
     };
 
     connect(&m_engine, &QQmlApplicationEngine::objectCreated, this, onObjectCreated, Qt::QueuedConnection);
+    m_engine.rootContext()->setContextProperty("qVersion", QT_VERSION);
     m_engine.load(url);
 }
 

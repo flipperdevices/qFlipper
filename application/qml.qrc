@@ -145,5 +145,6 @@
         <file>imports/Primitives/ColorSet.qml</file>
         <file>components/WindowShadow.qml</file>
         <file>assets/gfx/effects/window-shadow.png</file>
+        <file>imports/Misc/Mitigations.qml</file>
     </qresource>
 </RCC>
