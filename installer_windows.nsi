@@ -95,8 +95,8 @@
   !insertmacro MUI_PAGE_INSTFILES
 
   !define MUI_FINISHPAGE_TITLE "qFlipper ${VERSION} Setup Complete"
-  !define MUI_FINISHPAGE_RUN "$INSTDIR\${NAME}.exe"
-  !define MUI_FINISHPAGE_RUN_TEXT "Run qFlipper now"
+;  !define MUI_FINISHPAGE_RUN "$INSTDIR\${NAME}.exe"
+;  !define MUI_FINISHPAGE_RUN_TEXT "Run qFlipper now"
   !define MUI_FINISHPAGE_LINK "More Info --> Flipper Zero Documentation"
   !define MUI_FINISHPAGE_LINK_LOCATION "https://docs.flipperzero.one"
   !define MUI_PAGE_CUSTOMFUNCTION_SHOW showHiDpi ; HiDpi replace image hack for finish page
