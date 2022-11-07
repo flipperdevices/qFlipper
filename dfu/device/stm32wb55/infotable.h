@@ -52,6 +52,7 @@ struct FUSDeviceInfoTable
     uint32_t  reserved2;
     uint64_t  UID64;
     uint16_t  deviceID;
+    uint32_t  padding_ /* padding for 32 bits build */;
 };
 
 struct DeviceInfoTable {
