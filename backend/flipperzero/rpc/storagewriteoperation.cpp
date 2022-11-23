@@ -19,7 +19,11 @@ StorageWriteOperation::StorageWriteOperation(uint32_t id, const QByteArray &path
     m_subRequest(StorageWrite),
     m_chunksPerPing(0),
     m_chunksWritten(0)
-{}
+{
+    connect(this, &AbstractOperation::finished, m_file, [=]() {
+        m_file->close();
+    });
+}
 
 const QString StorageWriteOperation::description() const
 {
