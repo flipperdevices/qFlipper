@@ -23,6 +23,7 @@ SOURCES += \
     flipperzero/filemanager.cpp \
     flipperzero/protobufsession.cpp \
     flipperzero/rpc/abstractprotobufoperation.cpp \
+    flipperzero/rpc/abstractstorageoperation.cpp \
     flipperzero/rpc/guiscreenframeoperation.cpp \
     flipperzero/rpc/guisendinputoperation.cpp \
     flipperzero/rpc/guistartscreenstreamoperation.cpp \
@@ -130,6 +131,7 @@ HEADERS += \
     flipperzero/pixmaps/updating.h \
     flipperzero/protobufsession.h \
     flipperzero/rpc/abstractprotobufoperation.h \
+    flipperzero/rpc/abstractstorageoperation.h \
     flipperzero/rpc/guiscreenframeoperation.h \
     flipperzero/rpc/guisendinputoperation.h \
     flipperzero/rpc/guistartscreenstreamoperation.h \

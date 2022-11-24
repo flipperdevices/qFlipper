@@ -1,6 +1,6 @@
 #pragma once
 
-#include "abstractprotobufoperation.h"
+#include "abstractstorageoperation.h"
 
 #include <QByteArray>
 
@@ -9,7 +9,7 @@ class QIODevice;
 namespace Flipper {
 namespace Zero {
 
-class StorageWriteOperation : public AbstractProtobufOperation
+class StorageWriteOperation : public AbstractStorageOperation
 {
     Q_OBJECT
 
@@ -29,7 +29,6 @@ private:
     bool begin() override;
     bool processResponse(QObject *response) override;
 
-    QByteArray m_path;
     QIODevice *m_file;
 
     RequestType m_subRequest;

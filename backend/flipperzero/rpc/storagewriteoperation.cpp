@@ -13,8 +13,7 @@ using namespace Flipper;
 using namespace Zero;
 
 StorageWriteOperation::StorageWriteOperation(uint32_t id, const QByteArray &path, QIODevice *file, QObject *parent):
-    AbstractProtobufOperation(id, parent),
-    m_path(path),
+    AbstractStorageOperation(id, path, parent),
     m_file(file),
     m_subRequest(StorageWrite),
     m_chunksPerPing(0),
@@ -27,7 +26,7 @@ StorageWriteOperation::StorageWriteOperation(uint32_t id, const QByteArray &path
 
 const QString StorageWriteOperation::description() const
 {
-    return QStringLiteral("Storage Write @%1").arg(QString(m_path));
+    return QStringLiteral("Storage Write @%1").arg(QString(path()));
 }
 
 bool StorageWriteOperation::hasMoreData() const
@@ -63,7 +62,7 @@ const QByteArray StorageWriteOperation::encodeRequest(ProtobufPluginInterface *e
 
         const auto buf = m_file->read(CHUNK_SIZE);
         const auto hasNext = m_file->bytesAvailable() > 0;
-        return encoder->storageWrite(id(), m_path, buf, hasNext);
+        return encoder->storageWrite(id(), path(), buf, hasNext);
 
     } else if(m_subRequest == StatusPing) {
         m_subRequest = StorageWrite;
