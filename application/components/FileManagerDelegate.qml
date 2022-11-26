@@ -107,7 +107,6 @@ Item {
                 anchors.fill: nameLabel
                 color: delegate.selectionColor
             }
-
             MouseArea {
                 id: labelMouseArea
                 hoverEnabled: true
@@ -293,18 +292,7 @@ Item {
             confirmationDialog.openWithMessage(doRemove, msgObj);
         }
     }
-
-    Keys.onPressed: function(event) {
-        if(event.isAutoRepeat)
-            return;
-
-        const key = event.key;
-        if(key == Qt.Key_Delete)
-            Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
-
-        event.accepted = true;
-    }
-
+    
     function rightClick(mouse) {
         delegate.GridView.view.currentIndex = delegate.index
 
@@ -350,4 +338,10 @@ Item {
         nameLabel.text = newName;
         editBox.visible = false;
     }
+
+    Keys.onPressed: function(event) {
+                if(event.key == Qt.Key_Delete)
+                    Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
+                    event.accepted = true;
+            }
 }
