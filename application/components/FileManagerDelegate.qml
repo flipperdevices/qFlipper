@@ -294,17 +294,6 @@ Item {
         }
     }
 
-    Keys.onPressed: function(event) {
-        if(event.isAutoRepeat)
-            return;
-
-        const key = event.key;
-        if(key == Qt.Key_Delete)
-            Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
-
-        event.accepted = true;
-    }
-
     function rightClick(mouse) {
         delegate.GridView.view.currentIndex = delegate.index
 
