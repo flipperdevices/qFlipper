@@ -277,25 +277,12 @@ Item {
         text: qsTr("!Delete...")
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-remove.svg"
 
-        onTriggered: {
-            const doRemove = function() {
-                Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
-            };
-
-            const msgObj = {
-                title: "%1 \"%2\"?".arg(qsTr("Delete")).arg(delegate.fileName),
-                message: qsTr("This action cannot be undone."),
-                suggestedRole: ConfirmationDialog.RejectRole,
-                customText: qsTr("Delete")
-            };
-
-            confirmationDialog.openWithMessage(doRemove, msgObj);
-        }
+        onTriggered: commitDelete()
     }
     
     function rightClick(mouse) {
         delegate.GridView.view.currentIndex = delegate.index
-
+        forceActiveFocus(Qt.MouseFocusReason);
         if(mouse.button === Qt.LeftButton) {
             return;
         }
@@ -338,10 +325,30 @@ Item {
         nameLabel.text = newName;
         editBox.visible = false;
     }
+    
+    function commitDelete() {
+        const doRemove = function() {
+                Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
+            };
+
+            const msgObj = {
+                title: "%1 \"%2\"?".arg(qsTr("Delete")).arg(delegate.fileName),
+                message: qsTr("This action cannot be undone."),
+                suggestedRole: ConfirmationDialog.RejectRole,
+                customText: qsTr("Delete")
+            };
+
+            confirmationDialog.openWithMessage(doRemove, msgObj);
+    }
 
     Keys.onPressed: function(event) {
-                if(event.key == Qt.Key_Delete)
+                if(event.key == Qt.Key_Delete  && (event.modifiers & Qt.ShiftModifier)) {
                     Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
-                    event.accepted = true;
+                    event.accepted = true;   
+                } else if(event.key == Qt.Key_Delete  && !(event.modifiers & Qt.ShiftModifier)) {
+                    commitDelete();
+                    event.accepted = true;   
+                }
             }
+
 }
