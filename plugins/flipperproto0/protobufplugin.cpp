@@ -8,6 +8,7 @@
 #include "statusrequest.h"
 #include "systemrequest.h"
 #include "storagerequest.h"
+#include "propertyrequest.h"
 
 #include "regiondata.h"
 
@@ -141,6 +142,11 @@ const QByteArray ProtobufPlugin::storageRead(uint32_t id, const QByteArray &path
 const QByteArray ProtobufPlugin::storageWrite(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext) const
 {
     return StorageWriteRequest(id, path, data, hasNext).encode();
+}
+
+const QByteArray ProtobufPlugin::propertyGet(uint32_t id, const QByteArray &key) const
+{
+    return PropertyGetRequest(id, key).encode();
 }
 
 const QByteArray ProtobufPlugin::regionBands(const QByteArray &countryCode, const BandInfoList &bands) const

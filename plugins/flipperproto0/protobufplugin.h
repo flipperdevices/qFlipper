@@ -42,6 +42,8 @@ public:
     const QByteArray storageRead(uint32_t id, const QByteArray &path) const override;
     const QByteArray storageWrite(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext) const override;
 
+    const QByteArray propertyGet(uint32_t id, const QByteArray &key) const override;
+
     const QByteArray regionBands(const QByteArray &countryCode, const BandInfoList &bands) const override;
 
     QObject *decode(const QByteArray &buffer, QObject *parent = nullptr) const override;

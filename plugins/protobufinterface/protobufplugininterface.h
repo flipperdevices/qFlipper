@@ -43,6 +43,8 @@ public:
     virtual const QByteArray storageRead(uint32_t id, const QByteArray &path) const = 0;
     virtual const QByteArray storageWrite(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext) const = 0;
 
+    virtual const QByteArray propertyGet(uint32_t id, const QByteArray &key) const = 0;
+
     virtual const QByteArray regionBands(const QByteArray &countryCode, const BandInfoList &bands) const = 0;
 
     virtual QObject *decode(const QByteArray &buffer, QObject *parent = nullptr) const = 0;
