@@ -14,6 +14,7 @@ public:
         SystemDeviceInfo,
         SystemGetDateTime,
         SystemUpdate,
+        SystemProtobufVersion,
 
         StorageList,
         StorageRead,

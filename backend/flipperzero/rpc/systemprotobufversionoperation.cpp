@@ -17,6 +17,16 @@ const QString SystemProtobufVersionOperation::description() const
     return QStringLiteral("System Protobuf Version");
 }
 
+uint32_t SystemProtobufVersionOperation::versionMajor() const
+{
+    return m_versionMajor;
+}
+
+uint32_t SystemProtobufVersionOperation::versionMinor() const
+{
+    return m_versionMinor;
+}
+
 const QByteArray SystemProtobufVersionOperation::encodeRequest(ProtobufPluginInterface *encoder)
 {
     return encoder->systemProtobufVersion(id());
