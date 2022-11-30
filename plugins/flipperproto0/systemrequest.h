@@ -41,3 +41,9 @@ public:
 private:
     QByteArray m_manifestPath;
 };
+
+class SystemProtobufVersionRequest : public MainRequest
+{
+public:
+    SystemProtobufVersionRequest(uint32_t id);
+};

@@ -74,6 +74,11 @@ const QByteArray ProtobufPlugin::systemUpdateRequest(uint32_t id, const QByteArr
     return SystemUpdateRequest(id, manifestPath).encode();
 }
 
+const QByteArray ProtobufPlugin::systemProtobufVersion(uint32_t id) const
+{
+    return SystemProtobufVersionRequest(id).encode();
+}
+
 const QByteArray ProtobufPlugin::guiStartScreenStream(uint32_t id) const
 {
     return GuiStartScreenStreamRequest(id).encode();

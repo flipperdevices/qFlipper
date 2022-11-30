@@ -26,6 +26,7 @@ public:
     virtual const QByteArray systemGetDateTime(uint32_t id) const = 0;
     virtual const QByteArray systemSetDateTime(uint32_t id, const QDateTime &dateTime) const = 0;
     virtual const QByteArray systemUpdateRequest(uint32_t id, const QByteArray &manifestPath) const = 0;
+    virtual const QByteArray systemProtobufVersion(uint32_t id) const = 0;
 
     virtual const QByteArray guiStartScreenStream(uint32_t id) const = 0;
     virtual const QByteArray guiStopScreenStream(uint32_t id) const = 0;
