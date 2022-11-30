@@ -37,6 +37,8 @@
 #include "rpc/guistartvirtualdisplayoperation.h"
 #include "rpc/guistopvirtualdisplayoperation.h"
 
+#include "rpc/propertygetoperation.h"
+
 #if defined(QT_STATIC)
 Q_IMPORT_PLUGIN(ProtobufPlugin)
 #endif
@@ -209,6 +211,11 @@ GuiSendInputOperation *ProtobufSession::guiSendInput(int key, int type)
 GuiScreenFrameOperation *ProtobufSession::guiSendScreenFrame(const QByteArray &screenData)
 {
     return enqueueOperation(new GuiScreenFrameOperation(getAndIncrementCounter(), screenData, this));
+}
+
+PropertyGetOperation *ProtobufSession::propertyGet(const QByteArray &key)
+{
+    return enqueueOperation(new PropertyGetOperation(getAndIncrementCounter(), key, this));
 }
 
 void ProtobufSession::startSession()

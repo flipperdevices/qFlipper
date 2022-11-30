@@ -55,6 +55,8 @@ private:
     void startRPCSession();
     void fetchProtobufVersion();
     void fetchDeviceInfo();
+    void fetchDeviceInfoLegacy();
+    void fetchDeviceInfoProperty();
     void checkSDCard();
     void checkManifest();
     void getTimeSkew();

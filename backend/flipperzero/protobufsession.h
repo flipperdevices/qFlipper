@@ -39,6 +39,8 @@ class GuiSendInputOperation;
 class GuiStartVirtualDisplayOperation;
 class GuiStopVirtualDisplayOperation;
 
+class PropertyGetOperation;
+
 class ProtobufSession : public QObject, public Failable
 {
     Q_OBJECT
@@ -89,6 +91,8 @@ public:
     GuiStopVirtualDisplayOperation *guiStopVirtualDisplay();
     GuiSendInputOperation *guiSendInput(int key, int type);
     GuiScreenFrameOperation *guiSendScreenFrame(const QByteArray &screenData);
+
+    PropertyGetOperation *propertyGet(const QByteArray &key);
 
 signals:
     void sessionStateChanged();

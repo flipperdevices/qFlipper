@@ -6,6 +6,7 @@
 #include "statusresponse.h"
 #include "systemresponse.h"
 #include "storageresponse.h"
+#include "propertyresponse.h"
 
 MainResponse::MainResponse(MessageWrapper &wrapper, QObject *parent):
     QObject(parent),
@@ -95,6 +96,7 @@ QObject *MainResponse::create(MessageWrapper &wrapper, QObject *parent)
     case StorageList: return new StorageListResponse(wrapper, parent);
     case StorageRead: return new StorageReadResponse(wrapper, parent);
     case GuiScreenFrame: return new GuiScreenFrameResponse(wrapper, parent);
+    case PropertyGet: return new PropertyGetResponse(wrapper, parent);
     case Unknown:
     default: return nullptr;
     }
@@ -123,6 +125,8 @@ MainResponseInterface::ResponseType MainResponse::tagToResponseType(pb_size_t ta
     case PB_Main_storage_info_response_tag: return StorageInfo;
 
     case PB_Main_gui_screen_frame_tag: return GuiScreenFrame;
+
+    case PB_Main_property_get_response_tag: return PropertyGet;
     default: return Unknown;
     }
 }

@@ -23,6 +23,8 @@ public:
         StorageInfo,
 
         GuiScreenFrame,
+
+        PropertyGet,
     };
 
     virtual ~MainResponseInterface() {}

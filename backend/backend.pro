@@ -30,6 +30,7 @@ SOURCES += \
     flipperzero/rpc/guistartvirtualdisplayoperation.cpp \
     flipperzero/rpc/guistopscreenstreamoperation.cpp \
     flipperzero/rpc/guistopvirtualdisplayoperation.cpp \
+    flipperzero/rpc/propertygetoperation.cpp \
     flipperzero/rpc/startrpcoperation.cpp \
     flipperzero/rpc/stoprpcoperation.cpp \
     flipperzero/rpc/storageinfooperation.cpp \
@@ -139,6 +140,7 @@ HEADERS += \
     flipperzero/rpc/guistartvirtualdisplayoperation.h \
     flipperzero/rpc/guistopscreenstreamoperation.h \
     flipperzero/rpc/guistopvirtualdisplayoperation.h \
+    flipperzero/rpc/propertygetoperation.h \
     flipperzero/rpc/startrpcoperation.h \
     flipperzero/rpc/stoprpcoperation.h \
     flipperzero/rpc/storageinfooperation.h \
