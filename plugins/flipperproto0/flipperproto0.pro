@@ -23,6 +23,7 @@ HEADERS += \
     messages/application.pb.h \
     messages/flipper.pb.h \
     messages/gui.pb.h \
+    messages/property.pb.h \
     messages/status.pb.h \
     messages/storage.pb.h \
     messages/system.pb.h \
@@ -45,6 +46,7 @@ SOURCES += \
     messages/flipper.pb.c \
     messages/gpio.pb.c \
     messages/gui.pb.c \
+    messages/property.pb.c \
     messages/status.pb.c \
     messages/storage.pb.c \
     messages/system.pb.c \

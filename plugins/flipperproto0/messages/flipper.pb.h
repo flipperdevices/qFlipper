@@ -9,6 +9,7 @@
 #include "application.pb.h"
 #include "gui.pb.h"
 #include "gpio.pb.h"
+#include "property.pb.h"
 
 #if PB_PROTO_HEADER_VERSION != 40
 #error Regenerate this file with the current version of nanopb generator.
@@ -127,6 +128,13 @@ typedef struct _PB_Main {
         PB_Gpio_ReadPinResponse gpio_read_pin_response;
         PB_Gpio_WritePin gpio_write_pin;
         PB_App_AppStateResponse app_state_response;
+        PB_Storage_TimestampRequest storage_timestamp_request;
+        PB_Storage_TimestampResponse storage_timestamp_response;
+        PB_Property_GetRequest property_get_request;
+        PB_Property_GetResponse property_get_response;
+        PB_App_GetErrorRequest app_get_error_request;
+        PB_App_GetErrorResponse app_get_error_response;
+        PB_App_DataExchangeRequest app_data_exchange_request;
     } content; 
 } PB_Main;
 
@@ -221,6 +229,13 @@ extern "C" {
 #define PB_Main_gpio_read_pin_response_tag       56
 #define PB_Main_gpio_write_pin_tag               57
 #define PB_Main_app_state_response_tag           58
+#define PB_Main_storage_timestamp_request_tag    59
+#define PB_Main_storage_timestamp_response_tag   60
+#define PB_Main_property_get_request_tag         61
+#define PB_Main_property_get_response_tag        62
+#define PB_Main_app_get_error_request_tag        63
+#define PB_Main_app_get_error_response_tag       64
+#define PB_Main_app_data_exchange_request_tag    65
 #define PB_Region_Band_start_tag                 1
 #define PB_Region_Band_end_tag                   2
 #define PB_Region_Band_power_limit_tag           3
@@ -295,7 +310,14 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_get_pin_mode_response,content.g
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_read_pin,content.gpio_read_pin),  55) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_read_pin_response,content.gpio_read_pin_response),  56) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gpio_write_pin,content.gpio_write_pin),  57) \
-X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_state_response,content.app_state_response),  58)
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_state_response,content.app_state_response),  58) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_timestamp_request,content.storage_timestamp_request),  59) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_timestamp_response,content.storage_timestamp_response),  60) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,property_get_request,content.property_get_request),  61) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,property_get_response,content.property_get_response),  62) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_get_error_request,content.app_get_error_request),  63) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_get_error_response,content.app_get_error_response),  64) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_data_exchange_request,content.app_data_exchange_request),  65)
 #define PB_Main_CALLBACK NULL
 #define PB_Main_DEFAULT NULL
 #define PB_Main_content_empty_MSGTYPE PB_Empty
@@ -353,6 +375,13 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_state_response,content.app_state
 #define PB_Main_content_gpio_read_pin_response_MSGTYPE PB_Gpio_ReadPinResponse
 #define PB_Main_content_gpio_write_pin_MSGTYPE PB_Gpio_WritePin
 #define PB_Main_content_app_state_response_MSGTYPE PB_App_AppStateResponse
+#define PB_Main_content_storage_timestamp_request_MSGTYPE PB_Storage_TimestampRequest
+#define PB_Main_content_storage_timestamp_response_MSGTYPE PB_Storage_TimestampResponse
+#define PB_Main_content_property_get_request_MSGTYPE PB_Property_GetRequest
+#define PB_Main_content_property_get_response_MSGTYPE PB_Property_GetResponse
+#define PB_Main_content_app_get_error_request_MSGTYPE PB_App_GetErrorRequest
+#define PB_Main_content_app_get_error_response_MSGTYPE PB_App_GetErrorResponse
+#define PB_Main_content_app_data_exchange_request_MSGTYPE PB_App_DataExchangeRequest
 
 #define PB_Region_FIELDLIST(X, a) \
 X(a, POINTER,  SINGULAR, BYTES,    country_code,      1) \
@@ -383,14 +412,14 @@ extern const pb_msgdesc_t PB_Region_Band_msg;
 #define PB_Region_Band_fields &PB_Region_Band_msg
 
 /* Maximum encoded size of messages (where known) */
-#if defined(PB_System_PingRequest_size) && defined(PB_System_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size) && defined(PB_Gui_StartVirtualDisplayRequest_size) && defined(PB_Storage_InfoRequest_size) && defined(PB_Storage_RenameRequest_size) && defined(PB_System_DeviceInfoResponse_size) && defined(PB_System_UpdateRequest_size) && defined(PB_Storage_BackupCreateRequest_size) && defined(PB_Storage_BackupRestoreRequest_size) && defined(PB_System_PowerInfoResponse_size)
-union PB_Main_content_size_union {char f5[(6 + PB_System_PingRequest_size)]; char f6[(6 + PB_System_PingResponse_size)]; char f7[(6 + PB_Storage_ListRequest_size)]; char f8[(6 + PB_Storage_ListResponse_size)]; char f9[(6 + PB_Storage_ReadRequest_size)]; char f10[(6 + PB_Storage_ReadResponse_size)]; char f11[(6 + PB_Storage_WriteRequest_size)]; char f12[(6 + PB_Storage_DeleteRequest_size)]; char f13[(6 + PB_Storage_MkdirRequest_size)]; char f14[(6 + PB_Storage_Md5sumRequest_size)]; char f16[(7 + PB_App_StartRequest_size)]; char f22[(7 + PB_Gui_ScreenFrame_size)]; char f24[(7 + PB_Storage_StatRequest_size)]; char f25[(7 + PB_Storage_StatResponse_size)]; char f26[(7 + PB_Gui_StartVirtualDisplayRequest_size)]; char f28[(7 + PB_Storage_InfoRequest_size)]; char f30[(7 + PB_Storage_RenameRequest_size)]; char f33[(7 + PB_System_DeviceInfoResponse_size)]; char f41[(7 + PB_System_UpdateRequest_size)]; char f42[(7 + PB_Storage_BackupCreateRequest_size)]; char f43[(7 + PB_Storage_BackupRestoreRequest_size)]; char f45[(7 + PB_System_PowerInfoResponse_size)]; char f0[519];};
+#if defined(PB_System_PingRequest_size) && defined(PB_System_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size) && defined(PB_Gui_StartVirtualDisplayRequest_size) && defined(PB_Storage_InfoRequest_size) && defined(PB_Storage_RenameRequest_size) && defined(PB_System_DeviceInfoResponse_size) && defined(PB_System_UpdateRequest_size) && defined(PB_Storage_BackupCreateRequest_size) && defined(PB_Storage_BackupRestoreRequest_size) && defined(PB_System_PowerInfoResponse_size) && defined(PB_Storage_TimestampRequest_size) && defined(PB_Property_GetRequest_size) && defined(PB_Property_GetResponse_size) && defined(PB_App_GetErrorResponse_size) && defined(PB_App_DataExchangeRequest_size)
+union PB_Main_content_size_union {char f5[(6 + PB_System_PingRequest_size)]; char f6[(6 + PB_System_PingResponse_size)]; char f7[(6 + PB_Storage_ListRequest_size)]; char f8[(6 + PB_Storage_ListResponse_size)]; char f9[(6 + PB_Storage_ReadRequest_size)]; char f10[(6 + PB_Storage_ReadResponse_size)]; char f11[(6 + PB_Storage_WriteRequest_size)]; char f12[(6 + PB_Storage_DeleteRequest_size)]; char f13[(6 + PB_Storage_MkdirRequest_size)]; char f14[(6 + PB_Storage_Md5sumRequest_size)]; char f16[(7 + PB_App_StartRequest_size)]; char f22[(7 + PB_Gui_ScreenFrame_size)]; char f24[(7 + PB_Storage_StatRequest_size)]; char f25[(7 + PB_Storage_StatResponse_size)]; char f26[(7 + PB_Gui_StartVirtualDisplayRequest_size)]; char f28[(7 + PB_Storage_InfoRequest_size)]; char f30[(7 + PB_Storage_RenameRequest_size)]; char f33[(7 + PB_System_DeviceInfoResponse_size)]; char f41[(7 + PB_System_UpdateRequest_size)]; char f42[(7 + PB_Storage_BackupCreateRequest_size)]; char f43[(7 + PB_Storage_BackupRestoreRequest_size)]; char f45[(7 + PB_System_PowerInfoResponse_size)]; char f59[(7 + PB_Storage_TimestampRequest_size)]; char f61[(7 + PB_Property_GetRequest_size)]; char f62[(7 + PB_Property_GetResponse_size)]; char f64[(7 + PB_App_GetErrorResponse_size)]; char f65[(7 + PB_App_DataExchangeRequest_size)]; char f0[519];};
 #endif
 /* PB_Region_size depends on runtime parameters */
 #define PB_Empty_size                            0
 #define PB_Region_Band_size                      26
 #define PB_StopSession_size                      0
-#if defined(PB_System_PingRequest_size) && defined(PB_System_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size) && defined(PB_Gui_StartVirtualDisplayRequest_size) && defined(PB_Storage_InfoRequest_size) && defined(PB_Storage_RenameRequest_size) && defined(PB_System_DeviceInfoResponse_size) && defined(PB_System_UpdateRequest_size) && defined(PB_Storage_BackupCreateRequest_size) && defined(PB_Storage_BackupRestoreRequest_size) && defined(PB_System_PowerInfoResponse_size)
+#if defined(PB_System_PingRequest_size) && defined(PB_System_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size) && defined(PB_Gui_StartVirtualDisplayRequest_size) && defined(PB_Storage_InfoRequest_size) && defined(PB_Storage_RenameRequest_size) && defined(PB_System_DeviceInfoResponse_size) && defined(PB_System_UpdateRequest_size) && defined(PB_Storage_BackupCreateRequest_size) && defined(PB_Storage_BackupRestoreRequest_size) && defined(PB_System_PowerInfoResponse_size) && defined(PB_Storage_TimestampRequest_size) && defined(PB_Property_GetRequest_size) && defined(PB_Property_GetResponse_size) && defined(PB_App_GetErrorResponse_size) && defined(PB_App_DataExchangeRequest_size)
 #define PB_Main_size                             (10 + sizeof(union PB_Main_content_size_union))
 #endif
 

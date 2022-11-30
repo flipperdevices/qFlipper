@@ -53,6 +53,10 @@ typedef struct _PB_Storage_StatRequest {
     char *path; 
 } PB_Storage_StatRequest;
 
+typedef struct _PB_Storage_TimestampRequest { 
+    char *path; 
+} PB_Storage_TimestampRequest;
+
 typedef struct _PB_Storage_DeleteRequest { 
     char *path; 
     bool recursive; 
@@ -73,6 +77,10 @@ typedef struct _PB_Storage_InfoResponse {
 typedef struct _PB_Storage_Md5sumResponse { 
     char md5sum[33]; 
 } PB_Storage_Md5sumResponse;
+
+typedef struct _PB_Storage_TimestampResponse { 
+    uint32_t timestamp; 
+} PB_Storage_TimestampResponse;
 
 typedef struct _PB_Storage_ListResponse { 
     pb_size_t file_count;
@@ -110,6 +118,8 @@ extern "C" {
 #define PB_Storage_File_init_default             {_PB_Storage_File_FileType_MIN, NULL, 0, NULL}
 #define PB_Storage_InfoRequest_init_default      {NULL}
 #define PB_Storage_InfoResponse_init_default     {0, 0}
+#define PB_Storage_TimestampRequest_init_default {NULL}
+#define PB_Storage_TimestampResponse_init_default {0}
 #define PB_Storage_StatRequest_init_default      {NULL}
 #define PB_Storage_StatResponse_init_default     {false, PB_Storage_File_init_default}
 #define PB_Storage_ListRequest_init_default      {NULL}
@@ -127,6 +137,8 @@ extern "C" {
 #define PB_Storage_File_init_zero                {_PB_Storage_File_FileType_MIN, NULL, 0, NULL}
 #define PB_Storage_InfoRequest_init_zero         {NULL}
 #define PB_Storage_InfoResponse_init_zero        {0, 0}
+#define PB_Storage_TimestampRequest_init_zero    {NULL}
+#define PB_Storage_TimestampResponse_init_zero   {0}
 #define PB_Storage_StatRequest_init_zero         {NULL}
 #define PB_Storage_StatResponse_init_zero        {false, PB_Storage_File_init_zero}
 #define PB_Storage_ListRequest_init_zero         {NULL}
@@ -153,6 +165,7 @@ extern "C" {
 #define PB_Storage_RenameRequest_old_path_tag    1
 #define PB_Storage_RenameRequest_new_path_tag    2
 #define PB_Storage_StatRequest_path_tag          1
+#define PB_Storage_TimestampRequest_path_tag     1
 #define PB_Storage_DeleteRequest_path_tag        1
 #define PB_Storage_DeleteRequest_recursive_tag   2
 #define PB_Storage_File_type_tag                 1
@@ -162,6 +175,7 @@ extern "C" {
 #define PB_Storage_InfoResponse_total_space_tag  1
 #define PB_Storage_InfoResponse_free_space_tag   2
 #define PB_Storage_Md5sumResponse_md5sum_tag     1
+#define PB_Storage_TimestampResponse_timestamp_tag 1
 #define PB_Storage_ListResponse_file_tag         1
 #define PB_Storage_ReadResponse_file_tag         1
 #define PB_Storage_StatResponse_file_tag         1
@@ -187,6 +201,16 @@ X(a, STATIC,   SINGULAR, UINT64,   total_space,       1) \
 X(a, STATIC,   SINGULAR, UINT64,   free_space,        2)
 #define PB_Storage_InfoResponse_CALLBACK NULL
 #define PB_Storage_InfoResponse_DEFAULT NULL
+
+#define PB_Storage_TimestampRequest_FIELDLIST(X, a) \
+X(a, POINTER,  SINGULAR, STRING,   path,              1)
+#define PB_Storage_TimestampRequest_CALLBACK NULL
+#define PB_Storage_TimestampRequest_DEFAULT NULL
+
+#define PB_Storage_TimestampResponse_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   timestamp,         1)
+#define PB_Storage_TimestampResponse_CALLBACK NULL
+#define PB_Storage_TimestampResponse_DEFAULT NULL
 
 #define PB_Storage_StatRequest_FIELDLIST(X, a) \
 X(a, POINTER,  SINGULAR, STRING,   path,              1)
@@ -268,6 +292,8 @@ X(a, POINTER,  SINGULAR, STRING,   archive_path,      1)
 extern const pb_msgdesc_t PB_Storage_File_msg;
 extern const pb_msgdesc_t PB_Storage_InfoRequest_msg;
 extern const pb_msgdesc_t PB_Storage_InfoResponse_msg;
+extern const pb_msgdesc_t PB_Storage_TimestampRequest_msg;
+extern const pb_msgdesc_t PB_Storage_TimestampResponse_msg;
 extern const pb_msgdesc_t PB_Storage_StatRequest_msg;
 extern const pb_msgdesc_t PB_Storage_StatResponse_msg;
 extern const pb_msgdesc_t PB_Storage_ListRequest_msg;
@@ -287,6 +313,8 @@ extern const pb_msgdesc_t PB_Storage_BackupRestoreRequest_msg;
 #define PB_Storage_File_fields &PB_Storage_File_msg
 #define PB_Storage_InfoRequest_fields &PB_Storage_InfoRequest_msg
 #define PB_Storage_InfoResponse_fields &PB_Storage_InfoResponse_msg
+#define PB_Storage_TimestampRequest_fields &PB_Storage_TimestampRequest_msg
+#define PB_Storage_TimestampResponse_fields &PB_Storage_TimestampResponse_msg
 #define PB_Storage_StatRequest_fields &PB_Storage_StatRequest_msg
 #define PB_Storage_StatResponse_fields &PB_Storage_StatResponse_msg
 #define PB_Storage_ListRequest_fields &PB_Storage_ListRequest_msg
@@ -305,6 +333,7 @@ extern const pb_msgdesc_t PB_Storage_BackupRestoreRequest_msg;
 /* Maximum encoded size of messages (where known) */
 /* PB_Storage_File_size depends on runtime parameters */
 /* PB_Storage_InfoRequest_size depends on runtime parameters */
+/* PB_Storage_TimestampRequest_size depends on runtime parameters */
 /* PB_Storage_StatRequest_size depends on runtime parameters */
 /* PB_Storage_StatResponse_size depends on runtime parameters */
 /* PB_Storage_ListRequest_size depends on runtime parameters */
@@ -320,6 +349,7 @@ extern const pb_msgdesc_t PB_Storage_BackupRestoreRequest_msg;
 /* PB_Storage_BackupRestoreRequest_size depends on runtime parameters */
 #define PB_Storage_InfoResponse_size             22
 #define PB_Storage_Md5sumResponse_size           34
+#define PB_Storage_TimestampResponse_size        6
 
 #ifdef __cplusplus
 } /* extern "C" */
