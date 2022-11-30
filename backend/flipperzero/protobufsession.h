@@ -21,6 +21,7 @@ class SystemGetDateTimeOperation;
 class SystemSetDateTimeOperation;
 class SystemFactoryResetOperation;
 class SystemUpdateOperation;
+class SystemProtobufVersionOperation;
 
 class StorageListOperation;
 class StorageInfoOperation;
@@ -71,6 +72,7 @@ public:
     SystemFactoryResetOperation *factoryReset();
     SystemDeviceInfoOperation *systemDeviceInfo();
     SystemUpdateOperation *systemUpdate(const QByteArray &manifestPath);
+    SystemProtobufVersionOperation *systemProtobufVersion();
 
     StorageListOperation *storageList(const QByteArray &path);
     StorageInfoOperation *storageInfo(const QByteArray &path);

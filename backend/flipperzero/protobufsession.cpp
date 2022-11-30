@@ -28,6 +28,7 @@
 #include "rpc/systemsetdatetimeoperation.h"
 #include "rpc/systemfactoryresetoperation.h"
 #include "rpc/systemupdateoperation.h"
+#include "rpc/systemprotobufversionoperation.h"
 
 #include "rpc/guisendinputoperation.h"
 #include "rpc/guiscreenframeoperation.h"
@@ -133,6 +134,11 @@ SystemDeviceInfoOperation *ProtobufSession::systemDeviceInfo()
 SystemUpdateOperation *ProtobufSession::systemUpdate(const QByteArray &manifestPath)
 {
     return enqueueOperation(new SystemUpdateOperation(getAndIncrementCounter(), manifestPath, this));
+}
+
+SystemProtobufVersionOperation *ProtobufSession::systemProtobufVersion()
+{
+    return enqueueOperation(new SystemProtobufVersionOperation(getAndIncrementCounter(), this));
 }
 
 StorageListOperation *ProtobufSession::storageList(const QByteArray &path)
