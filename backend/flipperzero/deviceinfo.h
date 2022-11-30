@@ -71,8 +71,8 @@ public:
 
 struct ProtobufInfo {
 public:
-    int versionMajor;
-    int versionMinor;
+    uint32_t versionMajor;
+    uint32_t versionMinor;
 };
 
 struct DeviceInfo {

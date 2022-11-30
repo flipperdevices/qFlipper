@@ -426,7 +426,7 @@ void ProtobufSession::setSessionState(SessionState newState)
 }
 
 #if !defined(QT_STATIC)
-const QString ProtobufSession::protobufPluginFileName(int versionMajor)
+const QString ProtobufSession::protobufPluginFileName(uint32_t versionMajor)
 {
 #if defined(Q_OS_WINDOWS)
     return QStringLiteral("flipperproto%1.dll").arg(versionMajor);
@@ -440,9 +440,9 @@ const QString ProtobufSession::protobufPluginFileName(int versionMajor)
 }
 #endif
 
-QVector<int> ProtobufSession::supportedProtobufVersions()
+QVector<uint32_t> ProtobufSession::supportedProtobufVersions()
 {
-    QVector<int> ret;
+    QVector<uint32_t> ret;
 
 #if defined(QT_STATIC)
     const auto staticInstances = QPluginLoader::staticInstances();
@@ -457,7 +457,7 @@ QVector<int> ProtobufSession::supportedProtobufVersions()
 #else
     const auto libraryPaths = QCoreApplication::libraryPaths();
 
-    for(auto i = 0;; ++i) {
+    for(uint32_t i = 0;; ++i) {
         for(const auto &path : libraryPaths) {
             const QDir libraryDir(path);
 

@@ -17,6 +17,7 @@
 #include "flipperzero/rpc/systemdeviceinfooperation.h"
 #include "flipperzero/rpc/systemgetdatetimeoperation.h"
 #include "flipperzero/rpc/systemsetdatetimeoperation.h"
+#include "flipperzero/rpc/systemprotobufversionoperation.h"
 
 #include "device/stm32wb55.h"
 #include "serialfinder.h"
@@ -70,6 +71,10 @@ void VCPDeviceInfoHelper::nextStateLogic()
         startRPCSession();
 
     } else if(state() == VCPDeviceInfoHelper::StartingRPCSession) {
+        setState(VCPDeviceInfoHelper::FetchingProtobufVersion);
+        fetchProtobufVersion();
+
+    } else if(state() == VCPDeviceInfoHelper::FetchingProtobufVersion) {
         setState(VCPDeviceInfoHelper::FetchingDeviceInfo);
         fetchDeviceInfo();
 
@@ -120,6 +125,27 @@ void VCPDeviceInfoHelper::startRPCSession()
     m_rpc->startSession();
 }
 
+void VCPDeviceInfoHelper::fetchProtobufVersion()
+{
+    auto *operation = m_rpc->systemProtobufVersion();
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to get protobuf version: %1").arg(operation->errorString()));
+            return;
+        }
+
+        m_deviceInfo.protobuf = {
+            operation->versionMajor(),
+            operation->versionMinor()
+        };
+
+        qCDebug(CATEGORY_DEBUG).noquote() << QStringLiteral("Detected protobuf version: %1.%2").arg(operation->versionMajor()).arg(operation->versionMinor());
+
+        advanceState();
+    });
+}
+
 void VCPDeviceInfoHelper::fetchDeviceInfo()
 {
     auto *operation = m_rpc->systemDeviceInfo();
@@ -147,11 +173,6 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
             QByteArrayLiteral("c") + operation->value(QByteArrayLiteral("hardware_connect")),
             (Color)operation->value(QByteArrayLiteral("hardware_color")).toInt(),
             (Region)operation->value(QByteArrayLiteral("hardware_region")).toInt(),
-        };
-
-        m_deviceInfo.protobuf = {
-            operation->value(QByteArrayLiteral("protobuf_version_major")).toInt(),
-            operation->value(QByteArrayLiteral("protobuf_version_minor")).toInt()
         };
 
         if(operation->value(QByteArrayLiteral("radio_alive")) == QByteArrayLiteral("true")) {

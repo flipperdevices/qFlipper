@@ -16,8 +16,8 @@ public:
 
     virtual ~ProtobufPluginInterface() {}
 
-    virtual int versionMajor() const = 0;
-    virtual void setMinorVersion(int version) = 0;
+    virtual uint32_t versionMajor() const = 0;
+    virtual void setMinorVersion(uint32_t version) = 0;
 
     virtual const QByteArray statusPing(uint32_t id, const QByteArray &data = QByteArray()) const = 0;
     virtual const QByteArray systemFactoryReset(uint32_t id) const = 0;
