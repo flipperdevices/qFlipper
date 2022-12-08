@@ -344,11 +344,19 @@ Item {
     Keys.onPressed: function(event) {
                 if(event.key == Qt.Key_Delete  && (event.modifiers & Qt.ShiftModifier)) {
                     Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
-                    event.accepted = true;   
+                    event.accepted = true;
                 } else if(event.key == Qt.Key_Delete  && !(event.modifiers & Qt.ShiftModifier)) {
                     commitDelete();
-                    event.accepted = true;   
+                    event.accepted = true;
+                } else if (event.key == Qt.Key_Return) {
+                    if  (!delegate.isDirectory) {
+                        event.accepted = true;
+                        return;
+                    } else {
+                        Backend.fileManager.cd(delegate.fileName);
+                    }
+                    event.accepted = true;
                 }
-            }
+    }
 
 }
