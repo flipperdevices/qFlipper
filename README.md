@@ -44,6 +44,11 @@ Note: STM32 Bootloader driver is not provided in this repository.
 ### Linux
 #### Docker build (AppImage, official)
 
+Setup dev container by running:
+```sh 
+docker-compose up -d
+```
+Compile qFlipper by running:
 ```sh
 docker-compose exec dev ./build_linux.sh
 ```
