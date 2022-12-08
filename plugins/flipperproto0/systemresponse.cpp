@@ -69,3 +69,17 @@ const QString SystemUpdateResponse::resultString() const
         return QStringLiteral("Unknown error");
     }
 }
+
+SystemProtobufVersionResponse::SystemProtobufVersionResponse(MessageWrapper &wrapper, QObject *parent):
+    MainResponse(wrapper, parent)
+{}
+
+uint32_t SystemProtobufVersionResponse::versionMajor() const
+{
+    return message().content.system_protobuf_version_response.major;
+}
+
+uint32_t SystemProtobufVersionResponse::versionMinor() const
+{
+    return message().content.system_protobuf_version_response.minor;
+}

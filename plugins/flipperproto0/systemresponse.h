@@ -34,3 +34,14 @@ public:
     bool isResultOk() const;
     const QString resultString() const;
 };
+
+class SystemProtobufVersionResponse : public MainResponse, public SystemProtobufVersionResponseInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(SystemProtobufVersionResponseInterface)
+
+public:
+    SystemProtobufVersionResponse(MessageWrapper &wrapper, QObject *parent = nullptr);
+    uint32_t versionMajor() const override;
+    uint32_t versionMinor() const override;
+};

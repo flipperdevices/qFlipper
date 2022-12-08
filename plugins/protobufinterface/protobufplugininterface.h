@@ -16,8 +16,8 @@ public:
 
     virtual ~ProtobufPluginInterface() {}
 
-    virtual int versionMajor() const = 0;
-    virtual void setMinorVersion(int version) = 0;
+    virtual uint32_t versionMajor() const = 0;
+    virtual void setMinorVersion(uint32_t version) = 0;
 
     virtual const QByteArray statusPing(uint32_t id, const QByteArray &data = QByteArray()) const = 0;
     virtual const QByteArray systemFactoryReset(uint32_t id) const = 0;
@@ -26,6 +26,7 @@ public:
     virtual const QByteArray systemGetDateTime(uint32_t id) const = 0;
     virtual const QByteArray systemSetDateTime(uint32_t id, const QDateTime &dateTime) const = 0;
     virtual const QByteArray systemUpdateRequest(uint32_t id, const QByteArray &manifestPath) const = 0;
+    virtual const QByteArray systemProtobufVersion(uint32_t id) const = 0;
 
     virtual const QByteArray guiStartScreenStream(uint32_t id) const = 0;
     virtual const QByteArray guiStopScreenStream(uint32_t id) const = 0;
@@ -42,6 +43,8 @@ public:
     virtual const QByteArray storageRemove(uint32_t id, const QByteArray &path, bool recursive = false) const = 0;
     virtual const QByteArray storageRead(uint32_t id, const QByteArray &path) const = 0;
     virtual const QByteArray storageWrite(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext) const = 0;
+
+    virtual const QByteArray propertyGet(uint32_t id, const QByteArray &key) const = 0;
 
     virtual const QByteArray regionBands(const QByteArray &countryCode, const BandInfoList &bands) const = 0;
 

@@ -14,9 +14,11 @@
 #include "flipperzero/rpc/stoprpcoperation.h"
 #include "flipperzero/rpc/storageinfooperation.h"
 #include "flipperzero/rpc/storagestatoperation.h"
+#include "flipperzero/rpc/propertygetoperation.h"
 #include "flipperzero/rpc/systemdeviceinfooperation.h"
 #include "flipperzero/rpc/systemgetdatetimeoperation.h"
 #include "flipperzero/rpc/systemsetdatetimeoperation.h"
+#include "flipperzero/rpc/systemprotobufversionoperation.h"
 
 #include "device/stm32wb55.h"
 #include "serialfinder.h"
@@ -70,6 +72,10 @@ void VCPDeviceInfoHelper::nextStateLogic()
         startRPCSession();
 
     } else if(state() == VCPDeviceInfoHelper::StartingRPCSession) {
+        setState(VCPDeviceInfoHelper::FetchingProtobufVersion);
+        fetchProtobufVersion();
+
+    } else if(state() == VCPDeviceInfoHelper::FetchingProtobufVersion) {
         setState(VCPDeviceInfoHelper::FetchingDeviceInfo);
         fetchDeviceInfo();
 
@@ -120,7 +126,39 @@ void VCPDeviceInfoHelper::startRPCSession()
     m_rpc->startSession();
 }
 
+void VCPDeviceInfoHelper::fetchProtobufVersion()
+{
+    auto *operation = m_rpc->systemProtobufVersion();
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to get protobuf version: %1").arg(operation->errorString()));
+            return;
+        }
+
+        m_deviceInfo.protobuf = {
+            operation->versionMajor(),
+            operation->versionMinor()
+        };
+
+        qCDebug(CATEGORY_DEBUG).noquote() << QStringLiteral("Detected protobuf version: %1.%2").arg(operation->versionMajor()).arg(operation->versionMinor());
+
+        advanceState();
+    });
+}
+
 void VCPDeviceInfoHelper::fetchDeviceInfo()
+{
+    const auto &protobuf = m_deviceInfo.protobuf;
+
+    if((protobuf.versionMajor > 0) || (protobuf.versionMinor >= 14)) {
+        fetchDeviceInfoProperty();
+    } else {
+        fetchDeviceInfoLegacy();
+    }
+}
+
+void VCPDeviceInfoHelper::fetchDeviceInfoLegacy()
 {
     auto *operation = m_rpc->systemDeviceInfo();
 
@@ -149,11 +187,6 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
             (Region)operation->value(QByteArrayLiteral("hardware_region")).toInt(),
         };
 
-        m_deviceInfo.protobuf = {
-            operation->value(QByteArrayLiteral("protobuf_version_major")).toInt(),
-            operation->value(QByteArrayLiteral("protobuf_version_minor")).toInt()
-        };
-
         if(operation->value(QByteArrayLiteral("radio_alive")) == QByteArrayLiteral("true")) {
             m_deviceInfo.fusVersion = QStringLiteral("%1.%2.%3").arg(
                 operation->value(QByteArrayLiteral("radio_fus_major")),
@@ -166,6 +199,57 @@ void VCPDeviceInfoHelper::fetchDeviceInfo()
                 operation->value(QByteArrayLiteral("radio_stack_sub")));
 
             m_deviceInfo.stackType = operation->value(QByteArrayLiteral("radio_stack_type")).toInt();
+        }
+
+        if(m_deviceInfo.name.isEmpty()) {
+            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to read device information: required fields are not present"));
+        } else {
+            advanceState();
+        }
+    });
+}
+
+void VCPDeviceInfoHelper::fetchDeviceInfoProperty()
+{
+    auto *operation = m_rpc->propertyGet(QByteArrayLiteral("devinfo"));
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(BackendError::InvalidDevice, QStringLiteral("Failed to get device information: %1").arg(operation->errorString()));
+            return;
+        }
+
+        m_deviceInfo.name = operation->value(QByteArrayLiteral("hardware.name"));
+
+        m_deviceInfo.firmware = {
+            operation->value(QByteArrayLiteral("firmware.version")),
+            operation->value(QByteArrayLiteral("firmware.commit.hash")),
+            operation->value(QByteArrayLiteral("firmware.branch.name")),
+            branchToChannelName(operation->value(QByteArrayLiteral("firmware.branch.name"))),
+            QDateTime::fromString(operation->value(QByteArrayLiteral("firmware.build.date")), "dd-MM-yyyy").date()
+        };
+
+        m_deviceInfo.hardware = {
+            operation->value(QByteArrayLiteral("hardware.ver")),
+            QByteArrayLiteral("f") + operation->value(QByteArrayLiteral("hardware.target")),
+            QByteArrayLiteral("b") + operation->value(QByteArrayLiteral("hardware.body")),
+            QByteArrayLiteral("c") + operation->value(QByteArrayLiteral("hardware.connect")),
+            (Color)operation->value(QByteArrayLiteral("hardware.color")).toInt(),
+            (Region)operation->value(QByteArrayLiteral("hardware.region.builtin")).toInt(),
+        };
+
+        if(operation->value(QByteArrayLiteral("radio.alive")) == QByteArrayLiteral("true")) {
+            m_deviceInfo.fusVersion = QStringLiteral("%1.%2.%3").arg(
+                operation->value(QByteArrayLiteral("radio.fus.major")),
+                operation->value(QByteArrayLiteral("radio.fus.minor")),
+                operation->value(QByteArrayLiteral("radio.fus.sub")));
+
+            m_deviceInfo.radioVersion = QStringLiteral("%1.%2.%3").arg(
+                operation->value(QByteArrayLiteral("radio.stack.major")),
+                operation->value(QByteArrayLiteral("radio.stack.minor")),
+                operation->value(QByteArrayLiteral("radio.stack.sub")));
+
+            m_deviceInfo.stackType = operation->value(QByteArrayLiteral("radio.stack.type")).toInt();
         }
 
         if(m_deviceInfo.name.isEmpty()) {
