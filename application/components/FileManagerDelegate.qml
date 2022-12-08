@@ -277,7 +277,7 @@ Item {
         text: qsTr("!Delete...")
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-remove.svg"
 
-        onTriggered: commitDelete()
+        onTriggered: beginDelete()
     }
     
     function rightClick(mouse) {
@@ -326,7 +326,7 @@ Item {
         editBox.visible = false;
     }
     
-    function commitDelete() {
+    function beginDelete() {
         const doRemove = function() {
                 Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
             };
@@ -346,7 +346,7 @@ Item {
                     Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
                     event.accepted = true;
                 } else if(event.key == Qt.Key_Delete  && !(event.modifiers & Qt.ShiftModifier)) {
-                    commitDelete();
+                    beginDelete();
                     event.accepted = true;
                 } else if (event.key == Qt.Key_Return) {
                     if  (!delegate.isDirectory) {

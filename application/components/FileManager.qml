@@ -276,7 +276,7 @@ Item {
         }
     }
     Keys.onPressed: function(event) {
-        if (event.key == Qt.Key_Backspace) {
+        if (event.key == Qt.Key_Backspace && Backend.fileManager.canGoBack) {
                     Backend.fileManager.historyBack();
                     event.accepted = true;
             }
