@@ -354,8 +354,8 @@ Item {
                         return;
                     } else {
                         Backend.fileManager.cd(delegate.fileName);
+                        event.accepted = true;
                     }
-                    event.accepted = true;
                 }
     }
 

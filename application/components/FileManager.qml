@@ -106,7 +106,7 @@ Item {
                         }
 
                         onTextChanged: {
-                            fileView.currentIndex = -1;
+                            fileView.currentIndex = 0;
                         }
 
                     }
@@ -159,7 +159,7 @@ Item {
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
                     onClicked: function(mouse) {
-                        fileView.currentIndex = -1;
+                        fileView.currentIndex = 0;
                         forceActiveFocus(Qt.MouseFocusReason);
 
                         if(mouse.button === Qt.RightButton && !Backend.fileManager.isRoot) {
@@ -251,7 +251,7 @@ Item {
 
     Component.onCompleted: {
         Backend.fileManager.currentPathChanged.connect(function() {
-            fileView.currentIndex = -1;
+            fileView.currentIndex = 0;
         });
     }
 
