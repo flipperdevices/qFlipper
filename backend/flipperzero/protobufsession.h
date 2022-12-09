@@ -21,6 +21,7 @@ class SystemGetDateTimeOperation;
 class SystemSetDateTimeOperation;
 class SystemFactoryResetOperation;
 class SystemUpdateOperation;
+class SystemProtobufVersionOperation;
 
 class StorageListOperation;
 class StorageInfoOperation;
@@ -37,6 +38,8 @@ class GuiScreenFrameOperation;
 class GuiSendInputOperation;
 class GuiStartVirtualDisplayOperation;
 class GuiStopVirtualDisplayOperation;
+
+class PropertyGetOperation;
 
 class ProtobufSession : public QObject, public Failable
 {
@@ -71,6 +74,7 @@ public:
     SystemFactoryResetOperation *factoryReset();
     SystemDeviceInfoOperation *systemDeviceInfo();
     SystemUpdateOperation *systemUpdate(const QByteArray &manifestPath);
+    SystemProtobufVersionOperation *systemProtobufVersion();
 
     StorageListOperation *storageList(const QByteArray &path);
     StorageInfoOperation *storageInfo(const QByteArray &path);
@@ -87,6 +91,8 @@ public:
     GuiStopVirtualDisplayOperation *guiStopVirtualDisplay();
     GuiSendInputOperation *guiSendInput(int key, int type);
     GuiScreenFrameOperation *guiSendScreenFrame(const QByteArray &screenData);
+
+    PropertyGetOperation *propertyGet(const QByteArray &key);
 
 signals:
     void sessionStateChanged();
@@ -109,9 +115,9 @@ private slots:
 
 private:
 #if !defined(QT_STATIC)
-    static const QString protobufPluginFileName(int versionMajor);
+    static const QString protobufPluginFileName(uint32_t versionMajor);
 #endif
-    static QVector<int> supportedProtobufVersions();
+    static QVector<uint32_t> supportedProtobufVersions();
 
     void setSessionState(SessionState newState);
 
@@ -147,9 +153,8 @@ private:
 
     qint64 m_bytesToWrite;
     uint32_t m_counter;
-
-    int m_versionMajor;
-    int m_versionMinor;
+    uint32_t m_versionMajor;
+    uint32_t m_versionMinor;
 };
 
 }

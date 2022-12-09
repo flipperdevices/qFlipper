@@ -28,6 +28,7 @@
 #include "rpc/systemsetdatetimeoperation.h"
 #include "rpc/systemfactoryresetoperation.h"
 #include "rpc/systemupdateoperation.h"
+#include "rpc/systemprotobufversionoperation.h"
 
 #include "rpc/guisendinputoperation.h"
 #include "rpc/guiscreenframeoperation.h"
@@ -35,6 +36,8 @@
 #include "rpc/guistopscreenstreamoperation.h"
 #include "rpc/guistartvirtualdisplayoperation.h"
 #include "rpc/guistopvirtualdisplayoperation.h"
+
+#include "rpc/propertygetoperation.h"
 
 #if defined(QT_STATIC)
 Q_IMPORT_PLUGIN(ProtobufPlugin)
@@ -135,6 +138,11 @@ SystemUpdateOperation *ProtobufSession::systemUpdate(const QByteArray &manifestP
     return enqueueOperation(new SystemUpdateOperation(getAndIncrementCounter(), manifestPath, this));
 }
 
+SystemProtobufVersionOperation *ProtobufSession::systemProtobufVersion()
+{
+    return enqueueOperation(new SystemProtobufVersionOperation(getAndIncrementCounter(), this));
+}
+
 StorageListOperation *ProtobufSession::storageList(const QByteArray &path)
 {
     return enqueueOperation(new StorageListOperation(getAndIncrementCounter(), path, this));
@@ -203,6 +211,11 @@ GuiSendInputOperation *ProtobufSession::guiSendInput(int key, int type)
 GuiScreenFrameOperation *ProtobufSession::guiSendScreenFrame(const QByteArray &screenData)
 {
     return enqueueOperation(new GuiScreenFrameOperation(getAndIncrementCounter(), screenData, this));
+}
+
+PropertyGetOperation *ProtobufSession::propertyGet(const QByteArray &key)
+{
+    return enqueueOperation(new PropertyGetOperation(getAndIncrementCounter(), key, this));
 }
 
 void ProtobufSession::startSession()
@@ -420,7 +433,7 @@ void ProtobufSession::setSessionState(SessionState newState)
 }
 
 #if !defined(QT_STATIC)
-const QString ProtobufSession::protobufPluginFileName(int versionMajor)
+const QString ProtobufSession::protobufPluginFileName(uint32_t versionMajor)
 {
 #if defined(Q_OS_WINDOWS)
     return QStringLiteral("flipperproto%1.dll").arg(versionMajor);
@@ -434,9 +447,9 @@ const QString ProtobufSession::protobufPluginFileName(int versionMajor)
 }
 #endif
 
-QVector<int> ProtobufSession::supportedProtobufVersions()
+QVector<uint32_t> ProtobufSession::supportedProtobufVersions()
 {
-    QVector<int> ret;
+    QVector<uint32_t> ret;
 
 #if defined(QT_STATIC)
     const auto staticInstances = QPluginLoader::staticInstances();
@@ -451,7 +464,7 @@ QVector<int> ProtobufSession::supportedProtobufVersions()
 #else
     const auto libraryPaths = QCoreApplication::libraryPaths();
 
-    for(auto i = 0;; ++i) {
+    for(uint32_t i = 0;; ++i) {
         for(const auto &path : libraryPaths) {
             const QDir libraryDir(path);
 

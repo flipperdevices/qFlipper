@@ -14,6 +14,7 @@ public:
         SystemDeviceInfo,
         SystemGetDateTime,
         SystemUpdate,
+        SystemProtobufVersion,
 
         StorageList,
         StorageRead,
@@ -22,6 +23,8 @@ public:
         StorageInfo,
 
         GuiScreenFrame,
+
+        PropertyGet,
     };
 
     virtual ~MainResponseInterface() {}

@@ -9,6 +9,7 @@ HEADERS += \
     bandinfo.h \
     guiresponseinterface.h \
     mainresponseinterface.h \
+    propertyresponseinterface.h \
     protobufplugininterface.h \
     statusresponseinterface.h \
     storageresponseinterface.h \

@@ -30,6 +30,7 @@ SOURCES += \
     flipperzero/rpc/guistartvirtualdisplayoperation.cpp \
     flipperzero/rpc/guistopscreenstreamoperation.cpp \
     flipperzero/rpc/guistopvirtualdisplayoperation.cpp \
+    flipperzero/rpc/propertygetoperation.cpp \
     flipperzero/rpc/startrpcoperation.cpp \
     flipperzero/rpc/stoprpcoperation.cpp \
     flipperzero/rpc/storageinfooperation.cpp \
@@ -43,6 +44,7 @@ SOURCES += \
     flipperzero/rpc/systemdeviceinfooperation.cpp \
     flipperzero/rpc/systemfactoryresetoperation.cpp \
     flipperzero/rpc/systemgetdatetimeoperation.cpp \
+    flipperzero/rpc/systemprotobufversionoperation.cpp \
     flipperzero/rpc/systemrebootoperation.cpp \
     flipperzero/rpc/systemsetdatetimeoperation.cpp \
     flipperzero/rpc/skipmotdoperation.cpp \
@@ -138,6 +140,7 @@ HEADERS += \
     flipperzero/rpc/guistartvirtualdisplayoperation.h \
     flipperzero/rpc/guistopscreenstreamoperation.h \
     flipperzero/rpc/guistopvirtualdisplayoperation.h \
+    flipperzero/rpc/propertygetoperation.h \
     flipperzero/rpc/startrpcoperation.h \
     flipperzero/rpc/stoprpcoperation.h \
     flipperzero/rpc/storageinfooperation.h \
@@ -151,6 +154,7 @@ HEADERS += \
     flipperzero/rpc/systemdeviceinfooperation.h \
     flipperzero/rpc/systemfactoryresetoperation.h \
     flipperzero/rpc/systemgetdatetimeoperation.h \
+    flipperzero/rpc/systemprotobufversionoperation.h \
     flipperzero/rpc/systemrebootoperation.h \
     flipperzero/rpc/systemsetdatetimeoperation.h \
     flipperzero/rpc/skipmotdoperation.h \

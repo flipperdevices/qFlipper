@@ -15,6 +15,12 @@ PB_BIND(PB_Storage_InfoRequest, PB_Storage_InfoRequest, AUTO)
 PB_BIND(PB_Storage_InfoResponse, PB_Storage_InfoResponse, AUTO)
 
 
+PB_BIND(PB_Storage_TimestampRequest, PB_Storage_TimestampRequest, AUTO)
+
+
+PB_BIND(PB_Storage_TimestampResponse, PB_Storage_TimestampResponse, AUTO)
+
+
 PB_BIND(PB_Storage_StatRequest, PB_Storage_StatRequest, AUTO)
 
 

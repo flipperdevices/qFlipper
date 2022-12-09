@@ -24,6 +24,14 @@ typedef struct _PB_App_AppExitRequest {
     char dummy_field;
 } PB_App_AppExitRequest;
 
+typedef struct _PB_App_DataExchangeRequest { 
+    pb_bytes_array_t *data; 
+} PB_App_DataExchangeRequest;
+
+typedef struct _PB_App_GetErrorRequest { 
+    char dummy_field;
+} PB_App_GetErrorRequest;
+
 typedef struct _PB_App_LockStatusRequest { 
     char dummy_field;
 } PB_App_LockStatusRequest;
@@ -44,6 +52,11 @@ typedef struct _PB_App_AppLoadFileRequest {
 typedef struct _PB_App_AppStateResponse { 
     PB_App_AppState state; 
 } PB_App_AppStateResponse;
+
+typedef struct _PB_App_GetErrorResponse { 
+    uint32_t code; 
+    char *text; 
+} PB_App_GetErrorResponse;
 
 typedef struct _PB_App_LockStatusResponse { 
     bool locked; 
@@ -69,6 +82,9 @@ extern "C" {
 #define PB_App_AppButtonPressRequest_init_default {""}
 #define PB_App_AppButtonReleaseRequest_init_default {0}
 #define PB_App_AppStateResponse_init_default     {_PB_App_AppState_MIN}
+#define PB_App_GetErrorRequest_init_default      {0}
+#define PB_App_GetErrorResponse_init_default     {0, NULL}
+#define PB_App_DataExchangeRequest_init_default  {NULL}
 #define PB_App_StartRequest_init_zero            {NULL, NULL}
 #define PB_App_LockStatusRequest_init_zero       {0}
 #define PB_App_LockStatusResponse_init_zero      {0}
@@ -77,13 +93,19 @@ extern "C" {
 #define PB_App_AppButtonPressRequest_init_zero   {""}
 #define PB_App_AppButtonReleaseRequest_init_zero {0}
 #define PB_App_AppStateResponse_init_zero        {_PB_App_AppState_MIN}
+#define PB_App_GetErrorRequest_init_zero         {0}
+#define PB_App_GetErrorResponse_init_zero        {0, NULL}
+#define PB_App_DataExchangeRequest_init_zero     {NULL}
 
 /* Field tags (for use in manual encoding/decoding) */
+#define PB_App_DataExchangeRequest_data_tag      1
 #define PB_App_StartRequest_name_tag             1
 #define PB_App_StartRequest_args_tag             2
 #define PB_App_AppButtonPressRequest_args_tag    1
 #define PB_App_AppLoadFileRequest_path_tag       1
 #define PB_App_AppStateResponse_state_tag        1
+#define PB_App_GetErrorResponse_code_tag         1
+#define PB_App_GetErrorResponse_text_tag         2
 #define PB_App_LockStatusResponse_locked_tag     1
 
 /* Struct field encoding specification for nanopb */
@@ -128,6 +150,22 @@ X(a, STATIC,   SINGULAR, UENUM,    state,             1)
 #define PB_App_AppStateResponse_CALLBACK NULL
 #define PB_App_AppStateResponse_DEFAULT NULL
 
+#define PB_App_GetErrorRequest_FIELDLIST(X, a) \
+
+#define PB_App_GetErrorRequest_CALLBACK NULL
+#define PB_App_GetErrorRequest_DEFAULT NULL
+
+#define PB_App_GetErrorResponse_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   code,              1) \
+X(a, POINTER,  SINGULAR, STRING,   text,              2)
+#define PB_App_GetErrorResponse_CALLBACK NULL
+#define PB_App_GetErrorResponse_DEFAULT NULL
+
+#define PB_App_DataExchangeRequest_FIELDLIST(X, a) \
+X(a, POINTER,  SINGULAR, BYTES,    data,              1)
+#define PB_App_DataExchangeRequest_CALLBACK NULL
+#define PB_App_DataExchangeRequest_DEFAULT NULL
+
 extern const pb_msgdesc_t PB_App_StartRequest_msg;
 extern const pb_msgdesc_t PB_App_LockStatusRequest_msg;
 extern const pb_msgdesc_t PB_App_LockStatusResponse_msg;
@@ -136,6 +174,9 @@ extern const pb_msgdesc_t PB_App_AppLoadFileRequest_msg;
 extern const pb_msgdesc_t PB_App_AppButtonPressRequest_msg;
 extern const pb_msgdesc_t PB_App_AppButtonReleaseRequest_msg;
 extern const pb_msgdesc_t PB_App_AppStateResponse_msg;
+extern const pb_msgdesc_t PB_App_GetErrorRequest_msg;
+extern const pb_msgdesc_t PB_App_GetErrorResponse_msg;
+extern const pb_msgdesc_t PB_App_DataExchangeRequest_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define PB_App_StartRequest_fields &PB_App_StartRequest_msg
@@ -146,14 +187,20 @@ extern const pb_msgdesc_t PB_App_AppStateResponse_msg;
 #define PB_App_AppButtonPressRequest_fields &PB_App_AppButtonPressRequest_msg
 #define PB_App_AppButtonReleaseRequest_fields &PB_App_AppButtonReleaseRequest_msg
 #define PB_App_AppStateResponse_fields &PB_App_AppStateResponse_msg
+#define PB_App_GetErrorRequest_fields &PB_App_GetErrorRequest_msg
+#define PB_App_GetErrorResponse_fields &PB_App_GetErrorResponse_msg
+#define PB_App_DataExchangeRequest_fields &PB_App_DataExchangeRequest_msg
 
 /* Maximum encoded size of messages (where known) */
 /* PB_App_StartRequest_size depends on runtime parameters */
+/* PB_App_GetErrorResponse_size depends on runtime parameters */
+/* PB_App_DataExchangeRequest_size depends on runtime parameters */
 #define PB_App_AppButtonPressRequest_size        515
 #define PB_App_AppButtonReleaseRequest_size      0
 #define PB_App_AppExitRequest_size               0
 #define PB_App_AppLoadFileRequest_size           515
 #define PB_App_AppStateResponse_size             2
+#define PB_App_GetErrorRequest_size              0
 #define PB_App_LockStatusRequest_size            0
 #define PB_App_LockStatusResponse_size           2
 

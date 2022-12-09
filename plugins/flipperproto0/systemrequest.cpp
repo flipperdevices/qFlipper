@@ -46,3 +46,7 @@ SystemUpdateRequest::SystemUpdateRequest(uint32_t id, const QByteArray &manifest
     auto &content = m_message.content.system_update_request;
     content.update_manifest = m_manifestPath.data();
 }
+
+SystemProtobufVersionRequest::SystemProtobufVersionRequest(uint32_t id):
+    MainRequest(id, PB_Main_system_protobuf_version_request_tag)
+{}

@@ -8,6 +8,7 @@
 #include "statusrequest.h"
 #include "systemrequest.h"
 #include "storagerequest.h"
+#include "propertyrequest.h"
 
 #include "regiondata.h"
 
@@ -16,12 +17,12 @@ ProtobufPlugin::ProtobufPlugin(QObject *parent):
     m_versionMinor(0)
 {}
 
-int ProtobufPlugin::versionMajor() const
+uint32_t ProtobufPlugin::versionMajor() const
 {
     return 0;
 }
 
-void ProtobufPlugin::setMinorVersion(int version)
+void ProtobufPlugin::setMinorVersion(uint32_t version)
 {
     m_versionMinor = version;
 }
@@ -71,6 +72,11 @@ const QByteArray ProtobufPlugin::systemSetDateTime(uint32_t id, const QDateTime 
 const QByteArray ProtobufPlugin::systemUpdateRequest(uint32_t id, const QByteArray &manifestPath) const
 {
     return SystemUpdateRequest(id, manifestPath).encode();
+}
+
+const QByteArray ProtobufPlugin::systemProtobufVersion(uint32_t id) const
+{
+    return SystemProtobufVersionRequest(id).encode();
 }
 
 const QByteArray ProtobufPlugin::guiStartScreenStream(uint32_t id) const
@@ -141,6 +147,11 @@ const QByteArray ProtobufPlugin::storageRead(uint32_t id, const QByteArray &path
 const QByteArray ProtobufPlugin::storageWrite(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext) const
 {
     return StorageWriteRequest(id, path, data, hasNext).encode();
+}
+
+const QByteArray ProtobufPlugin::propertyGet(uint32_t id, const QByteArray &key) const
+{
+    return PropertyGetRequest(id, key).encode();
 }
 
 const QByteArray ProtobufPlugin::regionBands(const QByteArray &countryCode, const BandInfoList &bands) const
