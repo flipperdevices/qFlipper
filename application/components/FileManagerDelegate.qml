@@ -367,5 +367,13 @@ Item {
             beginEdit();
         }
     }
+    Connections {
+        target: confirmationDialog
+        function onVisibleChanged() {
+            if (!confirmationDialog.visible) {
+                fileView.forceActiveFocus();
+            }
+        }
+    }
 
 }
