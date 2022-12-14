@@ -16,6 +16,7 @@ Item {
     required property string filePath
     required property int fileType
     required property int fileSize
+    property bool editFlag
 
     readonly property bool isDirectory: !fileType
     readonly property bool isNewDirectory: Backend.fileManager.newDirectoryIndex === index
@@ -295,6 +296,7 @@ Item {
     }
 
     function beginEdit() {
+        editFlag = true;
         nameEdit.text = nameLabel.text;
         nameEdit.selectAll();
         nameEdit.forceActiveFocus(Qt.MouseFocusReason);
@@ -344,7 +346,7 @@ Item {
 
     Keys.onPressed: function(event) {
         if (editBox.visible) {
-            event.accepted = true;
+            event.accepted = false;
             return;
         }
         if(event.key == Qt.Key_Delete  && (event.modifiers & Qt.ShiftModifier)) {
@@ -354,10 +356,12 @@ Item {
             beginDelete();
             event.accepted = true;
         } else if (event.key == Qt.Key_Return) {
-            if  (!delegate.isDirectory) {
-                event.accepted = true;
+            if  (!delegate.isDirectory || editFlag) {
+                editFlag = false;
+                event.accepted = false;
                 return;
             } else {
+                console.log(delegate.fileName)
                 Backend.fileManager.cd(delegate.fileName);
                 event.accepted = true;
             }
