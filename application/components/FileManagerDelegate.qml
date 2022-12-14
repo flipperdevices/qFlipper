@@ -349,10 +349,10 @@ Item {
             event.accepted = false;
             return;
         }
-        if(event.key == Qt.Key_Delete  && (event.modifiers & Qt.ShiftModifier)) {
+        if((event.key == Qt.Key_Delete)  && (event.modifiers & Qt.ShiftModifier)) {
             Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
             event.accepted = true;
-        } else if(event.key == Qt.Key_Delete  && !(event.modifiers & Qt.ShiftModifier)) {
+        } else if((event.key == Qt.Key_Delete)  && !(event.modifiers & Qt.ShiftModifier)) {
             beginDelete();
             event.accepted = true;
         } else if (event.key == Qt.Key_Return) {
@@ -361,7 +361,6 @@ Item {
                 event.accepted = false;
                 return;
             } else {
-                console.log(delegate.fileName)
                 Backend.fileManager.cd(delegate.fileName);
                 event.accepted = true;
             }
