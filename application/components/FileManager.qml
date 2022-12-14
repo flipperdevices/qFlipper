@@ -236,13 +236,7 @@ Item {
         text: qsTr("Upload here...")
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-upload.svg"
 
-        onTriggered: {
-            SystemFileDialog.accepted.connect(function() {
-                control.uploadUrls(SystemFileDialog.fileUrls);
-            });
-
-            SystemFileDialog.beginOpenFiles(SystemFileDialog.LastLocation, [ "All files (*)" ]);
-        }
+        onTriggered: beginUpload();
     }
 
     Action {
@@ -278,10 +272,20 @@ Item {
             doUpload();
         }
     }
+    function beginUpload() {
+        SystemFileDialog.accepted.connect(function() {
+            control.uploadUrls(SystemFileDialog.fileUrls);
+        });
+        SystemFileDialog.beginOpenFiles(SystemFileDialog.LastLocation, [ "All files (*)" ]);
+    }
     Keys.onPressed: function(event) {
         if (event.key == Qt.Key_Backspace && Backend.fileManager.canGoBack) {
-                    Backend.fileManager.historyBack();
-                    event.accepted = true;
+                Backend.fileManager.historyBack();
+                event.accepted = true;
+            } else if(event.key == Qt.Key_L  && (event.modifiers & Qt.ControlModifier)) {
+                beginUpload();
+            } else if(event.key == Qt.Key_N && (event.modifiers & Qt.ControlModifier)) {
+                Backend.fileManager.beginMkDir();
             }
     }
 }

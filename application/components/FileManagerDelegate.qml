@@ -252,17 +252,7 @@ Item {
         text: qsTr("Download...")
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-download.svg"
 
-        onTriggered: {
-            SystemFileDialog.accepted.connect(function() {
-                Backend.fileManager.download(delegate.fileName, SystemFileDialog.fileUrls[0], delegate.isDirectory);
-            });
-
-            if(delegate.isDirectory) {
-                SystemFileDialog.beginSaveDir(SystemFileDialog.LastLocation);
-            } else {
-                SystemFileDialog.beginSaveFile(SystemFileDialog.LastLocation, [ "All files (*)" ], delegate.fileName);
-            }
-        }
+        onTriggered: beginDownload();
     }
 
     Action {
@@ -277,7 +267,7 @@ Item {
         text: qsTr("!Delete...")
         icon.source: "qrc:/assets/gfx/symbolic/filemgr/action-remove.svg"
 
-        onTriggered: beginDelete()
+        onTriggered: beginDelete();
     }
     
     function rightClick(mouse) {
@@ -340,23 +330,42 @@ Item {
 
             confirmationDialog.openWithMessage(doRemove, msgObj);
     }
+    function beginDownload() {
+            SystemFileDialog.accepted.connect(function() {
+                Backend.fileManager.download(delegate.fileName, SystemFileDialog.fileUrls[0], delegate.isDirectory);
+            });
+
+            if(delegate.isDirectory) {
+                SystemFileDialog.beginSaveDir(SystemFileDialog.LastLocation);
+            } else {
+                SystemFileDialog.beginSaveFile(SystemFileDialog.LastLocation, [ "All files (*)" ], delegate.fileName);
+            }
+    }
 
     Keys.onPressed: function(event) {
-                if(event.key == Qt.Key_Delete  && (event.modifiers & Qt.ShiftModifier)) {
-                    Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
-                    event.accepted = true;
-                } else if(event.key == Qt.Key_Delete  && !(event.modifiers & Qt.ShiftModifier)) {
-                    beginDelete();
-                    event.accepted = true;
-                } else if (event.key == Qt.Key_Return) {
-                    if  (!delegate.isDirectory) {
-                        event.accepted = true;
-                        return;
-                    } else {
-                        Backend.fileManager.cd(delegate.fileName);
-                        event.accepted = true;
-                    }
-                }
+        if (editBox.visible) {
+            event.accepted = true;
+            return;
+        }
+        if(event.key == Qt.Key_Delete  && (event.modifiers & Qt.ShiftModifier)) {
+            Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
+            event.accepted = true;
+        } else if(event.key == Qt.Key_Delete  && !(event.modifiers & Qt.ShiftModifier)) {
+            beginDelete();
+            event.accepted = true;
+        } else if (event.key == Qt.Key_Return) {
+            if  (!delegate.isDirectory) {
+                event.accepted = true;
+                return;
+            } else {
+                Backend.fileManager.cd(delegate.fileName);
+                event.accepted = true;
+            }
+        } else if ((event.key == Qt.Key_D)  && (event.modifiers & Qt.ControlModifier)) {
+            beginDownload();
+        } else if ((event.key == Qt.Key_E) && (event.modifiers & Qt.ControlModifier)) {
+            beginEdit();
+        }
     }
 
 }
