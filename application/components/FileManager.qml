@@ -18,6 +18,9 @@ Item {
         if(Backend.backendState === ApplicationBackend.Ready) {
             Backend.screenStreamer.isEnabled = !visible
         }
+        if(visible) {
+            fileView.forceActiveFocus();
+        }
     }
 
     ColumnLayout {
