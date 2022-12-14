@@ -25,7 +25,7 @@ public:
     AssetManifest(const QByteArray &text);
 
     int version() const;
-    time_t timestamp() const;
+    qint64 timestamp() const;
     FileNode *tree() const;
 
 private:
@@ -36,7 +36,7 @@ private:
     bool parseDirectory(const QStringList &tokens);
 
     int m_version;
-    time_t m_timestamp;
+    qint64 m_timestamp;
     QSharedPointer<FileNode> m_root;
 };
 
