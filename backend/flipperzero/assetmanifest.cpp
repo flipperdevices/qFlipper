@@ -36,7 +36,7 @@ int AssetManifest::version() const
     return m_version;
 }
 
-time_t AssetManifest::timestamp() const
+qint64 AssetManifest::timestamp() const
 {
     return m_timestamp;
 }

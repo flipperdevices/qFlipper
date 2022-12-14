@@ -204,7 +204,7 @@ void FactoryInfo::parseV2(const QByteArray &data)
     m_region = (Region)otp->region;
 }
 
-time_t FactoryInfo::date() const
+qint64 FactoryInfo::date() const
 {
     return m_date;
 }
