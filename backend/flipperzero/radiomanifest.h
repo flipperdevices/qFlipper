@@ -19,11 +19,11 @@ public:
         Header(const QJsonValue &json);
 
         int version() const;
-        time_t timestamp() const;
+        qint64 timestamp() const;
 
     private:
         int m_version;
-        time_t m_timestamp;
+        qint64 m_timestamp;
     };
 
     class Condition {

@@ -32,7 +32,7 @@ RadioManifest::Header::Header(const QJsonValue &json)
     }
 
     if(obj.contains(QStringLiteral("timestamp"))) {
-        m_timestamp = (time_t)obj.value(QStringLiteral("timestamp")).toInt();
+        m_timestamp = obj.value(QStringLiteral("timestamp")).toInt();
     } else {
         throw std::runtime_error("Failed to read manifest timestamp");
     }
@@ -43,7 +43,7 @@ int RadioManifest::Header::version() const
     return m_version;
 }
 
-time_t RadioManifest::Header::timestamp() const
+qint64 RadioManifest::Header::timestamp() const
 {
     return m_timestamp;
 }
