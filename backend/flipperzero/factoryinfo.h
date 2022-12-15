@@ -23,7 +23,7 @@ public:
     uint8_t target() const;
     uint8_t body() const;
     uint8_t connect() const;
-    time_t date() const;
+    qint64 date() const;
 
     const QString &name() const;
 
@@ -44,7 +44,7 @@ private:
     uint8_t m_target;
     uint8_t m_body;
     uint8_t m_connect;
-    time_t m_date;
+    qint64 m_date;
     QString m_name;
 
     Color m_color;
