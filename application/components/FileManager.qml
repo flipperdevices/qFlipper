@@ -159,7 +159,7 @@ Item {
                 MouseArea {
                     z: parent.z - 1
                     anchors.fill: parent
-                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.BackButton | Qt.ForwardButton
 
                     onClicked: function(mouse) {
                         fileView.currentIndex = 0;
@@ -167,6 +167,10 @@ Item {
 
                         if(mouse.button === Qt.RightButton && !Backend.fileManager.isRoot) {
                             emptyMenu.popup();
+                        } else if (mouse.button === Qt.BackButton && Backend.fileManager.canGoBack) {
+                            Backend.fileManager.historyBack()
+                        } else if (mouse.button === Qt.ForwardButton && Backend.fileManager.canGoForward) {
+                            Backend.fileManager.historyForward()
                         }
                     }
                 }
