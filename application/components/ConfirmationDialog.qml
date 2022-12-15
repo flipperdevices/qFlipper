@@ -35,11 +35,29 @@ CustomDialog {
         control.rejected.connect(onDialogRejected);
         control.accepted.connect(onDialogAccepted);
         control.open();
+        widgetContents.forceActiveFocus();
     }
 
     contentWidget: Item {
+        id: widgetContents
         implicitWidth: 430
         implicitHeight: layout.implicitHeight
+        KeyNavigation.tab: contentWidget
+        Keys.onPressed: function(event) {
+            if(event.key == Qt.Key_Tab) {
+                 if (control.suggestedRole === ConfirmationDialog.RejectRole) {
+                    control.suggestedRole = ConfirmationDialog.AcceptRole
+                 } else if (control.suggestedRole === ConfirmationDialog.AcceptRole) {
+                    control.suggestedRole = ConfirmationDialog.RejectRole
+                 }
+            } else if (event.key == Qt.Key_Return) {
+                if (control.suggestedRole === ConfirmationDialog.RejectRole) {
+                    control.rejected();
+                } else if (control.suggestedRole === ConfirmationDialog.AcceptRole) {
+                    control.accepted();
+                }
+            }
+        }
 
         ColumnLayout {
             id: layout
