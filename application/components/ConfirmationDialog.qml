@@ -42,9 +42,9 @@ CustomDialog {
         id: widgetContents
         implicitWidth: 430
         implicitHeight: layout.implicitHeight
-
+        KeyNavigation.tab: contentWidget
         Keys.onPressed: function(event) {
-            if(event.key == Qt.Key_Tab && (event.modifiers & Qt.ControlModifier)) {
+            if(event.key == Qt.Key_Tab) {
                  if (control.suggestedRole === ConfirmationDialog.RejectRole) {
                     control.suggestedRole = ConfirmationDialog.AcceptRole
                  } else if (control.suggestedRole === ConfirmationDialog.AcceptRole) {
