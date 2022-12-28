@@ -103,7 +103,7 @@ void VCPDeviceInfoHelper::nextStateLogic()
 
 void VCPDeviceInfoHelper::findSerialPort()
 {
-    auto *finder = new SerialFinder(m_deviceInfo.usbInfo.serialNumber(), this);
+    auto *finder = new SerialFinder("flip_Liwkiald", this);
 
     connect(finder, &SerialFinder::finished, this, [=](const QSerialPortInfo &portInfo) {
         if(portInfo.isNull()) {
