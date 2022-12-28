@@ -157,6 +157,7 @@ USBDeviceInfo USBDeviceDetector::fillDeviceInfo(const USBDeviceInfo &deviceInfo)
         } else {
             qCDebug(LOG_DETECTOR) << "Failed to get device serial number";
         }
+        return newinfo.withBackendData(QVariant());
     }
 
     return newinfo;
