@@ -67,10 +67,10 @@ bool DeviceRegistry::isQueryInProgress() const
 
 void DeviceRegistry::insertDevice(const USBDeviceInfo &info)
 {
-    if(!info.isValid()) {
+    if(!info.isComplete()) {
         qCDebug(LOG_DEVREG).noquote().nospace()
-            << "Invalid device detected: VID_0x" << QString::number(info.vendorID(), 16) << ":PID_0x"
-            << QString::number(info.productID(), 16) << ", ignoring it";
+            << "Incomplete device info: VID_0x" << QString::number(info.vendorID(), 16) << ":PID_0x"
+            << QString::number(info.productID(), 16);
 
         setError(BackendError::InvalidDevice);
 
