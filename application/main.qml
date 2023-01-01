@@ -11,6 +11,7 @@ Window {
     flags: Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint
     title: Qt.application.displayName
 
+    width: mainWindow.baseWidth + mainWindow.shadowSize * 2
     height: mainWindow.baseHeight + mainWindow.shadowSize * 2
 
     minimumWidth: mainWindow.baseWidth + mainWindow.shadowSize * 2
