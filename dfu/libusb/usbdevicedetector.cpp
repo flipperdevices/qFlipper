@@ -107,37 +107,37 @@ USBDeviceInfo USBDeviceDetector::fillDeviceInfo(const USBDeviceInfo &deviceInfo)
     libusb_device_descriptor desc;
     struct libusb_device_handle *handle;
 
-    bool descOk = false, devOk = false, mfgOk = false, productOk = false, serialOk = false;
+    int descOk = -99, devOk = -99, mfgOk = -99, productOk = -99, serialOk = -99;
 
     do {
         do {
-            descOk = !libusb_get_device_descriptor(dev, &desc);
-            if(!descOk) break;
+            descOk = libusb_get_device_descriptor(dev, &desc);
+            if(descOk < 0) break;
 
-            devOk = !libusb_open(dev, &handle);
-            if(!devOk) break;
+            devOk = libusb_open(dev, &handle);
+            if(devOk < 0) break;
 
-            mfgOk = libusb_get_string_descriptor_ascii(handle, desc.iManufacturer, buf, sizeof(buf)) >= 0;
-            if(!mfgOk) break;
+            mfgOk = libusb_get_string_descriptor_ascii(handle, desc.iManufacturer, buf, sizeof(buf));
+            if(mfgOk < 0) break;
 
             newinfo.setManufacturer(QString::fromLocal8Bit((const char*)buf));
 
-            productOk = libusb_get_string_descriptor_ascii(handle, desc.iProduct, buf, sizeof(buf)) >= 0;
-            if(!productOk) break;
+            productOk = libusb_get_string_descriptor_ascii(handle, desc.iProduct, buf, sizeof(buf));
+            if(productOk < 0) break;
 
             newinfo.setProductDescription(QString::fromLocal8Bit((const char*)buf));
 
-            serialOk = libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, buf, sizeof(buf)) >= 0;
-            if(!serialOk) break;
+            serialOk = libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, buf, sizeof(buf));
+            if(serialOk < 0) break;
 
             newinfo.setSerialNumber(QString::fromLocal8Bit((const char*)buf));
         } while(false);
 
-        if(devOk) {
+        if(devOk >= 0) {
             libusb_close(handle);
         }
 
-        if(serialOk) {
+        if(serialOk >= 0) {
             break;
         }
 
@@ -145,18 +145,19 @@ USBDeviceInfo USBDeviceDetector::fillDeviceInfo(const USBDeviceInfo &deviceInfo)
 
     } while(--numRetries);
 
-    if(!serialOk) {
-        if(!descOk) {
-            qCDebug(LOG_DETECTOR) << "Failed to get device descriptor";
-        } else if(!devOk) {
-            qCDebug(LOG_DETECTOR) << "Failed to open device";
-        } else if(!mfgOk) {
-            qCDebug(LOG_DETECTOR) << "Failed to get manufacturer string descriptor";
-        } else if(!productOk) {
-            qCDebug(LOG_DETECTOR) << "Failed to get product string descriptor";
+    if(serialOk < 0) {
+        if(descOk < 0) {
+            qCDebug(LOG_DETECTOR) << "Failed to get device descriptor:" << libusb_strerror(descOk);
+        } else if(devOk < 0) {
+            qCDebug(LOG_DETECTOR) << "Failed to open device:" << libusb_strerror(devOk);
+        } else if(mfgOk < 0) {
+            qCDebug(LOG_DETECTOR) << "Failed to get manufacturer string descriptor:" << libusb_strerror(mfgOk);
+        } else if(productOk < 0) {
+            qCDebug(LOG_DETECTOR) << "Failed to get product string descriptor:" << libusb_strerror(productOk);
         } else {
-            qCDebug(LOG_DETECTOR) << "Failed to get device serial number";
+            qCDebug(LOG_DETECTOR) << "Failed to get device serial number:" << libusb_strerror(serialOk);
         }
+        return newinfo.withBackendData(QVariant());
     }
 
     return newinfo;
