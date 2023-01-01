@@ -57,6 +57,13 @@ docker-compose exec dev ./build_linux.sh
 Build requirements:
 - Qt5 >= 5.15.0 or Qt6 >= 6.3.0
 - libusb >= 1.0.16
+- zlib >= 1.2.0
+
+Make sure to install the following Qt modules (the exact package names might differ slightly depending on your Linux distribution): 
+```
+base, tools, serialport, declarative,  wayland, [quickcontrols2, graphicaleffects] (Qt5 only), qt5-compat (Qt6 only)
+```
+Then run:
 ```sh
 mkdir build && cd build
 qmake ../qFlipper.pro PREFIX=/path/to/install/dir -spec linux-g++ CONFIG+=qtquickcompiler && 
