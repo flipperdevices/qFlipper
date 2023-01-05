@@ -8,7 +8,9 @@ USBDeviceInfo::USBDeviceInfo(uint16_t vendorID, uint16_t productID):
 bool USBDeviceInfo::isComplete() const
 {
     return m_vendorID != 0 && m_productID != 0 &&
+#ifdef USB_BACKEND_LIBUSB
           !m_manufacturer.isEmpty() && !m_productDescription.isEmpty() &&
+#endif
           !m_serialNumber.isEmpty() && m_backendData.isValid();
 }
 
