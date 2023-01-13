@@ -109,6 +109,7 @@ void DirectoryDownloadOperation::readFiles()
             auto *operation = rpc()->storageRead(fileInfo.absolutePath, file);
 
             const auto isLast = (--filesRemaining == 0);
+
             connect(operation, &AbstractOperation::progressChanged, this, [=]() {
                 setProgress(baseProgress + operation->progress() * fileInfo.size / m_totalSize);
             });
