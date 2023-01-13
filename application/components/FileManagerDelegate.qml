@@ -349,13 +349,13 @@ Item {
             event.accepted = false;
             return;
         }
-        if((event.key == Qt.Key_Delete)  && (event.modifiers & Qt.ShiftModifier)) {
+        if((event.key === Qt.Key_Delete)  && (event.modifiers & Qt.ShiftModifier)) {
             Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
             event.accepted = true;
-        } else if((event.key == Qt.Key_Delete)  && !(event.modifiers & Qt.ShiftModifier)) {
+        } else if((event.key === Qt.Key_Delete)  && !(event.modifiers & Qt.ShiftModifier)) {
             beginDelete();
             event.accepted = true;
-        } else if (event.key == Qt.Key_Return) {
+        } else if (event.key === Qt.Key_Return) {
             if  (!delegate.isDirectory || editFlag) {
                 editFlag = false;
                 event.accepted = false;
@@ -364,9 +364,9 @@ Item {
                 Backend.fileManager.cd(delegate.fileName);
                 event.accepted = true;
             }
-        } else if ((event.key == Qt.Key_D)  && (event.modifiers & Qt.ControlModifier)) {
+        } else if ((event.key === Qt.Key_D)  && (event.modifiers & Qt.ControlModifier)) {
             beginDownload();
-        } else if ((event.key == Qt.Key_E) && (event.modifiers & Qt.ControlModifier)) {
+        } else if ((event.key === Qt.Key_E) && (event.modifiers & Qt.ControlModifier)) {
             beginEdit();
         }
     }
