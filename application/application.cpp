@@ -91,6 +91,7 @@ void Application::checkForUpdates()
     }
 
     setUpdateStatus(UpdateStatus::Checking);
+    m_updater.reset();
     m_updateRegistry.check();
 }
 
@@ -224,7 +225,9 @@ void Application::initGUI()
     };
 
     connect(&m_engine, &QQmlApplicationEngine::objectCreated, this, onObjectCreated, Qt::QueuedConnection);
-    m_engine.rootContext()->setContextProperty("qVersion", QT_VERSION);
+    m_engine.rootContext()->setContextProperty("qVersionMajor", QT_VERSION_MAJOR);
+    m_engine.rootContext()->setContextProperty("qVersionMinor", QT_VERSION_MINOR);
+    m_engine.rootContext()->setContextProperty("qVersionPatch", QT_VERSION_PATCH);
     m_engine.load(url);
 }
 
