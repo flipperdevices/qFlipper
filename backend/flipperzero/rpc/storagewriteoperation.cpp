@@ -6,7 +6,7 @@
 #include "statusresponseinterface.h"
 #include "mainresponseinterface.h"
 
-static constexpr qint64 CHUNK_SIZE = 512;
+static constexpr qint64 CHUNK_SIZE = 1024;
 static constexpr qint64 CHUNKS_PER_PING_CAP = 1000;
 
 using namespace Flipper;
