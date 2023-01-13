@@ -8,7 +8,7 @@ import QFlipper 1.0
 CustomDialog {
     id: control
 
-    closable: false
+    closable: App.updater.state === ApplicationUpdater.ErrorOccured
     closePolicy: Popup.NoAutoClose
 
     title: App.updater.state === ApplicationUpdater.Idle ? qsTr("Update qFlipper?") : qsTr("Updating qFlipper")
@@ -97,7 +97,7 @@ CustomDialog {
                     case ApplicationUpdater.Updating:
                         return qsTr("Starting update process...");
                     case ApplicationUpdater.ErrorOccured:
-                        return qsTr("Update failed");
+                        return qsTr("Update failed (See log).");
                     default:
                         return qsTr("Preparing...");
                     }
