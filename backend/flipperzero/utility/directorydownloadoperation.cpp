@@ -18,7 +18,8 @@ DirectoryDownloadOperation::DirectoryDownloadOperation(ProtobufSession *rpc, Dev
                                                        const QString &targetPath, const QByteArray &remotePath, QObject *parent):
     AbstractUtilityOperation(rpc, deviceState, parent),
     m_targetDir(targetPath),
-    m_remotePath(remotePath)
+    m_remotePath(remotePath),
+    m_totalSize(0)
 {}
 
 const QString DirectoryDownloadOperation::description() const
@@ -73,6 +74,10 @@ void DirectoryDownloadOperation::getFileTree()
             finishWithError(BackendError::BackupError, operation->errorString());
         } else {
             m_fileList = operation->files();
+            m_totalSize = std::accumulate(m_fileList.cbegin(), m_fileList.cend(), 0, [](qint64 total, const FileInfo &arg) {
+                return arg.type == FileType::RegularFile ? total + arg.size : total;
+            });
+
             advanceOperationState();
         }
 
@@ -88,7 +93,7 @@ void DirectoryDownloadOperation::readFiles()
         return arg.type == FileType::RegularFile;
     });
 
-    const auto increment = 100.0 / filesRemaining;
+    auto baseProgress = 0.0;
 
     for(const auto &fileInfo: qAsConst(m_fileList)) {
         const auto filePath = fileInfo.absolutePath.mid(m_remotePath.size() + 1);
@@ -100,20 +105,23 @@ void DirectoryDownloadOperation::readFiles()
             }
 
         } else if(fileInfo.type == FileType::RegularFile) {
-            --filesRemaining;
-
             auto *file = new QFile(m_targetDir.absoluteFilePath(filePath), this);
             auto *operation = rpc()->storageRead(fileInfo.absolutePath, file);
 
-            connect(operation, &AbstractOperation::finished, this, [=]() {
-                setProgress(100.0 - increment * filesRemaining);
+            const auto isLast = (--filesRemaining == 0);
+            connect(operation, &AbstractOperation::progressChanged, this, [=]() {
+                setProgress(baseProgress + operation->progress() * fileInfo.size / m_totalSize);
+            });
 
+            connect(operation, &AbstractOperation::finished, this, [=]() {
                 if(operation->isError()) {
                     finishWithError(BackendError::BackupError, operation->errorString());
-                } else if(!filesRemaining) {
+                } else if(isLast) {
                     advanceOperationState();
                 }
             });
+
+            baseProgress += fileInfo.size * 100.0 / m_totalSize;
         }
     }
 }
