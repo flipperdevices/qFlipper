@@ -45,9 +45,16 @@ public:
     virtual const StorageFile file() const = 0;
 };
 
+class StorageMd5SumResponseInterface
+{
+public:
+    virtual const QByteArray md5Sum() const = 0;
+};
+
 QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(StorageInfoResponseInterface, "com.flipperdevices.StorageInfoResponseInterface/1.0")
 Q_DECLARE_INTERFACE(StorageStatResponseInterface, "com.flipperdevices.StorageStatResponseInterface/1.0")
 Q_DECLARE_INTERFACE(StorageListResponseInterface, "com.flipperdevices.StorageListResponseInterface/1.0")
 Q_DECLARE_INTERFACE(StorageReadResponseInterface, "com.flipperdevices.StorageReadResponseInterface/1.0")
+Q_DECLARE_INTERFACE(StorageMd5SumResponseInterface, "com.flipperdevices.StorageMd5SumResponseInterface/1.0")
 QT_END_NAMESPACE

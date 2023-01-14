@@ -149,6 +149,11 @@ const QByteArray ProtobufPlugin::storageWrite(uint32_t id, const QByteArray &pat
     return StorageWriteRequest(id, path, data, hasNext).encode();
 }
 
+const QByteArray ProtobufPlugin::storageMd5Sum(uint32_t id, const QByteArray &path) const
+{
+    return StorageMd5SumRequest(id, path).encode();
+}
+
 const QByteArray ProtobufPlugin::propertyGet(uint32_t id, const QByteArray &key) const
 {
     return PropertyGetRequest(id, key).encode();

@@ -62,3 +62,12 @@ const StorageFile StorageReadResponse::file() const
     const auto &f = message().content.storage_read_response.file;
     return {(StorageFile::FileType)f.type, {f.name}, {(const char*)f.data->bytes, f.data->size}, f.size};
 }
+
+StorageMd5SumResponse::StorageMd5SumResponse(MessageWrapper &wrapper, QObject *parent):
+    MainResponse(wrapper, parent)
+{}
+
+const QByteArray StorageMd5SumResponse::md5Sum() const
+{
+    return message().content.storage_md5sum_response.md5sum;
+}

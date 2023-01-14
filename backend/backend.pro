@@ -35,6 +35,7 @@ SOURCES += \
     flipperzero/rpc/stoprpcoperation.cpp \
     flipperzero/rpc/storageinfooperation.cpp \
     flipperzero/rpc/storagelistoperation.cpp \
+    flipperzero/rpc/storagemd5sumoperation.cpp \
     flipperzero/rpc/storagemkdiroperation.cpp \
     flipperzero/rpc/storagereadoperation.cpp \
     flipperzero/rpc/storageremoveoperation.cpp \
@@ -145,6 +146,7 @@ HEADERS += \
     flipperzero/rpc/stoprpcoperation.h \
     flipperzero/rpc/storageinfooperation.h \
     flipperzero/rpc/storagelistoperation.h \
+    flipperzero/rpc/storagemd5sumoperation.h \
     flipperzero/rpc/storagemkdiroperation.h \
     flipperzero/rpc/storagereadoperation.h \
     flipperzero/rpc/storageremoveoperation.h \

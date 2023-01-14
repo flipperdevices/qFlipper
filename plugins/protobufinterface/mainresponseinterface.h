@@ -18,7 +18,7 @@ public:
 
         StorageList,
         StorageRead,
-        StorageMd5,
+        StorageMd5Sum,
         StorageStat,
         StorageInfo,
 

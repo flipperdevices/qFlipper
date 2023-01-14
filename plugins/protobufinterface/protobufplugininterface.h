@@ -43,6 +43,7 @@ public:
     virtual const QByteArray storageRemove(uint32_t id, const QByteArray &path, bool recursive = false) const = 0;
     virtual const QByteArray storageRead(uint32_t id, const QByteArray &path) const = 0;
     virtual const QByteArray storageWrite(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext) const = 0;
+    virtual const QByteArray storageMd5Sum(uint32_t id, const QByteArray &path) const = 0;
 
     virtual const QByteArray propertyGet(uint32_t id, const QByteArray &key) const = 0;
 
