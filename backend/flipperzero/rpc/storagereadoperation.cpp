@@ -32,7 +32,7 @@ bool StorageReadOperation::hasMoreData() const
     return m_subRequest != StorageRead;
 }
 
-// Custom feedResponse() implementation to accomodate the stat request
+// Custom feedResponse() implementation to accommodate the stat request
 void StorageReadOperation::feedResponse(QObject *response)
 {
     auto *mainResponse = qobject_cast<MainResponseInterface*>(response);

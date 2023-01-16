@@ -21,19 +21,19 @@ typedef enum _PB_CommandStatus {
     /* *< Common Errors */
     PB_CommandStatus_ERROR = 1, /* *< Unknown error */
     PB_CommandStatus_ERROR_DECODE = 2, /* *< Command can't be decoded successfully - command_id in response may be wrong! */
-    PB_CommandStatus_ERROR_NOT_IMPLEMENTED = 3, /* *< Command succesfully decoded, but not implemented (deprecated or not yet implemented) */
+    PB_CommandStatus_ERROR_NOT_IMPLEMENTED = 3, /* *< Command successfully decoded, but not implemented (deprecated or not yet implemented) */
     PB_CommandStatus_ERROR_BUSY = 4, /* *< Somebody took global lock, so not all commands are available */
     PB_CommandStatus_ERROR_CONTINUOUS_COMMAND_INTERRUPTED = 14, /* *< Not received has_next == 0 */
     PB_CommandStatus_ERROR_INVALID_PARAMETERS = 15, /* *< not provided (or provided invalid) crucial parameters to perform rpc */
     /* *< Storage Errors */
     PB_CommandStatus_ERROR_STORAGE_NOT_READY = 5, /* *< FS not ready */
-    PB_CommandStatus_ERROR_STORAGE_EXIST = 6, /* *< File/Dir alrady exist */
+    PB_CommandStatus_ERROR_STORAGE_EXIST = 6, /* *< File/Dir already exist */
     PB_CommandStatus_ERROR_STORAGE_NOT_EXIST = 7, /* *< File/Dir does not exist */
     PB_CommandStatus_ERROR_STORAGE_INVALID_PARAMETER = 8, /* *< Invalid API parameter */
     PB_CommandStatus_ERROR_STORAGE_DENIED = 9, /* *< Access denied */
     PB_CommandStatus_ERROR_STORAGE_INVALID_NAME = 10, /* *< Invalid name/path */
     PB_CommandStatus_ERROR_STORAGE_INTERNAL = 11, /* *< Internal error */
-    PB_CommandStatus_ERROR_STORAGE_NOT_IMPLEMENTED = 12, /* *< Functon not implemented */
+    PB_CommandStatus_ERROR_STORAGE_NOT_IMPLEMENTED = 12, /* *< Function not implemented */
     PB_CommandStatus_ERROR_STORAGE_ALREADY_OPEN = 13, /* *< File/Dir already opened */
     PB_CommandStatus_ERROR_STORAGE_DIR_NOT_EMPTY = 18, /* *< Directory, you're going to remove is not empty */
     /* *< Application Errors */

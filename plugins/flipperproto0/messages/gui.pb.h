@@ -23,8 +23,8 @@ typedef enum _PB_Gui_InputType {
     PB_Gui_InputType_PRESS = 0, /* *< Press event, emitted after debounce */
     PB_Gui_InputType_RELEASE = 1, /* *< Release event, emitted after debounce */
     PB_Gui_InputType_SHORT = 2, /* *< Short event, emitted after InputTypeRelease done withing INPUT_LONG_PRESS interval */
-    PB_Gui_InputType_LONG = 3, /* *< Long event, emmited after INPUT_LONG_PRESS interval, asynchronouse to InputTypeRelease */
-    PB_Gui_InputType_REPEAT = 4 /* *< Repeat event, emmited with INPUT_REPEATE_PRESS period after InputTypeLong event */
+    PB_Gui_InputType_LONG = 3, /* *< Long event, emitted after INPUT_LONG_PRESS interval, asynchronous to InputTypeRelease */
+    PB_Gui_InputType_REPEAT = 4 /* *< Repeat event, emitted with INPUT_REPEAT_PRESS period after InputTypeLong event */
 } PB_Gui_InputType;
 
 /* Struct definitions */
