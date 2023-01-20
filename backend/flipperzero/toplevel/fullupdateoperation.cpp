@@ -220,6 +220,7 @@ void FullUpdateOperation::prepareRemoteUpdate()
     deviceState()->setStatusString(QStringLiteral("Preparing remote firmware update ..."));
     deviceState()->setProgress(-1.0);
 
+    // TODO: make this operation universal and call it PathCreateOperation
     auto *operation = m_utility->prepareUpdateDirectory(m_updateDirectory.dirName().toLocal8Bit(), QByteArrayLiteral(REMOTE_DIR));
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
@@ -240,7 +241,8 @@ void FullUpdateOperation::verifyExistingFiles()
     deviceState()->setStatusString(QStringLiteral("Verifying update cache ..."));
     deviceState()->setProgress(-1.0);
 
-    auto *operation = m_utility->verifyChecksum(m_updateDirectory.absolutePath(), QByteArrayLiteral(REMOTE_DIR));
+    const auto remotePath = QStringLiteral("%1/%2").arg(REMOTE_DIR, m_updateDirectory.dirName()).toLocal8Bit();
+    auto *operation = m_utility->verifyChecksum(m_fileUrls, remotePath);
 
     connect(operation, &AbstractOperation::progressChanged, this, [=]() {
         deviceState()->setProgress(operation->progress());
@@ -252,7 +254,7 @@ void FullUpdateOperation::verifyExistingFiles()
             return;
         }
 
-        m_fileUrls = operation->result();
+        m_fileUrls = operation->changedUrls();
 
         if(m_fileUrls.isEmpty()) {
             qCDebug(CATEGORY_DEBUG) << "Update package has been already uploaded, skipping to update...";

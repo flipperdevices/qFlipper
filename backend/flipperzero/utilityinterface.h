@@ -45,7 +45,7 @@ public:
     StartUpdaterOperation *startUpdater(const QByteArray &manifestPath);
     StorageInfoRefreshOperation *refreshStorageInfo();
     RegionProvisioningOperation *provisionRegionData();
-    ChecksumVerifyOperation *verifyChecksum(const QString &localDirectory, const QByteArray &remotePath);
+    ChecksumVerifyOperation *verifyChecksum(const QList<QUrl> &urlsToCheck, const QByteArray &remoteRootPath);
 
 private:
     const QLoggingCategory &loggingCategory() const override;

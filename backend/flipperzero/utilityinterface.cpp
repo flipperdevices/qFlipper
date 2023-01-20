@@ -119,9 +119,9 @@ RegionProvisioningOperation *UtilityInterface::provisionRegionData()
     return operation;
 }
 
-ChecksumVerifyOperation *UtilityInterface::verifyChecksum(const QString &localDirectory, const QByteArray &remotePath)
+ChecksumVerifyOperation *UtilityInterface::verifyChecksum(const QList<QUrl> &urlsToCheck, const QByteArray &remoteRootPath)
 {
-    auto *operation = new ChecksumVerifyOperation(m_rpc, m_deviceState, localDirectory, remotePath, this);
+    auto *operation = new ChecksumVerifyOperation(m_rpc, m_deviceState, urlsToCheck, remoteRootPath, this);
     enqueueOperation(operation);
     return operation;
 }

@@ -4,7 +4,6 @@
 
 #include <QUrl>
 #include <QDir>
-#include <QFileInfoList>
 
 namespace Flipper {
 namespace Zero {
@@ -14,26 +13,35 @@ class ChecksumVerifyOperation : public AbstractUtilityOperation
     Q_OBJECT
 
     enum State {
-        VerifyingMd5Sum = AbstractOperation::User
+        ReadingFileList = AbstractOperation::User,
+        VerifyingMd5Sum
+    };
+
+    struct FileListElement {
+        QFileInfo fileInfo;
+        QDir topmostDir;
     };
 
 public:
 
-    ChecksumVerifyOperation(ProtobufSession *rpc, DeviceState *deviceState, const QString &localDirectory, const QByteArray &remotePath, QObject *parent = nullptr);
+    ChecksumVerifyOperation(ProtobufSession *rpc, DeviceState *deviceState, const QList<QUrl> &urlsToCheck,
+                            const QByteArray &remoteRootPath, QObject *parent = nullptr);
     const QString description() const override;
-    const QList<QUrl> &result() const;
+    const QList<QUrl> &changedUrls() const;
 
 private slots:
     void nextStateLogic() override;
 
 private:
+    void readFileList();
     void verifyMd5Sums();
 
     static const QByteArray calculateMd5Sum(const QFileInfo &fileInfo);
 
-    QDir m_localDirectory;
-    QByteArray m_remotePath;
-    QList<QUrl> m_result;
+    QByteArray m_remoteRootPath;
+    QList<QUrl> m_urlsToCheck;
+    QList<FileListElement> m_flatFileList;
+    QList<QUrl> m_changedUrls;
 };
 
 }
