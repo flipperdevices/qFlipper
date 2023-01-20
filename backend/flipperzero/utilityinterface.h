@@ -19,7 +19,7 @@ class AssetsDownloadOperation;
 class UserBackupOperation;
 class UserRestoreOperation;
 class RestartOperation;
-class UpdatePrepareOperation;
+class PathCreateOperation;
 class StartUpdaterOperation;
 class StorageInfoRefreshOperation;
 class RegionProvisioningOperation;
@@ -41,7 +41,7 @@ public:
     FilesUploadOperation *uploadFiles(const QList<QUrl> &fileUrls, const QByteArray &remotePath);
     DirectoryUploadOperation *uploadDirectory(const QString &localDirectory, const QByteArray &remotePath);
     DirectoryDownloadOperation *downloadDirectory(const QString &localDirectory, const QByteArray &remotePath);
-    UpdatePrepareOperation *prepareUpdateDirectory(const QByteArray &updateDirName, const QByteArray &remotePath);
+    PathCreateOperation *createPath(const QByteArray &remotePath);
     StartUpdaterOperation *startUpdater(const QByteArray &manifestPath);
     StorageInfoRefreshOperation *refreshStorageInfo();
     RegionProvisioningOperation *provisionRegionData();

@@ -11,7 +11,7 @@
 #include "flipperzero/utility/filesuploadoperation.h"
 #include "flipperzero/utility/directoryuploadoperation.h"
 #include "flipperzero/utility/directorydownloadoperation.h"
-#include "flipperzero/utility/updateprepareoperation.h"
+#include "flipperzero/utility/pathcreateoperation.h"
 #include "flipperzero/utility/startupdateroperation.h"
 #include "flipperzero/utility/storageinforefreshoperation.h"
 #include "flipperzero/utility/regionprovisioningoperation.h"
@@ -91,9 +91,9 @@ DirectoryDownloadOperation *UtilityInterface::downloadDirectory(const QString &l
     return operation;
 }
 
-UpdatePrepareOperation *UtilityInterface::prepareUpdateDirectory(const QByteArray &updateDirName, const QByteArray &remotePath)
+PathCreateOperation *UtilityInterface::createPath(const QByteArray &remotePath)
 {
-    auto *operation = new UpdatePrepareOperation(m_rpc, m_deviceState, updateDirName, remotePath, this);
+    auto *operation = new PathCreateOperation(m_rpc, m_deviceState, remotePath, this);
     enqueueOperation(operation);
     return operation;
 }

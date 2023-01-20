@@ -48,7 +48,7 @@ private:
     void prepareLocalUpdate();
     void extractUpdate();
     void readUpdateFiles();
-    void prepareRemoteUpdate();
+    void createUpdatePath();
     void verifyExistingFiles();
     void uploadUpdateFiles();
     void startUpdate();

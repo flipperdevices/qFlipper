@@ -86,12 +86,12 @@ SOURCES += \
     flipperzero/utility/factoryresetutiloperation.cpp \
     flipperzero/utility/filesuploadoperation.cpp \
     flipperzero/utility/getfiletreeoperation.cpp \
+    flipperzero/utility/pathcreateoperation.cpp \
     flipperzero/utility/regionprovisioningoperation.cpp \
     flipperzero/utility/restartoperation.cpp \
     flipperzero/utility/startrecoveryoperation.cpp \
     flipperzero/utility/startupdateroperation.cpp \
     flipperzero/utility/storageinforefreshoperation.cpp \
-    flipperzero/utility/updateprepareoperation.cpp \
     flipperzero/utility/userbackupoperation.cpp \
     flipperzero/utility/userrestoreoperation.cpp \
     flipperzero/utilityinterface.cpp \
@@ -199,12 +199,12 @@ HEADERS += \
     flipperzero/utility/factoryresetutiloperation.h \
     flipperzero/utility/filesuploadoperation.h \
     flipperzero/utility/getfiletreeoperation.h \
+    flipperzero/utility/pathcreateoperation.h \
     flipperzero/utility/regionprovisioningoperation.h \
     flipperzero/utility/restartoperation.h \
     flipperzero/utility/startrecoveryoperation.h \
     flipperzero/utility/startupdateroperation.h \
     flipperzero/utility/storageinforefreshoperation.h \
-    flipperzero/utility/updateprepareoperation.h \
     flipperzero/utility/userbackupoperation.h \
     flipperzero/utility/userrestoreoperation.h \
     flipperzero/utilityinterface.h \

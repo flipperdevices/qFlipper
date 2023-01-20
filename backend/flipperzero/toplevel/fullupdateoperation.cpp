@@ -7,9 +7,8 @@
 #include "flipperzero/devicestate.h"
 #include "flipperzero/utilityinterface.h"
 #include "flipperzero/utility/checksumverifyoperation.h"
-#include "flipperzero/utility/directoryuploadoperation.h"
 #include "flipperzero/utility/filesuploadoperation.h"
-#include "flipperzero/utility/updateprepareoperation.h"
+#include "flipperzero/utility/pathcreateoperation.h"
 #include "flipperzero/utility/startupdateroperation.h"
 #include "flipperzero/utility/storageinforefreshoperation.h"
 #include "flipperzero/utility/regionprovisioningoperation.h"
@@ -85,7 +84,7 @@ void FullUpdateOperation::nextStateLogic()
 
     } else if(operationState() == ReadingUpdateFiles) {
         setOperationState(PreparingRemoteUpdate);
-        prepareRemoteUpdate();
+        createUpdatePath();
 
     } else if(operationState() == PreparingRemoteUpdate) {
         setOperationState(VerifyingExistingFiles);
@@ -215,20 +214,20 @@ void FullUpdateOperation::readUpdateFiles()
     advanceOperationState();
 }
 
-void FullUpdateOperation::prepareRemoteUpdate()
+void FullUpdateOperation::createUpdatePath()
 {
     deviceState()->setStatusString(QStringLiteral("Preparing remote firmware update ..."));
     deviceState()->setProgress(-1.0);
 
-    // TODO: make this operation universal and call it PathCreateOperation
-    auto *operation = m_utility->prepareUpdateDirectory(m_updateDirectory.dirName().toLocal8Bit(), QByteArrayLiteral(REMOTE_DIR));
+    const auto remotePath = QStringLiteral("%1/%2").arg(REMOTE_DIR, m_updateDirectory.dirName()).toLocal8Bit();
+    auto *operation = m_utility->createPath(remotePath);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(operation->error(), operation->errorString());
             return;
 
-        } else if(operation->needsCompleteUpload()) {
+        } else if(!operation->pathExists()) {
             setOperationState(VerifyingExistingFiles);
         }
 
