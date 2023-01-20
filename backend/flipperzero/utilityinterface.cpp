@@ -15,6 +15,7 @@
 #include "flipperzero/utility/startupdateroperation.h"
 #include "flipperzero/utility/storageinforefreshoperation.h"
 #include "flipperzero/utility/regionprovisioningoperation.h"
+#include "flipperzero/utility/checksumverifyoperation.h"
 
 Q_LOGGING_CATEGORY(LOG_UTILITY, "UTL")
 
@@ -114,6 +115,13 @@ StorageInfoRefreshOperation *UtilityInterface::refreshStorageInfo()
 RegionProvisioningOperation *UtilityInterface::provisionRegionData()
 {
     auto *operation = new RegionProvisioningOperation(m_rpc, m_deviceState, this);
+    enqueueOperation(operation);
+    return operation;
+}
+
+ChecksumVerifyOperation *UtilityInterface::verifyChecksum(const QString &localDirectory, const QByteArray &remotePath)
+{
+    auto *operation = new ChecksumVerifyOperation(m_rpc, m_deviceState, localDirectory, remotePath, this);
     enqueueOperation(operation);
     return operation;
 }

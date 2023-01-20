@@ -12,7 +12,7 @@ UpdatePrepareOperation::UpdatePrepareOperation(ProtobufSession *rpc, DeviceState
     AbstractUtilityOperation(rpc, deviceState, parent),
     m_updateDirName(updateDirName),
     m_remotePath(remotePath),
-    m_updateDirExists(false)
+    m_needsCompleteUpload(false)
 {}
 
 const QString UpdatePrepareOperation::description() const
@@ -20,70 +20,88 @@ const QString UpdatePrepareOperation::description() const
     return QStringLiteral("Prepare Update @%1").arg(deviceState()->deviceInfo().name);
 }
 
-bool UpdatePrepareOperation::updateDirectoryExists() const
+bool UpdatePrepareOperation::needsCompleteUpload() const
 {
-    return m_updateDirExists;
+    return m_needsCompleteUpload;
 }
 
 void UpdatePrepareOperation::nextStateLogic()
 {
     if(operationState() == AbstractOperation::Ready) {
-        setOperationState(UpdatePrepareOperation::CheckingRemoteDirectory);
-        checkRemoteDirectory();
+        setOperationState(UpdatePrepareOperation::CheckingRemotePath);
+        checkRemotePath();
 
-    } else if(operationState() == UpdatePrepareOperation::CheckingRemoteDirectory) {
-        setOperationState(UpdatePrepareOperation::CreatingRemoteDirectory);
-        createRemoteDirectory();
+    } else if(operationState() == UpdatePrepareOperation::CheckingRemotePath) {
+        setOperationState(UpdatePrepareOperation::CreatingRemotePath);
+        createRemotePath();
 
-    } else if(operationState() == UpdatePrepareOperation::CreatingRemoteDirectory) {
+    } else if(operationState() == UpdatePrepareOperation::CreatingRemotePath) {
         setOperationState(UpdatePrepareOperation::CheckingUpdateDirectory);
         checkUpdateDirectory();
 
     } else if(operationState() == UpdatePrepareOperation::CheckingUpdateDirectory) {
+        setOperationState(UpdatePrepareOperation::CreatingUpdateDirectory);
+        createUpdateDirectory();
+
+    } else if(operationState() == UpdatePrepareOperation::CreatingUpdateDirectory) {
         finish();
     }
 }
 
-void UpdatePrepareOperation::checkRemoteDirectory()
+void UpdatePrepareOperation::checkDirectory(const QByteArray &remotePath, OperationState altState)
 {
-    auto *operation = rpc()->storageStat(m_remotePath);
+    auto *operation = rpc()->storageStat(remotePath);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(operation->error(), operation->errorString());
             return;
 
+        } else if(operation->type() == StorageStatOperation::RegularFile) {
+            finishWithError(BackendError::UnknownError, QStringLiteral("Remote path %1 is a regular file").arg(QString(remotePath)));
+            return;
+
         } else if(operation->type() == StorageStatOperation::Directory) {
-            setOperationState(UpdatePrepareOperation::CreatingRemoteDirectory);
+            setOperationState(altState);
         }
 
         advanceOperationState();
     });
 }
 
-void UpdatePrepareOperation::createRemoteDirectory()
+void UpdatePrepareOperation::createDirectory(const QByteArray &remotePath, OperationState altState)
 {
-    auto *operation = rpc()->storageMkdir(m_remotePath);
+    auto *operation = rpc()->storageMkdir(remotePath);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(operation->error(), operation->errorString());
+
         } else {
+            setOperationState(altState);
             advanceOperationState();
         }
     });
+
+    m_needsCompleteUpload = true;
+}
+
+void UpdatePrepareOperation::checkRemotePath()
+{
+    checkDirectory(m_remotePath, CreatingRemotePath);
+}
+
+void UpdatePrepareOperation::createRemotePath()
+{
+    createDirectory(m_remotePath, CheckingUpdateDirectory);
 }
 
 void UpdatePrepareOperation::checkUpdateDirectory()
 {
-    auto *operation = rpc()->storageStat(m_remotePath + QByteArrayLiteral("/") + m_updateDirName);
+    checkDirectory(m_remotePath + '/' + m_updateDirName, CreatingUpdateDirectory);
+}
 
-    connect(operation, &AbstractOperation::finished, this, [=]() {
-        if(operation->isError()) {
-            finishWithError(operation->error(), operation->errorString());
-        } else {
-            m_updateDirExists = operation->type() == StorageStatOperation::Directory;
-            advanceOperationState();
-        }
-    });
+void UpdatePrepareOperation::createUpdateDirectory()
+{
+    createDirectory(m_remotePath + '/' + m_updateDirName, CreatingUpdateDirectory);
 }

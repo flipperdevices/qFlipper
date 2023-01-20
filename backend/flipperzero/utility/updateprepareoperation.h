@@ -10,26 +10,32 @@ class UpdatePrepareOperation : public AbstractUtilityOperation
     Q_OBJECT
 
     enum OperationState {
-        CheckingRemoteDirectory = AbstractOperation::User,
-        CreatingRemoteDirectory,
+        CheckingRemotePath = AbstractOperation::User,
+        CreatingRemotePath,
         CheckingUpdateDirectory,
+        CreatingUpdateDirectory,
     };
 
 public:
     UpdatePrepareOperation(ProtobufSession *rpc, DeviceState *deviceState, const QByteArray &updateDirName, const QByteArray &remotePath, QObject *parent = nullptr);
     const QString description() const override;
-    bool updateDirectoryExists() const;
+    bool needsCompleteUpload() const;
 
 private:
     void nextStateLogic() override;
 
-    void checkRemoteDirectory();
-    void createRemoteDirectory();
+    void checkDirectory(const QByteArray &remotePath, OperationState altState);
+    void createDirectory(const QByteArray &remotePath, OperationState altState);
+
+    void checkRemotePath();
+    void createRemotePath();
     void checkUpdateDirectory();
+    void createUpdateDirectory();
 
     QByteArray m_updateDirName;
     QByteArray m_remotePath;
-    bool m_updateDirExists;
+
+    bool m_needsCompleteUpload;
 };
 
 }

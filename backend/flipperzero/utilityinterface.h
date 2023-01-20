@@ -23,6 +23,7 @@ class UpdatePrepareOperation;
 class StartUpdaterOperation;
 class StorageInfoRefreshOperation;
 class RegionProvisioningOperation;
+class ChecksumVerifyOperation;
 
 class UtilityInterface : public AbstractOperationRunner
 {
@@ -44,6 +45,7 @@ public:
     StartUpdaterOperation *startUpdater(const QByteArray &manifestPath);
     StorageInfoRefreshOperation *refreshStorageInfo();
     RegionProvisioningOperation *provisionRegionData();
+    ChecksumVerifyOperation *verifyChecksum(const QString &localDirectory, const QByteArray &remotePath);
 
 private:
     const QLoggingCategory &loggingCategory() const override;
