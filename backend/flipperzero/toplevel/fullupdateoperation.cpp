@@ -216,7 +216,7 @@ void FullUpdateOperation::readUpdateFiles()
 
 void FullUpdateOperation::createUpdatePath()
 {
-    deviceState()->setStatusString(QStringLiteral("Preparing remote firmware update ..."));
+    deviceState()->setStatusString(QStringLiteral("Creating update path ..."));
     deviceState()->setProgress(-1.0);
 
     const auto remotePath = QStringLiteral("%1/%2").arg(REMOTE_DIR, m_updateDirectory.dirName()).toLocal8Bit();
@@ -237,7 +237,7 @@ void FullUpdateOperation::createUpdatePath()
 
 void FullUpdateOperation::verifyExistingFiles()
 {
-    deviceState()->setStatusString(QStringLiteral("Verifying update cache ..."));
+    deviceState()->setStatusString(QStringLiteral("Verifying existing files ..."));
     deviceState()->setProgress(-1.0);
 
     const auto remotePath = QStringLiteral("%1/%2").arg(REMOTE_DIR, m_updateDirectory.dirName()).toLocal8Bit();

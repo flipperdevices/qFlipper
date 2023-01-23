@@ -26,7 +26,8 @@ ChecksumVerifyOperation::ChecksumVerifyOperation(ProtobufSession *rpc, DeviceSta
 
 const QString ChecksumVerifyOperation::description() const
 {
-    return QStringLiteral("Verify checksum @%1").arg(deviceState()->deviceInfo().name);
+    const auto numFiles = m_urlsToCheck.size();
+    return QStringLiteral("Verify checksum of %1 %2 @%3").arg(QString::number(numFiles), numFiles == 1 ? "item" : "items", deviceState()->deviceInfo().name);
 }
 
 const QList<QUrl> &ChecksumVerifyOperation::changedUrls() const
