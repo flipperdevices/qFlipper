@@ -74,7 +74,7 @@ QtObject {
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 
     readonly property string errorDisk:
-"<p>Can’t save or read files to/from the local filesystem</p>
+"<p>Can’t save or read files to/from the local filesystem.</p>
 <p>=========== HOW TO FIX ============</p>
 <p>1. Make sure that you have free space on your local drive.</p>
 <p>2. Check that qFlipper has permissions to write on disk.</p>
@@ -92,9 +92,9 @@ QtObject {
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 
     readonly property string errorData:
-"<p>Necessary data seem to be damaged.</p>
+"<p>Necessary data seems to be damaged.</p>
 <p>=========== HOW TO FIX ============</p>
-<p>1. If applicable, ensure to point qFlipper to the right input file(s).</p>
+<p>1. If applicable, make sure to point qFlipper to the right input file(s).</p>
 <p>2. Reboot your Flipper and reconnect via USB.</p>
 <p>3. Run the operation again.</p>
 <p>-----------------------------------</p>
@@ -105,7 +105,7 @@ QtObject {
 <p>=========== HOW TO FIX ============</p>
 <p>1. Check USB connection.</p>
 <p>2. Ensure that Flipper is not locked with PIN code.</p>
-<p>3. Connect your Flipper in Update & Recovery mode and start Repair.</p>
+<p>3. Connect your Flipper in Update & Recovery mode and start repair.</p>
 <p>-----------------------------------</p>
 <center><a href='https://docs.flipperzero.one/'>READ MORE</a></center>"
 
