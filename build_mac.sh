@@ -12,7 +12,7 @@ if [ -d ".git" ]; then
 fi
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
-    echo "This script needs to be runned under MacOS";
+    echo "This script needs to be run under MacOS";
     exit 1;
 fi
 

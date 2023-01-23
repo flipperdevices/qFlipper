@@ -67,7 +67,7 @@
 /*!
     Creates a QtSingleCoreApplication object. The application identifier
     will be QCoreApplication::applicationFilePath(). \a argc and \a
-    argv are passed on to the QCoreAppliation constructor.
+    argv are passed on to the QCoreApplication constructor.
 */
 
 QtSingleCoreApplication::QtSingleCoreApplication(int &argc, char **argv)
@@ -81,7 +81,7 @@ QtSingleCoreApplication::QtSingleCoreApplication(int &argc, char **argv)
 /*!
     Creates a QtSingleCoreApplication object with the application
     identifier \a appId. \a argc and \a argv are passed on to the
-    QCoreAppliation constructor.
+    QCoreApplication constructor.
 */
 QtSingleCoreApplication::QtSingleCoreApplication(const QString &appId, int &argc, char **argv)
     : QCoreApplication(argc, argv)

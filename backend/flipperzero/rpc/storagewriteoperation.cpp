@@ -34,7 +34,7 @@ bool StorageWriteOperation::hasMoreData() const
     return m_file->bytesAvailable() > 0;
 }
 
-// Custom feedResponse() implementation to accomodate interspersed pings
+// Custom feedResponse() implementation to accommodate interspersed pings
 void StorageWriteOperation::feedResponse(QObject *response)
 {
     auto *mainResponse = qobject_cast<MainResponseInterface*>(response);
