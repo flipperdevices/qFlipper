@@ -11,7 +11,6 @@ class DeviceState;
 class ProtobufSession;
 
 class FilesUploadOperation;
-class DirectoryUploadOperation;
 class DirectoryDownloadOperation;
 class FactoryResetUtilOperation;
 class StartRecoveryOperation;
@@ -39,7 +38,6 @@ public:
     RestartOperation *restartDevice();
     FactoryResetUtilOperation *factoryReset();
     FilesUploadOperation *uploadFiles(const QList<QUrl> &fileUrls, const QByteArray &remotePath);
-    DirectoryUploadOperation *uploadDirectory(const QString &localDirectory, const QByteArray &remotePath);
     DirectoryDownloadOperation *downloadDirectory(const QString &localDirectory, const QByteArray &remotePath);
     PathCreateOperation *createPath(const QByteArray &remotePath);
     StartUpdaterOperation *startUpdater(const QByteArray &manifestPath);

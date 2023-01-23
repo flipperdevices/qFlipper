@@ -82,7 +82,6 @@ SOURCES += \
     flipperzero/utility/assetsdownloadoperation.cpp \
     flipperzero/utility/checksumverifyoperation.cpp \
     flipperzero/utility/directorydownloadoperation.cpp \
-    flipperzero/utility/directoryuploadoperation.cpp \
     flipperzero/utility/factoryresetutiloperation.cpp \
     flipperzero/utility/filesuploadoperation.cpp \
     flipperzero/utility/getfiletreeoperation.cpp \
@@ -195,7 +194,6 @@ HEADERS += \
     flipperzero/utility/assetsdownloadoperation.h \
     flipperzero/utility/checksumverifyoperation.h \
     flipperzero/utility/directorydownloadoperation.h \
-    flipperzero/utility/directoryuploadoperation.h \
     flipperzero/utility/factoryresetutiloperation.h \
     flipperzero/utility/filesuploadoperation.h \
     flipperzero/utility/getfiletreeoperation.h \
