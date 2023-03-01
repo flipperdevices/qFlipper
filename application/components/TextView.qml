@@ -19,28 +19,35 @@ Item {
         contentWidth: availableWidth
         clip: true
 
-        TextEdit {
-            id: content
-            width: scrollView.availableWidth
+        Flickable {
+            id: flickView
+            boundsBehavior: Flickable.StopAtBounds
+            contentWidth: scrollView.contentWidth;
+            contentHeight: content.implicitHeight;
 
-            cursorVisible: false
-            persistentSelection: true
+            TextEdit {
+                id: content
+                width: flickView.contentWidth
 
-            font.pixelSize: 16
-            font.letterSpacing: -1
-            font.family: "Share Tech Mono"
+                cursorVisible: false
+                persistentSelection: true
 
-            selectionColor: Theme.color.lightorange2
-            selectedTextColor: Theme.color.darkorange1
+                font.pixelSize: 16
+                font.letterSpacing: -1
+                font.family: "Share Tech Mono"
 
-            color: Theme.color.lightorange2
-            wrapMode: Text.Wrap
+                selectionColor: Theme.color.lightorange2
+                selectedTextColor: Theme.color.darkorange1
 
-            readOnly: true
-            selectByMouse: true
-            selectByKeyboard: true
+                color: Theme.color.lightorange2
+                wrapMode: Text.Wrap
 
-            onTextChanged: scrollToBottom();
+                readOnly: true
+                selectByMouse: true
+                selectByKeyboard: true
+
+                onTextChanged: scrollToBottom();
+            }
         }
     }
 
@@ -56,16 +63,9 @@ Item {
     onVisibleChanged: if(visible) scrollToBottom()
 
     function scrollToBottom() {
-        if(!visible) {
-            return;
+        if(visible) {
+            const sb = scrollView.ScrollBar.vertical;
+            sb.position = 1.0 - sb.size;
         }
-
-        let sb = scrollView.ScrollBar.vertical;
-        let prevPos;
-
-        do {
-            prevPos = sb.position;
-            sb.increase();
-        } while(prevPos !== sb.position);
     }
 }

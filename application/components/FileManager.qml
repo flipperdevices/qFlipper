@@ -156,6 +156,8 @@ Item {
                 cellWidth: 120
                 cellHeight: 86
 
+                boundsBehavior: Flickable.StopAtBounds
+
                 MouseArea {
                     z: parent.z - 1
                     anchors.fill: parent
