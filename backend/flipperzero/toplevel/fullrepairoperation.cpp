@@ -1,6 +1,8 @@
 #include "fullrepairoperation.h"
 
 #include <QFile>
+#include <QDebug>
+#include <QLoggingCategory>
 
 #include "flipperzero/devicestate.h"
 
@@ -16,6 +18,8 @@
 #include "flipperzero/utility/regionprovisioningoperation.h"
 
 #include "flipperzero/helper/firmwarehelper.h"
+
+Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEFAULT)
 
 using namespace Flipper;
 using namespace Zero;
@@ -126,4 +130,15 @@ void FullRepairOperation::provisionRegion()
 void FullRepairOperation::restartDevice()
 {
     registerSubOperation(m_utility->restartDevice());
+}
+
+void FullRepairOperation::onSubOperationError(AbstractOperation *operation)
+{
+    if(operationState() == DownloadingRadioFirmware) {
+        qCInfo(CATEGORY_DEFAULT) << operation->description() << "failed with reason:" << operation->errorString() << "Attempting to install the firmware anyway...";
+        advanceOperationState();
+
+    } else {
+        AbstractTopLevelOperation::onSubOperationError(operation);
+    }
 }

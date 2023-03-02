@@ -9,7 +9,7 @@ class AbstractOperationRunner : public QObject
 {
     Q_OBJECT
 
-    enum class State {
+    enum State {
         Idle,
         Running
     };
