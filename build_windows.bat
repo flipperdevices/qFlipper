@@ -20,7 +20,7 @@ echo Could not find MSVC && goto error
 call "!MSVC_VCVARS_PATH!"
 
 set QT_DIR=C:\Qt
-set QT_VERSION=5.15.2
+set QT_VERSION=6.4.2
 set QT_COMPILER=msvc2019_%ARCH_BITS%
 set QT_BIN_DIR=%QT_DIR%\%QT_VERSION%\%QT_COMPILER%\bin
 
@@ -29,7 +29,7 @@ set STM32_DRIVER_DIR="C:\STM32 Driver"
 
 set QMAKE=%QT_BIN_DIR%\qmake.exe
 set WINDEPLOYQT=%QT_BIN_DIR%\windeployqt.exe
-set JOM=%QT_DIR%\Tools\QtCreator\bin\jom.exe
+set JOM=%QT_DIR%\Tools\QtCreator\bin\jom\jom.exe
 
 set TARGET=qFlipper
 set TARGET_CLI=%TARGET%-cli
