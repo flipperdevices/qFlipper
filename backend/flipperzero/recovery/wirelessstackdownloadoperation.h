@@ -35,13 +35,15 @@ private:
     void downloadWirelessStack();
     void upgradeWirelessStack();
     bool isWirelessStackUpgraded();
+    void checkWirelessStack();
     bool isWirelessStackOK();
     void tryAgain();
 
     QIODevice *m_file;
     QTimer *m_loopTimer;
     uint32_t m_targetAddress;
-    int m_retryCount;
+    int m_installTryCount;
+    int m_checkTryCount;
 };
 
 }

@@ -15,14 +15,21 @@ Q_DECLARE_LOGGING_CATEGORY(LOG_RECOVERY)
 using namespace Flipper;
 using namespace Zero;
 
+static constexpr int INSTALL_TRY_COUNT = 3;
+static constexpr int CHECK_TRY_COUNT = 3;
+static constexpr int TIMER_INTERVAL_MS = 1000;
+
 WirelessStackDownloadOperation::WirelessStackDownloadOperation(Recovery *recovery, QIODevice *file, uint32_t targetAddress, QObject *parent):
     AbstractRecoveryOperation(recovery, parent),
     m_file(file),
     m_loopTimer(new QTimer(this)),
     m_targetAddress(targetAddress),
-    m_retryCount(3)
+    m_installTryCount(INSTALL_TRY_COUNT)
 {
+    m_loopTimer->setInterval(TIMER_INTERVAL_MS);
+
     connect(m_loopTimer, &QTimer::timeout, this, &WirelessStackDownloadOperation::nextStateLogic);
+    connect(this, &AbstractOperation::finished, m_loopTimer, &QTimer::stop);
 }
 
 const QString WirelessStackDownloadOperation::description() const
@@ -32,34 +39,35 @@ const QString WirelessStackDownloadOperation::description() const
 
 void WirelessStackDownloadOperation::nextStateLogic()
 {
-    if(operationState() == AbstractOperation::Ready) {
-        setOperationState(WirelessStackDownloadOperation::StartingFUS);
+    if(operationState() == Ready) {
+        setOperationState(StartingFUS);
         startFUS();
 
-    } else if(operationState() == WirelessStackDownloadOperation::StartingFUS) {
-        setOperationState(WirelessStackDownloadOperation::DeletingWirelessStack);
+    } else if(operationState() == StartingFUS) {
+        setOperationState(DeletingWirelessStack);
         deleteWirelessStack();
 
-    } else if(operationState() == WirelessStackDownloadOperation::DeletingWirelessStack) {
+    } else if(operationState() == DeletingWirelessStack) {
         if(isWirelessStackDeleted()) {
-            setOperationState(WirelessStackDownloadOperation::DownloadingWirelessStack);
+            setOperationState(DownloadingWirelessStack);
             downloadWirelessStack();
         }
 
-    } else if(operationState() == WirelessStackDownloadOperation::DownloadingWirelessStack) {
-        setOperationState(WirelessStackDownloadOperation::UpgradingWirelessStack);
+    } else if(operationState() == DownloadingWirelessStack) {
+        setOperationState(UpgradingWirelessStack);
         upgradeWirelessStack();
 
-    } else if(operationState() == WirelessStackDownloadOperation::UpgradingWirelessStack) {
-        if(!isWirelessStackUpgraded()) {
-            return;
+    } else if(operationState() == UpgradingWirelessStack) {
+        if(isWirelessStackUpgraded()) {
+            setOperationState(CheckingWirelessStack);
+            checkWirelessStack();
+        }
 
-        } else if(!isWirelessStackOK()) {
-            setOperationState(AbstractOperation::Ready);
-            tryAgain();
-
-        } else {
+    } else if(operationState() == CheckingWirelessStack) {
+        if(isWirelessStackOK()) {
             finish();
+        } else {
+            tryAgain();
         }
     }
 }
@@ -68,11 +76,11 @@ void WirelessStackDownloadOperation::onOperationTimeout()
 {
     QString msg;
 
-    if(operationState() == WirelessStackDownloadOperation::StartingFUS) {
+    if(operationState() == StartingFUS) {
         msg = QStringLiteral("Failed to start Firmware Upgrade Service: Operation timeout.");
-    } else if(operationState() == WirelessStackDownloadOperation::DeletingWirelessStack) {
+    } else if(operationState() == DeletingWirelessStack) {
         msg = QStringLiteral("Failed to delete existing Wireless Stack: Operation timeout.");
-    } else if(operationState() == WirelessStackDownloadOperation::UpgradingWirelessStack) {
+    } else if(operationState() == UpgradingWirelessStack) {
         msg = QStringLiteral("Failed to upgrade Wireless Stack: Operation timeout.");
     } else {
         msg = QStringLiteral("Should not have timed out here, probably a bug.");
@@ -100,7 +108,7 @@ void WirelessStackDownloadOperation::deleteWirelessStack()
     if(!recovery()->deleteWirelessStack()) {
         finishWithError(BackendError::RecoveryError, recovery()->errorString());
     } else {
-        m_loopTimer->start(1000);
+        m_loopTimer->start();
     }
 }
 
@@ -150,7 +158,7 @@ void WirelessStackDownloadOperation::upgradeWirelessStack()
     if(!recovery()->upgradeWirelessStack()) {
         finishWithError(BackendError::RecoveryError, recovery()->errorString());
     } else {
-        m_loopTimer->start(1000);
+        m_loopTimer->start();
     }
 }
 
@@ -174,6 +182,14 @@ bool WirelessStackDownloadOperation::isWirelessStackUpgraded()
     return !errorOccured;
 }
 
+void WirelessStackDownloadOperation::checkWirelessStack()
+{
+    m_checkTryCount = CHECK_TRY_COUNT;
+    m_loopTimer->start();
+
+    advanceOperationState();
+}
+
 bool WirelessStackDownloadOperation::isWirelessStackOK()
 {
     return recovery()->checkWirelessStack();
@@ -181,11 +197,18 @@ bool WirelessStackDownloadOperation::isWirelessStackOK()
 
 void WirelessStackDownloadOperation::tryAgain()
 {
-    if(--m_retryCount == 0) {
-        finishWithError(BackendError::RecoveryError, QStringLiteral("Could not install wireless stack after several tries, giving up"));
+    if(--m_checkTryCount > 0) {
+        qCDebug(LOG_RECOVERY) << "Wireless stack check seems to have failed, retrying...";
+
+    } else if(--m_installTryCount > 0) {
+        qCDebug(LOG_RECOVERY) << "Wireless stack installation seems to have failed, retrying...";
+
+        m_loopTimer->stop();
+
+        setOperationState(Ready);
+        advanceOperationState();
 
     } else {
-        qCDebug(LOG_RECOVERY) << "Wireless stack installation seems to have failed, retrying...";
-        advanceOperationState();
+        finishWithError(BackendError::RecoveryError, QStringLiteral("Could not install wireless stack after several tries, giving up"));
     }
 }
