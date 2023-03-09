@@ -189,7 +189,7 @@ Item {
         enabled: !Backend.fileManager.isRoot
         anchors.fill: parent
         onDropped: function(drop) {
-            if(drop.source || drop.proposedAction !== Qt.CopyAction) {
+            if(drop.source || !drop.hasUrls || drop.proposedAction !== Qt.CopyAction) {
                 return;
             }
 
@@ -278,12 +278,14 @@ Item {
             doUpload();
         }
     }
+
     function beginUpload() {
         SystemFileDialog.accepted.connect(function() {
             control.uploadUrls(SystemFileDialog.fileUrls);
         });
         SystemFileDialog.beginOpenFiles(SystemFileDialog.LastLocation, [ "All files (*)" ]);
     }
+
     Keys.onPressed: function(event) {
         if ((event.key === Qt.Key_Backspace) && Backend.fileManager.canGoBack) {
                 Backend.fileManager.historyBack();
