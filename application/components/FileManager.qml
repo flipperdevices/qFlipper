@@ -12,6 +12,7 @@ Item {
     implicitWidth: 745
     implicitHeight: 290
 
+    property MessageDialog messageDialog
     property ConfirmationDialog confirmationDialog
 
     onVisibleChanged: {
@@ -190,11 +191,18 @@ Item {
         anchors.fill: parent
         onDropped: function(drop) {
             if(drop.source || !drop.hasUrls || drop.proposedAction !== Qt.CopyAction) {
-                return;
-            }
+                const msgObj = {
+                    title: qsTr("Error"),
+                    message: qsTr("Operation is not supported"),
+                    customText: qsTr("Close")
+                };
 
-            control.uploadUrls(drop.urls);
-            drop.accept()
+                messageDialog.openWithMessage(null, msgObj);
+
+            } else {
+                control.uploadUrls(drop.urls);
+                drop.accept()
+            }
         }
     }
 

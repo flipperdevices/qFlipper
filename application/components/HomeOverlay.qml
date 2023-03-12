@@ -30,6 +30,12 @@ AbstractOverlay {
         }
     }
 
+    MessageDialog {
+        id: messageDialog
+        parent: backgroundRect
+        radius: backgroundRect.radius
+    }
+
     ConfirmationDialog {
         id: confirmationDialog
         parent: backgroundRect
@@ -84,7 +90,7 @@ AbstractOverlay {
         items: [
             DeviceInfo { id: deviceInfoPane },
             DeviceActions { id: deviceActions },
-            FileManager { id: fileManager; confirmationDialog: confirmationDialog; },
+            FileManager { id: fileManager; messageDialog: messageDialog; confirmationDialog: confirmationDialog; },
             DeveloperActions { id: developerActions }
         ]
     }
@@ -500,9 +506,14 @@ AbstractOverlay {
 
         // Close dialog windows when Flipper was PIN locked/disconnected
         Backend.currentDeviceChanged.connect(function() {
+            if(messageDialog.visible) {
+                messageDialog.close();
+            }
+
             if(confirmationDialog.visible) {
                 confirmationDialog.close();
             }
+
             if(sdWarningDialog.visible) {
                 sdWarningDialog.close();
             }
