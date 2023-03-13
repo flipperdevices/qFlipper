@@ -9,16 +9,29 @@ DESTDIR = $$OUT_PWD/..
 CONFIG += c++11 console
 CONFIG -= app_bundle
 
+win32:!win32-g++ {
+    PRE_TARGETDEPS += \
+        $$OUT_PWD/../backend/backend.lib \
+        $$OUT_PWD/../dfu/dfu.lib
+
+} else:unix|win32-g++ {
+    PRE_TARGETDEPS += \
+        $$OUT_PWD/../backend/libbackend.a \
+        $$OUT_PWD/../dfu/libdfu.a
+
+    contains(CONFIG, static): PRE_TARGETDEPS += \
+        $$OUT_PWD/../plugins/libflipperproto0.a \
+        $$OUT_PWD/../3rdparty/lib3rdparty.a
+}
+
 unix|win32 {
     LIBS += \
-        -L$$OUT_PWD/../3rdparty/ -l3rdparty \
-        -L$$OUT_PWD/../plugins/ -lflipperproto0 \
         -L$$OUT_PWD/../backend/ -lbackend \
         -L$$OUT_PWD/../dfu/ -ldfu
 
     contains(CONFIG, static): LIBS += \
-        -L$$OUT_PWD/../3rdparty/ -l3rdparty \
-        -L$$OUT_PWD/../plugins/ -lflipperproto0
+        -L$$OUT_PWD/../plugins/ -lflipperproto0 \
+        -L$$OUT_PWD/../3rdparty/ -l3rdparty
 }
 
 win32 {
