@@ -312,7 +312,7 @@ bool FullUpdateOperation::findAndCdToUpdateDir()
         const auto &fileInfo = it.fileInfo();
         const auto fileName = fileInfo.fileName();
 
-        if(fileInfo.isDir() && m_updateDirectory.dirName().endsWith(fileName)) {
+        if(fileInfo.isDir()) {
             m_updateDirectory.cd(fileName);
             return true;
         }
