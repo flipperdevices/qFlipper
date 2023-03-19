@@ -31,6 +31,10 @@ CONFIG += embed_translations
 
 QML_IMPORT_PATH += $$PWD/imports
 
+unix:!macx {
+    QTPLUGIN.platforms = qxcb qwayland-egl qwayland-generic
+}
+
 win32:!win32-g++ {
     PRE_TARGETDEPS += \
         $$OUT_PWD/../backend/backend.lib \
