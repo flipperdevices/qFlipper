@@ -41,9 +41,16 @@ RUN curl -fsSL https://download.opensuse.org/repositories/home:drunkbatya/xUbunt
     | gpg --dearmor | tee /etc/apt/trusted.gpg.d/home_drunkbatya.gpg > /dev/null
 
 RUN DEBIAN_FRONTEND=noninteractive apt update
-RUN DEBIAN_FRONTEND=noninteractive apt -y install qtbase6-static qtwayland6-static \
-    qt3d6-static qtdeclarative6-static qtserialport6-static qtshadertools6-static \
-    qtsvg6-static qttools6-static qt5compat6-static
+RUN DEBIAN_FRONTEND=noninteractive apt -y install \
+    qtbase6-static \
+    qtwayland6-static \
+    qt3d6-static \
+    qtdeclarative6-static \
+    qtserialport6-static \
+    qtshadertools6-static \
+    qtsvg6-static \
+    qttools6-static \
+    qt5compat6-static
 
 RUN wget https://update.flipperzero.one/builds/misc/linuxdeploy-x86_64-29092022.AppImage \
     -O /usr/bin/linuxdeploy && chmod +x /usr/bin/linuxdeploy
