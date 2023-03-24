@@ -18,6 +18,9 @@ Q_LOGGING_CATEGORY(CATEGORY_SCREEN, "SCR")
 using namespace Flipper;
 using namespace Zero;
 
+static constexpr int SCREEN_FRAME_WIDTH = 128;
+static constexpr int SCREEN_FRAME_HEIGHT = 64;
+
 // ScreenStream and VirtualDisplay formats differ
 static QByteArray transposeImage(const QByteArray &in, int width, int height)
 {
@@ -43,8 +46,7 @@ static QByteArray transposeImage(const QByteArray &in, int width, int height)
 ScreenStreamer::ScreenStreamer(QObject *parent):
     QObject(parent),
     m_streamState(StreamState::Stopped),
-    m_device(nullptr),
-    m_isScreenFlipped(false)
+    m_device(nullptr)
 {}
 
 void ScreenStreamer::setDevice(FlipperZero *device)
@@ -56,7 +58,11 @@ void ScreenStreamer::setDevice(FlipperZero *device)
     setStreamState(StreamState::Stopped);
 
     m_device = device;
-    setScreenData(transposeImage(QByteArray((char*)default_bits, sizeof(default_bits)), default_width, default_height));
+    setScreenFrame({
+        transposeImage(QByteArray((char*)default_bits, sizeof(default_bits)), default_width, default_height),
+        QSize(SCREEN_FRAME_WIDTH, SCREEN_FRAME_HEIGHT),
+        false
+    });
 
     if(device) {
         auto *rpc = device->rpc();
@@ -105,17 +111,7 @@ void ScreenStreamer::setPaused(bool set)
     }
 }
 
-bool ScreenStreamer::isScreenFlipped() const
-{
-    return m_isScreenFlipped;
-}
-
-const QSize ScreenStreamer::screenSize()
-{
-    return QSize(128, 64);
-}
-
-const QByteArray &ScreenStreamer::screenData() const
+const ScreenFrame &ScreenStreamer::screenFrame() const
 {
     return m_screenData;
 }
@@ -180,8 +176,11 @@ void ScreenStreamer::onBroadcastResponseReceived(QObject *response)
     auto *screenFrameResponse = qobject_cast<GuiScreenFrameResponseInterface*>(response);
 
     if(screenFrameResponse) {
-        setScreenFlipped(screenFrameResponse->screenOrientation() == GuiScreenFrameResponseInterface::HorizontalFlip);
-        setScreenData(screenFrameResponse->screenFrame());
+        setScreenFrame({
+            screenFrameResponse->screenFrame(),
+            QSize(SCREEN_FRAME_WIDTH, SCREEN_FRAME_HEIGHT),
+            screenFrameResponse->screenOrientation() == GuiScreenFrameResponseInterface::HorizontalFlip
+        });
     }
 }
 
@@ -195,18 +194,8 @@ void ScreenStreamer::setStreamState(StreamState newState)
     emit streamStateChanged();
 }
 
-void ScreenStreamer::setScreenData(const QByteArray &data)
+void ScreenStreamer::setScreenFrame(const ScreenFrame &frame)
 {
-    m_screenData = data;
-    emit screenDataChanged();
-}
-
-void ScreenStreamer::setScreenFlipped(bool set)
-{
-    if(set == m_isScreenFlipped) {
-        return;
-    }
-
-    m_isScreenFlipped = set;
-    emit screenFlippedChanged();
+    m_screenData = frame;
+    emit screenFrameChanged();
 }

@@ -5,33 +5,26 @@
 #include <QByteArray>
 #include <QQuickPaintedItem>
 
+#include "screenframe.h"
+
 class ScreenCanvas : public QQuickPaintedItem
 {
     Q_OBJECT
-    Q_PROPERTY(qreal canvasWidth READ canvasWidth WRITE setCanvasWidth NOTIFY canvasWidthChanged)
-    Q_PROPERTY(qreal canvasHeight READ canvasHeight WRITE setCanvasHeight NOTIFY canvasHeightChanged)
-    Q_PROPERTY(qreal renderWidth READ renderWidth NOTIFY renderWidthChanged)
-    Q_PROPERTY(qreal renderHeight READ renderHeight NOTIFY renderHeightChanged)
+    Q_PROPERTY(qreal zoomFactor READ zoomFactor WRITE setZoomFactor NOTIFY zoomFactorChanged)
     Q_PROPERTY(QColor foregroundColor READ foregroundColor WRITE setForegroundColor NOTIFY foregroundColorChanged)
     Q_PROPERTY(QColor backgroundColor READ backgroundColor WRITE setBackgroundColor NOTIFY backgroundColorChanged)
-    Q_PROPERTY(QByteArray data READ data WRITE setData NOTIFY dataChanged)
+    Q_PROPERTY(ScreenFrame frame READ frame WRITE setFrame NOTIFY frameChanged)
 
 public:
     ScreenCanvas(QQuickItem *parent = nullptr);
 
-    const QByteArray &data() const;
-    void setData(const QByteArray &data);
+    const ScreenFrame &frame() const;
+    void setFrame(const ScreenFrame &frame);
 
     void paint(QPainter *painter) override;
 
-    qreal canvasWidth() const;
-    void setCanvasWidth(qreal w);
-
-    qreal canvasHeight() const;
-    void setCanvasHeight(qreal h);
-
-    qreal renderWidth() const;
-    qreal renderHeight() const;
+    qreal zoomFactor() const;
+    void setZoomFactor(qreal zoom);
 
     const QColor &foregroundColor() const;
     void setForegroundColor(const QColor &color);
@@ -39,24 +32,23 @@ public:
     const QColor &backgroundColor() const;
     void setBackgroundColor(const QColor &color);
 
-public slots:
-    void saveImage(const QUrl &url, int scale = 0);
-    void copyToClipboard(int scale = 0);
+    Q_INVOKABLE bool saveImage(const QUrl &url, int scale = 0);
+    Q_INVOKABLE void copyToClipboard(int scale = 0);
 
 signals:
-    void canvasWidthChanged();
-    void canvasHeightChanged();
-
-    void renderWidthChanged();
-    void renderHeightChanged();
+    void zoomFactorChanged();
+    void canvasSizeChanged();
 
     void foregroundColorChanged();
     void backgroundColorChanged();
 
-    void dataChanged();
+    void frameChanged();
+
+private slots:
+    void updateImplicitSize();
+
 private:
-    void setRenderHeight(qreal h);
-    void setRenderWidth(qreal w);
+    void setCanvasSize(const QSize &size);
 
 const QImage canvas(int scale = 0) const;
 
@@ -64,6 +56,5 @@ const QImage canvas(int scale = 0) const;
     QColor m_background;
     QImage m_canvas;
 
-    qreal m_renderWidth;
-    qreal m_renderHeight;
+    qreal m_zoomFactor;
 };

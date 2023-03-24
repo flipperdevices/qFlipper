@@ -30,15 +30,8 @@ AbstractOverlay {
 
         foregroundColor: "black"
         backgroundColor: Theme.color.lightorange2
-
-        canvasWidth: Backend.screenStreamer.screenSize.width
-        canvasHeight: Backend.screenStreamer.screenSize.height
-
-        width: canvasWidth * 4
-        height: canvasHeight * 4
-
-        data: Backend.screenStreamer.screenData
-        rotation: Backend.screenStreamer.isScreenFlipped ? 180 : 0
+        zoomFactor: 4
+        frame: Backend.screenStreamer.screenFrame
     }
 
     RowLayout {

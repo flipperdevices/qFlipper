@@ -1,37 +1,45 @@
 #include "screencanvas.h"
 
 #include <cmath>
+
 #include <QPainter>
 #include <QClipboard>
 #include <QGuiApplication>
-
-#include "debug.h"
 
 ScreenCanvas::ScreenCanvas(QQuickItem *parent):
     QQuickPaintedItem(parent),
     m_foreground(QColor(0x00, 0x00, 0x00)),
     m_background(QColor(0xFF, 0xFF, 0xFF)),
-    m_canvas(QImage(1, 1, QImage::Format_RGB32))
-{}
-
-const QByteArray &ScreenCanvas::data() const
+    m_canvas(QImage(1, 1, QImage::Format_RGB32)),
+    m_zoomFactor(1.0)
 {
-    static QByteArray dummy;
+    connect(this, &ScreenCanvas::zoomFactorChanged, this, &ScreenCanvas::updateImplicitSize);
+    connect(this, &ScreenCanvas::canvasSizeChanged, this, &ScreenCanvas::updateImplicitSize);
+}
+
+const ScreenFrame &ScreenCanvas::frame() const
+{
+    static const ScreenFrame dummy {};
     return dummy;
 }
 
-void ScreenCanvas::setData(const QByteArray &data)
+void ScreenCanvas::setFrame(const ScreenFrame &frame)
 {
-    if(data.isEmpty()) {
+    if(frame.pixelData.isEmpty() || frame.size.isEmpty()) {
         return;
     }
 
-    for (auto x = 0; x < canvasWidth(); x++) {
-        for (auto y = 0; y < canvasHeight(); y++) {
-            const auto i = y / 8 * canvasWidth() + x;
+    setCanvasSize(frame.size);
+
+    for (auto x = 0; x < m_canvas.width(); x++) {
+        for (auto y = 0; y < m_canvas.height(); y++) {
+            const auto i = y / 8 * m_canvas.width() + x;
             const auto z = y % 8;
-            const auto color = ((data.at(i) & (1 << z))) ? m_foreground : m_background;
-            m_canvas.setPixelColor(x, y, color);
+            const auto color = ((frame.pixelData.at(i) & (1 << z))) ? m_foreground : m_background;
+
+            m_canvas.setPixelColor(frame.isFlipped ? m_canvas.width() - x - 1 : x,
+                                   frame.isFlipped ? m_canvas.height() - y - 1 : y,
+                                   color);
         }
     }
 
@@ -43,7 +51,7 @@ void ScreenCanvas::paint(QPainter *painter)
     const auto bw = boundingRect().width();
     const auto bh = boundingRect().height();
 
-    const auto aspectRatio = (double)canvasWidth() / canvasHeight();
+    const auto aspectRatio = (double)m_canvas.width() / m_canvas.height();
 
     auto w = bw;
     auto h = floor(w / aspectRatio);
@@ -53,11 +61,8 @@ void ScreenCanvas::paint(QPainter *painter)
         w = bh * aspectRatio;
     }
 
-    w -= ((int)w % (int)canvasWidth());
-    h -= ((int)h % (int)canvasHeight());
-
-    setRenderWidth(w);
-    setRenderHeight(h);
+    w -= ((int)w % m_canvas.width());
+    h -= ((int)h % m_canvas.height());
 
     const auto dw = (bw - w) / 2;
     const auto dh = (bh - h) / 2;
@@ -66,50 +71,20 @@ void ScreenCanvas::paint(QPainter *painter)
     painter->drawImage(canvasRect, m_canvas);
 }
 
-qreal ScreenCanvas::canvasWidth() const
+qreal ScreenCanvas::zoomFactor() const
 {
-    return m_canvas.width();
+    return m_zoomFactor;
 }
 
-void ScreenCanvas::setCanvasWidth(qreal w)
+void ScreenCanvas::setZoomFactor(qreal zoom)
 {
-    if (qFuzzyCompare(canvasWidth(), w)) {
+    if(qFuzzyCompare(m_zoomFactor, zoom)) {
         return;
     }
 
-    m_canvas = QImage(w, canvasHeight(), QImage::Format_RGB32);
-    m_canvas.fill(m_background);
-    emit canvasWidthChanged();
+    m_zoomFactor = zoom;
+    emit zoomFactorChanged();
 
-    update();
-}
-
-qreal ScreenCanvas::canvasHeight() const
-{
-    return m_canvas.height();
-}
-
-void ScreenCanvas::setCanvasHeight(qreal h)
-{
-    if(qFuzzyCompare(canvasHeight(), h)) {
-        return;
-    }
-
-    m_canvas = QImage(canvasWidth(), h, QImage::Format_RGB32);
-    m_canvas.fill(m_background);
-    emit canvasHeightChanged();
-
-    update();
-}
-
-qreal ScreenCanvas::renderWidth() const
-{
-    return m_renderWidth;
-}
-
-qreal ScreenCanvas::renderHeight() const
-{
-    return m_renderHeight;
 }
 
 const QColor &ScreenCanvas::foregroundColor() const
@@ -142,9 +117,9 @@ void ScreenCanvas::setBackgroundColor(const QColor &color)
     emit backgroundColorChanged();
 }
 
-void ScreenCanvas::saveImage(const QUrl &url, int scale)
+bool ScreenCanvas::saveImage(const QUrl &url, int scale)
 {
-    check_return_void(canvas(scale).save(url.toLocalFile()), "Failed to save image");
+    return canvas(scale).save(url.toLocalFile());
 }
 
 void ScreenCanvas::copyToClipboard(int scale)
@@ -152,31 +127,28 @@ void ScreenCanvas::copyToClipboard(int scale)
     qGuiApp->clipboard()->setImage(canvas(scale));
 }
 
-void ScreenCanvas::setRenderWidth(qreal w)
+void ScreenCanvas::updateImplicitSize()
 {
-    if(qFuzzyCompare(m_renderWidth, w)) {
+    setImplicitSize(m_zoomFactor * m_canvas.width(), m_zoomFactor * m_canvas.height());
+}
+
+void ScreenCanvas::setCanvasSize(const QSize &size)
+{
+    if(size == m_canvas.size()) {
         return;
     }
 
-    m_renderWidth = w;
-    emit renderWidthChanged();
+    m_canvas = QImage(size, QImage::Format_RGB32);
+    m_canvas.fill(m_background);
+
+    emit canvasSizeChanged();
 }
 
 const QImage ScreenCanvas::canvas(int scale) const
 {
     if(scale == 0) {
-        return m_canvas.scaled(m_renderWidth, m_renderHeight);
+        return m_canvas.scaled(m_canvas.width() * m_zoomFactor, m_canvas.height() * m_zoomFactor);
     } else {
-        return m_canvas.scaled(canvasWidth() * scale, canvasHeight() * scale);
+        return m_canvas.scaled(m_canvas.width() * scale, m_canvas.height() * scale);
     }
-}
-
-void ScreenCanvas::setRenderHeight(qreal h)
-{
-    if(qFuzzyCompare(m_renderHeight, h)) {
-        return;
-    }
-
-    m_renderHeight = h;
-    emit renderHeightChanged();
 }

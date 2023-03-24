@@ -73,11 +73,7 @@ Image {
         foregroundColor: Theme.color.darkorange1
         backgroundColor: Theme.color.lightorange2
 
-        canvasWidth: Backend.screenStreamer.screenSize.width
-        canvasHeight: Backend.screenStreamer.screenSize.height
-
-        data: Backend.screenStreamer.screenData
-        rotation: Backend.screenStreamer.isScreenFlipped ? 180 : 0
+        frame: Backend.screenStreamer.screenFrame
     }
 
     ExpandWidget {

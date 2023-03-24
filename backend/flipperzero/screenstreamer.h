@@ -5,6 +5,7 @@
 #include <QByteArray>
 
 #include "inputevent.h"
+#include "screenframe.h"
 
 namespace Flipper {
 
@@ -15,11 +16,9 @@ namespace Zero {
 class ScreenStreamer : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QByteArray screenData READ screenData NOTIFY screenDataChanged)
-    Q_PROPERTY(QSize screenSize READ screenSize CONSTANT)
+    Q_PROPERTY(ScreenFrame screenFrame READ screenFrame NOTIFY screenFrameChanged)
     Q_PROPERTY(bool isEnabled READ isEnabled WRITE setEnabled NOTIFY streamStateChanged)
     Q_PROPERTY(bool isPaused READ isPaused WRITE setPaused NOTIFY streamStateChanged)
-    Q_PROPERTY(bool isScreenFlipped READ isScreenFlipped NOTIFY screenFlippedChanged)
 
 public:
     enum StreamState {
@@ -43,17 +42,13 @@ public:
     bool isPaused() const;
     void setPaused(bool set);
 
-    bool isScreenFlipped() const;
-
     StreamState streamState() const;
 
-    static const QSize screenSize();
-    const QByteArray &screenData() const;
+    const ScreenFrame &screenFrame() const;
 
 signals:
     void streamStateChanged();
-    void screenDataChanged();
-    void screenFlippedChanged();
+    void screenFrameChanged();
 
 public slots:
     void start();
@@ -65,14 +60,11 @@ private slots:
 
 private:
     void setStreamState(StreamState newState);
-    void setScreenData(const QByteArray &data);
-    void setScreenFlipped(bool set);
+    void setScreenFrame(const ScreenFrame &frame);
 
     StreamState m_streamState;
-    QByteArray m_screenData;
+    ScreenFrame m_screenData;
     FlipperZero *m_device;
-
-    bool m_isScreenFlipped;
 };
 
 }
