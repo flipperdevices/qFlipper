@@ -32,7 +32,8 @@ CONFIG += embed_translations
 QML_IMPORT_PATH += $$PWD/imports
 
 unix:!macx {
-    QTPLUGIN.platforms = qxcb qwayland-egl qwayland-generic
+    QTPLUGIN += qxdgdesktopportal
+    QTPLUGIN.platforms += qxcb qwayland-egl qwayland-generic
 }
 
 win32:!win32-g++ {
