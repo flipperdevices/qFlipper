@@ -74,8 +74,6 @@ elif [[ "$1" = 'gui' ]]; then
     "$THIS_DIR"/usr/bin/qFlipper "$@"
 elif [[ "$1" = 'cli' ]]; then
     shift 1
-    export QT_QPA_PLATFORMTHEME=xdgdesktopportal
-    unset QT_STYLE_OVERRIDE
     "$THIS_DIR"/usr/bin/qFlipper-cli "$@"
 elif [[ "$1" = 'rules' ]]; then
     case "$2" in
