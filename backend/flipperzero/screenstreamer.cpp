@@ -4,7 +4,6 @@
 #include <QLoggingCategory>
 
 #include "flipperzero.h"
-#include "devicestate.h"
 #include "protobufsession.h"
 #include "guiresponseinterface.h"
 
@@ -66,7 +65,7 @@ void ScreenStreamer::setDevice(FlipperZero *device)
     }
 }
 
-void ScreenStreamer::sendInputEvent(int key, int type)
+void ScreenStreamer::sendInputEvent(InputEvent::Key key, InputEvent::Type type)
 {
     auto *operation = m_device->rpc()->guiSendInput(key, type);
 

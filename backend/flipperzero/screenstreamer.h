@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QByteArray>
 
+#include "inputevent.h"
+
 namespace Flipper {
 
 class FlipperZero;
@@ -33,7 +35,7 @@ public:
     ScreenStreamer(QObject *parent = nullptr);
 
     void setDevice(FlipperZero *device);
-    Q_INVOKABLE void sendInputEvent(int key, int type);
+    Q_INVOKABLE void sendInputEvent(InputEvent::Key key, InputEvent::Type type);
 
     bool isEnabled() const;
     void setEnabled(bool set);
