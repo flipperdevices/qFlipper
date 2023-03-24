@@ -77,6 +77,7 @@ Image {
         canvasHeight: Backend.screenStreamer.screenSize.height
 
         data: Backend.screenStreamer.screenData
+        rotation: Backend.screenStreamer.isScreenFlipped ? 180 : 0
     }
 
     ExpandWidget {

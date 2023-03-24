@@ -44,7 +44,8 @@ static QByteArray transposeImage(const QByteArray &in, int width, int height)
 ScreenStreamer::ScreenStreamer(QObject *parent):
     QObject(parent),
     m_streamState(StreamState::Stopped),
-    m_device(nullptr)
+    m_device(nullptr),
+    m_isScreenFlipped(false)
 {}
 
 void ScreenStreamer::setDevice(FlipperZero *device)
@@ -103,6 +104,11 @@ void ScreenStreamer::setPaused(bool set)
     } else if(!set && m_streamState == Paused) {
         setStreamState(Running);
     }
+}
+
+bool ScreenStreamer::isScreenFlipped() const
+{
+    return m_isScreenFlipped;
 }
 
 const QSize ScreenStreamer::screenSize()
@@ -175,6 +181,7 @@ void ScreenStreamer::onBroadcastResponseReceived(QObject *response)
     auto *screenFrameResponse = qobject_cast<GuiScreenFrameResponseInterface*>(response);
 
     if(screenFrameResponse) {
+        setScreenFlipped(screenFrameResponse->screenOrientation() == GuiScreenFrameResponseInterface::HorizontalFlip);
         setScreenData(screenFrameResponse->screenFrame());
     }
 }
@@ -193,4 +200,14 @@ void ScreenStreamer::setScreenData(const QByteArray &data)
 {
     m_screenData = data;
     emit screenDataChanged();
+}
+
+void ScreenStreamer::setScreenFlipped(bool set)
+{
+    if(set == m_isScreenFlipped) {
+        return;
+    }
+
+    m_isScreenFlipped = set;
+    emit screenFlippedChanged();
 }

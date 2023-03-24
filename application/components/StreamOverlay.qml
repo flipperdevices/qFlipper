@@ -38,6 +38,7 @@ AbstractOverlay {
         height: canvasHeight * 4
 
         data: Backend.screenStreamer.screenData
+        rotation: Backend.screenStreamer.isScreenFlipped ? 180 : 0
     }
 
     RowLayout {
