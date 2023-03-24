@@ -4,6 +4,9 @@
 #include <QObject>
 #include <QByteArray>
 
+#include "inputevent.h"
+#include "screenframe.h"
+
 namespace Flipper {
 
 class FlipperZero;
@@ -13,8 +16,7 @@ namespace Zero {
 class ScreenStreamer : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QByteArray screenData READ screenData NOTIFY screenDataChanged)
-    Q_PROPERTY(QSize screenSize READ screenSize CONSTANT)
+    Q_PROPERTY(ScreenFrame screenFrame READ screenFrame NOTIFY screenFrameChanged)
     Q_PROPERTY(bool isEnabled READ isEnabled WRITE setEnabled NOTIFY streamStateChanged)
     Q_PROPERTY(bool isPaused READ isPaused WRITE setPaused NOTIFY streamStateChanged)
 
@@ -32,7 +34,7 @@ public:
     ScreenStreamer(QObject *parent = nullptr);
 
     void setDevice(FlipperZero *device);
-    Q_INVOKABLE void sendInputEvent(int key, int type);
+    Q_INVOKABLE void sendInputEvent(InputEvent::Key key, InputEvent::Type type);
 
     bool isEnabled() const;
     void setEnabled(bool set);
@@ -42,12 +44,11 @@ public:
 
     StreamState streamState() const;
 
-    static const QSize screenSize();
-    const QByteArray &screenData() const;
+    const ScreenFrame &screenFrame() const;
 
 signals:
     void streamStateChanged();
-    void screenDataChanged();
+    void screenFrameChanged();
 
 public slots:
     void start();
@@ -59,10 +60,10 @@ private slots:
 
 private:
     void setStreamState(StreamState newState);
-    void setScreenData(const QByteArray &data);
+    void setScreenFrame(const ScreenFrame &frame);
 
     StreamState m_streamState;
-    QByteArray m_screenData;
+    ScreenFrame m_screenData;
     FlipperZero *m_device;
 };
 

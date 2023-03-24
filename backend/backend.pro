@@ -209,10 +209,12 @@ HEADERS += \
     flipperzero/virtualdisplay.h \
     gzipcompressor.h \
     gzipuncompressor.h \
+    inputevent.h \
     logger.h \
     preferences.h \
     regioninfo.h \
     remotefilefetcher.h \
+    screenframe.h \
     serialfinder.h \
     simpleserialoperation.h \
     tararchive.h \

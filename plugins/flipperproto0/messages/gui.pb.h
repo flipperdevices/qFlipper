@@ -23,15 +23,18 @@ typedef enum _PB_Gui_InputType {
     PB_Gui_InputType_PRESS = 0, /* *< Press event, emitted after debounce */
     PB_Gui_InputType_RELEASE = 1, /* *< Release event, emitted after debounce */
     PB_Gui_InputType_SHORT = 2, /* *< Short event, emitted after InputTypeRelease done withing INPUT_LONG_PRESS interval */
-    PB_Gui_InputType_LONG = 3, /* *< Long event, emitted after INPUT_LONG_PRESS interval, asynchronous to InputTypeRelease */
-    PB_Gui_InputType_REPEAT = 4 /* *< Repeat event, emitted with INPUT_REPEAT_PRESS period after InputTypeLong event */
+    PB_Gui_InputType_LONG = 3, /* *< Long event, emmited after INPUT_LONG_PRESS interval, asynchronouse to InputTypeRelease */
+    PB_Gui_InputType_REPEAT = 4 /* *< Repeat event, emmited with INPUT_REPEATE_PRESS period after InputTypeLong event */
 } PB_Gui_InputType;
 
-/* Struct definitions */
-typedef struct _PB_Gui_ScreenFrame { 
-    pb_bytes_array_t *data; 
-} PB_Gui_ScreenFrame;
+typedef enum _PB_Gui_ScreenOrientation { 
+    PB_Gui_ScreenOrientation_HORIZONTAL = 0, /* *< Horizontal */
+    PB_Gui_ScreenOrientation_HORIZONTAL_FLIP = 1, /* *< Horizontal flipped (180) */
+    PB_Gui_ScreenOrientation_VERTICAL = 2, /* *< Vertical (90) */
+    PB_Gui_ScreenOrientation_VERTICAL_FLIP = 3 /* *< Vertical flipped */
+} PB_Gui_ScreenOrientation;
 
+/* Struct definitions */
 typedef struct _PB_Gui_StartScreenStreamRequest { 
     char dummy_field;
 } PB_Gui_StartScreenStreamRequest;
@@ -43,6 +46,11 @@ typedef struct _PB_Gui_StopScreenStreamRequest {
 typedef struct _PB_Gui_StopVirtualDisplayRequest { 
     char dummy_field;
 } PB_Gui_StopVirtualDisplayRequest;
+
+typedef struct _PB_Gui_ScreenFrame { 
+    pb_bytes_array_t *data; 
+    PB_Gui_ScreenOrientation orientation; 
+} PB_Gui_ScreenFrame;
 
 typedef struct _PB_Gui_SendInputEventRequest { 
     PB_Gui_InputKey key; 
@@ -64,19 +72,23 @@ typedef struct _PB_Gui_StartVirtualDisplayRequest {
 #define _PB_Gui_InputType_MAX PB_Gui_InputType_REPEAT
 #define _PB_Gui_InputType_ARRAYSIZE ((PB_Gui_InputType)(PB_Gui_InputType_REPEAT+1))
 
+#define _PB_Gui_ScreenOrientation_MIN PB_Gui_ScreenOrientation_HORIZONTAL
+#define _PB_Gui_ScreenOrientation_MAX PB_Gui_ScreenOrientation_VERTICAL_FLIP
+#define _PB_Gui_ScreenOrientation_ARRAYSIZE ((PB_Gui_ScreenOrientation)(PB_Gui_ScreenOrientation_VERTICAL_FLIP+1))
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Initializer values for message structs */
-#define PB_Gui_ScreenFrame_init_default          {NULL}
+#define PB_Gui_ScreenFrame_init_default          {NULL, _PB_Gui_ScreenOrientation_MIN}
 #define PB_Gui_StartScreenStreamRequest_init_default {0}
 #define PB_Gui_StopScreenStreamRequest_init_default {0}
 #define PB_Gui_SendInputEventRequest_init_default {_PB_Gui_InputKey_MIN, _PB_Gui_InputType_MIN}
 #define PB_Gui_StartVirtualDisplayRequest_init_default {false, PB_Gui_ScreenFrame_init_default}
 #define PB_Gui_StopVirtualDisplayRequest_init_default {0}
-#define PB_Gui_ScreenFrame_init_zero             {NULL}
+#define PB_Gui_ScreenFrame_init_zero             {NULL, _PB_Gui_ScreenOrientation_MIN}
 #define PB_Gui_StartScreenStreamRequest_init_zero {0}
 #define PB_Gui_StopScreenStreamRequest_init_zero {0}
 #define PB_Gui_SendInputEventRequest_init_zero   {_PB_Gui_InputKey_MIN, _PB_Gui_InputType_MIN}
@@ -85,13 +97,15 @@ extern "C" {
 
 /* Field tags (for use in manual encoding/decoding) */
 #define PB_Gui_ScreenFrame_data_tag              1
+#define PB_Gui_ScreenFrame_orientation_tag       2
 #define PB_Gui_SendInputEventRequest_key_tag     1
 #define PB_Gui_SendInputEventRequest_type_tag    2
 #define PB_Gui_StartVirtualDisplayRequest_first_frame_tag 1
 
 /* Struct field encoding specification for nanopb */
 #define PB_Gui_ScreenFrame_FIELDLIST(X, a) \
-X(a, POINTER,  SINGULAR, BYTES,    data,              1)
+X(a, POINTER,  SINGULAR, BYTES,    data,              1) \
+X(a, STATIC,   SINGULAR, UENUM,    orientation,       2)
 #define PB_Gui_ScreenFrame_CALLBACK NULL
 #define PB_Gui_ScreenFrame_DEFAULT NULL
 
