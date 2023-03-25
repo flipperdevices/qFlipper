@@ -77,9 +77,11 @@ void SystemFileDialog::onFileDialogAccepted()
 
 void SystemFileDialog::onFileDialogFinished()
 {
-    globalPrefs->setLastFolderUrl(m_dialog->directoryUrl());
-    emit finished();
+    const auto lastFolderPath = m_dialog->directory().absolutePath();
+    globalPrefs->setLastFolderUrl(QUrl::fromLocalFile(lastFolderPath));
+
     disconnect();
+    emit finished();
 }
 
 QUrl SystemFileDialog::standardLocationPath(StandardLocation location)
