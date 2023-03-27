@@ -197,18 +197,19 @@ void FullUpdateOperation::readUpdateFiles()
     deviceState()->setStatusString(QStringLiteral("Reading firmware update ..."));
     deviceState()->setProgress(-1.0);
 
-    if(!findAndCdToUpdateDir()) {
+    const auto subdirNames = m_updateDirectory.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    if(subdirNames.isEmpty()) {
         finishWithError(BackendError::DataError, QStringLiteral("Cannot find update directory"));
+        return;
+
+    } else if(!m_updateDirectory.cd(subdirNames.first())) {
+        finishWithError(BackendError::DataError, QStringLiteral("Cannot enter update directory"));
         return;
     }
 
-    QDirIterator it(m_updateDirectory, QDirIterator::Subdirectories);
-
-    while(it.hasNext()) {
-        const QFileInfo fileInfo(it.next());
-        if(fileInfo.isFile()) {
-            m_fileUrls.append(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
-        }
+    const auto fileNames = m_updateDirectory.entryList(QDir::Files);
+    for(const auto &fileName : fileNames) {
+        m_fileUrls.append(QUrl::fromLocalFile(m_updateDirectory.absoluteFilePath(fileName)));
     }
 
     advanceOperationState();
@@ -298,25 +299,4 @@ void FullUpdateOperation::startUpdate()
             advanceOperationState();
         }
     });
-}
-
-bool FullUpdateOperation::findAndCdToUpdateDir()
-{
-    m_updateDirectory.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-
-    QDirIterator it(m_updateDirectory);
-
-    while(it.hasNext()) {
-        it.next();
-
-        const auto &fileInfo = it.fileInfo();
-        const auto fileName = fileInfo.fileName();
-
-        if(fileInfo.isDir()) {
-            m_updateDirectory.cd(fileName);
-            return true;
-        }
-    }
-
-    return false;
 }

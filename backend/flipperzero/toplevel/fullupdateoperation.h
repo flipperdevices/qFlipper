@@ -53,8 +53,6 @@ private:
     void uploadUpdateFiles();
     void startUpdate();
 
-    bool findAndCdToUpdateDir();
-
     QFile *m_updateFile;
     QDir m_updateDirectory;
     QList<QUrl> m_fileUrls;
