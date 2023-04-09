@@ -80,7 +80,6 @@ void SystemFileDialog::onFileDialogFinished()
     const auto lastFolderPath = m_dialog->directory().absolutePath();
     globalPrefs->setLastFolderUrl(QUrl::fromLocalFile(lastFolderPath));
 
-    disconnect();
     emit finished();
 }
 
@@ -115,6 +114,10 @@ void SystemFileDialog::beginOpen(StandardLocation openLocation, int acceptMode, 
     m_dialog = new QFileDialog();
     connect(m_dialog, &QFileDialog::accepted, this, &SystemFileDialog::onFileDialogAccepted);
     connect(m_dialog, &QFileDialog::finished, this, &SystemFileDialog::onFileDialogFinished);
+
+    connect(this, &SystemFileDialog::finished, this, [=]() {
+        disconnect();
+    });
 
     m_dialog->setFileMode(static_cast<QFileDialog::FileMode>(fileMode));
     m_dialog->setAcceptMode(static_cast<QFileDialog::AcceptMode>(acceptMode));
