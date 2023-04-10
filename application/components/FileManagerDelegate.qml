@@ -270,7 +270,7 @@ Item {
 
         onTriggered: beginDelete();
     }
-    
+
     function rightClick(mouse) {
         delegate.GridView.view.currentIndex = delegate.index
         forceActiveFocus(Qt.MouseFocusReason);
@@ -317,7 +317,7 @@ Item {
         nameLabel.text = newName;
         editBox.visible = false;
     }
-    
+
     function beginDelete() {
         const doRemove = function() {
                 Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
@@ -345,31 +345,59 @@ Item {
     }
 
     Keys.onPressed: function(event) {
-        if (editBox.visible) {
+        if(editBox.visible) {
             event.accepted = false;
             return;
         }
-        if((event.key === Qt.Key_Delete)  && (event.modifiers & Qt.ShiftModifier)) {
-            Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
-            event.accepted = true;
-        } else if((event.key === Qt.Key_Delete)  && !(event.modifiers & Qt.ShiftModifier)) {
-            beginDelete();
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Return) {
-            if  (!delegate.isDirectory || editFlag) {
-                editFlag = false;
+
+        switch(event.key) {
+        case Qt.Key_Delete:
+            if(Backend.fileManager.isRoot) {
                 event.accepted = false;
-                return;
+            } else if(event.modifiers & Qt.ShiftModifier) {
+                Backend.fileManager.remove(delegate.fileName, delegate.isDirectory);
+                event.accepted = true;
             } else {
-                Backend.fileManager.cd(delegate.fileName);
+                beginDelete();
                 event.accepted = true;
             }
-        } else if ((event.key === Qt.Key_D)  && (event.modifiers & Qt.ControlModifier)) {
-            beginDownload();
-        } else if ((event.key === Qt.Key_E) && (event.modifiers & Qt.ControlModifier)) {
-            beginEdit();
+            return;
+
+        case Qt.Key_Return:
+            if(delegate.isDirectory && !editFlag) {
+                Backend.fileManager.cd(delegate.fileName);
+                event.accepted = true;
+            } else {
+                editFlag = false;
+                event.accepted = false;
+            }
+            return;
+
+        case Qt.Key_E:
+            if(Backend.fileManager.isRoot) {
+                event.accepted = false;
+            } else if(event.modifiers & Qt.ControlModifier) {
+                beginEdit();
+                event.accepted = true;
+            } else {
+                event.accepted = false;
+            }
+            return;
+
+        case Qt.Key_D:
+            if(event.modifiers & Qt.ControlModifier) {
+                beginDownload();
+                event.accepted = true;
+            } else {
+                event.accepted = false;
+            }
+            return;
+
+        default:
+            event.accepted = false;
         }
     }
+
     Connections {
         target: confirmationDialog
         function onVisibleChanged() {

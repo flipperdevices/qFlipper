@@ -295,15 +295,47 @@ Item {
     }
 
     Keys.onPressed: function(event) {
-        if ((event.key === Qt.Key_Backspace) && Backend.fileManager.canGoBack) {
+        switch(event.key) {
+        case Qt.Key_Backspace:
+            if(Backend.fileManager.canGoBack) {
                 Backend.fileManager.historyBack();
-                event.accepted = true;
-            } else if((event.key === Qt.Key_L)  && (event.modifiers & Qt.ControlModifier)) {
-                beginUpload();
-            } else if((event.key === Qt.Key_N) && (event.modifiers & Qt.ControlModifier)) {
-                Backend.fileManager.beginMkDir();
-            } else if((event.key === Qt.Key_G) && (event.modifiers & Qt.ControlModifier)) {
-                Backend.fileManager.refresh()
             }
+            event.accepted = true;
+            return;
+
+        case Qt.Key_L:
+            if(Backend.fileManager.isRoot) {
+                event.accepted = false;
+            } else if(event.modifiers & Qt.ControlModifier) {
+                beginUpload();
+                event.accepted = true;
+            } else {
+                event.accepted = false;
+            }
+            return;
+
+        case Qt.Key_N:
+            if(Backend.fileManager.isRoot) {
+                event.accepted = false;
+            } else if(event.modifiers & Qt.ControlModifier) {
+                Backend.fileManager.beginMkDir();
+                event.accepted = true;
+            } else {
+                event.accepted = false;
+            }
+            return;
+
+        case Qt.Key_G:
+            if(event.modifiers & Qt.ControlModifier) {
+                Backend.fileManager.refresh()
+                event.accepted = true;
+            } else {
+                event.accepted = false;
+            }
+            return;
+
+        default:
+            event.accepted = false;
+        }
     }
 }
