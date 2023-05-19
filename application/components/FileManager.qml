@@ -12,6 +12,7 @@ Item {
     implicitWidth: 745
     implicitHeight: 290
 
+    property MessageDialog messageDialog
     property ConfirmationDialog confirmationDialog
 
     onVisibleChanged: {
@@ -156,6 +157,8 @@ Item {
                 cellWidth: 120
                 cellHeight: 86
 
+                boundsBehavior: Flickable.StopAtBounds
+
                 MouseArea {
                     z: parent.z - 1
                     anchors.fill: parent
@@ -187,12 +190,19 @@ Item {
         enabled: !Backend.fileManager.isRoot
         anchors.fill: parent
         onDropped: function(drop) {
-            if(drop.source || drop.proposedAction !== Qt.CopyAction) {
-                return;
-            }
+            if(drop.source || !drop.hasUrls || drop.proposedAction !== Qt.CopyAction) {
+                const msgObj = {
+                    title: qsTr("Error"),
+                    message: qsTr("Operation is not supported"),
+                    customText: qsTr("Close")
+                };
 
-            control.uploadUrls(drop.urls);
-            drop.accept()
+                messageDialog.openWithMessage(null, msgObj);
+
+            } else {
+                control.uploadUrls(drop.urls);
+                drop.accept()
+            }
         }
     }
 
@@ -276,22 +286,56 @@ Item {
             doUpload();
         }
     }
+
     function beginUpload() {
         SystemFileDialog.accepted.connect(function() {
             control.uploadUrls(SystemFileDialog.fileUrls);
         });
         SystemFileDialog.beginOpenFiles(SystemFileDialog.LastLocation, [ "All files (*)" ]);
     }
+
     Keys.onPressed: function(event) {
-        if ((event.key == Qt.Key_Backspace) && Backend.fileManager.canGoBack) {
+        switch(event.key) {
+        case Qt.Key_Backspace:
+            if(Backend.fileManager.canGoBack) {
                 Backend.fileManager.historyBack();
-                event.accepted = true;
-            } else if((event.key == Qt.Key_L)  && (event.modifiers & Qt.ControlModifier)) {
-                beginUpload();
-            } else if((event.key == Qt.Key_N) && (event.modifiers & Qt.ControlModifier)) {
-                Backend.fileManager.beginMkDir();
-            } else if((event.key == Qt.Key_G) && (event.modifiers & Qt.ControlModifier)) {
-                Backend.fileManager.refresh()
             }
+            event.accepted = true;
+            return;
+
+        case Qt.Key_L:
+            if(Backend.fileManager.isRoot) {
+                event.accepted = false;
+            } else if(event.modifiers & Qt.ControlModifier) {
+                beginUpload();
+                event.accepted = true;
+            } else {
+                event.accepted = false;
+            }
+            return;
+
+        case Qt.Key_N:
+            if(Backend.fileManager.isRoot) {
+                event.accepted = false;
+            } else if(event.modifiers & Qt.ControlModifier) {
+                Backend.fileManager.beginMkDir();
+                event.accepted = true;
+            } else {
+                event.accepted = false;
+            }
+            return;
+
+        case Qt.Key_G:
+            if(event.modifiers & Qt.ControlModifier) {
+                Backend.fileManager.refresh()
+                event.accepted = true;
+            } else {
+                event.accepted = false;
+            }
+            return;
+
+        default:
+            event.accepted = false;
+        }
     }
 }

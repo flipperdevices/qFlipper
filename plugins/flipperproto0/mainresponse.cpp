@@ -95,6 +95,7 @@ QObject *MainResponse::create(MessageWrapper &wrapper, QObject *parent)
     case StorageStat: return new StorageStatResponse(wrapper, parent);
     case StorageList: return new StorageListResponse(wrapper, parent);
     case StorageRead: return new StorageReadResponse(wrapper, parent);
+    case StorageMd5Sum: return new StorageMd5SumResponse(wrapper, parent);
     case GuiScreenFrame: return new GuiScreenFrameResponse(wrapper, parent);
     case PropertyGet: return new PropertyGetResponse(wrapper, parent);
     case Unknown:
@@ -120,7 +121,7 @@ MainResponseInterface::ResponseType MainResponse::tagToResponseType(pb_size_t ta
 
     case PB_Main_storage_list_response_tag: return StorageList;
     case PB_Main_storage_read_response_tag: return StorageRead;
-    case PB_Main_storage_md5sum_response_tag: return StorageMd5;
+    case PB_Main_storage_md5sum_response_tag: return StorageMd5Sum;
     case PB_Main_storage_stat_response_tag: return StorageStat;
     case PB_Main_storage_info_response_tag: return StorageInfo;
 

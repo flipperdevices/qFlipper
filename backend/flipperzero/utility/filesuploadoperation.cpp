@@ -3,7 +3,6 @@
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QFile>
-#include <QDebug>
 
 #include "flipperzero/devicestate.h"
 #include "flipperzero/protobufsession.h"
@@ -22,7 +21,8 @@ FilesUploadOperation::FilesUploadOperation(ProtobufSession *rpc, DeviceState *de
 
 const QString FilesUploadOperation::description() const
 {
-    return QStringLiteral("Upload Files @%1").arg(deviceState()->deviceInfo().name);
+    const auto numFiles = m_urlList.size();
+    return QStringLiteral("Upload %1 %2 @%3").arg(QString::number(numFiles), (numFiles == 1) ? "entry" : "entries", deviceState()->deviceInfo().name);
 }
 
 void FilesUploadOperation::nextStateLogic()

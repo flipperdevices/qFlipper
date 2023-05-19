@@ -35,6 +35,7 @@ SOURCES += \
     flipperzero/rpc/stoprpcoperation.cpp \
     flipperzero/rpc/storageinfooperation.cpp \
     flipperzero/rpc/storagelistoperation.cpp \
+    flipperzero/rpc/storagemd5sumoperation.cpp \
     flipperzero/rpc/storagemkdiroperation.cpp \
     flipperzero/rpc/storagereadoperation.cpp \
     flipperzero/rpc/storageremoveoperation.cpp \
@@ -79,17 +80,17 @@ SOURCES += \
     flipperzero/toplevel/wirelessstackupdateoperation.cpp \
     flipperzero/utility/abstractutilityoperation.cpp \
     flipperzero/utility/assetsdownloadoperation.cpp \
+    flipperzero/utility/checksumverifyoperation.cpp \
     flipperzero/utility/directorydownloadoperation.cpp \
-    flipperzero/utility/directoryuploadoperation.cpp \
     flipperzero/utility/factoryresetutiloperation.cpp \
     flipperzero/utility/filesuploadoperation.cpp \
     flipperzero/utility/getfiletreeoperation.cpp \
+    flipperzero/utility/pathcreateoperation.cpp \
     flipperzero/utility/regionprovisioningoperation.cpp \
     flipperzero/utility/restartoperation.cpp \
     flipperzero/utility/startrecoveryoperation.cpp \
     flipperzero/utility/startupdateroperation.cpp \
     flipperzero/utility/storageinforefreshoperation.cpp \
-    flipperzero/utility/updateprepareoperation.cpp \
     flipperzero/utility/userbackupoperation.cpp \
     flipperzero/utility/userrestoreoperation.cpp \
     flipperzero/utilityinterface.cpp \
@@ -145,6 +146,7 @@ HEADERS += \
     flipperzero/rpc/stoprpcoperation.h \
     flipperzero/rpc/storageinfooperation.h \
     flipperzero/rpc/storagelistoperation.h \
+    flipperzero/rpc/storagemd5sumoperation.h \
     flipperzero/rpc/storagemkdiroperation.h \
     flipperzero/rpc/storagereadoperation.h \
     flipperzero/rpc/storageremoveoperation.h \
@@ -190,27 +192,29 @@ HEADERS += \
     flipperzero/toplevel/wirelessstackupdateoperation.h \
     flipperzero/utility/abstractutilityoperation.h \
     flipperzero/utility/assetsdownloadoperation.h \
+    flipperzero/utility/checksumverifyoperation.h \
     flipperzero/utility/directorydownloadoperation.h \
-    flipperzero/utility/directoryuploadoperation.h \
     flipperzero/utility/factoryresetutiloperation.h \
     flipperzero/utility/filesuploadoperation.h \
     flipperzero/utility/getfiletreeoperation.h \
+    flipperzero/utility/pathcreateoperation.h \
     flipperzero/utility/regionprovisioningoperation.h \
     flipperzero/utility/restartoperation.h \
     flipperzero/utility/startrecoveryoperation.h \
     flipperzero/utility/startupdateroperation.h \
     flipperzero/utility/storageinforefreshoperation.h \
-    flipperzero/utility/updateprepareoperation.h \
     flipperzero/utility/userbackupoperation.h \
     flipperzero/utility/userrestoreoperation.h \
     flipperzero/utilityinterface.h \
     flipperzero/virtualdisplay.h \
     gzipcompressor.h \
     gzipuncompressor.h \
+    inputevent.h \
     logger.h \
     preferences.h \
     regioninfo.h \
     remotefilefetcher.h \
+    screenframe.h \
     serialfinder.h \
     simpleserialoperation.h \
     tararchive.h \

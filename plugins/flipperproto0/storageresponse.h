@@ -45,3 +45,13 @@ public:
     bool hasFile() const override;
     const StorageFile file() const override;
 };
+
+class StorageMd5SumResponse : public MainResponse, public StorageMd5SumResponseInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(StorageMd5SumResponseInterface)
+
+public:
+    StorageMd5SumResponse(MessageWrapper &wrapper, QObject *parent = nullptr);
+    const QByteArray md5Sum() const override;
+};

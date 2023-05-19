@@ -32,7 +32,7 @@ FlipperZero *AbstractTopLevelHelper::device()
 void AbstractTopLevelHelper::onUpdateRegistryStateChanged()
 {
     if(m_updateRegistry->state() == UpdateRegistry::State::ErrorOccured) {
-        finishEarly(BackendError::InternetError, QStringLiteral("Failed to retreive update information"));
+        finishEarly(BackendError::InternetError, QStringLiteral("Failed to retrieve update information"));
     } else if(m_updateRegistry->state() == UpdateRegistry::State::Ready) {
         disconnect(m_updateRegistry, &UpdateRegistry::stateChanged, this, &AbstractTopLevelHelper::onUpdateRegistryStateChanged);
 

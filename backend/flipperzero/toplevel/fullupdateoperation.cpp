@@ -6,8 +6,9 @@
 
 #include "flipperzero/devicestate.h"
 #include "flipperzero/utilityinterface.h"
-#include "flipperzero/utility/updateprepareoperation.h"
-#include "flipperzero/utility/directoryuploadoperation.h"
+#include "flipperzero/utility/checksumverifyoperation.h"
+#include "flipperzero/utility/filesuploadoperation.h"
+#include "flipperzero/utility/pathcreateoperation.h"
 #include "flipperzero/utility/startupdateroperation.h"
 #include "flipperzero/utility/storageinforefreshoperation.h"
 #include "flipperzero/utility/regionprovisioningoperation.h"
@@ -78,14 +79,22 @@ void FullUpdateOperation::nextStateLogic()
         extractUpdate();
 
     } else if(operationState() == ExtractingUpdate) {
-        setOperationState(PreparingUpdateDir);
-        prepareUpdateDir();
+        setOperationState(ReadingUpdateFiles);
+        readUpdateFiles();
 
-    } else if(operationState() == PreparingUpdateDir) {
-        setOperationState(UploadingUpdateDir);
-        uploadUpdateDir();
+    } else if(operationState() == ReadingUpdateFiles) {
+        setOperationState(PreparingRemoteUpdate);
+        createUpdatePath();
 
-    } else if(operationState() == UploadingUpdateDir) {
+    } else if(operationState() == PreparingRemoteUpdate) {
+        setOperationState(VerifyingExistingFiles);
+        verifyExistingFiles();
+
+    } else if(operationState() == VerifyingExistingFiles) {
+        setOperationState(UploadingUpdateFiles);
+        uploadUpdateFiles();
+
+    } else if(operationState() == UploadingUpdateFiles) {
         setOperationState(WaitingForUpdate);
         startUpdate();
 
@@ -183,37 +192,85 @@ void FullUpdateOperation::extractUpdate()
     });
 }
 
-void FullUpdateOperation::prepareUpdateDir()
+void FullUpdateOperation::readUpdateFiles()
 {
-    deviceState()->setStatusString(QStringLiteral("Preparing firmware update ..."));
+    deviceState()->setStatusString(QStringLiteral("Reading firmware update ..."));
     deviceState()->setProgress(-1.0);
 
-    if(!findAndCdToUpdateDir()) {
+    const auto subdirNames = m_updateDirectory.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    if(subdirNames.isEmpty()) {
         finishWithError(BackendError::DataError, QStringLiteral("Cannot find update directory"));
+        return;
+
+    } else if(!m_updateDirectory.cd(subdirNames.first())) {
+        finishWithError(BackendError::DataError, QStringLiteral("Cannot enter update directory"));
         return;
     }
 
-    auto *operation = m_utility->prepareUpdateDirectory(m_updateDirectory.dirName().toLocal8Bit(), QByteArrayLiteral(REMOTE_DIR));
+    const auto fileNames = m_updateDirectory.entryList(QDir::Files);
+    for(const auto &fileName : fileNames) {
+        m_fileUrls.append(QUrl::fromLocalFile(m_updateDirectory.absoluteFilePath(fileName)));
+    }
+
+    advanceOperationState();
+}
+
+void FullUpdateOperation::createUpdatePath()
+{
+    deviceState()->setStatusString(QStringLiteral("Creating update path ..."));
+    deviceState()->setProgress(-1.0);
+
+    const auto remotePath = QStringLiteral("%1/%2").arg(REMOTE_DIR, m_updateDirectory.dirName()).toLocal8Bit();
+    auto *operation = m_utility->createPath(remotePath);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
         if(operation->isError()) {
             finishWithError(operation->error(), operation->errorString());
             return;
 
-        } else if(operation->updateDirectoryExists()) {
-            qCDebug(CATEGORY_DEBUG) << "Update package has been already uploaded, skipping to update...";
-            setOperationState(FullUpdateOperation::UploadingUpdateDir);
+        } else if(!operation->pathExists()) {
+            setOperationState(VerifyingExistingFiles);
         }
 
         advanceOperationState();
     });
 }
 
-void FullUpdateOperation::uploadUpdateDir()
+void FullUpdateOperation::verifyExistingFiles()
+{
+    deviceState()->setStatusString(QStringLiteral("Verifying existing files ..."));
+    deviceState()->setProgress(-1.0);
+
+    const auto remotePath = QStringLiteral("%1/%2").arg(REMOTE_DIR, m_updateDirectory.dirName()).toLocal8Bit();
+    auto *operation = m_utility->verifyChecksum(m_fileUrls, remotePath);
+
+    connect(operation, &AbstractOperation::progressChanged, this, [=]() {
+        deviceState()->setProgress(operation->progress());
+    });
+
+    connect(operation, &AbstractOperation::finished, this, [=]() {
+        if(operation->isError()) {
+            finishWithError(operation->error(), operation->errorString());
+            return;
+        }
+
+        m_fileUrls = operation->changedUrls();
+
+        if(m_fileUrls.isEmpty()) {
+            qCDebug(CATEGORY_DEBUG) << "Update package has been already uploaded, skipping to update...";
+            setOperationState(FullUpdateOperation::UploadingUpdateFiles);
+        }
+
+        advanceOperationState();
+    });
+}
+
+void FullUpdateOperation::uploadUpdateFiles()
 {
     deviceState()->setStatusString(QStringLiteral("Uploading firmware update ..."));
 
-    auto *operation = m_utility->uploadDirectory(m_updateDirectory.absolutePath(), QByteArrayLiteral(REMOTE_DIR));
+    const auto remotePath = QStringLiteral("%1/%2").arg(QStringLiteral(REMOTE_DIR), m_updateDirectory.dirName()).toLocal8Bit();
+    auto *operation = m_utility->uploadFiles(m_fileUrls, remotePath);
 
     connect(operation, &AbstractOperation::progressChanged, this, [=]() {
         deviceState()->setProgress(operation->progress());
@@ -242,25 +299,4 @@ void FullUpdateOperation::startUpdate()
             advanceOperationState();
         }
     });
-}
-
-bool FullUpdateOperation::findAndCdToUpdateDir()
-{
-    m_updateDirectory.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-
-    QDirIterator it(m_updateDirectory);
-
-    while(it.hasNext()) {
-        it.next();
-
-        const auto &fileInfo = it.fileInfo();
-        const auto fileName = fileInfo.fileName();
-
-        if(fileInfo.isDir() && m_updateDirectory.dirName().endsWith(fileName)) {
-            m_updateDirectory.cd(fileName);
-            return true;
-        }
-    }
-
-    return false;
 }

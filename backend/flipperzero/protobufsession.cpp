@@ -21,6 +21,7 @@
 #include "rpc/storagewriteoperation.h"
 #include "rpc/storageremoveoperation.h"
 #include "rpc/storagerenameoperation.h"
+#include "rpc/storagemd5sumoperation.h"
 
 #include "rpc/systemrebootoperation.h"
 #include "rpc/systemdeviceinfooperation.h"
@@ -181,6 +182,11 @@ StorageReadOperation *ProtobufSession::storageRead(const QByteArray &path, QIODe
 StorageWriteOperation *ProtobufSession::storageWrite(const QByteArray &path, QIODevice *file)
 {
     return enqueueOperation(new StorageWriteOperation(getAndIncrementCounter(), path, file, this));
+}
+
+StorageMd5SumOperation *ProtobufSession::storageMd5Sum(const QByteArray &path)
+{
+    return enqueueOperation(new StorageMd5SumOperation(getAndIncrementCounter(), path, this));
 }
 
 GuiStartScreenStreamOperation *ProtobufSession::guiStartScreenStream()

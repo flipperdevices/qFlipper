@@ -417,6 +417,9 @@ void ApplicationBackend::registerMetaTypes()
     qRegisterMetaType<Flipper::Zero::AssetManifest::FileInfo>();
 
     qRegisterMetaType<QAbstractListModel*>();
+
+    qRegisterMetaType<InputEvent::Key>();
+    qRegisterMetaType<InputEvent::Type>();
 }
 
 #if QT_VERSION < 0x060000

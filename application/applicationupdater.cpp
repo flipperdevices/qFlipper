@@ -19,9 +19,15 @@ using namespace Updates;
 
 ApplicationUpdater::ApplicationUpdater(QObject *parent):
     QObject(parent),
-    m_state(State::Idle),
+    m_state(Idle),
     m_progress(0)
 {}
+
+void ApplicationUpdater::reset()
+{
+    setState(Idle);
+    setProgress(0);
+}
 
 ApplicationUpdater::State ApplicationUpdater::state() const
 {
@@ -88,27 +94,27 @@ void ApplicationUpdater::installUpdate(const Flipper::Updates::VersionInfo &vers
     connect(fetcher, &RemoteFileFetcher::finished, this, [=]() {
         if(fetcher->isError()) {
             qCWarning(CATEGORY_SELFUPDATES).noquote() << "Failed to download application update package:" << fetcher->errorString();
-            setState(State::ErrorOccured);
+            setState(ErrorOccured);
 
             cleanup();
             return;
         }
 
         qCInfo(CATEGORY_SELFUPDATES) << "Application update package has been downloaded.";
-        setState(State::Updating);
+        setState(Updating);
 
         // IMPORTANT -- The file is closed automatically before renaming (https://doc.qt.io/qt-5/qfile.html#rename)
         QFile oldFile(filePath);
         if(oldFile.exists() && !oldFile.remove()) {
             qCDebug(CATEGORY_SELFUPDATES).noquote() << "Failed to remove old update package:" << oldFile.fileName();
-            setState(State::ErrorOccured);
+            setState(ErrorOccured);
 
             cleanup();
             return;
 
         } else if(!file->rename(filePath)) {
             qCDebug(CATEGORY_SELFUPDATES).noquote() << "Failed to rename .part file:" << file->fileName();
-            setState(State::ErrorOccured);
+            setState(ErrorOccured);
 
             file->remove();
             cleanup();
@@ -128,7 +134,7 @@ void ApplicationUpdater::installUpdate(const Flipper::Updates::VersionInfo &vers
 
         if(!performUpdate(filePath)) {
             qCWarning(CATEGORY_SELFUPDATES) << "Failed to start the application update process.";
-            setState(State::ErrorOccured);
+            setState(ErrorOccured);
         }
     });
 
@@ -136,18 +142,18 @@ void ApplicationUpdater::installUpdate(const Flipper::Updates::VersionInfo &vers
 
     if(!fetcher->fetch(fileInfo, file)) {
         qCWarning(CATEGORY_SELFUPDATES) << "Failed to start downloading the update package.";
-        setState(State::ErrorOccured);
+        setState(ErrorOccured);
 
         file->remove();
         cleanup();
 
     } else {
         qCWarning(CATEGORY_SELFUPDATES) << "Downloading the application update package...";
-        setState(State::Downloading);
+        setState(Downloading);
     }
 }
 
-void ApplicationUpdater::setState(State state)
+void ApplicationUpdater::setState(ApplicationUpdater::State state)
 {
     if(m_state == state) {
         return;

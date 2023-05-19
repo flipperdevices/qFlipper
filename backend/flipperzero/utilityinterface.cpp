@@ -9,12 +9,12 @@
 #include "flipperzero/utility/assetsdownloadoperation.h"
 #include "flipperzero/utility/factoryresetutiloperation.h"
 #include "flipperzero/utility/filesuploadoperation.h"
-#include "flipperzero/utility/directoryuploadoperation.h"
 #include "flipperzero/utility/directorydownloadoperation.h"
-#include "flipperzero/utility/updateprepareoperation.h"
+#include "flipperzero/utility/pathcreateoperation.h"
 #include "flipperzero/utility/startupdateroperation.h"
 #include "flipperzero/utility/storageinforefreshoperation.h"
 #include "flipperzero/utility/regionprovisioningoperation.h"
+#include "flipperzero/utility/checksumverifyoperation.h"
 
 Q_LOGGING_CATEGORY(LOG_UTILITY, "UTL")
 
@@ -76,13 +76,6 @@ FilesUploadOperation *UtilityInterface::uploadFiles(const QList<QUrl> &fileUrls,
     return operation;
 }
 
-DirectoryUploadOperation *UtilityInterface::uploadDirectory(const QString &localDirectory, const QByteArray &remotePath)
-{
-    auto *operation = new DirectoryUploadOperation(m_rpc, m_deviceState, localDirectory, remotePath, this);
-    enqueueOperation(operation);
-    return operation;
-}
-
 DirectoryDownloadOperation *UtilityInterface::downloadDirectory(const QString &localDirectory, const QByteArray &remotePath)
 {
     auto *operation = new DirectoryDownloadOperation(m_rpc, m_deviceState, localDirectory, remotePath, this);
@@ -90,9 +83,9 @@ DirectoryDownloadOperation *UtilityInterface::downloadDirectory(const QString &l
     return operation;
 }
 
-UpdatePrepareOperation *UtilityInterface::prepareUpdateDirectory(const QByteArray &updateDirName, const QByteArray &remotePath)
+PathCreateOperation *UtilityInterface::createPath(const QByteArray &remotePath)
 {
-    auto *operation = new UpdatePrepareOperation(m_rpc, m_deviceState, updateDirName, remotePath, this);
+    auto *operation = new PathCreateOperation(m_rpc, m_deviceState, remotePath, this);
     enqueueOperation(operation);
     return operation;
 }
@@ -114,6 +107,13 @@ StorageInfoRefreshOperation *UtilityInterface::refreshStorageInfo()
 RegionProvisioningOperation *UtilityInterface::provisionRegionData()
 {
     auto *operation = new RegionProvisioningOperation(m_rpc, m_deviceState, this);
+    enqueueOperation(operation);
+    return operation;
+}
+
+ChecksumVerifyOperation *UtilityInterface::verifyChecksum(const QList<QUrl> &urlsToCheck, const QByteArray &remoteRootPath)
+{
+    auto *operation = new ChecksumVerifyOperation(m_rpc, m_deviceState, urlsToCheck, remoteRootPath, this);
     enqueueOperation(operation);
     return operation;
 }

@@ -81,3 +81,9 @@ StorageRenameRequest::StorageRenameRequest(uint32_t id, const QByteArray &oldPat
     request.old_path = pathData();
     request.new_path = (char*)newPath.data();
 }
+
+StorageMd5SumRequest::StorageMd5SumRequest(uint32_t id, const QByteArray &path):
+    AbstractStorageRequest(id, PB_Main_storage_md5sum_request_tag, path)
+{
+    m_message.content.storage_md5sum_request.path = pathData();
+}

@@ -167,7 +167,7 @@ QByteArray USBDevice::extraInterfaceDescriptor(int interfaceNum, uint8_t type, i
     ((USB_CONFIGURATION_DESCRIPTOR*)buf)->bDescriptorType = USB_CONFIGURATION_DESCRIPTOR_TYPE;
 
     const auto success = WinUsb_GetDescriptor(m_p->deviceHandle, USB_CONFIGURATION_DESCRIPTOR_TYPE, 0, 0, buf, BUF_SIZE, &sizeTransferred);
-    check_return_val(success == TRUE, "Failed to retreive configuration descriptor", ret);
+    check_return_val(success == TRUE, "Failed to retrieve configuration descriptor", ret);
 
     for(ULONG i = 0; i < sizeTransferred;) {
         auto *cd = (USB_COMMON_DESCRIPTOR*)(buf + i);

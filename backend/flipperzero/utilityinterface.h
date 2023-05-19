@@ -11,7 +11,6 @@ class DeviceState;
 class ProtobufSession;
 
 class FilesUploadOperation;
-class DirectoryUploadOperation;
 class DirectoryDownloadOperation;
 class FactoryResetUtilOperation;
 class StartRecoveryOperation;
@@ -19,10 +18,11 @@ class AssetsDownloadOperation;
 class UserBackupOperation;
 class UserRestoreOperation;
 class RestartOperation;
-class UpdatePrepareOperation;
+class PathCreateOperation;
 class StartUpdaterOperation;
 class StorageInfoRefreshOperation;
 class RegionProvisioningOperation;
+class ChecksumVerifyOperation;
 
 class UtilityInterface : public AbstractOperationRunner
 {
@@ -38,12 +38,12 @@ public:
     RestartOperation *restartDevice();
     FactoryResetUtilOperation *factoryReset();
     FilesUploadOperation *uploadFiles(const QList<QUrl> &fileUrls, const QByteArray &remotePath);
-    DirectoryUploadOperation *uploadDirectory(const QString &localDirectory, const QByteArray &remotePath);
     DirectoryDownloadOperation *downloadDirectory(const QString &localDirectory, const QByteArray &remotePath);
-    UpdatePrepareOperation *prepareUpdateDirectory(const QByteArray &updateDirName, const QByteArray &remotePath);
+    PathCreateOperation *createPath(const QByteArray &remotePath);
     StartUpdaterOperation *startUpdater(const QByteArray &manifestPath);
     StorageInfoRefreshOperation *refreshStorageInfo();
     RegionProvisioningOperation *provisionRegionData();
+    ChecksumVerifyOperation *verifyChecksum(const QList<QUrl> &urlsToCheck, const QByteArray &remoteRootPath);
 
 private:
     const QLoggingCategory &loggingCategory() const override;

@@ -6,7 +6,7 @@
 #include "statusresponseinterface.h"
 #include "mainresponseinterface.h"
 
-static constexpr qint64 CHUNK_SIZE = 512;
+static constexpr qint64 CHUNK_SIZE = 1024;
 static constexpr qint64 CHUNKS_PER_PING_CAP = 1000;
 
 using namespace Flipper;
@@ -34,7 +34,7 @@ bool StorageWriteOperation::hasMoreData() const
     return m_file->bytesAvailable() > 0;
 }
 
-// Custom feedResponse() implementation to accomodate interspersed pings
+// Custom feedResponse() implementation to accommodate interspersed pings
 void StorageWriteOperation::feedResponse(QObject *response)
 {
     auto *mainResponse = qobject_cast<MainResponseInterface*>(response);

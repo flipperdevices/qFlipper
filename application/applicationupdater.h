@@ -11,7 +11,7 @@ class ApplicationUpdater : public QObject
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
 
 public:
-    enum class State {
+    enum State {
         Idle,
         Downloading,
         Updating,
@@ -21,6 +21,8 @@ public:
     Q_ENUM(State)
 
     ApplicationUpdater(QObject *parent = nullptr);
+
+    void reset();
 
     State state() const;
     double progress() const;
@@ -33,7 +35,7 @@ signals:
     void progressChanged();
 
 private slots:
-    void setState(State state);
+    void setState(ApplicationUpdater::State state);
     void setProgress(double progress);
 
 private:

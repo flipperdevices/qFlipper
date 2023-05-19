@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 import Theme 1.0
+import QFlipper 1.0
 
 Item {
     id: control
@@ -42,11 +43,11 @@ Item {
                 rotation: 180
                 padding: control.spacing
 
-                onPressed: inputEvent(DirectionalKeypad.InputKey.Up, DirectionalKeypad.InputType.Press)
-                onReleased: inputEvent(DirectionalKeypad.InputKey.Up, DirectionalKeypad.InputType.Release)
-                onShortPress: inputEvent(DirectionalKeypad.InputKey.Up, DirectionalKeypad.InputType.Short)
-                onLongPress: inputEvent(DirectionalKeypad.InputKey.Up, DirectionalKeypad.InputType.Long)
-                onRepeat: inputEvent(DirectionalKeypad.InputKey.Up, DirectionalKeypad.InputType.Repeat)
+                onPressed: inputEvent(InputEvent.Up, InputEvent.Press)
+                onReleased: inputEvent(InputEvent.Up, InputEvent.Release)
+                onShortPress: inputEvent(InputEvent.Up, InputEvent.Short)
+                onLongPress: inputEvent(InputEvent.Up, InputEvent.Long)
+                onRepeat: inputEvent(InputEvent.Up, InputEvent.Repeat)
             }
 
             KeypadButton {
@@ -60,11 +61,11 @@ Item {
                 rotation: 90
                 padding: control.spacing
 
-                onPressed: inputEvent(DirectionalKeypad.InputKey.Left, DirectionalKeypad.InputType.Press)
-                onReleased: inputEvent(DirectionalKeypad.InputKey.Left, DirectionalKeypad.InputType.Release)
-                onShortPress: inputEvent(DirectionalKeypad.InputKey.Left, DirectionalKeypad.InputType.Short)
-                onLongPress: inputEvent(DirectionalKeypad.InputKey.Left, DirectionalKeypad.InputType.Long)
-                onRepeat: inputEvent(DirectionalKeypad.InputKey.Left, DirectionalKeypad.InputType.Repeat)
+                onPressed: inputEvent(InputEvent.Left, InputEvent.Press)
+                onReleased: inputEvent(InputEvent.Left, InputEvent.Release)
+                onShortPress: inputEvent(InputEvent.Left, InputEvent.Short)
+                onLongPress: inputEvent(InputEvent.Left, InputEvent.Long)
+                onRepeat: inputEvent(InputEvent.Left, InputEvent.Repeat)
             }
 
             KeypadButton {
@@ -75,11 +76,11 @@ Item {
                 icon.width: 52
                 icon.height: 52
 
-                onPressed: inputEvent(DirectionalKeypad.InputKey.Ok, DirectionalKeypad.InputType.Press)
-                onReleased: inputEvent(DirectionalKeypad.InputKey.Ok, DirectionalKeypad.InputType.Release)
-                onShortPress: inputEvent(DirectionalKeypad.InputKey.Ok, DirectionalKeypad.InputType.Short)
-                onLongPress: inputEvent(DirectionalKeypad.InputKey.Ok, DirectionalKeypad.InputType.Long)
-                onRepeat: inputEvent(DirectionalKeypad.InputKey.Ok, DirectionalKeypad.InputType.Repeat)
+                onPressed: inputEvent(InputEvent.Ok, InputEvent.Press)
+                onReleased: inputEvent(InputEvent.Ok, InputEvent.Release)
+                onShortPress: inputEvent(InputEvent.Ok, InputEvent.Short)
+                onLongPress: inputEvent(InputEvent.Ok, InputEvent.Long)
+                onRepeat: inputEvent(InputEvent.Ok, InputEvent.Repeat)
             }
 
             KeypadButton {
@@ -93,11 +94,11 @@ Item {
                 rotation: -90
                 padding: control.spacing
 
-                onPressed: inputEvent(DirectionalKeypad.InputKey.Right, DirectionalKeypad.InputType.Press)
-                onReleased: inputEvent(DirectionalKeypad.InputKey.Right, DirectionalKeypad.InputType.Release)
-                onShortPress: inputEvent(DirectionalKeypad.InputKey.Right, DirectionalKeypad.InputType.Short)
-                onLongPress: inputEvent(DirectionalKeypad.InputKey.Right, DirectionalKeypad.InputType.Long)
-                onRepeat: inputEvent(DirectionalKeypad.InputKey.Right, DirectionalKeypad.InputType.Repeat)
+                onPressed: inputEvent(InputEvent.Right, InputEvent.Press)
+                onReleased: inputEvent(InputEvent.Right, InputEvent.Release)
+                onShortPress: inputEvent(InputEvent.Right, InputEvent.Short)
+                onLongPress: inputEvent(InputEvent.Right, InputEvent.Long)
+                onRepeat: inputEvent(InputEvent.Right, InputEvent.Repeat)
             }
 
             KeypadButton {
@@ -112,11 +113,11 @@ Item {
                 icon.height: 28
                 padding: control.spacing
 
-                onPressed: inputEvent(DirectionalKeypad.InputKey.Down, DirectionalKeypad.InputType.Press)
-                onReleased: inputEvent(DirectionalKeypad.InputKey.Down, DirectionalKeypad.InputType.Release)
-                onShortPress: inputEvent(DirectionalKeypad.InputKey.Down, DirectionalKeypad.InputType.Short)
-                onLongPress: inputEvent(DirectionalKeypad.InputKey.Down, DirectionalKeypad.InputType.Long)
-                onRepeat: inputEvent(DirectionalKeypad.InputKey.Down, DirectionalKeypad.InputType.Repeat)
+                onPressed: inputEvent(InputEvent.Down, InputEvent.Press)
+                onReleased: inputEvent(InputEvent.Down, InputEvent.Release)
+                onShortPress: inputEvent(InputEvent.Down, InputEvent.Short)
+                onLongPress: inputEvent(InputEvent.Down, InputEvent.Long)
+                onRepeat: inputEvent(InputEvent.Down, InputEvent.Repeat)
             }
         }
     }
@@ -132,11 +133,11 @@ Item {
         icon.width: 52
         icon.height: 52
 
-        onPressed: inputEvent(DirectionalKeypad.InputKey.Back, DirectionalKeypad.InputType.Press)
-        onReleased: inputEvent(DirectionalKeypad.InputKey.Back, DirectionalKeypad.InputType.Release)
-        onShortPress: inputEvent(DirectionalKeypad.InputKey.Back, DirectionalKeypad.InputType.Short)
-        onLongPress: inputEvent(DirectionalKeypad.InputKey.Back, DirectionalKeypad.InputType.Long)
-        onRepeat: inputEvent(DirectionalKeypad.InputKey.Back, DirectionalKeypad.InputType.Repeat)
+        onPressed: inputEvent(InputEvent.Back, InputEvent.Press)
+        onReleased: inputEvent(InputEvent.Back, InputEvent.Release)
+        onShortPress: inputEvent(InputEvent.Back, InputEvent.Short)
+        onLongPress: inputEvent(InputEvent.Back, InputEvent.Long)
+        onRepeat: inputEvent(InputEvent.Back, InputEvent.Repeat)
     }
 
     Keys.onPressed: function(event) {
@@ -163,23 +164,6 @@ Item {
 
         button.setReleased();
         event.accepted = true;
-    }
-
-    enum InputKey {
-        Up,
-        Down,
-        Right,
-        Left,
-        Ok,
-        Back
-    }
-
-    enum InputType {
-        Press,
-        Release,
-        Short,
-        Long,
-        Repeat
     }
 
     function findButton(key) {

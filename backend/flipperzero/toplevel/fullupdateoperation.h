@@ -4,6 +4,7 @@
 
 #include <QDir>
 #include <QUrl>
+#include <QFileInfoList>
 
 #include "flipperupdates.h"
 
@@ -24,8 +25,10 @@ class FullUpdateOperation : public AbstractTopLevelOperation
         PreparingLocalUpdate,
         FetchingUpdate,
         ExtractingUpdate,
-        PreparingUpdateDir,
-        UploadingUpdateDir,
+        ReadingUpdateFiles,
+        PreparingRemoteUpdate,
+        VerifyingExistingFiles,
+        UploadingUpdateFiles,
         WaitingForUpdate,
     };
 
@@ -44,14 +47,15 @@ private:
     void fetchUpdateFile();
     void prepareLocalUpdate();
     void extractUpdate();
-    void prepareUpdateDir();
-    void uploadUpdateDir();
+    void readUpdateFiles();
+    void createUpdatePath();
+    void verifyExistingFiles();
+    void uploadUpdateFiles();
     void startUpdate();
-
-    bool findAndCdToUpdateDir();
 
     QFile *m_updateFile;
     QDir m_updateDirectory;
+    QList<QUrl> m_fileUrls;
     UtilityInterface *m_utility;
     Updates::VersionInfo m_versionInfo;
 };

@@ -18,6 +18,7 @@
 #include "screencanvas.h"
 #include "preferences.h"
 #include "backenderror.h"
+#include "inputevent.h"
 #include "logger.h"
 
 Q_LOGGING_CATEGORY(LOG_APP, "APP")
@@ -91,6 +92,7 @@ void Application::checkForUpdates()
     }
 
     setUpdateStatus(UpdateStatus::Checking);
+    m_updater.reset();
     m_updateRegistry.check();
 }
 
@@ -188,6 +190,7 @@ void Application::initQmlTypes()
     qmlRegisterType<ScreenCanvas>("QFlipper", 1, 0, "ScreenCanvas");
 
     qmlRegisterUncreatableType<BackendError>("QFlipper", 1, 0, "BackendError", QStringLiteral("This class is only a enum container"));
+    qmlRegisterUncreatableType<InputEvent>("QFlipper", 1, 0, "InputEvent", QStringLiteral("This class is only a enum container"));
     qmlRegisterUncreatableType<ApplicationBackend>("QFlipper", 1, 0, "ApplicationBackend", QStringLiteral("This class is meant to be created from c++"));
     qmlRegisterUncreatableType<ApplicationUpdater>("QFlipper", 1, 0, "ApplicationUpdater", QStringLiteral("This class is meant to be created from c++"));
 
@@ -224,7 +227,9 @@ void Application::initGUI()
     };
 
     connect(&m_engine, &QQmlApplicationEngine::objectCreated, this, onObjectCreated, Qt::QueuedConnection);
-    m_engine.rootContext()->setContextProperty("qVersion", QT_VERSION);
+    m_engine.rootContext()->setContextProperty("qVersionMajor", QT_VERSION_MAJOR);
+    m_engine.rootContext()->setContextProperty("qVersionMinor", QT_VERSION_MINOR);
+    m_engine.rootContext()->setContextProperty("qVersionPatch", QT_VERSION_PATCH);
     m_engine.load(url);
 }
 

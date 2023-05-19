@@ -10,7 +10,7 @@ Q_LOGGING_CATEGORY(CATEGORY_DEFAULT, "DEF")
 
 AbstractOperationRunner::AbstractOperationRunner(QObject *parent):
     QObject(parent),
-    m_state(State::Idle)
+    m_state(Idle)
 {}
 
 const QLoggingCategory &AbstractOperationRunner::loggingCategory() const
@@ -20,8 +20,8 @@ const QLoggingCategory &AbstractOperationRunner::loggingCategory() const
 
 void AbstractOperationRunner::enqueueOperation(AbstractOperation *operation)
 {
-    if(m_state == State::Idle) {
-        m_state = State::Running;
+    if(m_state == Idle) {
+        m_state = Running;
         QTimer::singleShot(0, this, &AbstractOperationRunner::processQueue);
     }
 
@@ -46,7 +46,7 @@ void AbstractOperationRunner::enqueueOperation(AbstractOperation *operation)
 void AbstractOperationRunner::processQueue()
 {
     if(m_queue.isEmpty()) {
-        m_state = State::Idle;
+        m_state = Idle;
         return;
     }
 
@@ -60,4 +60,6 @@ void AbstractOperationRunner::clearQueue()
     while(!m_queue.isEmpty()) {
         m_queue.dequeue()->deleteLater();
     }
+
+    m_state = Idle;
 }

@@ -62,3 +62,9 @@ public:
     StorageWriteRequest(uint32_t id, const QByteArray &path, const QByteArray &data, bool hasNext);
     ~StorageWriteRequest();
 };
+
+class StorageMd5SumRequest : public AbstractStorageRequest
+{
+public:
+    StorageMd5SumRequest(uint32_t id, const QByteArray &path);
+};

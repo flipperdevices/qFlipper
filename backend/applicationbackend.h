@@ -40,27 +40,6 @@ class ApplicationBackend : public QObject
     Q_PROPERTY(bool isQueryInProgress READ isQueryInProgress NOTIFY isQueryInProgressChanged)
 
 public:
-    enum class InputKey {
-        Up,
-        Down,
-        Right,
-        Left,
-        Ok,
-        Back,
-    };
-
-    Q_ENUM(InputKey)
-
-    enum class InputType {
-        Press, /* Press event, emitted after debounce */
-        Release, /* Release event, emitted after debounce */
-        Short, /* Short event, emitted after InputTypeRelease done withing INPUT_LONG_PRESS interval */
-        Long, /* Long event, emmited after INPUT_LONG_PRESS interval, asynchronous to InputTypeRelease  */
-        Repeat, /* Repeat event, emmited with INPUT_REPEATE_PRESS period after InputTypeLong event */
-    };
-
-    Q_ENUM(InputType)
-
     enum class BackendState {
         WaitingForDevices,
         Ready,

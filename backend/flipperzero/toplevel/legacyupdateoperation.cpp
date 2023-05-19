@@ -1,8 +1,10 @@
 #include "legacyupdateoperation.h"
 
 #include <QFile>
+#include <QDebug>
 #include <QDateTime>
 #include <QTemporaryFile>
+#include <QLoggingCategory>
 
 #include "flipperzero/devicestate.h"
 
@@ -27,6 +29,8 @@
 
 #define SHIPPED_VERSION QStringLiteral("0.43.1") // Old version that is shipped by default
 
+Q_DECLARE_LOGGING_CATEGORY(CATEGORY_DEFAULT)
+
 using namespace Flipper;
 using namespace Zero;
 
@@ -46,66 +50,66 @@ const QString LegacyUpdateOperation::description() const
 
 void LegacyUpdateOperation::nextStateLogic()
 {
-    if(operationState() == LegacyUpdateOperation::Ready) {
-        setOperationState(LegacyUpdateOperation::FetchingFirmware);
+    if(operationState() == Ready) {
+        setOperationState(FetchingFirmware);
         fetchFirmware();
 
-    } else if(operationState() == LegacyUpdateOperation::FetchingFirmware) {
-        setOperationState(LegacyUpdateOperation::SavingBackup);
+    } else if(operationState() == FetchingFirmware) {
+        setOperationState(SavingBackup);
         saveBackup();
 
-    } else if(operationState() == LegacyUpdateOperation::SavingBackup) {
-        setOperationState(LegacyUpdateOperation::StartingRecovery);
+    } else if(operationState() == SavingBackup) {
+        setOperationState(StartingRecovery);
         startRecovery();
 
-    } else if(operationState() == LegacyUpdateOperation::StartingRecovery) {
+    } else if(operationState() == StartingRecovery) {
 
         if(m_helper->hasRadioUpdate()) {
-            setOperationState(LegacyUpdateOperation::SettingBootMode);
+            setOperationState(SettingBootMode);
             setBootMode();
 
         } else{
-            setOperationState(LegacyUpdateOperation::DownloadingRadioFirmware);
+            setOperationState(DownloadingRadioFirmware);
             advanceOperationState();
         }
 
-    } else if(operationState() == LegacyUpdateOperation::SettingBootMode) {
-        setOperationState(LegacyUpdateOperation::DownloadingRadioFirmware);
+    } else if(operationState() == SettingBootMode) {
+        setOperationState(DownloadingRadioFirmware);
         downloadRadioFirmware();
 
-    } else if(operationState() == LegacyUpdateOperation::DownloadingRadioFirmware) {
-        setOperationState(LegacyUpdateOperation::DownloadingFirmware);
+    } else if(operationState() == DownloadingRadioFirmware) {
+        setOperationState(DownloadingFirmware);
         downloadFirmware();
 
-    } else if(operationState() == LegacyUpdateOperation::DownloadingFirmware) {
+    } else if(operationState() == DownloadingFirmware) {
 
         if(m_helper->hasRadioUpdate()) {
-            setOperationState(LegacyUpdateOperation::CorrectingOptionBytes);
+            setOperationState(CorrectingOptionBytes);
             correctOptionBytes();
 
         } else {
-            setOperationState(LegacyUpdateOperation::ExitingRecovery);
+            setOperationState(ExitingRecovery);
             exitRecovery();
         }
 
-    } else if((operationState() == LegacyUpdateOperation::ExitingRecovery) ||
-              (operationState() == LegacyUpdateOperation::CorrectingOptionBytes)) {
-        setOperationState(LegacyUpdateOperation::DownloadingAssets);
+    } else if((operationState() == ExitingRecovery) ||
+              (operationState() == CorrectingOptionBytes)) {
+        setOperationState(DownloadingAssets);
         downloadAssets();
 
-    } else if(operationState() == LegacyUpdateOperation::DownloadingAssets) {
-        setOperationState(LegacyUpdateOperation::ProvisioningRegion);
+    } else if(operationState() == DownloadingAssets) {
+        setOperationState(ProvisioningRegion);
         provisionRegion();
 
-    } else if(operationState() == LegacyUpdateOperation::ProvisioningRegion) {
-        setOperationState(LegacyUpdateOperation::RestoringBackup);
+    } else if(operationState() == ProvisioningRegion) {
+        setOperationState(RestoringBackup);
         restoreBackup();
 
-    } else if(operationState() == LegacyUpdateOperation::RestoringBackup) {
-        setOperationState(LegacyUpdateOperation::RestartingDevice);
+    } else if(operationState() == RestoringBackup) {
+        setOperationState(RestartingDevice);
         restartDevice();
 
-    } else if(operationState() == LegacyUpdateOperation::RestartingDevice) {
+    } else if(operationState() == RestartingDevice) {
         finish();
     }
 }
@@ -196,8 +200,12 @@ void LegacyUpdateOperation::restartDevice()
 
 void LegacyUpdateOperation::onSubOperationError(AbstractOperation *operation)
 {
-    const auto keepError = operationState() == LegacyUpdateOperation::SavingBackup ||
-                           operationState() == LegacyUpdateOperation::StartingRecovery;
+    if(operationState() == DownloadingRadioFirmware) {
+        qCInfo(CATEGORY_DEFAULT) << operation->description() << "failed with reason:" << operation->errorString() << "Attempting to install the firmware anyway...";
+        advanceOperationState();
 
-    finishWithError(keepError ? operation->error() : BackendError::OperationError, operation->errorString());
+    } else {
+        const auto keepError = operationState() == SavingBackup || operationState() == StartingRecovery;
+        finishWithError(keepError ? operation->error() : BackendError::OperationError, operation->errorString());
+    }
 }
