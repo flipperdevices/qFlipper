@@ -141,4 +141,4 @@ jobs:
           curl --fail -L -H "Token: ${{ secrets.INDEXER_TOKEN }}" \
               -F "branch=${REF}" \
               ${FILES[@]} \
-              "${{ secrets.INDEXER_UPLOAD_URL }}"
+              "${{ secrets.INDEXER_URL }}"/qFlipper/uploadfiles
