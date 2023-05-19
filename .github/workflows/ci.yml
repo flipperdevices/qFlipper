@@ -134,18 +134,11 @@ jobs:
             mv qFlipper-64bit.zip ./artifacts/qFlipper-64bit-${SUFFIX}.zip
             mv qflipper.dmg ./artifacts/qFlipper-${SUFFIX}.dmg
 
-      - name: Upload apps
-        uses: burnett01/rsync-deployments@5.1
-        with:
-          switches: -cvzr --delete --mkpath
-          path: artifacts/
-          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}qFlipper/${REF}/"
-          remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
-          remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
-          remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
-          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
-
-      - name: 'Trigger update server reindex'
-        uses: wei/curl@master
-        with:
-          args: -X POST -F 'key=${{ secrets.REINDEX_KEY }}' ${{ secrets.REINDEX_URL }}
+      - name: Upload artifacts to update server
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        run: |
+          FILES=$(for CUR in $(ls artifacts/); do echo "-F files=@artifacts/$CUR"; done)
+          curl --fail -L -H "Token: ${{ secrets.INDEXER_TOKEN }}" \
+              -F "branch=${REF}" \
+              ${FILES[@]} \
+              "${{ secrets.INDEXER_URL }}"/qFlipper/uploadfiles
