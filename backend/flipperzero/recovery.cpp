@@ -163,7 +163,7 @@ bool Recovery::startFUS()
         end_ignore_block();
 
     } else {
-        error_msg("Unexpected FUS state.");
+        setErrorString("Can't start FUS: Unexpected FUS state.");
         success = false;
     }
 
