@@ -6,21 +6,24 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
-#include "debug.h"
-
 using namespace Flipper::Updates;
 
-FileInfo::FileInfo(const QJsonValue &val)
+FileInfo::FileInfo():
+    m_isValid(false)
+{}
+
+FileInfo::FileInfo(const QJsonValue &val):
+    FileInfo()
 {
     if(!val.isObject()) {
         throw std::runtime_error("Expected FileInfo to be an object");
     }
 
     const auto &json = val.toObject();
-    const auto canConstruct = json.contains("target") && json.contains("type") &&
+    m_isValid = json.contains("target") && json.contains("type") &&
                               json.contains("url") && json.contains("sha256");
 
-    if(!canConstruct) {
+    if(!m_isValid) {
         throw std::runtime_error("Malformed FileInfo");
     }
 
@@ -48,6 +51,11 @@ const QString &FileInfo::url() const
 const QByteArray &FileInfo::sha256() const
 {
     return m_sha256;
+}
+
+bool FileInfo::isValid() const
+{
+    return m_isValid;
 }
 
 VersionInfo::VersionInfo(const QJsonValue &val)
@@ -103,8 +111,7 @@ const FileInfo VersionInfo::fileInfo(const QString &type, const QString &target)
             return (arg.type() == type) && (target == arg.target());
         });
 
-    check_return_val(it != m_files.cend(), "FileInfo not found", FileInfo());
-    return *it;
+    return (it != m_files.cend()) ? *it : FileInfo();
 }
 
 qint64 VersionInfo::compare(const VersionInfo &other) const

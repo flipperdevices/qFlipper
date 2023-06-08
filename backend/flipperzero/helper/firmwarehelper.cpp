@@ -160,12 +160,24 @@ void FirmwareHelper::prepareOptionBytes()
 void FirmwareHelper::fetchAssets()
 {
     m_deviceState->setStatusString(QStringLiteral("Fetching databases..."));
-    const auto &fileInfo = m_versionInfo.fileInfo(QStringLiteral("resources_tgz"), QStringLiteral("any"));
+
+    const auto type = QStringLiteral("resources_tgz");
+    auto fileInfo = m_versionInfo.fileInfo(type, m_deviceState->deviceInfo().hardware.target);
+
+    if(!fileInfo.isValid()) {
+        fileInfo = m_versionInfo.fileInfo(type, QStringLiteral("any"));
+    }
+
     fetchFile(FileIndex::AssetsTgz, fileInfo);
 }
 
 void FirmwareHelper::fetchFile(FileIndex index, const Updates::FileInfo &fileInfo)
 {
+    if(!fileInfo.isValid()) {
+        finishWithError(BackendError::DataError, QStringLiteral("File info invalid (missing target?)"));
+        return;
+    }
+
     const auto fileName = QUrl(fileInfo.url()).fileName();
 
     auto *file = globalTempDirs->createFile(fileName, this);

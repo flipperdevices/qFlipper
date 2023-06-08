@@ -15,7 +15,7 @@ class FileInfo
     Q_GADGET
 
 public:
-    FileInfo() = default;
+    FileInfo();
     FileInfo(const QJsonValue &val);
 
     const QString &target() const;
@@ -23,11 +23,14 @@ public:
     const QString &url() const;
     const QByteArray &sha256() const;
 
+    bool isValid() const;
+
 private:
     QString m_target;
     QString m_type;
     QString m_url;
     QByteArray m_sha256;
+    bool m_isValid;
 };
 
 class VersionInfo
