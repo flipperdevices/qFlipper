@@ -1,4 +1,3 @@
-@echo off
 setlocal EnableDelayedExpansion
 
 set ARCH_BITS=64
