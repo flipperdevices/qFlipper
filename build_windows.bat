@@ -78,7 +78,12 @@ rem Copy Microsoft Visual C++ redistributable packages
 copy /Y %VCREDIST2019_EXE% .
 copy /Y %VCREDIST2010_EXE% .
 
+echo %SIGNING_TOOL%
+
 if defined SIGNING_TOOL (
+    echo Sign the executables
+    echo %SIGNING_TOOL% %DIST_DIR%\%TARGET%.exe
+    echo %SIGNING_TOOL% %DIST_DIR%\%TARGET_CLI%.exe
     rem Sign the executables
     call %SIGNING_TOOL% %DIST_DIR%\%TARGET%.exe || goto error
     call %SIGNING_TOOL% %DIST_DIR%\%TARGET_CLI%.exe || goto error
