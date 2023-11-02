@@ -6,7 +6,7 @@ unset QT_STYLE_OVERRIDE
 export QT_QPA_PLATFORMTHEME=xdgdesktopportal
 
 THIS_DIR="$(readlink -f "$(dirname "$0")")"
-APPIMAGE_NAME="$(basename $APPIMAGE)"
+APPIMAGE_NAME="$(basename "$APPIMAGE")"
 
 RULES_FILE_NAME='42-flipperzero.rules'
 RULES_DIR=${3:-'/etc/udev/rules.d'}
