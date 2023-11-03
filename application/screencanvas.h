@@ -49,12 +49,21 @@ private slots:
 
 private:
     void setCanvasSize(const QSize &size);
+    void setCanvasOrientation(Qt::ScreenOrientation orientation);
 
-const QImage canvas(int scale = 0) const;
+    QTransform canvasTransform() const;
+    QRectF canvasRect() const;
+    QSize canvasSize() const;
+
+    bool isLandscapeOrientation() const;
+    bool isLandscapeOnly() const;
+
+    const QImage canvas(int scale = 0) const;
 
     QColor m_foreground;
     QColor m_background;
     QImage m_canvas;
 
     qreal m_zoomFactor;
+    Qt::ScreenOrientation m_orientation;
 };

@@ -6,15 +6,8 @@
 class GuiScreenFrameResponseInterface
 {
 public:
-    enum ScreenOrientation {
-        Horizontal,
-        HorizontalFlip,
-        Vertical,
-        VerticalFlip,
-    };
-
     virtual const QByteArray screenFrame() const = 0;
-    virtual ScreenOrientation screenOrientation() const = 0;
+    virtual Qt::ScreenOrientation screenOrientation() const = 0;
 };
 
 QT_BEGIN_NAMESPACE

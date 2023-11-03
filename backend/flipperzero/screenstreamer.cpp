@@ -61,7 +61,7 @@ void ScreenStreamer::setDevice(FlipperZero *device)
     setScreenFrame({
         transposeImage(QByteArray((char*)default_bits, sizeof(default_bits)), default_width, default_height),
         QSize(SCREEN_FRAME_WIDTH, SCREEN_FRAME_HEIGHT),
-        false
+        Qt::LandscapeOrientation,
     });
 
     if(device) {
@@ -179,7 +179,7 @@ void ScreenStreamer::onBroadcastResponseReceived(QObject *response)
         setScreenFrame({
             screenFrameResponse->screenFrame(),
             QSize(SCREEN_FRAME_WIDTH, SCREEN_FRAME_HEIGHT),
-            screenFrameResponse->screenOrientation() == GuiScreenFrameResponseInterface::HorizontalFlip
+            screenFrameResponse->screenOrientation(),
         });
     }
 }

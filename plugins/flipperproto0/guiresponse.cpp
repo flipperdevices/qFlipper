@@ -10,17 +10,17 @@ const QByteArray GuiScreenFrameResponse::screenFrame() const
     return QByteArray((const char*)f->bytes, f->size);
 }
 
-GuiScreenFrameResponseInterface::ScreenOrientation GuiScreenFrameResponse::screenOrientation() const
+Qt::ScreenOrientation GuiScreenFrameResponse::screenOrientation() const
 {
     switch(message().content.gui_screen_frame.orientation) {
     case PB_Gui_ScreenOrientation_HORIZONTAL_FLIP:
-        return ScreenOrientation::HorizontalFlip;
+        return Qt::InvertedLandscapeOrientation;
     case PB_Gui_ScreenOrientation_VERTICAL:
-        return ScreenOrientation::Vertical;
+        return Qt::PortraitOrientation;
     case PB_Gui_ScreenOrientation_VERTICAL_FLIP:
-        return ScreenOrientation::VerticalFlip;
+        return Qt::InvertedPortraitOrientation;
     case PB_Gui_ScreenOrientation_HORIZONTAL:
     default:
-        return ScreenOrientation::Horizontal;
+        return Qt::LandscapeOrientation;
     }
 }

@@ -7,7 +7,7 @@
 struct ScreenFrame {
     QByteArray pixelData;
     QSize size;
-    bool isFlipped;
+    Qt::ScreenOrientation orientation;
 };
 
 Q_DECLARE_METATYPE(ScreenFrame)
