@@ -17,6 +17,12 @@ Rectangle {
     color: "black"
     border.color: Theme.color.lightorange2
 
+    MouseArea {
+        id: mouseArea
+        anchors.fill: content
+        cursorShape: content.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
+    }
+
     Text {
         id: content
 
@@ -36,6 +42,8 @@ Rectangle {
         wrapMode: Text.Wrap
         textFormat: Text.RichText
 
-        onLinkActivated: Qt.openUrlExternally(link)
+        onLinkActivated: function(link) {
+            Qt.openUrlExternally(link)
+        }
     }
 }

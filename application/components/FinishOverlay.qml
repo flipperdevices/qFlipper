@@ -125,11 +125,13 @@ AbstractOverlay {
                 case BackendError.InternetError:
                     return ErrorStrings.errorInternet
                 case BackendError.InvalidDevice:
-                    return ErrorStrings.errorInvalidDevice
+                    return Qt.platform.os === "linux" ? ErrorStrings.errorInvalidDeviceLinux :
+                                                        ErrorStrings.errorInvalidDevice
                 case BackendError.DiskError:
                     return ErrorStrings.errorDisk
                 case BackendError.SerialAccessError:
-                    return Qt.platform.os === "linux" ? ErrorStrings.errorSerialLinux : ErrorStrings.errorSerial
+                    return Qt.platform.os === "linux" ? ErrorStrings.errorSerialLinux :
+                                                        ErrorStrings.errorSerial
                 case BackendError.RecoveryAccessError:
                     return Qt.platform.os === "linux" ? ErrorStrings.errorRecoveryLinux :
                            Qt.platform.os === "windows" ? ErrorStrings.errorRecoveryWindows :
