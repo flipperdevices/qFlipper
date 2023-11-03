@@ -11,5 +11,5 @@ class GuiScreenFrameResponse : public MainResponse, public GuiScreenFrameRespons
 public:
     GuiScreenFrameResponse(MessageWrapper &wrapper, QObject *parent = nullptr);
     const QByteArray screenFrame() const override;
-    ScreenOrientation screenOrientation() const override;
+    Qt::ScreenOrientation screenOrientation() const override;
 };

@@ -11,7 +11,8 @@ ScreenCanvas::ScreenCanvas(QQuickItem *parent):
     m_foreground(QColor(0x00, 0x00, 0x00)),
     m_background(QColor(0xFF, 0xFF, 0xFF)),
     m_canvas(QImage(1, 1, QImage::Format_RGB32)),
-    m_zoomFactor(1.0)
+    m_zoomFactor(1.0),
+    m_orientation(Qt::LandscapeOrientation)
 {
     connect(this, &ScreenCanvas::zoomFactorChanged, this, &ScreenCanvas::updateImplicitSize);
     connect(this, &ScreenCanvas::canvasSizeChanged, this, &ScreenCanvas::updateImplicitSize);
@@ -30,6 +31,7 @@ void ScreenCanvas::setFrame(const ScreenFrame &frame)
     }
 
     setCanvasSize(frame.size);
+    setCanvasOrientation(frame.orientation);
 
     for (auto x = 0; x < m_canvas.width(); x++) {
         for (auto y = 0; y < m_canvas.height(); y++) {
@@ -37,9 +39,7 @@ void ScreenCanvas::setFrame(const ScreenFrame &frame)
             const auto z = y % 8;
             const auto color = ((frame.pixelData.at(i) & (1 << z))) ? m_foreground : m_background;
 
-            m_canvas.setPixelColor(frame.isFlipped ? m_canvas.width() - x - 1 : x,
-                                   frame.isFlipped ? m_canvas.height() - y - 1 : y,
-                                   color);
+            m_canvas.setPixelColor(x, y, color);
         }
     }
 
@@ -48,27 +48,8 @@ void ScreenCanvas::setFrame(const ScreenFrame &frame)
 
 void ScreenCanvas::paint(QPainter *painter)
 {
-    const auto bw = boundingRect().width();
-    const auto bh = boundingRect().height();
 
-    const auto aspectRatio = (double)m_canvas.width() / m_canvas.height();
-
-    auto w = bw;
-    auto h = floor(w / aspectRatio);
-
-    if(h > bh) {
-        h = bh;
-        w = bh * aspectRatio;
-    }
-
-    w -= ((int)w % m_canvas.width());
-    h -= ((int)h % m_canvas.height());
-
-    const auto dw = (bw - w) / 2;
-    const auto dh = (bh - h) / 2;
-
-    const QRectF canvasRect(dw, dh, w, h);
-    painter->drawImage(canvasRect, m_canvas);
+    painter->drawImage(canvasRect(), m_canvas.transformed(canvasTransform()));
 }
 
 qreal ScreenCanvas::zoomFactor() const
@@ -144,11 +125,83 @@ void ScreenCanvas::setCanvasSize(const QSize &size)
     emit canvasSizeChanged();
 }
 
+void ScreenCanvas::setCanvasOrientation(Qt::ScreenOrientation orientation)
+{
+    m_orientation = orientation;
+}
+
+QTransform ScreenCanvas::canvasTransform() const
+{
+    switch (m_orientation) {
+    case Qt::InvertedLandscapeOrientation:
+        return QTransform().rotate(180);
+    case Qt::PortraitOrientation:
+        return QTransform().rotate(isLandscapeOnly() ? 0 : 90);
+    case Qt::InvertedPortraitOrientation:
+        return QTransform().rotate(isLandscapeOnly() ? 180 : -90);
+    case Qt::LandscapeOrientation:
+    default:
+        return QTransform();
+    }
+}
+
+QRectF ScreenCanvas::canvasRect() const
+{
+    const auto totalWidth = boundingRect().width();
+    const auto totalHeight = boundingRect().height();
+
+    const auto isRegular = isLandscapeOrientation() || isLandscapeOnly();
+
+    const auto canvasWidth = isRegular ? m_canvas.width() : m_canvas.height();
+    const auto canvasHeight = isRegular ? m_canvas.height() : m_canvas.width();
+
+    const auto aspectRatio = static_cast<qreal>(canvasWidth) / canvasHeight;
+
+    auto drawWidth = totalWidth;
+    auto drawHeight = floor(drawWidth / aspectRatio);
+
+    if(drawHeight > totalHeight) {
+        drawHeight = totalHeight;
+        drawWidth = totalHeight * aspectRatio;
+    }
+
+    if(drawWidth > canvasWidth) {
+        drawWidth -= (static_cast<int>(drawWidth) % canvasWidth);
+    }
+
+    if(drawHeight > canvasHeight) {
+        drawHeight -= (static_cast<int>(drawHeight) % canvasHeight);
+    }
+
+    const auto offsetX = (totalWidth - drawWidth) / 2;
+    const auto offsetY = (totalHeight - drawHeight) / 2;
+
+    return QRectF(offsetX, offsetY, drawWidth, drawHeight);
+}
+
+QSize ScreenCanvas::canvasSize() const
+{
+    return QSize(isLandscapeOrientation() ? m_canvas.width() : m_canvas.height(),
+                 isLandscapeOrientation() ? m_canvas.height() : m_canvas.width());
+}
+
+bool ScreenCanvas::isLandscapeOrientation() const
+{
+    return m_orientation == Qt::LandscapeOrientation ||
+           m_orientation == Qt::InvertedLandscapeOrientation;
+}
+
+bool ScreenCanvas::isLandscapeOnly() const
+{
+    return (boundingRect().width() < canvasSize().width()) ||
+           (boundingRect().height() < canvasSize().height());
+}
+
 const QImage ScreenCanvas::canvas(int scale) const
 {
     if(scale == 0) {
-        return m_canvas.scaled(m_canvas.width() * m_zoomFactor, m_canvas.height() * m_zoomFactor);
+        return m_canvas.scaled(m_canvas.width() * m_zoomFactor, m_canvas.height() * m_zoomFactor).transformed(canvasTransform());
     } else {
-        return m_canvas.scaled(m_canvas.width() * scale, m_canvas.height() * scale);
+        return m_canvas.scaled(m_canvas.width() * scale, m_canvas.height() * scale).transformed(canvasTransform());
     }
 }
