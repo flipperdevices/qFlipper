@@ -6,29 +6,33 @@ jobs:
   build_linux:
     runs-on: ubuntu-latest
     steps:
-      - name: Cleanup workspace
-        uses: AutoModality/action-clean@v1
+      - name: 'Wipe workspace'
+        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: true
 
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-        continue-on-error: true
-        with:
-          key: docker-cache-${{ hashFiles('docker/**') }}-{hash}
-          restore-keys: docker-cache-${{ hashFiles('docker/**') }}-
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build docker image
-        uses: ./.github/actions/docker
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          push: false
+          context: docker
+          tags: qflipper-build:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build application in docker
-        run: docker build -t flipp ./docker/ && docker run --rm --privileged -v $(pwd):/project flipp /project/build_linux.sh
+        run: docker run --rm --privileged -v $(pwd):/project qflipper-build:latest /project/build_linux.sh
 
       - name: Publish application
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: qFlipper-x86_64.AppImage
           path: |
@@ -48,7 +52,7 @@ jobs:
       MAC_OS_SIGNING_PASSWORD: ${{ secrets.MAC_OS_SIGNING_PASSWORD }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: true
@@ -71,7 +75,7 @@ jobs:
         SIGNING_TOOL: ${{ secrets.WIN_SIGNING_TOOL }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: true
