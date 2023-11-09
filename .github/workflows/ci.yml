@@ -6,14 +6,17 @@ jobs:
   build_linux:
     runs-on: ubuntu-latest
     steps:
-      - name: Cleanup workspace
-        uses: AutoModality/action-clean@v1
+      - name: 'Wipe workspace'
+        run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: true
+
+      - name: 'Check disk space'
+        run: df -h
 
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
@@ -21,20 +24,32 @@ jobs:
           key: docker-cache-${{ hashFiles('docker/**') }}-{hash}
           restore-keys: docker-cache-${{ hashFiles('docker/**') }}-
 
+      - name: 'Check disk space'
+        run: df -h
+
       - name: Build docker image
         uses: ./.github/actions/docker
+
+      - name: 'Check disk space'
+        run: df -h
 
       - name: Build application in docker
         run: docker build -t flipp ./docker/ && docker run --rm --privileged -v $(pwd):/project flipp /project/build_linux.sh
 
+      - name: 'Check disk space'
+        run: df -h
+
       - name: Publish application
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: qFlipper-x86_64.AppImage
           path: |
                 ./build/qFlipper-x86_64.AppImage
           if-no-files-found: error
           retention-days: 1
+
+      - name: 'Check disk space'
+        run: df -h
 
   build_mac:
     runs-on: [self-hosted, ARM64, macOS]
@@ -48,7 +63,7 @@ jobs:
       MAC_OS_SIGNING_PASSWORD: ${{ secrets.MAC_OS_SIGNING_PASSWORD }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: true
@@ -71,7 +86,7 @@ jobs:
         SIGNING_TOOL: ${{ secrets.WIN_SIGNING_TOOL }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: true
