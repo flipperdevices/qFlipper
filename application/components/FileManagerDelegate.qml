@@ -305,6 +305,8 @@ Item {
     }
 
     function commitEdit() {
+        if(!editBox.visible) return;
+
         const oldName = delegate.fileName;
         const newName = nameEdit.text;
 
