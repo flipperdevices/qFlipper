@@ -15,29 +15,18 @@ jobs:
           fetch-depth: 0
           submodules: true
 
-      - name: 'Check disk space'
-        run: df -h
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-        continue-on-error: true
+      - name: Build and push
+        uses: docker/build-push-action@v5
         with:
-          key: docker-cache-${{ hashFiles('docker/**') }}-{hash}
-          restore-keys: docker-cache-${{ hashFiles('docker/**') }}-
-
-      - name: 'Check disk space'
-        run: df -h
-
-      - name: Build docker image
-        uses: ./.github/actions/docker
-
-      - name: 'Check disk space'
-        run: df -h
+          push: false
+          context: docker
+          tags: qFlipper-build
 
       - name: Build application in docker
-        run: docker build -t flipp ./docker/ && docker run --rm --privileged -v $(pwd):/project flipp /project/build_linux.sh
-
-      - name: 'Check disk space'
-        run: df -h
+        run: docker run --rm --privileged -v $(pwd):/project qFlipper-build /project/build_linux.sh
 
       - name: Publish application
         uses: actions/upload-artifact@v3
@@ -47,9 +36,6 @@ jobs:
                 ./build/qFlipper-x86_64.AppImage
           if-no-files-found: error
           retention-days: 1
-
-      - name: 'Check disk space'
-        run: df -h
 
   build_mac:
     runs-on: [self-hosted, ARM64, macOS]
