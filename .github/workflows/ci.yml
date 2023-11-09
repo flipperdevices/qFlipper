@@ -23,10 +23,13 @@ jobs:
         with:
           push: false
           context: docker
-          tags: flipperdevices/qflipper-build
+          tags: qflipper-build:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build application in docker
-        run: docker run --rm --privileged -v $(pwd):/project flipperdevices/qflipper-build /project/build_linux.sh
+        run: docker run --rm --privileged -v $(pwd):/project qflipper-build:latest /project/build_linux.sh
 
       - name: Publish application
         uses: actions/upload-artifact@v3
