@@ -78,7 +78,7 @@ void ApplicationUpdater::installUpdate(const Flipper::Updates::VersionInfo &vers
 #if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC)
     const auto filePath = QDir::temp().absoluteFilePath(fileName);
 #elif defined(Q_OS_LINUX)
-    const auto filePath = fileName;
+    const auto filePath = QDir::current().absoluteFilePath(fileName);
 #else
     #error "Unsupported OS"
 #endif
@@ -206,9 +206,7 @@ bool ApplicationUpdater::performUpdate(const QString &path)
     return mountDmg->error() == QProcess::UnknownError; //Really? no NoError code?
 
 #elif defined(Q_OS_LINUX)
-    const auto info = QFileInfo(path);
-    const auto success = QProcess::startDetached(info.fileName(), {}, info.absoluteDir().absolutePath());
-
+    const auto success = QProcess::startDetached(path);
     if(success) exitApplication();
     return success;
 
