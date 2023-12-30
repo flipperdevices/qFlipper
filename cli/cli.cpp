@@ -14,8 +14,7 @@ Q_LOGGING_CATEGORY(LOG_CLI, "CLI")
 
 Cli::Cli(int &argc, char *argv[]):
     QCoreApplication(argc, argv),
-    m_pendingOperation(NoOperation),
-    m_repeatCount(1)
+    m_pendingOperation(NoOperation)
 {
     m_backend.setOperatingMode(ApplicationBackend::OperatingMode::Cli);
 
@@ -37,11 +36,12 @@ void Cli::onBackendStateChanged()
     const auto state = m_backend.backendState();
     if(state == ApplicationBackend::BackendState::ErrorOccured) {
         qCCritical(LOG_CLI).nospace() << "An error has occurred: " << m_backend.errorType() << ". Exiting.";
-        return exit(EXIT_FAILURE);
+        std::exit(EXIT_FAILURE);
 
     } else if(state == ApplicationBackend::BackendState::WaitingForDevices) {
         qCCritical(LOG_CLI) << "All devices disconnected. Exiting.";
-        return exit(0);
+
+        std::exit(EXIT_SUCCESS);
 
     } else if(state == ApplicationBackend::BackendState::Ready) {
         // Start the pending operation as soon as the device is ready...
@@ -51,7 +51,7 @@ void Cli::onBackendStateChanged()
 
         } else if(m_backend.firmwareUpdateState() == ApplicationBackend::FirmwareUpdateState::ErrorOccured) {
             qCCritical(LOG_CLI) << "Failed to get firmware updates. Exiting.";
-            return exit(EXIT_FAILURE);
+            std::exit(EXIT_FAILURE);
         }
 
         const auto isFirmwareReady = m_backend.firmwareUpdateState() != ApplicationBackend::FirmwareUpdateState::Checking &&
@@ -65,6 +65,9 @@ void Cli::onBackendStateChanged()
 
     } else if(state == ApplicationBackend::BackendState::Finished) {
         m_backend.finalizeOperation();
+
+        qCInfo(LOG_CLI) << "All done! Thank you.";
+        std::exit(EXIT_SUCCESS);
     }
 }
 
@@ -85,7 +88,7 @@ void Cli::onUpdateStateChanged()
 
 void Cli::initConnections()
 {
-    connect(&m_backend, &ApplicationBackend::backendStateChanged, this, &Cli::onBackendStateChanged);
+    connect(&m_backend, &ApplicationBackend::backendStateChanged, this, &Cli::onBackendStateChanged, Qt::QueuedConnection);
 }
 
 void Cli::initLogger()
@@ -219,8 +222,8 @@ void Cli::beginList()
         }
 
         qCInfo(LOG_CLI) << "Device:" << device->deviceState()->deviceInfo().name
-                        << "in" << (device->deviceState()->isRecoveryMode() ? "RECOVERY" : "NORMAL")
-                        << "mode";
+                            << "in" << (device->deviceState()->isRecoveryMode() ? "RECOVERY" : "NORMAL")
+                            << "mode";
     });
 }
 
@@ -316,14 +319,6 @@ void Cli::beginCore2FUS()
 
 void Cli::startPendingOperation()
 {
-    if(m_repeatCount == 0) {
-        qCInfo(LOG_CLI) << "All done! Thank you.";
-        return exit(EXIT_SUCCESS);
-
-    } else if(m_repeatCount > 0) {
-        --m_repeatCount;
-    }
-
     if(m_pendingOperation == List) {
         // Nothing!
     } else if(m_pendingOperation == Update) {

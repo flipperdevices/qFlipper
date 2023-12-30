@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QUrl>
-#include <QTimer>
 #include <QCoreApplication>
 #include <QCommandLineParser>
 
@@ -67,6 +66,5 @@ private:
     OperationType m_pendingOperation;
     QUrl m_fileParameter;
     uint32_t m_core2Address;
-    int m_repeatCount;
 };
 

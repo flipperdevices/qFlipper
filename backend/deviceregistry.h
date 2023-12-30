@@ -26,7 +26,6 @@ public:
 
     FlipperZero *currentDevice() const;
     FlipperZero *mostRecentDevice() const;
-
     int deviceCount() const;
 
     BackendError::ErrorType error() const;

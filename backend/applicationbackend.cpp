@@ -225,10 +225,12 @@ void ApplicationBackend::finalizeOperation()
                 m_virtualDisplay->stop();
             }
 
-            m_screenStreamer->start();
+            if(m_operatingMode == OperatingMode::Normal) {
+                m_screenStreamer->start();
 
-            m_fileManager->reset();
-            m_fileManager->refresh();
+                m_fileManager->reset();
+                m_fileManager->refresh();
+            }
         }
 
         setBackendState(BackendState::Ready);
