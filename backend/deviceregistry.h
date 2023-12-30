@@ -22,8 +22,11 @@ public:
     DeviceRegistry(QObject *parent = nullptr);
 
     void setBackendLogLevel(int logLevel);
+    void setDeviceFilter(const QStringList &filter);
 
     FlipperZero *currentDevice() const;
+    FlipperZero *mostRecentDevice() const;
+
     int deviceCount() const;
 
     BackendError::ErrorType error() const;
@@ -51,6 +54,7 @@ private:
 
     USBDeviceDetector *m_detector;
     DeviceList m_devices;
+    QStringList m_deviceFilter;
     BackendError::ErrorType m_error;
     bool m_isQueryInProgress;
 };

@@ -40,9 +40,19 @@ void DeviceRegistry::setBackendLogLevel(int logLevel)
     m_detector->setLogLevel(logLevel);
 }
 
+void DeviceRegistry::setDeviceFilter(const QStringList &filter)
+{
+    m_deviceFilter = filter;
+}
+
 FlipperZero *DeviceRegistry::currentDevice() const
 {
     return m_devices.isEmpty() ? nullptr : m_devices.first();
+}
+
+FlipperZero *DeviceRegistry::mostRecentDevice() const
+{
+    return m_devices.isEmpty() ? nullptr : m_devices.last();
 }
 
 int DeviceRegistry::deviceCount() const
@@ -146,6 +156,11 @@ void DeviceRegistry::processDevice()
         return;
     }
 
+    if(!m_deviceFilter.isEmpty() && !m_deviceFilter.contains(info.name)) {
+        qCDebug(LOG_DEVREG) << "Ignoring device" << info.name << "due to filter settings";
+        return;
+    }
+
     const auto it = std::find_if(m_devices.begin(), m_devices.end(), [&info](Flipper::FlipperZero *arg) {
         return info.name == arg->deviceState()->name();
     });
@@ -156,7 +171,7 @@ void DeviceRegistry::processDevice()
         (*it)->deviceState()->setDeviceInfo(info);
 
     } else {
-        qCDebug(LOG_DEVREG) << "Registering the device";
+        qCDebug(LOG_DEVREG) << "Registering new device";
 
         auto *device = new FlipperZero(info, this);
         m_devices.append(device);

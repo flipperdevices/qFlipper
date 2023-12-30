@@ -39,7 +39,8 @@ ApplicationBackend::ApplicationBackend(QObject *parent):
     m_virtualDisplay(new VirtualDisplay(this)),
     m_fileManager(new FileManager(this)),
     m_backendState(BackendState::WaitingForDevices),
-    m_errorType(BackendError::UnknownError)
+    m_errorType(BackendError::UnknownError),
+    m_operatingMode(OperatingMode::Normal)
 {
     registerMetaTypes();
 #if QT_VERSION < 0x060000
@@ -234,6 +235,11 @@ void ApplicationBackend::finalizeOperation()
     }
 }
 
+void ApplicationBackend::setOperatingMode(OperatingMode mode)
+{
+    m_operatingMode = mode;
+}
+
 void ApplicationBackend::onCurrentDeviceChanged()
 {
     // Should not happen during an ongoing operation
@@ -253,7 +259,7 @@ void ApplicationBackend::onCurrentDeviceChanged()
 
         onDeviceInfoChanged();
 
-        if(!deviceState()->isRecoveryMode()) {
+        if(!deviceState()->isRecoveryMode() || (m_operatingMode == OperatingMode::Normal)) {
             connect(m_screenStreamer, &ScreenStreamer::streamStateChanged, this, &ApplicationBackend::onScreenStreamerStateChanged);
             m_screenStreamer->start();
 

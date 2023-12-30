@@ -70,6 +70,13 @@ public:
 
     Q_ENUM(FirmwareUpdateState)
 
+    enum class OperatingMode {
+        Normal,
+        Cli,
+    };
+
+    Q_ENUM(OperatingMode);
+
     ApplicationBackend(QObject *parent = nullptr);
 
     BackendState backendState() const;
@@ -111,6 +118,8 @@ public:
     Q_INVOKABLE void checkFirmwareUpdates();
     Q_INVOKABLE void finalizeOperation();
 
+    void setOperatingMode(OperatingMode mode);
+
 signals:
     void errorTypeChanged();
     void currentDeviceChanged();
@@ -149,4 +158,5 @@ private:
 
     BackendState m_backendState;
     BackendError::ErrorType m_errorType;
+    OperatingMode m_operatingMode;
 };

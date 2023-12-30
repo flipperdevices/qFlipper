@@ -5,17 +5,20 @@
 
 #include "logger.h"
 #include "preferences.h"
+#include "deviceregistry.h"
 
 #include "flipperzero/flipperzero.h"
 #include "flipperzero/devicestate.h"
 
 Q_LOGGING_CATEGORY(LOG_CLI, "CLI")
 
-Cli::Cli(int argc, char *argv[]):
+Cli::Cli(int &argc, char *argv[]):
     QCoreApplication(argc, argv),
     m_pendingOperation(NoOperation),
     m_repeatCount(1)
 {
+    m_backend.setOperatingMode(ApplicationBackend::OperatingMode::Cli);
+
     initConnections();
     initLogger();
     initParser();
@@ -34,7 +37,7 @@ void Cli::onBackendStateChanged()
     const auto state = m_backend.backendState();
     if(state == ApplicationBackend::BackendState::ErrorOccured) {
         qCCritical(LOG_CLI).nospace() << "An error has occurred: " << m_backend.errorType() << ". Exiting.";
-        return exit(-1);
+        return exit(EXIT_FAILURE);
 
     } else if(state == ApplicationBackend::BackendState::WaitingForDevices) {
         qCCritical(LOG_CLI) << "All devices disconnected. Exiting.";
@@ -42,13 +45,13 @@ void Cli::onBackendStateChanged()
 
     } else if(state == ApplicationBackend::BackendState::Ready) {
         // Start the pending operation as soon as the device is ready...
-        if(m_pendingOperation != DefaultAction) {
+        if(m_pendingOperation != Update) {
             startPendingOperation();
             return;
 
         } else if(m_backend.firmwareUpdateState() == ApplicationBackend::FirmwareUpdateState::ErrorOccured) {
             qCCritical(LOG_CLI) << "Failed to get firmware updates. Exiting.";
-            return exit(-1);
+            return exit(EXIT_FAILURE);
         }
 
         const auto isFirmwareReady = m_backend.firmwareUpdateState() != ApplicationBackend::FirmwareUpdateState::Checking &&
@@ -69,7 +72,7 @@ void Cli::onUpdateStateChanged()
 {
     if(m_backend.firmwareUpdateState() == ApplicationBackend::FirmwareUpdateState::ErrorOccured) {
         qCCritical(LOG_CLI) << "Failed to get firmware updates. Exiting.";
-        return exit(-1);
+        return exit(EXIT_FAILURE);
     }
 
     const auto isFirmwareReady = m_backend.firmwareUpdateState() != ApplicationBackend::FirmwareUpdateState::Checking &&
@@ -93,19 +96,18 @@ void Cli::initLogger()
 
 void Cli::initParser()
 {
-    m_parser.addPositionalArgument(QStringLiteral("backup"), QStringLiteral("Backup Internal Memory contents"), QStringLiteral("{backup <backup_file>,"));
+    m_parser.addPositionalArgument(QStringLiteral("list"), QStringLiteral("List all connected Devices"), QStringLiteral("{list,"));
+    m_parser.addPositionalArgument(QStringLiteral("update"), QStringLiteral("Perform a Regular Update"), QStringLiteral("update,"));
+    m_parser.addPositionalArgument(QStringLiteral("backup"), QStringLiteral("Backup Internal Memory contents"), QStringLiteral("backup <backup_file>,"));
     m_parser.addPositionalArgument(QStringLiteral("restore"), QStringLiteral("Restore Internal Memory contents"), QStringLiteral("restore <backup_file>,"));
     m_parser.addPositionalArgument(QStringLiteral("erase"), QStringLiteral("Erase Internal Memory contents"), QStringLiteral("erase,"));
-    m_parser.addPositionalArgument(QStringLiteral("wipe"), QStringLiteral("Wipe entire MCU Flash Memory"), QStringLiteral("wipe,"));
     m_parser.addPositionalArgument(QStringLiteral("firmware"), QStringLiteral("Flash Core1 Firmware"), QStringLiteral("firmware <firmware_file.dfu>,"));
     m_parser.addPositionalArgument(QStringLiteral("core2radio"), QStringLiteral("Flash Core2 Radio stack"), QStringLiteral("core2radio <firmware_file.bin>,"));
     m_parser.addPositionalArgument(QStringLiteral("core2fus"), QStringLiteral("Flash Core2 Firmware Update Service"), QStringLiteral("core2fus <firmware_file.bin> <target_address>}"));
 
-    m_options.append(QCommandLineOption({QStringLiteral("d"), QStringLiteral("debug-level")}, QStringLiteral("0 - Errors Only, 1 - Terse, 2 - Full"), QStringLiteral("1")));
-    m_options.append(QCommandLineOption({QStringLiteral("n"), QStringLiteral("repeat-number")}, QStringLiteral("Number of times to repeat the operation, 0 - indefinitely"), QStringLiteral("1")));
-    m_options.append(QCommandLineOption({QStringLiteral("c"), QStringLiteral("update-channel")}, QStringLiteral("Update channel for Firmware Update/Repair"), globalPrefs->firmwareUpdateChannel()));
-
-    m_parser.setApplicationDescription(QStringLiteral("A text mode non-interactive qFlipper counterpart. Run without arguments to quickly perform Firmware Update/Repair."));
+    m_options.append(QCommandLineOption({QStringLiteral("n"), QStringLiteral("name")}, QStringLiteral("Specify device name"), QStringLiteral("name")));
+    m_options.append(QCommandLineOption({QStringLiteral("d"), QStringLiteral("debug-level")}, QStringLiteral("0 - Errors Only, 1 - Terse, 2 - Full"), QStringLiteral("level"), QStringLiteral("1")));
+    m_options.append(QCommandLineOption({QStringLiteral("c"), QStringLiteral("update-channel")}, QStringLiteral("Update channel for Firmware Update/Repair"), QStringLiteral("channel"), globalPrefs->firmwareUpdateChannel()));
 
     m_parser.addOptions(m_options);
     m_parser.addVersionOption();
@@ -116,8 +118,8 @@ void Cli::initParser()
 
 void Cli::processOptions()
 {
+    processDeviceNameOption();
     processDebugLevelOption();
-    processRepeatNumberOption();
     processUpdateChannelOption();
 }
 
@@ -126,15 +128,17 @@ void Cli::processArguments()
     const auto args = m_parser.positionalArguments();
 
     if(args.isEmpty()) {
-        beginDefaultAction();
+        m_parser.showHelp(EXIT_SUCCESS);
+    } else if(args.startsWith(QStringLiteral("list"))) {
+        beginList();
+    } else if(args.startsWith(QStringLiteral("update"))) {
+        beginUpdate();
     } else if(args.startsWith(QStringLiteral("backup"))) {
         beginBackup();
     } else if(args.startsWith(QStringLiteral("restore"))) {
         beginRestore();
     } else if(args.startsWith(QStringLiteral("erase"))) {
         beginErase();
-    } else if(args.startsWith(QStringLiteral("wipe"))) {
-        beginWipe();
     } else if(args.startsWith(QStringLiteral("firmware"))) {
         beginFirmware();
     } else if(args.startsWith(QStringLiteral("core2radio"))) {
@@ -142,7 +146,7 @@ void Cli::processArguments()
     } else if(args.startsWith(QStringLiteral("core2fus"))) {
         beginCore2FUS();
     } else {
-        m_parser.showHelp(-1);
+        m_parser.showHelp(EXIT_FAILURE);
     }
 }
 
@@ -159,31 +163,22 @@ void Cli::processDebugLevelOption()
 
     if(!canConvert || (num < 0 || num > 2)) {
         qCCritical(LOG_CLI) << "Debug level must be one of the following values: 0, 1, 2.";
-        std::exit(-1);
+        std::exit(EXIT_FAILURE);
     }
 
     globalLogger->setLogLevel((Logger::LogLevel)num);
 }
 
-void Cli::processRepeatNumberOption()
+void Cli::processDeviceNameOption()
 {
-    const auto &repeatNumberOption = m_options[RepeatNumberOption];
+    const auto &deviceNameOption = m_options[DeviceNameOption];
 
-    if(!m_parser.isSet(repeatNumberOption)) {
+    if(!m_parser.isSet(deviceNameOption)) {
         return;
     }
 
-    bool canConvert;
-    const auto num = m_parser.value(repeatNumberOption).toInt(&canConvert);
-
-    if(!canConvert || (num < 0)) {
-        qCCritical(LOG_CLI) << "Repeat number must be a whole non-negative number.";
-        std::exit(-1);
-    }
-
-    qCInfo(LOG_CLI).noquote() << "Will repeat the operation" << (num ? QStringLiteral("%1 times.").arg(num) : QStringLiteral("indefinitely."));
-
-    m_repeatCount = num ? num : -1;
+    const auto deviceNames = m_parser.value(deviceNameOption).split(',');
+    m_backend.deviceRegistry()->setDeviceFilter(deviceNames);
 }
 
 void Cli::processUpdateChannelOption()
@@ -204,16 +199,36 @@ void Cli::processUpdateChannelOption()
 
     if(!allowedChannelNames.contains(channelName)) {
         qCCritical(LOG_CLI) << "Unknown update channel. Possible channels are:" << allowedChannelNames;
-        std::exit(-1);
+        std::exit(EXIT_FAILURE);
     }
 
     globalPrefs->setFirmwareUpdateChannel(channelName);
 }
 
-void Cli::beginDefaultAction()
+void Cli::beginList()
 {
+    verifyArgumentCount(1);
+    qCInfo(LOG_CLI) << "Listing connected devices...";
+    m_pendingOperation = List;
+
+    connect(m_backend.deviceRegistry(), &Flipper::DeviceRegistry::deviceCountChanged, this, [=]() {
+        const auto *device = m_backend.deviceRegistry()->mostRecentDevice();
+
+        if(device == nullptr) {
+            return;
+        }
+
+        qCInfo(LOG_CLI) << "Device:" << device->deviceState()->deviceInfo().name
+                        << "in" << (device->deviceState()->isRecoveryMode() ? "RECOVERY" : "NORMAL")
+                        << "mode";
+    });
+}
+
+void Cli::beginUpdate()
+{
+    verifyArgumentCount(1);
     qCInfo(LOG_CLI) << "Performing full firmware update...";
-    m_pendingOperation = DefaultAction;
+    m_pendingOperation = Update;
 }
 
 void Cli::beginBackup()
@@ -241,12 +256,6 @@ void Cli::beginErase()
     m_pendingOperation = Erase;
 }
 
-void Cli::beginWipe()
-{
-    qCCritical(LOG_CLI) << "Wipe is not implemented yet. Sorry!";
-    std::exit(-1);
-}
-
 void Cli::beginFirmware()
 {
     verifyArgumentCount(2);
@@ -254,7 +263,7 @@ void Cli::beginFirmware()
 
     if(!arg.endsWith(QStringLiteral(".dfu"), Qt::CaseInsensitive)) {
         qCCritical(LOG_CLI) << "Please provide a firmware file in DFUse format.";
-        std::exit(-1);
+        std::exit(EXIT_FAILURE);
     }
 
     m_fileParameter = QUrl::fromLocalFile(arg);
@@ -270,7 +279,7 @@ void Cli::beginCore2Radio()
 
     if(!arg.endsWith(QStringLiteral(".bin"), Qt::CaseInsensitive)) {
         qCCritical(LOG_CLI) << "Please provide a firmware file in .bin format.";
-        std::exit(-1);
+        std::exit(EXIT_FAILURE);
     }
 
     m_fileParameter = QUrl::fromLocalFile(arg);
@@ -289,7 +298,7 @@ void Cli::beginCore2FUS()
 
     if(!arg1.endsWith(QStringLiteral(".bin"), Qt::CaseInsensitive)) {
         qCCritical(LOG_CLI) << "Please provide a firmware file in .bin format.";
-        std::exit(-1);
+        std::exit(EXIT_FAILURE);
     }
 
     m_fileParameter = QUrl::fromLocalFile(arg1);
@@ -299,7 +308,7 @@ void Cli::beginCore2FUS()
 
     if(!canConvert) {
         qCCritical(LOG_CLI) << "Please provide a valid hexadecimal address.";
-        std::exit(-1);
+        std::exit(EXIT_FAILURE);
     }
 
     m_pendingOperation = Core2FUS;
@@ -309,13 +318,15 @@ void Cli::startPendingOperation()
 {
     if(m_repeatCount == 0) {
         qCInfo(LOG_CLI) << "All done! Thank you.";
-        return exit(0);
+        return exit(EXIT_SUCCESS);
 
     } else if(m_repeatCount > 0) {
         --m_repeatCount;
     }
 
-    if(m_pendingOperation == DefaultAction) {
+    if(m_pendingOperation == List) {
+        // Nothing!
+    } else if(m_pendingOperation == Update) {
         m_backend.mainAction();
     } else if(m_pendingOperation == Backup) {
         m_backend.createBackup(m_fileParameter);
@@ -323,8 +334,6 @@ void Cli::startPendingOperation()
         m_backend.restoreBackup(m_fileParameter);
     } else if(m_pendingOperation == Erase) {
         m_backend.factoryReset();
-    } else if(m_pendingOperation == Wipe) {
-        // Not implemented yet
     } else if(m_pendingOperation == Firmware) {
         m_backend.installFirmware(m_fileParameter);
     } else if(m_pendingOperation == Core2Radio) {
@@ -333,7 +342,7 @@ void Cli::startPendingOperation()
         m_backend.installFUS(m_fileParameter, m_core2Address);
     } else {
         qCCritical(LOG_CLI) << "Unhandled operation. Probably a bug!";
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -343,6 +352,6 @@ void Cli::verifyArgumentCount(int num)
 
     if(argCount != num) {
         qCCritical(LOG_CLI).nospace() << "Expected " << num << " arguments, got " << argCount << ". Exiting.";
-        std::exit(-1);
+        std::exit(EXIT_FAILURE);
     }
 }

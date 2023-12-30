@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QUrl>
+#include <QTimer>
 #include <QCoreApplication>
 #include <QCommandLineParser>
 
@@ -12,24 +13,24 @@ class Cli : public QCoreApplication
 
     enum OperationType {
         NoOperation,
-        DefaultAction,
+        List,
+        Update,
         Backup,
         Restore,
         Erase,
-        Wipe,
         Firmware,
         Core2Radio,
         Core2FUS
     };
 
     enum OptionIndex {
-        DebugLevelOption = 0,
-        RepeatNumberOption,
+        DeviceNameOption,
+        DebugLevelOption,
         UpdateChannelOption
     };
 
 public:
-    Cli(int argc, char *argv[]);
+    Cli(int &argc, char *argv[]);
     ~Cli();
 
 private slots:
@@ -45,14 +46,14 @@ private:
     void processArguments();
 
     void processDebugLevelOption();
-    void processRepeatNumberOption();
+    void processDeviceNameOption();
     void processUpdateChannelOption();
 
-    void beginDefaultAction();
+    void beginList();
+    void beginUpdate();
     void beginBackup();
     void beginRestore();
     void beginErase();
-    void beginWipe();
     void beginFirmware();
     void beginCore2Radio();
     void beginCore2FUS();
