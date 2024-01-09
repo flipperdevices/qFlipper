@@ -49,7 +49,8 @@ qmake \
     CONFIG+="release qtquickcompiler" \
     -o Makefile \
     ../$PROJECT.pro \
-    QMAKE_APPLE_DEVICE_ARCHS="x86_64 arm64";
+    QMAKE_APPLE_DEVICE_ARCHS="x86_64 arm64" \
+    -early QMAKE_DEFAULT_LIBDIRS="$(xcrun -show-sdk-path)/usr/lib";
 
 make qmake_all;
 make "-j$(sysctl -n hw.ncpu)" > /dev/null 2>&1;
