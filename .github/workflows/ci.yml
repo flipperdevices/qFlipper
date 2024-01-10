@@ -41,7 +41,7 @@ jobs:
           retention-days: 1
 
   build_mac:
-    runs-on: [self-hosted, ARM64, macOS]
+    runs-on: [self-hosted, ARM64, macOS, qFlipper]
     env:
       MAC_OS_KEYCHAIN_NAME: ${{ secrets.MAC_OS_KEYCHAIN_NAME }}
       MAC_OS_KEYCHAIN_PASSWORD: ${{ secrets.MAC_OS_KEYCHAIN_PASSWORD }}
@@ -61,7 +61,7 @@ jobs:
         run: ./build_mac.sh
 
       - name: Publish application
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: qflipper.dmg
           path: |
@@ -84,7 +84,7 @@ jobs:
         run: .\build_windows.bat
 
       - name: Publish application
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: qFlipperSetup-64bit.exe
           path: |
