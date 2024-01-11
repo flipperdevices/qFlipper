@@ -11,10 +11,10 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", ATTRS{manu
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="303a", ATTRS{idProduct}=="40??", ATTRS{manufacturer}=="Flipper Devices Inc.", TAG+="uaccess"
 '
 
-alias warning_message='printf "You will now be asked for SUDO password.\n"'
+warning_message="You will now be asked for SUDO password.\n"
 
 rules_install() {
-    warning_message
+    printf "$warning_message"
 
     # The danger zone
     if \
@@ -32,7 +32,7 @@ rules_install() {
 
 rules_uninstall() {
     if [ -f "$RULES_FILE" ]; then
-        warning_message
+        printf "$warning_message"
 
         # The danger zone
         if
