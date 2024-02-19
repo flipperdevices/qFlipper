@@ -1,6 +1,8 @@
 name: 'CI'
 
-on: push
+on:
+  push:
+  pull_request:
 
 jobs:
   build_linux:
@@ -16,7 +18,7 @@ jobs:
           submodules: true
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -32,7 +34,7 @@ jobs:
         run: docker run --rm --privileged -v $(pwd):/project qflipper-build:latest /project/build_linux.sh
 
       - name: Publish application
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: qFlipper-x86_64.AppImage
           path: |
@@ -52,7 +54,7 @@ jobs:
       MAC_OS_SIGNING_PASSWORD: ${{ secrets.MAC_OS_SIGNING_PASSWORD }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: true
@@ -75,7 +77,7 @@ jobs:
         SIGNING_TOOL: ${{ secrets.WIN_SIGNING_TOOL }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: true
@@ -100,7 +102,7 @@ jobs:
     steps:
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
