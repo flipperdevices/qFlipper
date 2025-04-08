@@ -31,6 +31,7 @@ public:
 
     // Needed in order to work with QVariant
     bool operator !=(const HardwareInfo &other) const { Q_UNUSED(other) return true; }
+    bool operator ==(const HardwareInfo &other) const { Q_UNUSED(other) return false; }
 };
 
 struct SoftwareInfo {
@@ -50,6 +51,7 @@ public:
 
     // Needed in order to work with QVariant
     bool operator !=(const SoftwareInfo &other) const { Q_UNUSED(other) return true; }
+    bool operator ==(const SoftwareInfo &other) const { Q_UNUSED(other) return false; }
 };
 
 struct StorageInfo {
@@ -67,6 +69,7 @@ public:
 
     // Needed in order to work with QVariant
     bool operator !=(const StorageInfo &other) const { Q_UNUSED(other) return true; }
+    bool operator ==(const StorageInfo &other) const { Q_UNUSED(other) return false; }
 };
 
 struct ProtobufInfo {
