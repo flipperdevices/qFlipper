@@ -11,17 +11,47 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", ATTRS{manu
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="303a", ATTRS{idProduct}=="40??", ATTRS{manufacturer}=="Flipper Devices Inc.", TAG+="uaccess"
 '
 
-alias warning_message='printf "You will now be asked for SUDO password.\n"'
+# Detect a privilege escalation tool. Sets the following globals:
+#   PRIVSEP        — command to prefix elevated operations with ("", "sudo", or "doas")
+#   PRIVSEP_RESET  — command to drop any cached credential ("sudo -K" for sudo, ":" otherwise)
+#
+# Order of preference: already-root, sudo, doas. Returns non-zero if none apply.
+detect_privsep() {
+    if [ "$(id -u)" -eq 0 ]; then
+        PRIVSEP=""
+        PRIVSEP_RESET=":"
+        return 0
+    fi
+    if command -v sudo >/dev/null 2>&1; then
+        PRIVSEP="sudo"
+        PRIVSEP_RESET="sudo -K"
+        return 0
+    fi
+    if command -v doas >/dev/null 2>&1; then
+        PRIVSEP="doas"
+        PRIVSEP_RESET=":"
+        return 0
+    fi
+    printf "Error: installing udev rules requires write access to %s,\nbut neither 'sudo' nor 'doas' is available and you are not root.\nRe-run this script as root, or install one of the above.\n" "$RULES_DIR" >&2
+    return 1
+}
+
+warning_message() {
+    if [ -n "$PRIVSEP" ]; then
+        printf "You may be asked for your %s password.\n" "$PRIVSEP"
+    fi
+}
 
 rules_install() {
+    detect_privsep || exit 1
     warning_message
 
     # The danger zone
     if \
-            sudo -K \
-            && printf "%s\n" "$RULES_TEXT" | sudo dd of="$RULES_FILE" >/dev/null 2>&1 \
-            && sudo udevadm control --reload-rules \
-            && sudo udevadm trigger
+            $PRIVSEP_RESET \
+            && printf "%s\n" "$RULES_TEXT" | $PRIVSEP dd of="$RULES_FILE" >/dev/null 2>&1 \
+            && $PRIVSEP udevadm control --reload-rules \
+            && $PRIVSEP udevadm trigger
     # End of danger zone
     then
         printf "Device rules have been installed successfully. You're good to go!\n"
@@ -32,14 +62,15 @@ rules_install() {
 
 rules_uninstall() {
     if [ -f "$RULES_FILE" ]; then
+        detect_privsep || exit 1
         warning_message
 
         # The danger zone
         if
-                sudo -K \
-                && sudo rm -rf $RULES_FILE \
-                && sudo udevadm control --reload-rules \
-                && sudo udevadm trigger
+                $PRIVSEP_RESET \
+                && $PRIVSEP rm -rf "$RULES_FILE" \
+                && $PRIVSEP udevadm control --reload-rules \
+                && $PRIVSEP udevadm trigger
         # End of danger zone
         then
             printf "Device rules have been uninstalled successfully. Thank you.\n"
