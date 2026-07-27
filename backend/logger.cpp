@@ -77,7 +77,11 @@ void Logger::messageOutput(QtMsgType type, const QMessageLogContext &context, co
 
     globalLogger->m_stderr << timestamp << ' ' << text << Qt::endl;
 
-    const auto filterWithoutCategory = !strcmp(context.category, "default");
+    // context.category can be null: Qt's own internal warnings (qErrnoWarning(), used by
+    // QFileSystemWatcher when inotify_add_watch() fails) reach an installed handler with a
+    // default-constructed QMessageLogContext, and nothing backfills "default" first.
+    const auto filterWithoutCategory =
+        !context.category || !strcmp(context.category, "default");
     const auto filterPretty = type == QtDebugMsg;
 
     if(filterWithoutCategory || filterPretty) {
