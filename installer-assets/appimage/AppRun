@@ -13,6 +13,17 @@ RULES_DIR=${3:-'/etc/udev/rules.d'}
 TARGET_RULES_FILE="$RULES_DIR/$RULES_FILE_NAME"
 SOURCE_RULES_FILE="$THIS_DIR/usr/lib/udev/rules.d/$RULES_FILE_NAME"
 
+# Qt's Wayland backend can create an invisible window in the AppImage.
+# Prefer X11 through XWayland when both sessions are available, unless the
+# caller explicitly selected a Qt platform.
+run_gui() {
+    if [[ -z "${QT_QPA_PLATFORM:-}" && -n "${WAYLAND_DISPLAY:-}" && -n "${DISPLAY:-}" ]]; then
+        export QT_QPA_PLATFORM=xcb
+    fi
+
+    exec "$THIS_DIR/usr/bin/qFlipper" "$@"
+}
+
 SUDO_MESSAGE='You will now be asked for SUDO password.\n'
 
 check_rules_dir() {
@@ -66,15 +77,15 @@ uninstall_udev_rules() {
     then
         printf "Device rules have been uninstalled successfully. Thank you.\n"
     else
-        printf "Something went wrong. Device rules may have not been uninstalled correctly.\n"
+        printf "Something went wrong. Device rules may have not been installed correctly.\n"
     fi
 }
 
 if [[ $# -eq 0 ]]; then
-    "$THIS_DIR"/usr/bin/qFlipper
+    run_gui
 elif [[ "$1" = 'gui' ]]; then
     shift 1
-    "$THIS_DIR"/usr/bin/qFlipper "$@"
+    run_gui "$@"
 elif [[ "$1" = 'cli' ]]; then
     shift 1
     "$THIS_DIR"/usr/bin/qFlipper-cli "$@"
