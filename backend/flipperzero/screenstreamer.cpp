@@ -73,6 +73,13 @@ void ScreenStreamer::setDevice(FlipperZero *device)
 
 void ScreenStreamer::sendInputEvent(InputEvent::Key key, InputEvent::Type type)
 {
+    // The keypad may still emit events (e.g. from its repeat timer) after the
+    // device was disconnected or the RPC session went down
+    if(!m_device || !isEnabled()) {
+        qCDebug(CATEGORY_SCREEN) << "Dropping input event: screen streaming is not active";
+        return;
+    }
+
     auto *operation = m_device->rpc()->guiSendInput(key, type);
 
     connect(operation, &AbstractOperation::finished, this, [=]() {
