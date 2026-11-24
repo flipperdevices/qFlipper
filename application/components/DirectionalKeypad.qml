@@ -166,6 +166,27 @@ Item {
         event.accepted = true;
     }
 
+    function releaseAll() {
+        const buttons = [buttonUp, buttonDown, buttonLeft, buttonRight, buttonOk, buttonBack];
+
+        for(let i = 0; i < buttons.length; ++i) {
+            buttons[i].forceRelease();
+        }
+    }
+
+    // A key release that goes to another window never reaches Keys.onReleased
+    onEnabledChanged: if(!enabled) releaseAll()
+    onVisibleChanged: if(!visible) releaseAll()
+
+    Connections {
+        target: Qt.application
+        function onStateChanged() {
+            if(Qt.application.state !== Qt.ApplicationActive) {
+                control.releaseAll();
+            }
+        }
+    }
+
     function findButton(key) {
         switch(key) {
         case Qt.Key_Left:
